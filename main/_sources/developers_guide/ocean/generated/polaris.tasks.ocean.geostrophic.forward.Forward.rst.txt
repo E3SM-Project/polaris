@@ -36,6 +36,7 @@
       ~Forward.set_resources
       ~Forward.set_shared_config
       ~Forward.setup
+      ~Forward.update_namelist_eos
       ~Forward.update_namelist_pio
       ~Forward.validate_baselines
    

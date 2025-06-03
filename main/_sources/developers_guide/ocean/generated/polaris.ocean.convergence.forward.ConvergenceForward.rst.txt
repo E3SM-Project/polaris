@@ -36,6 +36,7 @@
       ~ConvergenceForward.set_resources
       ~ConvergenceForward.set_shared_config
       ~ConvergenceForward.setup
+      ~ConvergenceForward.update_namelist_eos
       ~ConvergenceForward.update_namelist_pio
       ~ConvergenceForward.validate_baselines
    

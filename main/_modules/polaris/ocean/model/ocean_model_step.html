@@ -151,6 +151,7 @@
         <span class="n">cached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">yaml</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">update_pio</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">update_eos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">make_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">mesh_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">partition_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -202,6 +203,10 @@
 <span class="sd">            stride between them is consistent with the number of nodes and</span>
 <span class="sd">            cores (one PIO task per node).</span>
 
+<span class="sd">        update_eos : bool, optional</span>
+<span class="sd">            Whether to modify the namelist so the equation of state is</span>
+<span class="sd">            consistent with config options.</span>
+
 <span class="sd">        make_graph : bool, optional</span>
 <span class="sd">            Whether to make a graph file from the given MPAS mesh file.  If</span>
 <span class="sd">            ``True``, ``mesh_filename`` must be given.</span>
@@ -242,7 +247,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span> <span class="o">=</span> <span class="n">ntasks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">graph_target</span> <span class="o">=</span> <span class="n">graph_target</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph_target</span> <span class="o">=</span> <span class="n">graph_target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_eos</span> <span class="o">=</span> <span class="n">update_eos</span></div>
 
 
 <div class="viewcode-block" id="OceanModelStep.setup">
@@ -279,6 +285,22 @@
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add model config options, namelist, streams and yaml files using config</span>
+<span class="sd">        options or template replacements that need to be set both during step</span>
+<span class="sd">        setup and at runtime</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        at_setup : bool</span>
+<span class="sd">            Whether this method is being run during setup of the step, as</span>
+<span class="sd">            opposed to at runtime</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_eos</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_namelist_eos</span><span class="p">()</span>
 
 <div class="viewcode-block" id="OceanModelStep.constrain_resources">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.constrain_resources.html#polaris.ocean.model.OceanModelStep.constrain_resources">[docs]</a>
@@ -403,6 +425,30 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s1">&#39;Input streams files are not supported in OceanModelStep&#39;</span>
         <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_namelist_eos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Modify the namelist to make it consistent with eos config options</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+
+        <span class="n">eos_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_type&#39;</span><span class="p">)</span>
+        <span class="n">eos_linear_alpha</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_linear_alpha&#39;</span><span class="p">)</span>
+        <span class="n">eos_linear_beta</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_linear_beta&#39;</span><span class="p">)</span>
+        <span class="n">eos_linear_rhoref</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_linear_rhoref&#39;</span><span class="p">)</span>
+        <span class="n">eos_linear_Tref</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_linear_Tref&#39;</span><span class="p">)</span>
+        <span class="n">eos_linear_Sref</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_linear_Sref&#39;</span><span class="p">)</span>
+
+        <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;config_eos_type&#39;</span><span class="p">:</span> <span class="n">eos_type</span><span class="p">,</span>
+            <span class="s1">&#39;config_eos_linear_alpha&#39;</span><span class="p">:</span> <span class="n">eos_linear_alpha</span><span class="p">,</span>
+            <span class="s1">&#39;config_eos_linear_beta&#39;</span><span class="p">:</span> <span class="n">eos_linear_beta</span><span class="p">,</span>
+            <span class="s1">&#39;config_eos_linear_rhoref&#39;</span><span class="p">:</span> <span class="n">eos_linear_rhoref</span><span class="p">,</span>
+            <span class="s1">&#39;config_eos_linear_Tref&#39;</span><span class="p">:</span> <span class="n">eos_linear_Tref</span><span class="p">,</span>
+            <span class="s1">&#39;config_eos_linear_Sref&#39;</span><span class="p">:</span> <span class="n">eos_linear_Sref</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">replacements</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_update_ntasks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

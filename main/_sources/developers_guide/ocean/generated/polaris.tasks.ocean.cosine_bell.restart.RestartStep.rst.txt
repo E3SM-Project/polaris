@@ -36,6 +36,7 @@
       ~RestartStep.set_resources
       ~RestartStep.set_shared_config
       ~RestartStep.setup
+      ~RestartStep.update_namelist_eos
       ~RestartStep.update_namelist_pio
       ~RestartStep.validate_baselines
    

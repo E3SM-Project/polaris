@@ -16,6 +16,7 @@ inertial_gravity_wave
 internal_wave
 manufactured_solution
 nondivergent_2d
+overflow
 rotation_2d
 single_column
 ```

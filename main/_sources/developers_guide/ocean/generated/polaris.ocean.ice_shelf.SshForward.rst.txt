@@ -36,6 +36,7 @@
       ~SshForward.set_resources
       ~SshForward.set_shared_config
       ~SshForward.setup
+      ~SshForward.update_namelist_eos
       ~SshForward.update_namelist_pio
       ~SshForward.validate_baselines
    

@@ -36,6 +36,7 @@
       ~SphericalConvergenceForward.set_resources
       ~SphericalConvergenceForward.set_shared_config
       ~SphericalConvergenceForward.setup
+      ~SphericalConvergenceForward.update_namelist_eos
       ~SphericalConvergenceForward.update_namelist_pio
       ~SphericalConvergenceForward.validate_baselines
    
