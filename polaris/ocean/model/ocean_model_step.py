@@ -39,6 +39,7 @@ class OceanModelStep(ModelStep):
         cached=False,
         yaml=None,
         update_pio=True,
+        update_eos=False,
         make_graph=False,
         mesh_filename=None,
         partition_graph=True,
@@ -90,6 +91,10 @@ class OceanModelStep(ModelStep):
             stride between them is consistent with the number of nodes and
             cores (one PIO task per node).
 
+        update_eos : bool, optional
+            Whether to modify the namelist so the equation of state is
+            consistent with config options.
+
         make_graph : bool, optional
             Whether to make a graph file from the given MPAS mesh file.  If
             ``True``, ``mesh_filename`` must be given.
@@ -131,6 +136,7 @@ class OceanModelStep(ModelStep):
 
         self.config_map: Union[None, List[Dict[str, Dict[str, str]]]] = None
         self.graph_target = graph_target
+        self.update_eos = update_eos
 
     def setup(self):
         """
@@ -163,6 +169,22 @@ class OceanModelStep(ModelStep):
             self._update_ntasks()
 
         super().setup()
+
+    def dynamic_model_config(self, at_setup):
+        """
+        Add model config options, namelist, streams and yaml files using config
+        options or template replacements that need to be set both during step
+        setup and at runtime
+
+        Parameters
+        ----------
+        at_setup : bool
+            Whether this method is being run during setup of the step, as
+            opposed to at runtime
+        """
+        super().dynamic_model_config(at_setup)
+        if self.update_eos:
+            self.update_namelist_eos()
 
     def constrain_resources(self, available_cores):
         """
@@ -275,6 +297,30 @@ class OceanModelStep(ModelStep):
         raise ValueError(
             'Input streams files are not supported in OceanModelStep'
         )
+
+    def update_namelist_eos(self):
+        """
+        Modify the namelist to make it consistent with eos config options
+        """
+        config = self.config
+
+        eos_type = config.get('ocean', 'eos_type')
+        eos_linear_alpha = config.getfloat('ocean', 'eos_linear_alpha')
+        eos_linear_beta = config.getfloat('ocean', 'eos_linear_beta')
+        eos_linear_rhoref = config.getfloat('ocean', 'eos_linear_rhoref')
+        eos_linear_Tref = config.getfloat('ocean', 'eos_linear_Tref')
+        eos_linear_Sref = config.getfloat('ocean', 'eos_linear_Sref')
+
+        replacements = {
+            'config_eos_type': eos_type,
+            'config_eos_linear_alpha': eos_linear_alpha,
+            'config_eos_linear_beta': eos_linear_beta,
+            'config_eos_linear_rhoref': eos_linear_rhoref,
+            'config_eos_linear_Tref': eos_linear_Tref,
+            'config_eos_linear_Sref': eos_linear_Sref,
+        }
+
+        self.add_model_config_options(options=replacements)
 
     def _update_ntasks(self):
         """
