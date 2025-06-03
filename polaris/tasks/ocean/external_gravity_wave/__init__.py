@@ -37,7 +37,7 @@ def add_external_gravity_wave_tasks(component):
         for dt_type in ['global', 'local']:
             egw = 'external_gravity_wave'
             filepath = (
-                f'spherical/{prefix}/{egw}_{dt_type}_time_step/'
+                f'spherical/{prefix}/{egw}/{dt_type}_time_step/'
                 f'egw_{dt_type}_time_step.cfg'
             )
             config = PolarisConfigParser(filepath=filepath)
@@ -114,7 +114,7 @@ class ExternalGravityWave(Task):
         """
         egw = 'external_gravity_wave'
         subdir = (
-            f'spherical/{prefix}/{egw}_{dt_type}_time_step/'
+            f'spherical/{prefix}/{egw}/{dt_type}_time_step/'
             f'convergence_{refinement}'
         )
         name = f'{prefix}_{egw}_{dt_type}_time_step_convergence_{refinement}'
@@ -181,7 +181,7 @@ class ExternalGravityWave(Task):
         timesteps = list()
 
         case_dir = (
-            f'spherical/{prefix}/external_gravity_wave_{dt_type}_time_step'
+            f'spherical/{prefix}/external_gravity_wave/{dt_type}_time_step'
         )
 
         resolution = get_resolution_for_task(
@@ -193,7 +193,7 @@ class ExternalGravityWave(Task):
         )
 
         name = f'{prefix}_init_{mesh_name}'
-        subdir = f'{case_dir}/init/{mesh_name}'
+        subdir = f'spherical/{prefix}/external_gravity_wave/init/{mesh_name}'
         if subdir in component.steps:
             init_step = component.steps[subdir]
         else:
