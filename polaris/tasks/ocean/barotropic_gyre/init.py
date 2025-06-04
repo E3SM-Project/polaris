@@ -56,7 +56,7 @@ class Init(Step):
         # calculate the boundary layer thickness for specified parameters
         m = (np.pi * 2) / np.sqrt(3) * (nu_2 / beta) ** (1.0 / 3.0)
         # ensure the boundary layer is at least 3 gridcells wide
-        if m >= 3.0 * resolution * 1.0e3:
+        if m <= 3.0 * resolution * 1.0e3:
             raise ValueError(
                 f'Resolution {resolution} km is too coarse to '
                 'properly resolve the lateral boundary layer '
