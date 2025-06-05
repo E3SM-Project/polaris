@@ -29,7 +29,7 @@ to generate a reference solution. The result of the `analysis` step of each
 task is a plot like the following showing convergence
 as a function of the cell size and/or the time step:
 
-```{image} images/external_graivty_wave_convergence.png
+```{image} images/external_gravity_wave_convergence.png
 :align: center
 :width: 500 px
 ```
