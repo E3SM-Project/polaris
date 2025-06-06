@@ -198,6 +198,12 @@
     <span class="k">if</span> <span class="n">time_integrator</span> <span class="o">==</span> <span class="s1">&#39;RK4&#39;</span><span class="p">:</span>
         <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;rk4_dt_per_km&#39;</span><span class="p">)</span>
         <span class="n">btr_timestep</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">elif</span> <span class="n">time_integrator</span> <span class="o">==</span> <span class="s1">&#39;LTS&#39;</span><span class="p">:</span>
+        <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lts_dt_per_km&#39;</span><span class="p">)</span>
+        <span class="n">btr_timestep</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">elif</span> <span class="n">time_integrator</span> <span class="o">==</span> <span class="s1">&#39;FB_LTS&#39;</span><span class="p">:</span>
+        <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;fblts_dt_per_km&#39;</span><span class="p">)</span>
+        <span class="n">btr_timestep</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;split_dt_per_km&#39;</span><span class="p">)</span>
         <span class="n">btr_dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;btr_dt_per_km&#39;</span><span class="p">)</span>
