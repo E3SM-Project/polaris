@@ -430,3 +430,97 @@ call {py:func}`polaris.model_step.make_graph_file()` to produce a graph file
 from an MPAS mesh file.  Optionally, you can provide the name of an MPAS field
 on cells in the mesh file that gives different weight to different cells
 (`weight_field`) in the partitioning process.
+
+## Detailed Documentation: polaris.namelist, polaris.streams, and polaris.yaml
+
+### `polaris.namelist`
+
+This module provides utilities for reading, parsing, updating, and writing
+MPAS-style namelist files. It is used to manage namelist options for E3SM
+components.
+
+**Key Functions:**
+- `parse_replacements(package, namelist)`: Reads a namelist file from a
+  package and returns a dictionary of option replacements.
+- `ingest(defaults_filename)`: Reads a full namelist file and returns a nested
+  dictionary of records and options.
+- `replace(namelist, replacements)`: Applies replacements to a namelist
+  dictionary.
+- `write(namelist, filename)`: Writes a nested namelist dictionary to a file.
+
+**Example Usage:**
+```python
+from polaris import namelist
+
+replacements = namelist.parse_replacements('my_package', 'namelist.forward')
+namelist_dict = namelist.ingest('namelist.defaults')
+updated = namelist.replace(namelist_dict, replacements)
+namelist.write(updated, 'namelist.input')
+```
+
+### `polaris.streams`
+
+This module provides tools for reading, updating, and writing MPAS streams XML
+files, including support for Jinja2 templating.
+
+**Key Functions:**
+- `read(package, streams_filename, tree=None, replacements=None)`: Reads a
+  streams XML file (optionally as a Jinja2 template) and returns an XML tree.
+- `write(streams, out_filename)`: Writes a streams XML tree to a file.
+- `update_tree(tree, new_tree)`: Updates an existing streams tree with new
+  streams.
+- `set_default_io_type(tree, io_type='pnetcdf,cdf5')`: Sets the `io_type`
+  attribute for output streams if not already set.
+
+**Example Usage:**
+```python
+from polaris import streams
+
+tree = streams.read('my_package', 'streams.forward')
+streams.write(tree, 'streams.xml')
+```
+
+### `polaris.yaml`
+
+This module provides a class for reading, writing, and updating YAML
+configuration files for E3SM components, including support for Jinja2
+templating and conversion between YAML and MPAS namelist/streams formats.
+
+**Key Classes and Functions:**
+- `PolarisYaml`: Main class for managing YAML configs.
+  - `PolarisYaml.read(filename, package=None, replacements=None, ...)`: Reads
+    a YAML file (optionally as a Jinja2 template).
+  - `PolarisYaml.update(configs=None, options=None, quiet=True)`: Updates the
+    config with new options.
+  - `PolarisYaml.write(filename)`: Writes the config to a YAML file.
+- `mpas_namelist_and_streams_to_yaml(...)`: Converts MPAS namelist and streams
+  files to a YAML config.
+
+**Example Usage:**
+```python
+from polaris.yaml import PolarisYaml
+
+yaml_cfg = PolarisYaml.read('config.yaml')
+yaml_cfg.update(options={'config_dt': '00:10:00'})
+yaml_cfg.write('updated_config.yaml')
+```
+
+**See also:**
+Refer to the API documentation for each module for a full list of functions
+and classes:
+* {py:func}`polaris.namelist.parse_replacements`
+* {py:func}`polaris.namelist.ingest`
+* {py:func}`polaris.namelist.replace`
+* {py:func}`polaris.namelist.write`
+* {py:func}`polaris.streams.read`
+* {py:func}`polaris.streams.write`
+* {py:func}`polaris.streams.update_defaults`
+* {py:func}`polaris.streams.update_tree`
+* {py:func}`polaris.streams.set_default_io_type`
+* {py:class}`polaris.yaml.PolarisYaml`
+* {py:meth}`polaris.yaml.PolarisYaml.read`
+* {py:meth}`polaris.yaml.PolarisYaml.update`
+* {py:meth}`polaris.yaml.PolarisYaml.write`
+* {py:func}`polaris.yaml.mpas_namelist_and_streams_to_yaml`
+* {py:func}`polaris.yaml.yaml_to_mpas_streams`
+* {py:func}`polaris.yaml.main_mpas_to_yaml`
