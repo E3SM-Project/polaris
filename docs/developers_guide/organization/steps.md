@@ -20,7 +20,7 @@ Some steps are shared between multiple tasks to avoid redundant computation and
 to ensure consistency of results. Shared steps are created at the highest
 directory level common to all tasks that use them. To facilitate this, the
 `Component` class provides the method
-{py:method}`polaris.Component.get_or_create_shared_step()`.
+{py:meth}`polaris.Component.get_or_create_shared_step()`.
 
 This function checks if a step already exists in a component's `steps`
 dictionary under a given subdirectory. If it does, it returns the existing

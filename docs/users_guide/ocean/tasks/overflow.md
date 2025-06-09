@@ -3,9 +3,7 @@
 # overflow
 
 The ``ocean/overflow`` test group induces a density current flowing down a
-continental slope and includes two test cases. 
-
-(ocean-category-of-task-task-name)=
+continental slope and includes two test cases.
 
 ## suppported models
 
@@ -31,7 +29,7 @@ The mesh is planar and the resolution is specified by config option
 `overflow:resolution`, which defaults to 1 km.
 
 The horizontal dimensions of the domain are set by config options
-`overflow:lx` and `overflow:ly`, defaulting to 200 km by 40 km. 
+`overflow:lx` and `overflow:ly`, defaulting to 200 km by 40 km.
 
 The domain is periodic on the zonal boundaries and solid on the meridional
 boundaries.
