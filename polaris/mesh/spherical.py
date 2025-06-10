@@ -3,9 +3,10 @@ import cartopy.crs as ccrs
 import jigsawpy
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray
+import xarray as xr
 from jigsawpy.savejig import savejig
 from mpas_tools.cime.constants import constants
+from mpas_tools.io import write_netcdf
 from mpas_tools.logging import check_call
 from mpas_tools.mesh.creation.jigsaw_to_netcdf import jigsaw_to_netcdf
 from mpas_tools.ocean.inject_meshDensity import inject_spherical_meshDensity
@@ -70,7 +71,7 @@ class SphericalBaseStep(Step):
             m x n array of cell width in km
         """
         section = self.config['spherical_mesh']
-        da = xarray.DataArray(
+        da = xr.DataArray(
             cell_width,
             dims=['lat', 'lon'],
             coords={'lat': lat, 'lon': lon},
@@ -118,12 +119,17 @@ class SphericalBaseStep(Step):
 
         logger.info('Convert from triangles to MPAS mesh')
 
-        args = ['MpasMeshConverter.x', 'mesh_triangles.nc', mpas_mesh_filename]
+        tmp_mesh_filename = 'mpas_mesh_netcdf4.nc'
+        args = ['MpasMeshConverter.x', 'mesh_triangles.nc', tmp_mesh_filename]
         check_call(args=args, logger=logger)
+
+        # open the mesh and rewrite it in the desired NetCDF format
+        ds_mesh = xr.open_dataset(tmp_mesh_filename)
+        write_netcdf(ds_mesh, mpas_mesh_filename)
 
         if section.getboolean('add_mesh_density'):
             logger.info('Add meshDensity into the mesh file')
-            ds = xarray.open_dataset('cellWidthVsLatLon.nc')
+            ds = xr.open_dataset('cellWidthVsLatLon.nc')
             inject_spherical_meshDensity(
                 ds.cellWidth.values,
                 ds.lon.values,

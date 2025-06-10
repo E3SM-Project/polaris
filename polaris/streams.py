@@ -197,3 +197,18 @@ def _update_element(new_child, elements):
     if not found:
         # add a deep copy of the element
         elements.append(deepcopy(new_child))
+
+
+def set_default_io_type(tree, io_type='pnetcdf,cdf5'):
+    """
+    Set io_type attribute for all <stream> and <immutable_stream>
+    elements if not already set, except for immutable_stream with name 'mesh'.
+    """
+    streams = next(tree.iter('streams'))
+    all_streams = streams.findall('stream') + streams.findall(
+        'immutable_stream'
+    )
+    for stream in all_streams:
+        stream_type = stream.attrib.get('type')
+        if 'io_type' not in stream.attrib and 'output' in stream_type:
+            stream.attrib['io_type'] = io_type

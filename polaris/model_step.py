@@ -699,6 +699,9 @@ class ModelStep(Step):
                     'Trying to write a streams file but no '
                     'streams XML tree was created.'
                 )
+            io_format = self.config.get('io', 'format')
+            if io_format == 'NETCDF3_64BIT_DATA':
+                polaris.streams.set_default_io_type(self._streams_tree)
             polaris.streams.write(self._streams_tree, streams_filename)
         # set these back to None because we don't need to keep them around
         # and the streams tree can't be pickled
