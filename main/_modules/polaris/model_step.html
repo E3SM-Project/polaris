@@ -854,6 +854,9 @@
                     <span class="s1">&#39;Trying to write a streams file but no &#39;</span>
                     <span class="s1">&#39;streams XML tree was created.&#39;</span>
                 <span class="p">)</span>
+            <span class="n">io_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;io&#39;</span><span class="p">,</span> <span class="s1">&#39;format&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">io_format</span> <span class="o">==</span> <span class="s1">&#39;NETCDF3_64BIT_DATA&#39;</span><span class="p">:</span>
+                <span class="n">polaris</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">set_default_io_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_streams_tree</span><span class="p">)</span>
             <span class="n">polaris</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_streams_tree</span><span class="p">,</span> <span class="n">streams_filename</span><span class="p">)</span>
         <span class="c1"># set these back to None because we don&#39;t need to keep them around</span>
         <span class="c1"># and the streams tree can&#39;t be pickled</span>

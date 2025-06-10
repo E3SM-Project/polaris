@@ -317,6 +317,21 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
         <span class="c1"># add a deep copy of the element</span>
         <span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">new_child</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">set_default_io_type</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">io_type</span><span class="o">=</span><span class="s1">&#39;pnetcdf,cdf5&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set io_type attribute for all &lt;stream&gt; and &lt;immutable_stream&gt;</span>
+<span class="sd">    elements if not already set, except for immutable_stream with name &#39;mesh&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">streams</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">))</span>
+    <span class="n">all_streams</span> <span class="o">=</span> <span class="n">streams</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;stream&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">streams</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
+        <span class="s1">&#39;immutable_stream&#39;</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="n">all_streams</span><span class="p">:</span>
+        <span class="n">stream_type</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;io_type&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stream</span><span class="o">.</span><span class="n">attrib</span> <span class="ow">and</span> <span class="s1">&#39;output&#39;</span> <span class="ow">in</span> <span class="n">stream_type</span><span class="p">:</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;io_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">io_type</span>
 </pre></div>
 
            </div>

@@ -4,8 +4,6 @@
 
 Description of common characteristics of the tasks.
 
-(ocean-category-of-task-task-name)=
-
 ## suppported models
 
 This section should have one of the following lines, as appropriate, or if
@@ -17,6 +15,8 @@ These tasks support both MPAS-Ocean and Omega.
 These tasks support only MPAS-Ocean.
 
 These tasks support only Omega.
+
+(ocean-category-of-task-task-name)=
 
 ## task_name
 

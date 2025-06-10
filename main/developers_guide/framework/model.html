@@ -80,6 +80,12 @@
 <li class="toctree-l3"><a class="reference internal" href="#partitioning-the-mesh">Partitioning the mesh</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#updating-pio-namelist-options">Updating PIO namelist options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#making-a-graph-file">Making a graph file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#detailed-documentation-polaris-namelist-polaris-streams-and-polaris-yaml">Detailed Documentation: polaris.namelist, polaris.streams, and polaris.yaml</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#polaris-namelist"><code class="docutils literal notranslate"><span class="pre">polaris.namelist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#polaris-streams"><code class="docutils literal notranslate"><span class="pre">polaris.streams</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#polaris-yaml"><code class="docutils literal notranslate"><span class="pre">polaris.yaml</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="parallel.html">Parallel</a></li>
@@ -515,6 +521,105 @@ call <a class="reference internal" href="../generated/polaris.model_step.make_gr
 from an MPAS mesh file.  Optionally, you can provide the name of an MPAS field
 on cells in the mesh file that gives different weight to different cells
 (<code class="docutils literal notranslate"><span class="pre">weight_field</span></code>) in the partitioning process.</p>
+</section>
+<section id="detailed-documentation-polaris-namelist-polaris-streams-and-polaris-yaml">
+<h2>Detailed Documentation: polaris.namelist, polaris.streams, and polaris.yaml<a class="headerlink" href="#detailed-documentation-polaris-namelist-polaris-streams-and-polaris-yaml" title="Link to this heading"></a></h2>
+<section id="polaris-namelist">
+<h3><code class="docutils literal notranslate"><span class="pre">polaris.namelist</span></code><a class="headerlink" href="#polaris-namelist" title="Link to this heading"></a></h3>
+<p>This module provides utilities for reading, parsing, updating, and writing
+MPAS-style namelist files. It is used to manage namelist options for E3SM
+components.</p>
+<p><strong>Key Functions:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">parse_replacements(package,</span> <span class="pre">namelist)</span></code>: Reads a namelist file from a
+package and returns a dictionary of option replacements.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ingest(defaults_filename)</span></code>: Reads a full namelist file and returns a nested
+dictionary of records and options.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">replace(namelist,</span> <span class="pre">replacements)</span></code>: Applies replacements to a namelist
+dictionary.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write(namelist,</span> <span class="pre">filename)</span></code>: Writes a nested namelist dictionary to a file.</p></li>
+</ul>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">namelist</span>
+
+<span class="n">replacements</span> <span class="o">=</span> <span class="n">namelist</span><span class="o">.</span><span class="n">parse_replacements</span><span class="p">(</span><span class="s1">&#39;my_package&#39;</span><span class="p">,</span> <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
+<span class="n">namelist_dict</span> <span class="o">=</span> <span class="n">namelist</span><span class="o">.</span><span class="n">ingest</span><span class="p">(</span><span class="s1">&#39;namelist.defaults&#39;</span><span class="p">)</span>
+<span class="n">updated</span> <span class="o">=</span> <span class="n">namelist</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">namelist_dict</span><span class="p">,</span> <span class="n">replacements</span><span class="p">)</span>
+<span class="n">namelist</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">updated</span><span class="p">,</span> <span class="s1">&#39;namelist.input&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="polaris-streams">
+<h3><code class="docutils literal notranslate"><span class="pre">polaris.streams</span></code><a class="headerlink" href="#polaris-streams" title="Link to this heading"></a></h3>
+<p>This module provides tools for reading, updating, and writing MPAS streams XML
+files, including support for Jinja2 templating.</p>
+<p><strong>Key Functions:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">read(package,</span> <span class="pre">streams_filename,</span> <span class="pre">tree=None,</span> <span class="pre">replacements=None)</span></code>: Reads a
+streams XML file (optionally as a Jinja2 template) and returns an XML tree.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write(streams,</span> <span class="pre">out_filename)</span></code>: Writes a streams XML tree to a file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">update_tree(tree,</span> <span class="pre">new_tree)</span></code>: Updates an existing streams tree with new
+streams.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_default_io_type(tree,</span> <span class="pre">io_type='pnetcdf,cdf5')</span></code>: Sets the <code class="docutils literal notranslate"><span class="pre">io_type</span></code>
+attribute for output streams if not already set.</p></li>
+</ul>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">streams</span>
+
+<span class="n">tree</span> <span class="o">=</span> <span class="n">streams</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;my_package&#39;</span><span class="p">,</span> <span class="s1">&#39;streams.forward&#39;</span><span class="p">)</span>
+<span class="n">streams</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s1">&#39;streams.xml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="polaris-yaml">
+<h3><code class="docutils literal notranslate"><span class="pre">polaris.yaml</span></code><a class="headerlink" href="#polaris-yaml" title="Link to this heading"></a></h3>
+<p>This module provides a class for reading, writing, and updating YAML
+configuration files for E3SM components, including support for Jinja2
+templating and conversion between YAML and MPAS namelist/streams formats.</p>
+<p><strong>Key Classes and Functions:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PolarisYaml</span></code>: Main class for managing YAML configs.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">PolarisYaml.read(filename,</span> <span class="pre">package=None,</span> <span class="pre">replacements=None,</span> <span class="pre">...)</span></code>: Reads
+a YAML file (optionally as a Jinja2 template).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PolarisYaml.update(configs=None,</span> <span class="pre">options=None,</span> <span class="pre">quiet=True)</span></code>: Updates the
+config with new options.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PolarisYaml.write(filename)</span></code>: Writes the config to a YAML file.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mpas_namelist_and_streams_to_yaml(...)</span></code>: Converts MPAS namelist and streams
+files to a YAML config.</p></li>
+</ul>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisYaml</span>
+
+<span class="n">yaml_cfg</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;config.yaml&#39;</span><span class="p">)</span>
+<span class="n">yaml_cfg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;config_dt&#39;</span><span class="p">:</span> <span class="s1">&#39;00:10:00&#39;</span><span class="p">})</span>
+<span class="n">yaml_cfg</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;updated_config.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>See also:</strong>
+Refer to the API documentation for each module for a full list of functions
+and classes:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../generated/polaris.namelist.parse_replacements.html#polaris.namelist.parse_replacements" title="polaris.namelist.parse_replacements"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.namelist.parse_replacements()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.namelist.ingest.html#polaris.namelist.ingest" title="polaris.namelist.ingest"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.namelist.ingest()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.namelist.replace.html#polaris.namelist.replace" title="polaris.namelist.replace"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.namelist.replace()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.namelist.write.html#polaris.namelist.write" title="polaris.namelist.write"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.namelist.write()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.streams.read.html#polaris.streams.read" title="polaris.streams.read"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.streams.read()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.streams.write.html#polaris.streams.write" title="polaris.streams.write"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.streams.write()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.streams.update_defaults.html#polaris.streams.update_defaults" title="polaris.streams.update_defaults"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.streams.update_defaults()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.streams.update_tree.html#polaris.streams.update_tree" title="polaris.streams.update_tree"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.streams.update_tree()</span></code></a></p></li>
+<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.streams.set_default_io_type()</span></code></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.yaml.PolarisYaml.html#polaris.yaml.PolarisYaml" title="polaris.yaml.PolarisYaml"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.yaml.PolarisYaml</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.yaml.PolarisYaml.read.html#polaris.yaml.PolarisYaml.read" title="polaris.yaml.PolarisYaml.read"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.yaml.PolarisYaml.read()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.yaml.PolarisYaml.update.html#polaris.yaml.PolarisYaml.update" title="polaris.yaml.PolarisYaml.update"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.yaml.PolarisYaml.update()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.yaml.PolarisYaml.write.html#polaris.yaml.PolarisYaml.write" title="polaris.yaml.PolarisYaml.write"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.yaml.PolarisYaml.write()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.yaml.mpas_namelist_and_streams_to_yaml.html#polaris.yaml.mpas_namelist_and_streams_to_yaml" title="polaris.yaml.mpas_namelist_and_streams_to_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.yaml.mpas_namelist_and_streams_to_yaml()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.yaml.yaml_to_mpas_streams.html#polaris.yaml.yaml_to_mpas_streams" title="polaris.yaml.yaml_to_mpas_streams"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.yaml.yaml_to_mpas_streams()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.yaml.main_mpas_to_yaml.html#polaris.yaml.main_mpas_to_yaml" title="polaris.yaml.main_mpas_to_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.yaml.main_mpas_to_yaml()</span></code></a></p></li>
+</ul>
+</section>
 </section>
 </section>
 
