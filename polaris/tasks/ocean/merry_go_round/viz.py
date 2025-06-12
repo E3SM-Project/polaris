@@ -2,6 +2,8 @@ import cmocean  # noqa: F401
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
+import xarray as xr
+from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris.mpas import time_since_start
 from polaris.ocean.convergence import (
@@ -168,21 +170,16 @@ class Viz(OceanIOStep):
                 f'output_r{refinement_factor:02g}.nc', decode_times=False
             )
 
-            nx = ds_mesh.sizes['nCells'] // 4
+            dz = ds_init.layerThickness.mean().values
 
-            zMid = ds.refZMid.values
-            xCell = ds_mesh.xCell.values
+            x_min = ds_mesh.xVertex.min().values
+            x_max = ds_mesh.xVertex.max().values
+            y_mid = ds_mesh.yCell.median().values
 
-            dz = zMid[0] - zMid[1]
-            dx = xCell[1] - xCell[0]
-
-            # lower left corner of quad cell
-            z = np.insert(zMid - dz / 2.0, [0], zMid[0] - dz / 2)
-            x = np.insert(xCell[0:nx] + dx / 2.0, 0, dx)
-            # mesh the coordinate data
-            X, Z = np.meshgrid(x, z)
-
-            tracer_exact = ds_init.tracer1.isel(Time=0, nCells=slice(0, nx))
+            x = xr.DataArray(
+                data=np.linspace(x_min, x_max, 2), dims=('nPoints',)
+            )
+            y = y_mid * xr.ones_like(x)
 
             if model == 'mpas-o':
                 dt = time_since_start(ds.xtime.values)
@@ -191,9 +188,19 @@ class Viz(OceanIOStep):
                 dt = ds.Time.values
             tidx = np.argmin(np.abs(dt - time))
 
-            tracer_model = ds.tracer1.isel(Time=tidx, nCells=slice(0, nx))
+            ds_transect = compute_transect(
+                x=x,
+                y=y,
+                ds_horiz_mesh=ds_mesh,
+                layer_thickness=ds_init.layerThickness.isel(Time=0),
+                bottom_depth=ds_init.bottomDepth,
+                min_level_cell=ds_init.minLevelCell - 1,
+                max_level_cell=ds_init.maxLevelCell - 1,
+                spherical=False,
+            )
 
-            # Comparison plots
+            tracer_exact = ds_init.tracer1.isel(Time=0)
+            tracer_model = ds.tracer1.isel(Time=tidx)
             tracer_error = tracer_model - tracer_exact
 
             # compute norm bounds using the coarsest simulation
@@ -207,22 +214,34 @@ class Viz(OceanIOStep):
                     vmin=-error_range, vmax=error_range
                 )
 
-            c0 = axes[i, 0].pcolormesh(
-                X,
-                Z,
-                tracer_model.values.T,
+            plot_transect(
+                ds_transect=ds_transect,
+                mpas_field=tracer_model,
+                ax=axes[i, 0],
+                vmin=tracer_norm.vmin,
+                vmax=tracer_norm.vmax,
                 cmap='cmo.thermal',
-                norm=tracer_norm,
+                color_start_and_end=False,
             )
-            c1 = axes[i, 1].pcolormesh(
-                X,
-                Z,
-                tracer_exact.values.T,
+
+            plot_transect(
+                ds_transect=ds_transect,
+                mpas_field=tracer_exact,
+                ax=axes[i, 1],
+                vmin=data_min,
+                vmax=data_max,
                 cmap='cmo.thermal',
-                norm=tracer_norm,
+                color_start_and_end=False,
             )
-            c2 = axes[i, 2].pcolormesh(
-                X, Z, tracer_error.values.T, cmap='cmo.curl', norm=error_norm
+
+            plot_transect(
+                ds_transect=ds_transect,
+                mpas_field=tracer_error,
+                ax=axes[i, 2],
+                vmin=error_norm.vmin,
+                vmax=error_norm.vmax,
+                cmap='cmo.curl',
+                color_start_and_end=False,
             )
 
             axes[i, 0].annotate(
@@ -240,14 +259,28 @@ class Viz(OceanIOStep):
                 va='center',
             )
 
+            axes[i, 1].set_ylabel(None)
+            axes[i, 2].set_ylabel(None)
+
+            if i != 2:
+                axes[i, 0].set_xlabel(None)
+                axes[i, 1].set_xlabel(None)
+                axes[i, 2].set_xlabel(None)
+
         fig.colorbar(
-            c0, label='Numerical solution', ax=axes[:, 0], location='top'
+            plt.cm.ScalarMappable(norm=tracer_norm, cmap='cmo.thermal'),
+            label='Numerical solution',
+            ax=axes[:, 0],
+            location='top',
         )
         fig.colorbar(
-            c1, label='Analytical solution', ax=axes[:, 1], location='top'
+            plt.cm.ScalarMappable(norm=tracer_norm, cmap='cmo.thermal'),
+            label='Analytical solution',
+            ax=axes[:, 1],
+            location='top',
         )
         fig.colorbar(
-            c2,
+            plt.cm.ScalarMappable(norm=error_norm, cmap='cmo.curl'),
             label='Error (Numerical - Analytical)',
             ax=axes[:, 2],
             location='top',
