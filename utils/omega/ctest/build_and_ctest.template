@@ -11,10 +11,10 @@ set -e
 # trace commands
 set -x
 
-{% if update_omega_submodule %}
+{%- if update_omega_submodule %}
 cd {{ polaris_source_dir }}
 git submodule update --init e3sm_submodules/Omega
-{% endif %}
+{%- endif %}
 
 cd {{ omega_base_dir }}
 
@@ -27,9 +27,9 @@ git submodule update --init --recursive \
 
 cd ${cwd}
 
-{% if clean %}
+{%- if clean %}
 rm -rf build_omega/{{ build_dir }}
-{% endif %}
+{%- endif %}
 mkdir -p build_omega/{{ build_dir }}
 cd build_omega/{{ build_dir }}
 
@@ -55,6 +55,6 @@ ln -sfn {{ omega_mesh_filename }} OmegaMesh.nc
 ln -sfn {{ omega_planar_mesh_filename }} OmegaPlanarMesh.nc
 ln -sfn {{ omega_sphere_mesh_filename }} OmegaSphereMesh.nc
 
-{% if run_ctest %}
+{%- if run_ctest %}
 ./omega_ctest.sh
-{% endif %}
+{%- endif %}
