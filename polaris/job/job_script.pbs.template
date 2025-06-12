@@ -12,6 +12,9 @@
 {%- if constraint != '' %}
 #PBS -l {{ constraint }}
 {%- endif %}
+{%- if filesystems != '' %}
+#PBS -l filesystems={{ filesystems }}
+{%- endif %}
 
 cd $PBS_O_WORKDIR
 {{ run_command }}

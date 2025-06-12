@@ -91,8 +91,8 @@ def write_job_script(
             wall_time=wall_time,
         )
     elif system == 'pbs':
-        queue, constraint, gpus_per_node, wall_time = get_pbs_options(
-            config, machine, nodes
+        queue, constraint, gpus_per_node, wall_time, filesystems = (
+            get_pbs_options(config, machine, nodes)
         )
         template_name = 'job_script.pbs.template'
         render_kwargs.update(
@@ -100,6 +100,7 @@ def write_job_script(
             constraint=constraint,
             gpus_per_node=gpus_per_node,
             wall_time=wall_time,
+            filesystems=filesystems,
         )
     else:
         # Do not write a job script for other systems
@@ -166,8 +167,12 @@ def get_slurm_options(config, machine, nodes):
     wall_time : str
         The wall time to request for the job.
     """
-    partition, qos, constraint, gpus_per_node, wall_time = _get_job_options(
-        config, machine, nodes, key='partition', list_key='partitions'
+    partition, qos, constraint, gpus_per_node, wall_time, _ = _get_job_options(
+        config,
+        machine,
+        nodes,
+        partition_or_queue_option='partition',
+        partitions_or_queues='partitions',
     )
     return partition, qos, constraint, gpus_per_node, wall_time
 
@@ -202,13 +207,21 @@ def get_pbs_options(config, machine, nodes):
     wall_time : str
         The wall time to request for the job.
     """
-    queue, _, constraint, gpus_per_node, wall_time = _get_job_options(
-        config, machine, nodes, key='queue', list_key='queues'
+    queue, _, constraint, gpus_per_node, wall_time, filesystems = (
+        _get_job_options(
+            config,
+            machine,
+            nodes,
+            partition_or_queue_option='queue',
+            partitions_or_queues='queues',
+        )
     )
-    return queue, constraint, gpus_per_node, wall_time
+    return queue, constraint, gpus_per_node, wall_time, filesystems
 
 
-def _get_job_options(config, machine, nodes, key, list_key):
+def _get_job_options(
+    config, machine, nodes, partition_or_queue_option, partitions_or_queues
+):
     """
     Helper to get job options for slurm or pbs
 
@@ -217,34 +230,37 @@ def _get_job_options(config, machine, nodes, key, list_key):
     config : polaris.config.PolarisConfigParser
     machine : str
     nodes : int
-    key : str
+    partition_or_queue_option : str
         'partition' for slurm, 'queue' for pbs
-    list_key : str
+    partitions_or_queues : str
         'partitions' for slurm, 'queues' for pbs
 
     Returns
     -------
-    key_value : str
+    partition_or_queue : str
     qos : str
     constraint : str
     gpus_per_node : str
     wall_time : str
+    filesystems : str
     """
-    key_value = config.get('job', key)
-    if key_value == '<<<default>>>':
-        if machine == 'anvil' and key == 'partition':
+    partition_or_queue = config.get('job', partition_or_queue_option)
+    if partition_or_queue == '<<<default>>>':
+        if machine == 'anvil' and partition_or_queue == 'partition':
             # choose the partition based on the number of nodes
             if nodes <= 5:
-                key_value = 'acme-small'
+                partition_or_queue = 'acme-small'
             elif nodes <= 60:
-                key_value = 'acme-medium'
+                partition_or_queue = 'acme-medium'
             else:
-                key_value = 'acme-large'
-        elif config.has_option('parallel', list_key):
+                partition_or_queue = 'acme-large'
+        elif config.has_option('parallel', partitions_or_queues):
             # get the first, which is the default
-            key_value = config.getlist('parallel', list_key)[0]
+            partition_or_queue = config.getlist(
+                'parallel', partitions_or_queues
+            )[0]
         else:
-            key_value = ''
+            partition_or_queue = ''
 
     qos = config.get('job', 'qos')
     if qos == '<<<default>>>':
@@ -267,4 +283,16 @@ def _get_job_options(config, machine, nodes, key, list_key):
 
     wall_time = config.get('job', 'wall_time')
 
-    return key_value, qos, constraint, gpus_per_node, wall_time
+    if config.has_option('job', 'filesystems'):
+        filesystems = config.get('job', 'filesystems')
+    else:
+        filesystems = ''
+
+    return (
+        partition_or_queue,
+        qos,
+        constraint,
+        gpus_per_node,
+        wall_time,
+        filesystems,
+    )
