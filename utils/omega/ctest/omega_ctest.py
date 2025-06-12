@@ -254,7 +254,14 @@ def main():
     )
 
     if submit:
-        cmd = ['sbatch', job_script_filename]
+        system = config.get('parallel', 'system')
+        if system == 'slurm':
+            submit = 'sbatch'
+        elif system == 'pbs':
+            submit = 'qsub'
+        else:
+            raise ValueError(f'Unsupported parallel system: {system}')
+        cmd = [submit, job_script_filename]
         print(f'\nRunning:\n   {" ".join(cmd)}\n')
         subprocess.run(args=cmd, check=True)
 
