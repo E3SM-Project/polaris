@@ -31,16 +31,13 @@ Archive:
 - overview: <https://docs.nersc.gov/filesystems/archive/>
 - E3SM uses [zstash](https://e3sm-project.github.io/zstash/)
 
-## Perlmutter-CPU
+## Perlmutter-CPU config options
 
 Perlmutter's CPU and GPU nodes have different configuration options and
-compilers.  We only support Perlmutter-CPU at this time.
+compilers.
 
-### config options
-
-Here are the default
-config options added when you choose `-m pm-cpu` when setting up test
-cases or a suite:
+Here are the default config options added when you choose `-m pm-cpu` when
+setting up test cases or a suite:
 
 ```cfg
 # The paths section describes paths for data and environments
@@ -60,8 +57,14 @@ polaris_envs = /global/common/software/e3sm/polaris/pm-cpu/conda/base
 # the compiler set to use for system libraries and MPAS builds
 compiler = gnu
 
+# the compiler to use to build software (e.g. ESMF and MOAB) with spack
+software_compiler = gnu
+
 # the system MPI library to use for gnu compiler
 mpi_gnu = mpich
+
+# the system MPI library to use for intel compiler
+mpi_intel = mpich
 
 # the base path for spack environments used by polaris
 spack = /global/cfs/cdirs/e3sm/software/polaris/pm-cpu/spack
@@ -90,7 +93,7 @@ Additionally, some relevant config options come from the
 # The parallel section describes options related to running jobs in parallel
 [parallel]
 
-# parallel system of execution: slurm, cobalt or single_node
+# parallel system of execution: slurm, pbs or single_node
 system = slurm
 
 # whether to use mpirun or srun to run a task
@@ -107,6 +110,101 @@ constraints = cpu
 
 # quality of service (default is the first)
 qos = regular, premium, debug
+
+# Config options related to spack environments
+[spack]
+
+# whether to load modules from the spack yaml file before loading the spack
+# environment
+modules_before = False
+
+# whether to load modules from the spack yaml file after loading the spack
+# environment
+modules_after = False
+
+# whether the machine uses cray compilers
+cray_compilers = True
+```
+
+## Perlmutter-GPU config options
+
+Here are the default config options added when you choose `-m pm-gpu` when
+setting up test cases or a suite:
+
+```cfg
+# The paths section describes paths for data and environments
+[paths]
+
+# A shared root directory where polaris data can be found
+database_root = /global/cfs/cdirs/e3sm/polaris
+
+# the path to the base conda environment where polaris environments have
+# been created
+polaris_envs = /global/common/software/e3sm/polaris/pm-gpu/conda/base
+
+
+# Options related to deploying a polaris conda and spack environments
+[deploy]
+
+# the compiler set to use for system libraries and MPAS builds
+compiler = gnugpu
+
+# the compiler to use to build software (e.g. ESMF and MOAB) with spack
+software_compiler = gnu
+
+# the system MPI library to use for gnu compiler
+mpi_gnu = mpich
+
+# the system MPI library to use for gnugpu compiler
+mpi_gnugpu = mpich
+
+# the base path for spack environments used by polaris
+spack = /global/cfs/cdirs/e3sm/software/polaris/pm-gpu/spack
+
+# whether to use the same modules for hdf5, netcdf-c, netcdf-fortran and
+# pnetcdf as E3SM (spack modules are used otherwise)
+use_e3sm_hdf5_netcdf = True
+
+# The parallel section describes options related to running jobs in parallel.
+# Most options in this section come from mache so here we just add or override
+# some defaults
+[parallel]
+
+# cores per node on the machine (without hyperthreading)
+cores_per_node = 64
+
+# threads per core (set to 1 because trying to hyperthread seems to be causing
+# hanging on perlmutter)
+threads_per_core = 1
+```
+
+Additionally, some relevant config options come from the
+[mache](https://github.com/E3SM-Project/mache/) package:
+
+```cfg
+# The parallel section describes options related to running jobs in parallel
+[parallel]
+
+# parallel system of execution: slurm, pbs or single_node
+system = slurm
+
+# whether to use mpirun or srun to run a task
+parallel_executable = srun
+
+# cores per node on the machine (with hyperthreading)
+cores_per_node = 128
+
+# gpus per node on the machine
+gpus_per_node = 4
+
+# account for running diagnostics jobs
+account = e3sm
+
+# available constraint(s) (default is the first)
+constraints = gpu
+
+# quality of service (default is the first)
+qos = regular, debug, premium
 
 # Config options related to spack environments
 [spack]

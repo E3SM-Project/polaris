@@ -67,7 +67,7 @@ config options provided by mache that are relevant to polaris are:
 # The parallel section describes options related to running jobs in parallel
 [parallel]
 
-# parallel system of execution: slurm, cobalt or single_node
+# parallel system of execution: slurm, pbs or single_node
 system = slurm
 
 # whether to use mpirun or srun to run a task

@@ -36,22 +36,31 @@ polaris_envs = /ccs/proj/cli115/software/polaris/frontier/conda/base
 [deploy]
 
 # the compiler set to use for system libraries and MPAS builds
-compiler = gnu
+compiler = craygnu
 
 # the compiler to use to build software (e.g. ESMF and MOAB) with spack
-software_compiler = gnu
+software_compiler = craygnu
 
-# the system MPI library to use for gnu compiler
-mpi_gnu = mpich
+# the system MPI library to use for craygnu compiler
+mpi_craygnu = mpich
 
-# the system MPI library to use for gnugpu compiler
-mpi_gnugpu = mpich
+# the system MPI library to use for craygnu-hipcc compiler
+mpi_craygnu_hipcc = mpich
 
-# the system MPI library to use for crayclang compiler
-mpi_crayclang = mpich
+# the system MPI library to use for craygnu-mphipcc compiler
+mpi_craygnu_mphipcc = mpich
 
-# the system MPI library to use for crayclanggpu compiler
-mpi_crayclanggpu = mpich
+# the system MPI library to use for craycray compiler
+mpi_craycray = mpich
+
+# the system MPI library to use for craycray-mphipcc compiler
+mpi_craycray_mphipcc = mpich
+
+# the system MPI library to use for crayamd compiler
+mpi_crayamd = mpich
+
+# the system MPI library to use for crayamd-mphipcc compiler
+mpi_crayamd_mphipcc = mpich
 
 # the base path for spack environments used by polaris
 spack = /ccs/proj/cli115/software/polaris/frontier/spack
@@ -65,8 +74,8 @@ use_e3sm_hdf5_netcdf = True
 # some defaults
 [parallel]
 
-# cores per node on the machine
-cores_per_node = 64
+# allocatable cores per node on the machine
+cores_per_node = 56
 
 # threads per core (set to 1 because hyperthreading requires extra sbatch
 # flag --threads-per-core that polaris doesn't yet support)
@@ -80,7 +89,7 @@ Additionally, some relevant config options come from the
 # The parallel section describes options related to running jobs in parallel
 [parallel]
 
-# parallel system of execution: slurm, cobalt or single_node
+# parallel system of execution: slurm, pbs or single_node
 system = slurm
 
 # whether to use mpirun or srun to run a task

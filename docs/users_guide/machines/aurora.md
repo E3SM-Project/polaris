@@ -5,7 +5,7 @@ login: `ssh <username>@aurora.alcf.anl.gov`
 interactive login:
 
 ```bash
-qsub -I -A E3SM_Dec -q debug -l select=1 -l walltime=00:30:00 -l filesystems=flare
+qsub -I -A E3SM_Dec -q debug -l select=1 -l walltime=00:30:00 -l filesystems=home:flare
 ```
 
 Here is a link to the
@@ -46,6 +46,13 @@ spack = /lus/flare/projects/E3SM_Dec/soft/polaris/aurora/spack
 # whether to use the same modules for hdf5, netcdf-c, netcdf-fortran and
 # pnetcdf as E3SM (spack modules are used otherwise)
 use_e3sm_hdf5_netcdf = False
+
+
+# Config options related to creating a job script
+[job]
+
+# the filesystems used for the job
+filesystems = home:flare
 ```
 
 Additionally, some relevant config options come from the
@@ -55,21 +62,20 @@ Additionally, some relevant config options come from the
 # The parallel section describes options related to running jobs in parallel
 [parallel]
 
-# parallel system of execution: slurm, cobalt or single_node
-system = slurm
+# parallel system of execution: slurm, pbs or single_node
+system = pbs
 
 # whether to use mpirun or srun to run a task
-parallel_executable = srun
+parallel_executable = mpirun
 
-# cores per node on the machine
-cores_per_node = 64
+# cores per node on the machine (with hyperthreading)
+cores_per_node = 208
 
 # account for running diagnostics jobs
-account = cli115
+account = E3SM_Dec
 
-# available partition(s) (default is the first)
-partitions = batch
-
+# queues (default is the first)
+queues = prod, debug
 
 # Config options related to spack environments
 [spack]
@@ -81,9 +87,6 @@ modules_before = False
 # whether to load modules from the spack yaml file after loading the spack
 # environment
 modules_after = False
-
-# whether the machine uses cray compilers
-cray_compilers = True
 ```
 
 ## Loading and running Polaris on Aurora

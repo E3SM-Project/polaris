@@ -83,8 +83,14 @@ polaris_envs = /usr/projects/e3sm/polaris/chicoma-cpu/conda/base
 # the compiler set to use for system libraries and MPAS builds
 compiler = gnu
 
+# the compiler to use to build software (e.g. ESMF and MOAB) with spack
+software_compiler = gnu
+
 # the system MPI library to use for gnu compiler
 mpi_gnu = mpich
+
+# the system MPI library to use for nvidia compiler
+mpi_nvidia = mpich
 
 # the base path for spack environments used by polaris
 spack = /usr/projects/e3sm/polaris/chicoma-cpu/spack
@@ -92,6 +98,9 @@ spack = /usr/projects/e3sm/polaris/chicoma-cpu/spack
 # whether to use the same modules for hdf5, netcdf-c, netcdf-fortran and
 # pnetcdf as E3SM (spack modules are used otherwise)
 use_e3sm_hdf5_netcdf = True
+
+# location of a spack mirror for polaris to use
+spack_mirror = /usr/projects/e3sm/polaris/chicoma-cpu/spack/spack_mirror
 
 
 # The parallel section describes options related to running jobs in parallel
@@ -106,6 +115,11 @@ cores_per_node = 128
 # threads per core (set to 1 because trying to hyperthread seems to be causing
 # hanging on perlmutter)
 threads_per_core = 1
+
+# quality of service
+# overriding mache because the debug qos also requires --reservaiton debug,
+# which polaris doesn't currently support
+qos = standard
 
 
 # Config options related to creating a job script
@@ -125,7 +139,7 @@ Additionally, some relevant config options come from the
 # The parallel section describes options related to running jobs in parallel
 [parallel]
 
-# parallel system of execution: slurm, cobalt or single_node
+# parallel system of execution: slurm, pbs or single_node
 system = slurm
 
 # whether to use mpirun or srun to run a task
