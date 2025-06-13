@@ -669,7 +669,7 @@ and run it:
 ```bash
 $ cd ${PATH_TO_WORKING_DIR}/ocean/yet_another_channel/10km/default
 $ sbatch job_script.sh
-$ cat polaris.o${SLURM_JOBID}
+$ cat polaris.o${JOBID}
 
      Loading conda environment
      Done.

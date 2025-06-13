@@ -1,0 +1,24 @@
+#!/bin/bash
+#SBATCH --job-name={{ job_name }}
+{%- if account != '' %}
+#SBATCH --account={{ account }}
+{%- endif %}
+#SBATCH --nodes={{ nodes }}
+#SBATCH --output={{ job_name }}.o%j
+#SBATCH --exclusive
+#SBATCH --time={{ wall_time }}
+{%- if partition != '' %}
+#SBATCH --partition={{ partition }}
+{%- endif %}
+{%- if qos != '' %}
+#SBATCH --qos={{ qos }}
+{%- endif %}
+{%- if constraint != '' %}
+#SBATCH --constraint={{ constraint }}
+{%- endif %}
+{%- if gpus_per_node != '' %}
+#SBATCH --gpus-per-node={{ gpus_per_node }}
+{%- endif %}
+
+cd $SLURM_SUBMIT_DIR
+{{ run_command }}

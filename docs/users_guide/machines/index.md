@@ -67,7 +67,7 @@ config options provided by mache that are relevant to polaris are:
 # The parallel section describes options related to running jobs in parallel
 [parallel]
 
-# parallel system of execution: slurm, cobalt or single_node
+# parallel system of execution: slurm, pbs or single_node
 system = slurm
 
 # whether to use mpirun or srun to run a task
@@ -101,10 +101,26 @@ Here are some basic commands:
 
 ```bash
 salloc -N 1 -t 2:0:0 # interactive job (see machine specific versions below)
-sbatch script # submit a script
+sbatch <script> # submit a script
 squeue # show all jobs
-squeue -u <my_username> # show only your jobs
+squeue -u $USER # show only your jobs
 scancel jobID # cancel a job
+```
+
+(pbs)=
+
+## PBS job queueing
+
+A few HPC systems use
+[PBS Pro](https://2021.help.altair.com/2021.1.2/PBS%20Professional/PBSUserGuide2021.1.2.pdf).
+Here are some basic commands:
+
+```bash
+qsub -I -q debug -l select=1 -l walltime=00:30:00  # interactive job (see machine specific versions below)
+qsub <script> # submit a script
+qstat # show all jobs
+qstat -u $USER # show only your jobs
+qcancel <jobid> # cancel a job
 ```
 
 (supported-machines)=
@@ -127,6 +143,7 @@ to use the default MPI variant for each compiler on each machine.
 :titlesonly: true
 
 anvil
+aurora
 chicoma
 chrysalis
 compy

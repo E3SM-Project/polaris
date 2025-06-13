@@ -35,7 +35,7 @@ database_root = /home/xylar/data/polaris/data
 # The parallel section describes options related to running tests in parallel
 [parallel]
 
-# parallel system of execution: slurm or single_node
+# parallel system of execution: slurm, pbs or single_node
 system = single_node
 
 # whether to use mpirun or srun to run the model
@@ -47,7 +47,7 @@ cores_per_node = 8
 
 ```
 
-The comments in this example are hopefully pretty self-explanatory. 
+The comments in this example are hopefully pretty self-explanatory.
 You provide the config file to `polaris setup` and `polaris suite` with
 the `-f` flag:
 
@@ -81,12 +81,12 @@ sources:
   [extended interpolation](https://docs.python.org/3/library/configparser.html#configparser.ExtendedInterpolation)
   in the config file to use config options within other config
   options, e.g. `component = ${paths:component_path}/ocean_model`.
-- a config file shared with other similar tasks if one is defined.  For 
-  idealized tests, these often include the size and resolution of the mesh as 
+- a config file shared with other similar tasks if one is defined.  For
+  idealized tests, these often include the size and resolution of the mesh as
   well as (for ocean initial conditions) the number of vertical levels.
 - any number of config files from the task.  There might be different
   config options depending on how the task is configured (e.g. only if a
-  certain feature is enabled.  For example, {ref}`ocean-global-ocean` loads 
+  certain feature is enabled.  For example, {ref}`ocean-global-ocean` loads
   different sets of config options for different meshes.
 - a user's config file described above.
 
@@ -153,7 +153,7 @@ core_path = mpas-ocean
 # source: /home/xylar/code/polaris/customize_config_parser/polaris/default.cfg
 partition_executable = gpmetis
 
-# parallel system of execution: slurm or single_node
+# parallel system of execution: slurm, pbs or single_node
 # source: /home/xylar/code/polaris/customize_config_parser/inej.cfg
 system = single_node
 
@@ -467,6 +467,6 @@ min_layer_thickness = 3.0
 max_layer_thickness = 500.0
 ```
 
-The comments are retained and the config file or python module where they were 
-defined is also included as a a comment for provenance and to make it easier 
+The comments are retained and the config file or python module where they were
+defined is also included as a a comment for provenance and to make it easier
 for users and developers to understand how the config file is built up.
