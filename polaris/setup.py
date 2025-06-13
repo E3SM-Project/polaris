@@ -168,11 +168,11 @@ def setup_tasks(
 
     if machine is not None:
         write_job_script(
-            basic_config,
-            machine,
-            max_cores,
-            max_of_min_cores,
-            work_dir,
+            config=basic_config,
+            machine=machine,
+            target_cores=max_cores,
+            min_cores=max_of_min_cores,
+            work_dir=work_dir,
             suite=suite_name,
         )
 
@@ -251,7 +251,11 @@ def setup_task(
             cores = step.cpus_per_task * step.ntasks
             min_cores = step.min_cpus_per_task * step.min_tasks
             write_job_script(
-                step.config, machine, cores, min_cores, step.work_dir
+                config=step.config,
+                machine=machine,
+                target_cores=cores,
+                min_cores=min_cores,
+                work_dir=step.work_dir,
             )
         step.setup_complete = True
 
@@ -270,7 +274,11 @@ def setup_task(
     if machine is not None:
         max_cores, max_of_min_cores = _get_required_cores({path: task})
         write_job_script(
-            task.config, machine, max_cores, max_of_min_cores, task_dir
+            config=task.config,
+            machine=machine,
+            target_cores=cores,
+            min_cores=min_cores,
+            work_dir=task_dir,
         )
 
 
