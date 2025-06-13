@@ -738,7 +738,7 @@ mesh. We can first check that the step exists:</p>
 <p>and run it:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span><span class="si">${</span><span class="nv">PATH_TO_WORKING_DIR</span><span class="si">}</span>/ocean/yet_another_channel/10km/default
 $<span class="w"> </span>sbatch<span class="w"> </span>job_script.sh
-$<span class="w"> </span>cat<span class="w"> </span>polaris.o<span class="si">${</span><span class="nv">SLURM_JOBID</span><span class="si">}</span>
+$<span class="w"> </span>cat<span class="w"> </span>polaris.o<span class="si">${</span><span class="nv">JOBID</span><span class="si">}</span>
 
 <span class="w">     </span>Loading<span class="w"> </span>conda<span class="w"> </span>environment
 <span class="w">     </span>Done.

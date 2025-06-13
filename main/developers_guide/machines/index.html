@@ -228,6 +228,10 @@ the MPAS model.</p>
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>MPAS components currently do not support Aurora in standalone builds.</p>
+</div>
 </section>
 <section id="omega-supported-machines">
 <span id="dev-omega-supported-machines"></span><h3>Omega Supported Machines<a class="headerlink" href="#omega-supported-machines" title="Link to this heading"></a></h3>
@@ -241,47 +245,51 @@ E3SM default for the given machine an compiler.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>chicoma-cpu</p></td>
+<tr class="row-even"><td><p>aurora</p></td>
+<td><p>oneapi-ifx</p></td>
+<td><p>mpich</p></td>
+</tr>
+<tr class="row-odd"><td><p>chicoma-cpu</p></td>
 <td><p>gnu</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="2"><p>chrysalis</p></td>
+<tr class="row-even"><td rowspan="2"><p>chrysalis</p></td>
 <td><p>intel</p></td>
 <td><p>openmpi</p></td>
 </tr>
-<tr class="row-even"><td><p>gnu</p></td>
+<tr class="row-odd"><td><p>gnu</p></td>
 <td><p>openmpi</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="7"><p>frontier</p></td>
+<tr class="row-even"><td rowspan="7"><p>frontier</p></td>
 <td><p>craygnu</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-even"><td><p>craygnu-hipcc</p></td>
+<tr class="row-odd"><td><p>craygnu-hipcc</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-odd"><td><p>craygnu-mphipcc</p></td>
+<tr class="row-even"><td><p>craygnu-mphipcc</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-even"><td><p>crayamd</p></td>
+<tr class="row-odd"><td><p>crayamd</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-odd"><td><p>crayamd-mphipcc</p></td>
+<tr class="row-even"><td><p>crayamd-mphipcc</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-even"><td><p>craycray</p></td>
+<tr class="row-odd"><td><p>craycray</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-odd"><td><p>craycray-mphipcc</p></td>
+<tr class="row-even"><td><p>craycray-mphipcc</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-even"><td rowspan="2"><p>pm-cpu</p></td>
+<tr class="row-odd"><td rowspan="2"><p>pm-cpu</p></td>
 <td><p>gnu</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-odd"><td><p>intel</p></td>
+<tr class="row-even"><td><p>intel</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-even"><td><p>pm-gpu</p></td>
+<tr class="row-odd"><td><p>pm-gpu</p></td>
 <td><p>gnugpu</p></td>
 <td><p>mpich</p></td>
 </tr>
@@ -394,10 +402,10 @@ examples provided (machine <code class="docutils literal notranslate"><span clas
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">[parallel]</span></code> section should describe the type of parallel queuing
-system (currently only <code class="docutils literal notranslate"><span class="pre">slurm</span></code> or <code class="docutils literal notranslate"><span class="pre">single_node</span></code> are supported), the number
+system (currently <code class="docutils literal notranslate"><span class="pre">slurm</span></code>, <code class="docutils literal notranslate"><span class="pre">pbs</span></code> or <code class="docutils literal notranslate"><span class="pre">single_node</span></code> are supported), the number
 of cores per node and the command for running an MPI executable (typically
-<code class="docutils literal notranslate"><span class="pre">srun</span></code> for Slurm and <code class="docutils literal notranslate"><span class="pre">mpirun</span></code> for a “single node” machine like a laptop or
-workstation.</p>
+<code class="docutils literal notranslate"><span class="pre">srun</span></code> for Slurm and <code class="docutils literal notranslate"><span class="pre">mpirun</span></code> for a PBS or “single node” machine like a laptop
+or workstation.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">[spack]</span></code> section has some config options to do with loading system
 modules before or after loading a Spack environment.  On a “single node”
 machine, you typically don’t have modules so both <code class="docutils literal notranslate"><span class="pre">modules_before</span></code> and

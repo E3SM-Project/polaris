@@ -56,8 +56,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Machines</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="index.html#config-options">config options</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#slurm-job-queueing">Slurm job queueing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#pbs-job-queueing">PBS job queueing</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#supported-machines">Supported Machines</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="anvil.html">Anvil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="aurora.html">Aurora</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chicoma.html">Chicoma</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compy.html">CompyMcNodeFace</a></li>
@@ -145,7 +147,7 @@ salloc<span class="w"> </span>-A<span class="w"> </span>cli115<span class="w"> <
 <a class="reference external" href="https://docs.olcf.ornl.gov/systems/frontier_user_guide.html">Frontier User Guide</a></p>
 <section id="config-options">
 <h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
-<p>Here are the default config options added when you have configured Poaris on
+<p>Here are the default config options added when you have configured Polairs on
 a Frontier login node (or specified <code class="docutils literal notranslate"><span class="pre">./configure_polaris_envs.py</span> <span class="pre">-m</span> <span class="pre">frontier</span></code>):</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># The paths section describes paths for data and environments</span>
 <span class="k">[paths]</span>
@@ -162,22 +164,31 @@ a Frontier login node (or specified <code class="docutils literal notranslate"><
 <span class="k">[deploy]</span>
 
 <span class="c1"># the compiler set to use for system libraries and MPAS builds</span>
-<span class="na">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">gnu</span>
+<span class="na">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">craygnu</span>
 
 <span class="c1"># the compiler to use to build software (e.g. ESMF and MOAB) with spack</span>
-<span class="na">software_compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">gnu</span>
+<span class="na">software_compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">craygnu</span>
 
-<span class="c1"># the system MPI library to use for gnu compiler</span>
-<span class="na">mpi_gnu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
+<span class="c1"># the system MPI library to use for craygnu compiler</span>
+<span class="na">mpi_craygnu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
 
-<span class="c1"># the system MPI library to use for gnugpu compiler</span>
-<span class="na">mpi_gnugpu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
+<span class="c1"># the system MPI library to use for craygnu-hipcc compiler</span>
+<span class="na">mpi_craygnu_hipcc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
 
-<span class="c1"># the system MPI library to use for crayclang compiler</span>
-<span class="na">mpi_crayclang</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
+<span class="c1"># the system MPI library to use for craygnu-mphipcc compiler</span>
+<span class="na">mpi_craygnu_mphipcc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
 
-<span class="c1"># the system MPI library to use for crayclanggpu compiler</span>
-<span class="na">mpi_crayclanggpu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
+<span class="c1"># the system MPI library to use for craycray compiler</span>
+<span class="na">mpi_craycray</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
+
+<span class="c1"># the system MPI library to use for craycray-mphipcc compiler</span>
+<span class="na">mpi_craycray_mphipcc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
+
+<span class="c1"># the system MPI library to use for crayamd compiler</span>
+<span class="na">mpi_crayamd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
+
+<span class="c1"># the system MPI library to use for crayamd-mphipcc compiler</span>
+<span class="na">mpi_crayamd_mphipcc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
 
 <span class="c1"># the base path for spack environments used by polaris</span>
 <span class="na">spack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/ccs/proj/cli115/software/polaris/frontier/spack</span>
@@ -191,8 +202,8 @@ a Frontier login node (or specified <code class="docutils literal notranslate"><
 <span class="c1"># some defaults</span>
 <span class="k">[parallel]</span>
 
-<span class="c1"># cores per node on the machine</span>
-<span class="na">cores_per_node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">64</span>
+<span class="c1"># allocatable cores per node on the machine</span>
+<span class="na">cores_per_node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">56</span>
 
 <span class="c1"># threads per core (set to 1 because hyperthreading requires extra sbatch</span>
 <span class="c1"># flag --threads-per-core that polaris doesn&#39;t yet support)</span>
@@ -204,7 +215,7 @@ a Frontier login node (or specified <code class="docutils literal notranslate"><
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># The parallel section describes options related to running jobs in parallel</span>
 <span class="k">[parallel]</span>
 
-<span class="c1"># parallel system of execution: slurm, cobalt or single_node</span>
+<span class="c1"># parallel system of execution: slurm, pbs or single_node</span>
 <span class="na">system</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">slurm</span>
 
 <span class="c1"># whether to use mpirun or srun to run a task</span>

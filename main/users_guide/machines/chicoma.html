@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Chrysalis" href="chrysalis.html" />
-    <link rel="prev" title="Anvil" href="anvil.html" />
+    <link rel="prev" title="Aurora" href="aurora.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -56,8 +56,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Machines</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="index.html#config-options">config options</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#slurm-job-queueing">Slurm job queueing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#pbs-job-queueing">PBS job queueing</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#supported-machines">Supported Machines</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="anvil.html">Anvil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="aurora.html">Aurora</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Chicoma</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#chicoma-cpu">Chicoma-CPU</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#loading-and-running-polaris-on-chicoma">Loading and running Polaris on Chicoma</a></li>
@@ -203,8 +205,14 @@ when setting up tasks or a suite:</p>
 <span class="c1"># the compiler set to use for system libraries and MPAS builds</span>
 <span class="na">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">gnu</span>
 
+<span class="c1"># the compiler to use to build software (e.g. ESMF and MOAB) with spack</span>
+<span class="na">software_compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">gnu</span>
+
 <span class="c1"># the system MPI library to use for gnu compiler</span>
 <span class="na">mpi_gnu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
+
+<span class="c1"># the system MPI library to use for nvidia compiler</span>
+<span class="na">mpi_nvidia</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
 
 <span class="c1"># the base path for spack environments used by polaris</span>
 <span class="na">spack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/usr/projects/e3sm/polaris/chicoma-cpu/spack</span>
@@ -212,6 +220,9 @@ when setting up tasks or a suite:</p>
 <span class="c1"># whether to use the same modules for hdf5, netcdf-c, netcdf-fortran and</span>
 <span class="c1"># pnetcdf as E3SM (spack modules are used otherwise)</span>
 <span class="na">use_e3sm_hdf5_netcdf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
+<span class="c1"># location of a spack mirror for polaris to use</span>
+<span class="na">spack_mirror</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/usr/projects/e3sm/polaris/chicoma-cpu/spack/spack_mirror</span>
 
 
 <span class="c1"># The parallel section describes options related to running jobs in parallel</span>
@@ -226,6 +237,11 @@ when setting up tasks or a suite:</p>
 <span class="c1"># threads per core (set to 1 because trying to hyperthread seems to be causing</span>
 <span class="c1"># hanging on perlmutter)</span>
 <span class="na">threads_per_core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+
+<span class="c1"># quality of service</span>
+<span class="c1"># overriding mache because the debug qos also requires --reservaiton debug,</span>
+<span class="c1"># which polaris doesn&#39;t currently support</span>
+<span class="na">qos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">standard</span>
 
 
 <span class="c1"># Config options related to creating a job script</span>
@@ -243,7 +259,7 @@ when setting up tasks or a suite:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># The parallel section describes options related to running jobs in parallel</span>
 <span class="k">[parallel]</span>
 
-<span class="c1"># parallel system of execution: slurm, cobalt or single_node</span>
+<span class="c1"># parallel system of execution: slurm, pbs or single_node</span>
 <span class="na">system</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">slurm</span>
 
 <span class="c1"># whether to use mpirun or srun to run a task</span>
@@ -285,7 +301,7 @@ environoment) for users.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="anvil.html" class="btn btn-neutral float-left" title="Anvil" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="aurora.html" class="btn btn-neutral float-left" title="Aurora" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="chrysalis.html" class="btn btn-neutral float-right" title="Chrysalis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

@@ -1,6 +1,0 @@
-﻿polaris.job.clean\_up\_whitespace
-=================================
-
-.. currentmodule:: polaris.job
-
-.. autofunction:: clean_up_whitespace

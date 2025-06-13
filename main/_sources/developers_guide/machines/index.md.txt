@@ -79,6 +79,10 @@ These are the machines supported by MPAS-Ocean and -Seaice, including the
 +--------------+------------+-----------+-------------------+
 ```
 
+:::{note}
+MPAS components currently do not support Aurora in standalone builds.
+:::
+
 (dev-omega-supported-machines)=
 
 ### Omega Supported Machines
@@ -90,6 +94,8 @@ E3SM default for the given machine an compiler.
 +--------------+------------------+-----------+
 | Machine      | Compiler         | MPI lib.  |
 +==============+==================+===========+
+| aurora       | oneapi-ifx       | mpich     |
++--------------+------------------+-----------+
 | chicoma-cpu  | gnu              | mpich     |
 +--------------+------------------+-----------+
 | chrysalis    | intel            | openmpi   |
@@ -239,10 +245,10 @@ hostname_contains = morpheus
 ```
 
 The `[parallel]` section should describe the type of parallel queuing
-system (currently only `slurm` or `single_node` are supported), the number
+system (currently `slurm`, `pbs` or `single_node` are supported), the number
 of cores per node and the command for running an MPI executable (typically
-`srun` for Slurm and `mpirun` for a "single node" machine like a laptop or
-workstation.
+`srun` for Slurm and `mpirun` for a PBS or "single node" machine like a laptop
+or workstation.
 
 The `[spack]` section has some config options to do with loading system
 modules before or after loading a Spack environment.  On a "single node"

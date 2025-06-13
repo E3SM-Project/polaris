@@ -17,7 +17,7 @@ database_root = /compyfs/polaris
 
 # the path to the base conda environment where polaris environments have
 # been created
-polaris_envs = /share/apps/E3SM/polaris/conda/base
+polaris_envs = /share/apps/E3SM/conda_envs/polaris/conda/base
 
 
 # Options related to deploying a polaris conda and spack environments
@@ -26,6 +26,9 @@ polaris_envs = /share/apps/E3SM/polaris/conda/base
 # the compiler set to use for system libraries and MPAS builds
 compiler = intel
 
+# the compiler to use to build software (e.g. ESMF and MOAB) with spack
+software_compiler = intel
+
 # the system MPI library to use for intel compiler
 mpi_intel = impi
 
@@ -33,7 +36,7 @@ mpi_intel = impi
 mpi_gnu = openmpi
 
 # the base path for spack environments used by polaris
-spack = /share/apps/E3SM/polaris/spack
+spack = /share/apps/E3SM/conda_envs/polaris/spack
 
 # whether to use the same modules for hdf5, netcdf-c, netcdf-fortran and
 # pnetcdf as E3SM (spack modules are used otherwise)
@@ -49,7 +52,7 @@ Additionally, some relevant config options come from the
 # The parallel section describes options related to running jobs in parallel
 [parallel]
 
-# parallel system of execution: slurm, cobalt or single_node
+# parallel system of execution: slurm, pbs or single_node
 system = slurm
 
 # whether to use mpirun or srun to run a task

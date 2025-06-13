@@ -56,8 +56,10 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Machines</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#config-options">config options</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#slurm-job-queueing">Slurm job queueing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pbs-job-queueing">PBS job queueing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#supported-machines">Supported Machines</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="anvil.html">Anvil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="aurora.html">Aurora</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chicoma.html">Chicoma</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compy.html">CompyMcNodeFace</a></li>
@@ -185,7 +187,7 @@ config options provided by mache that are relevant to polaris are:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># The parallel section describes options related to running jobs in parallel</span>
 <span class="k">[parallel]</span>
 
-<span class="c1"># parallel system of execution: slurm, cobalt or single_node</span>
+<span class="c1"># parallel system of execution: slurm, pbs or single_node</span>
 <span class="na">system</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">slurm</span>
 
 <span class="c1"># whether to use mpirun or srun to run a task</span>
@@ -215,10 +217,23 @@ machine.</p>
 <a class="reference external" href="https://slurm.schedmd.com/documentation.html">slurm workload manager</a>.
 Here are some basic commands:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>salloc<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>-t<span class="w"> </span><span class="m">2</span>:0:0<span class="w"> </span><span class="c1"># interactive job (see machine specific versions below)</span>
-sbatch<span class="w"> </span>script<span class="w"> </span><span class="c1"># submit a script</span>
+sbatch<span class="w"> </span>&lt;script&gt;<span class="w"> </span><span class="c1"># submit a script</span>
 squeue<span class="w"> </span><span class="c1"># show all jobs</span>
-squeue<span class="w"> </span>-u<span class="w"> </span>&lt;my_username&gt;<span class="w"> </span><span class="c1"># show only your jobs</span>
+squeue<span class="w"> </span>-u<span class="w"> </span><span class="nv">$USER</span><span class="w"> </span><span class="c1"># show only your jobs</span>
 scancel<span class="w"> </span>jobID<span class="w"> </span><span class="c1"># cancel a job</span>
+</pre></div>
+</div>
+</section>
+<section id="pbs-job-queueing">
+<span id="pbs"></span><h2>PBS job queueing<a class="headerlink" href="#pbs-job-queueing" title="Link to this heading"></a></h2>
+<p>A few HPC systems use
+<a class="reference external" href="https://2021.help.altair.com/2021.1.2/PBS%20Professional/PBSUserGuide2021.1.2.pdf">PBS Pro</a>.
+Here are some basic commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>qsub<span class="w"> </span>-I<span class="w"> </span>-q<span class="w"> </span>debug<span class="w"> </span>-l<span class="w"> </span><span class="k">select</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>-l<span class="w"> </span><span class="nv">walltime</span><span class="o">=</span><span class="m">00</span>:30:00<span class="w">  </span><span class="c1"># interactive job (see machine specific versions below)</span>
+qsub<span class="w"> </span>&lt;script&gt;<span class="w"> </span><span class="c1"># submit a script</span>
+qstat<span class="w"> </span><span class="c1"># show all jobs</span>
+qstat<span class="w"> </span>-u<span class="w"> </span><span class="nv">$USER</span><span class="w"> </span><span class="c1"># show only your jobs</span>
+qcancel<span class="w"> </span>&lt;jobid&gt;<span class="w"> </span><span class="c1"># cancel a job</span>
 </pre></div>
 </div>
 </section>
@@ -237,6 +252,7 @@ to use the default MPI variant for each compiler on each machine.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="anvil.html">Anvil</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aurora.html">Aurora</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chicoma.html">Chicoma</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compy.html">CompyMcNodeFace</a></li>

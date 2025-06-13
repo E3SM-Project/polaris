@@ -276,7 +276,7 @@ database_root = </path/to/root>/polaris/data
 # The parallel section describes options related to running tasks in parallel
 [parallel]
 
-# parallel system of execution: slurm or single_node
+# parallel system of execution: slurm, pbs or single_node
 system = single_node
 
 # whether to use mpirun or srun to run the model

@@ -19,7 +19,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.job.clean_up_whitespace" href="polaris.job.clean_up_whitespace.html" />
+    <link rel="next" title="polaris.job.get_pbs_options" href="polaris.job.get_pbs_options.html" />
     <link rel="prev" title="polaris.job.write_job_script" href="polaris.job.write_job_script.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -82,7 +82,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#job">job</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="polaris.job.write_job_script.html">polaris.job.write_job_script</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.job.get_slurm_options</a></li>
-<li class="toctree-l4"><a class="reference internal" href="polaris.job.clean_up_whitespace.html">polaris.job.clean_up_whitespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.job.get_pbs_options.html">polaris.job.get_pbs_options</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#logging">logging</a></li>
@@ -144,22 +144,23 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.job.get_slurm_options">
 <span class="sig-prename descclassname"><span class="pre">polaris.job.</span></span><span class="sig-name descname"><span class="pre">get_slurm_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">machine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/job.html#get_slurm_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.job.get_slurm_options" title="Link to this definition"></a></dt>
-<dd><p>Get Slurm options</p>
+<dd><p>Get Slurm options for job submission.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Config options</p></li>
-<li><p><strong>machine</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Name of the machine</p></li>
-<li><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of nodes</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration options for this test case, a combination of user configs
+and the defaults for the machine and component.</p></li>
+<li><p><strong>machine</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The name of the machine.</p></li>
+<li><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The number of nodes required for the job.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>partition</strong> (<em>str</em>) – Slurm partition</p></li>
-<li><p><strong>qos</strong> (<em>str</em>) – Slurm quality of service</p></li>
-<li><p><strong>constraint</strong> (<em>str</em>) – Slurm constraint</p></li>
-<li><p><strong>gpus_per_node</strong> (<em>str</em>) – The numer of GPUs per node (if any)</p></li>
-<li><p><strong>wall_time</strong> (<em>str</em>) – Slurm wall time</p></li>
+<li><p><strong>partition</strong> (<em>str</em>) – The partition to use for the job.</p></li>
+<li><p><strong>qos</strong> (<em>str</em>) – The quality of service to use for the job.</p></li>
+<li><p><strong>constraint</strong> (<em>str</em>) – Any constraints to use for the job.</p></li>
+<li><p><strong>gpus_per_node</strong> (<em>str</em>) – The number of GPUs per node to request.</p></li>
+<li><p><strong>wall_time</strong> (<em>str</em>) – The wall time to request for the job.</p></li>
 </ul>
 </p>
 </dd>
@@ -173,7 +174,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.job.write_job_script.html" class="btn btn-neutral float-left" title="polaris.job.write_job_script" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.job.clean_up_whitespace.html" class="btn btn-neutral float-right" title="polaris.job.clean_up_whitespace" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.job.get_pbs_options.html" class="btn btn-neutral float-right" title="polaris.job.get_pbs_options" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -26,6 +26,9 @@ polaris_envs = /lcrc/soft/climate/polaris/chrysalis/base
 # the compiler set to use for system libraries and MPAS builds
 compiler = intel
 
+# the compiler to use to build software (e.g. ESMF and MOAB) with spack
+software_compiler = intel
+
 # the system MPI library to use for intel compiler
 mpi_intel = openmpi
 
@@ -47,7 +50,7 @@ Additionally, some relevant config options come from the
 # The parallel section describes options related to running jobs in parallel
 [parallel]
 
-# parallel system of execution: slurm, cobalt or single_node
+# parallel system of execution: slurm, pbs or single_node
 system = slurm
 
 # whether to use mpirun or srun to run a task

@@ -56,8 +56,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Machines</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="index.html#config-options">config options</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#slurm-job-queueing">Slurm job queueing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#pbs-job-queueing">PBS job queueing</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#supported-machines">Supported Machines</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="anvil.html">Anvil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="aurora.html">Aurora</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chicoma.html">Chicoma</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Chrysalis</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
@@ -154,6 +156,9 @@ suite:</p>
 <span class="c1"># the compiler set to use for system libraries and MPAS builds</span>
 <span class="na">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">intel</span>
 
+<span class="c1"># the compiler to use to build software (e.g. ESMF and MOAB) with spack</span>
+<span class="na">software_compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">intel</span>
+
 <span class="c1"># the system MPI library to use for intel compiler</span>
 <span class="na">mpi_intel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">openmpi</span>
 
@@ -173,7 +178,7 @@ suite:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># The parallel section describes options related to running jobs in parallel</span>
 <span class="k">[parallel]</span>
 
-<span class="c1"># parallel system of execution: slurm, cobalt or single_node</span>
+<span class="c1"># parallel system of execution: slurm, pbs or single_node</span>
 <span class="na">system</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">slurm</span>
 
 <span class="c1"># whether to use mpirun or srun to run a task</span>
