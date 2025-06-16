@@ -64,10 +64,10 @@ class CullTopoTask(Task):
             name=f'{mesh_name}_cull_topo_task',
             subdir=subdir,
         )
-        self.add_step(base_mesh_step)
-        self.add_step(combine_topo_step)
-        self.add_step(remap_mask_step)
-        self.add_step(unsmoothed_topo_step)
+        self.add_step(base_mesh_step, symlink='base_mesh')
+        self.add_step(combine_topo_step, symlink='combine_topo')
+        self.add_step(remap_mask_step, symlink='remap_mask')
+        self.add_step(unsmoothed_topo_step, symlink='remap_unsmoothed_topo')
         steps, config = get_default_cull_topo_steps(
             component=component,
             base_mesh_step=base_mesh_step,

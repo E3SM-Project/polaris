@@ -61,8 +61,8 @@ class RemapTopoTask(Task):
             name=f'{mesh_name}_topo_remap_task',
             subdir=subdir,
         )
-        self.add_step(base_mesh_step)
-        self.add_step(combine_topo_step)
+        self.add_step(base_mesh_step, symlink='base_mesh')
+        self.add_step(combine_topo_step, symlink='combine_topo')
         steps, config = get_default_remap_topo_steps(
             component=component,
             base_mesh_step=base_mesh_step,
