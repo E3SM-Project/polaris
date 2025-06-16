@@ -1,0 +1,14 @@
+e3sm/init/Icos480km/topo/cull
+e3sm/init/Icos240km/topo/cull
+e3sm/init/Icos120km/topo/cull
+e3sm/init/Icos60km/topo/cull
+e3sm/init/Icos30km/topo/cull
+e3sm/init/QU480km/topo/cull
+e3sm/init/QU240km/topo/cull
+e3sm/init/QU210km/topo/cull
+e3sm/init/QU180km/topo/cull
+e3sm/init/QU150km/topo/cull
+e3sm/init/QU120km/topo/cull
+e3sm/init/QU90km/topo/cull
+e3sm/init/QU60km/topo/cull
+e3sm/init/QU30km/topo/cull
