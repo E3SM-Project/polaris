@@ -17,17 +17,7 @@ mpas-ocean:
     config_vert_coord_movement : fixed
   debug:
     config_disable_thick_all_tend: true
-    config_disable_thick_hadv: true
-    config_disable_thick_vadv: true
-    config_disable_thick_sflux: true
     config_disable_vel_all_tend: true
-    config_disable_vel_coriolis: true
-    config_disable_vel_pgrad: true
-    config_disable_vel_hmix: true
-    config_disable_vel_surface_stress: true
-    config_disable_vel_explicit_bottom_drag: true
-    config_disable_vel_vmix: true
-    config_disable_vel_vadv: true
     config_disable_tr_hmix: true
     config_disable_tr_vmix: true
     config_disable_tr_sflux: true
