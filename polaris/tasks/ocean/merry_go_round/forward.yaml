@@ -34,9 +34,6 @@ mpas-ocean:
     config_horiz_tracer_adv_order: 2
     config_flux_limiter: none
   tracer_forcing_activeTracers:
-    config_use_activeTracers_surface_restoring: false
-    config_use_activeTracers_interior_restoring: false
-    config_use_activeTracers: true
     config_use_activeTracers_surface_bulk_forcing: false
   tracer_forcing_debugTracers:
     config_use_debugTracers: true
