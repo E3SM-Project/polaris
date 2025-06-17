@@ -82,6 +82,7 @@ class Baroclinic(Task):
                 damping_coeff=1.0e-4,
                 baroclinic=True,
                 method=method,
+                graph_target=f'{init.path}/culled_graph.info',
             )
         )
 
