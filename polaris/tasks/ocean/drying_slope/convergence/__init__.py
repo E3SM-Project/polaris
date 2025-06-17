@@ -39,7 +39,7 @@ class Convergence(Task):
         component : polaris.ocean.Ocean
             The ocean component that this task belongs to
 
-        init : polaris.ocean.tasks.drying_slope.init.Init
+        init : polaris.tasks.ocean.drying_slope.init.Init
             A shared step for creating the initial state
 
         subdir : str

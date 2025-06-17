@@ -32,7 +32,7 @@ class Decomp(Task):
         indir : str
             The directory the task is in, to which ``name`` will be appended
 
-        init : polaris.ocean.tasks.drying_slope.init.Init
+        init : polaris.tasks.ocean.drying_slope.init.Init
             A shared step for creating the initial state
 
         coord_type : str, optional

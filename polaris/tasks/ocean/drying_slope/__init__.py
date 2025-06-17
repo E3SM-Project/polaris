@@ -24,7 +24,7 @@ def add_drying_slope_tasks(component):
         config = PolarisConfigParser(filepath=f'{group_dir}/{config_filename}')
         config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
         config.add_from_package(
-            'polaris.ocean.tasks.drying_slope', config_filename
+            'polaris.tasks.ocean.drying_slope', config_filename
         )
         if coord_type == 'single_layer':
             config.set(
@@ -128,7 +128,6 @@ def add_drying_slope_tasks(component):
             resolution = 1.0
             resdir = resolution_to_string(resolution)
             indir = f'{case_dir}/{resdir}'
-            method = 'ramp'
 
             # Create a new initial condition for the baroclinic case
             init = Init(
@@ -139,14 +138,15 @@ def add_drying_slope_tasks(component):
             )
             init.set_shared_config(config, link=config_filename)
 
-            baroclinic = Baroclinic(
-                component=component,
-                resolution=resolution,
-                init=init,
-                subdir=f'{indir}/{method}',
-                coord_type=coord_type,
-                method=method,
-                forcing_type=forcing_type,
-            )
-            baroclinic.set_shared_config(config, link=config_filename)
-            component.add_task(baroclinic)
+            for method in ['standard', 'ramp']:
+                baroclinic = Baroclinic(
+                    component=component,
+                    resolution=resolution,
+                    init=init,
+                    subdir=f'{indir}/{method}',
+                    coord_type=coord_type,
+                    method=method,
+                    forcing_type=forcing_type,
+                )
+                baroclinic.set_shared_config(config, link=config_filename)
+                component.add_task(baroclinic)

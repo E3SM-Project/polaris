@@ -136,10 +136,10 @@ class Forward(OceanModelStep):
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
         if self.baroclinic:
             self.add_yaml_file(
-                'polaris.ocean.tasks.drying_slope', 'baroclinic.yaml'
+                'polaris.tasks.ocean.drying_slope', 'baroclinic.yaml'
             )
         self.add_yaml_file(
-            'polaris.ocean.tasks.drying_slope', self.yaml_filename
+            'polaris.tasks.ocean.drying_slope', self.yaml_filename
         )
 
         self.add_input_file(
@@ -275,7 +275,7 @@ class Forward(OceanModelStep):
         )
         print(replacements)
         self.add_yaml_file(
-            'polaris.ocean.tasks.drying_slope',
+            'polaris.tasks.ocean.drying_slope',
             self.yaml_filename,
             template_replacements=replacements,
         )
