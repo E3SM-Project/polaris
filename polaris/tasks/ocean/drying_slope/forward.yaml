@@ -23,11 +23,8 @@ mpas-ocean:
     config_Rayleigh_damping_depth_variable: true
   wetting_drying:
     config_use_wetting_drying: true
-    config_drying_min_cell_height: {{ hmin }}
     config_prevent_drying: true
     config_zero_drying_velocity: true
-    config_zero_drying_velocity_ramp_hmin: {{ ramp_hmin }}
-    config_zero_drying_velocity_ramp_hmax: {{ ramp_hmax }}
     config_verify_not_dry: true
   ALE_vertical_grid:
     config_vert_coord_movement: impermeable_interfaces
@@ -52,17 +49,19 @@ mpas-ocean:
     output:
       type: output
       filename_template: output.nc
-      output_interval: 0000_01:12:00
+      output_interval: 0000_00:00:00.1
       clobber_mode: truncate
       contents:
       - mesh
       - tracers
       - xtime
       - daysSinceStartOfSim
-      - upwindFactor
       - normalVelocity
       - velocityX
       - velocityY
       - layerThickness
       - ssh
       - wettingVelocityFactor
+      - wettingVelocityBaroclinic
+      - wettingVelocityBarotropicSubcycle
+#      - upwindFactor
