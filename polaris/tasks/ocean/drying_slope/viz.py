@@ -143,65 +143,83 @@ class Viz(Step):
             out_filenames.append('output.nc')
         else:
             for damping_coeff in self.damping_coeffs:
-                out_filenames.append(f'output_{damping_coeff:03g}.nc')
+                out_filenames.append(f'output_{damping_coeff:04g}.nc')
 
         for out_filename in out_filenames:
             ds = xr.load_dataset(out_filename)
             x, y = self._plot_transects(ds_mesh=ds_mesh, ds=ds)
 
-            for atime in self.times:
+            nt = int(ds.sizes['Time'])
+            for tidx in np.arange(0,nt,nt/20, dtype=int):
+            #for tidx in np.arange(-10,0,1):
+                for zidx in [0, 9]:
+            #for atime in self.times:
                 # Plot MPAS-O data
-                mpastime = ds.daysSinceStartOfSim.values
-                simtime = pd.to_timedelta(mpastime)
-                s_day = 86400.0
-                time = simtime.total_seconds()
-                tidx = np.argmin(np.abs(time / s_day - float(atime)))
-                plot_horiz_field(
-                    ds_mesh,
-                    ds.wettingVelocityFactor,
-                    cmap_title=r'$\Phi$',
-                    out_file_name=f'wetting_factor_t{tidx:03g}.png',
-                    transect_x=x,
-                    transect_y=y,
-                    show_patch_edges=True,
-                    t_index=tidx,
-                    field_mask=edge_mask,
-                    vmin=0,
-                    vmax=1,
-                )
-
-                plot_horiz_field(
-                    ds_mesh,
-                    ds.upwindFactor,
-                    cmap_title=r'$\Psi$',
-                    out_file_name=f'upwind_factor_t{tidx:03g}.png',
-                    transect_x=x,
-                    transect_y=y,
-                    show_patch_edges=False,
-                    t_index=tidx,
-                    field_mask=edge_mask,
-                    vmin=0,
-                    vmax=1,
-                )
-
-                if self.baroclinic:
+                #mpastime = ds.daysSinceStartOfSim.values
+                #simtime = pd.to_timedelta(mpastime)
+                #s_day = 86400.0
+                #time = simtime.total_seconds()
+                #tidx = np.argmin(np.abs(time / s_day - float(atime)))
                     plot_horiz_field(
                         ds_mesh,
-                        ds.wettingVelocityBarotropicSubcycle,
-                        cmap_title=r'$\Phi_{btr}$',
-                        out_file_name=f'wetting_barotropic_t{tidx:03g}.png',
+                        ds.wettingVelocityFactor,
+                        cmap_title=r'$\Phi$',
+                        out_file_name=f'wetting_factor_t{tidx:04g}_z{zidx:02g}.png',
+                        transect_x=x,
+                        transect_y=y,
+                        show_patch_edges=True,
+                        t_index=tidx,
+                        z_index=zidx,
+                        field_mask=edge_mask,
+                        vmin=0,
+                        vmax=1,
+                    )
+
+                if 'upwindFactor' in ds.keys():
+                    plot_horiz_field(
+                        ds_mesh,
+                        ds.upwindFactor,
+                        cmap_title=r'$\Psi$',
+                        out_file_name=f'upwind_factor_t{tidx:04g}.png',
+                        transect_x=x,
+                        transect_y=y,
+                        show_patch_edges=False,
                         t_index=tidx,
                         field_mask=edge_mask,
                         vmin=0,
                         vmax=1,
                     )
+
+                if self.baroclinic:
+                    if 'wettingVelocityBaroclinic' in ds.keys():
+                        plot_horiz_field(
+                            ds_mesh,
+                            ds.wettingVelocityBaroclinic,
+                            cmap_title=r'$\Phi_{bcl}$',
+                            out_file_name=f'wetting_baroclinic_t{tidx:04g}.png',
+                            t_index=tidx,
+                            field_mask=edge_mask,
+                            vmin=0,
+                            vmax=1,
+                        )
+                    if 'wettingVelocityBarotropicSubcycle' in ds.keys():
+                        plot_horiz_field(
+                            ds_mesh,
+                            ds.wettingVelocityBarotropicSubcycle,
+                            cmap_title=r'$\Phi_{btr}$',
+                            out_file_name=f'wetting_barotropic_t{tidx:04g}.png',
+                            t_index=tidx,
+                            field_mask=edge_mask,
+                            vmin=0,
+                            vmax=1,
+                        )
                     self._plot_salinity(tidx=-1, y_distance=45.0)
 
                 plot_horiz_field(
                     ds_mesh,
-                    ds.ssh,
-                    cmap_title='SSH',
-                    out_file_name=f'ssh_horiz_t{tidx:03g}.png',
+                    ds.ssh + ds_mesh.bottomDepth,
+                    cmap_title='H',
+                    out_file_name=f'wct_horiz_t{tidx:04g}.png',
                     t_index=tidx,
                     field_mask=cell_mask,
                 )
@@ -217,9 +235,9 @@ class Viz(Step):
 
         ymin = -ds_mesh.bottomDepth.max()
         ymax = ds.ssh.max()
-        vmin_layer_thickness = ds.layerThickness.min()
-        vmax_layer_thickness = ds.layerThickness.max()
-        vmax_velocity = np.max(np.abs(ds.velocityY.values))
+        vmin_layer_thickness = max(ds.layerThickness.min().values, 0.01)
+        vmax_layer_thickness = min(ds.layerThickness.max().values, 1.0)
+        vmax_velocity = min(np.nanmax(np.abs(ds.velocityY.values)), 0.5)
         nrows = 2
         if self.baroclinic:
             nrows += 1
@@ -229,7 +247,11 @@ class Viz(Step):
         mpastime = ds.daysSinceStartOfSim.values
         simtime = pd.to_timedelta(mpastime)
         time_hours = simtime.total_seconds() / 3600.0
-        for tidx in range(ds.sizes['Time']):
+        nt = int(ds.sizes['Time'])
+        for tidx in np.arange(0,nt,nt/10, dtype=int):
+        #for tidx in range(ds.sizes['Time']):
+            if np.nanmax(np.abs(ds.layerThickness.isel(Time=tidx).values)) > 1.e3:
+                print(f'layerThickness corrupted at time {tidx}')
             ds_transect = compute_transect(
                 x=x,
                 y=y,
@@ -245,7 +267,7 @@ class Viz(Step):
                 ds_transect=ds_transect,
                 mpas_field=ds.velocityX.isel(Time=tidx),
                 title='Across-slope velocity',
-                out_filename=f'velocityX_depth_t{tidx:03g}.png',
+                out_filename=f'velocityX_depth_t{tidx:04g}.png',
                 vmin=-vmax_velocity,
                 vmax=vmax_velocity,
                 colorbar_label=r'',
@@ -301,7 +323,7 @@ class Viz(Step):
                 axs[2].set_title('Salinity')
                 axs[2].set_ylim([ymin, ymax])
             plt.savefig(
-                f'layerThickness_velocityY_depth_t{tidx:03g}.png',
+                f'layerThickness_velocityY_depth_t{tidx:04g}.png',
                 bbox_inches='tight',
             )
             plt.close()
@@ -476,6 +498,6 @@ class Viz(Step):
                     loc='lower left',
                 )
 
-            filename = f'{outFolder}/ssh_depth_section_t{tidx:03d}'
+            filename = f'{outFolder}/ssh_depth_section_t{tidx:04d}'
             fig.savefig(f'{filename}.png', dpi=200, format='png')
             plt.close(fig)
