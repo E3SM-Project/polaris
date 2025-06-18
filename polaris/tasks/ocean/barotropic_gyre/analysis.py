@@ -249,12 +249,15 @@ class Analysis(OceanIOStep):
         elif boundary_condition == 'free slip':
             psi = (
                 pi
-                * (1.0 - x / L_x)
-                * np.sin(pi * y / L_y)
+                * np.sin(pi * (y / L_y))
                 * (
-                    1.0
-                    - np.exp(-x / (2.0 * delta_m * L_x))
-                    * (np.cos(gamma) + (1.0 / np.sqrt(3.0)) * np.sin(gamma))
+                    (1.0 - (x / L_x) - delta_m)
+                    + (np.exp((-(x / L_x)) / (2.0 * delta_m)))
+                    * (
+                        (-2 / 3) * (1 - delta_m) * np.cos(gamma - (pi / 6))
+                        + ((2.0 / np.sqrt(3.0)) * np.sin(gamma))
+                    )
+                    + delta_m * np.exp((((x / L_x) - 1) / delta_m))
                 )
             )
         return psi
