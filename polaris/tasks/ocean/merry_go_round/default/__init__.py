@@ -1,5 +1,8 @@
-from polaris import Task
+from typing import Dict as Dict
+
+from polaris import Step, Task
 from polaris.resolution import resolution_to_string
+from polaris.tasks.ocean.merry_go_round.default.viz import Viz
 from polaris.tasks.ocean.merry_go_round.forward import Forward
 from polaris.tasks.ocean.merry_go_round.init import Init
 
@@ -33,6 +36,7 @@ class Default(Task):
         config_filename = 'merry_go_round.cfg'
 
         super().__init__(component=component, name='default', indir=indir)
+        self.set_shared_config(config, link=config_filename)
 
         mesh_name = resolution_to_string(resolution)
 
@@ -60,8 +64,18 @@ class Default(Task):
         forward_step.set_shared_config(config, link=config_filename)
         self.add_step(forward_step, symlink=symlink)
 
-        """
-        self.add_step(
-            Viz(component=component, indir=self.subdir)
+        viz_dependencies: Dict[str, Step] = dict(
+            mesh=init_step, init=init_step, forward=forward_step
         )
-        """
+
+        viz_step = Viz(
+            component=component,
+            dependencies=viz_dependencies,
+            taskdir=self.subdir,
+        )
+        viz_step.set_shared_config(config, link=config_filename)
+        self.add_step(viz_step, run_by_default=True)
+
+        config.add_from_package(
+            'polaris.tasks.ocean.merry_go_round', config_filename
+        )
