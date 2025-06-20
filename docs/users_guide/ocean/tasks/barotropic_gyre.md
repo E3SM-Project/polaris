@@ -28,6 +28,14 @@ produced:
 :width: 800 px
 ```
 
+The analytic solution for the free slip condition is derived from
+Henderschott's General Circulation of the Ocean doi:10.1007/978-1-4612-4636-7
+p.223 unnumbered equation after 2.3.9.
+
+The analytic solution for the no slip condition is derived from
+Vallis's Atmospheric and Oceanic Fluid Dynamics doi:10.1017/9781107588417
+p.743 equation 19.49.
+
 ## mesh
 
 The mesh is planar with dimensions given by the config options `lx` and `ly`
