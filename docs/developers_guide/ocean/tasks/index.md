@@ -16,6 +16,7 @@ ice_shelf_2d
 inertial_gravity_wave
 internal_wave
 manufactured_solution
+merry_go_round
 nondivergent_2d
 overflow
 rotation_2d
