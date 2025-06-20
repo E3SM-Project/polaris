@@ -3,7 +3,7 @@
 # merry-go-round
 
 The `ocean/merry_go_round` test group induces a convective cell in a horizontal
-domain in order to vertify tracer advection.
+domain in order to verify tracer advection.
 
 ```{image} images/merry_go_round_section.png
 :align: center
@@ -21,26 +21,27 @@ These tasks only support MPAS-Ocean.
 ### description
 
 For the initial conditions described below, tracer concentration contours match
-the streamlines of the convective cell such that an accurate tracer advection
+the streamlines of the convective cell, such that an accurate tracer advection
 scheme would result in no change in the tracer field in time.
 
 The init step generates the mesh and initial condition for the requested
 resolution.
 
-The forward step runs the model for the requested lenght of time. Tendencies
+The forward step runs the model for the requested length of time. Tendencies
 for normal velocity and layer thickness are disabled, such that these fields
 remain fixed at their initial conditions throughout the simulation.
 
-The visualization step produces a plot illustrating the horizontal velocity, 
-vertical velocity, simulated `tracer1` concentration at the end of the
-simulation, and the error. (See above for an example). 
+The visualization step produces a plot illustrating the horizontal velocity,
+vertical velocity, simulated `tracer1` concentration, the error in simulated
+tracer concentration at the end of the forward simulation.
+(See above for an example).
 
 ### mesh
 The mesh is planar and the resolution is specified by config option
 `convergence:base_resolution`, which defaults to 5 m. The horizontal
 dimensions of the domain are set by config options `merry_go_round:lx` and
 `merry_go_round:ly`, defaulting to 500 m by 5 m. The domain is solid on the
-zonal boundaries and perodic on the meridional boundaries.
+zonal boundaries and periodic on the meridional boundaries.
 
 ### vertical grid
 
@@ -73,8 +74,8 @@ min_pc_fraction = 0.1
 Salinity is constant throughout the domain as specified by
 `merry_go_round:salinity_background`, which defaults to 35 PSU. The initial
 temperature is high on the right side (`merry_go_round:temperature_right`) of
-the domain and low on the left side (`merry_go_round:temperature_left`) of the
-domain, with defaults of 30 degC and 5 degC respectively. This field initiates
+and low on the left side (`merry_go_round:temperature_left`) of the domain,
+with defaults of 30 degC and 5 degC respectively. This field initiates
 a convective cell in the zonal and vertical dimensions. Debug tracer, `tracer1`
 , is initialized with a high value in the center of domain and gradually
 transitions to a lower value at the edges of the domain.
@@ -87,11 +88,11 @@ N/A
 The time step is determined by the config option `merry_go_round:dt_per_km`
 according to the mesh resolution (i.e. `convergence:base_resolution`).
 The run duration is determined by the config option
-`merry_go_round:run_duration` as mesured in hours.
+`merry_go_round:run_duration` as measured in hours.
 
 ### config options
 
-The following config options are availiable for this case:
+The following config options are available for this case:
 
 ```cfg
 [merry_go_round]
@@ -136,25 +137,25 @@ The number of cores is determined according to the config options
 
 ## convergence tasks
 
-There are 3 versions of the convergence test case, `convergence_space`,
+There are three versions of the convergence test case: `convergence_space`,
 `convergence_time`, and `convergence_both` corresponding to space, time, and
-space and time convergence tests. All settings are the same as the 
+space and time convergence tests. All settings are the same as the
 {ref}`ocean-merry-go-round-default` case, but now the resolution and/or time step
-are refined to asses the order of convergence for tracer advection. Tests 
-involving spatial convergence have a horizontal resolution of 
+are refined to asses the order of convergence for tracer advection. Tests
+involving spatial convergence have a horizontal resolution of
 `convergence:base_resolution` times `convergence:refinement_factors_space`.
 Tests involving just temporal convergence use the parameter
 `merry_go_round:dt_per_km` at the `convergence:base_resolution` multiplied by
 `convergence:refinement_factors_time`. Tests invoking both spatial and temporal
-convergence do both refinement described above simultaneously (see 
+convergence do both types of refinement described above simultaneously (see
 {ref}`dev-ocean-convergence` for more details on how to change resolutions or
 time steps tested).
 
-The init and forward steps are analagous to what is described above for 
-{ref}`ocean-merry-go-round-default.
+The init and forward steps are analogous to what is described above for
+{ref}`ocean-merry-go-round-default`.
 
 The analysis step computes the `convergence:error_type` of your choosing,
-between the simulated `tracer1` field and and the exact solution at the end
+between the simulated `tracer1` field and the exact solution at the end
 of the simulation. Because tracer concentration contours match the streamlines
 of the convective cell the exact solution is equivalent to the initial
 condition. It also computes the convergence rate with resolution and/or
@@ -165,4 +166,4 @@ time step, producing a plot like:
 :width: 500 px
 ```
 The visualization step plot the numerical solution, exact solution, and their
-difference for each resolution and/or timestep simulated.
+difference for each resolution and/or time step simulated.

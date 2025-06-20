@@ -32,9 +32,9 @@ Guide.
 ### forward
 
 The class {py:class}`polaris.tasks.ocean.merry_go_round.forward.Forward`
-defines a step for running the ocean from the initial condition produced in
-the `init` step. The time step is determined algorithmically based on
-config options (i.e. `dt_per_km`) and the type of refiment requested. The
+defines a step for running the ocean model from the initial condition produced
+in the `init` step. The time step is determined algorithmically based on
+config options (i.e. `dt_per_km`) and the type of refinement requested. The
 number of cells is approximated from config options in
 {py:meth}`polaris.tasks.ocean.merry_go_round.forward.Forward.compute_cell_count()`
 so that this can be used to constrain the number of MPI tasks that Polaris
@@ -42,9 +42,9 @@ tasks have as their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
 graph partition is generated as part of `runtime_setup()`.  Next, the ocean
 model is run. The duration is set by `run_duration` in the config section
-corresponding to the task (`merry_go_round` or `overflow_rpe`). Finally,
-validation of `normalVelocity`, `tracer1`, `tracer2`, and `tracer3` in the
-`output.nc` file are performed against a baseline if one is provided when
+corresponding to the task (`merry_go_round`). Finally, validation of
+`normalVelocity`, `tracer1`, `tracer2`, and `tracer3` in the `output.nc`
+file are performed against a baseline if one is provided when
 calling {ref}`dev-polaris-setup`.
 
 (dev-ocean-merry-go-round)=
@@ -59,7 +59,7 @@ test runs the `init` step, the `forward` step, and a custom `viz` step.
 The {py:class}`polaris.tasks.ocean.merry_go_round.default.viz.Viz` plots
 transects of the horizontal velocity, vertical velocity, simulated tracer
 concentration, and error in simulated tracer concentration at the end of the
-forward run. This more detailed plotting step is only available for the 
+forward run. This more detailed plotting step is only available for the
 default test case.
 
 (dev-ocean-merry-go-analysis)=
