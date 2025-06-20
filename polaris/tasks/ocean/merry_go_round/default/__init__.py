@@ -9,7 +9,7 @@ from polaris.tasks.ocean.merry_go_round.init import Init
 
 class Default(Task):
     """
-    The default test case for the merry-go-round simply ...
+    The default test case for the merry-go-round
     """
 
     def __init__(self, component, config, resolution, timestep, indir):

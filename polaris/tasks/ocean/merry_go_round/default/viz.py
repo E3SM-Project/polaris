@@ -11,7 +11,7 @@ from polaris.viz import use_mplstyle
 
 class Viz(OceanIOStep):
     """
-    A step for visualizing the output from the merry-go-round test case
+    A step for visualizing the output of the default merry-go-round test case
     """
 
     def __init__(self, component, dependencies, taskdir):
@@ -46,7 +46,7 @@ class Viz(OceanIOStep):
 
     def setup(self):
         """
-        Add input files, which are dependent on based on the config options
+        Add input files, which are dependent on the config options values
         """
         super().setup()
         dependencies = self.dependencies_dict

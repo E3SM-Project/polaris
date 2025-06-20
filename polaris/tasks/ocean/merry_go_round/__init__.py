@@ -17,6 +17,12 @@ from polaris.tasks.ocean.merry_go_round.viz import Viz
 
 
 def add_merry_go_round_tasks(component):
+    """
+    Add task define variants of the merry-go-round test case
+
+    component : polaris.tasks.ocean.Ocean
+        the ocean component that the tasks will be added to
+    """
     basedir = 'planar/merry_go_round'
 
     config_filename = 'merry_go_round.cfg'
@@ -54,12 +60,12 @@ def add_merry_go_round_tasks(component):
 
 class MerryGoRound(Task):
     """
-    A test group for tracer advection test cases "merry-go-round"
+    A convergence task for tracer advection in a "merry-go-round" configuration
     """
 
     def __init__(self, component, config, basedir, refinement='both'):
         """
-        Create the test case
+        Create the convergence test
 
         Parameters
         ----------
@@ -70,7 +76,7 @@ class MerryGoRound(Task):
             A shared config parser
 
         basedir : str
-            The directory from which all steps will decend from. The task
+            The directory from which all steps will descend from. The task
             ``name`` will be appended to this path
 
         refinement : str, optional
