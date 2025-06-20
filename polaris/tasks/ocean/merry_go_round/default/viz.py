@@ -82,7 +82,7 @@ class Viz(OceanIOStep):
         fig, axes = plt.subplots(
             nrows=2,
             ncols=2,
-            figsize=(12, 8),
+            figsize=(8, 5),
             constrained_layout=True,
             sharex=True,
             sharey=True,
