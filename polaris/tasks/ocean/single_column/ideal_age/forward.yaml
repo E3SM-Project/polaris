@@ -1,4 +1,6 @@
 mpas-ocean:
+  time_management:
+    config_run_duration: 0010_00:00:00
   tracer_forcing_idealAgeTracers:
     config_use_idealAgeTracers: true
     config_use_idealAgeTracers_idealAge_forcing: true
