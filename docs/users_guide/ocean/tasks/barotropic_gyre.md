@@ -109,14 +109,14 @@ ly = 1200
 # Maximum amplitude of the zonal wind stress [N m-2]
 tau_0 = 0.1
 
-# Horizontal visocity [m2 s-1]
+# Horizontal viscosity [m2 s-1]
 nu_2 = 4e2
 
-# [s-1 m-1]
-beta = 10e-11
+# Coriolis parameter, y-slope [s-1 m-1]
+beta = 1e-11
 
-# [s-1]
-f_0 = 10e-4
+# Coriolis parameter, constant term [s-1]
+f_0 = 1e-4
 
 # homogenous fluid density [kg m-3]
 rho_0 = 1000
