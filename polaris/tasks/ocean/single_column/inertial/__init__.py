@@ -2,14 +2,15 @@ import os
 
 from polaris import Task
 from polaris.tasks.ocean.single_column.forward import Forward
+from polaris.tasks.ocean.single_column.inertial.analysis import Analysis
 from polaris.tasks.ocean.single_column.init import Init
 from polaris.tasks.ocean.single_column.viz import Viz
 
 
-class CVMix(Task):
+class Inertial(Task):
     """
-    The CVMix single-column test case creates the mesh and initial condition,
-    then performs a short forward run testing vertical mixing on 1 core.
+    The inertial single-column test case creates the mesh and initial condition
+    then performs a short forward run testing inertial oscillations on 1 core.
     """
 
     def __init__(self, component):
@@ -20,15 +21,17 @@ class CVMix(Task):
         component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
         """
-        name = 'cvmix'
+        name = 'inertial'
         subdir = os.path.join('single_column', name)
         super().__init__(component=component, name=name, subdir=subdir)
+
         self.config.add_from_package(
             'polaris.tasks.ocean.single_column', 'single_column.cfg'
         )
         self.config.add_from_package(
-            'polaris.tasks.ocean.single_column.cvmix', 'cvmix.cfg'
+            'polaris.tasks.ocean.single_column.inertial', 'inertial.cfg'
         )
+
         self.add_step(Init(component=component, indir=self.subdir))
 
         validate_vars = [
@@ -50,5 +53,12 @@ class CVMix(Task):
         )
 
         self.add_step(
-            Viz(component=component, indir=self.subdir, config=self.config)
+            Analysis(
+                component=component, indir=self.subdir, config=self.config
+            )
+        )
+
+        self.add_step(
+            Viz(component=component, indir=self.subdir, config=self.config),
+            run_by_default=False,
         )

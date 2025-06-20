@@ -11,7 +11,7 @@ class Viz(Step):
     A step for plotting the results of a single-column test
     """
 
-    def __init__(self, component, indir, ideal_age=False):
+    def __init__(self, component, config, indir, ideal_age=False):
         """
         Create the step
 
@@ -35,6 +35,7 @@ class Viz(Step):
         self.add_input_file(
             filename='output.nc', target='../forward/output.nc'
         )
+        self.config = config
 
     def run(self):
         """
@@ -43,10 +44,12 @@ class Viz(Step):
         use_mplstyle()
         ideal_age = self.ideal_age
         ds = xr.load_dataset('output.nc')
-        t_index = ds.sizes['Time'] - 1
-        t = ds.daysSinceStartOfSim[t_index]
-        t_days = t.values.astype('timedelta64[D]')
-        title = f'final time = {t_days / np.timedelta64(1, "D")} days'
+        t_days = ds.daysSinceStartOfSim.values
+        t = t_days.astype('timedelta64[ns]')
+        t = t / np.timedelta64(1, 'D')
+        t_index = np.argmin(np.abs(t - 1.0))  # ds.sizes['Time'] - 1
+        t_days = t[t_index]
+        title = f'final time = {t_days} days'
         fields = {'temperature': 'degC', 'salinity': 'PSU'}
         if ideal_age:
             fields['iAge'] = 'seconds'

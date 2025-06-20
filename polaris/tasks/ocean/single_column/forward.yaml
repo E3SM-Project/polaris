@@ -36,6 +36,8 @@ mpas-ocean:
       - zMid
       - zTop
       - normalVelocity
+      - velocityZonal
+      - velocityMeridional
       - layerThickness
       - kineticEnergyCell
       - relativeVorticityCell
