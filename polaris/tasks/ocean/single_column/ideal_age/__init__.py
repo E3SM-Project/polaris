@@ -36,10 +36,7 @@ class IdealAge(Task):
             min_tasks=1,
             openmp_threads=1,
             validate_vars=validate_vars,
-        )
-
-        step.add_yaml_file(
-            'polaris.tasks.ocean.single_column.ideal_age', 'forward.yaml'
+            task_name=name,
         )
 
         self.add_step(step)

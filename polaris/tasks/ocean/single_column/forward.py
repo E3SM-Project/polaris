@@ -29,6 +29,7 @@ class Forward(OceanModelStep):
         min_tasks=None,
         openmp_threads=1,
         validate_vars=None,
+        task_name='',
     ):
         """
         Create a new test case
@@ -85,6 +86,9 @@ class Forward(OceanModelStep):
         )
 
         self.add_yaml_file('polaris.tasks.ocean.single_column', 'forward.yaml')
+        self.add_yaml_file(
+            f'polaris.tasks.ocean.single_column.{task_name}', 'forward.yaml'
+        )
 
         self.add_output_file(filename='output.nc', validate_vars=validate_vars)
 
@@ -92,3 +96,14 @@ class Forward(OceanModelStep):
 
         self.dt = None
         self.btr_dt = None
+        self.task_name = task_name
+
+    def dynamic_model_config(self, at_setup):
+        if self.task_name == 'ekman':
+            nu = self.config.getfloat(
+                'single_column_ekman', 'vertical_viscosity'
+            )
+            self.add_model_config_options(
+                options={'config_cvmix_background_viscosity': nu},
+                config_model='mpas-ocean',
+            )
