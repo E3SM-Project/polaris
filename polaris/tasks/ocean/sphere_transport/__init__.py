@@ -9,7 +9,7 @@ from polaris import (
     Task as Task,
 )
 from polaris.config import PolarisConfigParser as PolarisConfigParser
-from polaris.mesh.base import add_uniform_spherical_base_mesh_step
+from polaris.mesh.base import add_spherical_base_mesh_step
 from polaris.ocean.convergence import (
     get_resolution_for_task as get_resolution_for_task,
 )
@@ -213,8 +213,8 @@ class SphereTransport(Task):
             resolution = get_resolution_for_task(
                 config, refinement_factor, refinement=refinement
             )
-            base_mesh_step, mesh_name = add_uniform_spherical_base_mesh_step(
-                resolution, icosahedral
+            base_mesh_step, mesh_name = add_spherical_base_mesh_step(
+                prefix=prefix, min_res=resolution
             )
             analysis_dependencies['mesh'][refinement_factor] = base_mesh_step
 
