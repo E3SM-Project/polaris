@@ -3,7 +3,7 @@ from typing import Dict as Dict
 
 from polaris import Step, Task
 from polaris.config import PolarisConfigParser as PolarisConfigParser
-from polaris.mesh.base import add_uniform_spherical_base_mesh_step
+from polaris.mesh.base import add_spherical_base_mesh_step
 from polaris.ocean.convergence import (
     get_resolution_for_task as get_resolution_for_task,
 )
@@ -188,8 +188,8 @@ class ExternalGravityWave(Task):
             config, refinement_factors[0], refinement=refinement
         )
 
-        base_mesh_step, mesh_name = add_uniform_spherical_base_mesh_step(
-            resolution, icosahedral=(prefix == 'icos')
+        base_mesh_step, mesh_name = add_spherical_base_mesh_step(
+            prefix=prefix, min_res=resolution
         )
 
         name = f'{prefix}_init_{mesh_name}'
