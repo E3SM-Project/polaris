@@ -47,7 +47,7 @@ def add_merry_go_round_tasks(component):
         )
     )
 
-    for refinement in ['space', 'time', 'both']:
+    for refinement in ['space', 'both']:
         component.add_task(
             MerryGoRound(
                 component=component,

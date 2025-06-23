@@ -143,19 +143,18 @@ The number of cores is determined according to the config options
 
 ## convergence tasks
 
-There are three versions of the convergence test case: `convergence_space`,
-`convergence_time`, and `convergence_both` corresponding to space, time, and
-space and time convergence tests. All settings are the same as the
+There are two versions of the convergence test case: `convergence_space` and 
+`convergence_both` corresponding to space and both space and time convergence
+tests. All settings are the same as the
 {ref}`ocean-merry-go-round-default` case, but now the resolution and/or time step
 are refined to asses the order of convergence for tracer advection. Tests
 involving spatial convergence have a horizontal resolution of
 `convergence:base_resolution` times `convergence:refinement_factors_space`.
-Tests involving just temporal convergence use the parameter
-`merry_go_round:dt_per_km` at the `convergence:base_resolution` multiplied by
-`convergence:refinement_factors_time`. Tests invoking both spatial and temporal
-convergence do both types of refinement described above simultaneously (see
-{ref}`dev-ocean-convergence` for more details on how to change resolutions or
-time steps tested).
+Tests invoking both spatial and temporal convergence refine the spatial
+resolution as described above and use a time step set by
+`merry_go_round:dt_per_km` times the refined spatial resolution
+(see {ref}`dev-ocean-convergence` for more details on how to change resolutions
+or time steps tested).
 
 The init and forward steps are analogous to what is described above for
 {ref}`ocean-merry-go-round-default`.
