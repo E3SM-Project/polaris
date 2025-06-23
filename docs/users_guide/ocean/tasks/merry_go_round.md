@@ -38,7 +38,7 @@ tracer concentration at the end of the forward simulation.
 
 ### mesh
 The mesh is planar and the resolution is specified by config option
-`convergence:base_resolution`, which defaults to 5 m. The horizontal
+`merry_go_round_default:resolution`, which defaults to 5 m. The horizontal
 dimensions of the domain are set by config options `merry_go_round:lx` and
 `merry_go_round:ly`, defaulting to 500 m by 5 m. The domain is solid on the
 zonal boundaries and periodic on the meridional boundaries.
@@ -126,6 +126,12 @@ conv_thresh = 1.2
 
 # Run duration in hours
 run_duration = 6.
+
+[merry_go_round_default]
+# the mesh resolution (km) at which the default test case is run and
+# the resolution to which refinement_factors are applied if refinement is
+# 'space' or 'both' on a planar mesh
+resolution = 0.005
 ```
 
 ### cores
