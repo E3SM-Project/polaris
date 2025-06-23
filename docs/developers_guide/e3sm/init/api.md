@@ -51,7 +51,35 @@
    RemapTopoStep.constrain_resources
    RemapTopoStep.define_smoothing
    RemapTopoStep.run
+
    RemapTopoTask
+
    VizRemappedTopoStep
    VizRemappedTopoStep.run
+```
+
+
+#### cull
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.init.topo.cull
+
+.. autosummary::
+   :toctree: generated/
+
+   CullMaskStep
+   CullMaskStep.setup
+   CullMaskStep.constrain_resources
+   CullMaskStep.define_critical_land_transects
+   CullMaskStep.define_critical_ocean_transects
+   CullMaskStep.refine_ocean_cull_mask
+   CullMaskStep.refine_land_cull_mask
+   CullMaskStep.run
+
+   CullMeshStep
+   CullMeshStep.setup
+   CullMeshStep.constrain_resources
+   CullMeshStep.run
+
+   CullTopoTask
 ```
