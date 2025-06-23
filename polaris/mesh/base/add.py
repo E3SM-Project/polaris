@@ -1,6 +1,7 @@
 import os
 
 from polaris.config import PolarisConfigParser
+from polaris.mesh.base.so import SOBaseMesh
 from polaris.mesh.spherical import (
     IcosahedralMeshStep,
     QuasiUniformSphericalMeshStep,
@@ -14,11 +15,13 @@ from polaris.tasks.mesh import mesh as mesh_component
 MESH_CLASSES = {
     'icos': IcosahedralMeshStep,
     'qu': QuasiUniformSphericalMeshStep,
+    'so': SOBaseMesh,
 }
 
 MESH_NAME_PREFIXES = {
     'icos': 'Icos',
     'qu': 'QU',
+    'so': 'SO',
 }
 
 
@@ -83,9 +86,6 @@ def add_spherical_base_mesh_step(prefix, min_res, max_res=None):
     }
     if prefix in ['Icos', 'QU']:
         kwargs['cell_width'] = min_res
-    else:
-        kwargs['min_cell_width'] = min_res
-        kwargs['max_cell_width'] = max_res
 
     base_mesh = component.get_or_create_shared_step(**kwargs)
 
