@@ -1,6 +1,7 @@
 import os
 
 from polaris.config import PolarisConfigParser
+from polaris.mesh.base.rrs import RRSBaseMesh
 from polaris.mesh.base.so import SOBaseMesh
 from polaris.mesh.spherical import (
     IcosahedralMeshStep,
@@ -15,12 +16,14 @@ from polaris.tasks.mesh import mesh as mesh_component
 MESH_CLASSES = {
     'icos': IcosahedralMeshStep,
     'qu': QuasiUniformSphericalMeshStep,
+    'rrs': RRSBaseMesh,
     'so': SOBaseMesh,
 }
 
 MESH_NAME_PREFIXES = {
     'icos': 'Icos',
     'qu': 'QU',
+    'rrs': 'RRS',
     'so': 'SO',
 }
 
