@@ -50,5 +50,6 @@ class IdealAge(Task):
                 component=component,
                 indir=self.subdir,
                 ideal_age=ideal_age,
-            )
+            ),
+            run_by_default=False,
         )

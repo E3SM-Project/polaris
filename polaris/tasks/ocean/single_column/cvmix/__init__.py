@@ -49,4 +49,7 @@ class CVMix(Task):
             )
         )
 
-        self.add_step(Viz(component=component, indir=self.subdir))
+        self.add_step(
+            Viz(component=component, indir=self.subdir),
+            run_by_default=False,
+        )
