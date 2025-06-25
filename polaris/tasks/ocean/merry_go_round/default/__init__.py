@@ -74,7 +74,7 @@ class Default(Task):
             taskdir=self.subdir,
         )
         viz_step.set_shared_config(config, link=config_filename)
-        self.add_step(viz_step, run_by_default=True)
+        self.add_step(viz_step, run_by_default=False)
 
         config.add_from_package(
             'polaris.tasks.ocean.merry_go_round', config_filename

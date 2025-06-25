@@ -156,7 +156,7 @@ class MerryGoRound(Task):
                 taskdir=self.subdir,
                 refinement=refinement,
             ),
-            run_by_default=True,
+            run_by_default=False,
         )
         self.add_step(
             Analysis(
