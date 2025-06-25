@@ -10,7 +10,7 @@ from polaris.tasks.ocean.single_column.viz import Viz
 class Ekman(Task):
     """
     The Ekman single-column test case creates the mesh and initial condition,
-    then performs a short forward run testing vertical mixing on 1 core.
+    then performs a short forward run spinning up an ekman layer on 1 core.
     """
 
     def __init__(self, component):

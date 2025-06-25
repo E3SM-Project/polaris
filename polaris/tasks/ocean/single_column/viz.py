@@ -11,7 +11,7 @@ class Viz(Step):
     A step for plotting the results of a single-column test
     """
 
-    def __init__(self, component, config, indir, ideal_age=False):
+    def __init__(self, component, indir, ideal_age=False):
         """
         Create the step
 
@@ -35,7 +35,6 @@ class Viz(Step):
         self.add_input_file(
             filename='output.nc', target='../forward/output.nc'
         )
-        self.config = config
 
     def run(self):
         """
@@ -49,9 +48,12 @@ class Viz(Step):
         t = t / np.timedelta64(1, 'D')
         t_index = np.argmin(np.abs(t - 1.0))  # ds.sizes['Time'] - 1
         t_days = t[t_index]
+
+        # Plot temperature and salinity profiles
         title = f'final time = {t_days} days'
         fields = {'temperature': 'degC', 'salinity': 'PSU'}
         if ideal_age:
+            # Include age tracer
             fields['iAge'] = 'seconds'
         z_mid = ds['zMid'].mean(dim='nCells')
         z_mid_init = z_mid.isel(Time=0)
@@ -74,6 +76,7 @@ class Viz(Step):
             plt.savefig(f'{field_name}.png')
             plt.close()
 
+        # Plot velocity profiles
         u = ds['velocityZonal'].mean(dim='nCells')
         v = ds['velocityMeridional'].mean(dim='nCells')
         u_final = u.isel(Time=t_index)

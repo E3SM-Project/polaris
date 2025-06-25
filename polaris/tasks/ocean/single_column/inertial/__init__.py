@@ -59,6 +59,6 @@ class Inertial(Task):
         )
 
         self.add_step(
-            Viz(component=component, indir=self.subdir, config=self.config),
+            Viz(component=component, indir=self.subdir),
             run_by_default=False,
         )

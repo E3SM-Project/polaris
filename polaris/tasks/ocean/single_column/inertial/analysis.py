@@ -8,7 +8,9 @@ from polaris.viz import use_mplstyle
 
 class Analysis(Step):
     """
-    A step for plotting the results of a single-column test
+    The analysis step plots a time series showing inertial oscillations
+    computes the oscillation frequency, and compares it to the theoretical
+    frequency
     """
 
     def __init__(self, component, indir, config):
@@ -24,6 +26,8 @@ class Analysis(Step):
             The subdirectory that the task belongs to, that this step will
             go into a subdirectory of
 
+        config : polaris.config.PolarisConfigParser
+            Config options for test case
         """
         super().__init__(component=component, name='analysis', indir=indir)
         self.config = config
@@ -56,12 +60,15 @@ class Analysis(Step):
         u_max = np.max(u.values, axis=1)
         v_max = np.max(v.values, axis=1)
 
-        ff = np.fft.fftfreq(len(u_max), dt)
-        Fyy = abs(np.fft.fft(u_max))
-        dominant_frequency = abs(ff[np.argmax(Fyy[1:]) + 1])
+        # Compute the FFT of the u-component and extract the frequency with
+        # the most power
+        freq = np.fft.fftfreq(len(u_max), dt)
+        power = abs(np.fft.fft(u_max))
+        dominant_frequency = abs(freq[np.argmax(power[1:]) + 1])
         dominant_period = (1 / dominant_frequency) / 3600.0  # in hours
         expected_period = (2 * np.pi / f) / 3600.0  # in hours
 
+        # Plot a time series of the maximum u and v components
         plt.figure(figsize=(3, 5))
         ax = plt.subplot(111)
         ax.plot(t[:t_index], u_max[:t_index], '-k')
@@ -84,6 +91,7 @@ class Analysis(Step):
         plt.savefig('velocity_tseries.png')
         plt.close()
 
+        # Write out some information about the inertial oscillations
         logger.info(f'Dominant period: {dominant_period:1.3f} (h)')
         logger.info(
             'Expected period for inertial oscillations: '
@@ -93,6 +101,9 @@ class Analysis(Step):
         period_frac_diff = (
             dominant_period - expected_period
         ) / expected_period
+
+        # Test case fails if the oscillations have a frequency that is too
+        # different from the theoretical frequency
         if abs(period_frac_diff) > tol:
             logger.error(
                 'error: Discrepancy in inertial oscillation frequency '
