@@ -20,6 +20,7 @@ def get_base_mesh_steps():
     # Add more variable resolution base meshes here
     variable_res: Dict[str, List[Tuple[float, float]]] = {
         'so': [(12.0, 30.0)],
+        'rrs': [(6.0, 18.0)],
     }
 
     base_mesh_steps = []
