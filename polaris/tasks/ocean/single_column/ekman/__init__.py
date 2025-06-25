@@ -4,6 +4,7 @@ from polaris import Task
 from polaris.tasks.ocean.single_column.ekman.analysis import Analysis
 from polaris.tasks.ocean.single_column.forward import Forward
 from polaris.tasks.ocean.single_column.init import Init
+from polaris.tasks.ocean.single_column.viz import Viz
 
 
 class Ekman(Task):
@@ -52,3 +53,8 @@ class Ekman(Task):
         )
 
         self.add_step(Analysis(component=component, indir=self.subdir))
+
+        self.add_step(
+            Viz(component=component, indir=self.subdir),
+            run_by_default=False,
+        )
