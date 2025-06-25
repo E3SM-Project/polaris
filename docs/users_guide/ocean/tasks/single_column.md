@@ -314,8 +314,8 @@ See {ref}`ocean-single-column`.
 
 ### description
 
-The `ekman` test compares the modeled Ekman boundary layer with an [analytic
-solution](https://doi.org/10.1126/science.238.4833.1534)
+The `ekman` test compares the modeled Ekman boundary layer with a wind-forced
+[analytic solution](https://doi.org/10.1126/science.238.4833.1534)
 
 The modeled and analytic solutions for MPAS-Ocean with the default settings
 are:
@@ -440,6 +440,7 @@ See {ref}`ocean-single-column`.
 
 The `inertial` test compares the modeled inertial frequency with the 
 [exact inertial frequency](https://doi.org/10.1175/1520-0477(1993)074%3C2179:ITCFRR%3E2.0.CO;2).
+The case should be configured to have the lowest possible friction.
 
 The modeled velocity time series for MPAS-Ocean with the default settings
 is:
