@@ -9,6 +9,8 @@ ocean/planar/internal_wave/vlr/default
 # ocean/planar/manufactured_solution/convergence_both
 ocean/planar/overflow/default
 ocean/single_column/cvmix
+ocean/single_column/ekman
 ocean/single_column/ideal_age
+ocean/single_column/inertial
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
