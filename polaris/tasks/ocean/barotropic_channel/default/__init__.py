@@ -1,6 +1,5 @@
 from polaris import Task as Task
-
-# from polaris.tasks.ocean.barotropic_channel.forward import Forward as Forward
+from polaris.tasks.ocean.barotropic_channel.forward import Forward as Forward
 from polaris.tasks.ocean.barotropic_channel.init import Init as Init
 
 # from polaris.tasks.ocean.barotropic_channel.viz import Viz as Viz
@@ -31,19 +30,15 @@ class Default(Task):
         test_name = 'default'
         super().__init__(component=component, name=test_name, indir=indir)
 
-        self.add_step(Init(component=component, indir=f'{indir}/{test_name}'))
+        init_step = Init(component=component, indir=f'{indir}/{test_name}')
+        self.add_step(init_step)
 
-        # self.add_step(
-        #    Forward(
-        #        component=component,
-        #        indir=self.subdir,
-        #        ntasks=None,
-        #        min_tasks=None,
-        #        openmp_threads=1,
-        #        resolution=resolution,
-        #        run_time_steps=3,
-        #        graph_target=f'{init.path}/culled_graph.info',
-        #    )
-        # )
+        self.add_step(
+            Forward(
+                component=component,
+                indir=self.subdir,
+                graph_target=f'{init_step.path}/culled_graph.info',
+            )
+        )
 
         # self.add_step(Viz(component=component, indir=self.subdir))
