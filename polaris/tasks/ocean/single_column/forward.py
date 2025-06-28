@@ -3,20 +3,14 @@ from polaris.ocean.model import OceanModelStep
 
 class Forward(OceanModelStep):
     """
-    A step for performing forward ocean component runs as part of baroclinic
-    channel test cases.
+    A step for performing forward ocean component runs as part of single_column
+    test cases.
 
     Attributes
     ----------
     resources_fixed : bool
         Whether resources were set already and shouldn't be updated
         algorithmically
-
-    dt : float
-        The model time step in seconds
-
-    btr_dt : float
-        The model barotropic time step in seconds
     """
 
     def __init__(
@@ -29,6 +23,7 @@ class Forward(OceanModelStep):
         min_tasks=None,
         openmp_threads=1,
         validate_vars=None,
+        task_name='',
     ):
         """
         Create a new test case
@@ -39,7 +34,7 @@ class Forward(OceanModelStep):
             The component the step belongs to
 
         name : str
-            the name of the test case
+            the name of the step
 
         subdir : str, optional
             the subdirectory for the step.  If neither this nor ``indir``
@@ -63,6 +58,9 @@ class Forward(OceanModelStep):
         validate_vars : list, optional
             A list of variable names to compare with a baseline (if one is
             provided)
+
+        task_name : str, optional
+            the name of the test case
         """
         super().__init__(
             component=component,
@@ -85,10 +83,22 @@ class Forward(OceanModelStep):
         )
 
         self.add_yaml_file('polaris.tasks.ocean.single_column', 'forward.yaml')
+        self.add_yaml_file(
+            f'polaris.tasks.ocean.single_column.{task_name}', 'forward.yaml'
+        )
 
         self.add_output_file(filename='output.nc', validate_vars=validate_vars)
 
         self.resources_fixed = ntasks is not None
 
-        self.dt = None
-        self.btr_dt = None
+        self.task_name = task_name
+
+    def dynamic_model_config(self, at_setup):
+        if self.task_name == 'ekman':
+            nu = self.config.getfloat(
+                'single_column_ekman', 'vertical_viscosity'
+            )
+            self.add_model_config_options(
+                options={'config_cvmix_background_viscosity': nu},
+                config_model='mpas-ocean',
+            )

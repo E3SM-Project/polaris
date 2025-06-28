@@ -1,3 +1,4 @@
+import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
@@ -97,6 +98,8 @@ class Init(Step):
             'mixed_layer_depth_salinity'
         )
         coriolis_parameter = section.getfloat('coriolis_parameter')
+        u = section.getfloat('zonal_velocity')
+        v = section.getfloat('meridional_velocity')
 
         z_mid = ds.refZMid
 
@@ -130,9 +133,10 @@ class Init(Step):
         salinity = salinity.transpose('nCells', 'nVertLevels')
         salinity = salinity.expand_dims(dim='Time', axis=0)
 
-        normal_velocity, _ = xr.broadcast(
-            xr.zeros_like(ds_mesh.xEdge), ds.refBottomDepth
+        normal_velocity = u * np.cos(ds_mesh.angleEdge) + v * np.sin(
+            ds_mesh.angleEdge
         )
+        normal_velocity, _ = xr.broadcast(normal_velocity, ds.refBottomDepth)
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
 
@@ -181,6 +185,10 @@ class Init(Step):
         shortwave_heat_flux = section.getfloat('shortwave_heat_flux')
         evaporation_flux = section.getfloat('evaporation_flux')
         rain_flux = section.getfloat('rain_flux')
+        river_runoff_flux = section.getfloat('river_runoff_flux')
+        ice_runoff_flux = section.getfloat('ice_runoff_flux')
+        subglacial_runoff_flux = section.getfloat('subglacial_runoff_flux')
+        iceberg_flux = section.getfloat('iceberg_flux')
         wind_stress_zonal = section.getfloat('wind_stress_zonal')
         wind_stress_meridional = section.getfloat('wind_stress_meridional')
 
@@ -221,4 +229,14 @@ class Init(Step):
             evaporation_flux * forcing_array_surface
         )
         ds_forcing['rainFlux'] = rain_flux * forcing_array_surface
+        ds_forcing['riverRunoffFlux'] = (
+            river_runoff_flux * forcing_array_surface
+        )
+        ds_forcing['iceRunoffFlux'] = ice_runoff_flux * forcing_array_surface
+        ds_forcing['subglacialRunoffFlux'] = (
+            subglacial_runoff_flux * forcing_array_surface
+        )
+        ds_forcing['icebergFreshWaterFlux'] = (
+            iceberg_flux * forcing_array_surface
+        )
         write_netcdf(ds_forcing, 'forcing.nc')

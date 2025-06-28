@@ -24,6 +24,10 @@ class IdealAge(Task):
         name = 'ideal_age'
         subdir = os.path.join('single_column', name)
         super().__init__(component=component, name=name, subdir=subdir)
+        self.config.add_from_package(
+            'polaris.tasks.ocean.single_column', 'single_column.cfg'
+        )
+
         self.add_step(
             Init(component=component, indir=self.subdir, ideal_age=ideal_age)
         )
@@ -36,18 +40,16 @@ class IdealAge(Task):
             min_tasks=1,
             openmp_threads=1,
             validate_vars=validate_vars,
-        )
-
-        step.add_yaml_file(
-            'polaris.tasks.ocean.single_column.ideal_age', 'forward.yaml'
+            task_name=name,
         )
 
         self.add_step(step)
 
         self.add_step(
-            Viz(component=component, indir=self.subdir, ideal_age=ideal_age)
-        )
-
-        self.config.add_from_package(
-            'polaris.tasks.ocean.single_column', 'single_column.cfg'
+            Viz(
+                component=component,
+                indir=self.subdir,
+                ideal_age=ideal_age,
+            ),
+            run_by_default=False,
         )

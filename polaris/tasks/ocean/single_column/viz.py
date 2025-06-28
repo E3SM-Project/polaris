@@ -43,12 +43,17 @@ class Viz(Step):
         use_mplstyle()
         ideal_age = self.ideal_age
         ds = xr.load_dataset('output.nc')
-        t_index = ds.sizes['Time'] - 1
-        t = ds.daysSinceStartOfSim[t_index]
-        t_days = t.values.astype('timedelta64[D]')
-        title = f'final time = {t_days / np.timedelta64(1, "D")} days'
+        t_days = ds.daysSinceStartOfSim.values
+        t = t_days.astype('timedelta64[ns]')
+        t = t / np.timedelta64(1, 'D')
+        t_index = np.argmin(np.abs(t - 1.0))  # ds.sizes['Time'] - 1
+        t_days = t[t_index]
+
+        # Plot temperature and salinity profiles
+        title = f'final time = {t_days} days'
         fields = {'temperature': 'degC', 'salinity': 'PSU'}
         if ideal_age:
+            # Include age tracer
             fields['iAge'] = 'seconds'
         z_mid = ds['zMid'].mean(dim='nCells')
         z_mid_init = z_mid.isel(Time=0)
@@ -70,3 +75,20 @@ class Viz(Step):
             plt.tight_layout(pad=0.5)
             plt.savefig(f'{field_name}.png')
             plt.close()
+
+        # Plot velocity profiles
+        u = ds['velocityZonal'].mean(dim='nCells')
+        v = ds['velocityMeridional'].mean(dim='nCells')
+        u_final = u.isel(Time=t_index)
+        v_final = v.isel(Time=t_index)
+        plt.figure(figsize=(3, 5))
+        ax = plt.subplot(111)
+        ax.plot(u_final, z_mid_final, '-k', label='u')
+        ax.plot(v_final, z_mid_final, '-b', label='v')
+        ax.set_xlabel('Velocity (m/s)')
+        ax.set_ylabel('z (m)')
+        ax.legend()
+        plt.title(title)
+        plt.tight_layout(pad=0.5)
+        plt.savefig('velocity.png')
+        plt.close()

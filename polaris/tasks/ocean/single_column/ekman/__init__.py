@@ -1,15 +1,16 @@
 import os
 
 from polaris import Task
+from polaris.tasks.ocean.single_column.ekman.analysis import Analysis
 from polaris.tasks.ocean.single_column.forward import Forward
 from polaris.tasks.ocean.single_column.init import Init
 from polaris.tasks.ocean.single_column.viz import Viz
 
 
-class CVMix(Task):
+class Ekman(Task):
     """
-    The CVMix single-column test case creates the mesh and initial condition,
-    then performs a short forward run testing vertical mixing on 1 core.
+    The Ekman single-column test case creates the mesh and initial condition,
+    then performs a short forward run spinning up an ekman layer on 1 core.
     """
 
     def __init__(self, component):
@@ -20,15 +21,17 @@ class CVMix(Task):
         component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
         """
-        name = 'cvmix'
+        name = 'ekman'
         subdir = os.path.join('single_column', name)
         super().__init__(component=component, name=name, subdir=subdir)
+
         self.config.add_from_package(
             'polaris.tasks.ocean.single_column', 'single_column.cfg'
         )
         self.config.add_from_package(
-            'polaris.tasks.ocean.single_column.cvmix', 'cvmix.cfg'
+            'polaris.tasks.ocean.single_column.ekman', 'ekman.cfg'
         )
+
         self.add_step(Init(component=component, indir=self.subdir))
 
         validate_vars = [
@@ -48,6 +51,8 @@ class CVMix(Task):
                 task_name=name,
             )
         )
+
+        self.add_step(Analysis(component=component, indir=self.subdir))
 
         self.add_step(
             Viz(component=component, indir=self.subdir),
