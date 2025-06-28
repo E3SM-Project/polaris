@@ -593,26 +593,47 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.add_single_column_tasks.html#polaris.tasks.ocean.single_column.add_single_column_tasks" title="polaris.tasks.ocean.single_column.add_single_column_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_single_column_tasks</span></code></a>(component)</p></td>
 <td><p>Add tasks for various single-column tests</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.forward.Forward.html#polaris.tasks.ocean.single_column.forward.Forward" title="polaris.tasks.ocean.single_column.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component[, name, subdir, ...])</p></td>
-<td><p>A step for performing forward ocean component runs as part of baroclinic channel test cases.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.init.Init.html#polaris.tasks.ocean.single_column.init.Init" title="polaris.tasks.ocean.single_column.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, indir[, ideal_age])</p></td>
-<td><p>A step for creating a mesh and initial condition for single column test cases</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.init.Init.run.html#polaris.tasks.ocean.single_column.init.Init.run" title="polaris.tasks.ocean.single_column.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
-<td><p>Run this step of the test case</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.viz.Viz.html#polaris.tasks.ocean.single_column.viz.Viz" title="polaris.tasks.ocean.single_column.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir[, ideal_age])</p></td>
-<td><p>A step for plotting the results of a single-column test</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.viz.Viz.run.html#polaris.tasks.ocean.single_column.viz.Viz.run" title="polaris.tasks.ocean.single_column.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
-<td><p>Run this step of the test case</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.cvmix.CVMix.html#polaris.tasks.ocean.single_column.cvmix.CVMix" title="polaris.tasks.ocean.single_column.cvmix.CVMix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cvmix.CVMix</span></code></a>(component)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.cvmix.CVMix.html#polaris.tasks.ocean.single_column.cvmix.CVMix" title="polaris.tasks.ocean.single_column.cvmix.CVMix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cvmix.CVMix</span></code></a>(component)</p></td>
 <td><p>The CVMix single-column test case creates the mesh and initial condition, then performs a short forward run testing vertical mixing on 1 core.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.ekman.Ekman.html#polaris.tasks.ocean.single_column.ekman.Ekman" title="polaris.tasks.ocean.single_column.ekman.Ekman"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ekman.Ekman</span></code></a>(component)</p></td>
+<td><p>The Ekman single-column test case creates the mesh and initial condition, then performs a short forward run spinning up an ekman layer on 1 core.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.ekman.analysis.Analysis.html#polaris.tasks.ocean.single_column.ekman.analysis.Analysis" title="polaris.tasks.ocean.single_column.ekman.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ekman.analysis.Analysis</span></code></a>(component, indir)</p></td>
+<td><p>A step for comparing the velocity profile to an analytic solution</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.ekman.analysis.Analysis.run.html#polaris.tasks.ocean.single_column.ekman.analysis.Analysis.run" title="polaris.tasks.ocean.single_column.ekman.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ekman.analysis.Analysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.forward.Forward.html#polaris.tasks.ocean.single_column.forward.Forward" title="polaris.tasks.ocean.single_column.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component[, name, subdir, ...])</p></td>
+<td><p>A step for performing forward ocean component runs as part of single_column test cases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.single_column.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.single_column.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
+<td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.ideal_age.IdealAge.html#polaris.tasks.ocean.single_column.ideal_age.IdealAge" title="polaris.tasks.ocean.single_column.ideal_age.IdealAge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ideal_age.IdealAge</span></code></a>(component[, ideal_age])</p></td>
 <td><p>The ideal-age single-column test case creates the mesh and initial condition, then performs a short forward run evolving the ideal-age tracer on 1 core.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.inertial.Inertial.html#polaris.tasks.ocean.single_column.inertial.Inertial" title="polaris.tasks.ocean.single_column.inertial.Inertial"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inertial.Inertial</span></code></a>(component)</p></td>
+<td><p>The inertial single-column test case creates the mesh and initial condition then performs a short forward run testing inertial oscillations on 1 core.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.inertial.analysis.Analysis.html#polaris.tasks.ocean.single_column.inertial.analysis.Analysis" title="polaris.tasks.ocean.single_column.inertial.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inertial.analysis.Analysis</span></code></a>(component, indir, ...)</p></td>
+<td><p>The analysis step plots a time series showing inertial oscillations computes the oscillation frequency, and compares it to the theoretical frequency</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.inertial.analysis.Analysis.run.html#polaris.tasks.ocean.single_column.inertial.analysis.Analysis.run" title="polaris.tasks.ocean.single_column.inertial.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inertial.analysis.Analysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.init.Init.html#polaris.tasks.ocean.single_column.init.Init" title="polaris.tasks.ocean.single_column.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, indir[, ideal_age])</p></td>
+<td><p>A step for creating a mesh and initial condition for single column test cases</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.init.Init.run.html#polaris.tasks.ocean.single_column.init.Init.run" title="polaris.tasks.ocean.single_column.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.viz.Viz.html#polaris.tasks.ocean.single_column.viz.Viz" title="polaris.tasks.ocean.single_column.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir[, ideal_age])</p></td>
+<td><p>A step for plotting the results of a single-column test</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.viz.Viz.run.html#polaris.tasks.ocean.single_column.viz.Viz.run" title="polaris.tasks.ocean.single_column.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
 </table>

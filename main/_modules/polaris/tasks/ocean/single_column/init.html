@@ -108,7 +108,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.single_column.init</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert</span><span class="p">,</span> <span class="n">cull</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.planar_hex</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_planar_hex_mesh</span>
@@ -214,6 +215,8 @@
             <span class="s1">&#39;mixed_layer_depth_salinity&#39;</span>
         <span class="p">)</span>
         <span class="n">coriolis_parameter</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;coriolis_parameter&#39;</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;zonal_velocity&#39;</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;meridional_velocity&#39;</span><span class="p">)</span>
 
         <span class="n">z_mid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span>
 
@@ -247,9 +250,10 @@
         <span class="n">salinity</span> <span class="o">=</span> <span class="n">salinity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
         <span class="n">salinity</span> <span class="o">=</span> <span class="n">salinity</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="n">normal_velocity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span>
-            <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span><span class="p">),</span> <span class="n">ds</span><span class="o">.</span><span class="n">refBottomDepth</span>
+        <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">u</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">angleEdge</span><span class="p">)</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="o">.</span><span class="n">angleEdge</span>
         <span class="p">)</span>
+        <span class="n">normal_velocity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">normal_velocity</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">refBottomDepth</span><span class="p">)</span>
         <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">normal_velocity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nEdges&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
         <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">normal_velocity</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
@@ -298,6 +302,10 @@
         <span class="n">shortwave_heat_flux</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;shortwave_heat_flux&#39;</span><span class="p">)</span>
         <span class="n">evaporation_flux</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;evaporation_flux&#39;</span><span class="p">)</span>
         <span class="n">rain_flux</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;rain_flux&#39;</span><span class="p">)</span>
+        <span class="n">river_runoff_flux</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;river_runoff_flux&#39;</span><span class="p">)</span>
+        <span class="n">ice_runoff_flux</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ice_runoff_flux&#39;</span><span class="p">)</span>
+        <span class="n">subglacial_runoff_flux</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;subglacial_runoff_flux&#39;</span><span class="p">)</span>
+        <span class="n">iceberg_flux</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;iceberg_flux&#39;</span><span class="p">)</span>
         <span class="n">wind_stress_zonal</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;wind_stress_zonal&#39;</span><span class="p">)</span>
         <span class="n">wind_stress_meridional</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;wind_stress_meridional&#39;</span><span class="p">)</span>
 
@@ -338,6 +346,16 @@
             <span class="n">evaporation_flux</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
         <span class="p">)</span>
         <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;rainFlux&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rain_flux</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;riverRunoffFlux&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">river_runoff_flux</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
+        <span class="p">)</span>
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;iceRunoffFlux&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ice_runoff_flux</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;subglacialRunoffFlux&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">subglacial_runoff_flux</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
+        <span class="p">)</span>
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;icebergFreshWaterFlux&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">iceberg_flux</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
+        <span class="p">)</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_forcing</span><span class="p">,</span> <span class="s1">&#39;forcing.nc&#39;</span><span class="p">)</span></div>
 </div>
 

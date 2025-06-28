@@ -138,6 +138,10 @@
         <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ideal_age&#39;</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;single_column&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="s1">&#39;single_column.cfg&#39;</span>
+        <span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="n">ideal_age</span><span class="o">=</span><span class="n">ideal_age</span><span class="p">)</span>
         <span class="p">)</span>
@@ -150,20 +154,18 @@
             <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="n">step</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.single_column.ideal_age&#39;</span><span class="p">,</span> <span class="s1">&#39;forward.yaml&#39;</span>
+            <span class="n">task_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
-            <span class="n">Viz</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="n">ideal_age</span><span class="o">=</span><span class="n">ideal_age</span><span class="p">)</span>
-        <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="s1">&#39;single_column.cfg&#39;</span>
+            <span class="n">Viz</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">ideal_age</span><span class="o">=</span><span class="n">ideal_age</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 

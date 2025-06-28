@@ -77,9 +77,33 @@
 <li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id1">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cvmix">cvmix</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id4">vertical grid</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#ekman">ekman</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id10">description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id11">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id12">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id13">initial conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id14">forcing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id15">time step and run duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id16">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id17">cores</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ocean-single-column-ideal-age">ideal age</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#inertial">inertial</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id26">description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id27">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id28">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id29">initial conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id30">forcing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id31">time step and run duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id32">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id33">cores</a></li>
 </ul>
 </li>
 </ul>
@@ -152,8 +176,14 @@
 <span id="ocean-single-column"></span><h1>single column<a class="headerlink" href="#single-column" title="Link to this heading"></a></h1>
 <section id="description">
 <h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">single_column</span></code> tasks include any ocean tests of the vertical ocean
-dynamics.</p>
+<p>The single column tests in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column</span></code> exercise
+the vertical dynamics of the ocean model only. The test cases are:</p>
+<ul class="simple">
+<li><p>Testing the vertical mixing library, CVMix, under surface forcing</p></li>
+<li><p>Testing the Ekman solution under wind forcing</p></li>
+<li><p>Testing the Ideal Age tracer under surface forcing</p></li>
+<li><p>Testing the Coriolis term by quantifying the inertial frequency</p></li>
+</ul>
 </section>
 <section id="suppported-models">
 <h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
@@ -165,14 +195,13 @@ dynamics.</p>
 The config options <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code> are given arbitrarily small values of 1 m in
 order to ensure that the minimum number of cells is chosen.</p>
 <p>By virtue of testing the vertical dynamics, these tests should be insensitive
-to the horizontal resolution. As such, only 10 km horizontal resolution is
+to the horizontal resolution. As such, only 960 m horizontal resolution is
 currently supported.</p>
 </section>
 <section id="vertical-grid">
 <h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
 <p>Currently, these tests feature a very fine vertical resolution of 4 m
-with 100 vertical levels. Future work may want to examine vertical mixing or
-advection at typical vertical resolutions.</p>
+with 100 vertical levels.</p>
 </section>
 <section id="config-options">
 <h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
@@ -217,9 +246,82 @@ advection at typical vertical resolutions.</p>
 <code class="docutils literal notranslate"><span class="pre">X_difference_across_mixed_layer</span></code>, and <span class="math notranslate nohighlight">\({d\Phi/dz}_{int} = \)</span>
 <code class="docutils literal notranslate"><span class="pre">X_gradient_interior</span></code>. <code class="docutils literal notranslate"><span class="pre">X</span></code> in the config options above is either <code class="docutils literal notranslate"><span class="pre">temperature</span></code>
 or <code class="docutils literal notranslate"><span class="pre">salinity</span></code>.</p>
-<p>The water column is initially stationary (<code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code><span class="math notranslate nohighlight">\(=0\)</span>).</p>
+<p>The initial velocity is vertically uniform and given by
+<code class="docutils literal notranslate"><span class="pre">single_column:zonal_velocity</span></code> and <code class="docutils literal notranslate"><span class="pre">single_column:meridional_velocity</span></code>, which
+are 0 by default (at rest).</p>
 <p>The Coriolis parameter is spatially constant and set equal to
 <code class="docutils literal notranslate"><span class="pre">coriolis_parameter</span></code>.</p>
+<section id="forcing">
+<h3>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h3>
+<p>Default values of no forcing are given here, which are then overwritten by the
+config options for various test cases. The rates for surface restoring are also
+given here, but are only used when the namelist options in <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> turn
+surface restoring on.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for forcing single column testcases</span>
+<span class="k">[single_column_forcing]</span>
+
+<span class="c1"># Piston velocity to control rate of restoring toward temperature_surface_restoring_value</span>
+<span class="na">temperature_piston_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.0e-6</span>
+
+<span class="c1"># Piston velocity to control rate of restoring toward salinity_surface_restoring_value</span>
+<span class="na">salinity_piston_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.0e-6</span>
+
+<span class="c1"># Temperature to restore towards when surface restoring is turned on</span>
+<span class="na">temperature_surface_restoring_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${single_column:surface_temperature}</span>
+
+<span class="c1"># Salinity to restore towards when surface restoring is turned on</span>
+<span class="na">salinity_surface_restoring_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${single_column:surface_salinity}</span>
+
+<span class="c1"># Rate at which temperature is restored toward the initial condition</span>
+<span class="na">temperature_interior_restoring_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-6</span>
+
+<span class="c1"># Rate at which salinity is restored toward the initial condition</span>
+<span class="na">salinity_interior_restoring_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-6</span>
+
+<span class="c1"># Net latent heat flux applied when bulk forcing is used. Positive values indicate a net</span>
+<span class="c1"># input of heat to ocean</span>
+<span class="na">latent_heat_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># Net sensible heat flux applied when bulk forcing is used. Positive values indicate a</span>
+<span class="c1"># net input of heat to ocean</span>
+<span class="na">sensible_heat_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># Net solar shortwave heat flux applied when bulk forcing is used. Positive values</span>
+<span class="c1"># indicate a net input of heat to ocean</span>
+<span class="na">shortwave_heat_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># Net surface evaporation when bulk forcing is used. Positive values indicate a net</span>
+<span class="c1"># input of water to ocean</span>
+<span class="na">evaporation_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># Net surface rain flux when bulk forcing is used. Positive values indicate a net input</span>
+<span class="c1"># of water to ocean</span>
+<span class="na">rain_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># Net surface river runoff flux when bulk forcing is used. Positive values indicate a net</span>
+<span class="c1">#flux of water to ocean</span>
+<span class="na">river_runoff_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># Net surface subglacial runoff flux when bulk forcing is used. Positive values indicate a net</span>
+<span class="c1">#flux of water to ocean</span>
+<span class="na">subglacial_runoff_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># Net surface ice runoff flux when bulk forcing is used. Positive values indicate a net</span>
+<span class="c1">#flux of water to ocean</span>
+<span class="na">ice_runoff_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># Net iceberg freshwater flux when bulk forcing is used. Positive values indicate a net</span>
+<span class="c1">#flux of water to ocean</span>
+<span class="na">iceberg_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># Zonal surface wind stress over the domain</span>
+<span class="na">wind_stress_zonal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># Meridional surface wind stress over the domain</span>
+<span class="na">wind_stress_meridional</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="id1">
 <h2>config options<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
@@ -243,10 +345,10 @@ or <code class="docutils literal notranslate"><span class="pre">salinity</span><
 <span class="na">temperature_difference_across_mixed_layer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
 
 <span class="c1"># Temperature gradient below the mixed layer</span>
-<span class="na">temperature_gradient_interior</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.01</span>
+<span class="na">temperature_gradient_interior</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
 
 <span class="c1"># Depth of the temperature mixed layer</span>
-<span class="na">mixed_layer_depth_temperature</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="s">25.0</span>
+<span class="na">mixed_layer_depth_temperature</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="s">0.0</span>
 
 <span class="c1"># Surface salinity</span>
 <span class="na">surface_salinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">35.0</span>
@@ -255,7 +357,7 @@ or <code class="docutils literal notranslate"><span class="pre">salinity</span><
 <span class="na">salinity_gradient_mixed_layer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
 
 <span class="c1"># The salinity below the mixed layer</span>
-<span class="na">salinity_difference_across_mixed_layer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+<span class="na">salinity_difference_across_mixed_layer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
 
 <span class="c1"># Salinity gradient below the mixed layer</span>
 <span class="na">salinity_gradient_interior</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
@@ -269,14 +371,24 @@ or <code class="docutils literal notranslate"><span class="pre">salinity</span><
 </div>
 <p>See mesh section for a description of <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code> and initial conditions section for a description of the remaining config options.</p>
 </section>
+<section id="time-step-and-run-duration">
+<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
+<p>The time step is given as 10 min and the barotropic time step is 30s in
+<code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>. The run duration is given in the <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file for each
+test case. Both can be changed after set-up by modifying the namelist file.</p>
+</section>
+<section id="cores">
+<h2>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h2>
+<p>Both default and minimum number of cores are hard-coded as 1 given that the
+domain is only 16 cells.</p>
+</section>
 <section id="cvmix">
 <span id="ocean-single-column-cvmix"></span><h2>cvmix<a class="headerlink" href="#cvmix" title="Link to this heading"></a></h2>
 <section id="id2">
 <h3>description<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">cvmix</span></code> test exercises the <a class="reference external" href="https://github.com/CVMix/CVMix-src">CVMix</a>
 schemes for vertical mixing.</p>
-<p>The temperature and salinity profiles only evolve a small amount over the 1-
-day duration of the test, so the 10-day profiles are shown here:</p>
+<p>The temperature and salinity profiles after 10 days are shown here:</p>
 <a class="reference internal image-reference" href="../../../_images/single_column_temperature_10day.png"><img alt="../../../_images/single_column_temperature_10day.png" class="align-center" src="../../../_images/single_column_temperature_10day.png" style="width: 200px;" />
 </a>
 <a class="reference internal image-reference" href="../../../_images/single_column_salinity_10day.png"><img alt="../../../_images/single_column_salinity_10day.png" class="align-center" src="../../../_images/single_column_salinity_10day.png" style="width: 200px;" />
@@ -293,32 +405,26 @@ day duration of the test, so the 10-day profiles are shown here:</p>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 <section id="id5">
 <h3>initial conditions<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+<p>These config options overwrite those in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for single column testcases</span>
+<span class="k">[single_column]</span>
+
+<span class="c1"># Temperature gradient below the mixed layer</span>
+<span class="na">temperature_gradient_interior</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.01</span>
+
+<span class="c1"># Depth of the temperature mixed layer</span>
+<span class="na">mixed_layer_depth_temperature</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="s">25.0</span>
+
+<span class="c1"># The salinity below the mixed layer</span>
+<span class="na">salinity_difference_across_mixed_layer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+</pre></div>
+</div>
+<p>The rest of the config options are given in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
-<section id="forcing">
-<h3>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h3>
-<p>The cvmix case has both surface forcing and restoring, which are controlled by
-the following config options:</p>
+<section id="id6">
+<h3>forcing<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for forcing single column testcases</span>
 <span class="k">[single_column_forcing]</span>
-
-<span class="c1"># Piston velocity to control rate of restoring toward temperature_surface_restoring_value</span>
-<span class="na">temperature_piston_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.0e-6</span>
-
-<span class="c1"># Piston velocity to control rate of restoring toward salinity_surface_restoring_value</span>
-<span class="na">salinity_piston_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.0e-6</span>
-
-<span class="c1"># Temperature to restore towards when surface restoring is turned on</span>
-<span class="na">temperature_surface_restoring_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">15.0</span>
-
-<span class="c1"># Salinity to restore towards when surface restoring is turned on</span>
-<span class="na">salinity_surface_restoring_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">36.0</span>
-
-<span class="c1"># Rate at which temperature is restored toward the initial condition</span>
-<span class="na">temperature_interior_restoring_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-6</span>
-
-<span class="c1"># Rate at which salinity is restored toward the initial condition</span>
-<span class="na">salinity_interior_restoring_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-6</span>
 
 <span class="c1"># Net latent heat flux applied when bulk forcing is used. Positive values indicate a net</span>
 <span class="c1"># input of heat to ocean</span>
@@ -336,75 +442,193 @@ the following config options:</p>
 <span class="c1"># input of water to ocean</span>
 <span class="na">evaporation_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">6.5E-4</span>
 
-<span class="c1"># Net surface rain flux when bulk forcing is used. Positive values indicate a net input</span>
-<span class="c1"># of water to ocean</span>
-<span class="na">rain_flux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
-
 <span class="c1"># Zonal surface wind stress over the domain</span>
 <span class="na">wind_stress_zonal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
-
-<span class="c1"># Meridional surface wind stress over the domain</span>
-<span class="na">wind_stress_meridional</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
 </pre></div>
 </div>
+<p>The cvmix case has both surface forcing and restoring, which are controlled by
+the config options given in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
-<section id="time-step-and-run-duration">
-<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h3>
-<p>The time step is given as 10 min and the barotropic time step is 30s. The run
-duration is 1 day.</p>
+<section id="id7">
+<h3>time step and run duration<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>The time step is given in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. The run duration is 10
+days.</p>
 </section>
-<section id="id6">
-<h3>config options<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="id8">
+<h3>config options<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. Currently, config options are only given in the
 shared framework.</p>
 </section>
-<section id="cores">
-<h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
-<p>Both default and minimum number of cores are hard-coded as 1 given that the
-domain is only 16 cells.</p>
+<section id="id9">
+<h3>cores<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="ekman">
+<span id="ocean-single-column-ekman"></span><h1>ekman<a class="headerlink" href="#ekman" title="Link to this heading"></a></h1>
+<section id="id10">
+<h2>description<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ekman</span></code> test compares the modeled Ekman boundary layer with a wind-forced
+<a class="reference external" href="https://doi.org/10.1126/science.238.4833.1534">analytic solution</a></p>
+<p>The modeled and analytic solutions for MPAS-Ocean with the default settings
+are:</p>
+<a class="reference internal image-reference" href="../../../_images/single_column_velocity_ekman.png"><img alt="../../../_images/single_column_velocity_ekman.png" class="align-center" src="../../../_images/single_column_velocity_ekman.png" style="width: 200px;" />
+</a>
+</section>
+<section id="id11">
+<h2>mesh<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+<section id="id12">
+<h2>vertical grid<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
+<p>The vertical extent is chosen so that the bottom of the domain is below O(10) Ekman depths.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[vertical_grid]</span>
+
+<span class="c1"># Bottom depth</span>
+<span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">100.</span>
+</pre></div>
+</div>
+<p>The rest of the vertical grid features follow <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+<section id="id13">
+<h2>initial conditions<a class="headerlink" href="#id13" title="Link to this heading"></a></h2>
+<p>The temperature and salinity are constant and the flow is at rest.
+See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+<section id="id14">
+<h2>forcing<a class="headerlink" href="#id14" title="Link to this heading"></a></h2>
+<p>The only forcing is surface wind stress, which is controlled by
+the following config option:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for forcing single column testcases</span>
+<span class="k">[single_column_forcing]</span>
+
+<span class="c1"># Zonal surface wind stress over the domain</span>
+<span class="na">wind_stress_zonal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+</pre></div>
+</div>
+</section>
+<section id="id15">
+<h2>time step and run duration<a class="headerlink" href="#id15" title="Link to this heading"></a></h2>
+<p>The time step is given in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. The run duration is 5
+days.</p>
+</section>
+<section id="id16">
+<h2>config options<a class="headerlink" href="#id16" title="Link to this heading"></a></h2>
+<p>[single_column_ekman]</p>
+<p>The only config option specific to this test case is a constant vertical
+viscosity:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Constant vertical eddy diffusivity</span>
+<span class="na">vertical_viscosity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.e-3</span>
+</pre></div>
+</div>
+<p>All other config options derive from <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+<section id="id17">
+<h2>cores<a class="headerlink" href="#id17" title="Link to this heading"></a></h2>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 <section id="ocean-single-column-ideal-age">
 <span id="ideal-age"></span><h2>ideal age<a class="headerlink" href="#ocean-single-column-ideal-age" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ideal</span> <span class="pre">age</span></code> test exercises the ideal age tracers.</p>
-<section id="id7">
-<h3>description<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<section id="id18">
+<h3>description<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
 <p>Temperature and salinity profiles evolve in the same way as in the
 <a class="reference internal" href="#ocean-single-column-cvmix"><span class="std std-ref">cvmix</span></a> test case. 10-day profiles for the ideal age
 tracer are as follows:</p>
 <a class="reference internal image-reference" href="../../../_images/single_column_ideal_age_tracer_10day.png"><img alt="../../../_images/single_column_ideal_age_tracer_10day.png" class="align-center" src="../../../_images/single_column_ideal_age_tracer_10day.png" style="width: 200px;" />
 </a>
 </section>
-<section id="id8">
-<h3>mesh<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<section id="id19">
+<h3>mesh<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
-<section id="id9">
-<h3>vertical grid<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<section id="id20">
+<h3>vertical grid<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
-<section id="id10">
-<h3>initial conditions<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<section id="id21">
+<h3>initial conditions<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> is initialized as zero seconds throughout the water column.</p>
 </section>
-<section id="id11">
-<h3>forcing<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<section id="id22">
+<h3>forcing<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> is set to zero seconds within the first surface grid layer at
 every time step.</p>
 </section>
-<section id="id12">
-<h3>time step and run duration<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-single-column-cvmix"><span class="std std-ref">cvmix</span></a>.</p>
+<section id="id23">
+<h3>time step and run duration<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<p>The time step is given in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. The run duration is 10
+days.</p>
 </section>
-<section id="id13">
-<h3>config options<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<section id="id24">
+<h3>config options<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. Currently, config options are only given in the
 shared framework.</p>
 </section>
-<section id="id14">
-<h3>cores<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-single-column-cvmix"><span class="std std-ref">cvmix</span></a>.</p>
+<section id="id25">
+<h3>cores<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="inertial">
+<span id="ocean-single-column-inertial"></span><h1>inertial<a class="headerlink" href="#inertial" title="Link to this heading"></a></h1>
+<section id="id26">
+<h2>description<a class="headerlink" href="#id26" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">inertial</span></code> test compares the modeled inertial frequency with the
+<a class="reference external" href="https://doi.org/10.1175/1520-0477(1993)074%3C2179:ITCFRR%3E2.0.CO;2">exact inertial frequency</a>.
+The case should be configured to have the lowest possible friction.</p>
+<p>The modeled velocity time series for MPAS-Ocean with the default settings
+is:</p>
+<a class="reference internal image-reference" href="../../../_images/single_column_velocity_inertial.png"><img alt="../../../_images/single_column_velocity_inertial.png" class="align-center" src="../../../_images/single_column_velocity_inertial.png" style="width: 200px;" />
+</a>
+<p>where the black vertical line shows the modeled period and the green vertical
+line shows the theoretical solution.</p>
+</section>
+<section id="id27">
+<h2>mesh<a class="headerlink" href="#id27" title="Link to this heading"></a></h2>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+<section id="id28">
+<h2>vertical grid<a class="headerlink" href="#id28" title="Link to this heading"></a></h2>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+<section id="id29">
+<h2>initial conditions<a class="headerlink" href="#id29" title="Link to this heading"></a></h2>
+<p>The temperature, salinity, and velocity are constant.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for single column testcases</span>
+<span class="k">[single_column]</span>
+
+<span class="c1"># Initial zonal velocity</span>
+<span class="na">zonal_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+</pre></div>
+</div>
+<p>All other config options are given by <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+<section id="id30">
+<h2>forcing<a class="headerlink" href="#id30" title="Link to this heading"></a></h2>
+<p>N/A</p>
+</section>
+<section id="id31">
+<h2>time step and run duration<a class="headerlink" href="#id31" title="Link to this heading"></a></h2>
+<p>The time step is given in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. The run duration is 10
+days.</p>
+</section>
+<section id="id32">
+<h2>config options<a class="headerlink" href="#id32" title="Link to this heading"></a></h2>
+<p>The config option specific to this test case is the condition for failure:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[single_column_inertial]</span>
+
+<span class="c1"># The fractional difference in inertial period that is tolerated before the test case fails</span>
+<span class="na">period_tolerance_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.05</span>
+</pre></div>
+</div>
+<p>All config options shown in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a> are also used.</p>
+</section>
+<section id="id33">
+<h2>cores<a class="headerlink" href="#id33" title="Link to this heading"></a></h2>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 </section>
 

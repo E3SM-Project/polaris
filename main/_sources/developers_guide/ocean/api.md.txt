@@ -301,17 +301,26 @@
 
    add_single_column_tasks
 
+   cvmix.CVMix
+
+   ekman.Ekman
+   ekman.analysis.Analysis
+   ekman.analysis.Analysis.run
+
    forward.Forward
+   forward.Forward.dynamic_model_config
+
+   ideal_age.IdealAge
+
+   inertial.Inertial
+   inertial.analysis.Analysis
+   inertial.analysis.Analysis.run
 
    init.Init
    init.Init.run
 
    viz.Viz
    viz.Viz.run
-
-   cvmix.CVMix
-
-   ideal_age.IdealAge
 ```
 
 ### sphere_transport
