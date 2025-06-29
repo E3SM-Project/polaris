@@ -1,0 +1,53 @@
+mpas-ocean:
+  time_management:
+    config_stop_time: none
+    config_run_duration: 0001_00:00:00
+  time_integration:
+    config_dt: 00:15:00
+    config_time_integrator: split_explicit_ab2
+  io:
+    config_write_output_on_startup: false
+  hmix_del2:
+    config_use_mom_del2: true
+    config_mom_del2: {{ nu }}
+  bottom_drag:
+    config_implicit_bottom_drag_type: constant
+    config_implicit_constant_bottom_drag_coeff: 0.0
+  cvmix:
+    config_cvmix_background_scheme: none
+    config_use_cvmix_convection: true
+  split_explicit_ts:
+    config_btr_dt: 00:00:10
+  forcing:
+    config_use_bulk_wind_stress: true
+  streams:
+    mesh:
+      filename_template: initial_state.nc
+    input:
+      filename_template: initial_state.nc
+    restart:
+      output_interval: 0000_01:00:00
+    forcing:
+      filename_template: forcing.nc
+      input_interval: initial_only
+      type: input
+      contents:
+      - windStressZonal
+      - windStressMeridional
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: 0000_01:00:00
+      clobber_mode: truncate
+      contents:
+      - tracers
+      - xtime
+      - normalVelocity
+      - velocityZonal
+      - velocityMeridional
+      - layerThickness
+      - ssh
+      - vertVelocityTop
+      - density
+      - daysSinceStartOfSim
+      - relativeVorticity
