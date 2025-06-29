@@ -32,7 +32,12 @@ class Init(Step):
         """
         super().__init__(component=component, name='init', indir=indir)
 
-        for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info']:
+        for file in [
+            'base_mesh.nc',
+            'culled_mesh.nc',
+            'culled_graph.info',
+            'forcing.nc',
+        ]:
             self.add_output_file(file)
         self.add_output_file(
             'initial_state.nc',
@@ -52,6 +57,8 @@ class Init(Step):
         ly = section.getfloat('ly')
         u = section.getfloat('zonal_velocity')
         v = section.getfloat('meridional_velocity')
+        u_wind = section.getfloat('zonal_wind_stress')
+        v_wind = section.getfloat('meridional_wind_stress')
 
         # these could be hard-coded as functions of specific supported
         # resolutions but it is preferable to make them algorithmic like here
@@ -91,3 +98,15 @@ class Init(Step):
         ds['fEdge'] = xr.zeros_like(ds.xEdge)
         ds['fVertex'] = xr.zeros_like(ds.xVertex)
         write_netcdf(ds, 'initial_state.nc')
+
+        # set the wind stress forcing
+        ds_forcing = xr.Dataset()
+        wind_stress_zonal = u_wind * xr.ones_like(ds.xCell)
+        wind_stress_meridional = v_wind * xr.ones_like(ds.xCell)
+        ds_forcing['windStressZonal'] = wind_stress_zonal.expand_dims(
+            dim='Time', axis=0
+        )
+        ds_forcing['windStressMeridional'] = (
+            wind_stress_meridional.expand_dims(dim='Time', axis=0)
+        )
+        write_netcdf(ds_forcing, 'forcing.nc')
