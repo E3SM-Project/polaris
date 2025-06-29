@@ -82,6 +82,11 @@ class Forward(OceanModelStep):
             target='../init/initial_state.nc',
         )
 
+        self.add_input_file(
+            filename='forcing.nc',
+            target='../init/forcing.nc',
+        )
+
         self.add_output_file(
             filename='output.nc',
             validate_vars=[
