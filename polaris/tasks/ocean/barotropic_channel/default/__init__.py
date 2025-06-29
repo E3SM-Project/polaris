@@ -1,8 +1,7 @@
 from polaris import Task as Task
 from polaris.tasks.ocean.barotropic_channel.forward import Forward as Forward
 from polaris.tasks.ocean.barotropic_channel.init import Init as Init
-
-# from polaris.tasks.ocean.barotropic_channel.viz import Viz as Viz
+from polaris.tasks.ocean.barotropic_channel.viz import Viz as Viz
 
 
 class Default(Task):
@@ -41,4 +40,4 @@ class Default(Task):
             )
         )
 
-        # self.add_step(Viz(component=component, indir=self.subdir))
+        self.add_step(Viz(component=component, indir=self.subdir))
