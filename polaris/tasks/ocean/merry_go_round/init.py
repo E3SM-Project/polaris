@@ -112,7 +112,7 @@ class Init(OceanIOStep):
 
         if vert_coord == 'z-level':
             ds['vertCoordMovementWeights'][:] = 0.0
-            ds['vertCoordMovementWeights'][1] = 1.0
+            ds['vertCoordMovementWeights'][0] = 1.0
 
         # ...
         x_cell_2D, _ = xr.broadcast(x_cell_adjusted, ds.refBottomDepth)
