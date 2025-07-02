@@ -260,6 +260,35 @@
    viz.Viz.run
 ```
 
+### merry_go_round
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.merry_go_round
+
+.. autosummary::
+   :toctree: generated/
+
+   add_merry_go_round_tasks
+
+   default.Default
+   default.viz.Viz
+   default.viz.Viz.setup
+   default.viz.Viz.run
+
+   forward.Forward
+   forward.Forward.compute_cell_count
+
+   init.Init
+   init.Init.setup
+   init.Init.run
+
+   analysis.Analysis
+
+   viz.Viz
+   viz.Viz.setup
+   viz.Viz.run
+```
+
 ### overflow
 
 ```{eval-rst}
