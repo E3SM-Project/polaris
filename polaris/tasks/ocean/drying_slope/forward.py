@@ -243,7 +243,7 @@ class Forward(OceanModelStep):
             run_duration=run_duration_str,
             hmin=f'{thin_film_thickness}',
             ramp_hmin=f'{thin_film_thickness}',
-            ramp_hmax=f'{thin_film_thickness * 2.0}',
+            ramp_hmax=f'{thin_film_thickness * 10.0}',
         )
 
         mpas_options = dict()
