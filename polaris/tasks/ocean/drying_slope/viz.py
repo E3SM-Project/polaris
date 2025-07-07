@@ -138,6 +138,11 @@ class Viz(Step):
             np.logical_and(cell1_is_valid, cell2_is_valid), 1, 0
         )
 
+        vert_levels = self.config.getint('vertical_grid', 'vert_levels')
+        hmin = self.config.getfloat(
+            'drying_slope_barotropic', 'thin_film_thickness'
+        )
+        hmax = vert_levels * hmin * 10.0
         out_filenames = []
         if not self.damping_coeffs:
             out_filenames.append('output.nc')
@@ -150,16 +155,17 @@ class Viz(Step):
             x, y = self._plot_transects(ds_mesh=ds_mesh, ds=ds)
 
             nt = int(ds.sizes['Time'])
-            for tidx in np.arange(0,nt,nt/20, dtype=int):
-            #for tidx in np.arange(-10,0,1):
+            for tidx in np.arange(0, nt, nt / 10, dtype=int):
+                # for tidx in np.arange(-10,0,1):
+                # for tidx in [-2]:
+                # for atime in self.times:
+                #    # Plot MPAS-O data
+                #    mpastime = ds.daysSinceStartOfSim.values
+                #    simtime = pd.to_timedelta(mpastime)
+                #    s_day = 86400.0
+                #    time = simtime.total_seconds()
+                #    tidx = np.argmin(np.abs(time / s_day - float(atime)))
                 for zidx in [0, 9]:
-            #for atime in self.times:
-                # Plot MPAS-O data
-                #mpastime = ds.daysSinceStartOfSim.values
-                #simtime = pd.to_timedelta(mpastime)
-                #s_day = 86400.0
-                #time = simtime.total_seconds()
-                #tidx = np.argmin(np.abs(time / s_day - float(atime)))
                     plot_horiz_field(
                         ds_mesh,
                         ds.wettingVelocityFactor,
@@ -218,10 +224,14 @@ class Viz(Step):
                 plot_horiz_field(
                     ds_mesh,
                     ds.ssh + ds_mesh.bottomDepth,
-                    cmap_title='H',
                     out_file_name=f'wct_horiz_t{tidx:04g}.png',
                     t_index=tidx,
                     field_mask=cell_mask,
+                    vmin=hmax,
+                    vmax=2.0,
+                    cmap='viridis',
+                    cmap_title='H',
+                    cmap_set_under='r',
                 )
 
     def _plot_transects(self, ds_mesh, ds):
@@ -248,9 +258,12 @@ class Viz(Step):
         simtime = pd.to_timedelta(mpastime)
         time_hours = simtime.total_seconds() / 3600.0
         nt = int(ds.sizes['Time'])
-        for tidx in np.arange(0,nt,nt/10, dtype=int):
-        #for tidx in range(ds.sizes['Time']):
-            if np.nanmax(np.abs(ds.layerThickness.isel(Time=tidx).values)) > 1.e3:
+        for tidx in np.arange(0, nt, nt / 10, dtype=int):
+            # for tidx in range(ds.sizes['Time']):
+            if (
+                np.nanmax(np.abs(ds.layerThickness.isel(Time=tidx).values))
+                > 1.0e3
+            ):
                 print(f'layerThickness corrupted at time {tidx}')
             ds_transect = compute_transect(
                 x=x,
