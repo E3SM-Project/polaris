@@ -56,6 +56,10 @@ class ConvergenceAnalysis(OceanIOStep):
     refinement : str
         Refinement type. One of 'space', 'time' or 'both' indicating both
         space and time
+
+    mesh_filename : str
+        The name of the mesh file to use for calculating mesh metrics
+        (i.e. cell area) needed for computing the error
     """
 
     def __init__(
@@ -65,6 +69,7 @@ class ConvergenceAnalysis(OceanIOStep):
         dependencies,
         convergence_vars,
         refinement='both',
+        mesh_filename='base_mesh.nc',
     ):
         """
         Create the step
@@ -114,11 +119,17 @@ class ConvergenceAnalysis(OceanIOStep):
         refinement : str, optional
             Refinement type. One of 'space', 'time' or 'both' indicating both
             space and time
+
+        mesh_filename : str
+            The name of the mesh file to use for calculating mesh metrics
+            (i.e. cell area) needed for computing the error
         """
         super().__init__(component=component, name='analysis', subdir=subdir)
+
         self.dependencies_dict = dependencies
         self.convergence_vars = convergence_vars
         self.refinement = refinement
+        self.mesh_filename = mesh_filename
 
         for var in convergence_vars:
             self.add_output_file(f'convergence_{var["name"]}.png')
@@ -137,12 +148,12 @@ class ConvergenceAnalysis(OceanIOStep):
             option = 'refinement_factors_space'
         refinement_factors = config.getlist('convergence', option, dtype=float)
         for refinement_factor in refinement_factors:
-            base_mesh = dependencies['mesh'][refinement_factor]
+            mesh = dependencies['mesh'][refinement_factor]
             init = dependencies['init'][refinement_factor]
             forward = dependencies['forward'][refinement_factor]
             self.add_input_file(
                 filename=f'mesh_r{refinement_factor:02g}.nc',
-                work_dir_target=f'{base_mesh.path}/base_mesh.nc',
+                work_dir_target=f'{mesh.path}/{self.mesh_filename}',
             )
             self.add_input_file(
                 filename=f'init_r{refinement_factor:02g}.nc',
