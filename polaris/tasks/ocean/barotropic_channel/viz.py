@@ -1,4 +1,5 @@
 import cmocean  # noqa: F401
+import numpy as np
 import xarray as xr
 
 from polaris import Step
@@ -42,8 +43,10 @@ class Viz(Step):
         ds_mesh = xr.load_dataset('mesh.nc')
         ds_init = xr.load_dataset('init.nc')
         ds_out = xr.load_dataset('output.nc')
+        ds_out = ds_out.isel(nVertLevels=0)
 
         cell_mask = ds_init.maxLevelCell >= 1
+        vertex_mask = ds_init.boundaryVertex == 0
 
         vmax = 0.1
         # vmax = np.max(np.abs(ds_init.normalVelocity.values))
@@ -72,4 +75,15 @@ class Viz(Step):
                 vmax=vmax,
                 cmap='cmo.balance',
                 field_mask=cell_mask,
+            )
+
+            vmax = np.max(np.abs(ds.relativeVorticity.values))
+            plot_horiz_field(
+                ds_mesh,
+                ds['relativeVorticity'],
+                f'relative_vorticity_t{t_index}.png',
+                vmin=-vmax,
+                vmax=vmax,
+                cmap='cmo.balance',
+                field_mask=vertex_mask,
             )
