@@ -26,9 +26,12 @@ mpas-ocean:
     config_prevent_drying: true
     config_zero_drying_velocity: true
     config_verify_not_dry: true
+    config_zero_drying_velocity_ramp_hmin: 1e-3
+    config_zero_drying_velocity_ramp_hmax: 1e-2
+    config_zero_drying_velocity_ramp_factor: 1.0
   ALE_vertical_grid:
     config_vert_coord_movement: impermeable_interfaces
-    config_ALE_thickness_proportionality: weights_only
+    config_ALE_thickness_proportionality: restingThickness_times_weights
   advection:
     config_thickness_flux_type: upwind
   debug:
