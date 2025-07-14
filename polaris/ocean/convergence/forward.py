@@ -39,6 +39,7 @@ class ConvergenceForward(OceanModelStep):
         output_filename='output.nc',
         validate_vars=None,
         refinement='both',
+        forcing=False,
     ):
         """
         Create a new step
@@ -112,6 +113,12 @@ class ConvergenceForward(OceanModelStep):
         self.add_output_file(
             filename=output_filename, validate_vars=validate_vars
         )
+
+        if forcing:
+            self.add_input_file(
+                filename='forcing.nc',
+                work_dir_target=f'{init.path}/forcing.nc',
+            )
 
     def compute_cell_count(self):
         """
