@@ -9,7 +9,7 @@ the Polaris version update and notifying the community.
 
 ## ✅ PR Merge Checklist
 
-Before merging the :
+Before merging the PR:
 
 * [ ] Final deployments have been completed on all target HPC machines
 * [ ] Test suites for each supported E3SM component have passed on all machines

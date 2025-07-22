@@ -37,7 +37,7 @@ infrastructure. The process is typically:
        --verbose
    ```
 
-  s*Adjust `--compiler` and `--mpi` as needed for your machine and test matrix.*
+  *Adjust `--compiler` and `--mpi` as needed for your machine and test matrix.*
 
    *You may want to use `screen` or `tmux` and pipe output to a log file:*
    ```bash
