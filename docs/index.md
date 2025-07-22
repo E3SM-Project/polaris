@@ -79,7 +79,9 @@ developers_guide/machines/index
 developers_guide/troubleshooting
 developers_guide/docs
 developers_guide/building_docs
-developers_guide/deploying_spack
+developers_guide/conda_vs_spack
+developers_guide/updating_conda
+developers_guide/updating_spack/index
 developers_guide/api
 
 design_docs/index
