@@ -187,7 +187,7 @@ this script will also:
   [Albany](https://github.com/sandialabs/Albany),
   [Netlib-LAPACK](http://www.netlib.org/lapack/) and
   [PETSc](https://petsc.org/). **Please uses these flags with caution, as
-  they can affect shared environments!**  See {ref}`dev-deploying-spack`.
+  they can affect shared environments!**  See {ref}`dev-updating-spack`.
 - with the `--with_albany` flag, creates or uses an existing Spack
   environment that includes Albany and Trilinos.
 - with the `--with_petsc --with_netlib_lapack` flags, creates or uses an
@@ -589,10 +589,10 @@ code or modifying existing code is to use a PEP8 style checker. When you create
 a load script, we automatically install [pre-commit](https://pre-commit.com/),
 a tool that helps to enforce this standard by checking your code each time you
 make a commit. It will tell you about various types of problems it finds.
-Internally, `pre-commit` uses [ruff](https://docs.astral.sh/ruff/) to perform 
-various checks, such as enforcing PEP8 compliance and sorting and formatting 
-imports. Additionally, `pre-commit` uses 
-[flynt](https://github.com/ikamensh/flynt) to update any old-style format 
+Internally, `pre-commit` uses [ruff](https://docs.astral.sh/ruff/) to perform
+various checks, such as enforcing PEP8 compliance and sorting and formatting
+imports. Additionally, `pre-commit` uses
+[flynt](https://github.com/ikamensh/flynt) to update any old-style format
 strings to f-strings and [mypy](https://mypy-lang.org/) to check for consistent
 variable types. An example error might be:
 

@@ -1,0 +1,446 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Updating Spack Dependencies</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Deployment and Testing" href="testing/index.html" />
+    <link rel="prev" title="Overview of the Workflow" href="workflow.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Updating Shared Spack Environments</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="workflow.html">Overview of the Workflow</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Updating Spack Dependencies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#workflow-for-updating-spack-dependencies">🚩 Workflow for Updating Spack Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-a-new-spack-package">➕ Adding a New Spack Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#summary">📝 Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="testing/index.html">Deployment and Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_new_machines.html">Adding a New Machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deploying_shared_spack.html">Deploying the Final Shared Spack Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maintaining_past_versions.html">Maintaining Past Versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_test_group.html">Developer Tutorial: Adding a new test group</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Updating Shared Spack Environments</a></li>
+      <li class="breadcrumb-item active">Updating Spack Dependencies</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/updating_spack/updating_packages.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="updating-spack-dependencies">
+<h1>Updating Spack Dependencies<a class="headerlink" href="#updating-spack-dependencies" title="Link to this heading"></a></h1>
+<p>Updating Spack dependencies in Polaris is a key part of maintaining
+compatibility with E3SM components and ensuring that all required system
+libraries and tools are available for developers. Unlike Conda dependencies,
+which are managed per-developer and updated more frequently, Spack environments
+are shared among developers on supported machines and are updated less often
+due to the time and coordination required. When Spack dependencies change—such
+as when new versions of libraries like ESMF, MOAB, or SCORPIO are needed, or
+when system modules are updated—a new version of the shared Spack environment
+must be built and deployed across all supported platforms. This process also
+typically involves incrementing the Polaris version (usually the minor version)
+to track the change. The following workflow outlines the steps required to
+update Spack dependencies in Polaris.</p>
+<section id="workflow-for-updating-spack-dependencies">
+<h2>🚩 Workflow for Updating Spack Dependencies<a class="headerlink" href="#workflow-for-updating-spack-dependencies" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p><strong>Create a Branch</strong>
+Start by creating a branch named <code class="docutils literal notranslate"><span class="pre">update-to-&lt;version&gt;</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;version&gt;</span></code>
+is the new Polaris version you are preparing (e.g.,
+<code class="docutils literal notranslate"><span class="pre">update-to-0.9.0-alpha.1</span></code>).</p></li>
+<li><p><strong>Bump the Polaris Version</strong>
+Update the version number in <code class="docutils literal notranslate"><span class="pre">polaris/version.py</span></code> to the new version.
+Typically, when updating Spack dependencies, increment the <em>minor</em> version,
+reset the <em>patch</em> version to <code class="docutils literal notranslate"><span class="pre">0</span></code>, and set the <em>alpha</em> version to <code class="docutils literal notranslate"><span class="pre">1</span></code>.
+For example, if the current version is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;0.8.0-alpha.3&#39;</span>
+</pre></div>
+</div>
+<p>change it to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;0.9.0-alpha.1&#39;</span>
+</pre></div>
+</div>
+<p>Commit this change with a message like “Update Polaris to v0.9.0-alpha.1”.</p>
+</li>
+<li><p><strong>Update Spack Dependency Versions</strong>
+Edit <code class="docutils literal notranslate"><span class="pre">deploy/default.cfg</span></code> to update the versions of Spack dependencies as
+needed. The relevant sections are:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># versions of conda or spack packages (depending on machine type)</span>
+<span class="na">esmf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8.8.1</span>
+<span class="na">metis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5.1.0</span>
+<span class="na">netcdf_c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.9.2</span>
+<span class="na">netcdf_fortran</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.6.2</span>
+<span class="na">pnetcdf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.14.0</span>
+
+<span class="c1"># versions of spack packages</span>
+<span class="na">albany</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">developcompass-2024-03-13</span>
+<span class="c1"># cmake newer than 3.23.0 needed for Trilinos</span>
+<span class="na">cmake</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.23.0:</span>
+<span class="na">hdf5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.14.6</span>
+<span class="na">lapack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.9.1</span>
+<span class="na">spack_moab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">master</span>
+<span class="na">parmetis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.0.3</span>
+<span class="na">petsc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.19.1</span>
+<span class="na">scorpio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.7.0</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Commit and Make a PR</strong>
+Commit your changes and make a pull request to the Polaris repo.  This
+will be used to keep track of the updated packages as well as the testing
+and deployment process. You can use
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/319">this example</a>
+as a template.  Make sure to include:</p>
+<ul>
+<li><p>An <strong>Updates:</strong> section describing the packages (both Conda and Spack)
+that are updated as well as a description of what the new version
+provides or why it is needed.  For example:</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gu">## Updates:</span>
+<span class="k">-</span><span class="w"> </span>esmf v8.8.1
+<span class="k">-</span><span class="w"> </span>hdf5 v1.14.6
+<span class="k">-</span><span class="w"> </span>mache v1.31.0 -- brings in Aurora support and some related reorganization and clean-up
+<span class="k">-</span><span class="w"> </span>moab master -- brings in bug fix related to remapping from cubed-sphere grids to MPAS meshes
+<span class="k">-</span><span class="w"> </span>mpas_tools v1.1.0 -- brings in bug fix to barotropic streamfunciton
+<span class="k">-</span><span class="w"> </span>parallelio v2.6.6
+<span class="k">-</span><span class="w"> </span>pnetcdf v1.14.0
+<span class="k">-</span><span class="w"> </span>scorpio v1.7.0
+</pre></div>
+</div>
+</li>
+<li><p>A <strong>Testing:</strong> section with a checklist for each machine, compiler and
+MPI variant that will be tested.  This can also be a helpful place to
+coordinate who will test what (if multiple maintainers are involved) and
+to note any issues you are seeing (pointing to a new or existing issue
+under <a class="reference external" href="https://github.com/E3SM-Project/polaris/issues">https://github.com/E3SM-Project/polaris/issues</a>).  For example:</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gu">## Testing</span>
+
+MPAS-Ocean with <span class="sb">`pr`</span>:
+<span class="k">- [ ]</span> anvil (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> intel and impi
+<span class="w">  </span><span class="k">- [ ]</span> intel and openmpi
+<span class="w">  </span><span class="k">- [ ]</span> gnu and openmpi
+<span class="k">- [ ]</span> chrysalis (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> intel and openmpi
+<span class="w">  </span><span class="k">- [ ]</span> gnu and openmpi
+<span class="k">- [ ]</span> compy (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> intel and impi - still seeing https://github.com/E3SM-Project/polaris/issues/205
+<span class="k">- [ ]</span> frontier (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> craygnu and mpich
+<span class="w">  </span><span class="k">- [ ]</span> craycray and mpich
+<span class="k">- [ ]</span> pm-cpu (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> gnu and mpich
+<span class="w">  </span><span class="k">- [ ]</span> intel and mpich - still seeing https://github.com/E3SM-Project/polaris/issues/205
+
+Omega CTests:
+<span class="k">- [ ]</span> chrysalis (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> intel
+<span class="w">  </span><span class="k">- [ ]</span> gnu
+<span class="k">- [ ]</span> frontier (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> craygnu
+<span class="w">  </span><span class="k">- [ ]</span> craygnu-hipcc
+<span class="w">  </span><span class="k">- [ ]</span> craygnu-mphipcc
+<span class="w">  </span><span class="k">- [ ]</span> craycray
+<span class="w">  </span><span class="k">- [ ]</span> craycray-mphipcc
+<span class="w">  </span><span class="k">- [ ]</span> crayamd
+<span class="w">  </span><span class="k">- [ ]</span> crayamd-mphipcc
+<span class="k">- [ ]</span> pm-cpu (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> gnu
+<span class="w">  </span><span class="k">- [ ]</span> intel
+<span class="k">- [ ]</span> pm-gpu (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> gnugpu
+</pre></div>
+</div>
+</li>
+<li><p>A <strong>Deployment:</strong> section with another checklist for each machine,
+compiler and MPI variant on all supported machines.  Again, it will be
+helpful to note who will do the deployemnt (and final testing) and any
+issues that persist:</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gu">## Deploying</span>
+
+MPAS-Ocean with <span class="sb">`pr`</span>:
+<span class="k">- [ ]</span> anvil (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> intel and impi
+<span class="w">  </span><span class="k">- [ ]</span> intel and openmpi
+<span class="w">  </span><span class="k">- [ ]</span> gnu and openmpi
+<span class="k">- [ ]</span> chrysalis (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> intel and openmpi
+<span class="w">  </span><span class="k">- [ ]</span> gnu and openmpi
+<span class="k">- [ ]</span> compy (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> intel and impi
+<span class="k">- [ ]</span> frontier (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> craygnu and mpich
+<span class="w">  </span><span class="k">- [ ]</span> craycray and mpich
+<span class="k">- [ ]</span> pm-cpu (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> gnu and mpich
+<span class="w">  </span><span class="k">- [ ]</span> intel and mpich  - still seeing https://github.com/E3SM-Project/polaris/issues/205
+
+Omega CTests:
+<span class="k">- [ ]</span> chrysalis (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> intel
+<span class="w">  </span><span class="k">- [ ]</span> gnu
+<span class="k">- [ ]</span> frontier (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> craygnu
+<span class="w">  </span><span class="k">- [ ]</span> craygnu-hipcc
+<span class="w">  </span><span class="k">- [ ]</span> craygnu-mphipcc
+<span class="w">  </span><span class="k">- [ ]</span> craycray
+<span class="w">  </span><span class="k">- [ ]</span> craycray-mphipcc
+<span class="w">  </span><span class="k">- [ ]</span> crayamd
+<span class="w">  </span><span class="k">- [ ]</span> crayamd-mphipcc
+<span class="k">- [ ]</span> pm-cpu (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> gnu
+<span class="w">  </span><span class="k">- [ ]</span> intel
+<span class="k">- [ ]</span> pm-gpu (@xylar)
+<span class="w">  </span><span class="k">- [ ]</span> gnugpu
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="adding-a-new-spack-package">
+<h2>➕ Adding a New Spack Package<a class="headerlink" href="#adding-a-new-spack-package" title="Link to this heading"></a></h2>
+<p>To add a new Spack package to the Polaris deployment, follow these steps:</p>
+<ol class="arabic">
+<li><p><strong>Add the Package Version to <code class="docutils literal notranslate"><span class="pre">default.cfg</span></code></strong></p>
+<p>In the <code class="docutils literal notranslate"><span class="pre">[deploy]</span></code> section of <code class="docutils literal notranslate"><span class="pre">deploy/default.cfg</span></code>, add a new entry for your
+package with the desired version. For example:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># versions of spack packages</span>
+<span class="na">mypackage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.2.3</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Edit <code class="docutils literal notranslate"><span class="pre">bootstrap.py</span></code> to Add the Package to the Spack Specs</strong></p>
+<p>In <code class="docutils literal notranslate"><span class="pre">deploy/bootstrap.py</span></code>, you must:</p>
+<ul>
+<li><p>Read the version from the config, following the pattern used for other
+packages:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mypackage</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;deploy&#39;</span><span class="p">,</span> <span class="s1">&#39;mypackage&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>Add the package to the list of Spack specs, following the approach used
+for existing dependencies such as <code class="docutils literal notranslate"><span class="pre">esmf</span></code>, <code class="docutils literal notranslate"><span class="pre">metis</span></code>, <code class="docutils literal notranslate"><span class="pre">parmetis</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">scorpio</span></code>. For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">mypackage</span> <span class="o">!=</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+    <span class="n">specs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;mypackage@</span><span class="si">{</span><span class="n">mypackage</span><span class="si">}</span><span class="s1">+mpi+shared&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Adjust the variant flags (<code class="docutils literal notranslate"><span class="pre">+mpi</span></code>, <code class="docutils literal notranslate"><span class="pre">+shared</span></code>, etc.) as appropriate for
+your package.</p>
+</li>
+</ul>
+<p><strong>Examples from existing packages:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">esmf</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;deploy&#39;</span><span class="p">,</span> <span class="s1">&#39;esmf&#39;</span><span class="p">)</span>
+<span class="n">metis</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;deploy&#39;</span><span class="p">,</span> <span class="s1">&#39;metis&#39;</span><span class="p">)</span>
+<span class="n">parmetis</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;deploy&#39;</span><span class="p">,</span> <span class="s1">&#39;parmetis&#39;</span><span class="p">)</span>
+<span class="n">scorpio</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;deploy&#39;</span><span class="p">,</span> <span class="s1">&#39;scorpio&#39;</span><span class="p">)</span>
+
+<span class="o">...</span>
+
+<span class="k">if</span> <span class="n">esmf</span> <span class="o">!=</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+    <span class="n">specs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;esmf@</span><span class="si">{</span><span class="n">esmf</span><span class="si">}</span><span class="s1">+mpi+netcdf~pnetcdf~external-parallelio&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">metis</span> <span class="o">!=</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+    <span class="n">specs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;metis@</span><span class="si">{</span><span class="n">metis</span><span class="si">}</span><span class="s1">+int64+real64~shared&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">parmetis</span> <span class="o">!=</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+    <span class="n">specs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;parmetis@</span><span class="si">{</span><span class="n">parmetis</span><span class="si">}</span><span class="s1">+int64~shared&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">scorpio</span> <span class="o">!=</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+    <span class="n">specs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;e3sm-scorpio@</span><span class="si">{</span><span class="n">scorpio</span><span class="si">}</span><span class="s1">+mpi~timing~internal-timing~tools+malloc&#39;</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Follow the Process for Existing Spack Dependencies</strong></p>
+<p>Review how other Spack dependencies are handled in both <code class="docutils literal notranslate"><span class="pre">default.cfg</span></code> and
+<code class="docutils literal notranslate"><span class="pre">bootstrap.py</span></code> to ensure consistency. This includes:</p>
+<ul class="simple">
+<li><p>Reading the version from the config.</p></li>
+<li><p>Adding the correct Spack spec string to the <code class="docutils literal notranslate"><span class="pre">specs</span></code> list.</p></li>
+<li><p>Handling any special environment variables or linking flags if needed.</p></li>
+</ul>
+</li>
+<li><p><strong>Test and Document</strong></p>
+<ul class="simple">
+<li><p>Test the new package (as part of test deployments of Polaris) on all
+supported machines and compilers.</p></li>
+<li><p>Document the addition in your PR, including the version.</p></li>
+</ul>
+</li>
+</ol>
+<p><strong>Tips:</strong></p>
+<ul class="simple">
+<li><p>If your package requires special variants or dependencies, consult the Spack
+documentation for the correct spec syntax.</p></li>
+<li><p>If the package is only needed on certain machines or for certain workflows,
+consider making its inclusion conditional. For examples of this process,
+see how the <code class="docutils literal notranslate"><span class="pre">--with_albany</span></code> and <code class="docutils literal notranslate"><span class="pre">--with_petsc</span></code> flags (defined in
+<code class="docutils literal notranslate"><span class="pre">deploy/shared.py</span></code>) are used to include the <code class="docutils literal notranslate"><span class="pre">albany</span></code> and <code class="docutils literal notranslate"><span class="pre">petsc</span></code> packages,
+respectively, in specialized Spack environments that include these libraries.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="summary">
+<h2>📝 Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Create a branch for the update.</p></li>
+<li><p>Bump the Polaris version (minor version up, patch to 0, alpha to 1).</p></li>
+<li><p>Update Spack dependency versions in <code class="docutils literal notranslate"><span class="pre">deploy/default.cfg</span></code>.</p></li>
+<li><p>Commit, test, and deploy on all supported machines.</p></li>
+<li><p>Be aware of special handling for MOAB and SCORPIO.</p></li>
+</ul>
+<p>If you need to update Conda dependencies as well, see
+<a class="reference internal" href="../updating_conda.html"><span class="std std-doc">Updating Conda Dependencies</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="workflow.html" class="btn btn-neutral float-left" title="Overview of the Workflow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="testing/index.html" class="btn btn-neutral float-right" title="Deployment and Testing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

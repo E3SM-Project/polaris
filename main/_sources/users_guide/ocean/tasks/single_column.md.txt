@@ -310,7 +310,7 @@ See {ref}`ocean-single-column`.
 
 (ocean-single-column-ekman)=
 
-# ekman
+## ekman
 
 ### description
 
@@ -345,7 +345,7 @@ The rest of the vertical grid features follow {ref}`ocean-single-column`.
 ### initial conditions
 
 The temperature and salinity are constant and the flow is at rest.
-See {ref}`ocean-single-column`. 
+See {ref}`ocean-single-column`.
 
 ### forcing
 
@@ -382,7 +382,7 @@ All other config options derive from {ref}`ocean-single-column`.
 
 ### cores
 
-See {ref}`ocean-single-column`. 
+See {ref}`ocean-single-column`.
 
 (ocean-single-column-ideal-age)=
 
@@ -434,11 +434,11 @@ See {ref}`ocean-single-column`.
 
 (ocean-single-column-inertial)=
 
-# inertial
+## inertial
 
 ### description
 
-The `inertial` test compares the modeled inertial frequency with the 
+The `inertial` test compares the modeled inertial frequency with the
 [exact inertial frequency](https://doi.org/10.1175/1520-0477(1993)074%3C2179:ITCFRR%3E2.0.CO;2).
 The case should be configured to have the lowest possible friction.
 
@@ -498,4 +498,4 @@ All config options shown in {ref}`ocean-single-column` are also used.
 
 ### cores
 
-See {ref}`ocean-single-column`. 
+See {ref}`ocean-single-column`.

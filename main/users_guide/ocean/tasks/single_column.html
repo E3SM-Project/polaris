@@ -81,29 +81,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cvmix">cvmix</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id4">vertical grid</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ekman">ekman</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id10">description</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id11">mesh</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id12">vertical grid</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id13">initial conditions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id14">forcing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id15">time step and run duration</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id16">config options</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id17">cores</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ekman">ekman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ocean-single-column-ideal-age">ideal age</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#inertial">inertial</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id26">description</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id27">mesh</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id28">vertical grid</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id29">initial conditions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id30">forcing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id31">time step and run duration</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id32">config options</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id33">cores</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#inertial">inertial</a></li>
 </ul>
 </li>
 </ul>
@@ -133,7 +113,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/deploying_spack.html">Deploying a new spack environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
 </ul>
@@ -464,11 +446,10 @@ shared framework.</p>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 </section>
-</section>
-<section class="tex2jax_ignore mathjax_ignore" id="ekman">
-<span id="ocean-single-column-ekman"></span><h1>ekman<a class="headerlink" href="#ekman" title="Link to this heading"></a></h1>
+<section id="ekman">
+<span id="ocean-single-column-ekman"></span><h2>ekman<a class="headerlink" href="#ekman" title="Link to this heading"></a></h2>
 <section id="id10">
-<h2>description<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
+<h3>description<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">ekman</span></code> test compares the modeled Ekman boundary layer with a wind-forced
 <a class="reference external" href="https://doi.org/10.1126/science.238.4833.1534">analytic solution</a></p>
 <p>The modeled and analytic solutions for MPAS-Ocean with the default settings
@@ -477,11 +458,11 @@ are:</p>
 </a>
 </section>
 <section id="id11">
-<h2>mesh<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<h3>mesh<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 <section id="id12">
-<h2>vertical grid<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
+<h3>vertical grid<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
 <p>The vertical extent is chosen so that the bottom of the domain is below O(10) Ekman depths.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[vertical_grid]</span>
 
@@ -492,12 +473,12 @@ are:</p>
 <p>The rest of the vertical grid features follow <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 <section id="id13">
-<h2>initial conditions<a class="headerlink" href="#id13" title="Link to this heading"></a></h2>
+<h3>initial conditions<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
 <p>The temperature and salinity are constant and the flow is at rest.
 See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 <section id="id14">
-<h2>forcing<a class="headerlink" href="#id14" title="Link to this heading"></a></h2>
+<h3>forcing<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
 <p>The only forcing is surface wind stress, which is controlled by
 the following config option:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for forcing single column testcases</span>
@@ -509,12 +490,12 @@ the following config option:</p>
 </div>
 </section>
 <section id="id15">
-<h2>time step and run duration<a class="headerlink" href="#id15" title="Link to this heading"></a></h2>
+<h3>time step and run duration<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
 <p>The time step is given in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. The run duration is 5
 days.</p>
 </section>
 <section id="id16">
-<h2>config options<a class="headerlink" href="#id16" title="Link to this heading"></a></h2>
+<h3>config options<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
 <p>[single_column_ekman]</p>
 <p>The only config option specific to this test case is a constant vertical
 viscosity:</p>
@@ -525,8 +506,9 @@ viscosity:</p>
 <p>All other config options derive from <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 <section id="id17">
-<h2>cores<a class="headerlink" href="#id17" title="Link to this heading"></a></h2>
+<h3>cores<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
 </section>
 <section id="ocean-single-column-ideal-age">
 <span id="ideal-age"></span><h2>ideal age<a class="headerlink" href="#ocean-single-column-ideal-age" title="Link to this heading"></a></h2>
@@ -571,11 +553,10 @@ shared framework.</p>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 </section>
-</section>
-<section class="tex2jax_ignore mathjax_ignore" id="inertial">
-<span id="ocean-single-column-inertial"></span><h1>inertial<a class="headerlink" href="#inertial" title="Link to this heading"></a></h1>
+<section id="inertial">
+<span id="ocean-single-column-inertial"></span><h2>inertial<a class="headerlink" href="#inertial" title="Link to this heading"></a></h2>
 <section id="id26">
-<h2>description<a class="headerlink" href="#id26" title="Link to this heading"></a></h2>
+<h3>description<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">inertial</span></code> test compares the modeled inertial frequency with the
 <a class="reference external" href="https://doi.org/10.1175/1520-0477(1993)074%3C2179:ITCFRR%3E2.0.CO;2">exact inertial frequency</a>.
 The case should be configured to have the lowest possible friction.</p>
@@ -587,15 +568,15 @@ is:</p>
 line shows the theoretical solution.</p>
 </section>
 <section id="id27">
-<h2>mesh<a class="headerlink" href="#id27" title="Link to this heading"></a></h2>
+<h3>mesh<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 <section id="id28">
-<h2>vertical grid<a class="headerlink" href="#id28" title="Link to this heading"></a></h2>
+<h3>vertical grid<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 <section id="id29">
-<h2>initial conditions<a class="headerlink" href="#id29" title="Link to this heading"></a></h2>
+<h3>initial conditions<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
 <p>The temperature, salinity, and velocity are constant.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for single column testcases</span>
 <span class="k">[single_column]</span>
@@ -607,16 +588,16 @@ line shows the theoretical solution.</p>
 <p>All other config options are given by <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 <section id="id30">
-<h2>forcing<a class="headerlink" href="#id30" title="Link to this heading"></a></h2>
+<h3>forcing<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
 <p>N/A</p>
 </section>
 <section id="id31">
-<h2>time step and run duration<a class="headerlink" href="#id31" title="Link to this heading"></a></h2>
+<h3>time step and run duration<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
 <p>The time step is given in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. The run duration is 10
 days.</p>
 </section>
 <section id="id32">
-<h2>config options<a class="headerlink" href="#id32" title="Link to this heading"></a></h2>
+<h3>config options<a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
 <p>The config option specific to this test case is the condition for failure:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[single_column_inertial]</span>
 
@@ -627,8 +608,9 @@ days.</p>
 <p>All config options shown in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a> are also used.</p>
 </section>
 <section id="id33">
-<h2>cores<a class="headerlink" href="#id33" title="Link to this heading"></a></h2>
+<h3>cores<a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
 </section>
 </section>
 
