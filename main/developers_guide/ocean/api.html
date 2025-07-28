@@ -539,6 +539,55 @@
 </tbody>
 </table>
 </section>
+<section id="merry-go-round">
+<h3>merry_go_round<a class="headerlink" href="#merry-go-round" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.add_merry_go_round_tasks.html#polaris.tasks.ocean.merry_go_round.add_merry_go_round_tasks" title="polaris.tasks.ocean.merry_go_round.add_merry_go_round_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_merry_go_round_tasks</span></code></a>(component)</p></td>
+<td><p>Add task define variants of the merry-go-round test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.default.Default.html#polaris.tasks.ocean.merry_go_round.default.Default" title="polaris.tasks.ocean.merry_go_round.default.Default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default</span></code></a>(component, config, ...)</p></td>
+<td><p>The default test case for the merry-go-round</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.default.viz.Viz.html#polaris.tasks.ocean.merry_go_round.default.viz.Viz" title="polaris.tasks.ocean.merry_go_round.default.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.viz.Viz</span></code></a>(component, dependencies, taskdir)</p></td>
+<td><p>A step for visualizing the output of the default merry-go-round test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.default.viz.Viz.setup.html#polaris.tasks.ocean.merry_go_round.default.viz.Viz.setup" title="polaris.tasks.ocean.merry_go_round.default.viz.Viz.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.viz.Viz.setup</span></code></a>()</p></td>
+<td><p>Add input files, which are dependent on the config options values</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.default.viz.Viz.run.html#polaris.tasks.ocean.merry_go_round.default.viz.Viz.run" title="polaris.tasks.ocean.merry_go_round.default.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.viz.Viz.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.forward.Forward.html#polaris.tasks.ocean.merry_go_round.forward.Forward" title="polaris.tasks.ocean.merry_go_round.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, name, ...[, ...])</p></td>
+<td><p>A step for performing forward ocean component runs as part of merry-go-round test cases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.merry_go_round.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.merry_go_round.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
+<td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.init.Init.html#polaris.tasks.ocean.merry_go_round.init.Init" title="polaris.tasks.ocean.merry_go_round.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, name, resolution, subdir)</p></td>
+<td><p>A step for creating a mesh and initial condition for merry-go-round task</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.init.Init.setup.html#polaris.tasks.ocean.merry_go_round.init.Init.setup" title="polaris.tasks.ocean.merry_go_round.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
+<td><p>If the ocean model is Omega, set up maps between Omega and MPAS-Ocean variable names</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.init.Init.run.html#polaris.tasks.ocean.merry_go_round.init.Init.run" title="polaris.tasks.ocean.merry_go_round.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<td><p>Run this step of the task</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.analysis.Analysis.html#polaris.tasks.ocean.merry_go_round.analysis.Analysis" title="polaris.tasks.ocean.merry_go_round.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, subdir, ...[, ...])</p></td>
+<td><p>A step for analyzing the output from merry-go-round test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.viz.Viz.html#polaris.tasks.ocean.merry_go_round.viz.Viz" title="polaris.tasks.ocean.merry_go_round.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, dependencies, taskdir[, ...])</p></td>
+<td><p>A step for visualizing the output from the merry-go-round test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.viz.Viz.setup.html#polaris.tasks.ocean.merry_go_round.viz.Viz.setup" title="polaris.tasks.ocean.merry_go_round.viz.Viz.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.setup</span></code></a>()</p></td>
+<td><p>Add input files based on resolutions, which may have been changed by user config options</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.viz.Viz.run.html#polaris.tasks.ocean.merry_go_round.viz.Viz.run" title="polaris.tasks.ocean.merry_go_round.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="overflow">
 <h3>overflow<a class="headerlink" href="#overflow" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
