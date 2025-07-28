@@ -1,0 +1,256 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting Started</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Making a New Category of Tasks" href="creating_category_of_tasks.html" />
+    <link rel="prev" title="Overview of the Tutorial" href="overview.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Developer Tutorial: Adding a New Category of Tasks</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of the Tutorial</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating_category_of_tasks.html">Making a New Category of Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_shared_step.html">Adding a Shared Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_first_task.html">Adding a First Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_first_task.html">Testing the First Task and Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fleshing_out_step.html">Fleshing out the <code class="docutils literal notranslate"><span class="pre">init</span></code> Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_plots.html">Adding Plots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_outputs.html">Adding Step Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_forward.html">Adding a <code class="docutils literal notranslate"><span class="pre">forward</span></code> Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_viz.html">Adding a Visualization Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documenting.html">Documentation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+      <li class="breadcrumb-item active">Getting Started</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/tutorials/dev_add_category_of_tasks/getting_started.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
+<p>This page describes how to set up your development environment for adding a
+new category of tasks to Polaris.</p>
+<p>To begin, check out the Polaris repository and create a new branch from <code class="docutils literal notranslate"><span class="pre">main</span></code>
+for developing your new category of tasks. We’ll use the simpler approach
+described in <a class="reference internal" href="../../developers_guide/quick_start.html#dev-polaris-repo"><span class="std std-ref">Set up a polaris repository: for beginners</span></a>, but feel free to use the <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">worktree</span></code>
+approach from <a class="reference internal" href="../../developers_guide/quick_start.html#dev-polaris-repo-advanced"><span class="std std-ref">Set up a polaris repository with worktrees: for advanced users</span></a> if you prefer.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:E3SM-Project/polaris.git<span class="w"> </span>add-my-overflow
+<span class="nb">cd</span><span class="w"> </span>add-my-overflow
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>add-my-overflow
+</pre></div>
+</div>
+<p>Next, create a conda environment for developing Polaris, as described in
+<a class="reference internal" href="../../developers_guide/quick_start.html#dev-conda-env"><span class="std std-ref">polaris conda environment, spack environment, compilers and system modules</span></a>. We’ll assume you’re working on a supported machine and
+using the default compilers and MPI libraries, but consult the documentation
+if you need a custom environment.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># This may take a while the first time</span>
+./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span><span class="nv">$HOME</span>/miniforge3<span class="w"> </span>--verbose
+</pre></div>
+</div>
+<p>If you don’t already have <a class="reference external" href="https://github.com/conda-forge/miniforge">miniforge3</a>
+installed at the location specified by <code class="docutils literal notranslate"><span class="pre">--conda</span></code>, it will be installed
+automatically.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you already have <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">Miniconda</a>
+installed, you can use that as well. However, we recommend Miniforge3, as it
+comes with important tools and configuration options set up as needed for
+Polaris.</p>
+</div>
+<p>After setup, you should have a file named <code class="docutils literal notranslate"><span class="pre">load_dev_polaris_*.sh</span></code>, where <code class="docutils literal notranslate"><span class="pre">*</span></code>
+depends on your Polaris version, machine, and compilers. For example, on
+Chrysalis, you might have <code class="docutils literal notranslate"><span class="pre">load_dev_polaris_0.1.0-alpha.3_chrysalis_intel_openmpi.sh</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_dev_polaris_0.1.0-alpha.3_chrysalis_intel_openmpi.sh
+</pre></div>
+</div>
+<p>Now, get the E3SM source code (used by Polaris to build MPAS-Ocean) via the
+<code class="docutils literal notranslate"><span class="pre">E3SM-Project</span></code> submodule:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>e3sm_submodules/E3SM-Project
+git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>.
+<span class="nb">cd</span><span class="w"> </span>components/mpas-ocean
+git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive<span class="w"> </span>.
+<span class="nb">cd</span><span class="w"> </span>../../../../
+</pre></div>
+</div>
+<p>This will recursively get the submodules needed by MPAS-Ocean.</p>
+<p>If your new category of tasks will require changes to E3SM itself, you may
+want to create a branch in the E3SM repository as well:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>e3sm_submodules/E3SM-Project
+git<span class="w"> </span>fetch<span class="w"> </span>--all<span class="w"> </span>-p
+git<span class="w"> </span>switch<span class="w"> </span>-c<span class="w"> </span>xylar/mpas-ocean/add-my-overflow<span class="w"> </span>origin/master
+<span class="nb">cd</span><span class="w"> </span>../..
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>E3SM branch names must follow certain conventions. If you are using your
+own fork, start the branch name with the component (e.g., <code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code>). If
+you plan to push to the E3SM repo, begin with your GitHub username (e.g.,
+<code class="docutils literal notranslate"><span class="pre">xylar/mpas-ocean/add-overflow</span></code>). Use all lowercase, hyphens as
+separators, and a descriptive name.</p>
+</div>
+<p>If your tasks require running MPAS-Ocean, build the executable:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>e3sm_submodules/E3SM-Project/components/mpas-ocean/
+make<span class="w"> </span>ifort
+<span class="nb">cd</span><span class="w"> </span>../../../..
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">make</span></code> target may differ depending on your machine and compilers; see
+<a class="reference internal" href="../../developers_guide/machines/index.html#dev-supported-machines"><span class="std std-ref">Supported Machines</span></a> or <a class="reference internal" href="../../developers_guide/machines/index.html#dev-other-machines"><span class="std std-ref">Other Machines</span></a> for details.</p>
+<p>Now you’re ready to start developing!</p>
+<hr class="docutils" />
+<p>← <a class="reference internal" href="overview.html"><span class="std std-doc">Back to <em>Overveiw</em></span></a></p>
+<p>→ <a class="reference internal" href="creating_category_of_tasks.html"><span class="std std-doc">Continue to <em>Making a New Category of Tasks</em></span></a></p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="overview.html" class="btn btn-neutral float-left" title="Overview of the Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="creating_category_of_tasks.html" class="btn btn-neutral float-right" title="Making a New Category of Tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

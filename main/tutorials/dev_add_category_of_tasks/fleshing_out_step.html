@@ -1,0 +1,481 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fleshing out the init Step</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Adding Plots" href="adding_plots.html" />
+    <link rel="prev" title="Testing the First Task and Step" href="testing_first_task.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Developer Tutorial: Adding a New Category of Tasks</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of the Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating_category_of_tasks.html">Making a New Category of Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_shared_step.html">Adding a Shared Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_first_task.html">Adding a First Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_first_task.html">Testing the First Task and Step</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Fleshing out the <code class="docutils literal notranslate"><span class="pre">init</span></code> Step</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-vertical-coordinate">Creating a vertical coordinate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-again">Test Again</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-an-initial-condition">Creating an initial condition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-once-more">Test Once More</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="adding_plots.html">Adding Plots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_outputs.html">Adding Step Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_forward.html">Adding a <code class="docutils literal notranslate"><span class="pre">forward</span></code> Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_viz.html">Adding a Visualization Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documenting.html">Documentation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+      <li class="breadcrumb-item active">Fleshing out the <code class="docutils literal notranslate"><span class="pre">init</span></code> Step</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/tutorials/dev_add_category_of_tasks/fleshing_out_step.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="fleshing-out-the-init-step">
+<h1>Fleshing out the <code class="docutils literal notranslate"><span class="pre">init</span></code> Step<a class="headerlink" href="#fleshing-out-the-init-step" title="Link to this heading"></a></h1>
+<p>What we are adding here are details that are pretty specific to this particular
+category of tasks: its vertical coordinate and initial condition.  It isn’t
+worth worrying too much about these details, as things will be different
+for other types of tests and tasks.  It is just provided for completeness and
+to provide some step-by-step explanation.  And it’s necessary to have some
+sort of vertical mesh and initial condition in order to be able to run
+MPAS-Ocean and analyze the results in subsequentt steps.</p>
+<section id="creating-a-vertical-coordinate">
+<h2>Creating a vertical coordinate<a class="headerlink" href="#creating-a-vertical-coordinate" title="Link to this heading"></a></h2>
+<p>Ocean tasks typically need to define a vertical coordinate as we will
+discuss here.  Land ice tasks use a different approach to creating
+vertical coordinates, so this section will not apply to those tasks.
+Returning to the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method in the <code class="docutils literal notranslate"><span class="pre">init</span></code> step, the code
+snippet below is an example of how to make use of the
+<a class="reference internal" href="../../developers_guide/ocean/framework.html#dev-ocean-framework-vertical"><span class="std std-ref">Vertical coordinate</span></a> to create the vertical coordinate:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vim<span class="w"> </span>polaris/tasks/ocean/my_overflow/init.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+</span><span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+</span>
+<span class="o">...</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.planar</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_vertical_coord</span>
+</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="o">...</span>
+
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">)</span>
+
+<span class="hll">        <span class="n">max_bottom_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;max_bottom_depth&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">shelf_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;shelf_depth&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">x_slope</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;x_slope&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">l_slope</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;l_slope&#39;</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="c1"># Form a continental shelf-like bathymetry</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shelf_depth</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+</span><span class="hll">            <span class="n">max_bottom_depth</span> <span class="o">-</span> <span class="n">shelf_depth</span>
+</span><span class="hll">        <span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
+</span><span class="hll">            <span class="mf">1.0</span>
+</span><span class="hll">            <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span>
+</span><span class="hll">                <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xCell</span> <span class="o">-</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="n">x_slope</span> <span class="o">*</span> <span class="mf">1.0e3</span><span class="p">)</span>
+</span><span class="hll">                <span class="o">/</span> <span class="p">(</span><span class="n">l_slope</span> <span class="o">*</span> <span class="mf">1.0e3</span><span class="p">)</span>
+</span><span class="hll">            <span class="p">)</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="c1"># ssh is zero</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">init_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>This part of the step, too, relies on config options, this time from the
+<code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> section (see <a class="reference internal" href="../../developers_guide/ocean/framework.html#dev-ocean-framework-vertical"><span class="std std-ref">Vertical coordinate</span></a> for more on
+this):</p>
+<p>Now we add the config options we need to the config file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vim<span class="w"> </span>polaris/tasks/ocean/my_overflow/my_overflow.cfg
+</pre></div>
+</div>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="c1"># Options related to the vertical grid</span>
+</span><span class="hll"><span class="k">[vertical_grid]</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># Depth of the bottom of the ocean (m)</span>
+</span><span class="hll"><span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2000.0</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># Number of vertical levels</span>
+</span><span class="hll"><span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># The type of vertical grid</span>
+</span><span class="hll"><span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">uniform</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># The type of vertical coordinate (e.g. z-level, z-star)</span>
+</span><span class="hll"><span class="na">coord_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">z-star</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># Whether to use &quot;partial&quot; or &quot;full&quot;, or &quot;None&quot; to not alter the topography</span>
+</span><span class="hll"><span class="na">partial_cell_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+</span>
+<span class="c1"># Options related to the overflow case</span>
+<span class="k">[overflow]</span>
+
+<span class="na">...</span>
+
+<span class="c1"># Distance from two cell centers (km)</span>
+<span class="na">resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.0</span>
+
+<span class="hll"><span class="c1"># Bottom depth at bottom of overflow</span>
+</span><span class="hll"><span class="na">max_bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${vertical_grid:bottom_depth}</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># Shelf depth (m)</span>
+</span><span class="hll"><span class="na">shelf_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">500.0</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># Lateral position of the shelf-break (km)</span>
+</span><span class="hll"><span class="na">x_slope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">40.0</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># Length-scale of the slope (km)</span>
+</span><span class="hll"><span class="na">l_slope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">7.0</span>
+</span></pre></div>
+</div>
+<p>What we’re doing here is defining a z-star coordinate with 60 uniform vertical
+levels, a bottom depth of 2000 m (so each layer is 33 1/3 m thick) and without
+any alteration of layer thickness for partial cells.  A major feature of the
+<code class="docutils literal notranslate"><span class="pre">overflow</span></code> tests is that they have a <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> field that that is shallow
+on the left (depth given by <code class="docutils literal notranslate"><span class="pre">shelf_depth</span></code>) and deep on the right (depth given
+by <code class="docutils literal notranslate"><span class="pre">max_bottom_depth</span></code>) with a <code class="docutils literal notranslate"><span class="pre">tanh</span></code> transition between the two centered at
+<code class="docutils literal notranslate"><span class="pre">x_slope</span></code> with steepness define by <code class="docutils literal notranslate"><span class="pre">l_slope</span></code>.  The sea surface height (<code class="docutils literal notranslate"><span class="pre">ssh</span></code>)
+is set to zero everywhere (this will nearly always be the case for any tasks
+that don’t include ice-shelf cavities, where the SSH is depressed by the weight
+of the overlying ice). <a class="reference internal" href="../../developers_guide/ocean/generated/polaris.ocean.vertical.init_vertical_coord.html#polaris.ocean.vertical.init_vertical_coord" title="polaris.ocean.vertical.init_vertical_coord"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.init_vertical_coord()</span></code></a>
+takes care of most of the details for us once we have defined <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ssh</span></code>, adding the following fields to <code class="docutils literal notranslate"><span class="pre">ds</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code> - the index of the top valid layer</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> - the index of the bottom valid layer</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cellMask</span></code> - a mask of where cells are valid</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> - the thickness of each layer</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> - the thickness of each layer stretched as if <code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">=</span> <span class="pre">0</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">zMid</span></code> - the elevation of the midpoint of each layer</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">refTopDepth</span></code> - the positive-down depth of the top of each ref. level</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">refZMid</span></code> - the positive-down depth of the middle of each ref. level</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">refBottomDepth</span></code> - the positive-down depth of the bottom of each ref. level</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">refInterfaces</span></code> - the positive-down depth of the interfaces between ref.
+levels (with <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code> + 1 elements).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vertCoordMovementWeights</span></code> - the weights (all ones) for coordinate movement</p></li>
+</ul>
+</section>
+<section id="test-again">
+<h2>Test Again<a class="headerlink" href="#test-again" title="Link to this heading"></a></h2>
+<p>Repeat the testing procedure that you did in
+<a class="reference internal" href="testing_first_task.html"><span class="std std-doc">Testing the First Task and Step</span></a>.  You will probably
+want to set up in a new work directory so you can test everything from the
+beginning. This time, you should see <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code> in the <code class="docutils literal notranslate"><span class="pre">init</span></code>
+subdirectory.  You can use <code class="docutils literal notranslate"><span class="pre">ncdump</span></code> to make sure it has the right fields in it
+– the ones listed above and also <code class="docutils literal notranslate"><span class="pre">ssh</span></code> and <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code>.</p>
+</section>
+<section id="creating-an-initial-condition">
+<h2>Creating an initial condition<a class="headerlink" href="#creating-an-initial-condition" title="Link to this heading"></a></h2>
+<p>The next part of the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method in the <code class="docutils literal notranslate"><span class="pre">init</span></code> step is to
+define the initial condition:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vim<span class="w"> </span>polaris/tasks/ocean/my_overflow/init.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_density</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_vertical_coord</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="o">...</span>
+
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">)</span>
+
+<span class="hll">        <span class="c1"># initial temperature is constant except for a block of cold water on</span>
+</span><span class="hll">        <span class="c1"># the shelf</span>
+</span><span class="hll">        <span class="n">x_dense</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;x_dense&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">lower_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lower_temperature&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">higher_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;higher_temperature&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">_</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]),</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">temperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+</span><span class="hll">            <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">x_dense</span> <span class="o">*</span> <span class="mf">1.0e3</span><span class="p">,</span>
+</span><span class="hll">            <span class="n">lower_temperature</span><span class="p">,</span>
+</span><span class="hll">            <span class="n">higher_temperature</span><span class="p">,</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span class="hll">            <span class="p">(</span>
+</span><span class="hll">                <span class="s1">&#39;Time&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">&#39;nCells&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">),</span>
+</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="c1"># initial salinity is constant</span>
+</span><span class="hll">        <span class="n">salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;salinity&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">density</span> <span class="o">=</span> <span class="n">compute_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span class="hll">            <span class="p">(</span>
+</span><span class="hll">                <span class="s1">&#39;Time&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">&#39;nCells&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">),</span>
+</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="c1"># initial velocity on edges is stationary</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span class="hll">            <span class="p">(</span>
+</span><span class="hll">                <span class="s1">&#39;Time&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">&#39;nEdges&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">),</span>
+</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nEdges&#39;</span><span class="p">],</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]]),</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="c1"># Coriolis parameter is zero</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span class="hll">            <span class="p">(</span>
+</span><span class="hll">                <span class="s1">&#39;nCells&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">),</span>
+</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">],</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]]),</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fEdge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span class="hll">            <span class="p">(</span>
+</span><span class="hll">                <span class="s1">&#39;nEdges&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">),</span>
+</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nEdges&#39;</span><span class="p">],</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]]),</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fVertex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span class="hll">            <span class="p">(</span>
+</span><span class="hll">                <span class="s1">&#39;nVertices&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">),</span>
+</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertices&#39;</span><span class="p">],</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]]),</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="c1"># finalize and write file</span>
+</span><span class="hll">        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;init.nc&#39;</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>The details aren’t critical for the purpose of this tutorial, though you may
+find this example to be useful for developing other tasks, particularly
+those for the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component.  The point is mostly to show how config
+options are used to define the initial condition. Again, we use config options
+from <code class="docutils literal notranslate"><span class="pre">my_overflow.cfg</span></code>, this time in a section specific to the test
+group that we therefore call <code class="docutils literal notranslate"><span class="pre">my_overflow</span></code>:</p>
+<p>Now we add the config options we need to the config file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vim<span class="w"> </span>polaris/tasks/ocean/my_overflow/my_overflow.cfg
+</pre></div>
+</div>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">...</span>
+
+<span class="c1"># Options related to the overflow case</span>
+<span class="k">[overflow]</span>
+
+<span class="na">...</span>
+
+<span class="c1"># Length-scale of the slope (km)</span>
+<span class="na">l_slope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">7.0</span>
+
+<span class="hll"><span class="c1"># Cold water range (km)</span>
+</span><span class="hll"><span class="na">x_dense</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20.0</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># constant salinity (PSU)</span>
+</span><span class="hll"><span class="na">salinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">35.0</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># Lower temperature (deg C)</span>
+</span><span class="hll"><span class="na">lower_temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10.0</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># Higher temperature (deg C)</span>
+</span><span class="hll"><span class="na">higher_temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20.0</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># Beta in eos</span>
+</span><span class="hll"><span class="na">eos_linear_beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.8</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># Reference salinity (PSU)</span>
+</span><span class="hll"><span class="na">eos_linear_Sref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${overflow:salinity}</span>
+</span></pre></div>
+</div>
+<p>Again, the idea is that we make these config options rather than hard-coding
+them in the task so that users can more easily alter the task and
+also to provide a relatively obvious place to document these parameters.</p>
+</section>
+<section id="test-once-more">
+<h2>Test Once More<a class="headerlink" href="#test-once-more" title="Link to this heading"></a></h2>
+<p>Repeat the testing procedure, again using a new work directory so you can
+start fresh.. This time, you should see <code class="docutils literal notranslate"><span class="pre">init.nc</span></code> in the <code class="docutils literal notranslate"><span class="pre">init</span></code> subdirectory.
+Again, you can use <code class="docutils literal notranslate"><span class="pre">ncdump</span></code> to make sure it has the right fields in it –
+including the ones such as <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">fVertex</span></code> that we added above.</p>
+<hr class="docutils" />
+<p>← <a class="reference internal" href="testing_first_task.html"><span class="std std-doc">Back to <em>Testing the First Task and Step</em></span></a></p>
+<p>→ <a class="reference internal" href="adding_plots.html"><span class="std std-doc">Continue to <em>Adding Plots</em></span></a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="testing_first_task.html" class="btn btn-neutral float-left" title="Testing the First Task and Step" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="adding_plots.html" class="btn btn-neutral float-right" title="Adding Plots" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

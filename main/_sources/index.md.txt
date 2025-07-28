@@ -91,7 +91,7 @@ design_docs/index
 :caption: Tutorials
 :maxdepth: 1
 
-tutorials/dev_add_test_group
+tutorials/dev_add_category_of_tasks/index
 ```
 
 ```{toctree}
