@@ -19,7 +19,13 @@ class Analysis(OceanIOStep):
     test case
     """
 
-    def __init__(self, component, indir, boundary_condition='free slip'):
+    def __init__(
+        self,
+        component,
+        indir,
+        test_name='munk',
+        boundary_condition='free-slip',
+    ):
         """
         Create the step
 
@@ -42,6 +48,7 @@ class Analysis(OceanIOStep):
         self.boundary_condition = boundary_condition
 
     def run(self):
+        logger = self.logger
         ds_mesh = xr.open_dataset('mesh.nc')
         ds_init = xr.open_dataset('init.nc')
         ds = xr.open_dataset('output.nc')
@@ -49,6 +56,8 @@ class Analysis(OceanIOStep):
         field_mpas = compute_barotropic_streamfunction(
             ds_init.isel(Time=0), ds, prefix='', time_index=-1
         )
+        x_maxpsi = ds_mesh.xVertex.isel(nVertices=np.argmax(field_mpas.values))
+        logger.info(f'Streamfunction reaches maximum at x = {x_maxpsi.values}')
         field_exact = self.exact_solution(
             ds_mesh,
             self.config,
@@ -66,7 +75,9 @@ class Analysis(OceanIOStep):
             variable_name='psi',
             boundary_condition=self.boundary_condition,
         )
-        print(f'L2 error norm for {self.boundary_condition} bsf: {error:1.2e}')
+        logger.info(
+            f'L2 error norm for {self.boundary_condition} bsf: {error:1.2e}'
+        )
 
         descriptor = mosaic.Descriptor(ds_mesh)
 
@@ -214,6 +225,7 @@ class Analysis(OceanIOStep):
             Must contain the fields: f'x{loc}', f'y{loc}'
         """
 
+        logger = self.logger
         x = ds_mesh[f'x{loc}']
         x = x - ds_mesh.xEdge.min()
         y = ds_mesh[f'y{loc}']
@@ -224,13 +236,15 @@ class Analysis(OceanIOStep):
         # df/dy where f is coriolis parameter
         beta = config.getfloat('barotropic_gyre', 'beta')
         # Laplacian viscosity
-        nu = config.getfloat('barotropic_gyre', 'nu_2')
+        nu = config.getfloat('barotropic_gyre_munk', 'nu_2')
 
         # Compute some non-dimensional numbers
         delta_m = (nu / (beta * L_y**3.0)) ** (1.0 / 3.0)
         gamma = (np.sqrt(3.0) * x) / (2.0 * delta_m * L_x)
+        x_maxpsi = 2 * delta_m / np.sqrt(3.0)
+        logger.info(f'Streamfunction should reach maximum at x = {x_maxpsi}')
 
-        if boundary_condition == 'no slip':
+        if boundary_condition == 'no-slip':
             psi = (
                 pi
                 * np.sin(pi * y / L_y)
@@ -246,7 +260,7 @@ class Analysis(OceanIOStep):
                 )
             )
 
-        elif boundary_condition == 'free slip':
+        elif boundary_condition == 'free-slip':
             psi = (
                 pi
                 * np.sin(pi * (y / L_y))

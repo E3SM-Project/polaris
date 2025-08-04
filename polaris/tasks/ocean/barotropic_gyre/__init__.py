@@ -19,10 +19,41 @@ def add_barotropic_gyre_tasks(component):
     component : polaris.tasks.ocean.Ocean
         the ocean component that the task will be added to
     """
-    test_name = 'default'
-    component.add_task(
-        BarotropicGyre(component=component, test_name=test_name)
+    # TODO support stommel case
+    group_name = 'barotropic_gyre'
+    group_dir = os.path.join('planar', group_name)
+    config_filename = f'{group_name}.cfg'
+    config_filepath = os.path.join(component.name, group_dir, config_filename)
+    config = PolarisConfigParser(filepath=config_filepath)
+    config.add_from_package(
+        f'polaris.tasks.ocean.{group_name}', config_filename
     )
+    # There is one init step for the whole group
+    # init = Init(
+    #    component=component,
+    #    subdir=group_dir,
+    # )
+    # init.set_shared_config(config, link=config_filename)
+    init = component.get_or_create_shared_step(
+        step_cls=Init,
+        subdir=group_dir,
+        config=config,
+        config_filename=config_filename,
+    )
+    # for test_name in ['munk', 'stommel']:
+    for test_name in ['munk']:
+        for boundary_condition in ['free-slip', 'no-slip']:
+            component.add_task(
+                BarotropicGyre(
+                    component=component,
+                    subdir=group_dir,
+                    test_name=test_name,
+                    init_step=init,
+                    boundary_condition=boundary_condition,
+                    config=config,
+                    config_filename=config_filename,
+                )
+            )
 
 
 class BarotropicGyre(Task):
@@ -30,7 +61,16 @@ class BarotropicGyre(Task):
     The convergence test case for inertial gravity waves
     """
 
-    def __init__(self, component, test_name):
+    def __init__(
+        self,
+        component,
+        subdir,
+        test_name,
+        init_step,
+        boundary_condition,
+        config,
+        config_filename,
+    ):
         """
         Create the test case
 
@@ -39,52 +79,45 @@ class BarotropicGyre(Task):
         component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
         """
-        group_name = 'barotropic_gyre'
-        name = f'{group_name}_{test_name}'
-        subdir = os.path.join('planar', group_name, test_name)
-        super().__init__(component=component, name=name, subdir=subdir)
-
-        config = self.config
-        config_filename = f'{group_name}.cfg'
-        config.filepath = os.path.join(component.name, subdir, config_filename)
-        config.add_from_package(
-            f'polaris.tasks.ocean.{group_name}', config_filename
-        )
+        name = f'{test_name}/{boundary_condition}'
+        indir = f'{subdir}/{name}'
+        super().__init__(component=component, name=name, subdir=indir)
         self.set_shared_config(config, link=config_filename)
 
-        init = Init(component=component, subdir=subdir)
-        init.set_shared_config(config, link=config_filename)
-        self.add_step(init)
+        self.add_step(init_step, symlink='init')
 
-        forward = Forward(
+        forward_step = Forward(
             component=component,
-            indir=self.subdir,
+            indir=indir,
             ntasks=None,
             min_tasks=None,
             openmp_threads=1,
+            boundary_condition=boundary_condition,
             name='short_forward',
             run_time_steps=3,
-            graph_target=os.path.join(init.path, 'culled_graph.info'),
+            graph_target=os.path.join(init_step.path, 'culled_graph.info'),
         )
-        forward.set_shared_config(config, link=config_filename)
-        self.add_step(forward)
+        forward_step.set_shared_config(config, link=config_filename)
+        self.add_step(forward_step)
 
         forward = Forward(
             component=component,
-            indir=self.subdir,
+            indir=indir,
             ntasks=None,
             min_tasks=None,
             openmp_threads=1,
+            boundary_condition=boundary_condition,
             name='long_forward',
-            graph_target=os.path.join(init.path, 'culled_graph.info'),
+            graph_target=os.path.join(init_step.path, 'culled_graph.info'),
         )
         forward.set_shared_config(config, link=config_filename)
         self.add_step(forward, run_by_default=False)
 
         analysis = Analysis(
             component=component,
-            indir=self.subdir,
-            boundary_condition='free slip',
+            indir=indir,
+            test_name=test_name,
+            boundary_condition=boundary_condition,
         )
         analysis.set_shared_config(config, link=config_filename)
         self.add_step(analysis, run_by_default=False)

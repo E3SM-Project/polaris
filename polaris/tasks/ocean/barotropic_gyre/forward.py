@@ -1,5 +1,7 @@
 import time
-from math import ceil, floor
+from math import ceil, floor, pi
+
+import numpy as np
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
@@ -28,6 +30,8 @@ class Forward(OceanModelStep):
         name='forward',
         subdir=None,
         indir=None,
+        test_name='munk',
+        boundary_condition='free slip',
         ntasks=None,
         min_tasks=None,
         openmp_threads=1,
@@ -73,6 +77,7 @@ class Forward(OceanModelStep):
             If none, it will be created.
         """
         self.run_time_steps = run_time_steps
+        self.boundary_condition = boundary_condition
         super().__init__(
             component=component,
             name=name,
@@ -131,17 +136,58 @@ class Forward(OceanModelStep):
         super().dynamic_model_config(at_setup)
 
         config = self.config
+        logger = self.logger
 
         model = config.get('ocean', 'model')
-        if model == 'mpas-ocean':
+        vert_levels = config.getfloat('vertical_grid', 'vert_levels')
+        if model == 'mpas-ocean' and vert_levels == 1:
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
+        resolution = config.getfloat('barotropic_gyre', 'resolution')
+        # Laplacian viscosity
         nu = config.getfloat('barotropic_gyre', 'nu_2')
         rho_0 = config.getfloat('barotropic_gyre', 'rho_0')
+        # beta = df/dy where f is coriolis parameter
+        beta = config.getfloat('barotropic_gyre', 'beta')
 
+        # calculate the boundary layer thickness for specified parameters
+        m = (pi * 2) / np.sqrt(3) * (nu / beta) ** (1.0 / 3.0)
+        # ensure the boundary layer is at least 3 gridcells wide
+        logger.info(
+            'Lateral boundary layer has an anticipated width of '
+            f'{(m * 1e-3):03g} km'
+        )
+        if m <= 3.0 * resolution * 1.0e3:
+            logger.warn(
+                f'Resolution {resolution} km is too coarse to '
+                'properly resolve the lateral boundary layer '
+                f'with anticipated width of {(m * 1e-3):03g} km'
+            )
+
+        # check whether viscosity suitable for stability
+        stability_parameter_max = 0.6
         dt_max = compute_max_time_step(config)
+        nu_max = (
+            stability_parameter_max
+            * (resolution * 1.0e3) ** 2.0
+            / (8 * dt_max)
+        )
+        if nu > nu_max:
+            raise ValueError(
+                f'Laplacian viscosity cannot be set to {nu}; '
+                f'maximum value is {nu_max}'
+            )
+
         dt = floor(dt_max / 3.0)
         dt_str = get_time_interval_string(seconds=dt)
+        dt_btr_str = get_time_interval_string(seconds=dt / 20.0)
+
+        nu_max = stability_parameter_max * (resolution * 1.0e3) ** 2.0 / dt
+        if nu > nu_max:
+            raise ValueError(
+                f'Laplacian viscosity cannot be set to {nu}; '
+                f'maximum value is {nu_max} or decrease the time step'
+            )
 
         options = {'config_dt': dt_str, 'config_density0': rho_0}
         self.add_model_config_options(
@@ -162,6 +208,7 @@ class Forward(OceanModelStep):
 
         replacements = dict(
             dt=dt_str,
+            dt_btr=dt_btr_str,
             stop_time=stop_time_str,
             output_interval=output_interval_str,
             nu=f'{nu:02g}',
