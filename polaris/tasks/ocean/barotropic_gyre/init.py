@@ -7,7 +7,6 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.vertical import init_vertical_coord
-from polaris.tasks.ocean.barotropic_gyre.forward import compute_max_time_step
 from polaris.viz import plot_horiz_field
 
 
@@ -22,7 +21,7 @@ class Init(Step):
         The resolution of the task in km
     """
 
-    def __init__(self, component, subdir):
+    def __init__(self, component, subdir, name='init'):
         """
         Create the step
 
@@ -31,7 +30,7 @@ class Init(Step):
         component : polaris.Component
             The component the step belongs to
         """
-        super().__init__(component=component, name='init', indir=subdir)
+        super().__init__(component=component, name=name, indir=subdir)
 
         for file in [
             'base_mesh.nc',
@@ -40,41 +39,11 @@ class Init(Step):
             'forcing.nc',
         ]:
             self.add_output_file(file)
+        self.name = name
         self.add_output_file('init.nc', validate_vars=['layerThickness'])
 
     def setup(self):
         super().setup()
-
-        config = self.config
-
-        resolution = config.getfloat('barotropic_gyre', 'resolution')
-        # coriolis parameter
-        beta = config.getfloat('barotropic_gyre', 'beta')
-        # laplacian horizontal viscosity
-        nu_2 = config.getfloat('barotropic_gyre', 'nu_2')
-
-        # calculate the boundary layer thickness for specified parameters
-        m = (np.pi * 2) / np.sqrt(3) * (nu_2 / beta) ** (1.0 / 3.0)
-        # ensure the boundary layer is at least 3 gridcells wide
-        if m <= 3.0 * resolution * 1.0e3:
-            raise ValueError(
-                f'Resolution {resolution} km is too coarse to '
-                'properly resolve the lateral boundary layer '
-                f'with anticipated width of {(m * 1e-3):03g} km'
-            )
-
-        # check whether viscosity suitable for stability
-        stability_parameter_max = 0.6
-        dt_max = compute_max_time_step(config)
-        dt = dt_max / 3.0
-        nu_2_max = (
-            stability_parameter_max * (resolution * 1.0e3) ** 2.0 / (8 * dt)
-        )
-        if nu_2 > nu_2_max:
-            raise ValueError(
-                f'Laplacian viscosity cannot be set to {nu_2}; '
-                f'maximum value is {nu_2_max}'
-            )
 
     def run(self):
         """
