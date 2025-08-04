@@ -40,7 +40,10 @@ mpas-ocean:
     config_implicit_constant_bottom_drag_coeff: 0.
   forcing:
     config_use_bulk_wind_stress: true
+  lateral_walls:
+    config_wall_slip_factor: {{ slip_factor }}
   debug:
+    config_disable_thick_vadv: true
     config_disable_vel_hadv: true
     config_disable_vel_hmix: false
     config_disable_tr_all_tend: true
