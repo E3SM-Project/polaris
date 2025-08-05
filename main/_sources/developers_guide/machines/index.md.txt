@@ -69,7 +69,7 @@ These are the machines supported by MPAS-Ocean and -Seaice, including the
 +--------------+------------+-----------+-------------------+
 | compy        | intel      | impi      | intel-mpi         |
 +--------------+------------+-----------+-------------------+
-| frontier     | craygun    | mpich     | gnu-cray          |
+| frontier     | craygnu    | mpich     | gnu-cray          |
 |              +------------+-----------+-------------------+
 |              | craycray   | mpich     | cray-cray         |
 +--------------+------------+-----------+-------------------+
