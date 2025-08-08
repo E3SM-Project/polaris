@@ -268,12 +268,21 @@ class Forward(OceanModelStep):
         mpas_options['config_tidal_forcing_model'] = forcing_dict[
             self.forcing_type
         ]  # type: ignore[assignment]
+        if self.forcing_type == 'linear_drying':
+            if self.baroclinic:
+                section = self.config['drying_slope_baroclinic']
+            else:
+                section = self.config['drying_slope_barotropic']
+            replacements['tidal_min'] = (
+                section.getfloat('right_bottom_depth') + 0.5
+            )
+            replacements['tidal_baseline'] = section.getfloat(
+                'right_tidal_height'
+            )
 
-        print(mpas_options)
         self.add_model_config_options(
             options=mpas_options, config_model='mpas-ocean'
         )
-        print(replacements)
         self.add_yaml_file(
             'polaris.tasks.ocean.drying_slope',
             self.yaml_filename,
