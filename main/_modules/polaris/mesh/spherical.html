@@ -119,6 +119,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.creation.jigsaw_to_netcdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">jigsaw_to_netcdf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.interpolation</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp_bilin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.ocean.inject_meshDensity</span><span class="w"> </span><span class="kn">import</span> <span class="n">inject_spherical_meshDensity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.viz.colormaps</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_sci_viz_colormaps</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.viz.paraview_extractor</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_vtk</span>
@@ -248,11 +249,15 @@
 
         <span class="c1"># open the mesh and rewrite it in the desired NetCDF format</span>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">tmp_mesh_filename</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_cell_width_to_mesh</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
+
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">mpas_mesh_filename</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;add_mesh_density&#39;</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Add meshDensity into the mesh file&#39;</span><span class="p">)</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;cellWidthVsLatLon.nc&#39;</span><span class="p">)</span>
+            <span class="n">cell_width_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cell_width_filename&#39;</span><span class="p">)</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">cell_width_filename</span><span class="p">)</span>
             <span class="n">inject_spherical_meshDensity</span><span class="p">(</span>
                 <span class="n">ds</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
                 <span class="n">ds</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
@@ -329,7 +334,33 @@
         <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">image_filename</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_cell_width_to_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Interpolate the cell width from a lon/lat grid to the MPAS mesh and</span>
+<span class="sd">        add it to the mesh file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">]</span>
+        <span class="n">cell_width_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cell_width_filename&#39;</span><span class="p">)</span>
+        <span class="n">ds_cell_width</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">cell_width_filename</span><span class="p">)</span>
+
+        <span class="n">lon_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">lonCell</span><span class="p">)</span>
+        <span class="c1"># Convert lon_cell to be between -180 and 180 using np.mod</span>
+        <span class="n">lon_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">lon_cell</span> <span class="o">+</span> <span class="mf">180.0</span><span class="p">,</span> <span class="mf">360.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">180.0</span>
+        <span class="n">lat_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">latCell</span><span class="p">)</span>
+
+        <span class="n">cell_width</span> <span class="o">=</span> <span class="n">interp_bilin</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">ds_cell_width</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">ds_cell_width</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">field</span><span class="o">=</span><span class="n">ds_cell_width</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">xCell</span><span class="o">=</span><span class="n">lon_cell</span><span class="p">,</span>
+            <span class="n">yCell</span><span class="o">=</span><span class="n">lat_cell</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># interpolate the cell width to the MPAS mesh</span>
+        <span class="n">ds_mesh</span><span class="p">[</span><span class="s1">&#39;cellWidth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="s1">&#39;nCells&#39;</span><span class="p">),</span> <span class="n">cell_width</span><span class="p">)</span></div>
 
 
 

@@ -109,6 +109,7 @@
              
   <h1>Source code for polaris.tasks.e3sm.init.add_tasks</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine</span><span class="w"> </span><span class="kn">import</span> <span class="n">CombineTask</span> <span class="k">as</span> <span class="n">CombineTopoTask</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.cull</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_cull_topo_tasks</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.remap</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_remap_topo_tasks</span>
 
 
@@ -126,7 +127,9 @@
             <span class="n">CombineTopoTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">low_res</span><span class="o">=</span><span class="n">low_res</span><span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="n">add_remap_topo_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span></div>
+    <span class="n">add_remap_topo_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
+
+    <span class="n">add_cull_topo_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span></div>
 
 </pre></div>
 

@@ -218,6 +218,52 @@
 </tbody>
 </table>
 </section>
+<section id="cull">
+<h4>cull<a class="headerlink" href="#cull" title="Link to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.CullMaskStep.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CullMaskStep</span></code></a>(component, base_mesh_step, ...)</p></td>
+<td><p>A step for creating the masks that will be used to cull land and ocean/sea-ice meshes based on critical land and ocean/sea-ice transects, handling land-locked cells, and flood-filling to make sure that Antarctic land ice and ocean are both contiguous.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.CullMaskStep.setup.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.setup" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CullMaskStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including downloading any dependencies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.CullMaskStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.constrain_resources" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CullMaskStep.constrain_resources</span></code></a>(...)</p></td>
+<td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_land_transects.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_land_transects" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_land_transects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CullMaskStep.define_critical_land_transects</span></code></a>(gf)</p></td>
+<td><p>Define transects along which land must be present (e.g. to block ocean flow).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_ocean_transects.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_ocean_transects" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_ocean_transects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CullMaskStep.define_critical_ocean_transects</span></code></a>(gf)</p></td>
+<td><p>Define transects along which ocean must be present (e.g. to allow ocean flow).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_ocean_cull_mask.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_ocean_cull_mask" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_ocean_cull_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CullMaskStep.refine_ocean_cull_mask</span></code></a>(...)</p></td>
+<td><p>Refine the mask for culling land and (optionally) grounded ice from the ocean.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_land_cull_mask.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_land_cull_mask" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_land_cull_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CullMaskStep.refine_land_cull_mask</span></code></a>(...)</p></td>
+<td><p>Refine the mask for culling ocean from the land.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.CullMaskStep.run.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.run" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CullMaskStep.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.CullMeshStep.html#polaris.tasks.e3sm.init.topo.cull.CullMeshStep" title="polaris.tasks.e3sm.init.topo.cull.CullMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CullMeshStep</span></code></a>(component, base_mesh_step, ...)</p></td>
+<td><p>A step for culling out land cells from the ocean/sea-ice mesh and ocean/sea-ice cells from the land mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.CullMeshStep.setup.html#polaris.tasks.e3sm.init.topo.cull.CullMeshStep.setup" title="polaris.tasks.e3sm.init.topo.cull.CullMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CullMeshStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including downloading any dependencies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.CullMeshStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.cull.CullMeshStep.constrain_resources" title="polaris.tasks.e3sm.init.topo.cull.CullMeshStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CullMeshStep.constrain_resources</span></code></a>(...)</p></td>
+<td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.CullMeshStep.run.html#polaris.tasks.e3sm.init.topo.cull.CullMeshStep.run" title="polaris.tasks.e3sm.init.topo.cull.CullMeshStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CullMeshStep.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.CullTopoTask.html#polaris.tasks.e3sm.init.topo.cull.CullTopoTask" title="polaris.tasks.e3sm.init.topo.cull.CullTopoTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CullTopoTask</span></code></a>(component, base_mesh_step, ...)</p></td>
+<td><p>A task for culling a topography dataset to land and ocea regions (the latter both with and without ice-shelf cavities)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 </section>
 </section>

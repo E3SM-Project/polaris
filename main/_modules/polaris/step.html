@@ -829,9 +829,9 @@
         <span class="k">if</span> <span class="n">package</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">target</span> <span class="o">=</span> <span class="n">filename</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
-                <span class="n">imp_res</span><span class="o">.</span><span class="n">as_file</span><span class="p">(</span><span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
-            <span class="p">)</span>
+            <span class="n">resource</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">as_file</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span> <span class="k">as</span> <span class="n">resource_path</span><span class="p">:</span>
+                <span class="n">target</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource_path</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">work_dir_target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">target</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="p">)</span>

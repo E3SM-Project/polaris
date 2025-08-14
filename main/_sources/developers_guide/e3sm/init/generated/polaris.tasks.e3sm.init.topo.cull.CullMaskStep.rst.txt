@@ -1,0 +1,37 @@
+﻿polaris.tasks.e3sm.init.topo.cull.CullMaskStep
+==============================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.cull
+
+.. autoclass:: CullMaskStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CullMaskStep.__init__
+      ~CullMaskStep.add_dependency
+      ~CullMaskStep.add_input_file
+      ~CullMaskStep.add_output_file
+      ~CullMaskStep.constrain_resources
+      ~CullMaskStep.define_critical_land_transects
+      ~CullMaskStep.define_critical_ocean_transects
+      ~CullMaskStep.process_inputs_and_outputs
+      ~CullMaskStep.refine_land_cull_mask
+      ~CullMaskStep.refine_ocean_cull_mask
+      ~CullMaskStep.run
+      ~CullMaskStep.runtime_setup
+      ~CullMaskStep.set_resources
+      ~CullMaskStep.set_shared_config
+      ~CullMaskStep.setup
+      ~CullMaskStep.validate_baselines
+   
+   
+
+   
+   
+   

@@ -202,20 +202,28 @@
 <span class="sd">        land_mask : xarray.DataArray</span>
 <span class="sd">            The mask array with the same shape as the topography fields</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;mask_topography&#39;</span><span class="p">]</span>
+        <span class="n">ocean_includes_grounded_ice</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
+            <span class="s1">&#39;ocean_includes_grounded_ice&#39;</span>
+        <span class="p">)</span>
         <span class="c1"># Default implementation</span>
         <span class="n">base_elevation</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">base_elevation</span>
         <span class="n">ice_mask</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">ice_mask</span>
-        <span class="n">grounded_mask</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">grounded_mask</span>
 
         <span class="n">below_sea_level</span> <span class="o">=</span> <span class="p">(</span><span class="n">base_elevation</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">above_sea_level</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">below_sea_level</span>
-        <span class="n">not_grounded</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">grounded_mask</span>
 
         <span class="c1"># above sea level or below sea leve but part of Antarcica</span>
         <span class="n">land_mask</span> <span class="o">=</span> <span class="n">above_sea_level</span> <span class="o">+</span> <span class="n">below_sea_level</span> <span class="o">*</span> <span class="n">ice_mask</span>
 
-        <span class="c1"># below sea level and not under grounded Antarctic ice</span>
-        <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">below_sea_level</span> <span class="o">*</span> <span class="n">not_grounded</span>
+        <span class="k">if</span> <span class="n">ocean_includes_grounded_ice</span><span class="p">:</span>
+            <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">below_sea_level</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">grounded_mask</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">grounded_mask</span>
+            <span class="n">not_grounded</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">grounded_mask</span>
+            <span class="c1"># below sea level and not under grounded Antarctic ice</span>
+            <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">below_sea_level</span> <span class="o">*</span> <span class="n">not_grounded</span>
 
         <span class="k">return</span> <span class="n">ocean_mask</span><span class="p">,</span> <span class="n">land_mask</span></div>
 
