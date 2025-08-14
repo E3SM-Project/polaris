@@ -684,9 +684,9 @@ class Step:
         if package is not None:
             if target is None:
                 target = filename
-            target = str(
-                imp_res.as_file(imp_res.files(package).joinpath(target))
-            )
+            resource = imp_res.files(package).joinpath(target)
+            with imp_res.as_file(resource) as resource_path:
+                target = str(resource_path)
 
         if work_dir_target is not None:
             target = os.path.join(base_work_dir, work_dir_target)

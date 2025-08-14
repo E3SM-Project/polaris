@@ -1,15 +1,15 @@
 import os
 
 from polaris.task import Task
-from polaris.tasks.e3sm.init.topo.remap.steps import (
-    get_default_remap_topo_steps,
+from polaris.tasks.e3sm.init.topo.cull.steps import (
+    get_default_cull_topo_steps,
 )
 
 
-class RemapTopoTask(Task):
+class CullTopoTask(Task):
     """
-    A task for remapping a topography dataset to a global MPAS mesh first
-    without smoothing and then optionally with smoothing
+    A task for culling a topography dataset to land and ocea regions (the
+    latter both with and without ice-shelf cavities)
 
     Attributes
     ----------
@@ -23,8 +23,8 @@ class RemapTopoTask(Task):
         component,
         base_mesh_step,
         combine_topo_step,
-        low_res,
-        smoothing=False,
+        remap_mask_step,
+        unsmoothed_topo_step,
         include_viz=False,
     ):
         """
@@ -42,6 +42,9 @@ class RemapTopoTask(Task):
             The step for combining global and Antarctic topography on a cubed
             sphere grid
 
+        unsmoothed_topo_step : polaris.tasks.e3sm.init.topo.remap.RemapTopoStep
+            The step for remapping the unsmoothed topography
+
         low_res : bool
             Whether the base mesh is low resolution (120km or coarser), so that
             a set of config options for low resolution and a lower resolution
@@ -55,23 +58,23 @@ class RemapTopoTask(Task):
             Whether to include visualization steps
         """
         mesh_name = base_mesh_step.mesh_name
-        subdir = os.path.join(mesh_name, 'topo', 'remap')
+        subdir = os.path.join(mesh_name, 'topo', 'cull')
         super().__init__(
             component=component,
-            name=f'{mesh_name}_topo_remap_task',
+            name=f'{mesh_name}_cull_topo_task',
             subdir=subdir,
         )
         self.add_step(base_mesh_step, symlink='base_mesh')
         self.add_step(combine_topo_step, symlink='combine_topo')
-        steps, config = get_default_remap_topo_steps(
+        self.add_step(remap_mask_step, symlink='remap_mask')
+        self.add_step(unsmoothed_topo_step, symlink='remap_unsmoothed_topo')
+        steps, config = get_default_cull_topo_steps(
             component=component,
             base_mesh_step=base_mesh_step,
-            combine_topo_step=combine_topo_step,
-            low_res=low_res,
-            smoothing=smoothing,
+            unsmoothed_topo_step=unsmoothed_topo_step,
             include_viz=include_viz,
         )
-        self.set_shared_config(config, link='remap_topo.cfg')
+        self.set_shared_config(config, link='cull_topo.cfg')
         for step in steps:
             self.add_step(step)
 

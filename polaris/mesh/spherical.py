@@ -9,6 +9,7 @@ from mpas_tools.cime.constants import constants
 from mpas_tools.io import write_netcdf
 from mpas_tools.logging import check_call
 from mpas_tools.mesh.creation.jigsaw_to_netcdf import jigsaw_to_netcdf
+from mpas_tools.mesh.interpolation import interp_bilin
 from mpas_tools.ocean.inject_meshDensity import inject_spherical_meshDensity
 from mpas_tools.viz.colormaps import register_sci_viz_colormaps
 from mpas_tools.viz.paraview_extractor import extract_vtk
@@ -125,11 +126,15 @@ class SphericalBaseStep(Step):
 
         # open the mesh and rewrite it in the desired NetCDF format
         ds_mesh = xr.open_dataset(tmp_mesh_filename)
+
+        self._add_cell_width_to_mesh(ds_mesh)
+
         write_netcdf(ds_mesh, mpas_mesh_filename)
 
         if section.getboolean('add_mesh_density'):
             logger.info('Add meshDensity into the mesh file')
-            ds = xr.open_dataset('cellWidthVsLatLon.nc')
+            cell_width_filename = section.get('cell_width_filename')
+            ds = xr.open_dataset(cell_width_filename)
             inject_spherical_meshDensity(
                 ds.cellWidth.values,
                 ds.lon.values,
@@ -206,6 +211,32 @@ class SphericalBaseStep(Step):
         plt.tight_layout()
         plt.savefig(image_filename, bbox_inches='tight')
         plt.close()
+
+    def _add_cell_width_to_mesh(self, ds_mesh):
+        """
+        Interpolate the cell width from a lon/lat grid to the MPAS mesh and
+        add it to the mesh file
+        """
+        config = self.config
+        section = config['spherical_mesh']
+        cell_width_filename = section.get('cell_width_filename')
+        ds_cell_width = xr.open_dataset(cell_width_filename)
+
+        lon_cell = np.degrees(ds_mesh.lonCell)
+        # Convert lon_cell to be between -180 and 180 using np.mod
+        lon_cell = np.mod(lon_cell + 180.0, 360.0) - 180.0
+        lat_cell = np.degrees(ds_mesh.latCell)
+
+        cell_width = interp_bilin(
+            x=ds_cell_width.lon.values,
+            y=ds_cell_width.lat.values,
+            field=ds_cell_width.cellWidth.values,
+            xCell=lon_cell,
+            yCell=lat_cell,
+        )
+
+        # interpolate the cell width to the MPAS mesh
+        ds_mesh['cellWidth'] = (('nCells'), cell_width)
 
 
 class QuasiUniformSphericalMeshStep(SphericalBaseStep):
