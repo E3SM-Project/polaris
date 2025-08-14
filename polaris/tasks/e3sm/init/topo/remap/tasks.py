@@ -22,7 +22,7 @@ def add_remap_topo_tasks(component):
 
     for base_mesh_step in base_mesh_steps:
         res = base_mesh_step.cell_width
-        low_res = res >= 120.0
+        low_res = res is not None and res >= 120.0
         task = RemapTopoTask(
             component=component,
             base_mesh_step=base_mesh_step,

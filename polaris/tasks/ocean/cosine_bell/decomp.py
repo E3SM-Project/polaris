@@ -1,5 +1,5 @@
 from polaris import Task
-from polaris.mesh.base import add_uniform_spherical_base_mesh_step
+from polaris.mesh.base import add_spherical_base_mesh_step
 from polaris.ocean.convergence import get_resolution_for_task
 from polaris.tasks.ocean.cosine_bell.forward import Forward
 from polaris.tasks.ocean.cosine_bell.init import Init
@@ -59,9 +59,8 @@ class Decomp(Task):
             config, refinement_factor, refinement=refinement
         )
 
-        icosahedral = prefix == 'icos'
-        base_mesh_step, mesh_name = add_uniform_spherical_base_mesh_step(
-            resolution, icosahedral
+        base_mesh_step, mesh_name = add_spherical_base_mesh_step(
+            prefix=prefix, min_res=resolution
         )
 
         name = f'{prefix}_init_{mesh_name}'
