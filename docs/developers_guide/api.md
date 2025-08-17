@@ -268,7 +268,7 @@ seaice/api
    IcosahedralMeshStep.get_cell_width
 ```
 
-### Uniform Spherical Base Mesh Step
+### Spherical Base Meshes
 
 ```{eval-rst}
 .. currentmodule:: polaris.mesh.base
@@ -276,8 +276,12 @@ seaice/api
 .. autosummary::
    :toctree: generated/
 
-   add_uniform_spherical_base_mesh_step
+   add_spherical_base_mesh_step
    get_base_mesh_steps
+   rrs.RRSBaseMesh
+   rrs.RRSBaseMesh.build_cell_width_lat_lon
+   so.SOBaseMesh
+   so.SOBaseMesh.build_cell_width_lat_lon
 ```
 
 ### model_step
@@ -371,6 +375,7 @@ seaice/api
    :toctree: generated/
 
    resolution_to_string
+   resolution_to_string_and_units
 ```
 
 ### streams

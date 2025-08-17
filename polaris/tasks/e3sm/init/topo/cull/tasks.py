@@ -25,7 +25,7 @@ def add_cull_topo_tasks(component):
 
     for base_mesh_step in base_mesh_steps:
         res = base_mesh_step.cell_width
-        low_res = res >= 120.0
+        low_res = res is not None and res >= 120.0
         combine_topo_step = combine_steps[low_res]
 
         remap_topo_steps, _ = get_default_remap_topo_steps(
