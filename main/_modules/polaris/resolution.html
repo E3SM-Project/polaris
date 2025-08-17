@@ -112,7 +112,7 @@
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.resolution.resolution_to_string.html#polaris.resolution.resolution_to_string">[docs]</a>
 <span></span><span class="k">def</span><span class="w"> </span><span class="nf">resolution_to_string</span><span class="p">(</span><span class="n">resolution</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert a resolution to a subdirectory name</span>
+<span class="sd">    Convert a resolution to a subdirectory name (e.g. &#39;240km&#39;, &#39;30m&#39;, &#39;0.1cm&#39;)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -125,13 +125,41 @@
 <span class="sd">        The resolution as a string for use as a subdirectory</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">resolution</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
-        <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">km&#39;</span>
-    <span class="k">elif</span> <span class="n">resolution</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">:</span>
-        <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1.0e5</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">cm&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.0</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">m&#39;</span>
+    <span class="n">res_str</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">resolution_to_string_and_units</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
+    <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">res_str</span><span class="si">}{</span><span class="n">units</span><span class="si">}</span><span class="s1">&#39;</span>
     <span class="k">return</span> <span class="n">res_str</span></div>
+
+
+
+<div class="viewcode-block" id="resolution_to_string_and_units">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.resolution.resolution_to_string_and_units.html#polaris.resolution.resolution_to_string_and_units">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolution_to_string_and_units</span><span class="p">(</span><span class="n">resolution</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a resolution to a string and its units</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    resolution : float</span>
+<span class="sd">        The resolution in km</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res_str : str</span>
+<span class="sd">        The resolution as a string for use as a subdirectory</span>
+
+<span class="sd">    units : str</span>
+<span class="sd">        The units of the resolution (e.g. &#39;km&#39;, &#39;m&#39;, &#39;cm&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">resolution</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+        <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;km&#39;</span>
+    <span class="k">elif</span> <span class="n">resolution</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">:</span>
+        <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1.0e5</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;cm&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.0</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+    <span class="k">return</span> <span class="n">res_str</span><span class="p">,</span> <span class="n">units</span></div>
 
 </pre></div>
 

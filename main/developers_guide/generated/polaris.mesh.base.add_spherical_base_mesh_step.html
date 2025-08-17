@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.mesh.base.add_uniform_spherical_base_mesh_step</title>
+  <title>polaris.mesh.base.add_spherical_base_mesh_step</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
@@ -84,9 +84,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#job">job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#logging">logging</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#mesh">mesh</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="../api.html#uniform-spherical-base-mesh-step">Uniform Spherical Base Mesh Step</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.mesh.base.add_uniform_spherical_base_mesh_step</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../api.html#spherical-base-meshes">Spherical Base Meshes</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.mesh.base.add_spherical_base_mesh_step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.mesh.base.get_base_mesh_steps.html">polaris.mesh.base.get_base_mesh_steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.mesh.base.rrs.RRSBaseMesh.html">polaris.mesh.base.rrs.RRSBaseMesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.mesh.base.rrs.RRSBaseMesh.build_cell_width_lat_lon.html">polaris.mesh.base.rrs.RRSBaseMesh.build_cell_width_lat_lon</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.mesh.base.so.SOBaseMesh.html">polaris.mesh.base.so.SOBaseMesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.mesh.base.so.SOBaseMesh.build_cell_width_lat_lon.html">polaris.mesh.base.so.SOBaseMesh.build_cell_width_lat_lon</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#model-step">model_step</a></li>
@@ -130,9 +134,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API reference</a></li>
-      <li class="breadcrumb-item active">polaris.mesh.base.add_uniform_spherical_base_mesh_step</li>
+      <li class="breadcrumb-item active">polaris.mesh.base.add_spherical_base_mesh_step</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/developers_guide/generated/polaris.mesh.base.add_uniform_spherical_base_mesh_step.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/developers_guide/generated/polaris.mesh.base.add_spherical_base_mesh_step.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -140,25 +144,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-mesh-base-add-uniform-spherical-base-mesh-step">
-<h1>polaris.mesh.base.add_uniform_spherical_base_mesh_step<a class="headerlink" href="#polaris-mesh-base-add-uniform-spherical-base-mesh-step" title="Link to this heading"></a></h1>
+  <section id="polaris-mesh-base-add-spherical-base-mesh-step">
+<h1>polaris.mesh.base.add_spherical_base_mesh_step<a class="headerlink" href="#polaris-mesh-base-add-spherical-base-mesh-step" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="polaris.mesh.base.add_uniform_spherical_base_mesh_step">
-<span class="sig-prename descclassname"><span class="pre">polaris.mesh.base.</span></span><span class="sig-name descname"><span class="pre">add_uniform_spherical_base_mesh_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">icosahedral</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/mesh/base/uniform.html#add_uniform_spherical_base_mesh_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mesh.base.add_uniform_spherical_base_mesh_step" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="polaris.mesh.base.add_spherical_base_mesh_step">
+<span class="sig-prename descclassname"><span class="pre">polaris.mesh.base.</span></span><span class="sig-name descname"><span class="pre">add_spherical_base_mesh_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/mesh/base/add.html#add_spherical_base_mesh_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mesh.base.add_spherical_base_mesh_step" title="Link to this definition"></a></dt>
 <dd><p>Add a shared step for creating spherical base mesh with the given
 resolution to the mesh component (if one has not already been added)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>resolution</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The resolution in km of the mesh</p></li>
-<li><p><strong>icosahedral</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether the mesh is a subdivided icosahedral mesh, as opposed to
-a quasi-uniform</p></li>
+<li><p><strong>prefix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The prefix for the mesh type (e.g. ‘icos’, ‘qu’, ‘so’)</p></li>
+<li><p><strong>min_res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The minimum resolution in km of the mesh</p></li>
+<li><p><strong>max_res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – The maximum resolution in km of the mesh. If not provided, it will
+default to the minimum resolution.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>base_mesh</strong> (<em>polaris.Step</em>) – The base mesh step</p></li>
-<li><p><strong>res_str</strong> (<em>str</em>) – The resolution of the mesh as a string (e.g. ‘240km’)</p></li>
+<li><p><strong>res_str</strong> (<em>str</em>) – The resolution of the mesh as a string (e.g. ‘240km’ or ‘12to30km)</p></li>
 </ul>
 </p>
 </dd>

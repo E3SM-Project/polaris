@@ -108,7 +108,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.mesh.base</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base.uniform</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_uniform_spherical_base_mesh_step</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base.add</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_spherical_base_mesh_step</span>
 
 
 <div class="viewcode-block" id="get_base_mesh_steps">
@@ -122,22 +124,33 @@
 <span class="sd">    base_mesh_steps : list of polaris.mesh.spherical.BaseMeshStep</span>
 <span class="sd">        All supported base mesh steps in the mesh component</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">resolutions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">uniform_res</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;icos&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
         <span class="s1">&#39;qu&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">210.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
     <span class="p">}</span>
 
+    <span class="c1"># Add more variable resolution base meshes here</span>
+    <span class="n">variable_res</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;so&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">)],</span>
+        <span class="s1">&#39;rrs&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">18.0</span><span class="p">)],</span>
+    <span class="p">}</span>
+
     <span class="n">base_mesh_steps</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">res_list</span> <span class="ow">in</span> <span class="n">resolutions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">icosahedral</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">==</span> <span class="s1">&#39;icos&#39;</span>
-        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="n">res_list</span><span class="p">:</span>
-            <span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">add_uniform_spherical_base_mesh_step</span><span class="p">(</span>
-                <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-                <span class="n">icosahedral</span><span class="o">=</span><span class="n">icosahedral</span><span class="p">,</span>
+    <span class="k">for</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">uniform_res_list</span> <span class="ow">in</span> <span class="n">uniform_res</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="n">uniform_res_list</span><span class="p">:</span>
+            <span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">add_spherical_base_mesh_step</span><span class="p">(</span>
+                <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span> <span class="n">min_res</span><span class="o">=</span><span class="n">resolution</span>
             <span class="p">)</span>
             <span class="n">base_mesh_steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">base_mesh_step</span><span class="p">)</span>
 
-    <span class="c1"># Add more base meshes here</span>
+    <span class="k">for</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">variable_res_list</span> <span class="ow">in</span> <span class="n">variable_res</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">min_res</span><span class="p">,</span> <span class="n">max_res</span> <span class="ow">in</span> <span class="n">variable_res_list</span><span class="p">:</span>
+            <span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">add_spherical_base_mesh_step</span><span class="p">(</span>
+                <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span>
+                <span class="n">min_res</span><span class="o">=</span><span class="n">min_res</span><span class="p">,</span>
+                <span class="n">max_res</span><span class="o">=</span><span class="n">max_res</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">base_mesh_steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">base_mesh_step</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">base_mesh_steps</span></div>
 

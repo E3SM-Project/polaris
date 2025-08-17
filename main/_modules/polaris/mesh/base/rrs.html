@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.mesh.base.uniform</title>
+  <title>polaris.mesh.base.rrs</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
@@ -99,7 +99,7 @@
       <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
           <li class="breadcrumb-item"><a href="../base.html">polaris.mesh.base</a></li>
-      <li class="breadcrumb-item active">polaris.mesh.base.uniform</li>
+      <li class="breadcrumb-item active">polaris.mesh.base.rrs</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -108,83 +108,57 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for polaris.mesh.base.uniform</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+  <h1>Source code for polaris.mesh.base.rrs</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mpas_tools.mesh.creation.mesh_definition_tools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mdt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">IcosahedralMeshStep</span><span class="p">,</span>
-    <span class="n">QuasiUniformSphericalMeshStep</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.resolution</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolution_to_string</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">mesh</span> <span class="k">as</span> <span class="n">mesh_component</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuasiUniformSphericalMeshStep</span>
 
 
-<div class="viewcode-block" id="add_uniform_spherical_base_mesh_step">
-<a class="viewcode-back" href="../../../../developers_guide/generated/polaris.mesh.base.add_uniform_spherical_base_mesh_step.html#polaris.mesh.base.add_uniform_spherical_base_mesh_step">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">add_uniform_spherical_base_mesh_step</span><span class="p">(</span><span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span><span class="p">):</span>
+<div class="viewcode-block" id="RRSBaseMesh">
+<a class="viewcode-back" href="../../../../developers_guide/generated/polaris.mesh.base.rrs.RRSBaseMesh.html#polaris.mesh.base.rrs.RRSBaseMesh">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RRSBaseMesh</span><span class="p">(</span><span class="n">QuasiUniformSphericalMeshStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add a shared step for creating spherical base mesh with the given</span>
-<span class="sd">    resolution to the mesh component (if one has not already been added)</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    resolution : float</span>
-<span class="sd">        The resolution in km of the mesh</span>
-
-<span class="sd">    icosahedral : bool</span>
-<span class="sd">        Whether the mesh is a subdivided icosahedral mesh, as opposed to</span>
-<span class="sd">        a quasi-uniform</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    base_mesh : polaris.Step</span>
-<span class="sd">        The base mesh step</span>
-
-<span class="sd">    res_str : str</span>
-<span class="sd">        The resolution of the mesh as a string (e.g. &#39;240km&#39;)</span>
+<span class="sd">    A step for creating Rossby Radius Scaled (RRS) variable resolution meshes</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">component</span> <span class="o">=</span> <span class="n">mesh_component</span>
-    <span class="n">res_str</span> <span class="o">=</span> <span class="n">resolution_to_string</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
-        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;icos&#39;</span>
-        <span class="n">mesh_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Icos</span><span class="si">{</span><span class="n">res_str</span><span class="si">}</span><span class="s1">&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;qu&#39;</span>
-        <span class="n">mesh_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;QU</span><span class="si">{</span><span class="n">res_str</span><span class="si">}</span><span class="s1">&#39;</span>
+<div class="viewcode-block" id="RRSBaseMesh.build_cell_width_lat_lon">
+<a class="viewcode-back" href="../../../../developers_guide/generated/polaris.mesh.base.rrs.RRSBaseMesh.build_cell_width_lat_lon.html#polaris.mesh.base.rrs.RRSBaseMesh.build_cell_width_lat_lon">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_cell_width_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create cell width array for this mesh on a regular latitude-longitude</span>
+<span class="sd">        grid</span>
 
-    <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_base_mesh_</span><span class="si">{</span><span class="n">res_str</span><span class="si">}</span><span class="s1">&#39;</span>
-    <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/base_mesh/</span><span class="si">{</span><span class="n">res_str</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        cellWidth : numpy.array</span>
+<span class="sd">            m x n array of cell width in km</span>
 
-    <span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+<span class="sd">        lon : numpy.array</span>
+<span class="sd">            longitude in degrees (length n and between -180 and 180)</span>
 
-    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;spherical.cfg&#39;</span><span class="p">)</span>
+<span class="sd">        lat : numpy.array</span>
+<span class="sd">            longitude in degrees (length m and between -90 and 90)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">]</span>
+        <span class="n">min_res</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;min_cell_width&#39;</span><span class="p">)</span>
+        <span class="n">max_res</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;max_cell_width&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">icosahedral</span><span class="p">:</span>
-        <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
-            <span class="n">step_cls</span><span class="o">=</span><span class="n">IcosahedralMeshStep</span><span class="p">,</span>
-            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-            <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
+        <span class="n">dlon</span> <span class="o">=</span> <span class="mf">10.0</span>
+        <span class="n">dlat</span> <span class="o">=</span> <span class="mf">0.1</span>
+        <span class="n">nlon</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">360.0</span> <span class="o">/</span> <span class="n">dlon</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">nlat</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">180.0</span> <span class="o">/</span> <span class="n">dlat</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">180.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">,</span> <span class="n">nlon</span><span class="p">)</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="n">nlat</span><span class="p">)</span>
+
+        <span class="n">cell_width_vs_lat</span> <span class="o">=</span> <span class="n">mdt</span><span class="o">.</span><span class="n">RRS_CellWidthVsLat</span><span class="p">(</span>
+            <span class="n">lat</span><span class="p">,</span> <span class="n">cellWidthEq</span><span class="o">=</span><span class="n">max_res</span><span class="p">,</span> <span class="n">cellWidthPole</span><span class="o">=</span><span class="n">min_res</span>
         <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
-            <span class="n">step_cls</span><span class="o">=</span><span class="n">QuasiUniformSphericalMeshStep</span><span class="p">,</span>
-            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">cell_width</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-            <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="n">cell_width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">cell_width_vs_lat</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="n">lon</span><span class="o">.</span><span class="n">size</span><span class="p">]))</span>
 
-    <span class="k">return</span> <span class="n">base_mesh</span><span class="p">,</span> <span class="n">res_str</span></div>
+        <span class="k">return</span> <span class="n">cell_width</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span></div>
+</div>
 
 </pre></div>
 

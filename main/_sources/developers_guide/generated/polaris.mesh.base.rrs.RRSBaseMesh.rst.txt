@@ -1,0 +1,36 @@
+﻿polaris.mesh.base.rrs.RRSBaseMesh
+=================================
+
+.. currentmodule:: polaris.mesh.base.rrs
+
+.. autoclass:: RRSBaseMesh
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RRSBaseMesh.__init__
+      ~RRSBaseMesh.add_dependency
+      ~RRSBaseMesh.add_input_file
+      ~RRSBaseMesh.add_output_file
+      ~RRSBaseMesh.build_cell_width_lat_lon
+      ~RRSBaseMesh.constrain_resources
+      ~RRSBaseMesh.make_jigsaw_mesh
+      ~RRSBaseMesh.process_inputs_and_outputs
+      ~RRSBaseMesh.run
+      ~RRSBaseMesh.runtime_setup
+      ~RRSBaseMesh.save_and_plot_cell_width
+      ~RRSBaseMesh.set_resources
+      ~RRSBaseMesh.set_shared_config
+      ~RRSBaseMesh.setup
+      ~RRSBaseMesh.validate_baselines
+   
+   
+
+   
+   
+   

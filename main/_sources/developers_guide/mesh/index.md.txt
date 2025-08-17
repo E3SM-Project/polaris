@@ -10,5 +10,5 @@ options.
 :titlesonly: true
 
 tasks/index
-framework
+framework/index
 ```

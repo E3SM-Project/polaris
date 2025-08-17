@@ -124,6 +124,19 @@
 <code class="docutils literal notranslate"><span class="pre">mesh/spherical/icos/base_mesh/XXXkm/task</span></code> tasks can be used to create
 spherical, uniform MPAS meshes at the given resolution that are either
 quasi-uniform (<code class="docutils literal notranslate"><span class="pre">qu</span></code>) or subdivided icosahedral (<code class="docutils literal notranslate"><span class="pre">icos</span></code>).</p>
+<p>There are also two variable resolution base meshes: <code class="docutils literal notranslate"><span class="pre">rrs6to18km</span></code> and
+<code class="docutils literal notranslate"><span class="pre">so12to30km</span></code>.</p>
+<p>The RRS mesh has a resolution that ranges from 6 km at the
+poles to 18 km at the equator, approximately scaling with the Rossby radius.</p>
+<a class="reference internal image-reference" href="../../../_images/rrs.png"><img alt="../../../_images/rrs.png" class="align-center" src="../../../_images/rrs.png" style="width: 500px;" />
+</a>
+<p>The SO mesh has a quasi-uniform, 30 km background resolution that transitions
+to 12 km in region surrounding the Southern Ocean.  The boundary of high
+resolution region attempts to approximatly follow dynamical contours in
+the ocean, since rapid changes in resolution have been shown to steer ocean
+currents along isocontours of resolution.</p>
+<a class="reference internal image-reference" href="../../../_images/so.png"><img alt="../../../_images/so.png" class="align-center" src="../../../_images/so.png" style="width: 500px;" />
+</a>
 </section>
 
 

@@ -120,7 +120,7 @@
     <span class="n">Task</span> <span class="k">as</span> <span class="n">Task</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span> <span class="k">as</span> <span class="n">PolarisConfigParser</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_uniform_spherical_base_mesh_step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_spherical_base_mesh_step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.convergence</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_resolution_for_task</span> <span class="k">as</span> <span class="n">get_resolution_for_task</span><span class="p">,</span>
 <span class="p">)</span>
@@ -335,8 +335,8 @@
             <span class="n">resolution</span> <span class="o">=</span> <span class="n">get_resolution_for_task</span><span class="p">(</span>
                 <span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span>
             <span class="p">)</span>
-            <span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">add_uniform_spherical_base_mesh_step</span><span class="p">(</span>
-                <span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span>
+            <span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">add_spherical_base_mesh_step</span><span class="p">(</span>
+                <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span> <span class="n">min_res</span><span class="o">=</span><span class="n">resolution</span>
             <span class="p">)</span>
             <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;mesh&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_mesh_step</span>
 
