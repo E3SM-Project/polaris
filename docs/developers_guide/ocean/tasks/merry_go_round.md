@@ -47,7 +47,7 @@ corresponding to the task (`merry_go_round`). Finally, validation of
 file are performed against a baseline if one is provided when
 calling {ref}`dev-polaris-setup`.
 
-(dev-ocean-merry-go-round)=
+(dev-ocean-merry-go-round-default)=
 
 ## default
 
@@ -62,7 +62,7 @@ concentration, and error in simulated tracer concentration at the end of the
 forward run. This more detailed plotting step is only available for the
 default test case.
 
-(dev-ocean-merry-go-analysis)=
+(dev-ocean-merry-go-round-convergence)=
 
 ## convergence tasks
 
