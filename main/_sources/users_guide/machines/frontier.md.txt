@@ -44,9 +44,6 @@ software_compiler = craygnu
 # the system MPI library to use for craygnu compiler
 mpi_craygnu = mpich
 
-# the system MPI library to use for craygnu-hipcc compiler
-mpi_craygnu_hipcc = mpich
-
 # the system MPI library to use for craygnu-mphipcc compiler
 mpi_craygnu_mphipcc = mpich
 
