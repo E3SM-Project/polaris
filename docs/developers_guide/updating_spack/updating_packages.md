@@ -111,7 +111,6 @@ update Spack dependencies in Polaris.
        - [ ] gnu
      - [ ] frontier (@xylar)
        - [ ] craygnu
-       - [ ] craygnu-hipcc
        - [ ] craygnu-mphipcc
        - [ ] craycray
        - [ ] craycray-mphipcc
@@ -155,7 +154,6 @@ update Spack dependencies in Polaris.
        - [ ] gnu
      - [ ] frontier (@xylar)
        - [ ] craygnu
-       - [ ] craygnu-hipcc
        - [ ] craygnu-mphipcc
        - [ ] craycray
        - [ ] craycray-mphipcc

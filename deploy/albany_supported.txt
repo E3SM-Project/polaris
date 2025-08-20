@@ -5,7 +5,6 @@ chicoma-cpu, gnu, mpich
 chrysalis, gnu, openmpi
 compy, gnu, openmpi
 frontier, craygnu, mpich
-frontier, craygnu-hipcc, mpich
 frontier, craygnu-mphipcc, mpich
 frontier, craycray, mpich
 frontier, craycray-mphipcc, mpich
