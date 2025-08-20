@@ -104,8 +104,6 @@ E3SM default for the given machine an compiler.
 +--------------+------------------+-----------+
 | frontier     | craygnu          | mpich     |
 |              +------------------+-----------+
-|              | craygnu-hipcc    | mpich     |
-|              +------------------+-----------+
 |              | craygnu-mphipcc  | mpich     |
 |              +------------------+-----------+
 |              | crayamd          | mpich     |
