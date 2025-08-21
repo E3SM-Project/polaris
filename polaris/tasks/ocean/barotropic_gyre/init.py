@@ -21,7 +21,14 @@ class Init(Step):
         The resolution of the task in km
     """
 
-    def __init__(self, component, subdir, name='init'):
+    def __init__(
+        self,
+        component,
+        indir,
+        name='init',
+        test_name='munk',
+        boundary_condition='free-slip',
+    ):
         """
         Create the step
 
@@ -30,7 +37,7 @@ class Init(Step):
         component : polaris.Component
             The component the step belongs to
         """
-        super().__init__(component=component, name=name, indir=subdir)
+        super().__init__(component=component, name=name, indir=indir)
 
         for file in [
             'base_mesh.nc',
@@ -40,6 +47,8 @@ class Init(Step):
         ]:
             self.add_output_file(file)
         self.name = name
+        self.test_name = test_name
+        self.boundary_condition = boundary_condition
         self.add_output_file('init.nc', validate_vars=['layerThickness'])
 
     def setup(self):
@@ -74,7 +83,10 @@ class Init(Step):
         # vertical coordinate parameters
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
         # coriolis parameters
-        f0 = config.getfloat('barotropic_gyre', 'f_0')
+        f0 = config.getfloat(
+            f'barotropic_gyre_{self.test_name}_{self.boundary_condition}',
+            'f_0',
+        )
         beta = config.getfloat('barotropic_gyre', 'beta')
         # surface (wind) forcing parameters
         tau_0 = config.getfloat('barotropic_gyre', 'tau_0')
