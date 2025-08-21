@@ -1,0 +1,74 @@
+ocean:
+  time_management:
+    config_run_duration: {{ run_duration }}
+  time_integration:
+    config_dt: {{ dt }}
+    config_time_integrator: {{ time_integrator }}
+
+mpas-ocean:
+  io:
+    config_write_output_on_startup: false
+  split_explicit_ts:
+    config_btr_dt: {{ btr_dt }}
+  cvmix:
+    config_use_cvmix: false
+  tidal_forcing:
+    config_use_tidal_forcing: true
+    config_use_tidal_forcing_tau: 60.0
+    config_tidal_forcing_type: direct
+    config_tidal_forcing_monochromatic_amp: 10.0
+    config_tidal_forcing_monochromatic_period: 1.0
+    config_tidal_forcing_monochromatic_baseline: 10.0
+    config_tidal_forcing_linear_min: {{ tidal_min }}
+    config_tidal_forcing_linear_rate: -8.0
+    config_tidal_forcing_linear_baseline: {{ tidal_baseline }}
+  Rayleigh_damping:
+    config_Rayleigh_damping_depth_variable: true
+  wetting_drying:
+    config_use_wetting_drying: true
+    config_prevent_drying: true
+    config_zero_drying_velocity: true
+    config_verify_not_dry: true
+    config_zero_drying_velocity_ramp_hmin: 1e-3
+    config_zero_drying_velocity_ramp_hmax: 1e-2
+    config_zero_drying_velocity_ramp_factor: 1.0
+  ALE_vertical_grid:
+    config_vert_coord_movement: uniform_stretching
+    config_ALE_thickness_proportionality: restingThickness_times_weights
+  advection:
+    config_thickness_flux_type: upwind
+    config_vert_advection_method: flux-form
+  debug:
+    config_disable_thick_sflux: true
+    config_disable_vel_hmix: true
+  streams:
+    mesh:
+      filename_template: initial_state.nc
+    input:
+      filename_template: initial_state.nc
+    restart: {}
+    forcing:
+      type: input
+      filename_template: forcing.nc
+      input_interval: initial_only
+      contents:
+      - tidalInputMask
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: 0000_00:00:00.1
+      clobber_mode: truncate
+      contents:
+      - mesh
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
+      - normalVelocity
+      - velocityX
+      - velocityY
+      - layerThickness
+      - ssh
+      - wettingVelocityFactor
+      - wettingVelocityBaroclinic
+      - wettingVelocityBarotropicSubcycle
+#      - upwindFactor
