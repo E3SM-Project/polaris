@@ -19,7 +19,6 @@ def add_barotropic_gyre_tasks(component):
     component : polaris.tasks.ocean.Ocean
         the ocean component that the task will be added to
     """
-    # TODO support stommel case
     group_name = 'barotropic_gyre'
     group_dir = os.path.join('planar', group_name)
     config_filename = f'{group_name}.cfg'
@@ -28,32 +27,18 @@ def add_barotropic_gyre_tasks(component):
     config.add_from_package(
         f'polaris.tasks.ocean.{group_name}', config_filename
     )
-    # There is one init step for the whole group
-    # init = Init(
-    #    component=component,
-    #    subdir=group_dir,
-    # )
-    # init.set_shared_config(config, link=config_filename)
-    init = component.get_or_create_shared_step(
-        step_cls=Init,
-        subdir=group_dir,
-        config=config,
-        config_filename=config_filename,
-    )
-    # for test_name in ['munk', 'stommel']:
-    for test_name in ['munk']:
-        for boundary_condition in ['free-slip', 'no-slip']:
-            component.add_task(
-                BarotropicGyre(
-                    component=component,
-                    subdir=group_dir,
-                    test_name=test_name,
-                    init_step=init,
-                    boundary_condition=boundary_condition,
-                    config=config,
-                    config_filename=config_filename,
-                )
+
+    for boundary_condition in ['free-slip', 'no-slip']:
+        component.add_task(
+            BarotropicGyre(
+                component=component,
+                subdir=group_dir,
+                test_name='munk',
+                boundary_condition=boundary_condition,
+                config=config,
+                config_filename=config_filename,
             )
+        )
 
 
 class BarotropicGyre(Task):
@@ -66,7 +51,6 @@ class BarotropicGyre(Task):
         component,
         subdir,
         test_name,
-        init_step,
         boundary_condition,
         config,
         config_filename,
@@ -84,7 +68,13 @@ class BarotropicGyre(Task):
         super().__init__(component=component, name=name, subdir=indir)
         self.set_shared_config(config, link=config_filename)
 
-        self.add_step(init_step, symlink='init')
+        init_step = Init(
+            component=component,
+            indir=indir,
+            boundary_condition=boundary_condition,
+            test_name=test_name,
+        )
+        self.add_step(init_step)
 
         forward_step = Forward(
             component=component,

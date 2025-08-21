@@ -46,6 +46,7 @@ class Analysis(OceanIOStep):
             filename='output.nc', target='../long_forward/output.nc'
         )
         self.boundary_condition = boundary_condition
+        self.test_name = test_name
 
     def run(self):
         logger = self.logger
@@ -226,6 +227,8 @@ class Analysis(OceanIOStep):
         """
 
         logger = self.logger
+        test_name = self.test_name
+        boundary_condition = self.boundary_condition
         x = ds_mesh[f'x{loc}']
         x = x - ds_mesh.xEdge.min()
         y = ds_mesh[f'y{loc}']
@@ -236,7 +239,9 @@ class Analysis(OceanIOStep):
         # df/dy where f is coriolis parameter
         beta = config.getfloat('barotropic_gyre', 'beta')
         # Laplacian viscosity
-        nu = config.getfloat('barotropic_gyre_munk', 'nu_2')
+        nu = config.getfloat(
+            f'barotropic_gyre_{test_name}_{boundary_condition}', 'nu_2'
+        )
 
         # Compute some non-dimensional numbers
         delta_m = (nu / (beta * L_y**3.0)) ** (1.0 / 3.0)

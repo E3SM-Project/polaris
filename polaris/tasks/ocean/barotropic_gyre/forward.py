@@ -31,11 +31,10 @@ class Forward(OceanModelStep):
         subdir=None,
         indir=None,
         test_name='munk',
-        boundary_condition='free slip',
+        boundary_condition='free-slip',
         ntasks=None,
         min_tasks=None,
         openmp_threads=1,
-        nu=None,
         run_time_steps=None,
         graph_target='graph.info',
     ):
@@ -77,6 +76,7 @@ class Forward(OceanModelStep):
             If none, it will be created.
         """
         self.run_time_steps = run_time_steps
+        self.test_name = test_name
         self.boundary_condition = boundary_condition
         super().__init__(
             component=component,
@@ -145,7 +145,13 @@ class Forward(OceanModelStep):
 
         resolution = config.getfloat('barotropic_gyre', 'resolution')
         # Laplacian viscosity
-        nu = config.getfloat('barotropic_gyre', 'nu_2')
+        if self.test_name == 'munk':
+            nu = config.getfloat(
+                f'barotropic_gyre_{self.test_name}_{self.boundary_condition}',
+                'nu_2',
+            )
+        else:
+            nu = 0.0
         rho_0 = config.getfloat('barotropic_gyre', 'rho_0')
         # beta = df/dy where f is coriolis parameter
         beta = config.getfloat('barotropic_gyre', 'beta')
@@ -166,7 +172,7 @@ class Forward(OceanModelStep):
 
         # check whether viscosity suitable for stability
         stability_parameter_max = 0.6
-        dt_max = compute_max_time_step(config)
+        dt_max = self.compute_max_time_step(config)
         nu_max = (
             stability_parameter_max
             * (resolution * 1.0e3) ** 2.0
@@ -178,7 +184,7 @@ class Forward(OceanModelStep):
                 f'maximum value is {nu_max}'
             )
 
-        dt = floor(dt_max / 3.0)
+        dt = floor(dt_max / 5.0)
         dt_str = get_time_interval_string(seconds=dt)
         dt_btr_str = get_time_interval_string(seconds=dt / 20.0)
 
@@ -206,12 +212,14 @@ class Forward(OceanModelStep):
             stop_time_str = time.strftime('0004-01-01_00:00:00')
             output_interval_str = time.strftime('0000-01-00_00:00:00')
 
+        slip_factor_dict = {'no-slip': 0.0, 'free-slip': 1.0}
         replacements = dict(
             dt=dt_str,
             dt_btr=dt_btr_str,
             stop_time=stop_time_str,
             output_interval=output_interval_str,
             nu=f'{nu:02g}',
+            slip_factor=f'{slip_factor_dict[self.boundary_condition]:02g}',
         )
 
         # make sure output is double precision
@@ -221,27 +229,29 @@ class Forward(OceanModelStep):
             template_replacements=replacements,
         )
 
+    def compute_max_time_step(self, config):
+        """
+        Compute the approximate maximum time step for stability
 
-def compute_max_time_step(config):
-    """
-    Compute the approximate maximum time step for stability
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            Config options for test case
 
-    Parameters
-    ----------
-    config : polaris.config.PolarisConfigParser
-        Config options for test case
-
-    Returns
-    -------
-    dt_max : float
-        The approximate maximum time step for stability
-    """
-    u_max = 1.0  # m/s
-    stability_parameter_max = 0.25
-    resolution = config.getfloat('barotropic_gyre', 'resolution')
-    f_0 = config.getfloat('barotropic_gyre', 'f_0')
-    dt_max = min(
-        stability_parameter_max * resolution * 1e3 / (2 * u_max),
-        stability_parameter_max / f_0,
-    )
-    return dt_max
+        Returns
+        -------
+        dt_max : float
+            The approximate maximum time step for stability
+        """
+        u_max = 1.0  # m/s
+        stability_parameter_max = 0.25
+        resolution = config.getfloat('barotropic_gyre', 'resolution')
+        f_0 = config.getfloat(
+            f'barotropic_gyre_{self.test_name}_{self.boundary_condition}',
+            'f_0',
+        )
+        dt_max = min(
+            stability_parameter_max * resolution * 1e3 / (2 * u_max),
+            stability_parameter_max / f_0,
+        )
+        return dt_max
