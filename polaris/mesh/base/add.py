@@ -87,7 +87,7 @@ def add_spherical_base_mesh_step(prefix, min_res, max_res=None):
         'name': name,
         'mesh_name': mesh_name,
     }
-    if prefix in ['Icos', 'QU']:
+    if prefix in ['icos', 'qu']:
         kwargs['cell_width'] = min_res
 
     base_mesh = component.get_or_create_shared_step(**kwargs)
