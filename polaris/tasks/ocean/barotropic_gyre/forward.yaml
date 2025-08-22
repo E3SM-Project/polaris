@@ -4,7 +4,7 @@ ocean:
     config_run_duration: none
   time_integration:
     config_dt: {{ dt }}
-    config_time_integrator: RK4
+    config_time_integrator: split_explicit_ab2
   hmix_del2:
     config_use_mom_del2: true
     config_mom_del2: {{ nu }}
