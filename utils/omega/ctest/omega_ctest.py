@@ -207,6 +207,9 @@ def main():
     config.add_from_package('mache.machines', f'{machine}.cfg')
     config.add_from_package('polaris.machines', f'{machine}.cfg')
 
+    job_name = f'omega_ctest_{machine}_{compiler}'
+    config.set('job', 'job_name', job_name)
+
     submit = args.submit
     branch = args.omega_branch
     debug = args.debug
