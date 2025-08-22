@@ -209,7 +209,10 @@ class Forward(OceanModelStep):
                 '0000_%H:%M:%S', time.gmtime(run_duration)
             )
         else:
-            stop_time_str = time.strftime('0004-01-01_00:00:00')
+            run_duration = config.getfloat('barotropic_gyre', 'run_duration')
+            stop_time_str = time.strftime(
+                f'{run_duration + 1.0:04g}-01-01_00:00:00'
+            )
             output_interval_str = time.strftime('0000-01-00_00:00:00')
 
         slip_factor_dict = {'no-slip': 0.0, 'free-slip': 1.0}
