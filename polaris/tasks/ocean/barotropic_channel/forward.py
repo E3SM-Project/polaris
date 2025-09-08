@@ -101,12 +101,17 @@ class Forward(OceanModelStep):
 
         config = self.config
         nu = config.getfloat('barotropic_channel', 'horizontal_viscosity')
-        replacements = dict(nu=nu)
+        drag = config.getfloat('barotropic_channel', 'bottom_drag')
+        replacements = dict(nu=nu, drag=drag)
         self.add_yaml_file(
             'polaris.tasks.ocean.barotropic_channel',
             self.yaml_filename,
             template_replacements=replacements,
         )
+        model = config.get('ocean', 'model')
+        vert_levels = config.getfloat('vertical_grid', 'vert_levels')
+        if model == 'mpas-ocean' and vert_levels == 1:
+            self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
     def compute_cell_count(self):
         """
