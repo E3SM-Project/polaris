@@ -64,6 +64,7 @@ class Init(Step):
         # resolutions but it is preferable to make them algorithmic like here
         # for greater flexibility
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
+        ny = 4
         dc = 1e3 * resolution
 
         ds_mesh = make_planar_hex_mesh(
@@ -80,7 +81,11 @@ class Init(Step):
         ds = ds_mesh.copy()
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
-        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell)
+        y_min = ds.yCell.min().values
+        y_max = ds.yCell.max().values
+        y_cell = ds.yCell
+        frac = xr.where((y_cell <= y_min) | (y_cell >= y_max), 2.0 / 3.0, 1.0)
+        ds['bottomDepth'] = bottom_depth * frac
         ds['ssh'] = xr.zeros_like(ds.xCell)
         init_vertical_coord(config, ds)
 
