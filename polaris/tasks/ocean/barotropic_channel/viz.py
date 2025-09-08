@@ -48,9 +48,6 @@ class Viz(Step):
         cell_mask = ds_init.maxLevelCell >= 1
         vertex_mask = ds_init.boundaryVertex == 0
 
-        vmax = 0.1
-        # vmax = np.max(np.abs(ds_init.normalVelocity.values))
-
         # Uncomment these lines to get 10 evenly spaced time slices
         # nt = ds_out.sizes['Time']
         # for t_index in np.arange(0, nt, int(np.floor(nt / 10))):
@@ -58,6 +55,7 @@ class Viz(Step):
         # These indices correspond to the first and last time step
         for t_index in [0, -1]:
             ds = ds_out.isel(Time=t_index)
+            vmax = np.max(np.abs(ds.velocityZonal.values))
             plot_horiz_field(
                 ds_mesh,
                 ds['velocityZonal'],
@@ -82,6 +80,17 @@ class Viz(Step):
                 ds_mesh,
                 ds['relativeVorticity'],
                 f'relative_vorticity_t{t_index}.png',
+                vmin=-vmax,
+                vmax=vmax,
+                cmap='cmo.balance',
+                field_mask=vertex_mask,
+            )
+
+            vmax = np.max(np.abs(ds.circulation.values))
+            plot_horiz_field(
+                ds_mesh,
+                ds['circulation'],
+                f'circulation_t{t_index}.png',
                 vmin=-vmax,
                 vmax=vmax,
                 cmap='cmo.balance',
