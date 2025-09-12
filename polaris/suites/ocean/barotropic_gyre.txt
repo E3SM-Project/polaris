@@ -1,0 +1,2 @@
+ocean/planar/barotropic_gyre/munk/free-slip
+ocean/planar/barotropic_gyre/munk/no-slip
