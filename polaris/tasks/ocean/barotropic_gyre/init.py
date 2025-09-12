@@ -1,16 +1,15 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.viz import plot_horiz_field
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for creating a mesh and initial condition for baroclinic channel
     tasks
@@ -43,7 +42,6 @@ class Init(Step):
             'base_mesh.nc',
             'culled_mesh.nc',
             'culled_graph.info',
-            'forcing.nc',
         ]:
             self.add_output_file(file)
         self.name = name
@@ -72,13 +70,13 @@ class Init(Step):
         ds_mesh = make_planar_hex_mesh(
             nx=nx, ny=ny, dc=dc, nonperiodic_x=True, nonperiodic_y=True
         )
-        write_netcdf(ds_mesh, 'base_mesh.nc')
+        self.write_model_dataset(ds_mesh, 'base_mesh.nc')
 
         ds_mesh = cull(ds_mesh, logger=logger)
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        write_netcdf(ds_mesh, 'culled_mesh.nc')
+        self.write_model_dataset(ds_mesh, 'culled_mesh.nc')
 
         # vertical coordinate parameters
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
@@ -116,30 +114,28 @@ class Init(Step):
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
         ds['normalVelocity'] = normal_velocity
 
-        # write the initial condition file
-        write_netcdf(ds, 'init.nc')
-
         # set the wind stress forcing
-        ds_forcing = xr.Dataset()
         # Convert from km to m
         ly = ly * 1e3
         wind_stress_zonal = -tau_0 * np.cos(
             np.pi * (ds.yCell - ds.yCell.min()) / ly
         )
         wind_stress_meridional = xr.zeros_like(ds.xCell)
-        ds_forcing['windStressZonal'] = wind_stress_zonal.expand_dims(
+        ds['windStressZonal'] = wind_stress_zonal.expand_dims(
             dim='Time', axis=0
         )
-        ds_forcing['windStressMeridional'] = (
-            wind_stress_meridional.expand_dims(dim='Time', axis=0)
+        ds['windStressMeridional'] = wind_stress_meridional.expand_dims(
+            dim='Time', axis=0
         )
-        write_netcdf(ds_forcing, 'forcing.nc')
+
+        # write the initial condition file
+        self.write_model_dataset(ds, 'init.nc')
 
         cell_mask = ds.maxLevelCell >= 1
 
         plot_horiz_field(
             ds_mesh,
-            ds_forcing['windStressZonal'],
+            ds['windStressZonal'],
             'forcing_wind_stress_zonal.png',
             cmap='cmo.balance',
             show_patch_edges=True,

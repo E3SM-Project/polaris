@@ -4,7 +4,6 @@ import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import mosaic
 import numpy as np
-import xarray as xr
 from matplotlib import colors as mcolors
 from mpas_tools.ocean import compute_barotropic_streamfunction
 
@@ -50,9 +49,9 @@ class Analysis(OceanIOStep):
 
     def run(self):
         logger = self.logger
-        ds_mesh = xr.open_dataset('mesh.nc')
-        ds_init = xr.open_dataset('init.nc')
-        ds = xr.open_dataset('output.nc')
+        ds_mesh = self.open_model_dataset('mesh.nc')
+        ds_init = self.open_model_dataset('init.nc')
+        ds = self.open_model_dataset('output.nc')
 
         field_mpas = compute_barotropic_streamfunction(
             ds_init.isel(Time=0), ds, prefix='', time_index=-1
@@ -84,7 +83,6 @@ class Analysis(OceanIOStep):
 
         use_mplstyle()
         pad = 20
-        fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(12, 2))
         x0 = ds_mesh.xEdge.min().values
         y0 = ds_mesh.yEdge.min().values
 
@@ -93,6 +91,8 @@ class Analysis(OceanIOStep):
         descriptor.vertex_patches[..., 1] -= y0
         # convert to km
         descriptor.vertex_patches *= 1.0e-3
+
+        fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(12, 2))
 
         eta0 = max(
             np.max(np.abs(field_exact.values)),

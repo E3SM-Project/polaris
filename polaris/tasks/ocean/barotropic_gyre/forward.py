@@ -93,7 +93,6 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
         self.add_input_file(filename='init.nc', target='../init/init.nc')
-        self.add_input_file(filename='forcing.nc', target='../init/forcing.nc')
 
         self.add_output_file(
             filename='output.nc',
@@ -195,32 +194,58 @@ class Forward(OceanModelStep):
                 f'maximum value is {nu_max} or decrease the time step'
             )
 
+        model = config.get('ocean', 'model')
         options = {'config_dt': dt_str, 'config_density0': rho_0}
         self.add_model_config_options(
             options=options, config_model='mpas-ocean'
         )
 
         if self.run_time_steps is not None:
+            output_interval_units = 'Seconds'
             run_duration = ceil(self.run_time_steps * dt)
             stop_time_str = time.strftime(
                 '0001-01-01_%H:%M:%S', time.gmtime(run_duration)
             )
-            output_interval_str = time.strftime(
-                '0000_%H:%M:%S', time.gmtime(run_duration)
-            )
+            if model == 'omega':
+                output_interval_str = str(run_duration)
+            else:
+                output_interval_str = get_time_interval_string(
+                    seconds=run_duration
+                )
         else:
+            output_interval = 1
+            output_interval_units = 'Months'
             run_duration = config.getfloat('barotropic_gyre', 'run_duration')
             stop_time_str = time.strftime(
                 f'{run_duration + 1.0:04g}-01-01_00:00:00'
             )
-            output_interval_str = time.strftime('0000-01-00_00:00:00')
+            if model == 'omega':
+                output_interval_str = str(output_interval)
+            else:
+                output_interval_str = get_time_interval_string(
+                    days=output_interval * 30.0
+                )
 
         slip_factor_dict = {'no-slip': 0.0, 'free-slip': 1.0}
+        time_integrator = config.get('barotropic_gyre', 'time_integrator')
+        time_integrator_map = dict([('RK4', 'RungeKutta4')])
+        if model == 'omega':
+            if time_integrator in time_integrator_map.keys():
+                time_integrator = time_integrator_map[time_integrator]
+            else:
+                print(
+                    'Warning: mapping from time integrator '
+                    f'{time_integrator} to omega not found, '
+                    'retaining name given in config'
+                )
+
         replacements = dict(
             dt=dt_str,
             dt_btr=dt_btr_str,
             stop_time=stop_time_str,
             output_interval=output_interval_str,
+            output_interval_units=output_interval_units,
+            time_integrator=time_integrator,
             nu=f'{nu:02g}',
             slip_factor=f'{slip_factor_dict[self.boundary_condition]:02g}',
         )
@@ -231,6 +256,16 @@ class Forward(OceanModelStep):
             self.yaml_filename,
             template_replacements=replacements,
         )
+
+    def setup(self):
+        """
+        TEMP: symlink initial condition to name hard-coded in Omega
+        """
+        super().setup()
+        model = self.config.get('ocean', 'model')
+        # TODO: remove as soon as Omega no longer hard-codes this file
+        if model == 'omega':
+            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
 
     def compute_max_time_step(self, config):
         """
