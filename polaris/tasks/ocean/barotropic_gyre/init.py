@@ -11,13 +11,16 @@ from polaris.viz import plot_horiz_field
 
 class Init(OceanIOStep):
     """
-    A step for creating a mesh and initial condition for baroclinic channel
-    tasks
+    A step for creating a mesh and initial condition for barotropic gyre tasks
 
     Attributes
     ----------
-    resolution : float
-        The resolution of the task in km
+    name : str
+        The name of the step
+    test_name : str
+        The name of the test case (e.g., 'munk')
+    boundary_condition : str
+        The type of boundary condition (e.g., 'free-slip')
     """
 
     def __init__(
@@ -35,6 +38,14 @@ class Init(OceanIOStep):
         ----------
         component : polaris.Component
             The component the step belongs to
+        indir : str
+            The input directory for the step
+        name : str, optional
+            The name of the step (default is 'init')
+        test_name : str, optional
+            The name of the test case (default is 'munk')
+        boundary_condition : str, optional
+            The type of boundary condition (default is 'free-slip')
         """
         super().__init__(component=component, name=name, indir=indir)
 
