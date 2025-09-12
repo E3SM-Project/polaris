@@ -3,6 +3,7 @@ dimensions:
   nCells: NCells
   nEdges: NEdges
   nVertices: NVertices
+  nTracers: NTracers
   maxEdges: MaxEdges
   maxEdges2: MaxEdges2
   TWO: MaxCellsOnEdge
@@ -11,6 +12,16 @@ dimensions:
   nVertLevelsP1: NVertLevelsP1
 
 variables:
+  # mesh
+  cellsOnCell: CellsOnCell
+  edgesOnCell: EdgesOnCell
+  verticesOnCell: VerticesOnCell
+  cellsOnEdge: CellsOnEdge
+  edgesOnEdge: EdgesOnEdge
+  verticesOnEdge: VerticesOnEdge
+  cellsOnVertex: CellsOnVertex
+  edgesOnVertex: EdgesOnVertex
+
   # tracers
   temperature: Temperature
   salinity: Salinity
@@ -23,9 +34,10 @@ variables:
   normalVelocity: NormalVelocity
 
   # auxiliary state
-  ssh: SshCellDefault
+  ssh: SshCell
   windStressZonal: WindStressZonal
   windStressMeridional: WindStressMeridional
+  relativeVorticity: RelVortVertex
 
 config:
 - section:
