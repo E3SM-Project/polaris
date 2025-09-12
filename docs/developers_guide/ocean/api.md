@@ -76,6 +76,7 @@
    forward.Forward
    forward.Forward.compute_cell_count
    forward.Forward.dynamic_model_config
+   forward.Forward.setup
 
    init.Init
    init.Init.setup
