@@ -62,6 +62,16 @@ class BarotropicGyre(Task):
         ----------
         component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
+        subdir : str
+            The subdirectory for the task
+        test_name : str
+            The name of the test (e.g., 'munk')
+        boundary_condition : str
+            The type of boundary condition ('free-slip' or 'no-slip')
+        config : PolarisConfigParser
+            The configuration parser for the task
+        config_filename : str
+            The name of the configuration file
         """
         name = f'{test_name}/{boundary_condition}'
         indir = f'{subdir}/{name}'

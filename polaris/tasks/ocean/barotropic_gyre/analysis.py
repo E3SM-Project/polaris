@@ -14,8 +14,15 @@ from polaris.viz import use_mplstyle
 
 class Analysis(OceanIOStep):
     """
-    A step for analysing the output from the barotropic gyre
-    test case
+    A step for analyzing the output from the barotropic gyre test case.
+
+    Attributes
+    ----------
+    boundary_condition : str
+        The type of boundary condition to use ('free-slip' or 'no-slip').
+
+    test_name : str
+        The name of the test case (e.g., 'munk').
     """
 
     def __init__(
@@ -26,15 +33,21 @@ class Analysis(OceanIOStep):
         boundary_condition='free-slip',
     ):
         """
-        Create the step
+        Create the analysis step.
 
         Parameters
         ----------
         component : polaris.Component
-            The component the step belongs to
+            The component the step belongs to.
 
         indir : str
-            the directory the step is in, to which ``name`` will be appended
+            The directory the step is in, to which ``name`` will be appended.
+
+        test_name : str, optional
+            The name of the test case (default is 'munk').
+
+        boundary_condition : str, optional
+            The type of boundary condition to use (default is 'free-slip').
         """
         super().__init__(component=component, name='analysis', indir=indir)
         self.add_input_file(
@@ -217,13 +230,23 @@ class Analysis(OceanIOStep):
         self, ds_mesh, config, loc='Cell', boundary_condition='free slip'
     ):
         """
-        Exact solution to the sea surface height for the linearized Munk layer
-        experiments.
+        Exact solution to the barotropic streamfunction for the linearized Munk
+        layer experiments.
 
         Parameters
         ----------
         ds_mesh : xarray.Dataset
-            Must contain the fields: f'x{loc}', f'y{loc}'
+            The mesh dataset. Must contain the fields: f'x{loc}', f'y{loc}'.
+
+        config : polaris.config.PolarisConfigParser
+            The configuration options for the test case.
+
+        loc : str, optional
+            The location type ('Cell', 'Vertex', etc.) for which to compute
+            the solution.
+
+        boundary_condition : str, optional
+            The type of boundary condition to use ('free-slip' or 'no-slip').
         """
 
         logger = self.logger

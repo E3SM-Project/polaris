@@ -14,14 +14,14 @@ class Forward(OceanModelStep):
 
     Attributes
     ----------
-    resolution : float
-        The resolution of the task in km
-
-    dt : float
-        The model time step in seconds
-
     run_time_steps : int or None
         Number of time steps to run for
+
+    test_name : str
+        The name of the test case (e.g., 'munk')
+
+    boundary_condition : str
+        The type of boundary condition ('free-slip' or 'no-slip')
     """
 
     def __init__(
@@ -39,41 +39,48 @@ class Forward(OceanModelStep):
         graph_target='graph.info',
     ):
         """
-        Create a new task
+        Create a new Forward step for the barotropic gyre task.
 
         Parameters
         ----------
         component : polaris.Component
-            The component the step belongs to
+            The component the step belongs to.
 
-        name : str
-            the name of the task
+        name : str, optional
+            The name of the step. Default is 'forward'.
 
         subdir : str, optional
-            the subdirectory for the step.  If neither this nor ``indir``
-             are provided, the directory is the ``name``
+            The subdirectory for the step. If neither this nor ``indir``
+            are provided, the directory is the ``name``.
 
         indir : str, optional
-            the directory the step is in, to which ``name`` will be appended
+            The directory the step is in, to which ``name`` will be appended.
+
+        test_name : str, optional
+            The name of the test case (e.g., 'munk'). Default is 'munk'.
+
+        boundary_condition : str, optional
+            The type of boundary condition ('free-slip' or 'no-slip').
+            Default is 'free-slip'.
 
         ntasks : int, optional
-            the number of tasks the step would ideally use.  If fewer tasks
+            The number of tasks the step would ideally use. If fewer tasks
             are available on the system, the step will run on all available
-            tasks as long as this is not below ``min_tasks``
+            tasks as long as this is not below ``min_tasks``.
 
         min_tasks : int, optional
-            the number of tasks the step requires.  If the system has fewer
-            than this number of tasks, the step will fail
+            The minimum number of tasks required. If the system has fewer
+            than this number of tasks, the step will fail.
 
         openmp_threads : int, optional
-            the number of OpenMP threads the step will use
+            The number of OpenMP threads the step will use. Default is 1.
 
-        run_time_steps : int or None
-            Number of time steps to run for
+        run_time_steps : int or None, optional
+            Number of time steps to run for. If None, uses config default.
 
         graph_target : str, optional
             The graph file name (relative to the base work directory).
-            If none, it will be created.
+            Default is 'graph.info'.
         """
         self.run_time_steps = run_time_steps
         self.test_name = test_name
