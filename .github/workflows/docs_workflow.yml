@@ -1,4 +1,4 @@
-name: CI/CD Release Workflow
+name: Publish Docs
 
 on:
   push:
@@ -6,6 +6,8 @@ on:
 
   release:
     types: [published]
+
+  workflow_dispatch:
 
 env:
   PYTHON_VERSION: "3.13"
