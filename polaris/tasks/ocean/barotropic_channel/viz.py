@@ -43,7 +43,7 @@ class Viz(Step):
         ds_mesh = xr.load_dataset('mesh.nc')
         ds_init = xr.load_dataset('init.nc')
         ds_out = xr.load_dataset('output.nc')
-        ds_out = ds_out.isel(nVertLevels=0)
+        ds_out = ds_out.isel(nVertLevels=-1)
 
         cell_mask = ds_init.maxLevelCell >= 1
         vertex_mask = ds_init.boundaryVertex == 0
@@ -59,7 +59,7 @@ class Viz(Step):
             plot_horiz_field(
                 ds_mesh,
                 ds['velocityZonal'],
-                f'velocity_zonal_t{t_index}.png',
+                f'velocity_zonal_t{t_index}_zbot.png',
                 vmin=-vmax,
                 vmax=vmax,
                 cmap='cmo.balance',
@@ -68,7 +68,7 @@ class Viz(Step):
             plot_horiz_field(
                 ds_mesh,
                 ds['velocityMeridional'],
-                f'velocity_meridional_t{t_index}.png',
+                f'velocity_meridional_t{t_index}_zbot.png',
                 vmin=-vmax,
                 vmax=vmax,
                 cmap='cmo.balance',
@@ -79,7 +79,7 @@ class Viz(Step):
             plot_horiz_field(
                 ds_mesh,
                 ds['relativeVorticity'],
-                f'relative_vorticity_t{t_index}.png',
+                f'relative_vorticity_t{t_index}_zbot.png',
                 vmin=-vmax,
                 vmax=vmax,
                 cmap='cmo.balance',
@@ -90,7 +90,7 @@ class Viz(Step):
             plot_horiz_field(
                 ds_mesh,
                 ds['circulation'],
-                f'circulation_t{t_index}.png',
+                f'circulation_t{t_index}_zbot.png',
                 vmin=-vmax,
                 vmax=vmax,
                 cmap='cmo.balance',
