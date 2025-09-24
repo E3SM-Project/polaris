@@ -10,6 +10,7 @@ barotropic_gyre
 correlated_tracers_2d
 cosine_bell
 external_gravity_wave
+drying_slope
 geostrophic
 divergent_2d
 ice_shelf_2d
