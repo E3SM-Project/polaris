@@ -5,4 +5,7 @@ from polaris.viz.spherical import (
 from polaris.viz.spherical import (
     plot_global_mpas_field as plot_global_mpas_field,
 )
+from polaris.viz.spherical import (
+    plot_polar_mpas_field as plot_polar_mpas_field,
+)
 from polaris.viz.style import use_mplstyle as use_mplstyle
