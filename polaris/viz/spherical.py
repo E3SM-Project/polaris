@@ -5,6 +5,7 @@ import cmocean  # noqa: F401
 import matplotlib.colors as cols
 import matplotlib.pyplot as plt
 import mosaic
+import numpy as np
 import xarray as xr
 from cartopy.geodesic import Geodesic
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
@@ -107,6 +108,23 @@ def plot_global_mpas_field(
             )
         mesh_ds = xr.open_dataset(mesh_filename)
         mesh_ds.attrs['is_periodic'] = 'NO'
+        lat_cell = mesh_ds['latCell'] * 180.0 / np.pi
+        lon_cell = mesh_ds['lonCell'] * 180.0 / np.pi
+        if min_longitude < lon_cell.min():
+            min_longitude += 360.0
+            max_longitude += 360.0
+        cell_indices = np.where(
+            (lat_cell >= min_latitude)
+            & (lat_cell <= max_latitude)
+            & (lon_cell >= min_longitude)
+            & (lon_cell <= max_longitude)
+        )
+        if len(cell_indices[0]) == 0:
+            raise ValueError(
+                'No cells found within the specified lat/lon bounds. '
+                'Please adjust the min/max latitude/longitude values.'
+            )
+        mesh_ds = mesh_ds.isel(nCells=cell_indices[0])
         descriptor = mosaic.Descriptor(
             mesh_ds,
             projection=projection,
