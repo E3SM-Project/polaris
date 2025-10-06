@@ -21,5 +21,6 @@ merry_go_round
 nondivergent_2d
 overflow
 rotation_2d
+seamount
 single_column
 ```
