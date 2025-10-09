@@ -137,7 +137,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dependencies_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>polaris.Steps</em>) – <p>The dependencies of this step must be given as separate keys in the
+<li><p><strong>dependencies_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> of </em><em>polaris.Steps</em>) – <p>The dependencies of this step must be given as separate keys in the
 dict:</p>
 <blockquote>
 <div><dl class="simple">
@@ -159,7 +159,7 @@ resolution</p>
 </dl>
 </div></blockquote>
 </p></li>
-<li><p><strong>convergence_vars</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – <p>The attributes for each variable for which to analyze the convergence
+<li><p><strong>convergence_vars</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <p>The attributes for each variable for which to analyze the convergence
 rate. Each dict must contain the following keys:</p>
 <blockquote>
 <div><dl class="simple">
@@ -173,9 +173,9 @@ dimension, which should be None for variables that don’t</p>
 </dl>
 </div></blockquote>
 </p></li>
-<li><p><strong>refinement</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Refinement type. One of ‘space’, ‘time’ or ‘both’ indicating both
+<li><p><strong>refinement</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Refinement type. One of ‘space’, ‘time’ or ‘both’ indicating both
 space and time</p></li>
-<li><p><strong>mesh_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The name of the mesh file to use for calculating mesh metrics
+<li><p><strong>mesh_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the mesh file to use for calculating mesh metrics
 (i.e. cell area) needed for computing the error</p></li>
 </ul>
 </dd>
@@ -188,8 +188,8 @@ space and time</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>component</strong> (<a class="reference internal" href="../../generated/polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – The component the step belongs to</p></li>
-<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The subdirectory that the step resides in</p></li>
-<li><p><strong>dependencies</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>polaris.Steps</em>) – <p>The dependencies of this step must be given as separate keys in the
+<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The subdirectory that the step resides in</p></li>
+<li><p><strong>dependencies</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> of </em><em>polaris.Steps</em>) – <p>The dependencies of this step must be given as separate keys in the
 dict:</p>
 <blockquote>
 <div><dl class="simple">
@@ -211,7 +211,7 @@ resolution</p>
 </dl>
 </div></blockquote>
 </p></li>
-<li><p><strong>convergence_vars</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – <p>The convergence attributes for each variable. Each dict must
+<li><p><strong>convergence_vars</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <p>The convergence attributes for each variable. Each dict must
 contain the following keys:</p>
 <blockquote>
 <div><dl class="simple">
@@ -225,9 +225,9 @@ dimension, which should be None for variables that don’t</p>
 </dl>
 </div></blockquote>
 </p></li>
-<li><p><strong>refinement</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Refinement type. One of ‘space’, ‘time’ or ‘both’ indicating both
+<li><p><strong>refinement</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Refinement type. One of ‘space’, ‘time’ or ‘both’ indicating both
 space and time</p></li>
-<li><p><strong>mesh_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The name of the mesh file to use for calculating mesh metrics
+<li><p><strong>mesh_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the mesh file to use for calculating mesh metrics
 (i.e. cell area) needed for computing the error</p></li>
 </ul>
 </dd>

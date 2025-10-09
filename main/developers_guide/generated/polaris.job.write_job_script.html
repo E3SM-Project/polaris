@@ -152,17 +152,17 @@
 <li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration options for this test case, a combination of user configs
 and the defaults for the machine and component</p></li>
 <li><p><strong>machine</strong> (<em>{str</em><em>, </em><em>None}</em>) – The name of the machine</p></li>
-<li><p><strong>work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The work directory where the job script should be written</p></li>
-<li><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The number of nodes for the job. If not provided, it will be
+<li><p><strong>work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The work directory where the job script should be written</p></li>
+<li><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The number of nodes for the job. If not provided, it will be
 calculated based on <code class="docutils literal notranslate"><span class="pre">target_cores</span></code> and <code class="docutils literal notranslate"><span class="pre">min_cores</span></code>.</p></li>
-<li><p><strong>target_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The target number of cores for the job to use if <code class="docutils literal notranslate"><span class="pre">nodes</span></code> not
+<li><p><strong>target_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The target number of cores for the job to use if <code class="docutils literal notranslate"><span class="pre">nodes</span></code> not
 provided</p></li>
-<li><p><strong>min_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The minimum number of cores for the job to use if <code class="docutils literal notranslate"><span class="pre">nodes</span></code> not
+<li><p><strong>min_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The minimum number of cores for the job to use if <code class="docutils literal notranslate"><span class="pre">nodes</span></code> not
 provided</p></li>
-<li><p><strong>suite</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the suite</p></li>
-<li><p><strong>script_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the job script file to write. If not provided, defaults to
+<li><p><strong>suite</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the suite</p></li>
+<li><p><strong>script_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the job script file to write. If not provided, defaults to
 ‘job_script.sh’ or ‘job_script.{suite}.sh’ if suite is specified.</p></li>
-<li><p><strong>run_command</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The command(s) to run in the job script. If not provided, defaults to
+<li><p><strong>run_command</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The command(s) to run in the job script. If not provided, defaults to
 ‘polaris serial {{suite}}’.</p></li>
 </ul>
 </dd>
