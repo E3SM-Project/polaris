@@ -48,4 +48,4 @@ class CustomizableViz(Task):
             indir=self.subdir,
         )
         transect_step.set_shared_config(config, link=config_filename)
-        self.add_step(transect_step, run_by_default=True)
+        self.add_step(transect_step, run_by_default=False)
