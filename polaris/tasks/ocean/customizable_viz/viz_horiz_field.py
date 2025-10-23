@@ -38,11 +38,13 @@ class VizHorizField(OceanIOStep):
         max_longitude = section.getfloat('max_longitude')
         lat_cell = ds_mesh['latCell'] * 180.0 / np.pi
         lon_cell = ds_mesh['lonCell'] * 180.0 / np.pi
-        if min_longitude < lon_cell.min():
-            min_longitude += 360.0
-            max_longitude += 360.0
+        if min_longitude < 0.0 and lon_cell.min().values > 0.0:
+            max_longitude_copy = max_longitude
+            max_longitude = 360.0 - min_longitude
+            min_longitude = max_longitude_copy
         cell_indices = np.where(
-            (lat_cell >= min_latitude)
+            (ds_mesh.maxLevelCell > 0)
+            & (lat_cell >= min_latitude)
             & (lat_cell <= max_latitude)
             & (lon_cell >= min_longitude)
             & (lon_cell <= max_longitude)
@@ -56,9 +58,11 @@ class VizHorizField(OceanIOStep):
                 f'{lat_cell.min().values},{lat_cell.max().values} \n'
                 f'longitude {lon_cell.min().values},{lon_cell.max().values}'
             )
+        print(
+            f'Using {len(cell_indices[0])} cells of '
+            f'{ds_mesh.sizes["nCells"]} cells in the mesh'
+        )
         ds_mesh = ds_mesh.isel(nCells=cell_indices[0])
-        print(f'Mesh dataset has {ds_mesh.sizes["nCells"]} cells')
-        # z_index = 0
         z_target = section.getfloat('z_target')
         z_bottom = ds_mesh['restingThickness'].cumsum(dim='nVertLevels')
         dz = z_bottom.mean(dim='nCells') - z_target
@@ -72,6 +76,32 @@ class VizHorizField(OceanIOStep):
         )
 
         ds = self.open_model_dataset(self.input_file, decode_timedelta=False)
+<<<<<<< HEAD
+=======
+        prefix = ''
+        if 'timeSeriesStatsMonthly' in self.input_file:
+            prefix = 'timeMonthly_avg_'
+            time_variable = 'xtime_startMonthly'
+            has_time_variable = True
+        elif 'xtime' in ds.keys():
+            time_variable = 'xtime'
+            has_time_variable = True
+        elif 'Time' in ds.keys():
+            prefix = 'timeMonthly_avg_'
+            time_variable = 'Time'
+            has_time_variable = True
+        else:
+            has_time_variable = False
+        t_index = 0
+        time_stamp = ''
+        if has_time_variable:
+            start_time = ds[time_variable].values[t_index]
+            # if 'Time' not in ds.keys():
+            start_time = start_time.decode()
+            time_stamp = f'_{start_time.split("_")[0]}'
+            # else:
+            #    time_stamp = start_time.strftime('%Y-%m-%d')
+>>>>>>> 3efd879aa1 (fixup cell masking)
 
         if 'Time' in ds.sizes:
             t_index = 0
@@ -128,26 +158,35 @@ class VizHorizField(OceanIOStep):
                     cmap = viz_dict['default']['colormap']
                 self.config.set(section_name, 'colormap_name', value=cmap)
 
+            if self.config.has_option(section_name, 'colormap_range_percent'):
+                colormap_range_percent = self.config.getfloat(
+                    section_name, 'colormap_range_percent'
+                )
+            else:
+                colormap_range_percent = 0.0
+
+            if colormap_range_percent > 0.0:
+                vmin = np.percentile(mpas_field.values, colormap_range_percent)
+                vmax = np.percentile(
+                    mpas_field.values, 100.0 - colormap_range_percent
+                )
+            else:
+                vmin = mpas_field.min().values
+                vmax = mpas_field.max().values
+
             if self.config.has_option(
                 section_name, 'vmin'
             ) and self.config.has_option(section_name, 'vmax'):
                 vmin = section.getfloat('vmin')
                 vmax = section.getfloat('vmax')
-            else:
-                vmin = np.percentile(mpas_field.values, 5)
-                vmax = np.percentile(mpas_field.values, 95)
-            if (
+            elif (
                 cmap == 'cmo.balance'
                 or 'vertVelocityTop' in var_name
                 or 'Tendency' in var_name
                 or 'Flux' in var_name
             ):
-                vmax = max(abs(vmax), abs(vmin))
+                vmax = max(abs(vmin), abs(vmax))
                 vmin = -vmax
-            if var_name in viz_dict.keys():
-                units = viz_dict[var_name]['units']
-            else:
-                units = viz_dict['default']['units']
 
             self.config.set(
                 section_name,
@@ -155,19 +194,21 @@ class VizHorizField(OceanIOStep):
                 value='{"vmin": ' + str(vmin) + ', "vmax": ' + str(vmax) + '}',
             )
 
+            if var_name in viz_dict.keys():
+                units = viz_dict[var_name]['units']
+            else:
+                units = viz_dict['default']['units']
+
             descriptor = plot_global_mpas_field(
                 mesh_filename=self.mesh_file,
                 da=mpas_field,
-                out_filename=f'{var_name}_horiz_{time_stamp}{filename_suffix}.png',
+                out_filename=f'{var_name}_horiz{time_stamp}{filename_suffix}.png',
                 config=self.config,
                 colormap_section='customizable_viz_horiz_field',
                 descriptor=descriptor,
-                colorbar_label=f'{var_name} {units}',
+                colorbar_label=f'{var_name} [{units}]',
                 plot_land=True,
                 projection_name=projection_name,
                 central_longitude=central_longitude,
-                min_latitude=min_latitude,
-                max_latitude=max_latitude,
-                min_longitude=min_longitude,
-                max_longitude=max_longitude,
+                cell_indices=cell_indices[0],
             )
