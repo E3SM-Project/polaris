@@ -3,6 +3,7 @@ import numpy as np
 
 from polaris.ocean.model import OceanIOStep
 from polaris.viz import (
+    determine_time_variable,
     get_viz_defaults,
     plot_global_mpas_field,
 )
@@ -48,10 +49,15 @@ class VizHorizField(OceanIOStep):
         )
         if len(cell_indices[0]) == 0:
             raise ValueError(
-                'No cells found within the specified lat/lon bounds. '
-                'Please adjust the min/max latitude/longitude values.'
+                f'No cells of {ds_mesh.sizes["nCells"]} cells found within the'
+                ' specified lat/lon bounds. Please adjust the min/max '
+                'latitude/longitude values to be within the bounds of the '
+                f'dataset: latitude '
+                f'{lat_cell.min().values},{lat_cell.max().values} \n'
+                f'longitude {lon_cell.min().values},{lon_cell.max().values}'
             )
         ds_mesh = ds_mesh.isel(nCells=cell_indices[0])
+        print(f'Mesh dataset has {ds_mesh.sizes["nCells"]} cells')
         # z_index = 0
         z_target = section.getfloat('z_target')
         z_bottom = ds_mesh['restingThickness'].cumsum(dim='nVertLevels')
@@ -66,41 +72,26 @@ class VizHorizField(OceanIOStep):
         )
 
         ds = self.open_model_dataset(self.input_file, decode_timedelta=False)
-        if 'timeSeriesStatsMonthly' in self.input_file:
-            prefix = 'timeMonthly_avg_'
-            time_variable = 'xtime_startMonthly'
-            has_time_variable = True
-        elif 'xtime' in ds.keys():
-            prefix = ''
-            time_variable = 'xtime'
-            has_time_variable = True
-        elif 'Time' in ds.keys():
-            prefix = 'timeMonthly_avg_'
-            time_variable = 'Time'
-            has_time_variable = True
-        else:
-            has_time_variable = False
-        if has_time_variable:
-            t_index = 0
-            start_time = ds[time_variable].values[t_index]
-            # if 'Time' not in ds.keys():
-            start_time = start_time.decode()
-            time_stamp = start_time.split('_')[0]
-            # else:
-            #    time_stamp = start_time.strftime('%Y-%m-%d')
 
-            # TODO consider supporting setting a time_stamp value in the config
-            # file to enable extraction from streams whose output frequency is
-            # different from the file frequency
-            # tidx = np.argwhere(ds['xtime'].values == time_stamp)
+        if 'Time' in ds.sizes:
+            t_index = 0
+            # TODO support different time selection from config file
             ds = ds.isel(Time=t_index)
+
+        prefix, time_variable = determine_time_variable(ds)
+        if time_variable is not None:
+            start_time = ds[time_variable].values[0]
+            start_time = start_time.decode()
+            time_stamp = f'_{start_time.split("_")[0]}'
+        else:
+            time_stamp = ''
+
         ds = ds.isel(nCells=cell_indices[0])
         if ds.sizes['nCells'] != ds_mesh.sizes['nCells']:
             raise ValueError(
                 f'Number of cells in the mesh {ds_mesh.sizes["nCells"]} '
                 f'and input {ds.sizes["nCells"]} do not match. '
             )
-        print(f'Using dataset with nCells={ds_mesh.sizes["nCells"]}')
         viz_dict = get_viz_defaults()
         variables = self.config.getlist(section_name, 'variables', dtype=str)
 
@@ -112,6 +103,8 @@ class VizHorizField(OceanIOStep):
             if full_var_name not in ds.keys():
                 if f'{prefix}activeTracers_{var_name}' in ds.keys():
                     full_var_name = f'{prefix}activeTracers_{var_name}'
+                elif var_name == 'columnThickness':
+                    ds[full_var_name] = ds.bottomDepth + ds.ssh
                 else:
                     print(
                         f'Skipping {full_var_name}, '
@@ -141,17 +134,16 @@ class VizHorizField(OceanIOStep):
                 vmin = section.getfloat('vmin')
                 vmax = section.getfloat('vmax')
             else:
-                if (
-                    cmap == 'cmo.balance'
-                    or 'vertVelocityTop' in var_name
-                    or 'Tendency' in var_name
-                    or 'Flux' in var_name
-                ):
-                    vmax = max(abs(vmax), abs(vmin))
-                    vmin = -vmax
-                else:
-                    vmin = np.percentile(mpas_field.values, 5)
-                    vmax = np.percentile(mpas_field.values, 95)
+                vmin = np.percentile(mpas_field.values, 5)
+                vmax = np.percentile(mpas_field.values, 95)
+            if (
+                cmap == 'cmo.balance'
+                or 'vertVelocityTop' in var_name
+                or 'Tendency' in var_name
+                or 'Flux' in var_name
+            ):
+                vmax = max(abs(vmax), abs(vmin))
+                vmin = -vmax
             if var_name in viz_dict.keys():
                 units = viz_dict[var_name]['units']
             else:

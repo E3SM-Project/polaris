@@ -1,4 +1,7 @@
 from polaris.viz.helper import (
+    determine_time_variable as determine_time_variable,
+)
+from polaris.viz.helper import (
     get_projection as get_projection,
 )
 from polaris.viz.helper import (

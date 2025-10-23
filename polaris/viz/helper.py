@@ -37,3 +37,17 @@ def get_viz_defaults():
         'default': {'colormap': 'cmo.balance', 'units': r''},
     }
     return viz_dict
+
+
+def determine_time_variable(ds):
+    prefix = ''
+    time_variable = None
+    if 'timeSeriesStatsMonthly' in ds.keys():
+        prefix = 'timeMonthly_avg_'
+        time_variable = 'xtime_startMonthly'
+    elif 'xtime' in ds.keys():
+        time_variable = 'xtime'
+    elif 'Time' in ds.keys():
+        prefix = 'timeMonthly_avg_'
+        time_variable = 'Time'
+    return prefix, time_variable
