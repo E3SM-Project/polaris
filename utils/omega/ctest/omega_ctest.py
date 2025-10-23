@@ -220,6 +220,7 @@ def main():
     if 'SLURM_JOB_ID' in os.environ:
         # already on a comptue node so we will just run ctests directly
         submit = False
+        build_only = False
     else:
         build_only = True
 
