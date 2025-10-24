@@ -50,11 +50,9 @@ cmake \
 
 ./omega_build.sh
 
-cd test
-
-ln -sfn {{ omega_mesh_filename }} OmegaMesh.nc
-ln -sfn {{ omega_planar_mesh_filename }} OmegaPlanarMesh.nc
-ln -sfn {{ omega_sphere_mesh_filename }} OmegaSphereMesh.nc
+ln -sfn {{ omega_mesh_filename }} test/OmegaMesh.nc
+ln -sfn {{ omega_planar_mesh_filename }} test/OmegaPlanarMesh.nc
+ln -sfn {{ omega_sphere_mesh_filename }} test/OmegaSphereMesh.nc
 
 {%- if run_ctest %}
 ./omega_ctest.sh
