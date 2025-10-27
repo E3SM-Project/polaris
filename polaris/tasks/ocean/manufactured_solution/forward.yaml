@@ -64,4 +64,4 @@ Omega:
       Contents:
       - NormalVelocity
       - LayerThickness
-      - SshCellDefault
+      - SshCell
