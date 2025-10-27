@@ -76,32 +76,6 @@ class VizHorizField(OceanIOStep):
         )
 
         ds = self.open_model_dataset(self.input_file, decode_timedelta=False)
-<<<<<<< HEAD
-=======
-        prefix = ''
-        if 'timeSeriesStatsMonthly' in self.input_file:
-            prefix = 'timeMonthly_avg_'
-            time_variable = 'xtime_startMonthly'
-            has_time_variable = True
-        elif 'xtime' in ds.keys():
-            time_variable = 'xtime'
-            has_time_variable = True
-        elif 'Time' in ds.keys():
-            prefix = 'timeMonthly_avg_'
-            time_variable = 'Time'
-            has_time_variable = True
-        else:
-            has_time_variable = False
-        t_index = 0
-        time_stamp = ''
-        if has_time_variable:
-            start_time = ds[time_variable].values[t_index]
-            # if 'Time' not in ds.keys():
-            start_time = start_time.decode()
-            time_stamp = f'_{start_time.split("_")[0]}'
-            # else:
-            #    time_stamp = start_time.strftime('%Y-%m-%d')
->>>>>>> 3efd879aa1 (fixup cell masking)
 
         if 'Time' in ds.sizes:
             t_index = 0
