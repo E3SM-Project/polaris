@@ -45,6 +45,8 @@ Omega:
     UseCustomTendency: true
     ManufacturedSolutionTendency: true
   IOStreams:
+    InitialVertCoord:
+      Filename: init.nc
     InitialState:
       UsePointerFile: false
       Filename: init.nc
