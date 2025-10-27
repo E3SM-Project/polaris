@@ -79,8 +79,6 @@ Omega:
     TracerHorzAdvTendencyEnable : true
     TracerDiffTendencyEnable : false
     TracerHyperDiffTendencyEnable : false
-  Dimension:
-    NVertLevels: 1
   IOStreams:
     InitialState:
       Filename: init.nc

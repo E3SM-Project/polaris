@@ -48,5 +48,3 @@ Omega:
   Tendencies:
     VelDiffTendencyEnable: true
     VelHyperDiffTendencyEnable: false
-  Dimension:
-    NVertLevels: 1
