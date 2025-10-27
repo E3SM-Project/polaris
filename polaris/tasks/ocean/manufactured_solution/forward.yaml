@@ -44,8 +44,6 @@ Omega:
     VelHyperDiffTendencyEnable: false
     UseCustomTendency: true
     ManufacturedSolutionTendency: true
-  Dimension:
-    NVertLevels: 1
   IOStreams:
     InitialState:
       UsePointerFile: false
