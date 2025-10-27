@@ -79,6 +79,7 @@ Omega:
       Contents:
         - State
         - Tracers
+    RestartRead: {}
     History:
       Filename: output.nc
       Freq: {{ output_freq }}

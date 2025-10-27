@@ -53,6 +53,7 @@ Omega:
       Contents:
       - NormalVelocity
       - LayerThickness
+    RestartRead: {}
     History:
       Filename: output.nc
       Freq: {{ output_freq }}
