@@ -121,7 +121,13 @@ def setup_tasks(
 
     component.configure(basic_config)
 
-    provenance.write(work_dir, tasks, config=basic_config)
+    provenance.write(
+        work_dir,
+        tasks,
+        config=basic_config,
+        machine=machine,
+        baseline_dir=baseline_dir,
+    )
 
     if clean:
         print('')
