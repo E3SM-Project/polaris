@@ -6,7 +6,11 @@ import sys
 def write(work_dir, tasks, config=None, machine=None, baseline_dir=None):
     """
     Write a file with provenance, such as the git version, conda packages,
-    command, and tasks, to the work directory
+    command, and tasks, to the work directory.
+
+    This function overwrites any existing provenance file in the work
+    directory rather than appending, so the provenance reflects the most
+    recent call to Polaris that used this work directory.
 
     Parameters
     ----------
@@ -56,11 +60,8 @@ def write(work_dir, tasks, config=None, machine=None, baseline_dir=None):
         pass
 
     provenance_path = f'{work_dir}/provenance'
-    if os.path.exists(provenance_path):
-        provenance_file = open(provenance_path, 'a')
-        provenance_file.write('\n')
-    else:
-        provenance_file = open(provenance_path, 'w')
+    # Always overwrite to ensure provenance reflects the latest setup/suite
+    provenance_file = open(provenance_path, 'w')
 
     provenance_file.write(
         '**************************************************'
@@ -246,23 +247,4 @@ def _write_scheduler_metadata(provenance_file, config):
     _write_meta(provenance_file, 'partition', partition)
     _write_meta(provenance_file, 'qos', qos)
     _write_meta(provenance_file, 'constraint', constraint)
-    if config.has_option('paths', 'component_path'):
-        component_path = config.get('paths', 'component_path')
-    else:
-        component_path = None
-
-    if component_path is None or not os.path.exists(component_path):
-        return None
-
-    cwd = os.getcwd()
-    os.chdir(component_path)
-
-    try:
-        args = ['git', 'describe', '--tags', '--dirty', '--always']
-        component_git_version = subprocess.check_output(args).decode('utf-8')
-        component_git_version = component_git_version.strip('\n')
-    except subprocess.CalledProcessError:
-        component_git_version = None
-    os.chdir(cwd)
-
-    return component_git_version
+    # No return value; this function only writes metadata lines
