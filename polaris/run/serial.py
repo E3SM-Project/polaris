@@ -5,6 +5,7 @@ import pickle
 import sys
 import time
 from datetime import timedelta
+from typing import Dict, List, Optional
 
 import mpas_tools.io
 from mpas_tools.logging import LoggingContext, check_call
@@ -89,6 +90,9 @@ def run_tasks(
         suite_start = time.time()
         task_times = dict()
         result_strs = dict()
+        total_tasks = len(suite['tasks'])
+        exec_fail_tasks: List[str] = []
+        diff_fail_tasks: List[str] = []
         for task_name in suite['tasks']:
             stdout_logger.info(f'{task_name}')
 
@@ -102,7 +106,13 @@ def run_tasks(
                 log_filename = f'{cwd}/case_outputs/{task_prefix}.log'
                 task_logger = None
 
-            result_str, success, task_time = _log_and_run_task(
+            (
+                result_str,
+                success,
+                task_time,
+                exec_failed,
+                diff_failed,
+            ) = _log_and_run_task(
                 task,
                 stdout_logger,
                 task_logger,
@@ -116,11 +126,27 @@ def run_tasks(
             result_strs[task_name] = result_str
             if not success:
                 failures += 1
+            if exec_failed:
+                exec_fail_tasks.append(task_name)
+            if diff_failed:
+                diff_fail_tasks.append(task_name)
             task_times[task_name] = task_time
 
         suite_time = time.time() - suite_start
 
         os.chdir(cwd)
+
+        # Write a concise, copy/paste-friendly summary for Omega PRs
+        _write_output_for_pull_request(
+            suite_name,
+            suite,
+            results={
+                'total': total_tasks,
+                'failures': exec_fail_tasks,
+                'diffs': diff_fail_tasks,
+            },
+        )
+
         _log_task_runtimes(
             stdout_logger, task_times, result_strs, suite_time, failures
         )
@@ -366,6 +392,8 @@ def _log_and_run_task(
         task_logger.info('')
         task_list = ', '.join(task.steps_to_run)
         task_logger.info(f'Running steps: {task_list}')
+        # Default in case execution fails before setting this
+        baselines_passed = None
         try:
             baselines_passed = _run_task(task, available_resources)
             run_status = success_str
@@ -409,7 +437,9 @@ def _log_and_run_task(
             f'  task runtime:     {start_time_color}{task_time_str}{end_color}'
         )
 
-        return result_str, success, task_time
+    exec_failed = not task_pass
+    diff_failed = baselines_passed is False
+    return result_str, success, task_time, exec_failed, diff_failed
 
 
 def _run_task(task, available_resources):
@@ -604,3 +634,159 @@ def _run_step_as_subprocess(logger, step, new_log_file):
         os.chdir(step.work_dir)
         step_args = ['polaris', 'serial', '--step_is_subprocess']
         check_call(step_args, step_logger)
+
+
+def _write_output_for_pull_request(
+    suite_name, suite, results: Optional[dict] = None
+):
+    """
+    Parse metadata from the provenance file and write a concise summary that
+    can be copy/pasted into an Omega pull request.
+
+    Parameters
+    ----------
+    suite_name : str
+        The name of the suite (or 'task') being run.
+
+    suite : dict
+        The unpickled suite dictionary containing tasks and base work dir.
+    """
+    work_dir = suite.get('work_dir', os.getcwd())
+    provenance_path = os.path.join(work_dir, 'provenance')
+    if not os.path.exists(provenance_path):
+        return
+
+    # keys in provenance are written exactly like these labels
+    labels = {
+        'baseline work directory': 'baseline',
+        'build directory': 'build',
+        'work directory': 'work',
+        'machine': 'machine',
+        'partition': 'partition',
+        'compiler': 'compiler',
+    }
+
+    values: Dict[str, Optional[str]] = {v: None for v in labels.values()}
+    _parse_provenance_into(provenance_path, labels, values)
+
+    # If a baseline workdir exists, parse its provenance to get baseline build
+    baseline_build: Optional[str] = None
+    baseline_build = _parse_baseline_build(values.get('baseline'))
+
+    # Build the output content. Only include optional lines if present.
+    lines = [f'Polaris {suite_name} suite']
+
+    if values['baseline']:
+        lines.append(f'- Baseline workdir: {values["baseline"]}')
+    if baseline_build:
+        lines.append(f'- Baseline build: {baseline_build}')
+    if values['build']:
+        lines.append(f'- PR build: {values["build"]}')
+    if values['work']:
+        lines.append(f'- PR workdir: {values["work"]}')
+    if values['machine']:
+        lines.append(f'- Machine: {values["machine"]}')
+    if values['partition']:
+        lines.append(f'- Partition: {values["partition"]}')
+    if values['compiler']:
+        lines.append(f'- Compiler: {values["compiler"]}')
+
+    # Placeholder for developer to fill in
+    lines.append('- Build type: <Debug|Release>')
+
+    # Try to include job scheduler log path for Slurm
+    job_log = _derive_job_log_path(suite_name, suite)
+    if job_log:
+        lines.append(f'- Log: {job_log}')
+
+    # If we have results, summarize them
+    if results is not None and isinstance(results, dict):
+        total = int(results.get('total', 0) or 0)
+        failures: List[str] = list(results.get('failures', []) or [])
+        diffs: List[str] = list(results.get('diffs', []) or [])
+
+        if total > 0 and not failures and not diffs:
+            lines.append('- Result: All tests passed')
+        else:
+            lines.append('- Result:')
+            if failures:
+                lines.append(f'  - Failures ({len(failures)} of {total}):')
+                for name in failures:
+                    lines.append(f'    - {name}')
+            if diffs:
+                lines.append(f'  - Diffs ({len(diffs)} of {total}):')
+                for name in diffs:
+                    lines.append(f'    - {name}')
+
+    out_path = os.path.join(work_dir, f'{suite_name}_output_for_pr.log')
+    print(f'Writing output useful for copy/paste into PRs to:\n  {out_path}')
+    with open(out_path, 'w') as out:
+        out.write('\n'.join(lines) + '\n')
+    print('Done.')
+
+
+def _parse_provenance_into(path, labels, target_values):
+    if not os.path.exists(path):
+        return
+    try:
+        with open(path, 'r') as f:
+            for line in f:
+                if ':' not in line:
+                    continue
+                parts = line.strip().split(':', 1)
+                if len(parts) != 2:
+                    continue
+                key = parts[0].strip().lower()
+                val = parts[1].strip()
+                if key in labels:
+                    target_values[labels[key]] = val
+    except (OSError, UnicodeDecodeError):
+        # silent failure; helper is best-effort
+        pass
+
+
+def _parse_baseline_build(baseline_workdir: Optional[str]) -> Optional[str]:
+    if not baseline_workdir:
+        return None
+    path = os.path.join(baseline_workdir, 'provenance')
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path, 'r') as f:
+            for line in f:
+                if ':' not in line:
+                    continue
+                parts = line.strip().split(':', 1)
+                if len(parts) != 2:
+                    continue
+                key = parts[0].strip().lower()
+                val = parts[1].strip()
+                if key == 'build directory':
+                    return val
+    except (OSError, UnicodeDecodeError):
+        return None
+    return None
+
+
+def _derive_job_log_path(suite_name: str, suite: dict) -> Optional[str]:
+    """Best-effort reconstruction of the Slurm job log path."""
+    job_id = os.environ.get('SLURM_JOB_ID')
+    if not job_id:
+        return None
+
+    # Reconstruct the job_name the same way the job script did
+    # using the common component config
+    try:
+        task = next(iter(suite['tasks'].values()))
+        component = task.component
+        common_config = setup_config(
+            task.base_work_dir, f'{component.name}.cfg'
+        )
+        job_name = common_config.get('job', 'job_name')
+        if job_name == '<<<default>>>':
+            suite_suffix = f'_{suite_name}' if suite_name else ''
+            job_name = f'polaris{suite_suffix}'
+        work_dir = suite.get('work_dir', os.getcwd())
+        return os.path.join(work_dir, f'{job_name}.o{job_id}')
+    except (StopIteration, KeyError, OSError, AttributeError):
+        return None
