@@ -130,14 +130,29 @@ def download_meshes(config):
     return download_targets
 
 
-def write_omega_ctest_job_script(config, machine, compiler, nodes=1):
+def write_omega_ctest_job_script(config, machine, compiler, debug, nodes=1):
     """
     Write a job script for running Omega CTest using the generalized template.
     """
     build_omega_dir = os.path.abspath('build_omega')
     build_dir = os.path.join(build_omega_dir, f'build_{machine}_{compiler}')
 
-    run_command = f'cd {build_dir}\n./omega_ctest.sh'
+    build_type = 'Debug' if debug else 'Release'
+
+    this_dir = os.path.realpath(
+        os.path.join(os.getcwd(), os.path.dirname(__file__))
+    )
+    template_filename = os.path.join(this_dir, 'run_command.template')
+
+    with open(template_filename, 'r', encoding='utf-8') as f:
+        template = Template(f.read())
+
+    run_command = template.render(
+        build_dir=build_dir,
+        machine=machine,
+        compiler=compiler,
+        build_type=build_type,
+    )
 
     job_script_filename = f'job_build_and_ctest_omega_{machine}_{compiler}.sh'
     job_script_filename = os.path.join(build_omega_dir, job_script_filename)
@@ -255,6 +270,7 @@ def main():
         config=config,
         machine=machine,
         compiler=compiler,
+        debug=debug,
     )
 
     if submit:

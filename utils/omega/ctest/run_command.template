@@ -1,0 +1,58 @@
+cd {{ build_dir }}
+./omega_ctest.sh 2>&1 | tee ctests.log
+log_path="$(pwd)/ctests.log"
+
+echo ""
+echo "(Copy the following to a comment in your Omega PR)"
+echo ""
+echo "CTest unit tests:"
+echo "- Machine: {{ machine }}"
+echo "- Compiler: {{ compiler }}"
+echo "- Build type: {{ build_type }}"
+
+# Summarize CTest results
+if grep -q "100% tests passed" ctests.log; then
+	echo "- Result: All tests passed"
+else
+	# Parse counts if present: "XX% tests passed, N tests failed out of T"
+	counts_line=$(grep -E '[0-9]+% tests passed, [0-9]+ tests failed out of [0-9]+' ctests.log | tail -n 1)
+	if [ -n "$counts_line" ]; then
+		failed_count=$(echo "$counts_line" | sed -E 's/.* ([0-9]+) tests failed out of ([0-9]+).*/\1/')
+		total_count=$(echo "$counts_line" | sed -E 's/.* ([0-9]+) tests failed out of ([0-9]+).*/\2/')
+		failures_header="- Failures (${failed_count} of ${total_count}):"
+	else
+		failures_header="- Failures:"
+	fi
+
+	# Try to parse the canonical summary block first, only collecting lines like: "  6 - NAME (Failed)"
+	failed_from_block=$(awk '
+		/The following tests FAILED:/ {flag=1; next}
+		flag {
+			if ($0 ~ /^[[:space:]]*[0-9]+[[:space:]]+-[[:space:]]+.+\(Failed\)/) { print; next }
+			# Stop when we reach a line that does not match the expected failure entry pattern
+			exit
+		}
+	' ctests.log \
+		| sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+-[[:space:]]+//' \
+		| sed -E 's/[[:space:]]*\(Failed\).*//')
+
+	if [ -n "${failed_from_block}" ]; then
+		echo "${failures_header}"
+		while IFS= read -r testname; do
+			[ -n "$testname" ] && echo "  - $testname"
+		done <<< "${failed_from_block}"
+	else
+		# Fallback: parse per-test lines that include ***Failed
+		failed_from_lines=$(grep -E '\*\*\*Failed' ctests.log \
+			| sed -E 's/.*Test #[0-9]+: (.+)[.[:space:]]+\*\*\*Failed.*/\1/')
+		if [ -n "${failed_from_lines}" ]; then
+			echo "${failures_header}"
+			while IFS= read -r testname; do
+				[ -n "$testname" ] && echo "  - $testname"
+			done <<< "${failed_from_lines}"
+		else
+			echo "- Result: Some tests failed"
+		fi
+	fi
+fi
+echo "- Log: ${log_path}"
