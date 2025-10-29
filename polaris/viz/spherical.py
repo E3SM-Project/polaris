@@ -5,19 +5,22 @@ import cmocean  # noqa: F401
 import matplotlib.colors as cols
 import matplotlib.pyplot as plt
 import mosaic
+import numpy as np
 import xarray as xr
+from cartopy.geodesic import Geodesic
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pyremap.descriptor.utility import interp_extrap_corner
 
+from polaris.viz.helper import get_projection
 from polaris.viz.style import use_mplstyle
 
 
 def plot_global_mpas_field(
-    mesh_filename,
     da,
     out_filename,
     config,
     colormap_section,
+    mesh_filename=None,
     title=None,
     plot_land=True,
     colorbar_label='',
@@ -26,6 +29,10 @@ def plot_global_mpas_field(
     dpi=200,
     patch_edge_color=None,
     descriptor=None,
+    projection_name='PlateCarree',
+    cell_indices=None,
+    edge_indices=None,
+    enforce_aspect_ratio=False,
 ):
     """
     Plots a data set as a longitude-latitude map
@@ -87,10 +94,22 @@ def plot_global_mpas_field(
     use_mplstyle()
 
     transform = cartopy.crs.Geodetic()
-    projection = cartopy.crs.PlateCarree(central_longitude=central_longitude)
+    projection = get_projection(
+        projection_name, central_longitude=central_longitude
+    )
 
-    mesh_ds = xr.open_dataset(mesh_filename)
     if descriptor is None:
+        if mesh_filename is None:
+            raise ValueError(
+                'Either mesh_filename or descriptor must be given'
+                ' as parameters to Descriptor'
+            )
+        mesh_ds = xr.open_dataset(mesh_filename)
+        mesh_ds.attrs['is_periodic'] = 'NO'
+        if cell_indices is not None:
+            mesh_ds = mesh_ds.isel(nCells=cell_indices)
+        if edge_indices is not None:
+            mesh_ds = mesh_ds.isel(nEdges=edge_indices)
         descriptor = mosaic.Descriptor(
             mesh_ds,
             projection=projection,
@@ -130,6 +149,20 @@ def plot_global_mpas_field(
     cbar = fig.colorbar(
         pc, ax=ax, label=colorbar_label, extend='both', shrink=0.6
     )
+
+    if enforce_aspect_ratio:
+        min_latitude = mesh_ds.latCell.min().values * 180.0 / np.pi
+        max_latitude = mesh_ds.latCell.max().values * 180.0 / np.pi
+        min_longitude = mesh_ds.lonCell.min().values * 180.0 / np.pi
+        max_longitude = mesh_ds.lonCell.max().values * 180.0 / np.pi
+        geod = Geodesic()
+        x_distance = geod.inverse(
+            [min_longitude, min_latitude], [max_longitude, min_latitude]
+        )[0, 0]
+        y_distance = geod.inverse(
+            [min_longitude, min_latitude], [min_longitude, max_latitude]
+        )[0, 0]
+        ax.set_aspect(y_distance / x_distance)
 
     if ticks is not None:
         cbar.set_ticks(ticks)
@@ -385,7 +418,7 @@ def _add_land_lakes_coastline(ax, ice_shelves=True):
             'antarctic_ice_shelves_polys',
             '50m',
             edgecolor='k',
-            facecolor=land_color,
+            facecolor='none',
             linewidth=0.5,
         )
         ax.add_feature(ice_50m, zorder=3)
