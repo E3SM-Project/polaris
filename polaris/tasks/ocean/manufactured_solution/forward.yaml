@@ -44,9 +44,9 @@ Omega:
     VelHyperDiffTendencyEnable: false
     UseCustomTendency: true
     ManufacturedSolutionTendency: true
-  Dimension:
-    NVertLevels: 1
   IOStreams:
+    InitialVertCoord:
+      Filename: init.nc
     InitialState:
       UsePointerFile: false
       Filename: init.nc
@@ -64,4 +64,4 @@ Omega:
       Contents:
       - NormalVelocity
       - LayerThickness
-      - SshCellDefault
+      - SshCell
