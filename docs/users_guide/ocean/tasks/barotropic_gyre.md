@@ -23,10 +23,18 @@ clockwise circulation. The comparison with the analytical solution is performed
 via a streamfunction. The L2 norm is printed and the following figure is
 produced:
 
-```{image} images/barotropic_gyre_solution.png
+```{image} images/barotropic_gyre_free-slip_solution.png
 :align: center
 :width: 800 px
 ```
+
+The analytic solution for the free slip condition is derived from
+Henderschott's General Circulation of the Ocean doi:10.1007/978-1-4612-4636-7
+p.223 unnumbered equation after 2.3.9.
+
+The analytic solution for the no slip condition is derived from
+Vallis's Atmospheric and Oceanic Fluid Dynamics doi:10.1017/9781107588417
+p.743 equation 19.49.
 
 ## mesh
 
@@ -92,10 +100,13 @@ where `tau_0` is given by a config option.
 :width: 500 px
 ```
 
-### config options
+## config options
 
 ```cfg
 [barotropic_gyre]
+
+# time integrator
+time_integrator = split_explicit_ab2
 
 # distance in kilometers between cell centers
 resolution = 20
@@ -109,24 +120,21 @@ ly = 1200
 # Maximum amplitude of the zonal wind stress [N m-2]
 tau_0 = 0.1
 
-# Horizontal visocity [m2 s-1]
-nu_2 = 4e2
-
-# [s-1 m-1]
-beta = 10e-11
-
-# [s-1]
-f_0 = 10e-4
+# Horizontal gradient in coriolis parameter [s-1 m-1]
+beta = 1.0e-10
 
 # homogenous fluid density [kg m-3]
 rho_0 = 1000
+
+# Duration of forward step if run_time_steps not given [years]
+run_duration = 2.
 ```
 
 The config option `nu_2` specifies the del2 horizontal viscosity. This value
 will be compared against the resolution to check for stability at set-up. All
 other config options are explained further in previous sections.
 
-### cores
+## cores
 
 The number of cores is determined by `goal_cells_per_core` and
 `max_cells_per_core` in the `ocean` section of the config file.
@@ -135,15 +143,7 @@ The number of cores is determined by `goal_cells_per_core` and
 
 ## supported models
 
-These tasks support only MPAS-Ocean.
-
-## default
-
-The default case is designed such that only a short forward run is performed.
-However, when users set up the default case, a long forward run is also set
-up and may be run along with the analysis step to compare the numerical
-solution with an analytical solution. The user should change the
-`barotropic_gyre: steps_to_run` config option to include desired steps.
+These tasks support both MPAS-Ocean and Omega.
 
 ### time step and run duration
 
@@ -152,5 +152,47 @@ condition assuming a maximum velocity of 1 m/s and a function of the coriolis
 parameter `f_0`. The stability parameter is set to 0.25 based on the stability
 of MPAS-Ocean for this test case.
 
-The run duration is 3 time steps for the `short_forward` step and 3 years for
+The run duration is 3 time steps for the `short_forward` step and 2 years for
 the `long_forward` step.
+
+## munk free-slip
+
+The Munk free-slip test case uses its own set of default horizontal viscosity
+and coriolis parameter values. It also automatically compares against the
+analytic solution for the free-slip case during the `analysis` step.
+
+The case is designed such that only a short forward run is performed.
+However, when users set up the default case, a long forward run and analysis
+step are also set up and may be run together to compare the numerical
+solution with an analytical solution. The user should change the
+`barotropic_gyre_munk_free-slip: steps_to_run` config option to include desired
+steps.
+
+### config options
+
+```cfg
+[barotropic_gyre_munk_free-slip]
+
+# Horizontal visocity [m2 s-1]
+nu_2 = 1e2
+
+# Coriolis parameter [s-1]
+f_0 = 1.0e-4
+```
+
+## munk no-slip
+
+This case has the same attributes described in munk free-slip except the no-
+slip solution and a separate cfg section are used.
+
+### config options
+
+```cfg
+[barotropic_gyre_munk_no-slip]
+
+# Horizontal visocity [m2 s-1]
+nu_2 = 4e2
+
+# Coriolis parameter [s-1]
+f_0 = 1.0e-3
+```

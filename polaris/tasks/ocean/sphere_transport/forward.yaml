@@ -71,14 +71,15 @@ Omega:
     TracerHorzAdvTendencyEnable : true
     TracerDiffTendencyEnable : false
     TracerHyperDiffTendencyEnable : false
-  Dimension:
-    NVertLevels: 1
   IOStreams:
+    InitialVertCoord:
+      Filename: init.nc
     InitialState:
       Filename: init.nc
       Contents:
         - State
         - Tracers
+    RestartRead: {}
     History:
       Filename: output.nc
       Freq: {{ output_freq }}
