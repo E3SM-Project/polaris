@@ -674,22 +674,22 @@ def _write_output_for_pull_request(
     baseline_build = _parse_baseline_build(values.get('baseline'))
 
     # Build the output content. Only include optional lines if present.
-    lines = [f'Polaris {suite_name} suite']
+    lines = [f'### Polaris `{suite_name}` suite']
 
     if values['baseline']:
-        lines.append(f'- Baseline workdir: {values["baseline"]}')
+        lines.append(f'- Baseline workdir: `{values["baseline"]}`')
     if baseline_build:
-        lines.append(f'- Baseline build: {baseline_build}')
+        lines.append(f'- Baseline build: `{baseline_build}`')
     if values['build']:
-        lines.append(f'- PR build: {values["build"]}')
+        lines.append(f'- PR build: `{values["build"]}`')
     if values['work']:
-        lines.append(f'- PR workdir: {values["work"]}')
+        lines.append(f'- PR workdir: `{values["work"]}`')
     if values['machine']:
-        lines.append(f'- Machine: {values["machine"]}')
+        lines.append(f'- Machine: `{values["machine"]}`')
     if values['partition']:
-        lines.append(f'- Partition: {values["partition"]}')
+        lines.append(f'- Partition: `{values["partition"]}`')
     if values['compiler']:
-        lines.append(f'- Compiler: {values["compiler"]}')
+        lines.append(f'- Compiler: `{values["compiler"]}`')
 
     # Placeholder for developer to fill in
     lines.append('- Build type: <Debug|Release>')
@@ -697,7 +697,7 @@ def _write_output_for_pull_request(
     # Try to include job scheduler log path for Slurm
     job_log = _derive_job_log_path(suite_name, suite)
     if job_log:
-        lines.append(f'- Log: {job_log}')
+        lines.append(f'- Log: `{job_log}`')
 
     # If we have results, summarize them
     if results is not None and isinstance(results, dict):
@@ -716,9 +716,9 @@ def _write_output_for_pull_request(
             if diffs:
                 lines.append(f'  - Diffs ({len(diffs)} of {total}):')
                 for name in diffs:
-                    lines.append(f'    - {name}')
+                    lines.append(f'    - `{name}`')
 
-    out_path = os.path.join(work_dir, f'{suite_name}_output_for_pr.log')
+    out_path = os.path.join(work_dir, f'{suite_name}_output_for_pr.md')
     print(f'Writing output useful for copy/paste into PRs to:\n  {out_path}')
     with open(out_path, 'w') as out:
         out.write('\n'.join(lines) + '\n')
