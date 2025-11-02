@@ -17,7 +17,7 @@ def add_customizable_viz_tasks(component):
 
 class CustomizableViz(Task):
     """
-    The convergence test case using the method of manufactured solutions
+    A customizable visualization task for MPAS-Ocean output
     """
 
     def __init__(self, component):
