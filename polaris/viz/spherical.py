@@ -31,7 +31,6 @@ def plot_global_mpas_field(
     descriptor=None,
     projection_name='PlateCarree',
     cell_indices=None,
-    edge_indices=None,
     enforce_aspect_ratio=False,
 ):
     """
@@ -108,8 +107,6 @@ def plot_global_mpas_field(
         mesh_ds.attrs['is_periodic'] = 'NO'
         if cell_indices is not None:
             mesh_ds = mesh_ds.isel(nCells=cell_indices)
-        if edge_indices is not None:
-            mesh_ds = mesh_ds.isel(nEdges=edge_indices)
         descriptor = mosaic.Descriptor(
             mesh_ds,
             projection=projection,
