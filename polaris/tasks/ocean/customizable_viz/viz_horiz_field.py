@@ -36,8 +36,8 @@ class VizHorizField(OceanIOStep):
         max_latitude = section.getfloat('max_latitude')
         min_longitude = section.getfloat('min_longitude')
         max_longitude = section.getfloat('max_longitude')
-        lat_cell = ds_mesh['latCell'] * 180.0 / np.pi
-        lon_cell = ds_mesh['lonCell'] * 180.0 / np.pi
+        lat_cell = np.rad2deg(ds_mesh['latCell'])
+        lon_cell = np.rad2deg(ds_mesh['lonCell'])
         if min_longitude < 0.0 and lon_cell.min().values > 0.0:
             max_longitude_copy = max_longitude
             max_longitude = 360.0 - min_longitude

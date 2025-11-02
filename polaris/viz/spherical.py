@@ -148,10 +148,10 @@ def plot_global_mpas_field(
     )
 
     if enforce_aspect_ratio:
-        min_latitude = mesh_ds.latCell.min().values * 180.0 / np.pi
-        max_latitude = mesh_ds.latCell.max().values * 180.0 / np.pi
-        min_longitude = mesh_ds.lonCell.min().values * 180.0 / np.pi
-        max_longitude = mesh_ds.lonCell.max().values * 180.0 / np.pi
+        min_latitude = np.rad2deg(mesh_ds.latCell.min().values)
+        max_latitude = np.rad2deg(mesh_ds.latCell.max().values)
+        min_longitude = np.rad2deg(mesh_ds.lonCell.min().values)
+        max_longitude = np.rad2deg(mesh_ds.lonCell.max().values)
         geod = Geodesic()
         x_distance = geod.inverse(
             [min_longitude, min_latitude], [max_longitude, min_latitude]
