@@ -62,17 +62,14 @@ Omega:
     TracerHyperDiffTendencyEnable : false
   Advection:
     FluxThicknessType: Center
-  Dimension:
-    NVertLevels: 1
   IOStreams:
+    InitialVertCoord:
+      Filename: init.nc
+      Mode: read
     InitialState:
       UsePointerFile: false
       Filename: init.nc
       Mode: read
-      Precision: double
-      Freq: 1
-      FreqUnits: OnStartup
-      UseStartEnd: false
       Contents:
       - State
       - WindStressZonal
@@ -82,10 +79,8 @@ Omega:
       Filename: output.nc
       Mode: write
       IfExists: append
-      Precision: double
       Freq: {{ output_interval }}
       FreqUnits: {{ output_interval_units }}
-      UseStartEnd: false
       Contents:
       - State
       - SshCell
