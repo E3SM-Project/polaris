@@ -168,7 +168,7 @@ $ vim polaris/tasks/ocean/my_overflow/init.py
 
 ...
 
-from polaris.ocean.model.eos import compute_density
+from polaris.ocean.eos import compute_density
 from polaris.ocean.vertical import init_vertical_coord
 
 
