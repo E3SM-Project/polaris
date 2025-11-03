@@ -30,6 +30,7 @@ classifiers = [
 dependencies = [
     "cartopy",
     "cmocean",
+    "gsw",
     "importlib_resources",
     "ipython",
     "jigsawpy",

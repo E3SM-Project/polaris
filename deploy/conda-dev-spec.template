@@ -6,6 +6,7 @@ cmocean
 esmf={{ esmf }}={{ mpi_prefix }}_*
 ffmpeg
 geometric_features={{ geometric_features }}
+gsw
 importlib_resources
 ipython
 jupyter
