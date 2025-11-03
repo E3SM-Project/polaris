@@ -18,6 +18,16 @@ class VizHorizField(OceanIOStep):
         self.mesh_file = section.get('mesh_file')
         self.input_file = section.get('input_file')
 
+        section_name = 'customizable_viz_horiz_field'
+        self.variables = self.config.getlist(
+            section_name, 'variables', dtype=str
+        )
+        if not self.variables:
+            raise ValueError(
+                f'No variables specified in the {section_name} section of '
+                'the config file.'
+            )
+
     def run(self):  # noqa:C901
         section_name = 'customizable_viz_horiz_field'
         section = self.config[section_name]
@@ -97,9 +107,8 @@ class VizHorizField(OceanIOStep):
                 f'and input {ds.sizes["nCells"]} do not match. '
             )
         viz_dict = get_viz_defaults()
-        variables = self.config.getlist(section_name, 'variables', dtype=str)
 
-        for var_name in variables:
+        for var_name in self.variables:
             if 'accumulated' in var_name:
                 full_var_name = var_name
             else:

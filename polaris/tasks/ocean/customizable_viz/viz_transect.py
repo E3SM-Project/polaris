@@ -18,10 +18,18 @@ class VizTransect(OceanIOStep):
         section = self.config['customizable_viz']
         self.mesh_file = section.get('mesh_file')
         self.input_file = section.get('input_file')
+        section_name = 'customizable_viz_transect'
+        self.variables = self.config.getlist(
+            section_name, 'variables', dtype=str
+        )
+        if not self.variables:
+            raise ValueError(
+                f'No variables specified in the {section_name} section of '
+                'the config file.'
+            )
 
     def run(self):
         section_name = 'customizable_viz_transect'
-        variables = self.config.getlist(section_name, 'variables', dtype=str)
         section = self.config[section_name]
         layer_interface_color = section.get('layer_interface_color')
         x_start = section.getfloat('x_start')
@@ -61,7 +69,7 @@ class VizTransect(OceanIOStep):
         )
 
         viz_dict = get_viz_defaults()
-        for var_name in variables:
+        for var_name in self.variables:
             mpas_field = ds[f'{prefix}{var_name}']
             if self.config.has_option(section_name, 'vmin'):
                 vmin = section.getfloat('vmin')
