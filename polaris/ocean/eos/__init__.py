@@ -1,4 +1,5 @@
 from .linear import compute_linear_density
+from .teos10 import compute_specvol as compute_teos10_specvol
 
 
 def compute_density(config, temperature, salinity, pressure=None):
@@ -28,6 +29,13 @@ def compute_density(config, temperature, salinity, pressure=None):
     eos_type = config.get('ocean', 'eos_type')
     if eos_type == 'linear':
         density = compute_linear_density(config, temperature, salinity)
+    elif eos_type == 'teos-10':
+        if pressure is None:
+            raise ValueError(
+                'Pressure must be provided when using the TEOS-10 equation of '
+                'state.'
+            )
+        density = 1.0 / compute_teos10_specvol(salinity, temperature, pressure)
     else:
         raise ValueError(f'Unsupported equation of state type: {eos_type}')
     return density
@@ -60,6 +68,13 @@ def compute_specvol(config, temperature, salinity, pressure=None):
     eos_type = config.get('ocean', 'eos_type')
     if eos_type == 'linear':
         specvol = 1.0 / compute_linear_density(config, temperature, salinity)
+    elif eos_type == 'teos-10':
+        if pressure is None:
+            raise ValueError(
+                'Pressure must be provided when using the TEOS-10 equation of '
+                'state.'
+            )
+        specvol = compute_teos10_specvol(temperature, salinity, pressure)
     else:
         raise ValueError(f'Unsupported equation of state type: {eos_type}')
     return specvol
