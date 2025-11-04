@@ -244,7 +244,9 @@ def _get_job_options(
     wall_time : str
     filesystems : str
     """
-    partition_or_queue = config.get('job', partition_or_queue_option)
+    par_section = config['parallel']
+    job_section = config['job']
+    partition_or_queue = job_section.get(partition_or_queue_option)
     if partition_or_queue == '<<<default>>>':
         if machine == 'anvil' and partition_or_queue == 'partition':
             # choose the partition based on the number of nodes
@@ -254,37 +256,35 @@ def _get_job_options(
                 partition_or_queue = 'acme-medium'
             else:
                 partition_or_queue = 'acme-large'
-        elif config.has_option('parallel', partitions_or_queues):
+        elif par_section.has_option(partitions_or_queues):
             # get the first, which is the default
-            partition_or_queue = config.getlist(
-                'parallel', partitions_or_queues
-            )[0]
+            partition_or_queue = par_section.getlist(partitions_or_queues)[0]
         else:
             partition_or_queue = ''
 
-    qos = config.get('job', 'qos')
+    qos = job_section.get('qos')
     if qos == '<<<default>>>':
-        if config.has_option('parallel', 'qos'):
-            qos = config.getlist('parallel', 'qos')[0]
+        if par_section.has_option('qos'):
+            qos = par_section.getlist('qos')[0]
         else:
             qos = ''
 
-    constraint = config.get('job', 'constraint')
+    constraint = job_section.get('constraint')
     if constraint == '<<<default>>>':
-        if config.has_option('parallel', 'constraints'):
-            constraint = config.getlist('parallel', 'constraints')[0]
+        if par_section.has_option('constraints'):
+            constraint = par_section.getlist('constraints')[0]
         else:
             constraint = ''
 
-    if config.has_option('parallel', 'gpus_per_node'):
-        gpus_per_node = config.get('parallel', 'gpus_per_node')
+    if par_section.has_option('gpus_per_node'):
+        gpus_per_node = par_section.get('gpus_per_node')
     else:
         gpus_per_node = ''
 
-    wall_time = config.get('job', 'wall_time')
+    wall_time = job_section.get('wall_time')
 
-    if config.has_option('job', 'filesystems'):
-        filesystems = config.get('job', 'filesystems')
+    if job_section.has_option('filesystems'):
+        filesystems = job_section.get('filesystems')
     else:
         filesystems = ''
 
