@@ -6,6 +6,7 @@ cmocean
 esmf={{ esmf }}={{ mpi_prefix }}_*
 ffmpeg
 geometric_features={{ geometric_features }}
+gsw
 importlib_resources
 ipython
 jupyter
@@ -33,6 +34,7 @@ requests
 ruamel.yaml
 scipy>=1.8.0
 shapely>=2.0,<3.0
+tranche>=0.3.0
 xarray
 
 # Static typing

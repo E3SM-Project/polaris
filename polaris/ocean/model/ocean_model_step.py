@@ -303,13 +303,14 @@ class OceanModelStep(ModelStep):
         Modify the namelist to make it consistent with eos config options
         """
         config = self.config
+        section = config['ocean']
 
-        eos_type = config.get('ocean', 'eos_type')
-        eos_linear_alpha = config.getfloat('ocean', 'eos_linear_alpha')
-        eos_linear_beta = config.getfloat('ocean', 'eos_linear_beta')
-        eos_linear_rhoref = config.getfloat('ocean', 'eos_linear_rhoref')
-        eos_linear_Tref = config.getfloat('ocean', 'eos_linear_Tref')
-        eos_linear_Sref = config.getfloat('ocean', 'eos_linear_Sref')
+        eos_type = section.get('eos_type')
+        eos_linear_alpha = section.getfloat('eos_linear_alpha')
+        eos_linear_beta = section.getfloat('eos_linear_beta')
+        eos_linear_rhoref = section.getfloat('eos_linear_rhoref')
+        eos_linear_Tref = section.getfloat('eos_linear_Tref')
+        eos_linear_Sref = section.getfloat('eos_linear_Sref')
 
         replacements = {
             'config_eos_type': eos_type,

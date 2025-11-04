@@ -1,10 +1,10 @@
 import os
 from typing import Union
 
-from mpas_tools.config import MpasConfigParser
+from tranche import Tranche
 
 
-class PolarisConfigParser(MpasConfigParser):
+class PolarisConfigParser(Tranche):
     """
     A "meta" config parser that keeps a dictionary of config parsers and their
     sources to combine when needed.  The custom config parser allows provenance
