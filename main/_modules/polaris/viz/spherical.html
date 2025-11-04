@@ -442,9 +442,11 @@
 
     <span class="n">colormap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;colormap_name&#39;</span><span class="p">))</span>
 
-    <span class="n">norm_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;norm_type&#39;</span><span class="p">)</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">colormap_section</span><span class="p">]</span>
 
-    <span class="n">kwargs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getexpression</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;norm_args&#39;</span><span class="p">)</span>
+    <span class="n">norm_type</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;norm_type&#39;</span><span class="p">)</span>
+
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getnumpy</span><span class="p">(</span><span class="s1">&#39;norm_args&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s1">&#39;symlog&#39;</span><span class="p">:</span>
         <span class="n">norm</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">SymLogNorm</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -458,17 +460,15 @@
         <span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">ticks</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getexpression</span><span class="p">(</span>
-            <span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;colorbar_ticks&#39;</span><span class="p">,</span> <span class="n">use_numpyfunc</span><span class="o">=</span><span class="kc">True</span>
-        <span class="p">)</span>
+        <span class="n">ticks</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getnumpy</span><span class="p">(</span><span class="s1">&#39;colorbar_ticks&#39;</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">configparser</span><span class="o">.</span><span class="n">NoOptionError</span><span class="p">:</span>
         <span class="n">ticks</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;under_color&#39;</span><span class="p">):</span>
-        <span class="n">under_color</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;under_color&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;under_color&#39;</span><span class="p">):</span>
+        <span class="n">under_color</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;under_color&#39;</span><span class="p">)</span>
         <span class="n">colormap</span><span class="o">.</span><span class="n">set_under</span><span class="p">(</span><span class="n">under_color</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;over_color&#39;</span><span class="p">):</span>
-        <span class="n">over_color</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colormap_section</span><span class="p">,</span> <span class="s1">&#39;over_color&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;over_color&#39;</span><span class="p">):</span>
+        <span class="n">over_color</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;over_color&#39;</span><span class="p">)</span>
         <span class="n">colormap</span><span class="o">.</span><span class="n">set_over</span><span class="p">(</span><span class="n">over_color</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">colormap</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">ticks</span>

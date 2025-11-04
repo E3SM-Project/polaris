@@ -20,18 +20,22 @@
       ~PolarisConfigParser.append
       ~PolarisConfigParser.combine
       ~PolarisConfigParser.copy
+      ~PolarisConfigParser.explain
       ~PolarisConfigParser.get
       ~PolarisConfigParser.getboolean
       ~PolarisConfigParser.getexpression
       ~PolarisConfigParser.getfloat
       ~PolarisConfigParser.getint
       ~PolarisConfigParser.getlist
+      ~PolarisConfigParser.getnumpy
       ~PolarisConfigParser.has_option
       ~PolarisConfigParser.has_section
       ~PolarisConfigParser.list_files
       ~PolarisConfigParser.prepend
+      ~PolarisConfigParser.register_symbol
       ~PolarisConfigParser.set
       ~PolarisConfigParser.setup
+      ~PolarisConfigParser.validate
       ~PolarisConfigParser.write
    
    

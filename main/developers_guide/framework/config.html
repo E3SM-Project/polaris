@@ -130,10 +130,10 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="config-files">
 <span id="dev-config"></span><h1>Config files<a class="headerlink" href="#config-files" title="Link to this heading"></a></h1>
-<p>The primary documentation for the config parser is in
-<a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/config.html">MPAS-Tools config parser</a>.
+<p>The primary documentation for the config parser is in the
+<a class="reference external" href="https://xylar.github.io/tranche/">tranche documentation</a>.
 Here, we include some specific details relevant to using the
-<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.config.MpasConfigParser.html#mpas_tools.config.MpasConfigParser" title="(in mpas_tools vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser</span></code></a> in polaris.</p>
+<a class="reference external" href="https://xylar.github.io/tranche/api/tranche.html#tranche.Tranche" title="(in tranche)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tranche.Tranche</span></code></a> in polaris.</p>
 <p>Here, we provide the <a class="reference internal" href="../generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.config.PolarisConfigParser</span></code></a> that has
 almost the same functionality but also ensures that certain relative paths are
 converted automatically to absolute paths.  <code class="docutils literal notranslate"><span class="pre">PolarisConfigParser</span></code> also has
@@ -144,7 +144,7 @@ overridden to add config options (e.g. algorithmically from other config
 options) as part of setting up polaris tasks and steps.  These features are
 included to accommodate sharing config options across shared steps and/or
 multiple tasks.</p>
-<p>The <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.config.MpasConfigParser.add_from_package.html#mpas_tools.config.MpasConfigParser.add_from_package" title="(in mpas_tools vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser.add_from_package()</span></code></a> method can
+<p>The <a class="reference external" href="https://xylar.github.io/tranche/api/tranche.html#tranche.Tranche.add_from_package" title="(in tranche)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">tranche.Tranche.add_from_package()</span></code></a> method can
 be used to add the contents of a config file within a package to the config
 options. Examples of this can be found in many tasks as well as in the
 <code class="docutils literal notranslate"><span class="pre">polaris.setup</span></code> module. Here is a typical example from
@@ -192,11 +192,12 @@ for use by the framework rather than individual tasks.</p>
 <p>Other methods for the <code class="docutils literal notranslate"><span class="pre">MpasConfigParser</span></code> are similar to those for
 <a class="reference external" href="https://docs.python.org/3/library/configparser.html#configparser.ConfigParser" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">configparser.ConfigParser</span></code></a>.  In addition to <code class="docutils literal notranslate"><span class="pre">get()</span></code>,
 <code class="docutils literal notranslate"><span class="pre">getinteger()</span></code>, <code class="docutils literal notranslate"><span class="pre">getfloat()</span></code> and <code class="docutils literal notranslate"><span class="pre">getboolean()</span></code> methods, this class
-implements <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.config.MpasConfigParser.getlist.html#mpas_tools.config.MpasConfigParser.getlist" title="(in mpas_tools vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser.getlist()</span></code></a>, which
+implements <a class="reference external" href="https://xylar.github.io/tranche/api/tranche.html#tranche.Tranche.getlist" title="(in tranche)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">tranche.Tranche.getlist()</span></code></a>, which
 can be used to parse a config value separated by spaces and/or commas into
-a list of strings, floats, integers, booleans, etc. Another useful method
-is <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.config.MpasConfigParser.getexpression.html#mpas_tools.config.MpasConfigParser.getexpression" title="(in mpas_tools vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser.getexpression()</span></code></a>, which can
-be used to get python dictionaries, lists and tuples as well as a small set
+a list of strings, floats, integers, booleans, etc. Other useful methods
+are <a class="reference external" href="https://xylar.github.io/tranche/api/tranche.html#tranche.Tranche.getexpression" title="(in tranche)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">tranche.Tranche.getexpression()</span></code></a>, which can
+be used to get python dictionaries, lists, and tuples, and
+<a class="reference external" href="https://xylar.github.io/tranche/api/tranche.html#tranche.Tranche.getnumpy" title="(in tranche)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">tranche.Tranche.getnumpy()</span></code></a>, which also suppports a small set
 of functions (<code class="docutils literal notranslate"><span class="pre">range()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.linspace()</span></code>,
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.arange()</span></code>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.array()</span></code>)</p>
 <section id="shared-config-files">
@@ -297,11 +298,12 @@ added as follows:</p>
 </section>
 <section id="comments-in-config-files">
 <h2>Comments in config files<a class="headerlink" href="#comments-in-config-files" title="Link to this heading"></a></h2>
-<p>One of the main advantages of <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.config.MpasConfigParser.html#mpas_tools.config.MpasConfigParser" title="(in mpas_tools vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.config.MpasConfigParser</span></code></a>
+<p>One of the main advantages of <a class="reference external" href="https://xylar.github.io/tranche/api/tranche.html#tranche.Tranche" title="(in tranche)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tranche.Tranche</span></code></a>
 over <a class="reference external" href="https://docs.python.org/3/library/configparser.html#configparser.ConfigParser" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">configparser.ConfigParser</span></code></a> is that it keeps track of comments
 that are associated with config sections and options.</p>
-<p>See <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/config.html#config_comments">comments in config files</a>
-in MPAS-Tools for more details.</p>
+<p>Comments must begin with the <code class="docutils literal notranslate"><span class="pre">#</span></code> character. They must be placed <em>before</em> the
+config section or option in question (preferably without blank lines between).
+The comments can be any number of lines long.</p>
 </section>
 </section>
 

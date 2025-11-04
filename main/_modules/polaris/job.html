@@ -363,7 +363,9 @@
 <span class="sd">    wall_time : str</span>
 <span class="sd">    filesystems : str</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="n">partition_or_queue_option</span><span class="p">)</span>
+    <span class="n">par_section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;parallel&#39;</span><span class="p">]</span>
+    <span class="n">job_section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;job&#39;</span><span class="p">]</span>
+    <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="n">job_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">partition_or_queue_option</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">partition_or_queue</span> <span class="o">==</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">machine</span> <span class="o">==</span> <span class="s1">&#39;anvil&#39;</span> <span class="ow">and</span> <span class="n">partition_or_queue</span> <span class="o">==</span> <span class="s1">&#39;partition&#39;</span><span class="p">:</span>
             <span class="c1"># choose the partition based on the number of nodes</span>
@@ -373,37 +375,35 @@
                 <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="s1">&#39;acme-medium&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="s1">&#39;acme-large&#39;</span>
-        <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="n">partitions_or_queues</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">par_section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">partitions_or_queues</span><span class="p">):</span>
             <span class="c1"># get the first, which is the default</span>
-            <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
-                <span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="n">partitions_or_queues</span>
-            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="n">par_section</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="n">partitions_or_queues</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-    <span class="n">qos</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">)</span>
+    <span class="n">qos</span> <span class="o">=</span> <span class="n">job_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;qos&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">qos</span> <span class="o">==</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">):</span>
-            <span class="n">qos</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">par_section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;qos&#39;</span><span class="p">):</span>
+            <span class="n">qos</span> <span class="o">=</span> <span class="n">par_section</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;qos&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">qos</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-    <span class="n">constraint</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;constraint&#39;</span><span class="p">)</span>
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">job_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;constraint&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">constraint</span> <span class="o">==</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;constraints&#39;</span><span class="p">):</span>
-            <span class="n">constraint</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;constraints&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">par_section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;constraints&#39;</span><span class="p">):</span>
+            <span class="n">constraint</span> <span class="o">=</span> <span class="n">par_section</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;constraints&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">constraint</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;gpus_per_node&#39;</span><span class="p">):</span>
-        <span class="n">gpus_per_node</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;gpus_per_node&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">par_section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;gpus_per_node&#39;</span><span class="p">):</span>
+        <span class="n">gpus_per_node</span> <span class="o">=</span> <span class="n">par_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gpus_per_node&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">gpus_per_node</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-    <span class="n">wall_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;wall_time&#39;</span><span class="p">)</span>
+    <span class="n">wall_time</span> <span class="o">=</span> <span class="n">job_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;wall_time&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;filesystems&#39;</span><span class="p">):</span>
-        <span class="n">filesystems</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;filesystems&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">job_section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;filesystems&#39;</span><span class="p">):</span>
+        <span class="n">filesystems</span> <span class="o">=</span> <span class="n">job_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;filesystems&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">filesystems</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
