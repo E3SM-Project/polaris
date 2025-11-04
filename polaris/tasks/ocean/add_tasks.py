@@ -21,6 +21,7 @@ from polaris.tasks.ocean.overflow import add_overflow_tasks
 from polaris.tasks.ocean.seamount import add_seamount_tasks
 from polaris.tasks.ocean.single_column import add_single_column_tasks
 from polaris.tasks.ocean.sphere_transport import add_sphere_transport_tasks
+from polaris.tasks.ocean.two_column import add_two_column_tasks
 
 
 def add_ocean_tasks(component):
@@ -47,6 +48,9 @@ def add_ocean_tasks(component):
 
     # single column tasks
     add_single_column_tasks(component=component)
+
+    # two column tasks
+    add_two_column_tasks(component=component)
 
     # spherical tasks
     add_customizable_viz_tasks(component=component)
