@@ -326,9 +326,11 @@ def _setup_colormap(config, colormap_section):
 
     colormap = plt.get_cmap(config.get(colormap_section, 'colormap_name'))
 
-    norm_type = config.get(colormap_section, 'norm_type')
+    section = config[colormap_section]
 
-    kwargs = config.getexpression(colormap_section, 'norm_args')
+    norm_type = section.get('norm_type')
+
+    kwargs = section.getnumpy('norm_args')
 
     if norm_type == 'symlog':
         norm = cols.SymLogNorm(**kwargs)
@@ -342,17 +344,15 @@ def _setup_colormap(config, colormap_section):
         )
 
     try:
-        ticks = config.getexpression(
-            colormap_section, 'colorbar_ticks', use_numpyfunc=True
-        )
+        ticks = section.getnumpy('colorbar_ticks')
     except configparser.NoOptionError:
         ticks = None
 
-    if config.has_option(colormap_section, 'under_color'):
-        under_color = config.get(colormap_section, 'under_color')
+    if section.has_option('under_color'):
+        under_color = section.get('under_color')
         colormap.set_under(under_color)
-    if config.has_option(colormap_section, 'over_color'):
-        over_color = config.get(colormap_section, 'over_color')
+    if section.has_option('over_color'):
+        over_color = section.get('over_color')
         colormap.set_over(over_color)
 
     return colormap, norm, ticks
