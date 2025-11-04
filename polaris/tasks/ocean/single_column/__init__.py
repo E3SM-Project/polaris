@@ -8,6 +8,8 @@ def add_single_column_tasks(component):
     """
     Add tasks for various single-column tests
 
+    Parameters
+    ----------
     component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
