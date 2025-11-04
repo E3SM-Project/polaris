@@ -2,10 +2,10 @@
 
 # Config files
 
-The primary documentation for the config parser is in
-[MPAS-Tools config parser](http://mpas-dev.github.io/MPAS-Tools/stable/config.html).
+The primary documentation for the config parser is in the
+[tranche documentation](https://xylar.github.io/tranche/).
 Here, we include some specific details relevant to using the
-{py:class}`mpas_tools.config.MpasConfigParser` in polaris.
+{py:class}`tranche.Tranche` in polaris.
 
 Here, we provide the {py:class}`polaris.config.PolarisConfigParser` that has
 almost the same functionality but also ensures that certain relative paths are
@@ -18,7 +18,7 @@ options) as part of setting up polaris tasks and steps.  These features are
 included to accommodate sharing config options across shared steps and/or
 multiple tasks.
 
-The {py:meth}`mpas_tools.config.MpasConfigParser.add_from_package()` method can
+The {py:meth}`tranche.Tranche.add_from_package()` method can
 be used to add the contents of a config file within a package to the config
 options. Examples of this can be found in many tasks as well as in the
 `polaris.setup` module. Here is a typical example from
@@ -71,11 +71,12 @@ for use by the framework rather than individual tasks.
 Other methods for the `MpasConfigParser` are similar to those for
 {py:class}`configparser.ConfigParser`.  In addition to `get()`,
 `getinteger()`, `getfloat()` and `getboolean()` methods, this class
-implements {py:meth}`mpas_tools.config.MpasConfigParser.getlist()`, which
+implements {py:meth}`tranche.Tranche.getlist()`, which
 can be used to parse a config value separated by spaces and/or commas into
-a list of strings, floats, integers, booleans, etc. Another useful method
-is {py:meth}`mpas_tools.config.MpasConfigParser.getexpression()`, which can
-be used to get python dictionaries, lists and tuples as well as a small set
+a list of strings, floats, integers, booleans, etc. Other useful methods
+are {py:meth}`tranche.Tranche.getexpression()`, which can
+be used to get python dictionaries, lists, and tuples, and
+{py:meth}`tranche.Tranche.getnumpy()`, which also suppports a small set
 of functions (`range()`, {py:meth}`numpy.linspace()`,
 {py:meth}`numpy.arange()`, and {py:meth}`numpy.array()`)
 
@@ -182,9 +183,10 @@ class Rpe(Task):
 
 ## Comments in config files
 
-One of the main advantages of {py:class}`mpas_tools.config.MpasConfigParser`
+One of the main advantages of {py:class}`tranche.Tranche`
 over {py:class}`configparser.ConfigParser` is that it keeps track of comments
 that are associated with config sections and options.
 
-See [comments in config files](http://mpas-dev.github.io/MPAS-Tools/stable/config.html#config_comments)
-in MPAS-Tools for more details.
+Comments must begin with the `#` character. They must be placed *before* the
+config section or option in question (preferably without blank lines between).
+The comments can be any number of lines long.

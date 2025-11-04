@@ -76,7 +76,8 @@ intersphinx_mapping = {
     'python': ('https://docs.python.org', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
     "sphinx": ("https://www.sphinx-doc.org/en/master", None),
-    'xarray': ('https://xarray.pydata.org/en/stable', None)
+    'xarray': ('https://xarray.pydata.org/en/stable', None),
+    'tranche': ('https://xylar.github.io/tranche/', None),
 }
 
 # -- MyST settings ---------------------------------------------------
