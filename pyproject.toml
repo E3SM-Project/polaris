@@ -46,6 +46,7 @@ dependencies = [
     "requests",
     "scipy>=1.8.0",
     "shapely>=2.0,<3.0",
+    "tranche>=0.3.0",
     "xarray",
 ]
 
