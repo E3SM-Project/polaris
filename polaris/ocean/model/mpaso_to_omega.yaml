@@ -9,8 +9,8 @@ dimensions:
   TWO: MaxCellsOnEdge
   vertexDegree: VertexDegree
   # Don't map nVertLevels yet -- needs Omega fix
-  # nVertLevels: NVertLevels
-  # nVertLevelsP1: NVertLevelsP1
+  # nVertLevels: NVertLayers
+  # nVertLevelsP1: NVertLayersP1
 
 variables:
   # mesh
