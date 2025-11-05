@@ -85,7 +85,7 @@ def init_vertical_coord(config, ds):
 
     if coord_type == 'z-level':
         init_z_level_vertical_coord(config, ds)
-    elif coord_type == 'z-star':
+    elif coord_type == 'z-star' or coord_type == 'z-tilde':
         init_z_star_vertical_coord(config, ds)
     elif coord_type == 'sigma':
         init_sigma_vertical_coord(config, ds)
@@ -148,7 +148,7 @@ def update_layer_thickness(config, ds):
 
     if coord_type == 'z-level':
         update_z_level_layer_thickness(config, ds)
-    elif coord_type == 'z-star':
+    elif coord_type == 'z-star' or coord_type == 'z-tilde':
         update_z_star_layer_thickness(config, ds)
     elif coord_type == 'sigma':
         update_sigma_layer_thickness(config, ds)
