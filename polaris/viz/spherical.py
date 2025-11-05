@@ -22,11 +22,11 @@ def plot_global_mpas_field(
     colormap_section,
     mesh_filename=None,
     title=None,
+    dpi=None,
     plot_land=True,
     colorbar_label='',
     central_longitude=0.0,
     figsize=(8, 4.5),
-    dpi=200,
     patch_edge_color=None,
     descriptor=None,
     projection_name='PlateCarree',
@@ -91,6 +91,8 @@ def plot_global_mpas_field(
     """
 
     use_mplstyle()
+    if dpi:
+        plt.rcParams['savefig.dpi'] = dpi
 
     transform = cartopy.crs.Geodetic()
     projection = get_projection(
@@ -125,16 +127,12 @@ def plot_global_mpas_field(
 
     colormap, norm, ticks = _setup_colormap(config, colormap_section)
 
-    pcolor_kwargs = dict(
-        cmap=colormap, norm=norm, zorder=1, edgecolors='face', linewidths=0.2
-    )
+    pcolor_kwargs = dict(cmap=colormap, norm=norm, zorder=1, edgecolors='face')
 
     if patch_edge_color is not None:
         pcolor_kwargs['edgecolors'] = patch_edge_color
 
-    gl = ax.gridlines(
-        color='gray', linestyle=':', zorder=5, draw_labels=True, linewidth=0.5
-    )
+    gl = ax.gridlines(color='gray', linestyle=':', zorder=5, draw_labels=True)
     gl.right_labels = False
     gl.top_labels = False
 
@@ -165,7 +163,7 @@ def plot_global_mpas_field(
         cbar.set_ticks(ticks)
         cbar.set_ticklabels([f'{tick}' for tick in ticks])
 
-    fig.savefig(out_filename, dpi=dpi, bbox_inches='tight', pad_inches=0.1)
+    fig.savefig(out_filename, bbox_inches='tight', pad_inches=0.1)
 
 
 def plot_global_lat_lon_field(
@@ -250,8 +248,7 @@ def plot_global_lat_lon_field(
         )
 
     figsize = (8, 4.5)
-    dpi = 200
-    fig = plt.figure(figsize=figsize, dpi=dpi)
+    fig = plt.figure(figsize=figsize)
     if title is not None:
         fig.suptitle(title, y=0.935)
 
@@ -274,7 +271,6 @@ def plot_global_lat_lon_field(
         linestyle=':',
         zorder=5,
         draw_labels=True,
-        linewidth=0.5,
     )
     gl.right_labels = False
     gl.top_labels = False
@@ -308,9 +304,7 @@ def plot_global_lat_lon_field(
         cbar.set_ticks(ticks)
         cbar.set_ticklabels([f'{tick}' for tick in ticks])
 
-    plt.savefig(
-        out_filename, dpi='figure', bbox_inches='tight', pad_inches=0.2
-    )
+    plt.savefig(out_filename, bbox_inches='tight', pad_inches=0.2)
 
     plt.close()
 
@@ -391,14 +385,12 @@ def _setup_colormap(config, colormap_section):
 def _add_land_lakes_coastline(ax, ice_shelves=True):
     land_color = cartopy.feature.COLORS['land']
     water_color = cartopy.feature.COLORS['water']
-
     land_50m = cartopy.feature.NaturalEarthFeature(
         'physical',
         'land',
         '50m',
         edgecolor='k',
         facecolor=land_color,
-        linewidth=0.5,
     )
     lakes_50m = cartopy.feature.NaturalEarthFeature(
         'physical',
@@ -406,7 +398,6 @@ def _add_land_lakes_coastline(ax, ice_shelves=True):
         '50m',
         edgecolor='k',
         facecolor=water_color,
-        linewidth=0.5,
     )
     ax.add_feature(land_50m, zorder=2)
     if ice_shelves:
@@ -416,7 +407,6 @@ def _add_land_lakes_coastline(ax, ice_shelves=True):
             '50m',
             edgecolor='k',
             facecolor='none',
-            linewidth=0.5,
         )
         ax.add_feature(ice_50m, zorder=3)
     ax.add_feature(lakes_50m, zorder=4)
