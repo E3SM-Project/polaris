@@ -7,7 +7,7 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 from polaris.ocean.eos import compute_specvol
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
-from polaris.ocean.vertical.ztilde import pressure_from_z_tilde
+from polaris.ocean.vertical.ztilde import pressure_from_z_tilde, z_from_z_tilde
 
 
 class Init(OceanIOStep):
@@ -169,6 +169,23 @@ class Init(OceanIOStep):
         ds['SpecVol'] = spec_vol
         ds.SpecVol.attrs['long_name'] = 'specific volume'
         ds.SpecVol.attrs['units'] = 'm3 kg-1'
+
+        z_geom_inter, z_geom_mid = z_from_z_tilde(
+            layer_thickness=ds.layerThickness,
+            bottom_depth=ds.bottomDepth,
+            spec_vol=ds.SpecVol,
+            rho0=rho0,
+        )
+
+        ds['zGeomMid'] = z_geom_mid
+        ds.zGeomMid.attrs['long_name'] = 'geometric height at layer midpoints'
+        ds.zGeomMid.attrs['units'] = 'm'
+
+        ds['zGeomInter'] = z_geom_inter
+        ds.zGeomInter.attrs['long_name'] = (
+            'geometric height at layer interfaces'
+        )
+        ds.zGeomInter.attrs['units'] = 'm'
 
         ds['normalVelocity'] = xr.DataArray(
             data=np.zeros((1, nedges, nvertlevels), dtype=np.float32),
