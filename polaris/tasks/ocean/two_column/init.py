@@ -4,10 +4,12 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris.ocean.eos import compute_specvol
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
-from polaris.ocean.vertical.ztilde import pressure_from_z_tilde, z_from_z_tilde
+from polaris.ocean.vertical.ztilde import (
+    pressure_and_spec_vol_from_state_at_geom_height,
+    z_tilde_from_pressure,
+)
 
 
 class Init(OceanIOStep):
@@ -93,10 +95,6 @@ class Init(OceanIOStep):
         ds['ssh'] = ssh
         init_vertical_coord(config, ds)
 
-        rho0 = config.getfloat('z_tilde', 'rho0')
-
-        p_mid = pressure_from_z_tilde(ds.zMid, rho0=rho0)
-
         ncells = ds.sizes['nCells']
         nedges = ds.sizes['nEdges']
         nvertlevels = ds.sizes['nVertLevels']
@@ -158,34 +156,52 @@ class Init(OceanIOStep):
             },
         )
 
-        ds['PMid'] = p_mid
+        rho0 = config.getfloat('vertical_grid', 'rho0')
+        eos_iter_count = config.getint('two_column', 'eos_iter_count')
 
-        spec_vol = compute_specvol(
-            config=config,
-            temperature=ds.temperature,
-            salinity=ds.salinity,
-            pressure=ds.PMid,
+        geom_layer_thickness = ds.layerThickness.copy()
+        surf_pressure = xr.zeros_like(geom_layer_thickness.isel(nVertLevels=0))
+
+        p_interface, p_mid, spec_vol = (
+            pressure_and_spec_vol_from_state_at_geom_height(
+                config=config,
+                geom_layer_thickness=geom_layer_thickness,
+                temperature=ds.temperature,
+                salinity=ds.salinity,
+                surf_pressure=surf_pressure,
+                iter_count=eos_iter_count,
+                logger=logger,
+            )
         )
+
+        pseudo_thickness = geom_layer_thickness / (rho0 * spec_vol)
+
+        ds['PMid'] = p_mid
+        ds.PMid.attrs['long_name'] = 'sea pressure at layer midpoints'
+        ds.PMid.attrs['units'] = 'Pa'
+
         ds['SpecVol'] = spec_vol
         ds.SpecVol.attrs['long_name'] = 'specific volume'
         ds.SpecVol.attrs['units'] = 'm3 kg-1'
 
-        z_geom_inter, z_geom_mid = z_from_z_tilde(
-            layer_thickness=ds.layerThickness,
-            bottom_depth=ds.bottomDepth,
-            spec_vol=ds.SpecVol,
-            rho0=rho0,
-        )
+        z_tilde_mid = z_tilde_from_pressure(p_mid, rho0)
+        z_tilde_interface = z_tilde_from_pressure(p_interface, rho0)
 
-        ds['zGeomMid'] = z_geom_mid
-        ds.zGeomMid.attrs['long_name'] = 'geometric height at layer midpoints'
-        ds.zGeomMid.attrs['units'] = 'm'
+        ds['ZTildeMid'] = z_tilde_mid
+        ds.ZTildeMid.attrs['long_name'] = 'pseudo-height at layer midpoints'
+        ds.ZTildeMid.attrs['units'] = 'm'
 
-        ds['zGeomInter'] = z_geom_inter
-        ds.zGeomInter.attrs['long_name'] = (
-            'geometric height at layer interfaces'
-        )
-        ds.zGeomInter.attrs['units'] = 'm'
+        ds['ZTildeInter'] = z_tilde_interface
+        ds.ZTildeInter.attrs['long_name'] = 'pseudo-height at layer interfaces'
+        ds.ZTildeInter.attrs['units'] = 'm'
+
+        ds['GeomLayerThickness'] = geom_layer_thickness
+        ds.GeomLayerThickness.attrs['long_name'] = 'geometric layer thickness'
+        ds.GeomLayerThickness.attrs['units'] = 'm'
+
+        ds['layerThickness'] = pseudo_thickness
+        ds.layerThickness.attrs['long_name'] = 'pseudo-layer thickness'
+        ds.layerThickness.attrs['units'] = 'm'
 
         ds['normalVelocity'] = xr.DataArray(
             data=np.zeros((1, nedges, nvertlevels), dtype=np.float32),
