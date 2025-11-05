@@ -93,12 +93,27 @@ class VizHorizField(OceanIOStep):
             ds = ds.isel(Time=t_index)
 
         prefix, time_variable = determine_time_variable(ds)
+        # Default to empty stamp; only set if we have a usable scalar time
+        time_stamp = ''
         if time_variable is not None:
-            start_time = ds[time_variable].values[0]
-            start_time = start_time.decode()
-            time_stamp = f'_{start_time.split("_")[0]}'
-        else:
-            time_stamp = ''
+            start_time = ds[time_variable].values
+
+            # If it's a NumPy array, handle scalar vs. multi-value arrays
+            if isinstance(start_time, np.ndarray):
+                if start_time.size == 1:
+                    # extract the scalar value
+                    start_time = start_time.item()
+                else:
+                    # multiple times -> no single timestamp to use
+                    start_time = None
+
+            if start_time is not None:
+                # decode bytes if necessary, otherwise convert to string
+                if isinstance(start_time, (bytes, bytearray, np.bytes_)):
+                    start_time = start_time.decode()
+                else:
+                    start_time = str(start_time)
+                time_stamp = f'_{start_time.split("_")[0]}'
 
         ds = ds.isel(nCells=cell_indices[0])
         if ds.sizes['nCells'] != ds_mesh.sizes['nCells']:
