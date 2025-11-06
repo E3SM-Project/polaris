@@ -23,7 +23,7 @@ __all__ = [
     'pressure_from_z_tilde',
     'pressure_and_spec_vol_from_state_at_geom_height',
     'pressure_from_geom_thickness',
-    'z_from_z_tilde',
+    'geom_z_from_z_tilde',
 ]
 
 
@@ -243,7 +243,7 @@ def pressure_and_spec_vol_from_state_at_geom_height(
     return p_interface, p_mid, spec_vol
 
 
-def z_from_z_tilde(
+def geom_z_from_z_tilde(
     pseudo_thickness: xr.DataArray,
     bottom_depth: xr.DataArray,
     spec_vol: xr.DataArray,
