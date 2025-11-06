@@ -248,6 +248,8 @@ def geom_z_from_z_tilde(
     bottom_depth: xr.DataArray,
     spec_vol: xr.DataArray,
     rho0: float,
+    min_level_cell: xr.DataArray,
+    max_level_cell: xr.DataArray,
 ) -> tuple[xr.DataArray, xr.DataArray]:
     """
     Compute geometric height z at layer interfaces and midpoints given
@@ -269,6 +271,12 @@ def geom_z_from_z_tilde(
     rho0 : float
         Reference density in kg m^-3.
 
+    min_level_cell : xarray.DataArray
+        The zero-based minimum vertical index from each column.
+
+    max_level_cell : xarray.DataArray
+        The zero-based maximum vertical index from each column.
+
     Returns
     -------
     z_interface : xarray.DataArray
@@ -281,7 +289,9 @@ def geom_z_from_z_tilde(
     n_vert_levels = pseudo_thickness.sizes['nVertLevels']
 
     z_bot = -bottom_depth
-    z_interface_list = [z_bot]
+    k = n_vert_levels
+    mask_bot = np.logical_and(k >= min_level_cell, k <= max_level_cell)
+    z_interface_list = [z_bot.where(mask_bot)]
     z_mid_list = []
 
     for k in range(n_vert_levels - 1, -1, -1):
@@ -290,9 +300,13 @@ def geom_z_from_z_tilde(
             * spec_vol.isel(nVertLevels=k)
             * pseudo_thickness.isel(nVertLevels=k)
         )
+        mask_mid = np.logical_and(k >= min_level_cell, k < max_level_cell)
+        mask_top = np.logical_and(k >= min_level_cell, k <= max_level_cell)
+        dz = dz.where(mask_mid, 0.0)
         z_top = z_bot + dz
-        z_interface_list.append(z_top)
-        z_mid_list.append(z_bot + 0.5 * dz)
+        z_interface_list.append(z_top.where(mask_top))
+        z_mid = (z_bot + 0.5 * dz).where(mask_mid)
+        z_mid_list.append(z_mid)
         z_bot = z_top
 
     dims = list(pseudo_thickness.dims)
