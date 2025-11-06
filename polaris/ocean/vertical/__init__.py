@@ -110,8 +110,11 @@ def init_vertical_coord(config, ds):
         dim='Time', axis=0
     )
 
-    ds['zMid'] = _compute_zmid_from_layer_thickness(
-        ds.layerThickness, ds.ssh, ds.cellMask
+    _, ds['zMid'] = compute_zint_zmid_from_layer_thickness(
+        layer_thickness=ds.layerThickness,
+        bottom_depth=ds.bottomDepth,
+        min_level_cell=ds.minLevelCell,
+        max_level_cell=ds.maxLevelCell,
     )
 
     # fortran 1-based indexing
@@ -162,6 +165,70 @@ def update_layer_thickness(config, ds):
     ds['layerThickness'] = ds.layerThickness.expand_dims(dim='Time', axis=0)
 
 
+def compute_zint_zmid_from_layer_thickness(
+    layer_thickness: xr.DataArray,
+    bottom_depth: xr.DataArray,
+    min_level_cell: xr.DataArray,
+    max_level_cell: xr.DataArray,
+) -> tuple[xr.DataArray, xr.DataArray]:
+    """
+    Compute height z at layer interfaces and midpoints given layer thicknesses
+    and bottom depth.
+
+    Parameters
+    ----------
+    layer_thickness : xarray.DataArray
+        The layer thickness of each layer.
+
+    bottom_depth : xarray.DataArray
+        The positive-down depth of the seafloor.
+
+    min_level_cell : xarray.DataArray
+        The zero-based minimum vertical index from each column.
+
+    max_level_cell : xarray.DataArray
+        The zero-based maximum vertical index from each column.
+
+    Returns
+    -------
+    z_interface : xarray.DataArray
+        The elevation of layer interfaces.
+
+    z_mid : xarray.DataArray
+        The elevation of layer midpoints.
+    """
+
+    n_vert_levels = layer_thickness.sizes['nVertLevels']
+
+    z_bot = -bottom_depth
+    k = n_vert_levels
+    mask_bot = np.logical_and(k >= min_level_cell, k - 1 <= max_level_cell)
+    z_interface_list = [z_bot.where(mask_bot)]
+    z_mid_list = []
+
+    for k in range(n_vert_levels - 1, -1, -1):
+        dz = layer_thickness.isel(nVertLevels=k)
+        mask_mid = np.logical_and(k >= min_level_cell, k <= max_level_cell)
+        mask_top = np.logical_and(k >= min_level_cell, k - 1 <= max_level_cell)
+        dz = dz.where(mask_mid, 0.0)
+        z_top = z_bot + dz
+        z_interface_list.append(z_top.where(mask_top))
+        z_mid = (z_bot + 0.5 * dz).where(mask_mid)
+        z_mid_list.append(z_mid)
+        z_bot = z_top
+
+    dims = list(layer_thickness.dims)
+    interface_dims = list(dims) + ['nVertLevelsP1']
+    interface_dims.remove('nVertLevels')
+
+    z_interface = xr.concat(
+        reversed(z_interface_list), dim='nVertLevelsP1'
+    ).transpose(*interface_dims)
+    z_mid = xr.concat(reversed(z_mid_list), dim='nVertLevels').transpose(*dims)
+
+    return z_interface, z_mid
+
+
 def _compute_cell_mask(minLevelCell, maxLevelCell, nVertLevels):
     cellMask = []
     for zIndex in range(nVertLevels):
@@ -170,39 +237,3 @@ def _compute_cell_mask(minLevelCell, maxLevelCell, nVertLevels):
     cellMaskArray = xr.DataArray(cellMask, dims=['nVertLevels', 'nCells'])
     cellMaskArray = cellMaskArray.transpose('nCells', 'nVertLevels')
     return cellMaskArray
-
-
-def _compute_zmid_from_layer_thickness(layerThickness, ssh, cellMask):
-    """
-    Compute zMid from ssh and layerThickness for any vertical coordinate
-
-    Parameters
-    ----------
-    layerThickness : xarray.DataArray
-        The thickness of each layer
-
-    ssh : xarray.DataArray
-        The sea surface height
-
-    cellMask : xarray.DataArray
-        A boolean mask of where there are valid cells
-
-    Returns
-    -------
-    zMid : xarray.DataArray
-        The elevation of layer centers
-    """
-
-    zTop = ssh.copy()
-    nVertLevels = layerThickness.sizes['nVertLevels']
-    zMid = []
-    for zIndex in range(nVertLevels):
-        mask = cellMask.isel(nVertLevels=zIndex)
-        thickness = layerThickness.isel(nVertLevels=zIndex).where(mask, 0.0)
-        z = (zTop - 0.5 * thickness).where(mask)
-        zMid.append(z)
-        zTop -= thickness
-    zMid = xr.concat(zMid, dim='nVertLevels').transpose(
-        'Time', 'nCells', 'nVertLevels'
-    )
-    return zMid

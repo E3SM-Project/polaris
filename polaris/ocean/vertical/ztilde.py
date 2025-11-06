@@ -23,7 +23,6 @@ __all__ = [
     'pressure_from_z_tilde',
     'pressure_and_spec_vol_from_state_at_geom_height',
     'pressure_from_geom_thickness',
-    'geom_z_from_z_tilde',
 ]
 
 
@@ -241,81 +240,3 @@ def pressure_and_spec_vol_from_state_at_geom_height(
         )
 
     return p_interface, p_mid, spec_vol
-
-
-def geom_z_from_z_tilde(
-    pseudo_thickness: xr.DataArray,
-    bottom_depth: xr.DataArray,
-    spec_vol: xr.DataArray,
-    rho0: float,
-    min_level_cell: xr.DataArray,
-    max_level_cell: xr.DataArray,
-) -> tuple[xr.DataArray, xr.DataArray]:
-    """
-    Compute geometric height z at layer interfaces and midpoints given
-    pseudo-layer thicknesses, bottom depth, specific volume and reference
-    density. This calculation assumes a constant specific volume within each
-    layer.
-
-    Parameters
-    ----------
-    pseudo_thickness : xarray.DataArray
-        The pseudo thickness of each layer.
-
-    spec_vol : xarray.DataArray
-        The specific volume at each layer.
-
-    bottom_depth : xarray.DataArray
-        The positive-down depth of the seafloor.
-
-    rho0 : float
-        Reference density in kg m^-3.
-
-    min_level_cell : xarray.DataArray
-        The zero-based minimum vertical index from each column.
-
-    max_level_cell : xarray.DataArray
-        The zero-based maximum vertical index from each column.
-
-    Returns
-    -------
-    z_interface : xarray.DataArray
-        The elevation of layer interfaces.
-
-    z_mid : xarray.DataArray
-        The elevation of layer midpoints.
-    """
-
-    n_vert_levels = pseudo_thickness.sizes['nVertLevels']
-
-    z_bot = -bottom_depth
-    k = n_vert_levels
-    mask_bot = np.logical_and(k >= min_level_cell, k <= max_level_cell)
-    z_interface_list = [z_bot.where(mask_bot)]
-    z_mid_list = []
-
-    for k in range(n_vert_levels - 1, -1, -1):
-        dz = (
-            rho0
-            * spec_vol.isel(nVertLevels=k)
-            * pseudo_thickness.isel(nVertLevels=k)
-        )
-        mask_mid = np.logical_and(k >= min_level_cell, k < max_level_cell)
-        mask_top = np.logical_and(k >= min_level_cell, k <= max_level_cell)
-        dz = dz.where(mask_mid, 0.0)
-        z_top = z_bot + dz
-        z_interface_list.append(z_top.where(mask_top))
-        z_mid = (z_bot + 0.5 * dz).where(mask_mid)
-        z_mid_list.append(z_mid)
-        z_bot = z_top
-
-    dims = list(pseudo_thickness.dims)
-    interface_dims = list(dims) + ['nVertLevelsP1']
-    interface_dims.remove('nVertLevels')
-
-    z_interface = xr.concat(
-        reversed(z_interface_list), dim='nVertLevelsP1'
-    ).transpose(*interface_dims)
-    z_mid = xr.concat(reversed(z_mid_list), dim='nVertLevels').transpose(*dims)
-
-    return z_interface, z_mid
