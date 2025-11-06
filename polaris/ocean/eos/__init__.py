@@ -44,7 +44,9 @@ def compute_density(
                 'Pressure must be provided when using the TEOS-10 equation of '
                 'state.'
             )
-        density = 1.0 / compute_teos10_specvol(salinity, temperature, pressure)
+        density = 1.0 / compute_teos10_specvol(
+            sa=salinity, ct=temperature, p=pressure
+        )
     else:
         raise ValueError(f'Unsupported equation of state type: {eos_type}')
     return density
@@ -88,7 +90,9 @@ def compute_specvol(
                 'Pressure must be provided when using the TEOS-10 equation of '
                 'state.'
             )
-        specvol = compute_teos10_specvol(temperature, salinity, pressure)
+        specvol = compute_teos10_specvol(
+            sa=salinity, ct=temperature, p=pressure
+        )
     else:
         raise ValueError(f'Unsupported equation of state type: {eos_type}')
     return specvol
