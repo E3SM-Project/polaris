@@ -1,8 +1,17 @@
+import xarray as xr
+
+from polaris.config import PolarisConfigParser
+
 from .linear import compute_linear_density
 from .teos10 import compute_specvol as compute_teos10_specvol
 
 
-def compute_density(config, temperature, salinity, pressure=None):
+def compute_density(
+    config: PolarisConfigParser,
+    temperature: xr.DataArray,
+    salinity: xr.DataArray,
+    pressure: xr.DataArray | None = None,
+) -> xr.DataArray:
     """
     Compute the density of seawater based on the equation of state specified
     in the configuration.
@@ -41,7 +50,12 @@ def compute_density(config, temperature, salinity, pressure=None):
     return density
 
 
-def compute_specvol(config, temperature, salinity, pressure=None):
+def compute_specvol(
+    config: PolarisConfigParser,
+    temperature: xr.DataArray,
+    salinity: xr.DataArray,
+    pressure: xr.DataArray | None = None,
+) -> xr.DataArray:
     """
     Compute the specific volume of seawater based on the equation of state
     specified in the configuration.
