@@ -1,4 +1,13 @@
-def compute_linear_density(config, temperature, salinity):
+import xarray as xr
+
+from polaris.config import PolarisConfigParser
+
+
+def compute_linear_density(
+    config: PolarisConfigParser,
+    temperature: xr.DataArray,
+    salinity: xr.DataArray,
+) -> xr.DataArray:
     """
     Compute the density of seawater based on the the linear equation of state
     with coefficients specified in the configuration. The distinction between
@@ -27,5 +36,12 @@ def compute_linear_density(config, temperature, salinity):
     rhoref = section.getfloat('eos_linear_rhoref')
     Tref = section.getfloat('eos_linear_Tref')
     Sref = section.getfloat('eos_linear_Sref')
+    assert (
+        alpha is not None
+        and beta is not None
+        and rhoref is not None
+        and Tref is not None
+        and Sref is not None
+    ), 'All linear EOS parameters must be specified in the config options.'
     density = rhoref + -alpha * (temperature - Tref) + beta * (salinity - Sref)
     return density
