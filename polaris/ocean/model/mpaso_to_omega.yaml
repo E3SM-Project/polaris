@@ -3,14 +3,26 @@ dimensions:
   nCells: NCells
   nEdges: NEdges
   nVertices: NVertices
+  nTracers: NTracers
   maxEdges: MaxEdges
   maxEdges2: MaxEdges2
   TWO: MaxCellsOnEdge
   vertexDegree: VertexDegree
-  nVertLevels: NVertLevels
-  nVertLevelsP1: NVertLevelsP1
+  # Don't map nVertLevels yet -- needs Omega fix
+  # nVertLevels: NVertLayers
+  # nVertLevelsP1: NVertLayersP1
 
 variables:
+  # mesh
+  cellsOnCell: CellsOnCell
+  edgesOnCell: EdgesOnCell
+  verticesOnCell: VerticesOnCell
+  cellsOnEdge: CellsOnEdge
+  edgesOnEdge: EdgesOnEdge
+  verticesOnEdge: VerticesOnEdge
+  cellsOnVertex: CellsOnVertex
+  edgesOnVertex: EdgesOnVertex
+
   # tracers
   temperature: Temperature
   salinity: Salinity
@@ -23,7 +35,10 @@ variables:
   normalVelocity: NormalVelocity
 
   # auxiliary state
-  ssh: SshCellDefault
+  ssh: SshCell
+  windStressZonal: WindStressZonal
+  windStressMeridional: WindStressMeridional
+  relativeVorticity: RelVortVertex
 
 config:
 - section:
@@ -66,6 +81,21 @@ config:
   options:
     config_use_mom_del4: VelHyperDiffTendencyEnable
     config_mom_del4: ViscDel4
+
+- section:
+    forcing: Tendencies
+  options:
+    config_use_bulk_wind_stress: WindForcingTendencyEnable
+
+- section:
+    debug: Tendencies
+  options:
+    config_disable_vel_explicit_bottom_drag: BottomDragTendencyEnable
+
+- section:
+    bottom_drag: Tendencies
+  options:
+    config_explicit_bottom_drag_coeff: BottomDragCoeff
 
 - section:
     manufactured_solution: ManufacturedSolution

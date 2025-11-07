@@ -493,8 +493,13 @@ Otherwise, to build Omega,
 source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
 git submodule update --init e3sm_submodules/Omega
 cd e3sm_submodules/Omega
-git submodule update --init --recursive externals/YAKL externals/ekat \
-    externals/scorpio cime
+git submodule update --init --recursive \
+    externals/YAKL \
+    externals/ekat \
+    externals/scorpio \
+    externals/cpptrace \
+    components/omega/external \
+    cime
 cd components/omega
 mkdir build
 cd build
