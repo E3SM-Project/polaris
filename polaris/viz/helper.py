@@ -20,6 +20,23 @@ projections = {
     'SouthPolarStereo': ccrs.SouthPolarStereo,
 }
 
+# indexed by mpas-ocean variable name in instantaneous output
+viz_dict = {
+    'bottomDepth': {'colormap': 'cmo.deep', 'units': r'm'},
+    'layerThickness': {'colormap': 'cmo.thermal', 'units': r'm'},
+    'temperature': {'colormap': 'cmo.thermal', 'units': r'$^{\circ}$C'},
+    'salinity': {'colormap': 'cmo.haline', 'units': r'g/kg'},
+    'density': {'colormap': 'cmo.dense', 'units': r'kg/m$^3$'},
+    'ssh': {'colormap': 'cmo.delta', 'units': r'm'},
+    'vertVelocityTop': {'colormap': 'cmo.balance', 'units': r'm/s'},
+    'normalVelocity': {'colormap': 'cmo.balance', 'units': r'm/s'},
+    'velocityZonal': {'colormap': 'cmo.balance', 'units': r'm/s'},
+    'velocityMeridional': {'colormap': 'cmo.balance', 'units': r'm/s'},
+    'landIceFraction': {'colormap': 'cmo.ice', 'units': r''},
+    'seaIceFraction': {'colormap': 'cmo.ice', 'units': r''},
+    'default': {'colormap': 'cmo.dense', 'units': r''},
+}
+
 
 def get_projection(name: str, **kwargs):
     """Return a Cartopy projection by string name."""
@@ -31,26 +48,16 @@ def get_projection(name: str, **kwargs):
 
 
 def get_viz_defaults():
-    # indexed by mpas-ocean variable name in instantaneous output
-    viz_dict = {
-        'bottomDepth': {'colormap': 'cmo.deep', 'units': r'm'},
-        'layerThickness': {'colormap': 'cmo.thermal', 'units': r'm'},
-        'temperature': {'colormap': 'cmo.thermal', 'units': r'$^{\circ}$C'},
-        'salinity': {'colormap': 'cmo.haline', 'units': r'g/kg'},
-        'density': {'colormap': 'cmo.dense', 'units': r'kg/m$^3$'},
-        'ssh': {'colormap': 'cmo.delta', 'units': r'm'},
-        'vertVelocityTop': {'colormap': 'cmo.balance', 'units': r'm/s'},
-        'normalVelocity': {'colormap': 'cmo.balance', 'units': r'm/s'},
-        'velocityZonal': {'colormap': 'cmo.balance', 'units': r'm/s'},
-        'velocityMeridional': {'colormap': 'cmo.balance', 'units': r'm/s'},
-        'landIceFraction': {'colormap': 'cmo.ice', 'units': r''},
-        'seaIceFraction': {'colormap': 'cmo.ice', 'units': r''},
-        'default': {'colormap': 'cmo.dense', 'units': r''},
-    }
+    """
+    Return the whole dictionary of MPAS variables and default viz properties
+    """
     return viz_dict
 
 
 def determine_time_variable(ds):
+    """
+    Identify the variable prefix and time variable for MPAS datasets
+    """
     prefix = ''
     time_variable = None
     if 'timeSeriesStatsMonthly' in ds.keys():

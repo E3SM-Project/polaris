@@ -11,13 +11,16 @@ from polaris.tasks.ocean.customizable_viz.viz_transect import (
 
 
 def add_customizable_viz_tasks(component):
+    """
+    Add a customizable visualization task for MPAS output
+    """
     customizable_viz_task = CustomizableViz(component=component)
     component.add_task(customizable_viz_task)
 
 
 class CustomizableViz(Task):
     """
-    A customizable visualization task for MPAS-Ocean output
+    A customizable visualization task for MPAS output
     """
 
     def __init__(self, component):

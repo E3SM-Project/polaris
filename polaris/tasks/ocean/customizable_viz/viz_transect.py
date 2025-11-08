@@ -11,6 +11,10 @@ from polaris.viz import (
 
 
 class VizTransect(OceanIOStep):
+    """
+    A step for visualizing MPAS vertical transects
+    """
+
     def __init__(self, component, name, indir):
         super().__init__(component=component, name=name, indir=indir)
 

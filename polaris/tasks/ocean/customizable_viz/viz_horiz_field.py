@@ -10,6 +10,10 @@ from polaris.viz import (
 
 
 class VizHorizField(OceanIOStep):
+    """
+    A step for visualizing MPAS horizontal fields
+    """
+
     def __init__(self, component, name, indir):
         super().__init__(component=component, name=name, indir=indir)
 

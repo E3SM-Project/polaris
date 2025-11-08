@@ -411,10 +411,13 @@ seaice/api
 .. autosummary::
    :toctree: generated/
 
-   use_mplstyle
+   determine_time_variable
+   get_projection
+   get_viz_defaults
    plot_horiz_field
    plot_global_lat_lon_field
    plot_global_mpas_field
+   use_mplstyle
 ```
 
 ### yaml
