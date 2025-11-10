@@ -5,11 +5,9 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.ocean.eos import compute_specvol
+from polaris.ocean.hydrostatic.teos10 import integrate_geometric_height
 from polaris.ocean.model import OceanIOStep
-from polaris.ocean.vertical import (
-    compute_zint_zmid_from_layer_thickness,
-    init_vertical_coord,
-)
+from polaris.ocean.vertical import init_vertical_coord
 from polaris.ocean.vertical.ztilde import pressure_from_z_tilde
 
 
@@ -119,23 +117,17 @@ class Init(OceanIOStep):
         for iter in range(water_col_adjust_iter_count):
             ds = self._init_z_tilde_vert_coord(ds_mesh, pseudo_bottom_depth)
 
-            ncells = ds.sizes['nCells']
-            nvertlevels = ds.sizes['nVertLevels']
-            nedges = ds.sizes['nEdges']
-
-            z_tilde_mid = ds.zMid
-
-            # compute temperature, salinity, pressure and specific volume on
-            # z~ midpoints for this iteration
-            temperature, salinity, p_mid, spec_vol = (
-                self._compute_t_s_spec_vol(ds, z_tilde_mid)
+            z, spec_vol, ct, sa = self._compute_z_t_s_spec_vol_quadrature(
+                ds=ds,
+                geom_z_bot=geom_z_bot,
             )
 
-            geom_layer_thickness = rho0 * spec_vol * ds.layerThickness
+            geom_z_inter = z[:, 0::2]
+            geom_z_mid = z[:, 1::2]
 
-            geom_water_column_thickness = geom_layer_thickness.sum(
-                dim='nVertLevels'
-            ).isel(Time=0)
+            geom_water_column_thickness = (
+                geom_z_inter[:, -1] - geom_z_inter[:, 0]
+            )
 
             # scale the pseudo bottom depth proportional to how far off we are
             # in the geometric water column thickness from the goal
@@ -158,31 +150,36 @@ class Init(OceanIOStep):
                 f'{pseudo_bottom_depth.values}'
             )
 
-        min_level_cell = ds.minLevelCell - 1
-        max_level_cell = ds.maxLevelCell - 1
-        geom_z_inter, geom_z_mid = compute_zint_zmid_from_layer_thickness(
-            layer_thickness=geom_layer_thickness,
-            bottom_depth=-geom_z_bot,
-            min_level_cell=min_level_cell,
-            max_level_cell=max_level_cell,
+        ds['temperature'] = xr.DataArray(
+            data=ct[np.newaxis, :, 1::2],
+            dims=['Time', 'nCells', 'nVertLevels'],
+            attrs={
+                'long_name': 'conservative temperature',
+                'units': 'degC',
+            },
+        )
+        ds['salinity'] = xr.DataArray(
+            data=sa[np.newaxis, :, 1::2],
+            dims=['Time', 'nCells', 'nVertLevels'],
+            attrs={
+                'long_name': 'salinity',
+                'units': 'g kg-1',
+            },
         )
 
-        ds['temperature'] = temperature
-        ds['salinity'] = salinity
-
-        ds['PMid'] = p_mid
-        ds.PMid.attrs['long_name'] = 'sea pressure at layer midpoints'
-        ds.PMid.attrs['units'] = 'Pa'
-
-        ds['SpecVol'] = spec_vol
-        ds.SpecVol.attrs['long_name'] = 'specific volume'
-        ds.SpecVol.attrs['units'] = 'm3 kg-1'
-
-        ds['Density'] = 1.0 / spec_vol
+        ds['SpecVol'] = xr.DataArray(
+            data=spec_vol[np.newaxis, :, 1::2],
+            dims=['Time', 'nCells', 'nVertLevels'],
+            attrs={
+                'long_name': 'specific volume',
+                'units': 'm3 kg-1',
+            },
+        )
+        ds['Density'] = 1.0 / ds['SpecVol']
         ds.Density.attrs['long_name'] = 'density'
         ds.Density.attrs['units'] = 'kg m-3'
 
-        ds['ZTildeMid'] = z_tilde_mid
+        ds['ZTildeMid'] = ds.zMid
         ds.ZTildeMid.attrs['long_name'] = 'pseudo-height at layer midpoints'
         ds.ZTildeMid.attrs['units'] = 'm'
 
@@ -196,12 +193,11 @@ class Init(OceanIOStep):
         )
         ds.GeomZInter.attrs['units'] = 'm'
 
-        ds['GeomLayerThickness'] = geom_layer_thickness
-        ds.GeomLayerThickness.attrs['long_name'] = 'geometric layer thickness'
-        ds.GeomLayerThickness.attrs['units'] = 'm'
-
         ds.layerThickness.attrs['long_name'] = 'pseudo-layer thickness'
         ds.layerThickness.attrs['units'] = 'm'
+
+        nedges = ds_mesh.sizes['nEdges']
+        nvertlevels = ds.sizes['nVertLevels']
 
         ds['normalVelocity'] = xr.DataArray(
             data=np.zeros((1, nedges, nvertlevels), dtype=np.float32),
@@ -236,6 +232,91 @@ class Init(OceanIOStep):
         init_vertical_coord(config, ds)
         return ds
 
+    def _get_z_tilde_t_s_nodes(
+        self,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Get the z-tilde, temperature and salinity node values from the
+        configuration.
+        """
+
+        config = self.config
+
+        lists = {}
+        for name in ['z_tilde', 'temperatures', 'salinities']:
+            lists[name] = config.getexpression('two_column', name)
+            if not isinstance(lists[name], list):
+                raise ValueError(
+                    f'The "{name}" configuration option must be a list of '
+                    f'lists, one per column.'
+                )
+
+        z_tilde_node = np.array(lists['z_tilde'], dtype=np.float32)
+        t_node = np.array(lists['temperatures'], dtype=np.float32)
+        s_node = np.array(lists['salinities'], dtype=np.float32)
+
+        if (
+            z_tilde_node.shape != t_node.shape
+            or z_tilde_node.shape != s_node.shape
+        ):
+            raise ValueError(
+                'The number of z_tilde, temperature and salinity '
+                'points must be the same in each column.'
+            )
+
+        return z_tilde_node, t_node, s_node
+
+    def _compute_z_t_s_spec_vol_quadrature(
+        self,
+        ds: xr.Dataset,
+        geom_z_bot: xr.DataArray,
+    ):
+        """
+        Compute temperature, salinity, pressure and specific volume at
+        quadrature points (layer interfaces and layer midpoints) given z-tilde
+        """
+        config = self.config
+        rho0 = config.getfloat('vertical_grid', 'rho0')
+        ncells = ds.sizes['nCells']
+        nvertlevels = ds.sizes['nVertLevels']
+        z_tilde_inter = ds.zInterface
+        z_tilde_mid = ds.zMid
+        z_tilde_node, t_node, s_node = self._get_z_tilde_t_s_nodes()
+
+        z = np.nan * np.ones((ncells, 2 * nvertlevels + 1), dtype=np.float32)
+        spec_vol = np.nan * np.ones(
+            (ncells, 2 * nvertlevels), dtype=np.float32
+        )
+        ct = np.nan * np.ones((ncells, 2 * nvertlevels), dtype=np.float32)
+        sa = np.nan * np.ones((ncells, 2 * nvertlevels), dtype=np.float32)
+
+        for icell in range(ncells):
+            min_level_cell = ds.minLevelCell.isel(nCells=icell).item() - 1
+            max_level_cell = ds.maxLevelCell.isel(nCells=icell).item() - 1
+
+            # both interfaces and midpoints
+            z_tilde = np.zeros(2 * nvertlevels + 1, dtype=np.float32)
+            z_tilde[0::2] = z_tilde_inter.isel(nCells=icell).values
+            z_tilde[1::2] = z_tilde_mid.isel(nCells=icell).values
+            indices = np.arange(2 * min_level_cell, 2 * max_level_cell + 2)
+
+            z_loc, spec_vol_loc, ct_loc, sa_loc = integrate_geometric_height(
+                z_tilde_interfaces=z_tilde[indices],
+                z_tilde_nodes=z_tilde_node[icell, :],
+                sa_nodes=s_node[icell, :],
+                ct_nodes=t_node[icell, :],
+                bottom_depth=-geom_z_bot.isel(nCells=icell).items(),
+                rho0=rho0,
+                method='gauss4',
+                subdivisions=2,
+            )
+            z[icell, indices] = z_loc
+            spec_vol[icell, indices] = spec_vol_loc
+            ct[icell, indices] = ct_loc
+            sa[icell, indices] = sa_loc
+
+        return z, spec_vol, ct, sa
+
     def _compute_t_s_spec_vol(
         self, ds: xr.Dataset, z_tilde_mid: xr.DataArray
     ) -> tuple[xr.DataArray, xr.DataArray, xr.DataArray, xr.DataArray]:
@@ -243,6 +324,8 @@ class Init(OceanIOStep):
         Compute temperature, salinity, pressure and specific volume given
         z-tilde
         """
+
+        z_tilde_node, t_node, s_node = self._get_z_tilde_t_s_nodes()
 
         config = self.config
         ncells = ds.sizes['nCells']
@@ -255,41 +338,35 @@ class Init(OceanIOStep):
             rho0=rho0,
         )
 
-        lists = {}
-        for name in ['z_tilde', 'temperatures', 'salinities']:
-            lists[name] = config.getexpression('two_column', name)
-            if not isinstance(lists[name], list):
-                raise ValueError(
-                    f'The "{name}" configuration option must be a list of '
-                    f'lists, one per column.'
-                )
-            if len(lists[name]) != ncells:
-                raise ValueError(
-                    f'The "{name}" configuration option must have one entry '
-                    f'per column ({ncells} columns in the mesh).'
-                )
-
         temperature_np = np.zeros((1, ncells, nvertlevels), dtype=np.float32)
         salinity_np = np.zeros((1, ncells, nvertlevels), dtype=np.float32)
 
+        if z_tilde_node.shape[0] != ncells:
+            raise ValueError(
+                'The number of z_tilde columns provided must match the '
+                'number of mesh columns.'
+            )
+        if t_node.shape[0] != ncells:
+            raise ValueError(
+                'The number of temperature columns provided must match the '
+                'number of mesh columns.'
+            )
+        if s_node.shape[0] != ncells:
+            raise ValueError(
+                'The number of salinity columns provided must match the '
+                'number of mesh columns.'
+            )
+
         for icell in range(ncells):
-            z_tilde = np.array(lists['z_tilde'][icell])
-            temperatures = np.array(lists['temperatures'][icell])
-            salinities = np.array(lists['salinities'][icell])
+            z_tilde = z_tilde_node[icell, :]
+            temperatures = t_node[icell, :]
+            salinities = s_node[icell, :]
             z_mid = z_tilde_mid.isel(nCells=icell).values
 
             if len(z_tilde) < 2:
                 raise ValueError(
                     'At least two z_tilde points are required to '
                     'define piecewise linear initial conditions.'
-                )
-
-            if len(z_tilde) != len(temperatures) or len(z_tilde) != len(
-                salinities
-            ):
-                raise ValueError(
-                    'The number of z_tilde, temperature and salinity '
-                    'points must be the same in each column.'
                 )
 
             temperature_np[0, icell, :] = np.interp(
