@@ -4,6 +4,7 @@ from typing import Dict, List, Union
 from ruamel.yaml import YAML
 
 from polaris.model_step import ModelStep
+from polaris.tasks.ocean import Ocean
 
 
 class OceanModelStep(ModelStep):
@@ -322,6 +323,32 @@ class OceanModelStep(ModelStep):
         }
 
         self.add_model_config_options(options=replacements)
+
+    def validate_baselines(self):
+        """
+        Compare variables between output files in this step and in the same
+        step from a baseline run if one was provided.
+
+        Returns
+        -------
+        compared : bool
+            Whether a baseline comparison was performed
+
+        success : bool
+            Whether the outputs were successfully validated against a baseline
+        """
+        if not isinstance(self.component, Ocean):
+            raise TypeError(
+                'component must be an instance of Ocean to map model vars'
+            )
+        # translate variable names to native model names
+        validate_vars = {}
+        for filename, vars in self.validate_vars.items():
+            validate_vars[filename] = (
+                self.component.map_var_list_to_native_model(vars)
+            )
+        self.validate_vars = validate_vars
+        return super().validate_baselines()
 
     def _update_ntasks(self):
         """
