@@ -1,68 +1,11 @@
-import importlib.resources as imp_res
-from typing import Dict, Union
-
-import xarray as xr
-from mpas_tools.io import write_netcdf
-from ruamel.yaml import YAML
-
 from polaris import Step
+from polaris.tasks.ocean import Ocean
 
 
 class OceanIOStep(Step):
     """
     A step that writes input and/or output files for Omega or MPAS-Ocean
-
-    Attributes
-    ----------
-    mpaso_to_omega_dim_map : dict
-        A map from MPAS-Ocean dimension names to their Omega equivalents
-
-    omega_to_mpaso_dim_map : dict
-        A map from Omega dimension names to their MPAS-Ocean equivalents, the
-        inverse of ``mpaso_to_omega_dim_map``
-
-    mpaso_to_omega_var_map : dict
-        A map from MPAS-Ocean variable names to their Omega equivalents
-
-    omega_to_mpaso_var_map : dict
-        A map from Omega variable names to their MPAS-Ocean equivalents, the
-        inverse of ``mpaso_to_omega_var_map``
     """
-
-    def __init__(self, component, name, **kwargs):
-        """
-        Create a new step
-
-        Parameters
-        ----------
-        component : polaris.Component
-            The component the step belongs to
-
-        name : str
-            the name of the task
-
-        kwargs
-            keyword arguments passed to `polaris.Step()`
-        """
-        super().__init__(component=component, name=name, **kwargs)
-
-        self.mpaso_to_omega_dim_map: Union[None, Dict[str, str]] = None
-        self.omega_to_mpaso_dim_map: Union[None, Dict[str, str]] = None
-        self.mpaso_to_omega_var_map: Union[None, Dict[str, str]] = None
-        self.omega_to_mpaso_var_map: Union[None, Dict[str, str]] = None
-
-    def setup(self):
-        """
-        If the ocean model is Omega, set up maps between Omega and MPAS-Ocean
-        variable names
-        """
-        config = self.config
-        model = config.get('ocean', 'model')
-        if model == 'omega':
-            self._read_var_map()
-        elif model != 'mpas-ocean':
-            raise ValueError(f'Unexpected ocean model: {model}')
-        super().setup()
 
     def map_to_native_model_vars(self, ds):
         """
@@ -81,22 +24,11 @@ class OceanIOStep(Step):
             The same dataset with variables renamed as appropriate for the
             ocean model being run
         """
-        config = self.config
-        model = config.get('ocean', 'model')
-        if model == 'omega':
-            assert self.mpaso_to_omega_dim_map is not None
-            rename = {
-                k: v
-                for k, v in self.mpaso_to_omega_dim_map.items()
-                if k in ds.dims
-            }
-            assert self.mpaso_to_omega_var_map is not None
-            rename_vars = {
-                k: v for k, v in self.mpaso_to_omega_var_map.items() if k in ds
-            }
-            rename.update(rename_vars)
-            ds = ds.rename(rename)
-        return ds
+        if not isinstance(self.component, Ocean):
+            raise TypeError(
+                'component must be an instance of Ocean to map model vars'
+            )
+        return self.component.map_to_native_model_vars(ds)
 
     def write_model_dataset(self, ds, filename):
         """
@@ -111,8 +43,11 @@ class OceanIOStep(Step):
         filename : str
             The path for the NetCDF file to write
         """
-        ds = self.map_to_native_model_vars(ds)
-        write_netcdf(ds=ds, fileName=filename)
+        if not isinstance(self.component, Ocean):
+            raise TypeError(
+                'component must be an instance of Ocean to map model vars'
+            )
+        self.component.write_model_dataset(ds, filename)
 
     def map_from_native_model_vars(self, ds):
         """
@@ -130,22 +65,11 @@ class OceanIOStep(Step):
         ds : xarray.Dataset
             The same dataset with variables named as expected in MPAS-Ocean
         """
-        config = self.config
-        model = config.get('ocean', 'model')
-        if model == 'omega':
-            assert self.omega_to_mpaso_dim_map is not None
-            rename = {
-                k: v
-                for k, v in self.omega_to_mpaso_dim_map.items()
-                if k in ds.dims
-            }
-            assert self.omega_to_mpaso_var_map is not None
-            rename_vars = {
-                k: v for k, v in self.omega_to_mpaso_var_map.items() if k in ds
-            }
-            rename.update(rename_vars)
-            ds = ds.rename(rename)
-        return ds
+        if not isinstance(self.component, Ocean):
+            raise TypeError(
+                'component must be an instance of Ocean to map model vars'
+            )
+        return self.component.map_from_native_model_vars(ds)
 
     def open_model_dataset(self, filename, **kwargs):
         """
@@ -165,27 +89,8 @@ class OceanIOStep(Step):
         ds : xarray.Dataset
             The dataset with variables named as expected in MPAS-Ocean
         """
-        ds = xr.open_dataset(filename, **kwargs)
-        ds = self.map_from_native_model_vars(ds)
-        return ds
-
-    def _read_var_map(self):
-        """
-        Read the map from MPAS-Ocean to Omega dimension and variable names
-        """
-        package = 'polaris.ocean.model'
-        filename = 'mpaso_to_omega.yaml'
-        text = imp_res.files(package).joinpath(filename).read_text()
-
-        yaml_data = YAML(typ='rt')
-        nested_dict = yaml_data.load(text)
-        self.mpaso_to_omega_dim_map = nested_dict['dimensions']
-        self.mpaso_to_omega_var_map = nested_dict['variables']
-        assert self.mpaso_to_omega_dim_map is not None
-        self.omega_to_mpaso_dim_map = {
-            v: k for k, v in self.mpaso_to_omega_dim_map.items()
-        }
-        assert self.mpaso_to_omega_var_map is not None
-        self.omega_to_mpaso_var_map = {
-            v: k for k, v in self.mpaso_to_omega_var_map.items()
-        }
+        if not isinstance(self.component, Ocean):
+            raise TypeError(
+                'component must be an instance of Ocean to map model vars'
+            )
+        return self.component.open_model_dataset(filename, **kwargs)
