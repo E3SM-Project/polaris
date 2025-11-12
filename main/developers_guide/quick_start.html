@@ -545,6 +545,10 @@ make<span class="w"> </span>&lt;mpas_make_target&gt;
 </pre></div>
 </div>
 <p>The same applies to MPAS-Seaice except with <code class="docutils literal notranslate"><span class="pre">mpas-seaice</span></code> in the path above.</p>
+<p>To set up tasks and suites to use MPAS-Ocean, it should be sufficient to point
+to an MPAS-Ocean build with the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or
+<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>.  MPAS-Ocean should automatically be detected.  You can use
+the flag <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">mpas-ocean</span></code> to be explicit, though.</p>
 </section>
 <section id="omega">
 <span id="dev-omega-build"></span><h3>Omega<a class="headerlink" href="#omega" title="Link to this heading"></a></h3>
@@ -588,9 +592,10 @@ location you like.  If you build in a location other than
 <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/Omega/components/omega/build</span></code>, you will need to point to the
 relative or absolute path using the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag when you call <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>.</p>
-<p>To set up tasks and suites to use Omega, you need to supply <code class="docutils literal notranslate"><span class="pre">--model=omega</span></code>
-to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>.  Otherwise, it will default to
-MPAS-Ocean.</p>
+<p>As with MPAS-Ocean, to set up tasks and suites to use Omega, it should be
+sufficient to point to an Omega build with the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or
+<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>, which should allow Omega to be detected automatically.
+But you can use the flag <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">omega</span></code> to indicate this explicitly.</p>
 </section>
 </section>
 <section id="running-polaris-from-the-repo">
