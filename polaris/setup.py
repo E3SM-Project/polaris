@@ -7,6 +7,7 @@ import warnings
 from typing import Dict, List
 
 from polaris import Task, provenance
+from polaris.build.omega import build_omega
 from polaris.config import PolarisConfigParser
 from polaris.io import symlink
 from polaris.job import write_job_script
@@ -25,8 +26,13 @@ def setup_tasks(
     suite_name='custom',
     cached=None,
     copy_executable=False,
-    clean=False,
+    clean_work=False,
     model=None,
+    build=None,
+    branch=None,
+    clean_build=None,
+    cmake_flags=None,
+    debug=None,
 ):
     """
     Set up one or more tasks
@@ -57,7 +63,7 @@ def setup_tasks(
 
     component_path : str, optional
         The relative or absolute path to the location where the model and
-        default namelists have been built
+        default namelists have been (or will be) built
 
     suite_name : str, optional
         The name of the suite if tasks are being set up through a suite or
@@ -77,6 +83,24 @@ def setup_tasks(
 
     model : str, optional
         The model to run
+
+    build : bool, optional
+        Whether to build the model
+
+    branch : str, optional
+        The relative or absolute path to the base of the component branch to
+        build.  If not provided, ``component_path`` must point to an existing
+        build.
+
+    clean_build : bool, optional
+        Whether to clean the build directory before building the model.
+        ``clean_build = True`` implies ``build = True``.
+
+    cmake_flags : str, optional
+        Additional flags to pass to CMake when building the model
+
+    debug : bool, optional
+        Whether to build the model in debug mode
 
     Returns
     -------
@@ -117,6 +141,11 @@ def setup_tasks(
         component_path=component_path,
         component=component,
         model=model,
+        build=build,
+        branch=branch,
+        cmake_flags=cmake_flags,
+        debug=debug,
+        clean_build=clean_build,
     )
 
     component.configure(basic_config)
@@ -128,8 +157,13 @@ def setup_tasks(
         machine=machine,
         baseline_dir=baseline_dir,
     )
+    section = basic_config['build']
+    build = section.getboolean('build')
 
-    if clean:
+    if build:
+        _build_model(basic_config=basic_config, component=component)
+
+    if clean_work:
         print('')
         print('Cleaning task and step work directories:')
         _clean_tasks_and_steps(tasks, work_dir)
@@ -156,7 +190,6 @@ def setup_tasks(
             work_dir,
             baseline_dir,
             cached_steps=cached_steps[path],
-            model=model,
         )
 
     _check_dependencies(tasks)
@@ -188,9 +221,7 @@ def setup_tasks(
     return tasks
 
 
-def setup_task(
-    path, task, machine, work_dir, baseline_dir, cached_steps, model
-):
+def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
     """
     Set up one or more tasks
 
@@ -215,9 +246,6 @@ def setup_task(
     cached_steps : list of str
         Which steps (if any) should be cached, identified by a list of
         subdirectories in the component
-
-    model : str, optional
-        The model to run
     """
 
     print(f'  {path}')
@@ -285,8 +313,8 @@ def setup_task(
         write_job_script(
             config=task.config,
             machine=machine,
-            target_cores=cores,
-            min_cores=min_cores,
+            target_cores=max_cores,
+            min_cores=max_of_min_cores,
             work_dir=task_dir,
         )
 
@@ -351,7 +379,7 @@ def main():
         '--component_path',
         dest='component_path',
         help='The path where the component executable and '
-        'default namelists have been built.',
+        'default namelists have been (or will be) built.',
         metavar='PATH',
     )
     parser.add_argument(
@@ -379,8 +407,8 @@ def main():
         help='If the model executable should be copied to the work directory.',
     )
     parser.add_argument(
-        '--clean',
-        dest='clean',
+        '--clean_work',
+        dest='clean_work',
         action='store_true',
         help='If the base work directory should be deleted '
         'before setting up the tasks.',
@@ -390,6 +418,36 @@ def main():
         dest='model',
         help="The model to run (one of 'mpas-ocean', 'omega', "
         "or 'mpas-seaice')",
+    )
+    parser.add_argument(
+        '--build',
+        dest='build',
+        action='store_true',
+        help='If the model should be built.',
+    )
+    parser.add_argument(
+        '--branch',
+        dest='branch',
+        help='The branch of the model to build. The default is the submodule '
+        'associated with the model',
+    )
+    parser.add_argument(
+        '--clean_build',
+        dest='clean_build',
+        action='store_true',
+        help='If the model should be cleaned before building. Implies '
+        '--build.',
+    )
+    parser.add_argument(
+        '--cmake_flags',
+        dest='cmake_flags',
+        help='Additional flags to pass to CMake when building the model.',
+    )
+    parser.add_argument(
+        '--debug',
+        dest='debug',
+        action='store_true',
+        help='If the model should be built in debug mode.',
     )
 
     args = parser.parse_args(sys.argv[2:])
@@ -417,8 +475,13 @@ def main():
         suite_name=args.suite_name,
         cached=cached,
         copy_executable=args.copy_executable,
-        clean=args.clean,
+        clean_work=args.clean_work,
         model=args.model,
+        build=args.build,
+        branch=args.branch,
+        clean_build=args.clean_build,
+        cmake_flags=args.cmake_flags,
+        debug=args.debug,
     )
 
 
@@ -450,6 +513,7 @@ def _setup_configs(
     """Set up config parsers for this component"""
 
     common_config = basic_config.copy()
+
     if copy_executable:
         common_config.set('setup', 'copy_executable', 'True')
 
@@ -681,7 +745,18 @@ def __get_machine_and_check_params(
     return machine
 
 
-def _get_basic_config(config_file, machine, component_path, component, model):
+def _get_basic_config(
+    config_file,
+    machine,
+    component_path,
+    component,
+    model,
+    build,
+    branch,
+    cmake_flags,
+    debug,
+    clean_build,
+):
     """
     Get a base config parser for the machine and component but not a specific
     task
@@ -726,6 +801,30 @@ def _get_basic_config(config_file, machine, component_path, component, model):
     if component_path is not None:
         component_path = os.path.abspath(component_path)
         config.set('paths', 'component_path', component_path, user=True)
+
+    if build is not None:
+        config.set('build', 'build', str(build), user=True)
+    if branch is not None:
+        config.set('build', 'branch', os.path.abspath(branch), user=True)
+    compiler = os.environ['POLARIS_COMPILER']
+    mpi = os.environ['POLARIS_MPI']
+    config.set('build', 'machine', machine, user=True)
+    config.set('build', 'compiler', compiler, user=True)
+    config.set('build', 'mpi', mpi, user=True)
+    if cmake_flags is not None:
+        config.set('build', 'cmake_flags', cmake_flags, user=True)
+    if debug is not None:
+        config.set('build', 'debug', str(debug), user=True)
+
+    if clean_build is not None:
+        config.set('build', 'clean', str(clean_build), user=True)
+
+    build = config.getboolean('build', 'build')
+    clean_build = config.getboolean('build', 'clean')
+    if clean_build and not build:
+        # the user presumably expects to clean the build, notice that it's
+        # absent, and build again
+        config.set('build', 'build', 'True', user=True)
 
     return config
 
@@ -816,3 +915,33 @@ def _check_dependencies(tasks):
                         f'{task.path} step {step.name} was '
                         f'not set up.'
                     )
+
+
+def _build_model(basic_config, component):
+    model = basic_config.get(component.name, 'model')
+    section = basic_config['build']
+    branch = section.get('branch')
+    clean_build = section.getboolean('clean')
+    debug = section.getboolean('debug')
+    cmake_flags = section.get('cmake_flags')
+
+    build_dir = basic_config.get('paths', 'component_path')
+
+    if basic_config.has_option('parallel', 'account'):
+        account = basic_config.get('parallel', 'account')
+    else:
+        account = None
+
+    if model == 'omega':
+        build_omega(
+            branch=branch,
+            build_dir=build_dir,
+            clean=clean_build,
+            debug=debug,
+            cmake_flags=cmake_flags,
+            account=account,
+        )
+    else:
+        raise ValueError(
+            f'Automated build is not implemented for model {model}'
+        )

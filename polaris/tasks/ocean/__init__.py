@@ -49,11 +49,29 @@ class Ocean(Component):
             model = self._detect_model(config)
             print('Detected ocean model:', model)
             config.set('ocean', 'model', model)
+
         configs = {'mpas-ocean': 'mpas_ocean.cfg', 'omega': 'omega.cfg'}
+
         if model not in configs:
-            raise ValueError(f'Unknown ocean model {model} in config options')
+            raise ValueError(f'Unknown ocean model {model}')
 
         config.add_from_package('polaris.ocean', configs[model])
+
+        component_path = config.get('paths', 'component_path')
+        if model == 'omega':
+            detected = self._detect_omega_build(component_path)
+        else:
+            detected = self._detect_mpas_ocean_build(component_path)
+
+        if not detected:
+            # looks like we need to build the model
+            build = config.getboolean('build', 'build')
+            if not build:
+                print(
+                    f'Ocean model {model} not found in '
+                    f'{component_path}, setting build option to True'
+                )
+                config.set('build', 'build', 'True', user=True)
 
         if model == 'omega':
             self._read_var_map()
