@@ -253,8 +253,9 @@ class Ocean(Component):
             return 'mpas-ocean'
         else:
             raise ValueError(
-                'Could not detect ocean model; neither MPAS-Ocean '
-                'nor Omega appear to be available.'
+                f'Could not detect ocean model; neither MPAS-Ocean '
+                f'nor Omega appear to be available; '
+                f'searched {omega_path} and {mpas_ocean_path}.'
             )
 
     def _detect_omega_build(self, path) -> bool:
