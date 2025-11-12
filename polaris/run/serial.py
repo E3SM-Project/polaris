@@ -696,8 +696,10 @@ def _write_output_for_pull_request(
 
     # Try to include job scheduler log path for Slurm
     job_log = _derive_job_log_path(suite_name, suite)
-    if job_log:
+    if job_log and os.path.exists(job_log):
         lines.append(f'- Log: `{job_log}`')
+    else:
+        lines.append('- Log: not found')
 
     # If we have results, summarize them
     if results is not None and isinstance(results, dict):
