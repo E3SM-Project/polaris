@@ -27,9 +27,12 @@ class OceanModelStep(ModelStep):
         working directory)
     """
 
+    # make sure component is of type Ocean
+    component: Ocean
+
     def __init__(
         self,
-        component,
+        component: Ocean,
         name,
         subdir=None,
         indir=None,
@@ -337,10 +340,6 @@ class OceanModelStep(ModelStep):
         success : bool
             Whether the outputs were successfully validated against a baseline
         """
-        if not isinstance(self.component, Ocean):
-            raise TypeError(
-                'component must be an instance of Ocean to map model vars'
-            )
         # translate variable names to native model names
         validate_vars = {}
         for filename, vars in self.validate_vars.items():
