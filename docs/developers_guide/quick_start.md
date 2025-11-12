@@ -478,6 +478,11 @@ make <mpas_make_target>
 
 The same applies to MPAS-Seaice except with `mpas-seaice` in the path above.
 
+To set up tasks and suites to use MPAS-Ocean, it should be sufficient to point
+to an MPAS-Ocean build with the `-p` flag to `polaris setup` or
+`polaris suite`.  MPAS-Ocean should automatically be detected.  You can use
+the flag `--model mpas-ocean` to be explicit, though.
+
 (dev-omega-build)=
 
 ### Omega
@@ -526,9 +531,10 @@ location you like.  If you build in a location other than
 relative or absolute path using the `-p` flag when you call `polaris setup` or
 `polaris suite`.
 
-To set up tasks and suites to use Omega, you need to supply `--model=omega`
-to `polaris setup` or `polaris suite`.  Otherwise, it will default to
-MPAS-Ocean.
+As with MPAS-Ocean, to set up tasks and suites to use Omega, it should be
+sufficient to point to an Omega build with the `-p` flag to `polaris setup` or
+`polaris suite`, which should allow Omega to be detected automatically.
+But you can use the flag `--model omega` to indicate this explicitly.
 
 (dev-working-with-polaris)=
 

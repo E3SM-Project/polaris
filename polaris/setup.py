@@ -112,8 +112,14 @@ def setup_tasks(
     component = tasks[first_path].component
 
     basic_config = _get_basic_config(
-        config_file, machine, component_path, component, model
+        config_file=config_file,
+        machine=machine,
+        component_path=component_path,
+        component=component,
+        model=model,
     )
+
+    component.configure(basic_config)
 
     provenance.write(work_dir, tasks, config=basic_config)
 
@@ -124,14 +130,11 @@ def setup_tasks(
         print('')
 
     _setup_configs(
-        component,
-        tasks,
-        work_dir,
-        config_file,
-        machine,
-        component_path,
-        copy_executable,
-        model,
+        basic_config=basic_config,
+        component=component,
+        tasks=tasks,
+        work_dir=work_dir,
+        copy_executable=copy_executable,
     )
 
     # do this after _setup_configs() in case tasks mark additional steps
@@ -432,20 +435,15 @@ def _expand_and_mark_cached_steps(tasks, cached_steps):
 
 
 def _setup_configs(
+    basic_config,
     component,
     tasks,
     work_dir,
-    config_file,
-    machine,
-    component_path,
     copy_executable,
-    model,
 ):
     """Set up config parsers for this component"""
 
-    common_config = _get_basic_config(
-        config_file, machine, component_path, component, model
-    )
+    common_config = basic_config.copy()
     if copy_executable:
         common_config.set('setup', 'copy_executable', 'True')
 
@@ -717,8 +715,6 @@ def _get_basic_config(config_file, machine, component_path, component, model):
         f'{component.name}.cfg',
         exception=False,
     )
-
-    component.configure(config)
 
     # set the component_path path from the command line if provided
     if component_path is not None:

@@ -1,4 +1,5 @@
 import importlib.resources as imp_res
+import os
 from typing import Dict, Union
 
 import xarray as xr
@@ -44,6 +45,10 @@ class Ocean(Component):
         """
         section = config['ocean']
         model = section.get('model')
+        if model == 'detect':
+            model = self._detect_model(config)
+            print('Detected ocean model:', model)
+            config.set('ocean', 'model', model)
         configs = {'mpas-ocean': 'mpas_ocean.cfg', 'omega': 'omega.cfg'}
         if model not in configs:
             raise ValueError(f'Unknown ocean model {model} in config options')
@@ -227,6 +232,72 @@ class Ocean(Component):
         nested_dict = yaml_data.load(text)
         self.mpaso_to_omega_dim_map = nested_dict['dimensions']
         self.mpaso_to_omega_var_map = nested_dict['variables']
+
+    def _detect_model(self, config) -> str:
+        """
+        Detect which ocean model to use
+        """
+        # build config options for each model, so the default component_path
+        # can be read if it hasn't been overridden
+        omega_config = config.copy()
+        omega_config.add_from_package('polaris.ocean', 'omega.cfg')
+        omega_path = omega_config.get('paths', 'component_path')
+
+        mpas_ocean_config = config.copy()
+        mpas_ocean_config.add_from_package('polaris.ocean', 'mpas_ocean.cfg')
+        mpas_ocean_path = mpas_ocean_config.get('paths', 'component_path')
+
+        if self._detect_omega_build(omega_path):
+            return 'omega'
+        elif self._detect_mpas_ocean_build(mpas_ocean_path):
+            return 'mpas-ocean'
+        else:
+            raise ValueError(
+                f'Could not detect ocean model; neither MPAS-Ocean '
+                f'nor Omega appear to be available; '
+                f'searched {omega_path} and {mpas_ocean_path}.'
+            )
+
+    def _detect_omega_build(self, path) -> bool:
+        """
+        Detect if Omega is available
+        """
+        required_files = [
+            'configs/Default.yml',
+            'src/omega.exe',
+        ]
+        path = os.path.abspath(path)
+
+        all_found = True
+        for required_file in required_files:
+            if not os.path.exists(os.path.join(path, required_file)):
+                all_found = False
+                break
+        return all_found
+
+    def _detect_mpas_ocean_build(self, path) -> bool:
+        """
+        Detect if MPAS-Ocean is available
+
+        Returns
+        -------
+        is_mpas_ocean : bool
+            True if MPAS-Ocean appears to be available, False otherwise
+        """
+        required_files = [
+            'default_inputs/namelist.ocean.forward',
+            'default_inputs/streams.ocean.forward',
+            'src/Registry_processed.xml',
+            'ocean_model',
+        ]
+        path = os.path.abspath(path)
+
+        all_found = True
+        for required_file in required_files:
+            if not os.path.exists(os.path.join(path, required_file)):
+                all_found = False
+                break
+        return all_found
 
 
 # create a single module-level instance available to other components
