@@ -7,6 +7,12 @@
    :toctree: generated/
 
    Ocean
+   Ocean.map_to_native_model_vars
+   Ocean.map_var_list_to_native_model
+   Ocean.write_model_dataset
+   Ocean.map_from_native_model_vars
+   Ocean.map_var_list_from_native_model
+   Ocean.open_model_dataset
 
    add_tasks.add_ocean_tasks
 ```
@@ -314,10 +320,10 @@
 
    rpe.analysis.Analysis
    rpe.analysis.Analysis.run
-   
+
    viz.Viz
    viz.Viz.run
-   
+
 ```
 
 ### single_column

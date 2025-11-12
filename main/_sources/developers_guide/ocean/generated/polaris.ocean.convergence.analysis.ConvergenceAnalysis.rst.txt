@@ -39,4 +39,10 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ConvergenceAnalysis.component
+   
    

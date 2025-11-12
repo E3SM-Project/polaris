@@ -44,4 +44,10 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RestartStep.component
+   
    

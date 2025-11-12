@@ -36,4 +36,10 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Analysis.component
+   
    

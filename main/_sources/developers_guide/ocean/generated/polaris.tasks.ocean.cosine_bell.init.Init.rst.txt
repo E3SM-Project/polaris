@@ -34,4 +34,10 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Init.component
+   
    

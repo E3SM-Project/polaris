@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.Ocean.write\_model\_dataset
+===============================================
+
+.. currentmodule:: polaris.tasks.ocean
+
+.. automethod:: Ocean.write_model_dataset

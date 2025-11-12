@@ -80,6 +80,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../mesh/api.html">mesh</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">ocean</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.html">polaris.tasks.ocean.Ocean</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.map_to_native_model_vars.html">polaris.tasks.ocean.Ocean.map_to_native_model_vars</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.map_var_list_to_native_model.html">polaris.tasks.ocean.Ocean.map_var_list_to_native_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.write_model_dataset.html">polaris.tasks.ocean.Ocean.write_model_dataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.map_from_native_model_vars.html">polaris.tasks.ocean.Ocean.map_from_native_model_vars</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.map_var_list_from_native_model.html">polaris.tasks.ocean.Ocean.map_var_list_from_native_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.open_model_dataset.html">polaris.tasks.ocean.Ocean.open_model_dataset</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.tasks.ocean.add_tasks.add_ocean_tasks.html">polaris.tasks.ocean.add_tasks.add_ocean_tasks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tasks">Tasks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ocean-framework">Ocean Framework</a></li>
@@ -133,6 +139,24 @@
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.html#polaris.tasks.ocean.Ocean" title="polaris.tasks.ocean.Ocean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ocean</span></code></a>()</p></td>
 <td><p>The collection of all test case for the MPAS-Ocean core</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.map_to_native_model_vars.html#polaris.tasks.ocean.Ocean.map_to_native_model_vars" title="polaris.tasks.ocean.Ocean.map_to_native_model_vars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ocean.map_to_native_model_vars</span></code></a>(ds)</p></td>
+<td><p>If the model is Omega, rename dimensions and variables in a dataset from their MPAS-Ocean names to the Omega equivalent (appropriate for input datasets like an initial condition)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.map_var_list_to_native_model.html#polaris.tasks.ocean.Ocean.map_var_list_to_native_model" title="polaris.tasks.ocean.Ocean.map_var_list_to_native_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ocean.map_var_list_to_native_model</span></code></a>(var_list)</p></td>
+<td><p>If the model is Omega, rename variables from their MPAS-Ocean names to the Omega equivalent (appropriate for validation variable lists)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.write_model_dataset.html#polaris.tasks.ocean.Ocean.write_model_dataset" title="polaris.tasks.ocean.Ocean.write_model_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ocean.write_model_dataset</span></code></a>(ds, filename)</p></td>
+<td><p>Write out the given dataset, mapping dimension and variable names from MPAS-Ocean to Omega names if appropriate</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.map_from_native_model_vars.html#polaris.tasks.ocean.Ocean.map_from_native_model_vars" title="polaris.tasks.ocean.Ocean.map_from_native_model_vars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ocean.map_from_native_model_vars</span></code></a>(ds)</p></td>
+<td><p>If the model is Omega, rename dimensions and variables in a dataset from their Omega names to the MPAS-Ocean equivalent (appropriate for datasets that are output from the model)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.map_var_list_from_native_model.html#polaris.tasks.ocean.Ocean.map_var_list_from_native_model" title="polaris.tasks.ocean.Ocean.map_var_list_from_native_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ocean.map_var_list_from_native_model</span></code></a>(var_list)</p></td>
+<td><p>If the model is Omega, rename variables from their Omega names to the MPAS-Ocean equivalent</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.open_model_dataset.html#polaris.tasks.ocean.Ocean.open_model_dataset" title="polaris.tasks.ocean.Ocean.open_model_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ocean.open_model_dataset</span></code></a>(filename, **kwargs)</p></td>
+<td><p>Open the given dataset, mapping variable and dimension names from Omega to MPAS-Ocean names if appropriate</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.add_tasks.add_ocean_tasks.html#polaris.tasks.ocean.add_tasks.add_ocean_tasks" title="polaris.tasks.ocean.add_tasks.add_ocean_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_tasks.add_ocean_tasks</span></code></a>(component)</p></td>
 <td><p>Add all ocean-related tasks to the ocean component.</p></td>
@@ -528,7 +552,7 @@
 <td><p>Run this step of the test case</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.init.Init.setup.html#polaris.tasks.ocean.manufactured_solution.init.Init.setup" title="polaris.tasks.ocean.manufactured_solution.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
-<td><p>If the ocean model is Omega, set up maps between Omega and MPAS-Ocean variable names</p></td>
+<td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.manufactured_solution.viz.Viz.html#polaris.tasks.ocean.manufactured_solution.viz.Viz" title="polaris.tasks.ocean.manufactured_solution.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, dependencies, subdir[, ...])</p></td>
 <td><p>A step for visualizing the output from the manufactured solution test case</p></td>
@@ -568,7 +592,7 @@
 <td><p>A step for creating a mesh and initial condition for merry-go-round task</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.init.Init.setup.html#polaris.tasks.ocean.merry_go_round.init.Init.setup" title="polaris.tasks.ocean.merry_go_round.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
-<td><p>If the ocean model is Omega, set up maps between Omega and MPAS-Ocean variable names</p></td>
+<td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.merry_go_round.init.Init.run.html#polaris.tasks.ocean.merry_go_round.init.Init.run" title="polaris.tasks.ocean.merry_go_round.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the task</p></td>
@@ -611,7 +635,7 @@
 <td><p>A step for creating a mesh and initial condition for overflow test cases.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.init.Init.setup.html#polaris.tasks.ocean.overflow.init.Init.setup" title="polaris.tasks.ocean.overflow.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
-<td><p>If the ocean model is Omega, set up maps between Omega and MPAS-Ocean variable names</p></td>
+<td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.init.Init.run.html#polaris.tasks.ocean.overflow.init.Init.run" title="polaris.tasks.ocean.overflow.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
@@ -832,11 +856,11 @@
 <h3>Ocean Model<a class="headerlink" href="#ocean-model" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.html#polaris.ocean.model.OceanIOStep" title="polaris.ocean.model.OceanIOStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep</span></code></a>(component, name, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.html#polaris.ocean.model.OceanIOStep" title="polaris.ocean.model.OceanIOStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep</span></code></a>(component, **kwargs)</p></td>
 <td><p>A step that writes input and/or output files for Omega or MPAS-Ocean</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.setup.html#polaris.ocean.model.OceanIOStep.setup" title="polaris.ocean.model.OceanIOStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.setup</span></code></a>()</p></td>
-<td><p>If the ocean model is Omega, set up maps between Omega and MPAS-Ocean variable names</p></td>
+<td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.map_to_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_to_native_model_vars" title="polaris.ocean.model.OceanIOStep.map_to_native_model_vars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.map_to_native_model_vars</span></code></a>(ds)</p></td>
 <td><p>If the model is Omega, rename dimensions and variables in a dataset from their MPAS-Ocean names to the Omega equivalent (appropriate for input datasets like an initial condition)</p></td>
