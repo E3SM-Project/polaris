@@ -4,7 +4,7 @@ from polaris.ocean.model import OceanModelStep
 
 class Forward(OceanModelStep):
     """
-    A step for performing forward MPAS-Ocean runs as part of overflow
+    A step for performing forward MPAS-Ocean runs as part of barotropic channel
     test cases.
 
     Attributes
