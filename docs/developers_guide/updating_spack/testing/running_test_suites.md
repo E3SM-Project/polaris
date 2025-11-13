@@ -23,35 +23,35 @@ with Intel and OpenMPI):
    ```
 
    *(Replace `chrysalis`, `intel`, and `openmpi` with your machine, compiler,
-   and MPI as appropriate. See the table in
-   {ref}`dev-mpas-supported-machines`.)*
+   and MPI as appropriate. See {ref}`dev-mpas-supported-machines`.)*
 
-3. **Create a Worktree for E3SM**
+3. **Set Up (and Auto-Build) the Suite**
+
+   Let Polaris make a clean build MPAS-Ocean for you with `--clean_build`
+   and `--model mpas-ocean`:
 
    ```bash
-   cd e3sm_submodules/E3SM-Project
-   git worktree add ../e3sm_chrysalis_intel_openmpi
-   cd ../e3sm_chrysalis_intel_openmpi/components/mpas-ocean
-   git submodule update --init --recursive .
+   polaris suite -c ocean -t pr --clean_build --model mpas-ocean\
+       -w /path/to/polaris_scratch/mpaso_pr_intel_openmpi
    ```
 
-4. **Build MPAS-Ocean**
+   Notes:
+   - By default, Polaris builds into
+     `build_mpas_ocean/build_<machine>_<compiler>_<mpi>` and generates a build
+     script under `build_mpas_ocean/` (see {ref}`dev-build`).
+   - Don't use the`--branch` flag so that, the E3SM submodule in your Polaris
+     tree is used, and required submodules are checked out automatically.
+   - You can pass extra make flags via `--cmake_flags` (e.g.,
+     `--cmake_flags "-j 8"`).
+
+4. **Run the Suite**
 
    ```bash
-   make ifort
-   ```
-   *(Use the correct make target for your machine and compiler. See the table
-   in {ref}`dev-mpas-supported-machines`.)*
-
-5. **Set Up and Run the Test Suite**
-
-   ```bash
-   polaris suite -c ocean -t pr -p . -w /path/to/polaris_scratch/pr_intel_openmpi
-   cd /path/to/polaris_scratch/pr_intel_openmpi
+   cd /path/to/polaris_scratch/mpaso_pr_intel_openmpi
    sbatch job_script_pr.sh
    ```
 
-6. **Check Results**
+5. **Check Results**
 
    Wait for the job to complete. If all tests pass, check the box for this
    configuration in your PR. If not, file an issue (in the Polaris repo), note
@@ -60,7 +60,7 @@ with Intel and OpenMPI):
 
 ---
 
-## Omega: Running CTests
+## Omega: Running CTests and `omega_pr` Suite
 
 For each machine, compiler, and MPI combination (for example, on Chrysalis
 with Intel and OpenMPI):
@@ -83,12 +83,43 @@ with Intel and OpenMPI):
    ./utils/omega/ctest/omega_ctest.py -c -s -o e3sm_submodules/Omega
    ```
 
-4. **Check Results**
+4. **Check CTest Results**
 
    Wait for the tests to complete. If all tests pass, check the box for this
    configuration in your PR. If not, file an issue (in the Polaris or Omega
    repo), note the problem, and link to the issue next to the (unchecked)
    checkbox in the PR description.
+
+5. **Set Up (and Auto-Build) the Suite**
+
+   Omega will have already been built by the CTest utility in the default
+   location where Polaris will look when setting up a test suite,
+   `build_omega/build_<machine>_<compiler>` (see {ref}`dev-build`).  You can
+   set up the `omega_pr` suite with:
+
+   ```bash
+   polaris suite -c ocean -t omega_pr --model omega \
+       -w /path/to/polaris_scratch/omega_pr_intel_openmpi
+   ```
+
+   Notes:
+   - Don't use the`--branch` flag so that, the Omega submodule in your Polaris
+     tree is used, and required submodules are checked out automatically.
+   - You can pass extra CMake flags via `--cmake_flags`
+
+6. **Run the Suite**
+
+   ```bash
+   cd /path/to/polaris_scratch/omega_pr_intel_openmpi
+   sbatch job_script_omega_pr.sh
+   ```
+
+7. **Check Results**
+
+   Wait for the job to complete. If all tests pass, check the box for this
+   configuration in your PR. If not, file an issue (in the Polaris repo), note
+   the problem, and link to the issue next to the (unchecked) checkbox in the
+   PR description.
 
 ---
 
