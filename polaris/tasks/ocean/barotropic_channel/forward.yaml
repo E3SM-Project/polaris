@@ -1,18 +1,28 @@
-mpas-ocean:
+ocean:
   time_management:
     config_stop_time: none
     config_run_duration: 0010_00:00:00
   time_integration:
-    config_dt: 00:01:00
+    config_dt: 00:00:10
+  hmix_del2:
+    config_use_mom_del2: true
+    config_mom_del2: {{ nu }}
+  hmix_del4:
+    config_use_mom_del4: false
+  forcing:
+    config_use_bulk_wind_stress: true
+  bottom_drag:
+    config_explicit_constant_bottom_drag_coeff: {{ drag }}
+  debug:
+    config_disable_vel_explicit_bottom_drag: true
+
+mpas-ocean:
+  time_integration:
     config_time_integrator: split_explicit_ab2
-    #config_time_integrator: RK4
   io:
     config_write_output_on_startup: false
   lateral_walls:
     config_wall_slip_factor: 0.0
-  hmix_del2:
-    config_use_mom_del2: true
-    config_mom_del2: {{ nu }}
   pressure_gradient:
     config_pressure_gradient_type: pressure_and_zmid
   bottom_drag:
@@ -62,3 +72,78 @@ mpas-ocean:
       - daysSinceStartOfSim
       - circulation
       - relativeVorticity
+
+Omega:
+  TimeIntegration:
+    TimeStepper: RungeKutta4
+  Tendencies:
+    TracerHorzAdvTendencyEnable : false
+    TracerDiffTendencyEnable : false
+    TracerHyperDiffTendencyEnable : false
+  Advection:
+    FluxThicknessType: Center
+  IOStreams:
+    InitialVertCoord:
+      UsePointerFile: false
+      Filename: OmegaMesh.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+        - InitVertCoord
+    InitialState:
+      UsePointerFile: false
+      Filename: init.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+      - State
+      - Base
+      - WindStressZonal
+      - WindStressMeridional
+    RestartRead:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: true
+      StartTime: 0001-01-01_00:00:01
+      EndTime: 99999-12-31_00:00:00
+      Contents:
+        - Restart
+    RestartWrite:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: 6
+      FreqUnits: months
+      UseStartEnd: false
+      Contents:
+        - Restart
+    History:
+      UsePointerFile: false
+      Filename: output.nc
+      Mode: write
+      IfExists: append
+      Precision: double
+      Freq: 1
+      FreqUnits: hours
+      UseStartEnd: false
+      Contents:
+      - MinLayerCell
+      - MaxLayerCell
+      - AuxiliaryState
+      - State
+      - SshCell
+      FileFreq: 9999
+      FileFreqUnits: years
