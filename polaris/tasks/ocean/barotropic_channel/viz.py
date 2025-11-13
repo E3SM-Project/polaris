@@ -10,7 +10,7 @@ from polaris.viz import plot_horiz_field
 
 class Viz(Step):
     """
-    A step for plotting the results of a series of baroclinic channel RPE runs
+    A step for plotting the results of barotropic channel forward step
     """
 
     def __init__(self, component, indir):
