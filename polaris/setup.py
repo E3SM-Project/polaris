@@ -7,6 +7,7 @@ import warnings
 from typing import Dict, List
 
 from polaris import Task, provenance
+from polaris.build.mpas_ocean import build_mpas_ocean
 from polaris.build.omega import build_omega
 from polaris.config import PolarisConfigParser
 from polaris.io import symlink
@@ -97,7 +98,7 @@ def setup_tasks(
         ``clean_build = True`` implies ``build = True``.
 
     cmake_flags : str, optional
-        Additional flags to pass to CMake when building the model
+        Additional flags to pass to make or CMake when building the model
 
     debug : bool, optional
         Whether to build the model in debug mode
@@ -161,7 +162,11 @@ def setup_tasks(
     build = section.getboolean('build')
 
     if build:
-        _build_model(basic_config=basic_config, component=component)
+        _build_model(
+            basic_config=basic_config,
+            component=component,
+            machine=machine,
+        )
 
     if clean_work:
         print('')
@@ -441,7 +446,8 @@ def main():
     parser.add_argument(
         '--cmake_flags',
         dest='cmake_flags',
-        help='Additional flags to pass to CMake when building the model.',
+        help='Additional flags to pass to make or CMake when building the '
+        'model.',
     )
     parser.add_argument(
         '--debug',
@@ -917,7 +923,7 @@ def _check_dependencies(tasks):
                     )
 
 
-def _build_model(basic_config, component):
+def _build_model(basic_config, component, machine):
     model = basic_config.get(component.name, 'model')
     section = basic_config['build']
     branch = section.get('branch')
@@ -940,6 +946,26 @@ def _build_model(basic_config, component):
             debug=debug,
             cmake_flags=cmake_flags,
             account=account,
+        )
+    elif model == 'mpas-ocean':
+        section = basic_config['build']
+        compiler = section.get('compiler')
+        mpilib = section.get('mpi')
+        key = f'{compiler}_{mpilib}_target'
+        if not section.has_option(key):
+            raise ValueError(
+                f'The build target {key} is not defined in the [build] '
+                f'section of the config file for machine {machine}.'
+            )
+        make_target = section.get(key)
+
+        build_mpas_ocean(
+            branch=branch,
+            build_dir=build_dir,
+            clean=clean_build,
+            debug=debug,
+            make_flags=cmake_flags,
+            make_target=make_target,
         )
     else:
         raise ValueError(
