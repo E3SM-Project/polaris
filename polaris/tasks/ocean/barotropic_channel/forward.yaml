@@ -11,10 +11,10 @@ ocean:
     config_use_mom_del4: false
   forcing:
     config_use_bulk_wind_stress: true
+  debug: Tendencies
+    config_disable_vel_explicit_bottom_drag: false
   bottom_drag:
     config_explicit_constant_bottom_drag_coeff: {{ drag }}
-  debug:
-    config_disable_vel_explicit_bottom_drag: true
 
 mpas-ocean:
   time_integration:
@@ -25,9 +25,6 @@ mpas-ocean:
     config_wall_slip_factor: 0.0
   pressure_gradient:
     config_pressure_gradient_type: pressure_and_zmid
-  bottom_drag:
-    config_implicit_bottom_drag_type: constant
-    config_implicit_constant_bottom_drag_coeff: {{ drag }}
   ALE_vertical_grid:
     config_vert_coord_movement: uniform_stretching
     config_ALE_thickness_proportionality: restingThickness_times_weights
@@ -36,6 +33,8 @@ mpas-ocean:
     config_use_cvmix_convection: true
   split_explicit_ts:
     config_btr_dt: 00:00:05
+  bottom_drag:
+    config_bottom_drag_mode: explicit
   forcing:
     config_use_bulk_wind_stress: true
   debug:
