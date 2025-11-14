@@ -116,6 +116,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">mpas_tools.io</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoggingContext</span><span class="p">,</span> <span class="n">check_call</span>
@@ -202,6 +203,9 @@
         <span class="n">suite_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">task_times</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="n">result_strs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">total_tasks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">suite</span><span class="p">[</span><span class="s1">&#39;tasks&#39;</span><span class="p">])</span>
+        <span class="n">exec_fail_tasks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">diff_fail_tasks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">task_name</span> <span class="ow">in</span> <span class="n">suite</span><span class="p">[</span><span class="s1">&#39;tasks&#39;</span><span class="p">]:</span>
             <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
@@ -215,7 +219,13 @@
                 <span class="n">log_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/case_outputs/</span><span class="si">{</span><span class="n">task_prefix</span><span class="si">}</span><span class="s1">.log&#39;</span>
                 <span class="n">task_logger</span> <span class="o">=</span> <span class="kc">None</span>
 
-            <span class="n">result_str</span><span class="p">,</span> <span class="n">success</span><span class="p">,</span> <span class="n">task_time</span> <span class="o">=</span> <span class="n">_log_and_run_task</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">result_str</span><span class="p">,</span>
+                <span class="n">success</span><span class="p">,</span>
+                <span class="n">task_time</span><span class="p">,</span>
+                <span class="n">exec_failed</span><span class="p">,</span>
+                <span class="n">diff_failed</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">_log_and_run_task</span><span class="p">(</span>
                 <span class="n">task</span><span class="p">,</span>
                 <span class="n">stdout_logger</span><span class="p">,</span>
                 <span class="n">task_logger</span><span class="p">,</span>
@@ -229,11 +239,27 @@
             <span class="n">result_strs</span><span class="p">[</span><span class="n">task_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_str</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
                 <span class="n">failures</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">exec_failed</span><span class="p">:</span>
+                <span class="n">exec_fail_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">diff_failed</span><span class="p">:</span>
+                <span class="n">diff_fail_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_name</span><span class="p">)</span>
             <span class="n">task_times</span><span class="p">[</span><span class="n">task_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">task_time</span>
 
         <span class="n">suite_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">suite_start</span>
 
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+
+        <span class="c1"># Write a concise, copy/paste-friendly summary for Omega PRs</span>
+        <span class="n">_write_output_for_pull_request</span><span class="p">(</span>
+            <span class="n">suite_name</span><span class="p">,</span>
+            <span class="n">suite</span><span class="p">,</span>
+            <span class="n">results</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="n">total_tasks</span><span class="p">,</span>
+                <span class="s1">&#39;failures&#39;</span><span class="p">:</span> <span class="n">exec_fail_tasks</span><span class="p">,</span>
+                <span class="s1">&#39;diffs&#39;</span><span class="p">:</span> <span class="n">diff_fail_tasks</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
         <span class="n">_log_task_runtimes</span><span class="p">(</span>
             <span class="n">stdout_logger</span><span class="p">,</span> <span class="n">task_times</span><span class="p">,</span> <span class="n">result_strs</span><span class="p">,</span> <span class="n">suite_time</span><span class="p">,</span> <span class="n">failures</span>
         <span class="p">)</span></div>
@@ -483,6 +509,8 @@
         <span class="n">task_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="n">task_list</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">)</span>
         <span class="n">task_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Running steps: </span><span class="si">{</span><span class="n">task_list</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># Default in case execution fails before setting this</span>
+        <span class="n">baselines_passed</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">baselines_passed</span> <span class="o">=</span> <span class="n">_run_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">available_resources</span><span class="p">)</span>
             <span class="n">run_status</span> <span class="o">=</span> <span class="n">success_str</span>
@@ -526,7 +554,9 @@
             <span class="sa">f</span><span class="s1">&#39;  task runtime:     </span><span class="si">{</span><span class="n">start_time_color</span><span class="si">}{</span><span class="n">task_time_str</span><span class="si">}{</span><span class="n">end_color</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">result_str</span><span class="p">,</span> <span class="n">success</span><span class="p">,</span> <span class="n">task_time</span>
+    <span class="n">exec_failed</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">task_pass</span>
+    <span class="n">diff_failed</span> <span class="o">=</span> <span class="n">baselines_passed</span> <span class="ow">is</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">result_str</span><span class="p">,</span> <span class="n">success</span><span class="p">,</span> <span class="n">task_time</span><span class="p">,</span> <span class="n">exec_failed</span><span class="p">,</span> <span class="n">diff_failed</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_run_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">available_resources</span><span class="p">):</span>
@@ -721,6 +751,164 @@
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
         <span class="n">step_args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;polaris&#39;</span><span class="p">,</span> <span class="s1">&#39;serial&#39;</span><span class="p">,</span> <span class="s1">&#39;--step_is_subprocess&#39;</span><span class="p">]</span>
         <span class="n">check_call</span><span class="p">(</span><span class="n">step_args</span><span class="p">,</span> <span class="n">step_logger</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_output_for_pull_request</span><span class="p">(</span>
+    <span class="n">suite_name</span><span class="p">,</span> <span class="n">suite</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse metadata from the provenance file and write a concise summary that</span>
+<span class="sd">    can be copy/pasted into an Omega pull request.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    suite_name : str</span>
+<span class="sd">        The name of the suite (or &#39;task&#39;) being run.</span>
+
+<span class="sd">    suite : dict</span>
+<span class="sd">        The unpickled suite dictionary containing tasks and base work dir.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">work_dir</span> <span class="o">=</span> <span class="n">suite</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;work_dir&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+    <span class="n">provenance_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;provenance&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">provenance_path</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="c1"># keys in provenance are written exactly like these labels</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;baseline work directory&#39;</span><span class="p">:</span> <span class="s1">&#39;baseline&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;build directory&#39;</span><span class="p">:</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;work directory&#39;</span><span class="p">:</span> <span class="s1">&#39;work&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;machine&#39;</span><span class="p">:</span> <span class="s1">&#39;machine&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;partition&#39;</span><span class="p">:</span> <span class="s1">&#39;partition&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;compiler&#39;</span><span class="p">:</span> <span class="s1">&#39;compiler&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">values</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">values</span><span class="p">()}</span>
+    <span class="n">_parse_provenance_into</span><span class="p">(</span><span class="n">provenance_path</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+
+    <span class="c1"># If a baseline workdir exists, parse its provenance to get baseline build</span>
+    <span class="n">baseline_build</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">baseline_build</span> <span class="o">=</span> <span class="n">_parse_baseline_build</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;baseline&#39;</span><span class="p">))</span>
+
+    <span class="c1"># Build the output content. Only include optional lines if present.</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;### Polaris `</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">` suite&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">values</span><span class="p">[</span><span class="s1">&#39;baseline&#39;</span><span class="p">]:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;- Baseline workdir: `</span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;baseline&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">`&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">baseline_build</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;- Baseline build: `</span><span class="si">{</span><span class="n">baseline_build</span><span class="si">}</span><span class="s1">`&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">values</span><span class="p">[</span><span class="s1">&#39;build&#39;</span><span class="p">]:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;- PR build: `</span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;build&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">`&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">values</span><span class="p">[</span><span class="s1">&#39;work&#39;</span><span class="p">]:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;- PR workdir: `</span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;work&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">`&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">values</span><span class="p">[</span><span class="s1">&#39;machine&#39;</span><span class="p">]:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;- Machine: `</span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;machine&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">`&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">values</span><span class="p">[</span><span class="s1">&#39;partition&#39;</span><span class="p">]:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;- Partition: `</span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;partition&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">`&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">values</span><span class="p">[</span><span class="s1">&#39;compiler&#39;</span><span class="p">]:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;- Compiler: `</span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;compiler&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">`&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Placeholder for developer to fill in</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;- Build type: &lt;Debug|Release&gt;&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Try to include job scheduler log path for Slurm</span>
+    <span class="n">job_log</span> <span class="o">=</span> <span class="n">_derive_job_log_path</span><span class="p">(</span><span class="n">suite_name</span><span class="p">,</span> <span class="n">suite</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">job_log</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">job_log</span><span class="p">):</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;- Log: `</span><span class="si">{</span><span class="n">job_log</span><span class="si">}</span><span class="s1">`&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;- Log: not found&#39;</span><span class="p">)</span>
+
+    <span class="c1"># If we have results, summarize them</span>
+    <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;total&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">failures</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;failures&#39;</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[])</span>
+        <span class="n">diffs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;diffs&#39;</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[])</span>
+
+        <span class="k">if</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">failures</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">diffs</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;- Result: All tests passed&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;- Result:&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">failures</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  - Failures (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failures</span><span class="p">)</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1">):&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">failures</span><span class="p">:</span>
+                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    - </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">diffs</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  - Diffs (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">diffs</span><span class="p">)</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1">):&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">diffs</span><span class="p">:</span>
+                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    - `</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">`&#39;</span><span class="p">)</span>
+
+    <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">_output_for_pr.md&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Writing output useful for copy/paste into PRs to:</span><span class="se">\n</span><span class="s1">  </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done.&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_provenance_into</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">target_values</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;:&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                    <span class="n">target_values</span><span class="p">[</span><span class="n">labels</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">):</span>
+        <span class="c1"># silent failure; helper is best-effort</span>
+        <span class="k">pass</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_baseline_build</span><span class="p">(</span><span class="n">baseline_workdir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">baseline_workdir</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">baseline_workdir</span><span class="p">,</span> <span class="s1">&#39;provenance&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;:&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;build directory&#39;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">val</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_derive_job_log_path</span><span class="p">(</span><span class="n">suite_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">suite</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Best-effort reconstruction of the Slurm job log path.&quot;&quot;&quot;</span>
+    <span class="n">job_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SLURM_JOB_ID&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">job_id</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Reconstruct the job_name the same way the job script did</span>
+    <span class="c1"># using the common component config</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">suite</span><span class="p">[</span><span class="s1">&#39;tasks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="n">component</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span>
+        <span class="n">common_config</span> <span class="o">=</span> <span class="n">setup_config</span><span class="p">(</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+        <span class="p">)</span>
+        <span class="n">job_name</span> <span class="o">=</span> <span class="n">common_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;job_name&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">job_name</span> <span class="o">==</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
+            <span class="n">suite_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">suite_name</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">job_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;polaris</span><span class="si">{</span><span class="n">suite_suffix</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">work_dir</span> <span class="o">=</span> <span class="n">suite</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;work_dir&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s1">.o</span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">StopIteration</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
 </pre></div>
 
            </div>

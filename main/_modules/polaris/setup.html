@@ -233,7 +233,13 @@
 
     <span class="n">component</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">basic_config</span><span class="p">)</span>
 
-    <span class="n">provenance</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">)</span>
+    <span class="n">provenance</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+        <span class="n">work_dir</span><span class="p">,</span>
+        <span class="n">tasks</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">,</span>
+        <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
+        <span class="n">baseline_dir</span><span class="o">=</span><span class="n">baseline_dir</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>

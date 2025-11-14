@@ -115,10 +115,14 @@
 
 <div class="viewcode-block" id="write">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.provenance.write.html#polaris.provenance.write">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">machine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Write a file with provenance, such as the git version, conda packages,</span>
-<span class="sd">    command, and tasks, to the work directory</span>
+<span class="sd">    command, and tasks, to the work directory.</span>
+
+<span class="sd">    This function overwrites any existing provenance file in the work</span>
+<span class="sd">    directory rather than appending, so the provenance reflects the most</span>
+<span class="sd">    recent call to Polaris that used this work directory.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -128,9 +132,15 @@
 <span class="sd">    tasks : dict</span>
 <span class="sd">        A dictionary describing all of the tasks and their steps</span>
 
-<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser, optional</span>
 <span class="sd">        Configuration options for this task, a combination of user configs</span>
 <span class="sd">        and the defaults for the machine and component</span>
+
+<span class="sd">    machine : str, optional</span>
+<span class="sd">        The machine on which Polaris is being run</span>
+
+<span class="sd">    baseline_dir : str, optional</span>
+<span class="sd">        The path to the baseline work directory, if any</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">polaris_git_version</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;.git&#39;</span><span class="p">):</span>
@@ -162,11 +172,8 @@
         <span class="k">pass</span>
 
     <span class="n">provenance_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">work_dir</span><span class="si">}</span><span class="s1">/provenance&#39;</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">provenance_path</span><span class="p">):</span>
-        <span class="n">provenance_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">provenance_path</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span>
-        <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">provenance_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">provenance_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="c1"># Always overwrite to ensure provenance reflects the latest setup/suite</span>
+    <span class="n">provenance_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">provenance_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
 
     <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
         <span class="s1">&#39;**************************************************&#39;</span>
@@ -181,6 +188,14 @@
             <span class="sa">f</span><span class="s1">&#39;component git version: </span><span class="si">{</span><span class="n">component_git_version</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">&#39;</span>
         <span class="p">)</span>
     <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;command: </span><span class="si">{</span><span class="n">calling_command</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Add readily parsable, PR-friendly metadata discovered at setup time</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;machine&#39;</span><span class="p">,</span> <span class="n">machine</span><span class="p">)</span>
+    <span class="n">_write_scheduler_metadata</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;compiler&#39;</span><span class="p">,</span> <span class="n">_get_compiler</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;work directory&#39;</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;build directory&#39;</span><span class="p">,</span> <span class="n">_get_build_dir</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;baseline work directory&#39;</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">)</span>
     <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;tasks:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -239,6 +254,113 @@
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">component_git_version</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_system</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;system&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;system&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_scheduler_fields</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve partition/qos/constraint (slurm) or just constraint (pbs).&quot;&quot;&quot;</span>
+    <span class="n">partition</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">qos</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">constraint</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">partition</span><span class="p">,</span> <span class="n">qos</span><span class="p">,</span> <span class="n">constraint</span>
+
+    <span class="k">if</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;pbs&#39;</span><span class="p">:</span>
+        <span class="c1"># PBS: only constraint is relevant for our purposes</span>
+        <span class="n">cons_val</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;constraint&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;constraint&#39;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">cons_val</span> <span class="ow">and</span> <span class="n">cons_val</span> <span class="o">!=</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
+            <span class="n">constraint</span> <span class="o">=</span> <span class="n">cons_val</span>
+        <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;constraints&#39;</span><span class="p">):</span>
+            <span class="n">cons_list</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;constraints&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cons_list</span><span class="p">:</span>
+                <span class="n">constraint</span> <span class="o">=</span> <span class="n">cons_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">partition</span><span class="p">,</span> <span class="n">qos</span><span class="p">,</span> <span class="n">constraint</span>
+
+    <span class="c1"># Default to slurm-like resolution</span>
+    <span class="n">part_val</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;partition&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;partition&#39;</span><span class="p">)</span>
+        <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">part_val</span> <span class="ow">and</span> <span class="n">part_val</span> <span class="o">!=</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
+        <span class="n">partition</span> <span class="o">=</span> <span class="n">part_val</span>
+    <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;partitions&#39;</span><span class="p">):</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;partitions&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parts</span><span class="p">:</span>
+            <span class="n">partition</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">qos_val</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">qos_val</span> <span class="ow">and</span> <span class="n">qos_val</span> <span class="o">!=</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
+        <span class="n">qos</span> <span class="o">=</span> <span class="n">qos_val</span>
+    <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">):</span>
+        <span class="n">qos_list</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">qos_list</span><span class="p">:</span>
+            <span class="n">qos</span> <span class="o">=</span> <span class="n">qos_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">cons_val</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;constraint&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;constraint&#39;</span><span class="p">)</span>
+        <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">cons_val</span> <span class="ow">and</span> <span class="n">cons_val</span> <span class="o">!=</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
+        <span class="n">constraint</span> <span class="o">=</span> <span class="n">cons_val</span>
+    <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;constraints&#39;</span><span class="p">):</span>
+        <span class="n">cons_list</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;constraints&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cons_list</span><span class="p">:</span>
+            <span class="n">constraint</span> <span class="o">=</span> <span class="n">cons_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">partition</span><span class="p">,</span> <span class="n">qos</span><span class="p">,</span> <span class="n">constraint</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_compiler</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;deploy&#39;</span><span class="p">,</span> <span class="s1">&#39;compiler&#39;</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;deploy&#39;</span><span class="p">,</span> <span class="s1">&#39;compiler&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">val</span> <span class="ow">or</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_build_dir</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">val</span> <span class="ow">or</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a simple &#39;label: value&#39; line if value is provided.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_scheduler_metadata</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write partition/qos/constraint metadata when available.&quot;&quot;&quot;</span>
+    <span class="n">system</span> <span class="o">=</span> <span class="n">_get_system</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">partition</span><span class="p">,</span> <span class="n">qos</span><span class="p">,</span> <span class="n">constraint</span> <span class="o">=</span> <span class="n">_resolve_scheduler_fields</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">)</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;partition&#39;</span><span class="p">,</span> <span class="n">partition</span><span class="p">)</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">,</span> <span class="n">qos</span><span class="p">)</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;constraint&#39;</span><span class="p">,</span> <span class="n">constraint</span><span class="p">)</span>
+    <span class="c1"># No return value; this function only writes metadata lines</span>
 </pre></div>
 
            </div>
