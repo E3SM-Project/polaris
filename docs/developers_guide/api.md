@@ -295,6 +295,20 @@ seaice/api
    make_graph_file
 ```
 
+### build
+
+```{eval-rst}
+.. currentmodule:: polaris.build
+
+.. autosummary::
+   :toctree: generated/
+
+   mpas_ocean.build_mpas_ocean
+   mpas_ocean.make_build_script
+   omega.build_omega
+   omega.make_build_script
+```
+
 ### mpas
 
 ```{eval-rst}

@@ -4,8 +4,7 @@ import argparse
 import os
 import subprocess
 
-from jinja2 import Template
-
+from polaris.build.omega import make_build_script as make_base_build_script
 from polaris.config import PolarisConfigParser
 from polaris.io import download, update_permissions
 from polaris.job import write_job_script
@@ -25,78 +24,53 @@ def make_build_script(
     account,
 ):
     """
-    Make a shell script for checking out Omega and its submodules, building
-    Omega and its ctests, linking to testing data files, and running ctests.
+    Make a shell script using the standard Omega builder, then append
+    CTest-specific commands (link meshes and optionally run ctests).
     """
 
-    polaris_source_dir = os.environ['POLARIS_BRANCH']
-    metis_root = os.environ['METIS_ROOT']
-    parmetis_root = os.environ['PARMETIS_ROOT']
-
-    build_dir = f'build_{machine}_{compiler}'
-
-    branch = os.path.abspath(branch)
-    omega_submodule = os.path.join(polaris_source_dir, 'e3sm_submodules/Omega')
-    update_omega_submodule = branch == omega_submodule
-
-    this_dir = os.path.realpath(
-        os.path.join(os.getcwd(), os.path.dirname(__file__))
-    )
-
-    template_filename = os.path.join(this_dir, 'build_and_ctest.template')
-
-    with open(template_filename, 'r', encoding='utf-8') as f:
-        template = Template(f.read())
-
-    if debug:
-        build_type = 'Debug'
-    else:
-        build_type = 'Release'
-
-    if cmake_flags is None:
-        cmake_flags = ''
-
-    if account is not None:
-        cmake_flags = f'{cmake_flags} -DOMEGA_CIME_PROJECT={account}'
-
-    if machine in ['pm-cpu', 'pm-gpu']:
-        nersc_host = 'export NERSC_HOST="perlmuter"'
-    else:
-        nersc_host = ''
-
-    script = template.render(
-        update_omega_submodule=update_omega_submodule,
-        polaris_source_dir=polaris_source_dir,
-        omega_base_dir=branch,
-        build_dir=build_dir,
-        machine=machine,
-        compiler=compiler,
-        metis_root=metis_root,
-        parmetis_root=parmetis_root,
-        omega_mesh_filename=mesh_filename,
-        omega_planar_mesh_filename=planar_mesh_filename,
-        omega_sphere_mesh_filename=sphere_mesh_filename,
-        run_ctest=(not build_only),
-        build_type=build_type,
-        clean=clean,
-        cmake_flags=cmake_flags,
-        nersc_host=nersc_host,
-    )
-
+    # Use the standard builder to generate the build script
     build_omega_dir = os.path.abspath('build_omega')
     os.makedirs(build_omega_dir, exist_ok=True)
 
+    # Ensure the build directory matches job script expectations
+    build_dir = os.path.join(build_omega_dir, f'build_{machine}_{compiler}')
+
+    base_script = make_base_build_script(
+        machine=machine,
+        compiler=compiler,
+        branch=branch,
+        build_dir=build_dir,
+        debug=debug,
+        clean=clean,
+        cmake_flags=cmake_flags,
+        account=account,
+    )
+
+    # we need to symlink the 3 meshes regardless of whether we run CTests now
+    # or later
+    extra = (
+        f'\n\nln -sfn {mesh_filename} test/OmegaMesh.nc\n'
+        f'ln -sfn {planar_mesh_filename} test/OmegaPlanarMesh.nc\n'
+        f'ln -sfn {sphere_mesh_filename} test/OmegaSphereMesh.nc\n'
+    )
+
     if build_only:
-        script_filename = f'build_omega_{machine}_{compiler}.sh'
+        appended_script = base_script
     else:
-        script_filename = f'build_and_ctest_omega_{machine}_{compiler}.sh'
+        appended_script = os.path.join(
+            build_omega_dir, f'build_and_ctest_omega_{machine}_{compiler}.sh'
+        )
 
-    script_filename = os.path.join(build_omega_dir, script_filename)
+        extra = f'{extra}./omega_ctest.sh\n'
 
-    with open(script_filename, 'w', encoding='utf-8') as f:
-        f.write(script)
+    with open(base_script, 'r', encoding='utf-8') as f:
+        content = f.read()
 
-    return script_filename
+    with open(appended_script, 'w', encoding='utf-8') as f:
+        f.write(content)
+        f.write(extra)
+
+    return appended_script
 
 
 def download_meshes(config):

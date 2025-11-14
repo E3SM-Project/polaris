@@ -3,8 +3,8 @@
 # Command-line interface
 
 The command-line interface for polaris acts essentially like 4 independent
-scripts: `polaris list`, `polaris setup`, `polaris suite`, and 
-`polaris serial`.  These are the primary user interface to the package, as 
+scripts: `polaris list`, `polaris setup`, `polaris suite`, and
+`polaris serial`.  These are the primary user interface to the package, as
 described below.
 
 When the `polaris` package is installed into your conda environment, you can
@@ -54,8 +54,8 @@ Instead of listing tasks, you can list all the supported machines that can
 be passed to the `polaris setup` and `polaris suite` by using the
 `--machines` flag.
 
-Similarly, you can list all the available suites for all 
-{ref}`dev-components` by using the `--suites` flag.  The result are the flags 
+Similarly, you can list all the available suites for all
+{ref}`dev-components` by using the `--suites` flag.  The result are the flags
 that would be passed  to `polaris suite` as part of setting up this suite.
 
 The `-v` or `--verbose` flag lists more detail about each task,
@@ -83,8 +83,9 @@ See {ref}`dev-list` for more about the underlying framework.
 The `polaris setup` command is used to set up one or more tasks.
 
 :::{note}
-You must have built the executable for the standalone MPAS component you
-want to run before setting up a polaris task.
+You must have a built executable for the standalone component you want to run
+unless you provide the new build flags below. With `--build`, Polaris can
+build MPAS-Ocean or Omega automatically during `polaris setup`.
 :::
 
 The command-line options are:
@@ -103,7 +104,7 @@ command-line options.
 The tasks to set up can be specified either by relative path or by number.
 The `-t` or `--task` flag is used to pass the relative path of the task
 within the resulting work directory.  The is the path given by
-{ref}`dev-polaris-list`.  You can specify several tasks at once, separated by 
+{ref}`dev-polaris-list`.  You can specify several tasks at once, separated by
 spaces, this way.
 
 Alternatively, you can supply the task numbers of any number of tasks to
@@ -120,7 +121,7 @@ above for how to list the supported machines.
 
 You can supply the directory where you have built the MPAS component with the
 `-p` or `--component_path` flag.  This can be a relative or absolute path.  The
-default for the `landice` component is 
+default for the `landice` component is
 `e3sm_submodules/MALI-Dev/components/mpas-albany-landice`
 and the default for the `ocean` component depends on whether you are using
 MPAS-Ocean or Omega.  For MPAS-Ocean, it is
@@ -133,7 +134,7 @@ more (see {ref}`config-files` and {ref}`setup-overview`).  Point to your config
 file using the `-f` or `--config_file` flag.
 
 The `-w` or `--work_dir` flags point to a relative or absolute path that
-is the base path where the task(s) should be set up.  It is required that 
+is the base path where the task(s) should be set up.  It is required that
 you supply a work directory, and we recommend not using the polaris repo itself
 but instead use a temp or scratch directory to avoid confusing the polaris code
 with tasks setups and output within the branch.
@@ -158,7 +159,7 @@ dependencies.
 You can uses `--cached` to specify steps of a test case to download from
 pre-generated files if they are available (see {ref}`dev-polaris-cache`.)
 
-If you specify `--copy_executable`, the model executable will be copied to the 
+If you specify `--copy_executable`, the model executable will be copied to the
 work directory rather than just symlinked.  This is useful if wish to run
 the tasks again later but anticipate that you may have removed (or replaced)
 the model code.
@@ -169,6 +170,46 @@ want to do a fresh run, since polaris will not rerun steps that have already
 been run.
 
 See {ref}`dev-setup` for more about the underlying framework.
+
+### Automatic component builds (MPAS-Ocean and Omega)
+
+`polaris setup` can build the component for you when you pass `--build`. These
+flags configure the build:
+
+- `--build`: Enable automatic build. If not set, Polaris assumes the component
+   has already been built at `--component_path`.
+- `--branch <path>`: Path to the development branch to build (E3SM-Project for
+   MPAS-Ocean or Omega repo for Omega). Defaults to the corresponding submodule
+   inside your Polaris branch (e.g., `e3sm_submodules/E3SM-Project` or
+   `e3sm_submodules/Omega`). Submodules required by the component are checked
+   out automatically.
+- `--clean_build`: Start from a clean build directory (removes prior CMake/
+   configure state, implying `--build`). Without this flag, an incremental build
+   is performed to save time when appropriate.
+- `--cmake_flags <string>`: Extra build flags. For MPAS-Ocean, this string is
+   passed through to `make` (e.g., `-j 8` for parallel builds, or additional
+   variable assignments); for Omega, it is passed through to CMake as additional
+   `-D` definitions.
+- `--debug`: Build in debug mode (Omega sets `CMAKE_BUILD_TYPE=Debug`; MPAS-
+   Ocean adds `debug=TRUE` to make flags).
+
+Defaults and paths:
+
+- Build output directory (`--component_path`) defaults to:
+   - Omega: `build_omega/build_<machine>_<compiler>`
+   - MPAS-Ocean: `build_mpas_ocean/build_<machine>_<compiler>_<mpi>`
+- Generated build scripts are saved to:
+   - Omega: `./build_omega/build_omega_<machine>_<compiler>.sh`
+   - MPAS-Ocean: `./build_mpas_ocean/build_mpas_ocean_<machine>_<compiler>_<mpi>.sh`
+
+MPAS-Ocean specifics:
+
+- Files required by Polaris (defaults, inputs needed by setup) are copied into
+   the build directory, so you can reuse the same MPAS-Ocean source tree to
+   produce multiple builds with different machines, compilers, and/or MPI
+   libraries.
+
+See {ref}`dev-build` for details on the build helpers and script generation.
 
 (dev-polaris-suite)=
 
@@ -189,22 +230,32 @@ command-line options.
 The required argument are `-c` or `--component`, one of the {ref}`dev-components`,
 where the suite and its tasks reside; and `-t` or `--test_suite`,
 the name of the suite.  These are the options listed when you run
-`polaris list --suites`. As with {ref}`dev-polaris-setup`, you must supply a 
+`polaris list --suites`. As with {ref}`dev-polaris-setup`, you must supply a
 work directory with `-w` or `--work_dir`.
 
 As in {ref}`dev-polaris-setup`, you can supply one or more of: a supported
 machine with `-m` or `--machine`; a path where you build MPAS model via
 `-p` or `--mpas_model`; and a config file containing config options to
 override the defaults with `-f` or `--config_file`.  As with
-{ref}`dev-polaris-setup`, you may optionally supply a baseline directory for 
-comparison with `-b` or `--baseline_dir`.  If supplied, each task in the 
-suite that includes {ref}`dev-validation` will be validated against the 
+{ref}`dev-polaris-setup`, you may optionally supply a baseline directory for
+comparison with `-b` or `--baseline_dir`.  If supplied, each task in the
+suite that includes {ref}`dev-validation` will be validated against the
 previous run in the baseline.
 
-The flags `--copy_executable`and `--clean` are the same as in 
+The flags `--copy_executable`and `--clean` are the same as in
 {ref}`dev-polaris-setup`.
 
 See {ref}`dev-suite` for more about the underlying framework.
+
+### Automatic component builds in suites
+
+`polaris suite` accepts the same build flags as `polaris setup` and will build
+the requested component before setting up the suite when `--build` is given:
+
+- `--build`, `--branch`, `--clean_build`, `--cmake_flags`, `--debug`
+
+Defaults for the build output directory and generated script locations are the
+same as listed above for `polaris setup`.
 
 (dev-polaris-run)=
 
@@ -282,16 +333,16 @@ the component subdirectory, which is redundant). The files include a date stamp
 so that new revisions can be added without removing older ones (supported by
 older polaris versions).  See {ref}`dev-step-cached-output` for more details.
 
-The command `polaris cache` is used to update the file `cached_files.json` 
-within a component.  This command is only available on Anvil and Chrysalis, 
-since developers can only copy files from a Polaris work directory onto the 
+The command `polaris cache` is used to update the file `cached_files.json`
+within a component.  This command is only available on Anvil and Chrysalis,
+since developers can only copy files from a Polaris work directory onto the
 LCRC server from these two machines.
 ```none
 $ polaris cache --help
 usage: polaris cache [-h] [-i STEP [STEP ...]] [-d DATE] [-r]
 ```
 
-Developers run `polaris cache` from the base work directory, giving the 
+Developers run `polaris cache` from the base work directory, giving the
 relative paths of the step whose outputs should be cached:
 
 ```bash
@@ -340,11 +391,11 @@ See {ref}`dev-cache` for more about the underlying framework.
 
 ## mpas_to_yaml
 
-For convenience of translating from compass to polaris, we have added an 
-`mpas_to_yaml` tool that can be used to convert a namelist and/or streams file 
-into a yaml file.  You need to point to a namelist template (e.g. 
-`namelist.ocean.forward` from the directory where you have built MPAS-Ocean) 
-because the compass namelist files don't include the namelist sections, 
+For convenience of translating from compass to polaris, we have added an
+`mpas_to_yaml` tool that can be used to convert a namelist and/or streams file
+into a yaml file.  You need to point to a namelist template (e.g.
+`namelist.ocean.forward` from the directory where you have built MPAS-Ocean)
+because the compass namelist files don't include the namelist sections,
 required by the yaml format.  Note that, for the `ocean` component, the `model`
 is a keyword that will be added at the top of the yaml file but is ignored when
 the yaml file gets parsed, so its value doesn't matter.  We recommend using

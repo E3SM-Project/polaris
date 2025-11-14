@@ -10,13 +10,7 @@ def setup_suite(
     component,
     suite_name,
     work_dir,
-    config_file=None,
-    machine=None,
-    baseline_dir=None,
-    component_path=None,
-    copy_executable=False,
-    clean=False,
-    model=None,
+    **kwargs,
 ):
     """
     Set up a suite of tasks
@@ -31,34 +25,12 @@ def setup_suite(
         within the core's ``suites`` package that lists the paths of the tasks
         in the suite
 
-    config_file : str, optional
-        Configuration file with custom options for setting up and running
-        tasks
-
-    machine : str, optional
-        The name of one of the machines with defined config options, which can
-        be listed with ``polaris list --machines``
-
-    work_dir : str, optional
+    work_dir : str
         A directory that will serve as the base for creating task
         directories
 
-    baseline_dir : str, optional
-        Location of baselines that can be compared to
-
-    component_path : str, optional
-        The relative or absolute path to the location where the model and
-        default namelists have been built
-
-    copy_executable : bool, optional
-        Whether to copy the MPAS executable to the work directory
-
-    clean : bool, optional
-        Whether to delete the contents of the base work directory before
-        setting up the suite
-
-    model : str, optional
-        The model to run
+    kwargs : dict, optional
+        Additional keyword arguments passed to ``setup_tasks``
     """
 
     text = (
@@ -70,17 +42,10 @@ def setup_suite(
     tasks, cached = _parse_suite(text)
 
     setup_tasks(
-        work_dir,
-        tasks,
-        config_file=config_file,
-        machine=machine,
-        baseline_dir=baseline_dir,
-        component_path=component_path,
-        suite_name=suite_name,
+        work_dir=work_dir,
+        task_list=tasks,
         cached=cached,
-        copy_executable=copy_executable,
-        clean=clean,
-        model=model,
+        **kwargs,
     )
 
 
@@ -150,8 +115,8 @@ def main():
         help='If the model executable should be copied to the work directory.',
     )
     parser.add_argument(
-        '--clean',
-        dest='clean',
+        '--clean_work',
+        dest='clean_work',
         action='store_true',
         help='If the base work directory should be deleted '
         'before setting up the suite.',
@@ -162,6 +127,37 @@ def main():
         help="The model to run (one of 'mpas-ocean', 'omega', "
         "or 'mpas-seaice')",
     )
+    parser.add_argument(
+        '--build',
+        dest='build',
+        action='store_true',
+        help='If the model should be built.',
+    )
+    parser.add_argument(
+        '--branch',
+        dest='branch',
+        help='The branch of the model to build. The default is the submodule '
+        'associated with the model',
+    )
+    parser.add_argument(
+        '--clean_build',
+        dest='clean_build',
+        action='store_true',
+        help='If the model should be cleaned before building. Implies '
+        '--build.',
+    )
+    parser.add_argument(
+        '--cmake_flags',
+        dest='cmake_flags',
+        help='Additional flags to pass to CMake when building the model.',
+    )
+    parser.add_argument(
+        '--debug',
+        dest='debug',
+        action='store_true',
+        help='If the model should be built in debug mode.',
+    )
+
     args = parser.parse_args(sys.argv[2:])
 
     setup_suite(
@@ -173,8 +169,13 @@ def main():
         baseline_dir=args.baseline_dir,
         component_path=args.component_path,
         copy_executable=args.copy_executable,
-        clean=args.clean,
+        clean_work=args.clean_work,
         model=args.model,
+        build=args.build,
+        branch=args.branch,
+        clean_build=args.clean_build,
+        cmake_flags=args.cmake_flags,
+        debug=args.debug,
     )
 
 

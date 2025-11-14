@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+source {{ load_script }}
+
+# quit on errors
+set -e
+# trace commands
+set -x
+
+{%- if update_e3sm_submodule %}
+cd {{ polaris_source_dir }}
+git submodule update --init e3sm_submodules/E3SM-Project
+{%- endif %}
+
+cd {{ mpas_ocean_subdir }}
+
+git submodule update --init --recursive .
+
+{%- if clean %}
+make clean
+{%- endif %}
+
+make {{ make_flags }} {{ make_target }}
+
+rm -rf {{ build_dir }}
+mkdir -p {{ build_dir }}
+mkdir -p {{ build_dir }}/default_inputs
+mkdir -p {{ build_dir }}/src
+
+cp -r {{ mpas_ocean_subdir }}/default_inputs/namelist.ocean.forward \
+    {{ build_dir }}/default_inputs
+
+cp -r {{ mpas_ocean_subdir }}/default_inputs/streams.ocean.forward \
+    {{ build_dir }}/default_inputs
+
+cp -r {{ mpas_ocean_subdir }}/src/Registry_processed.xml \
+    {{ build_dir }}/src
+
+cp -r {{ mpas_ocean_subdir }}/ocean_model \
+    {{ build_dir }}

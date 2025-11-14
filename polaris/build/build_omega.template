@@ -29,10 +29,10 @@ git submodule update --init --recursive \
 cd ${cwd}
 
 {%- if clean %}
-rm -rf build_omega/{{ build_dir }}
+rm -rf {{ build_dir }}
 {%- endif %}
-mkdir -p build_omega/{{ build_dir }}
-cd build_omega/{{ build_dir }}
+mkdir -p {{ build_dir }}
+cd {{ build_dir }}
 
 export METIS_ROOT={{ metis_root }}
 export PARMETIS_ROOT={{ parmetis_root }}
@@ -49,11 +49,3 @@ cmake \
    -B . {{ cmake_flags }}
 
 ./omega_build.sh
-
-ln -sfn {{ omega_mesh_filename }} test/OmegaMesh.nc
-ln -sfn {{ omega_planar_mesh_filename }} test/OmegaPlanarMesh.nc
-ln -sfn {{ omega_sphere_mesh_filename }} test/OmegaSphereMesh.nc
-
-{%- if run_ctest %}
-./omega_ctest.sh
-{%- endif %}
