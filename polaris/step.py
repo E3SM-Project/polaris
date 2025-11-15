@@ -539,6 +539,10 @@ class Step:
         Compare variables between output files in this step and in the same
         step from a baseline run if one was provided.
 
+        Writes out either a ``baseline_passed.log`` or ``baseline_failed.log``
+        file in the work directory depending on whether all variables passed
+        the comparison.
+
         Returns
         -------
         compared : bool
@@ -555,6 +559,7 @@ class Step:
         compared = False
         success = True
         if self.baseline_dir is not None:
+            failed_vars = []
             for filename, variables in self.validate_vars.items():
                 logger = self.logger
                 filename = str(filename)
@@ -566,6 +571,28 @@ class Step:
                 )
                 success = success and result
                 compared = True
+                if not result:
+                    failed_vars.extend(variables)
+
+            if compared and success:
+                log_filename = os.path.join(
+                    self.work_dir, 'baseline_passed.log'
+                )
+                with open(log_filename, 'w') as result_log_file:
+                    result_log_file.write(
+                        'All variables passed baseline comparison.\n'
+                    )
+            elif compared and not success:
+                log_filename = os.path.join(
+                    self.work_dir, 'baseline_failed.log'
+                )
+                failed_vars_str = '\n  '.join(failed_vars)
+                with open(log_filename, 'w') as result_log_file:
+                    result_log_file.write(
+                        f'Baseline comparison failed for:.\n '
+                        f'{failed_vars_str}\n'
+                    )
+
         return compared, success
 
     def set_shared_config(self, config, link=None):
