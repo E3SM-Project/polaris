@@ -9,6 +9,7 @@ baroclinic_channel
 barotropic_gyre
 correlated_tracers_2d
 cosine_bell
+customizable_viz
 external_gravity_wave
 geostrophic
 divergent_2d
