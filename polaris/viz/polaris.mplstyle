@@ -2,10 +2,17 @@
 
 figure.titlesize: 16
 figure.labelsize: 14
+figure.dpi: 500
+
+savefig.dpi: 500
 
 legend.fontsize: 14
 
 axes.titlesize: 14
 axes.labelsize: 14
 
-patch.linewidth: 0.5
+lines.linewidth: 0.5
+
+patch.linewidth: 0.2
+
+grid.linewidth: 0.5

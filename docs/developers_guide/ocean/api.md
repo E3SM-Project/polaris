@@ -126,6 +126,27 @@
 
 ```
 
+### customizable_viz
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.customizable_viz
+
+.. autosummary::
+   :toctree: generated/
+
+   add_customizable_viz_tasks
+
+   CustomizableViz
+
+   VizHorizField
+   VizHorizField.runtime_setup
+   VizHorizField.run
+
+   VizTransect
+   VizTransect.runtime_setup
+   VizTransect.run
+```
+
 ### geostrophic
 
 ```{eval-rst}
