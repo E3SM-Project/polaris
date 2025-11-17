@@ -201,16 +201,31 @@ class VizHorizField(OceanIOStep):
             else:
                 units = viz_dict['default']['units']
 
-            descriptor = plot_global_mpas_field(
-                mesh_filename=self.mesh_file,
-                da=mpas_field,
-                out_filename=f'{var_name}_horiz{time_stamp}{filename_suffix}.png',
-                config=self.config,
-                colormap_section='customizable_viz_horiz_field',
-                descriptor=descriptor,
-                colorbar_label=f'{var_name} [{units}]',
-                plot_land=True,
-                projection_name=projection_name,
-                central_longitude=central_longitude,
-                cell_indices=cell_indices[0],
-            )
+            # Only apply regional bounds for cell-centered fields
+            if 'nEdges' in mpas_field.dims or 'nVertices' in mpas_field.dims:
+                descriptor = plot_global_mpas_field(
+                    mesh_filename=self.mesh_file,
+                    da=mpas_field,
+                    out_filename=f'{var_name}_horiz{time_stamp}{filename_suffix}.png',
+                    config=self.config,
+                    colormap_section='customizable_viz_horiz_field',
+                    descriptor=descriptor,
+                    colorbar_label=f'{var_name} [{units}]',
+                    plot_land=True,
+                    projection_name=projection_name,
+                    central_longitude=central_longitude,
+                )
+            else:
+                descriptor = plot_global_mpas_field(
+                    mesh_filename=self.mesh_file,
+                    da=mpas_field,
+                    out_filename=f'{var_name}_horiz{time_stamp}{filename_suffix}.png',
+                    config=self.config,
+                    colormap_section='customizable_viz_horiz_field',
+                    descriptor=descriptor,
+                    colorbar_label=f'{var_name} [{units}]',
+                    plot_land=True,
+                    projection_name=projection_name,
+                    central_longitude=central_longitude,
+                    cell_indices=cell_indices[0],
+                )
