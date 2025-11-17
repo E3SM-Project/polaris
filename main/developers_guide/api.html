@@ -205,10 +205,13 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#viz">viz</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.use_mplstyle.html">polaris.viz.use_mplstyle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.determine_time_variable.html">polaris.viz.determine_time_variable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.get_projection.html">polaris.viz.get_projection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.get_viz_defaults.html">polaris.viz.get_viz_defaults</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.plot_horiz_field.html">polaris.viz.plot_horiz_field</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.plot_global_lat_lon_field.html">polaris.viz.plot_global_lat_lon_field</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.plot_global_mpas_field.html">polaris.viz.plot_global_mpas_field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.use_mplstyle.html">polaris.viz.use_mplstyle</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#yaml">yaml</a><ul>
@@ -799,8 +802,14 @@ documentation.</p>
 <h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.viz.use_mplstyle.html#polaris.viz.use_mplstyle" title="polaris.viz.use_mplstyle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">use_mplstyle</span></code></a>()</p></td>
-<td><p>Use the Polaris matplotlib style file</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.viz.determine_time_variable.html#polaris.viz.determine_time_variable" title="polaris.viz.determine_time_variable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">determine_time_variable</span></code></a>(ds)</p></td>
+<td><p>Identify the variable prefix and time variable for MPAS datasets</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.viz.get_projection.html#polaris.viz.get_projection" title="polaris.viz.get_projection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_projection</span></code></a>(name, **kwargs)</p></td>
+<td><p>Return a Cartopy projection by string name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.viz.get_viz_defaults.html#polaris.viz.get_viz_defaults" title="polaris.viz.get_viz_defaults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_viz_defaults</span></code></a>()</p></td>
+<td><p>Return the whole dictionary of MPAS variables and default viz properties</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_horiz_field</span></code></a>(ds_mesh, field[, ...])</p></td>
 <td><p>Plot a horizontal field from a planar domain using x,y coordinates at a single time and depth slice.</p></td>
@@ -808,8 +817,11 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.viz.plot_global_lat_lon_field.html#polaris.viz.plot_global_lat_lon_field" title="polaris.viz.plot_global_lat_lon_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_global_lat_lon_field</span></code></a>(lon, lat, ...[, ...])</p></td>
 <td><p>Plots a data set as a longitude-latitude map</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_global_mpas_field</span></code></a>(mesh_filename, da, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_global_mpas_field</span></code></a>(da, out_filename, ...)</p></td>
 <td><p>Plots a data set as a longitude-latitude map</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.viz.use_mplstyle.html#polaris.viz.use_mplstyle" title="polaris.viz.use_mplstyle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">use_mplstyle</span></code></a>()</p></td>
+<td><p>Use the Polaris matplotlib style file</p></td>
 </tr>
 </tbody>
 </table>

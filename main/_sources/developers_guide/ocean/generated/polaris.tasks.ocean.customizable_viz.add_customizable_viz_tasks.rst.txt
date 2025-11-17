@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.customizable\_viz.add\_customizable\_viz\_tasks
+===================================================================
+
+.. currentmodule:: polaris.tasks.ocean.customizable_viz
+
+.. autofunction:: add_customizable_viz_tasks

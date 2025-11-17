@@ -115,29 +115,35 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cols</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">mosaic</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cartopy.geodesic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geodesic</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.axes_grid1.inset_locator</span><span class="w"> </span><span class="kn">import</span> <span class="n">inset_axes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyremap.descriptor.utility</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp_extrap_corner</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz.helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_projection</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz.style</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
 
 
 <div class="viewcode-block" id="plot_global_mpas_field">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_global_mpas_field</span><span class="p">(</span>
-    <span class="n">mesh_filename</span><span class="p">,</span>
     <span class="n">da</span><span class="p">,</span>
     <span class="n">out_filename</span><span class="p">,</span>
     <span class="n">config</span><span class="p">,</span>
     <span class="n">colormap_section</span><span class="p">,</span>
+    <span class="n">mesh_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">dpi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">colorbar_label</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
     <span class="n">central_longitude</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
     <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span>
-    <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
     <span class="n">patch_edge_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">descriptor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">projection_name</span><span class="o">=</span><span class="s1">&#39;PlateCarree&#39;</span><span class="p">,</span>
+    <span class="n">cell_indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">enforce_aspect_ratio</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plots a data set as a longitude-latitude map</span>
@@ -197,12 +203,24 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">use_mplstyle</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">dpi</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;savefig.dpi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dpi</span>
 
     <span class="n">transform</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">Geodetic</span><span class="p">()</span>
-    <span class="n">projection</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(</span><span class="n">central_longitude</span><span class="o">=</span><span class="n">central_longitude</span><span class="p">)</span>
+    <span class="n">projection</span> <span class="o">=</span> <span class="n">get_projection</span><span class="p">(</span>
+        <span class="n">projection_name</span><span class="p">,</span> <span class="n">central_longitude</span><span class="o">=</span><span class="n">central_longitude</span>
+    <span class="p">)</span>
 
-    <span class="n">mesh_ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">descriptor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mesh_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Either mesh_filename or descriptor must be given&#39;</span>
+                <span class="s1">&#39; as parameters to Descriptor&#39;</span>
+            <span class="p">)</span>
+        <span class="n">mesh_ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">)</span>
+        <span class="n">mesh_ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;is_periodic&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;NO&#39;</span>
+        <span class="k">if</span> <span class="n">cell_indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mesh_ds</span> <span class="o">=</span> <span class="n">mesh_ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">cell_indices</span><span class="p">)</span>
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">Descriptor</span><span class="p">(</span>
             <span class="n">mesh_ds</span><span class="p">,</span>
             <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">,</span>
@@ -221,16 +239,12 @@
 
     <span class="n">colormap</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">ticks</span> <span class="o">=</span> <span class="n">_setup_colormap</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">colormap_section</span><span class="p">)</span>
 
-    <span class="n">pcolor_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-        <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="s1">&#39;face&#39;</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.2</span>
-    <span class="p">)</span>
+    <span class="n">pcolor_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="s1">&#39;face&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">patch_edge_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">pcolor_kwargs</span><span class="p">[</span><span class="s1">&#39;edgecolors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">patch_edge_color</span>
 
-    <span class="n">gl</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">gridlines</span><span class="p">(</span>
-        <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">draw_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span>
-    <span class="p">)</span>
+    <span class="n">gl</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">gridlines</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">draw_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">gl</span><span class="o">.</span><span class="n">right_labels</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">gl</span><span class="o">.</span><span class="n">top_labels</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -243,11 +257,25 @@
         <span class="n">pc</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">colorbar_label</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.6</span>
     <span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">enforce_aspect_ratio</span><span class="p">:</span>
+        <span class="n">min_latitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">mesh_ds</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">max_latitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">mesh_ds</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">min_longitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">mesh_ds</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">max_longitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">mesh_ds</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">geod</span> <span class="o">=</span> <span class="n">Geodesic</span><span class="p">()</span>
+        <span class="n">x_distance</span> <span class="o">=</span> <span class="n">geod</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">min_longitude</span><span class="p">,</span> <span class="n">min_latitude</span><span class="p">],</span> <span class="p">[</span><span class="n">max_longitude</span><span class="p">,</span> <span class="n">min_latitude</span><span class="p">]</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">y_distance</span> <span class="o">=</span> <span class="n">geod</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">min_longitude</span><span class="p">,</span> <span class="n">min_latitude</span><span class="p">],</span> <span class="p">[</span><span class="n">min_longitude</span><span class="p">,</span> <span class="n">max_latitude</span><span class="p">]</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="n">y_distance</span> <span class="o">/</span> <span class="n">x_distance</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="n">ticks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span>
         <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tick</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ticks</span><span class="p">])</span>
 
-    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span></div>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span></div>
 
 
 
@@ -335,8 +363,7 @@
         <span class="p">)</span>
 
     <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">)</span>
-    <span class="n">dpi</span> <span class="o">=</span> <span class="mi">200</span>
-    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">)</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.935</span><span class="p">)</span>
 
@@ -359,7 +386,6 @@
         <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span>
         <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
         <span class="n">draw_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">gl</span><span class="o">.</span><span class="n">right_labels</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">gl</span><span class="o">.</span><span class="n">top_labels</span> <span class="o">=</span> <span class="kc">False</span>
@@ -393,9 +419,7 @@
         <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span>
         <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tick</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ticks</span><span class="p">])</span>
 
-    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
-        <span class="n">out_filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="s1">&#39;figure&#39;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.2</span>
-    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
 
     <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
@@ -477,14 +501,12 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_land_lakes_coastline</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">ice_shelves</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">land_color</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">COLORS</span><span class="p">[</span><span class="s1">&#39;land&#39;</span><span class="p">]</span>
     <span class="n">water_color</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">COLORS</span><span class="p">[</span><span class="s1">&#39;water&#39;</span><span class="p">]</span>
-
     <span class="n">land_50m</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">NaturalEarthFeature</span><span class="p">(</span>
         <span class="s1">&#39;physical&#39;</span><span class="p">,</span>
         <span class="s1">&#39;land&#39;</span><span class="p">,</span>
         <span class="s1">&#39;50m&#39;</span><span class="p">,</span>
         <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
         <span class="n">facecolor</span><span class="o">=</span><span class="n">land_color</span><span class="p">,</span>
-        <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">lakes_50m</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">NaturalEarthFeature</span><span class="p">(</span>
         <span class="s1">&#39;physical&#39;</span><span class="p">,</span>
@@ -492,7 +514,6 @@
         <span class="s1">&#39;50m&#39;</span><span class="p">,</span>
         <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
         <span class="n">facecolor</span><span class="o">=</span><span class="n">water_color</span><span class="p">,</span>
-        <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">land_50m</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">ice_shelves</span><span class="p">:</span>
@@ -501,8 +522,7 @@
             <span class="s1">&#39;antarctic_ice_shelves_polys&#39;</span><span class="p">,</span>
             <span class="s1">&#39;50m&#39;</span><span class="p">,</span>
             <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
-            <span class="n">facecolor</span><span class="o">=</span><span class="n">land_color</span><span class="p">,</span>
-            <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">ice_50m</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">lakes_50m</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>

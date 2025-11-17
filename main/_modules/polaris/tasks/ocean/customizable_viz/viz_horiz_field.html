@@ -1,0 +1,405 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.customizable_viz.viz_horiz_field</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../customizable_viz.html">polaris.tasks.ocean.customizable_viz</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.customizable_viz.viz_horiz_field</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.customizable_viz.viz_horiz_field</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">determine_time_variable</span><span class="p">,</span>
+    <span class="n">get_viz_defaults</span><span class="p">,</span>
+    <span class="n">plot_global_mpas_field</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="VizHorizField">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.customizable_viz.VizHorizField.html#polaris.tasks.ocean.customizable_viz.VizHorizField">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VizHorizField</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A step for visualizing MPAS horizontal fields</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="VizHorizField.__init__">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.customizable_viz.VizHorizField.html#polaris.tasks.ocean.customizable_viz.VizHorizField.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VizHorizField.runtime_setup">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.customizable_viz.VizHorizField.runtime_setup.html#polaris.tasks.ocean.customizable_viz.VizHorizField.runtime_setup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;customizable_viz&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mesh_file&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;input_file&#39;</span><span class="p">)</span>
+
+        <span class="n">section_name</span> <span class="o">=</span> <span class="s1">&#39;customizable_viz_horiz_field&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+            <span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;variables&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;No variables specified in the </span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s1"> section of &#39;</span>
+                <span class="s1">&#39;the config file.&#39;</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VizHorizField.run">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.customizable_viz.VizHorizField.run.html#polaris.tasks.ocean.customizable_viz.VizHorizField.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># noqa:C901</span>
+        <span class="n">section_name</span> <span class="o">=</span> <span class="s1">&#39;customizable_viz_horiz_field&#39;</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">section_name</span><span class="p">]</span>
+
+        <span class="c1"># Determine the projection from the config file</span>
+        <span class="n">projection_name</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;projection&#39;</span><span class="p">)</span>
+        <span class="n">central_longitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;central_longitude&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Descriptor is none for the first variable and assigned thereafter</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">decode_timedelta</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="n">min_latitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;min_latitude&#39;</span><span class="p">)</span>
+        <span class="n">max_latitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;max_latitude&#39;</span><span class="p">)</span>
+        <span class="n">min_longitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;min_longitude&#39;</span><span class="p">)</span>
+        <span class="n">max_longitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;max_longitude&#39;</span><span class="p">)</span>
+        <span class="n">lat_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">[</span><span class="s1">&#39;latCell&#39;</span><span class="p">])</span>
+        <span class="n">lon_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">[</span><span class="s1">&#39;lonCell&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">min_longitude</span> <span class="o">&lt;</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">lon_cell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">max_longitude_copy</span> <span class="o">=</span> <span class="n">max_longitude</span>
+            <span class="n">max_longitude</span> <span class="o">=</span> <span class="mf">360.0</span> <span class="o">-</span> <span class="n">min_longitude</span>
+            <span class="n">min_longitude</span> <span class="o">=</span> <span class="n">max_longitude_copy</span>
+        <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">lat_cell</span> <span class="o">&gt;=</span> <span class="n">min_latitude</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">lat_cell</span> <span class="o">&lt;=</span> <span class="n">max_latitude</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">lon_cell</span> <span class="o">&gt;=</span> <span class="n">min_longitude</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">lon_cell</span> <span class="o">&lt;=</span> <span class="n">max_longitude</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;No cells of </span><span class="si">{</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;nCells&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> cells found within the&#39;</span>
+                <span class="s1">&#39; specified lat/lon bounds. Please adjust the min/max &#39;</span>
+                <span class="s1">&#39;latitude/longitude values to be within the bounds of the &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;dataset: latitude &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">lat_cell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">lat_cell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;longitude </span><span class="si">{</span><span class="n">lon_cell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">lon_cell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Using </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s1"> cells of &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;nCells&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> cells in the mesh&#39;</span>
+        <span class="p">)</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">z_target</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;z_target&#39;</span><span class="p">)</span>
+        <span class="n">z_bottom</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="p">[</span><span class="s1">&#39;restingThickness&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
+        <span class="n">dz</span> <span class="o">=</span> <span class="n">z_bottom</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nCells&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">z_target</span>
+        <span class="n">z_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dz</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">dz</span><span class="p">[</span><span class="n">z_index</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">z_index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">z_index</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="n">z_mean</span> <span class="o">=</span> <span class="n">z_bottom</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nCells&#39;</span><span class="p">)[</span><span class="n">z_index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Using z_index </span><span class="si">{</span><span class="n">z_index</span><span class="si">}</span><span class="s1"> for z_target </span><span class="si">{</span><span class="n">z_target</span><span class="si">}</span><span class="s1"> &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;with mean depth </span><span class="si">{</span><span class="n">z_mean</span><span class="si">}</span><span class="s1"> &#39;</span>
+        <span class="p">)</span>
+
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="p">,</span> <span class="n">decode_timedelta</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;Time&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">:</span>
+            <span class="n">t_index</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># TODO support different time selection from config file</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">)</span>
+
+        <span class="n">prefix</span><span class="p">,</span> <span class="n">time_variable</span> <span class="o">=</span> <span class="n">determine_time_variable</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+        <span class="c1"># Default to empty stamp; only set if we have a usable scalar time</span>
+        <span class="n">time_stamp</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">time_variable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">time_variable</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+            <span class="c1"># If it&#39;s a NumPy array, handle scalar vs. multi-value arrays</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">start_time</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># extract the scalar value</span>
+                    <span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># multiple times -&gt; no single timestamp to use</span>
+                    <span class="n">start_time</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># decode bytes if necessary, otherwise convert to string</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bytes_</span><span class="p">)):</span>
+                    <span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">start_time</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+                <span class="n">time_stamp</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">start_time</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Number of cells in the mesh </span><span class="si">{</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;nCells&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;and input </span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;nCells&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> do not match. &#39;</span>
+            <span class="p">)</span>
+        <span class="n">viz_dict</span> <span class="o">=</span> <span class="n">get_viz_defaults</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;accumulated&#39;</span> <span class="ow">in</span> <span class="n">var_name</span><span class="p">:</span>
+                <span class="n">full_var_name</span> <span class="o">=</span> <span class="n">var_name</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">full_var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">if</span> <span class="n">full_var_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">activeTracers_</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">full_var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">activeTracers_</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="k">elif</span> <span class="n">var_name</span> <span class="o">==</span> <span class="s1">&#39;columnThickness&#39;</span><span class="p">:</span>
+                    <span class="n">ds</span><span class="p">[</span><span class="n">full_var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span> <span class="o">+</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Skipping </span><span class="si">{</span><span class="n">full_var_name</span><span class="si">}</span><span class="s1">, &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;not found in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="p">)</span>
+                    <span class="k">continue</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Plotting </span><span class="si">{</span><span class="n">full_var_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">filename_suffix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">mpas_field</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">full_var_name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;nVertLevels&#39;</span> <span class="ow">in</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">sizes</span><span class="p">:</span>
+                <span class="n">mpas_field</span> <span class="o">=</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">z_index</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">z_index</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">filename_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;_z</span><span class="si">{</span><span class="n">z_index</span><span class="si">}</span><span class="s1">&#39;</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;colormap_name&#39;</span><span class="p">):</span>
+                <span class="n">cmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;colormap_name&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">viz_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">cmap</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="n">var_name</span><span class="p">][</span><span class="s1">&#39;colormap&#39;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cmap</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;colormap&#39;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;colormap_name&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;colormap_range_percent&#39;</span><span class="p">):</span>
+                <span class="n">colormap_range_percent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+                    <span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;colormap_range_percent&#39;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">colormap_range_percent</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+            <span class="k">if</span> <span class="n">colormap_range_percent</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">vmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">mpas_field</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">colormap_range_percent</span><span class="p">)</span>
+                <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
+                    <span class="n">mpas_field</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="mf">100.0</span> <span class="o">-</span> <span class="n">colormap_range_percent</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">vmin</span> <span class="o">=</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+                <span class="n">vmax</span> <span class="o">=</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span>
+                <span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;vmin&#39;</span>
+            <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;vmax&#39;</span><span class="p">):</span>
+                <span class="n">vmin</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vmin&#39;</span><span class="p">)</span>
+                <span class="n">vmax</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vmax&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="n">cmap</span> <span class="o">==</span> <span class="s1">&#39;cmo.balance&#39;</span>
+                <span class="ow">or</span> <span class="s1">&#39;vertVelocityTop&#39;</span> <span class="ow">in</span> <span class="n">var_name</span>
+                <span class="ow">or</span> <span class="s1">&#39;Tendency&#39;</span> <span class="ow">in</span> <span class="n">var_name</span>
+                <span class="ow">or</span> <span class="s1">&#39;Flux&#39;</span> <span class="ow">in</span> <span class="n">var_name</span>
+            <span class="p">):</span>
+                <span class="n">vmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">vmin</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">vmax</span><span class="p">))</span>
+                <span class="n">vmin</span> <span class="o">=</span> <span class="o">-</span><span class="n">vmax</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+                <span class="n">section_name</span><span class="p">,</span>
+                <span class="s1">&#39;norm_args&#39;</span><span class="p">,</span>
+                <span class="n">value</span><span class="o">=</span><span class="s1">&#39;{&quot;vmin&quot;: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">vmin</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;, &quot;vmax&quot;: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">vmax</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">viz_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">units</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="n">var_name</span><span class="p">][</span><span class="s1">&#39;units&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">units</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;units&#39;</span><span class="p">]</span>
+
+            <span class="c1"># Only apply regional bounds for cell-centered fields</span>
+            <span class="k">if</span> <span class="s1">&#39;nEdges&#39;</span> <span class="ow">in</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">dims</span> <span class="ow">or</span> <span class="s1">&#39;nVertices&#39;</span> <span class="ow">in</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+                <span class="n">descriptor</span> <span class="o">=</span> <span class="n">plot_global_mpas_field</span><span class="p">(</span>
+                    <span class="n">mesh_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span><span class="p">,</span>
+                    <span class="n">da</span><span class="o">=</span><span class="n">mpas_field</span><span class="p">,</span>
+                    <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">_horiz</span><span class="si">{</span><span class="n">time_stamp</span><span class="si">}{</span><span class="n">filename_suffix</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                    <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;customizable_viz_horiz_field&#39;</span><span class="p">,</span>
+                    <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">,</span>
+                    <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s1">]&#39;</span><span class="p">,</span>
+                    <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">projection_name</span><span class="o">=</span><span class="n">projection_name</span><span class="p">,</span>
+                    <span class="n">central_longitude</span><span class="o">=</span><span class="n">central_longitude</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">descriptor</span> <span class="o">=</span> <span class="n">plot_global_mpas_field</span><span class="p">(</span>
+                    <span class="n">mesh_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span><span class="p">,</span>
+                    <span class="n">da</span><span class="o">=</span><span class="n">mpas_field</span><span class="p">,</span>
+                    <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">_horiz</span><span class="si">{</span><span class="n">time_stamp</span><span class="si">}{</span><span class="n">filename_suffix</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                    <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;customizable_viz_horiz_field&#39;</span><span class="p">,</span>
+                    <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">,</span>
+                    <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s1">]&#39;</span><span class="p">,</span>
+                    <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">projection_name</span><span class="o">=</span><span class="n">projection_name</span><span class="p">,</span>
+                    <span class="n">central_longitude</span><span class="o">=</span><span class="n">central_longitude</span><span class="p">,</span>
+                    <span class="n">cell_indices</span><span class="o">=</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>
