@@ -60,7 +60,7 @@ def determine_time_variable(ds):
     """
     prefix = ''
     time_variable = None
-    if 'timeSeriesStatsMonthly' in ds.keys():
+    if 'xtime_startMonthly' in ds.keys():
         prefix = 'timeMonthly_avg_'
         time_variable = 'xtime_startMonthly'
     elif 'xtime' in ds.keys():
