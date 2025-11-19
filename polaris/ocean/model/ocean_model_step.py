@@ -8,6 +8,17 @@ from polaris.model_step import ModelStep
 from polaris.tasks.ocean import Ocean
 
 OptionValue = Union[str, int, float, bool]
+MapSectionKey = Union[str, List[str]]
+# in principle, any number of levels but 4 seems sufficient for now
+ConfigsType = Dict[
+    str,
+    Union[
+        Dict[str, OptionValue],
+        Dict[str, Dict[str, OptionValue]],
+        Dict[str, Dict[str, Dict[str, OptionValue]]],
+        Dict[str, Dict[str, Dict[str, Dict[str, OptionValue]]]],
+    ],
+]
 
 
 class OceanModelStep(ModelStep):
@@ -141,7 +152,9 @@ class OceanModelStep(ModelStep):
 
         self.dynamic_ntasks = ntasks is None and min_tasks is None
 
-        self.config_map: Union[None, List[Dict[str, Dict[str, str]]]] = None
+        self.config_map: Union[
+            None, List[Dict[str, Dict[MapSectionKey, str]]]
+        ] = None
         self.graph_target = graph_target
         self.update_eos = update_eos
 
@@ -245,9 +258,9 @@ class OceanModelStep(ModelStep):
 
     def map_yaml_configs(
         self,
-        configs: Dict[str, Dict[str, OptionValue]],
+        configs: ConfigsType,
         config_model: Optional[str],
-    ) -> Dict[str, Dict[str, OptionValue]]:
+    ) -> ConfigsType:
         """
         A mapping between model sections and config options from MPAS-Ocean to
         Omega
@@ -464,26 +477,40 @@ class OceanModelStep(ModelStep):
 
     def _map_mpaso_to_omega_configs(
         self,
-        configs: Dict[str, Dict[str, OptionValue]],
-    ) -> Dict[str, Dict[str, OptionValue]]:
+        configs: ConfigsType,
+    ) -> ConfigsType:
         """
         Map MPAS-Ocean namelist options to Omega config options
         """
-        out_configs: Dict[str, Dict[str, OptionValue]] = {}
+        out_configs: ConfigsType = {}
         not_found = []
         for section, options in configs.items():
             for option, mpaso_value in options.items():
+                if isinstance(mpaso_value, dict):
+                    raise ValueError(
+                        f'Nested sections are not supported in '
+                        f'MPAS-Ocean configs: {section}/{option}'
+                    )
                 try:
-                    omega_section, omega_option, omega_value = (
+                    omega_sections, omega_option, omega_value = (
                         self._map_mpaso_to_omega_section_option(
                             section=section, option=option, value=mpaso_value
                         )
                     )
-                    if omega_section not in out_configs:
-                        out_configs[omega_section] = {}
-                    out_configs[omega_section][omega_option] = omega_value
+                    local_config: Dict[str, Any] = out_configs
+                    sec_str = '/'.join(omega_sections)
+                    for omega_section in omega_sections:
+                        if omega_section not in local_config:
+                            local_config[omega_section] = {}
+                        if not isinstance(local_config[omega_section], dict):
+                            raise ValueError(
+                                f'{sec_str} appears to point to a config '
+                                f'option, not a section'
+                            )
+                        local_config = local_config[omega_section]
+                    local_config[omega_option] = omega_value
                 except ValueError:
-                    not_found.append(f'{section}/{option}')
+                    not_found.append(f'{sec_str}/{option}')
 
         self._warn_not_found(not_found)
 
@@ -494,11 +521,11 @@ class OceanModelStep(ModelStep):
         section: str,
         option: str,
         value: OptionValue,
-    ) -> Tuple[str, str, OptionValue]:
+    ) -> Tuple[List[str], str, OptionValue]:
         """
         Map MPAS-Ocean namelist section and option to Omega equivalent
         """
-        out_section = section
+        out_sections: List[str] = [section]
         out_option = option
 
         assert self.config_map is not None
@@ -508,7 +535,7 @@ class OceanModelStep(ModelStep):
         for entry in self.config_map:
             section_dict = entry['section']
             try:
-                omega_section = section_dict[section]
+                omega_section: MapSectionKey = section_dict[section]
             except KeyError:
                 continue
             else:
@@ -520,16 +547,24 @@ class OceanModelStep(ModelStep):
                     continue
                 else:
                     option_found = True
-                    out_section = omega_section
+                    # make sure out_sections is a list
+                    out_sections = (
+                        omega_section
+                        if isinstance(omega_section, list)
+                        else [omega_section]
+                    )
                     out_option = omega_option
                     break
 
         if not option_found:
-            raise ValueError(f'No mapping found for {section}/{option}')
+            sec_str = (
+                '/'.join(section) if isinstance(section, list) else section
+            )
+            raise ValueError(f'No mapping found for {sec_str}/{option}')
 
         out_option, out_value = self._map_handle_not(out_option, value)
 
-        return out_section, out_option, out_value
+        return out_sections, out_option, out_value
 
     @staticmethod
     def _warn_not_found(not_found: List[str]) -> None:
