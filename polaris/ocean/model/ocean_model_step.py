@@ -358,7 +358,9 @@ class OceanModelStep(ModelStep):
             'config_eos_linear_Sref': eos_linear_Sref,
         }
 
-        self.add_model_config_options(options=replacements)
+        self.add_model_config_options(
+            options=replacements, config_model='ocean'
+        )
 
     def validate_baselines(self) -> Tuple[bool, bool]:
         """
