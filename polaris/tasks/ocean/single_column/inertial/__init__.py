@@ -3,7 +3,6 @@ import os
 from polaris import Task
 from polaris.tasks.ocean.single_column.forward import Forward
 from polaris.tasks.ocean.single_column.inertial.analysis import Analysis
-from polaris.tasks.ocean.single_column.init import Init
 from polaris.tasks.ocean.single_column.viz import Viz
 
 
@@ -13,7 +12,7 @@ class Inertial(Task):
     then performs a short forward run testing inertial oscillations on 1 core.
     """
 
-    def __init__(self, component):
+    def __init__(self, component, config, init, indir):
         """
         Create the test case
         Parameters
@@ -22,17 +21,14 @@ class Inertial(Task):
             The ocean component that this task belongs to
         """
         name = 'inertial'
-        subdir = os.path.join('single_column', name)
+        subdir = os.path.join(indir, name)
         super().__init__(component=component, name=name, subdir=subdir)
-
+        config_filename = 'inertial.cfg'
+        self.set_shared_config(config, link=config_filename)
         self.config.add_from_package(
-            'polaris.tasks.ocean.single_column', 'single_column.cfg'
+            'polaris.tasks.ocean.single_column.inertial', config_filename
         )
-        self.config.add_from_package(
-            'polaris.tasks.ocean.single_column.inertial', 'inertial.cfg'
-        )
-
-        self.add_step(Init(component=component, indir=self.subdir))
+        self.add_step(init, symlink='init')
 
         validate_vars = [
             'temperature',

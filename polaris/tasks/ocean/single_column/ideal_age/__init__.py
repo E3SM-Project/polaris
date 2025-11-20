@@ -2,7 +2,6 @@ import os
 
 from polaris import Task as Task
 from polaris.tasks.ocean.single_column.forward import Forward as Forward
-from polaris.tasks.ocean.single_column.init import Init as Init
 from polaris.tasks.ocean.single_column.viz import Viz as Viz
 
 
@@ -13,7 +12,7 @@ class IdealAge(Task):
     on 1 core.
     """
 
-    def __init__(self, component, ideal_age=True):
+    def __init__(self, component, config, init, indir, ideal_age=True):
         """
         Create the test case
         Parameters
@@ -22,15 +21,14 @@ class IdealAge(Task):
             The ocean component that this task belongs to
         """
         name = 'ideal_age'
-        subdir = os.path.join('single_column', name)
+        subdir = os.path.join(indir, name)
         super().__init__(component=component, name=name, subdir=subdir)
+        config_filename = 'ideal_age.cfg'
+        self.set_shared_config(config, link=config_filename)
         self.config.add_from_package(
-            'polaris.tasks.ocean.single_column', 'single_column.cfg'
+            'polaris.tasks.ocean.single_column.ideal_age', config_filename
         )
-
-        self.add_step(
-            Init(component=component, indir=self.subdir, ideal_age=ideal_age)
-        )
+        self.add_step(init, symlink='init')
 
         validate_vars = ['temperature', 'salinity', 'iAge']
         step = Forward(
