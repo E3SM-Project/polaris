@@ -1,9 +1,9 @@
 ocean:
   time_management:
     config_stop_time: none
-    config_run_duration: 0010_00:00:00
+    config_run_duration: 0002_00:00:00
   time_integration:
-    config_dt: 00:00:10
+    config_dt: 00:00:01
   hmix_del2:
     config_use_mom_del2: true
     config_mom_del2: {{ nu }}
@@ -11,10 +11,10 @@ ocean:
     config_use_mom_del4: false
   forcing:
     config_use_bulk_wind_stress: true
-  debug: Tendencies
-    config_disable_vel_explicit_bottom_drag: false
+  debug:
+    config_disable_vel_explicit_bottom_drag: true
   bottom_drag:
-    config_explicit_constant_bottom_drag_coeff: {{ drag }}
+    config_explicit_bottom_drag_coeff: {{ drag }}
 
 mpas-ocean:
   time_integration:
@@ -41,9 +41,9 @@ mpas-ocean:
     config_disable_vel_coriolis: true
   streams:
     mesh:
-      filename_template: initial_state.nc
+      filename_template: init.nc
     input:
-      filename_template: initial_state.nc
+      filename_template: init.nc
     restart:
       output_interval: 0000_01:00:00
     forcing:
@@ -84,7 +84,7 @@ Omega:
   IOStreams:
     InitialVertCoord:
       UsePointerFile: false
-      Filename: OmegaMesh.nc
+      Filename: init.nc
       Mode: read
       Precision: double
       Freq: 1
@@ -139,8 +139,6 @@ Omega:
       FreqUnits: hours
       UseStartEnd: false
       Contents:
-      - MinLayerCell
-      - MaxLayerCell
       - AuxiliaryState
       - State
       - SshCell
