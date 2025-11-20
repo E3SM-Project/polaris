@@ -1,14 +1,13 @@
 import cmocean  # noqa: F401
 import numpy as np
-import xarray as xr
 
-from polaris import Step
+from polaris.ocean.model import OceanIOStep
 
 # from polaris.mpas import cell_mask_to_edge_mask
 from polaris.viz import plot_horiz_field
 
 
-class Viz(Step):
+class Viz(OceanIOStep):
     """
     A step for plotting the results of barotropic channel forward step
     """
@@ -40,10 +39,9 @@ class Viz(Step):
         """
         Run this step of the task
         """
-        ds_mesh = xr.load_dataset('mesh.nc')
-        ds_init = xr.load_dataset('init.nc')
-        ds_out = xr.load_dataset('output.nc')
-        ds_out = ds_out.isel(nVertLevels=-1)
+        ds_mesh = self.open_model_dataset('mesh.nc')
+        ds_init = self.open_model_dataset('init.nc')
+        ds_out = self.open_model_dataset('output.nc')
 
         cell_mask = ds_init.maxLevelCell >= 1
         vertex_mask = ds_init.boundaryVertex == 0
@@ -54,45 +52,52 @@ class Viz(Step):
 
         # These indices correspond to the first and last time step
         for t_index in [0, -1]:
-            ds = ds_out.isel(Time=t_index)
-            vmax = np.max(np.abs(ds.velocityZonal.values))
-            plot_horiz_field(
-                ds_mesh,
-                ds['velocityZonal'],
-                f'velocity_zonal_t{t_index}_zbot.png',
-                vmin=-vmax,
-                vmax=vmax,
-                cmap='cmo.balance',
-                field_mask=cell_mask,
-            )
-            plot_horiz_field(
-                ds_mesh,
-                ds['velocityMeridional'],
-                f'velocity_meridional_t{t_index}_zbot.png',
-                vmin=-vmax,
-                vmax=vmax,
-                cmap='cmo.balance',
-                field_mask=cell_mask,
-            )
+            for z_index in range(ds_out.sizes['nVertLevels']):
+                suffix = f't{t_index}_z{z_index}'
+                ds = ds_out.isel(Time=t_index, nVertLevels=z_index)
+                if (
+                    'velocityZonal' in ds.keys()
+                    and 'velocityZonal' in ds.keys()
+                ):
+                    vmax = np.max(np.abs(ds.velocityZonal.values))
+                    plot_horiz_field(
+                        ds_mesh,
+                        ds['velocityZonal'],
+                        f'velocity_zonal_{suffix}.png',
+                        vmin=-vmax,
+                        vmax=vmax,
+                        cmap='cmo.balance',
+                        field_mask=cell_mask,
+                    )
+                    plot_horiz_field(
+                        ds_mesh,
+                        ds['velocityMeridional'],
+                        f'velocity_meridional_{suffix}.png',
+                        vmin=-vmax,
+                        vmax=vmax,
+                        cmap='cmo.balance',
+                        field_mask=cell_mask,
+                    )
 
-            vmax = np.max(np.abs(ds.relativeVorticity.values))
-            plot_horiz_field(
-                ds_mesh,
-                ds['relativeVorticity'],
-                f'relative_vorticity_t{t_index}_zbot.png',
-                vmin=-vmax,
-                vmax=vmax,
-                cmap='cmo.balance',
-                field_mask=vertex_mask,
-            )
+                vmax = np.max(np.abs(ds.relativeVorticity.values))
+                plot_horiz_field(
+                    ds_mesh,
+                    ds['relativeVorticity'],
+                    f'relative_vorticity_{suffix}.png',
+                    vmin=-vmax,
+                    vmax=vmax,
+                    cmap='cmo.balance',
+                    field_mask=vertex_mask,
+                )
 
-            vmax = np.max(np.abs(ds.circulation.values))
-            plot_horiz_field(
-                ds_mesh,
-                ds['circulation'],
-                f'circulation_t{t_index}_zbot.png',
-                vmin=-vmax,
-                vmax=vmax,
-                cmap='cmo.balance',
-                field_mask=vertex_mask,
-            )
+                if 'circulation' in ds.keys():
+                    vmax = np.max(np.abs(ds.circulation.values))
+                    plot_horiz_field(
+                        ds_mesh,
+                        ds['circulation'],
+                        f'circulation_{suffix}.png',
+                        vmin=-vmax,
+                        vmax=vmax,
+                        cmap='cmo.balance',
+                        field_mask=vertex_mask,
+                    )
