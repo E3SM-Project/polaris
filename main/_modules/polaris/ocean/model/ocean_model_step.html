@@ -109,12 +109,26 @@
              
   <h1>Source code for polaris.ocean.model.ocean_model_step</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModuleType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.model_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ocean</span>
+
+<span class="n">OptionValue</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span>
+<span class="n">MapSectionKey</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<span class="c1"># in principle, any number of levels but 4 seems sufficient for now</span>
+<span class="n">ConfigsType</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span>
+    <span class="nb">str</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">[</span>
+        <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">],</span>
+        <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]],</span>
+        <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]]],</span>
+        <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]]]],</span>
+    <span class="p">],</span>
+<span class="p">]</span>
 
 
 <div class="viewcode-block" id="OceanModelStep">
@@ -147,22 +161,22 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">Ocean</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">,</span>
-        <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">cached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">yaml</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">update_pio</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">update_eos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">make_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">mesh_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">partition_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">graph_target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">indir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ntasks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_tasks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">openmp_threads</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_memory</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cached</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">yaml</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">update_pio</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">update_eos</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">make_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">mesh_filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">partition_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">graph_target</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a step for running the model</span>
 
@@ -252,14 +266,16 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span> <span class="o">=</span> <span class="n">ntasks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+            <span class="kc">None</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">MapSectionKey</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">graph_target</span> <span class="o">=</span> <span class="n">graph_target</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_eos</span> <span class="o">=</span> <span class="n">update_eos</span></div>
 
 
 <div class="viewcode-block" id="OceanModelStep.setup">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.setup.html#polaris.ocean.model.OceanModelStep.setup">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine if we will make yaml files or namelists and streams files,</span>
 <span class="sd">        then, determine the number of MPI tasks to use based on the estimated</span>
@@ -292,7 +308,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add model config options, namelist, streams and yaml files using config</span>
 <span class="sd">        options or template replacements that need to be set both during step</span>
@@ -310,7 +326,7 @@
 
 <div class="viewcode-block" id="OceanModelStep.constrain_resources">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.constrain_resources.html#polaris.ocean.model.OceanModelStep.constrain_resources">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">constrain_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">available_cores</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">constrain_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">available_cores</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the number of MPI tasks to use based on the estimated mesh size</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -321,7 +337,7 @@
 
 <div class="viewcode-block" id="OceanModelStep.compute_cell_count">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.compute_cell_count.html#polaris.ocean.model.OceanModelStep.compute_cell_count">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the approximate number of cells in the mesh, used to constrain</span>
 <span class="sd">        resources</span>
@@ -336,7 +352,11 @@
 
 <div class="viewcode-block" id="OceanModelStep.map_yaml_options">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.map_yaml_options.html#polaris.ocean.model.OceanModelStep.map_yaml_options">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">map_yaml_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">config_model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_yaml_options</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">],</span>
+        <span class="n">config_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A mapping between model config options from MPAS-Ocean to Omega</span>
 
@@ -365,7 +385,11 @@
 
 <div class="viewcode-block" id="OceanModelStep.map_yaml_configs">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.map_yaml_configs.html#polaris.ocean.model.OceanModelStep.map_yaml_configs">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">map_yaml_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">config_model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_yaml_configs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">configs</span><span class="p">:</span> <span class="n">ConfigsType</span><span class="p">,</span>
+        <span class="n">config_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ConfigsType</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A mapping between model sections and config options from MPAS-Ocean to</span>
 <span class="sd">        Omega</span>
@@ -393,7 +417,11 @@
         <span class="k">return</span> <span class="n">configs</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_namelist_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">namelist</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_namelist_file</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">package</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ModuleType</span><span class="p">],</span>
+        <span class="n">namelist</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a file with updates to namelist options to the step to be parsed</span>
 <span class="sd">        when generating a complete namelist file if and when the step gets set</span>
@@ -411,7 +439,12 @@
             <span class="s1">&#39;Input namelist files are not supported in OceanModelStep&#39;</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_streams_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">streams</span><span class="p">,</span> <span class="n">template_replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_streams_file</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">package</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ModuleType</span><span class="p">],</span>
+        <span class="n">streams</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">template_replacements</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a streams file to the step to be parsed when generating a complete</span>
 <span class="sd">        streams file if and when the step gets set up.</span>
@@ -432,7 +465,7 @@
             <span class="s1">&#39;Input streams files are not supported in OceanModelStep&#39;</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">update_namelist_eos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_namelist_eos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Modify the namelist to make it consistent with eos config options</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -455,9 +488,11 @@
             <span class="s1">&#39;config_eos_linear_Sref&#39;</span><span class="p">:</span> <span class="n">eos_linear_Sref</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">replacements</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span>
+        <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">validate_baselines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_baselines</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compare variables between output files in this step and in the same</span>
 <span class="sd">        step from a baseline run if one was provided.</span>
@@ -479,7 +514,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">validate_vars</span> <span class="o">=</span> <span class="n">validate_vars</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate_baselines</span><span class="p">()</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_update_ntasks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_ntasks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update ``ntasks`` and ``min_tasks`` for the step based on the estimated</span>
 <span class="sd">        mesh size</span>
@@ -506,7 +541,7 @@
             <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">max_cells_per_core</span><span class="p">))</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_read_config_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_read_config_map</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read the map from MPAS-Ocean to Omega config options</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -518,12 +553,15 @@
         <span class="n">nested_dict</span> <span class="o">=</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="p">[</span><span class="s1">&#39;config&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_map_mpaso_to_omega_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_map_mpaso_to_omega_options</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Map MPAS-Ocean namelist options to Omega config options</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">out_options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">out_options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">not_found</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">mpaso_option</span><span class="p">,</span> <span class="n">mpaso_value</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
@@ -538,7 +576,11 @@
 
         <span class="k">return</span> <span class="n">out_options</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_map_mpaso_to_omega_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_map_mpaso_to_omega_option</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">OptionValue</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Map MPAS-Ocean namelist option to Omega equivalent</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -565,35 +607,57 @@
 
         <span class="k">return</span> <span class="n">out_option</span><span class="p">,</span> <span class="n">out_value</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_map_mpaso_to_omega_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_map_mpaso_to_omega_configs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">configs</span><span class="p">:</span> <span class="n">ConfigsType</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ConfigsType</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Map MPAS-Ocean namelist options to Omega config options</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">out_configs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">out_configs</span><span class="p">:</span> <span class="n">ConfigsType</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">not_found</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">configs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">option</span><span class="p">,</span> <span class="n">mpaso_value</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mpaso_value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Nested sections are not supported in &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;MPAS-Ocean configs: </span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">omega_section</span><span class="p">,</span> <span class="n">omega_option</span><span class="p">,</span> <span class="n">omega_value</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">omega_sections</span><span class="p">,</span> <span class="n">omega_option</span><span class="p">,</span> <span class="n">omega_value</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_map_mpaso_to_omega_section_option</span><span class="p">(</span>
                             <span class="n">section</span><span class="o">=</span><span class="n">section</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">mpaso_value</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
-                    <span class="k">if</span> <span class="n">omega_section</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out_configs</span><span class="p">:</span>
-                        <span class="n">out_configs</span><span class="p">[</span><span class="n">omega_section</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-                    <span class="n">out_configs</span><span class="p">[</span><span class="n">omega_section</span><span class="p">][</span><span class="n">omega_option</span><span class="p">]</span> <span class="o">=</span> <span class="n">omega_value</span>
+                    <span class="n">local_config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_configs</span>
+                    <span class="n">sec_str</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">omega_sections</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">omega_section</span> <span class="ow">in</span> <span class="n">omega_sections</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">omega_section</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">local_config</span><span class="p">:</span>
+                            <span class="n">local_config</span><span class="p">[</span><span class="n">omega_section</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">local_config</span><span class="p">[</span><span class="n">omega_section</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sec_str</span><span class="si">}</span><span class="s1"> appears to point to a config &#39;</span>
+                                <span class="sa">f</span><span class="s1">&#39;option, not a section&#39;</span>
+                            <span class="p">)</span>
+                        <span class="n">local_config</span> <span class="o">=</span> <span class="n">local_config</span><span class="p">[</span><span class="n">omega_section</span><span class="p">]</span>
+                    <span class="n">local_config</span><span class="p">[</span><span class="n">omega_option</span><span class="p">]</span> <span class="o">=</span> <span class="n">omega_value</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                    <span class="n">not_found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">not_found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sec_str</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_warn_not_found</span><span class="p">(</span><span class="n">not_found</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">out_configs</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_map_mpaso_to_omega_section_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_map_mpaso_to_omega_section_option</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">section</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">OptionValue</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Map MPAS-Ocean namelist section and option to Omega equivalent</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">out_section</span> <span class="o">=</span> <span class="n">section</span>
+        <span class="n">out_sections</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">section</span><span class="p">]</span>
         <span class="n">out_option</span> <span class="o">=</span> <span class="n">option</span>
 
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -603,7 +667,7 @@
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span><span class="p">:</span>
             <span class="n">section_dict</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;section&#39;</span><span class="p">]</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">omega_section</span> <span class="o">=</span> <span class="n">section_dict</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>
+                <span class="n">omega_section</span><span class="p">:</span> <span class="n">MapSectionKey</span> <span class="o">=</span> <span class="n">section_dict</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="k">else</span><span class="p">:</span>
@@ -615,19 +679,27 @@
                     <span class="k">continue</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">option_found</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="n">out_section</span> <span class="o">=</span> <span class="n">omega_section</span>
+                    <span class="c1"># make sure out_sections is a list</span>
+                    <span class="n">out_sections</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">omega_section</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">omega_section</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="p">[</span><span class="n">omega_section</span><span class="p">]</span>
+                    <span class="p">)</span>
                     <span class="n">out_option</span> <span class="o">=</span> <span class="n">omega_option</span>
                     <span class="k">break</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">option_found</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No mapping found for </span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">sec_str</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">section</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">section</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No mapping found for </span><span class="si">{</span><span class="n">sec_str</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="n">out_option</span><span class="p">,</span> <span class="n">out_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_handle_not</span><span class="p">(</span><span class="n">out_option</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">out_section</span><span class="p">,</span> <span class="n">out_option</span><span class="p">,</span> <span class="n">out_value</span>
+        <span class="k">return</span> <span class="n">out_sections</span><span class="p">,</span> <span class="n">out_option</span><span class="p">,</span> <span class="n">out_value</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_warn_not_found</span><span class="p">(</span><span class="n">not_found</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_warn_not_found</span><span class="p">(</span><span class="n">not_found</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Warn about options that were not found in the map&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">not_found</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span>
@@ -638,7 +710,10 @@
         <span class="nb">print</span><span class="p">()</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_map_handle_not</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_map_handle_not</span><span class="p">(</span>
+        <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">OptionValue</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Handle negation of boolean value if the option starts with &quot;not&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -646,7 +721,6 @@
             <span class="c1"># a special case where we want the opposite of a boolean value</span>
             <span class="n">option</span> <span class="o">=</span> <span class="n">option</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
             <span class="n">value</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">value</span>
-
         <span class="k">return</span> <span class="n">option</span><span class="p">,</span> <span class="n">value</span></div>
 
 </pre></div>
