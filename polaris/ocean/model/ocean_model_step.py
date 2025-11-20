@@ -1,10 +1,24 @@
 import importlib.resources as imp_res
-from typing import Dict, List, Union
+from types import ModuleType
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from ruamel.yaml import YAML
 
 from polaris.model_step import ModelStep
 from polaris.tasks.ocean import Ocean
+
+OptionValue = Union[str, int, float, bool]
+MapSectionKey = Union[str, List[str]]
+# in principle, any number of levels but 4 seems sufficient for now
+ConfigsType = Dict[
+    str,
+    Union[
+        Dict[str, OptionValue],
+        Dict[str, Dict[str, OptionValue]],
+        Dict[str, Dict[str, Dict[str, OptionValue]]],
+        Dict[str, Dict[str, Dict[str, Dict[str, OptionValue]]]],
+    ],
+]
 
 
 class OceanModelStep(ModelStep):
@@ -33,22 +47,22 @@ class OceanModelStep(ModelStep):
     def __init__(
         self,
         component: Ocean,
-        name,
-        subdir=None,
-        indir=None,
-        ntasks=None,
-        min_tasks=None,
-        openmp_threads=None,
-        max_memory=None,
-        cached=False,
-        yaml=None,
-        update_pio=True,
-        update_eos=False,
-        make_graph=False,
-        mesh_filename=None,
-        partition_graph=True,
-        graph_target=None,
-    ):
+        name: str,
+        subdir: Optional[str] = None,
+        indir: Optional[str] = None,
+        ntasks: Optional[int] = None,
+        min_tasks: Optional[int] = None,
+        openmp_threads: Optional[int] = None,
+        max_memory: Optional[int] = None,
+        cached: bool = False,
+        yaml: Optional[str] = None,
+        update_pio: bool = True,
+        update_eos: bool = False,
+        make_graph: bool = False,
+        mesh_filename: Optional[str] = None,
+        partition_graph: bool = True,
+        graph_target: Optional[str] = None,
+    ) -> None:
         """
         Make a step for running the model
 
@@ -138,11 +152,13 @@ class OceanModelStep(ModelStep):
 
         self.dynamic_ntasks = ntasks is None and min_tasks is None
 
-        self.config_map: Union[None, List[Dict[str, Dict[str, str]]]] = None
+        self.config_map: Union[
+            None, List[Dict[str, Dict[MapSectionKey, str]]]
+        ] = None
         self.graph_target = graph_target
         self.update_eos = update_eos
 
-    def setup(self):
+    def setup(self) -> None:
         """
         Determine if we will make yaml files or namelists and streams files,
         then, determine the number of MPI tasks to use based on the estimated
@@ -174,7 +190,7 @@ class OceanModelStep(ModelStep):
 
         super().setup()
 
-    def dynamic_model_config(self, at_setup):
+    def dynamic_model_config(self, at_setup: bool) -> None:
         """
         Add model config options, namelist, streams and yaml files using config
         options or template replacements that need to be set both during step
@@ -190,7 +206,7 @@ class OceanModelStep(ModelStep):
         if self.update_eos:
             self.update_namelist_eos()
 
-    def constrain_resources(self, available_cores):
+    def constrain_resources(self, available_cores: Dict[str, Any]) -> None:
         """
         Update the number of MPI tasks to use based on the estimated mesh size
         """
@@ -198,7 +214,7 @@ class OceanModelStep(ModelStep):
             self._update_ntasks()
         super().constrain_resources(available_cores)
 
-    def compute_cell_count(self):
+    def compute_cell_count(self) -> Optional[int]:
         """
         Compute the approximate number of cells in the mesh, used to constrain
         resources
@@ -210,7 +226,11 @@ class OceanModelStep(ModelStep):
         """
         return None
 
-    def map_yaml_options(self, options, config_model):
+    def map_yaml_options(
+        self,
+        options: Dict[str, OptionValue],
+        config_model: Optional[str],
+    ) -> Dict[str, OptionValue]:
         """
         A mapping between model config options from MPAS-Ocean to Omega
 
@@ -236,7 +256,11 @@ class OceanModelStep(ModelStep):
             options = self._map_mpaso_to_omega_options(options)
         return options
 
-    def map_yaml_configs(self, configs, config_model):
+    def map_yaml_configs(
+        self,
+        configs: ConfigsType,
+        config_model: Optional[str],
+    ) -> ConfigsType:
         """
         A mapping between model sections and config options from MPAS-Ocean to
         Omega
@@ -263,7 +287,11 @@ class OceanModelStep(ModelStep):
             configs = self._map_mpaso_to_omega_configs(configs)
         return configs
 
-    def add_namelist_file(self, package, namelist):
+    def add_namelist_file(
+        self,
+        package: Union[str, ModuleType],
+        namelist: str,
+    ) -> None:
         """
         Add a file with updates to namelist options to the step to be parsed
         when generating a complete namelist file if and when the step gets set
@@ -281,7 +309,12 @@ class OceanModelStep(ModelStep):
             'Input namelist files are not supported in OceanModelStep'
         )
 
-    def add_streams_file(self, package, streams, template_replacements=None):
+    def add_streams_file(
+        self,
+        package: Union[str, ModuleType],
+        streams: str,
+        template_replacements: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """
         Add a streams file to the step to be parsed when generating a complete
         streams file if and when the step gets set up.
@@ -302,7 +335,7 @@ class OceanModelStep(ModelStep):
             'Input streams files are not supported in OceanModelStep'
         )
 
-    def update_namelist_eos(self):
+    def update_namelist_eos(self) -> None:
         """
         Modify the namelist to make it consistent with eos config options
         """
@@ -325,9 +358,11 @@ class OceanModelStep(ModelStep):
             'config_eos_linear_Sref': eos_linear_Sref,
         }
 
-        self.add_model_config_options(options=replacements)
+        self.add_model_config_options(
+            options=replacements, config_model='ocean'
+        )
 
-    def validate_baselines(self):
+    def validate_baselines(self) -> Tuple[bool, bool]:
         """
         Compare variables between output files in this step and in the same
         step from a baseline run if one was provided.
@@ -349,7 +384,7 @@ class OceanModelStep(ModelStep):
         self.validate_vars = validate_vars
         return super().validate_baselines()
 
-    def _update_ntasks(self):
+    def _update_ntasks(self) -> None:
         """
         Update ``ntasks`` and ``min_tasks`` for the step based on the estimated
         mesh size
@@ -376,7 +411,7 @@ class OceanModelStep(ModelStep):
             1, 4 * round(cell_count / (4 * max_cells_per_core))
         )
 
-    def _read_config_map(self):
+    def _read_config_map(self) -> None:
         """
         Read the map from MPAS-Ocean to Omega config options
         """
@@ -388,12 +423,15 @@ class OceanModelStep(ModelStep):
         nested_dict = yaml_data.load(text)
         self.config_map = nested_dict['config']
 
-    def _map_mpaso_to_omega_options(self, options):
+    def _map_mpaso_to_omega_options(
+        self,
+        options: Dict[str, OptionValue],
+    ) -> Dict[str, OptionValue]:
         """
         Map MPAS-Ocean namelist options to Omega config options
         """
 
-        out_options: Dict[str, str] = {}
+        out_options: Dict[str, OptionValue] = {}
         not_found = []
         for mpaso_option, mpaso_value in options.items():
             try:
@@ -408,7 +446,11 @@ class OceanModelStep(ModelStep):
 
         return out_options
 
-    def _map_mpaso_to_omega_option(self, option, value):
+    def _map_mpaso_to_omega_option(
+        self,
+        option: str,
+        value: OptionValue,
+    ) -> Tuple[str, OptionValue]:
         """
         Map MPAS-Ocean namelist option to Omega equivalent
         """
@@ -435,35 +477,57 @@ class OceanModelStep(ModelStep):
 
         return out_option, out_value
 
-    def _map_mpaso_to_omega_configs(self, configs):
+    def _map_mpaso_to_omega_configs(
+        self,
+        configs: ConfigsType,
+    ) -> ConfigsType:
         """
         Map MPAS-Ocean namelist options to Omega config options
         """
-        out_configs: Dict[str, Dict[str, str]] = {}
+        out_configs: ConfigsType = {}
         not_found = []
         for section, options in configs.items():
             for option, mpaso_value in options.items():
+                if isinstance(mpaso_value, dict):
+                    raise ValueError(
+                        f'Nested sections are not supported in '
+                        f'MPAS-Ocean configs: {section}/{option}'
+                    )
                 try:
-                    omega_section, omega_option, omega_value = (
+                    omega_sections, omega_option, omega_value = (
                         self._map_mpaso_to_omega_section_option(
                             section=section, option=option, value=mpaso_value
                         )
                     )
-                    if omega_section not in out_configs:
-                        out_configs[omega_section] = {}
-                    out_configs[omega_section][omega_option] = omega_value
+                    local_config: Dict[str, Any] = out_configs
+                    sec_str = '/'.join(omega_sections)
+                    for omega_section in omega_sections:
+                        if omega_section not in local_config:
+                            local_config[omega_section] = {}
+                        if not isinstance(local_config[omega_section], dict):
+                            raise ValueError(
+                                f'{sec_str} appears to point to a config '
+                                f'option, not a section'
+                            )
+                        local_config = local_config[omega_section]
+                    local_config[omega_option] = omega_value
                 except ValueError:
-                    not_found.append(f'{section}/{option}')
+                    not_found.append(f'{sec_str}/{option}')
 
         self._warn_not_found(not_found)
 
         return out_configs
 
-    def _map_mpaso_to_omega_section_option(self, section, option, value):
+    def _map_mpaso_to_omega_section_option(
+        self,
+        section: str,
+        option: str,
+        value: OptionValue,
+    ) -> Tuple[List[str], str, OptionValue]:
         """
         Map MPAS-Ocean namelist section and option to Omega equivalent
         """
-        out_section = section
+        out_sections: List[str] = [section]
         out_option = option
 
         assert self.config_map is not None
@@ -473,7 +537,7 @@ class OceanModelStep(ModelStep):
         for entry in self.config_map:
             section_dict = entry['section']
             try:
-                omega_section = section_dict[section]
+                omega_section: MapSectionKey = section_dict[section]
             except KeyError:
                 continue
             else:
@@ -485,19 +549,27 @@ class OceanModelStep(ModelStep):
                     continue
                 else:
                     option_found = True
-                    out_section = omega_section
+                    # make sure out_sections is a list
+                    out_sections = (
+                        omega_section
+                        if isinstance(omega_section, list)
+                        else [omega_section]
+                    )
                     out_option = omega_option
                     break
 
         if not option_found:
-            raise ValueError(f'No mapping found for {section}/{option}')
+            sec_str = (
+                '/'.join(section) if isinstance(section, list) else section
+            )
+            raise ValueError(f'No mapping found for {sec_str}/{option}')
 
         out_option, out_value = self._map_handle_not(out_option, value)
 
-        return out_section, out_option, out_value
+        return out_sections, out_option, out_value
 
     @staticmethod
-    def _warn_not_found(not_found):
+    def _warn_not_found(not_found: List[str]) -> None:
         """Warn about options that were not found in the map"""
         if len(not_found) == 0:
             return
@@ -508,7 +580,10 @@ class OceanModelStep(ModelStep):
         print()
 
     @staticmethod
-    def _map_handle_not(option, value):
+    def _map_handle_not(
+        option: str,
+        value: OptionValue,
+    ) -> Tuple[str, OptionValue]:
         """
         Handle negation of boolean value if the option starts with "not"
         """
@@ -516,5 +591,4 @@ class OceanModelStep(ModelStep):
             # a special case where we want the opposite of a boolean value
             option = option[4:]
             value = not value
-
         return option, value

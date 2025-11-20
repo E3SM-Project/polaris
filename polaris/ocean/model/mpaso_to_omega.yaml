@@ -103,3 +103,15 @@ config:
     config_manufactured_solution_wavelength_x: WavelengthX
     config_manufactured_solution_wavelength_y: WavelengthY
     config_manufactured_solution_amplitude: Amplitude
+
+- section:
+    eos: Eos
+  options:
+    config_eos_type: EosType
+
+- section:
+   eos_linear: [Eos, Linear]
+  options:
+    config_eos_linear_alpha: DRhoDT
+    config_eos_linear_beta: DRhoDS
+    config_eos_linear_densityref: RhoT0S0
