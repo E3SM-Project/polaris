@@ -25,6 +25,7 @@ class Forward(OceanModelStep):
         validate_vars=None,
         task_name='',
         update_eos=True,
+        enable_vadv=True,
     ):
         """
         Create a new test case
@@ -94,6 +95,8 @@ class Forward(OceanModelStep):
 
         self.task_name = task_name
 
+        self.enable_vadv = enable_vadv
+
     def dynamic_model_config(self, at_setup):
         super().dynamic_model_config(at_setup=at_setup)
 
@@ -103,5 +106,14 @@ class Forward(OceanModelStep):
             )
             self.add_model_config_options(
                 options={'config_cvmix_background_viscosity': nu},
+                config_model='mpas-ocean',
+            )
+        if not self.enable_vadv:
+            self.add_model_config_options(
+                options={
+                    'config_vert_coord_movement': 'impermeable_interfaces',
+                    'config_disable_vel_vadv': True,
+                    'config_disable_tr_adv': True,
+                },
                 config_model='mpas-ocean',
             )

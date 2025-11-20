@@ -47,7 +47,7 @@ class CVMix(Task):
                 openmp_threads=1,
                 validate_vars=validate_vars,
                 task_name=name,
-                # enable_vadv=enable_vadv,
+                enable_vadv=enable_vadv,
             )
         )
 
