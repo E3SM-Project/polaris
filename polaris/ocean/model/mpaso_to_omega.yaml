@@ -110,9 +110,7 @@ config:
     config_eos_type: EosType
 
 - section:
-   eos_linear:
-     - Eos
-     - Linear
+   eos_linear: [Eos, Linear]
   options:
     config_eos_linear_alpha: DRhoDT
     config_eos_linear_beta: DRhoDS
