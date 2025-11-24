@@ -986,7 +986,7 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
         specs.append(f'metis@{metis}+int64+real64~shared')
     if moab != 'None':
         specs.append(
-            f'moab@{moab}+mpi+hdf5+netcdf+pnetcdf+metis+parmetis+tempest'
+            f'moab@{moab}+eigen+fortran+hdf5+mpi+netcdf+pnetcdf+zoltan+tempest'
         )
     if parmetis != 'None':
         specs.append(f'parmetis@{parmetis}+int64~shared')
@@ -1038,10 +1038,8 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
         mpi=mpi,
         shell='sh',
         machine=machine,
-        config_file=machine_config,
         include_e3sm_lapack=include_e3sm_lapack,
         include_e3sm_hdf5_netcdf=e3sm_hdf5_netcdf,
-        yaml_template=yaml_template,
     )
 
     spack_view = (
