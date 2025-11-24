@@ -10,7 +10,7 @@ import socket
 import stat
 import subprocess
 import time
-from configparser import ConfigParser
+from configparser import ConfigParser, ExtendedInterpolation
 from typing import Dict
 
 import progressbar
@@ -269,7 +269,7 @@ def _get_config(config_file, machine):
     # we can't load polaris so we find the config files
     here = os.path.abspath(os.path.dirname(__file__))
     default_config = os.path.join(here, 'default.cfg')
-    config = ConfigParser()
+    config = ConfigParser(interpolation=ExtendedInterpolation())
     config.read(default_config)
 
     if machine is not None:
@@ -1517,7 +1517,7 @@ def _get_possible_hosts():
     possible_hosts = dict()
     for filename in files:
         machine = os.path.splitext(os.path.split(filename)[1])[0]
-        config = ConfigParser()
+        config = ConfigParser(interpolation=ExtendedInterpolation())
         config.read(filename)
         if config.has_section('discovery') and config.has_option(
             'discovery', 'hostname_contains'
