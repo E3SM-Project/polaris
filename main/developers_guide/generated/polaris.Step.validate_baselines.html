@@ -150,6 +150,9 @@
 <span class="sig-prename descclassname"><span class="pre">Step.</span></span><span class="sig-name descname"><span class="pre">validate_baselines</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/step.html#Step.validate_baselines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Step.validate_baselines" title="Link to this definition"></a></dt>
 <dd><p>Compare variables between output files in this step and in the same
 step from a baseline run if one was provided.</p>
+<p>Writes out either a <code class="docutils literal notranslate"><span class="pre">baseline_passed.log</span></code> or <code class="docutils literal notranslate"><span class="pre">baseline_failed.log</span></code>
+file in the work directory depending on whether all variables passed
+the comparison.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
