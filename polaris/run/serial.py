@@ -459,6 +459,25 @@ def _run_task(task, available_resources):
 
         if os.path.exists(complete_filename):
             _print_to_stdout(task, '          already completed')
+            # print results of baseline comparison if it was done
+            baseline_pass_filename = os.path.join(
+                step.work_dir, 'baseline_passed.log'
+            )
+            baseline_fail_filename = os.path.join(
+                step.work_dir, 'baseline_failed.log'
+            )
+
+            if os.path.exists(baseline_pass_filename):
+                baseline_str = pass_str
+            elif os.path.exists(baseline_fail_filename):
+                baseline_str = fail_str
+            else:
+                baseline_str = None
+
+            if baseline_str is not None:
+                _print_to_stdout(
+                    task, f'          baseline comp.:   {baseline_str}'
+                )
             continue
         if step.cached:
             _print_to_stdout(task, '          cached')
