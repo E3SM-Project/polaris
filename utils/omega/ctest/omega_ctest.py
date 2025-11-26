@@ -4,6 +4,8 @@ import argparse
 import os
 import subprocess
 
+from jinja2 import Template
+
 from polaris.build.omega import make_build_script as make_base_build_script
 from polaris.config import PolarisConfigParser
 from polaris.io import download, update_permissions
