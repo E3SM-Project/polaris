@@ -117,6 +117,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span><span class="p">,</span> <span class="n">provenance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.mpas_ocean</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_mpas_ocean</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.omega</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_omega</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">symlink</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.job</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_job_script</span>
@@ -137,8 +139,13 @@
     <span class="n">suite_name</span><span class="o">=</span><span class="s1">&#39;custom&#39;</span><span class="p">,</span>
     <span class="n">cached</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">copy_executable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">clean_work</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">build</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">branch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">clean_build</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cmake_flags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">debug</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set up one or more tasks</span>
@@ -169,7 +176,7 @@
 
 <span class="sd">    component_path : str, optional</span>
 <span class="sd">        The relative or absolute path to the location where the model and</span>
-<span class="sd">        default namelists have been built</span>
+<span class="sd">        default namelists have been (or will be) built</span>
 
 <span class="sd">    suite_name : str, optional</span>
 <span class="sd">        The name of the suite if tasks are being set up through a suite or</span>
@@ -189,6 +196,24 @@
 
 <span class="sd">    model : str, optional</span>
 <span class="sd">        The model to run</span>
+
+<span class="sd">    build : bool, optional</span>
+<span class="sd">        Whether to build the model</span>
+
+<span class="sd">    branch : str, optional</span>
+<span class="sd">        The relative or absolute path to the base of the component branch to</span>
+<span class="sd">        build.  If not provided, ``component_path`` must point to an existing</span>
+<span class="sd">        build.</span>
+
+<span class="sd">    clean_build : bool, optional</span>
+<span class="sd">        Whether to clean the build directory before building the model.</span>
+<span class="sd">        ``clean_build = True`` implies ``build = True``.</span>
+
+<span class="sd">    cmake_flags : str, optional</span>
+<span class="sd">        Additional flags to pass to make or CMake when building the model</span>
+
+<span class="sd">    debug : bool, optional</span>
+<span class="sd">        Whether to build the model in debug mode</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -229,6 +254,11 @@
         <span class="n">component_path</span><span class="o">=</span><span class="n">component_path</span><span class="p">,</span>
         <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
         <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+        <span class="n">build</span><span class="o">=</span><span class="n">build</span><span class="p">,</span>
+        <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span>
+        <span class="n">cmake_flags</span><span class="o">=</span><span class="n">cmake_flags</span><span class="p">,</span>
+        <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
+        <span class="n">clean_build</span><span class="o">=</span><span class="n">clean_build</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">component</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">basic_config</span><span class="p">)</span>
@@ -240,8 +270,17 @@
         <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
         <span class="n">baseline_dir</span><span class="o">=</span><span class="n">baseline_dir</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">basic_config</span><span class="p">[</span><span class="s1">&#39;build&#39;</span><span class="p">]</span>
+    <span class="n">build</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">build</span><span class="p">:</span>
+        <span class="n">_build_model</span><span class="p">(</span>
+            <span class="n">basic_config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">,</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">clean_work</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Cleaning task and step work directories:&#39;</span><span class="p">)</span>
         <span class="n">_clean_tasks_and_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
@@ -268,7 +307,6 @@
             <span class="n">work_dir</span><span class="p">,</span>
             <span class="n">baseline_dir</span><span class="p">,</span>
             <span class="n">cached_steps</span><span class="o">=</span><span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">],</span>
-            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="n">_check_dependencies</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
@@ -303,9 +341,7 @@
 
 <div class="viewcode-block" id="setup_task">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.setup.setup_task.html#polaris.setup.setup_task">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">setup_task</span><span class="p">(</span>
-    <span class="n">path</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">,</span> <span class="n">model</span>
-<span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_task</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set up one or more tasks</span>
 
@@ -330,9 +366,6 @@
 <span class="sd">    cached_steps : list of str</span>
 <span class="sd">        Which steps (if any) should be cached, identified by a list of</span>
 <span class="sd">        subdirectories in the component</span>
-
-<span class="sd">    model : str, optional</span>
-<span class="sd">        The model to run</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -400,8 +433,8 @@
         <span class="n">write_job_script</span><span class="p">(</span>
             <span class="n">config</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
             <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
-            <span class="n">target_cores</span><span class="o">=</span><span class="n">cores</span><span class="p">,</span>
-            <span class="n">min_cores</span><span class="o">=</span><span class="n">min_cores</span><span class="p">,</span>
+            <span class="n">target_cores</span><span class="o">=</span><span class="n">max_cores</span><span class="p">,</span>
+            <span class="n">min_cores</span><span class="o">=</span><span class="n">max_of_min_cores</span><span class="p">,</span>
             <span class="n">work_dir</span><span class="o">=</span><span class="n">task_dir</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -467,7 +500,7 @@
         <span class="s1">&#39;--component_path&#39;</span><span class="p">,</span>
         <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;component_path&#39;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path where the component executable and &#39;</span>
-        <span class="s1">&#39;default namelists have been built.&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;default namelists have been (or will be) built.&#39;</span><span class="p">,</span>
         <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;PATH&#39;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -495,8 +528,8 @@
         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the model executable should be copied to the work directory.&#39;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--clean&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;clean&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--clean_work&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;clean_work&#39;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the base work directory should be deleted &#39;</span>
         <span class="s1">&#39;before setting up the tasks.&#39;</span><span class="p">,</span>
@@ -506,6 +539,37 @@
         <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The model to run (one of &#39;mpas-ocean&#39;, &#39;omega&#39;, &quot;</span>
         <span class="s2">&quot;or &#39;mpas-seaice&#39;)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--build&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;build&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the model should be built.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--branch&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;branch&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The branch of the model to build. The default is the submodule &#39;</span>
+        <span class="s1">&#39;associated with the model&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--clean_build&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;clean_build&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the model should be cleaned before building. Implies &#39;</span>
+        <span class="s1">&#39;--build.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--cmake_flags&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;cmake_flags&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Additional flags to pass to make or CMake when building the &#39;</span>
+        <span class="s1">&#39;model.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--debug&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;debug&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the model should be built in debug mode.&#39;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
@@ -533,8 +597,13 @@
         <span class="n">suite_name</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">suite_name</span><span class="p">,</span>
         <span class="n">cached</span><span class="o">=</span><span class="n">cached</span><span class="p">,</span>
         <span class="n">copy_executable</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">copy_executable</span><span class="p">,</span>
-        <span class="n">clean</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">clean</span><span class="p">,</span>
+        <span class="n">clean_work</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">clean_work</span><span class="p">,</span>
         <span class="n">model</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+        <span class="n">build</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">build</span><span class="p">,</span>
+        <span class="n">branch</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">branch</span><span class="p">,</span>
+        <span class="n">clean_build</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">clean_build</span><span class="p">,</span>
+        <span class="n">cmake_flags</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">cmake_flags</span><span class="p">,</span>
+        <span class="n">debug</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -566,6 +635,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set up config parsers for this component&quot;&quot;&quot;</span>
 
     <span class="n">common_config</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
     <span class="k">if</span> <span class="n">copy_executable</span><span class="p">:</span>
         <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;setup&#39;</span><span class="p">,</span> <span class="s1">&#39;copy_executable&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">)</span>
 
@@ -797,7 +867,18 @@
     <span class="k">return</span> <span class="n">machine</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_basic_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_basic_config</span><span class="p">(</span>
+    <span class="n">config_file</span><span class="p">,</span>
+    <span class="n">machine</span><span class="p">,</span>
+    <span class="n">component_path</span><span class="p">,</span>
+    <span class="n">component</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">build</span><span class="p">,</span>
+    <span class="n">branch</span><span class="p">,</span>
+    <span class="n">cmake_flags</span><span class="p">,</span>
+    <span class="n">debug</span><span class="p">,</span>
+    <span class="n">clean_build</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a base config parser for the machine and component but not a specific</span>
 <span class="sd">    task</span>
@@ -842,6 +923,30 @@
     <span class="k">if</span> <span class="n">component_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">component_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
         <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">build</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">build</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;branch&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">branch</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">compiler</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_COMPILER&#39;</span><span class="p">]</span>
+    <span class="n">mpi</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_MPI&#39;</span><span class="p">]</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;machine&#39;</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;compiler&#39;</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;mpi&#39;</span><span class="p">,</span> <span class="n">mpi</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cmake_flags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;cmake_flags&#39;</span><span class="p">,</span> <span class="n">cmake_flags</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">debug</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;debug&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">debug</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">clean_build</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;clean&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">clean_build</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">build</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">)</span>
+    <span class="n">clean_build</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;clean&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">clean_build</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">build</span><span class="p">:</span>
+        <span class="c1"># the user presumably expects to clean the build, notice that it&#39;s</span>
+        <span class="c1"># absent, and build again</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">config</span>
 
@@ -932,6 +1037,56 @@
                         <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> was &#39;</span>
                         <span class="sa">f</span><span class="s1">&#39;not set up.&#39;</span>
                     <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_model</span><span class="p">(</span><span class="n">basic_config</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">machine</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">basic_config</span><span class="p">[</span><span class="s1">&#39;build&#39;</span><span class="p">]</span>
+    <span class="n">branch</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;branch&#39;</span><span class="p">)</span>
+    <span class="n">clean_build</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;clean&#39;</span><span class="p">)</span>
+    <span class="n">debug</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;debug&#39;</span><span class="p">)</span>
+    <span class="n">cmake_flags</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cmake_flags&#39;</span><span class="p">)</span>
+
+    <span class="n">build_dir</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;account&#39;</span><span class="p">):</span>
+        <span class="n">account</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;account&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">account</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+        <span class="n">build_omega</span><span class="p">(</span>
+            <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span>
+            <span class="n">build_dir</span><span class="o">=</span><span class="n">build_dir</span><span class="p">,</span>
+            <span class="n">clean</span><span class="o">=</span><span class="n">clean_build</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
+            <span class="n">cmake_flags</span><span class="o">=</span><span class="n">cmake_flags</span><span class="p">,</span>
+            <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">basic_config</span><span class="p">[</span><span class="s1">&#39;build&#39;</span><span class="p">]</span>
+        <span class="n">compiler</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;compiler&#39;</span><span class="p">)</span>
+        <span class="n">mpilib</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mpi&#39;</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">compiler</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">mpilib</span><span class="si">}</span><span class="s1">_target&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;The build target </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1"> is not defined in the [build] &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;section of the config file for machine </span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.&#39;</span>
+            <span class="p">)</span>
+        <span class="n">make_target</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="n">build_mpas_ocean</span><span class="p">(</span>
+            <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span>
+            <span class="n">build_dir</span><span class="o">=</span><span class="n">build_dir</span><span class="p">,</span>
+            <span class="n">clean</span><span class="o">=</span><span class="n">clean_build</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
+            <span class="n">make_flags</span><span class="o">=</span><span class="n">cmake_flags</span><span class="p">,</span>
+            <span class="n">make_target</span><span class="o">=</span><span class="n">make_target</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Automated build is not implemented for model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
 </pre></div>
 
            </div>

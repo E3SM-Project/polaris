@@ -83,7 +83,7 @@
 <li class="toctree-l3"><a class="reference internal" href="deploying_spack.html">Deploying Spack Environments on HPCs</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Running Required Test Suites</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#mpas-ocean-running-the-pr-suite">MPAS-Ocean: Running the <code class="docutils literal notranslate"><span class="pre">pr</span></code> Suite</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#omega-running-ctests">Omega: Running CTests</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#omega-running-ctests-and-omega-pr-suite">Omega: Running CTests and <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> Suite</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#notes">Notes</a></li>
 </ul>
 </li>
@@ -153,27 +153,28 @@ with Intel and OpenMPI):</p>
 </pre></div>
 </div>
 <p><em>(Replace <code class="docutils literal notranslate"><span class="pre">chrysalis</span></code>, <code class="docutils literal notranslate"><span class="pre">intel</span></code>, and <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> with your machine, compiler,
-and MPI as appropriate. See the table in
-<a class="reference internal" href="../../machines/index.html#dev-mpas-supported-machines"><span class="std std-ref">MPAS-Ocean and -Seaice Supported Machines</span></a>.)</em></p>
+and MPI as appropriate. See <a class="reference internal" href="../../machines/index.html#dev-mpas-supported-machines"><span class="std std-ref">MPAS-Ocean and -Seaice Supported Machines</span></a>.)</em></p>
 </li>
-<li><p><strong>Create a Worktree for E3SM</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>e3sm_submodules/E3SM-Project
-git<span class="w"> </span>worktree<span class="w"> </span>add<span class="w"> </span>../e3sm_chrysalis_intel_openmpi
-<span class="nb">cd</span><span class="w"> </span>../e3sm_chrysalis_intel_openmpi/components/mpas-ocean
-git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive<span class="w"> </span>.
+<li><p><strong>Set Up (and Auto-Build) the Suite</strong></p>
+<p>Let Polaris make a clean build MPAS-Ocean for you with <code class="docutils literal notranslate"><span class="pre">--clean_build</span></code>
+and <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">mpas-ocean</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>pr<span class="w"> </span>--clean_build<span class="w"> </span>--model<span class="w"> </span>mpas-ocean<span class="se">\</span>
+<span class="w">    </span>-w<span class="w"> </span>/path/to/polaris_scratch/mpaso_pr_intel_openmpi
 </pre></div>
 </div>
+<p>Notes:</p>
+<ul class="simple">
+<li><p>By default, Polaris builds into
+<code class="docutils literal notranslate"><span class="pre">build_mpas_ocean/build_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;</span></code> and generates a build
+script under <code class="docutils literal notranslate"><span class="pre">build_mpas_ocean/</span></code> (see <a class="reference internal" href="../../framework/build.html#dev-build"><span class="std std-ref">Build utilities</span></a>).</p></li>
+<li><p>Don’t use the<code class="docutils literal notranslate"><span class="pre">--branch</span></code> flag so that, the E3SM submodule in your Polaris
+tree is used, and required submodules are checked out automatically.</p></li>
+<li><p>You can pass extra make flags via <code class="docutils literal notranslate"><span class="pre">--cmake_flags</span></code> (e.g.,
+<code class="docutils literal notranslate"><span class="pre">--cmake_flags</span> <span class="pre">&quot;-j</span> <span class="pre">8&quot;</span></code>).</p></li>
+</ul>
 </li>
-<li><p><strong>Build MPAS-Ocean</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>ifort
-</pre></div>
-</div>
-<p><em>(Use the correct make target for your machine and compiler. See the table
-in <a class="reference internal" href="../../machines/index.html#dev-mpas-supported-machines"><span class="std std-ref">MPAS-Ocean and -Seaice Supported Machines</span></a>.)</em></p>
-</li>
-<li><p><strong>Set Up and Run the Test Suite</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>pr<span class="w"> </span>-p<span class="w"> </span>.<span class="w"> </span>-w<span class="w"> </span>/path/to/polaris_scratch/pr_intel_openmpi
-<span class="nb">cd</span><span class="w"> </span>/path/to/polaris_scratch/pr_intel_openmpi
+<li><p><strong>Run the Suite</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/path/to/polaris_scratch/mpaso_pr_intel_openmpi
 sbatch<span class="w"> </span>job_script_pr.sh
 </pre></div>
 </div>
@@ -187,8 +188,8 @@ PR description.</p>
 </ol>
 </section>
 <hr class="docutils" />
-<section id="omega-running-ctests">
-<h2>Omega: Running CTests<a class="headerlink" href="#omega-running-ctests" title="Link to this heading"></a></h2>
+<section id="omega-running-ctests-and-omega-pr-suite">
+<h2>Omega: Running CTests and <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> Suite<a class="headerlink" href="#omega-running-ctests-and-omega-pr-suite" title="Link to this heading"></a></h2>
 <p>For each machine, compiler, and MPI combination (for example, on Chrysalis
 with Intel and OpenMPI):</p>
 <ol class="arabic">
@@ -206,11 +207,39 @@ with Intel and OpenMPI):</p>
 </pre></div>
 </div>
 </li>
-<li><p><strong>Check Results</strong></p>
+<li><p><strong>Check CTest Results</strong></p>
 <p>Wait for the tests to complete. If all tests pass, check the box for this
 configuration in your PR. If not, file an issue (in the Polaris or Omega
 repo), note the problem, and link to the issue next to the (unchecked)
 checkbox in the PR description.</p>
+</li>
+<li><p><strong>Set Up (and Auto-Build) the Suite</strong></p>
+<p>Omega will have already been built by the CTest utility in the default
+location where Polaris will look when setting up a test suite,
+<code class="docutils literal notranslate"><span class="pre">build_omega/build_&lt;machine&gt;_&lt;compiler&gt;</span></code> (see <a class="reference internal" href="../../framework/build.html#dev-build"><span class="std std-ref">Build utilities</span></a>).  You can
+set up the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>omega_pr<span class="w"> </span>--model<span class="w"> </span>omega<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-w<span class="w"> </span>/path/to/polaris_scratch/omega_pr_intel_openmpi
+</pre></div>
+</div>
+<p>Notes:</p>
+<ul class="simple">
+<li><p>Don’t use the<code class="docutils literal notranslate"><span class="pre">--branch</span></code> flag so that, the Omega submodule in your Polaris
+tree is used, and required submodules are checked out automatically.</p></li>
+<li><p>You can pass extra CMake flags via <code class="docutils literal notranslate"><span class="pre">--cmake_flags</span></code></p></li>
+</ul>
+</li>
+<li><p><strong>Run the Suite</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/path/to/polaris_scratch/omega_pr_intel_openmpi
+sbatch<span class="w"> </span>job_script_omega_pr.sh
+</pre></div>
+</div>
+</li>
+<li><p><strong>Check Results</strong></p>
+<p>Wait for the job to complete. If all tests pass, check the box for this
+configuration in your PR. If not, file an issue (in the Polaris repo), note
+the problem, and link to the issue next to the (unchecked) checkbox in the
+PR description.</p>
 </li>
 </ol>
 </section>

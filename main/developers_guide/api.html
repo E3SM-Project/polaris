@@ -154,6 +154,13 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.model_step.make_graph_file.html">polaris.model_step.make_graph_file</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#build">build</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.mpas_ocean.build_mpas_ocean.html">polaris.build.mpas_ocean.build_mpas_ocean</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.mpas_ocean.make_build_script.html">polaris.build.mpas_ocean.make_build_script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.omega.build_omega.html">polaris.build.omega.build_omega</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.omega.make_build_script.html">polaris.build.omega.make_build_script</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#mpas">mpas</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mpas.area_for_field.html">polaris.mpas.area_for_field</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mpas.cell_mask_to_edge_mask.html">polaris.mpas.cell_mask_to_edge_mask</a></li>
@@ -322,7 +329,7 @@ documentation.</p>
 <h4>suite<a class="headerlink" href="#suite" title="Link to this heading"></a></h4>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.suite.setup_suite.html#polaris.suite.setup_suite" title="polaris.suite.setup_suite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_suite</span></code></a>(component, suite_name, work_dir)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.suite.setup_suite.html#polaris.suite.setup_suite" title="polaris.suite.setup_suite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_suite</span></code></a>(component, suite_name, work_dir, ...)</p></td>
 <td><p>Set up a suite of tasks</p></td>
 </tr>
 </tbody>
@@ -660,6 +667,25 @@ documentation.</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.model_step.make_graph_file.html#polaris.model_step.make_graph_file" title="polaris.model_step.make_graph_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_graph_file</span></code></a>(mesh_filename[, ...])</p></td>
 <td><p>Make a graph file from the MPAS mesh for use in the Metis graph partitioning software</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="build">
+<h3>build<a class="headerlink" href="#build" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.build.mpas_ocean.build_mpas_ocean.html#polaris.build.mpas_ocean.build_mpas_ocean" title="polaris.build.mpas_ocean.build_mpas_ocean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mpas_ocean.build_mpas_ocean</span></code></a>(branch, ...)</p></td>
+<td><p>Build MPAS-Ocean on the current machine.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.build.mpas_ocean.make_build_script.html#polaris.build.mpas_ocean.make_build_script" title="polaris.build.mpas_ocean.make_build_script"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mpas_ocean.make_build_script</span></code></a>(machine, ...)</p></td>
+<td><p>Make a shell script for checking out MPAS-Ocean and its submodules and building MPAS-Ocean.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.build.omega.build_omega.html#polaris.build.omega.build_omega" title="polaris.build.omega.build_omega"><code class="xref py py-obj docutils literal notranslate"><span class="pre">omega.build_omega</span></code></a>(branch, build_dir, clean, ...)</p></td>
+<td><p>Build Omega on the current machine.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.build.omega.make_build_script.html#polaris.build.omega.make_build_script" title="polaris.build.omega.make_build_script"><code class="xref py py-obj docutils literal notranslate"><span class="pre">omega.make_build_script</span></code></a>(machine, compiler, ...)</p></td>
+<td><p>Make a shell script for checking out Omega and its submodules and building Omega.</p></td>
 </tr>
 </tbody>
 </table>
