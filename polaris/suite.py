@@ -45,6 +45,7 @@ def setup_suite(
         work_dir=work_dir,
         task_list=tasks,
         cached=cached,
+        suite_name=suite_name,
         **kwargs,
     )
 
