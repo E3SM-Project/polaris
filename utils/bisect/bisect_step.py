@@ -9,10 +9,8 @@ import subprocess
 def run(
     launch_path,
     e3sm_path,
-    mpas_path,
     work_base,
     load_script,
-    make_command,
     setup_command,
     run_command,
 ):
@@ -29,8 +27,6 @@ def run(
         resides and where ``utils/bisect/bisect.py`` was called.
     e3sm_path : str
         The relative or absolute path to the e3sm branch to build from.
-    mpas_path : str
-        The relative or absolute path to the mpas component to be built.
     work_base : str
         The base directory for creating work directories for testing the code.
         Subdirectories called ``e3sm_hash<hash>`` will be created with each
@@ -39,8 +35,6 @@ def run(
         The relative or absolute path to the load script used to activate
         the polaris conda environment and set environment variables used to
         build the MPAS component to test.
-    make_command : str
-        The command to use to build the MPAS component
     setup_command : str
         The command to use to set up the polaris test case(s)
     run_command : str
@@ -49,11 +43,10 @@ def run(
     """
 
     e3sm_path = to_abs(e3sm_path, launch_path)
-    mpas_path = to_abs(mpas_path, launch_path)
     work_base = to_abs(work_base, launch_path)
     load_script = to_abs(load_script, launch_path)
 
-    commands = f'cd {mpas_path} && git rev-parse --short HEAD'
+    commands = f'cd {e3sm_path} && git rev-parse --short HEAD'
     git_hash = (
         subprocess.check_output(commands, shell=True)
         .decode('utf-8')
@@ -61,7 +54,14 @@ def run(
     )
     git_hash = git_hash.split('\n')[-1]
 
+    build_path = os.path.join(work_base, f'build_hash_{git_hash}')
+
     work_path = os.path.join(work_base, f'e3sm_hash_{git_hash}')
+
+    full_setup_command = (
+        f'{setup_command} -p {build_path} --clean_build --branch {e3sm_path} '
+        f'-w {work_path}'
+    )
 
     try:
         os.makedirs(work_path)
@@ -73,10 +73,7 @@ def run(
         f'cd {e3sm_path} && '
         f'rm -rf * && '
         f'git reset --hard HEAD && '
-        f'git submodule update --init --recursive && '
-        f'cd {mpas_path} && '
-        f'{make_command} >& {work_path}/make.log && '
-        f'{setup_command} -p {mpas_path} -w {work_path} && '
+        f'{full_setup_command} && '
         f'cd {work_path} && '
         f'{run_command}'
     )
@@ -130,18 +127,17 @@ def main():
     config = configparser.ConfigParser(
         interpolation=configparser.ExtendedInterpolation()
     )
-    config.read(args.config_file)
+    config_file = os.path.abspath(args.config_file)
+    config.read(config_file)
 
-    launch_path = os.path.dirname(args.config_file)
+    launch_path = os.path.dirname(config_file)
 
     section = config['bisect']
     run(
         launch_path=launch_path,
         e3sm_path=section['e3sm_path'],
-        mpas_path=section['mpas_path'],
         work_base=section['work_base'],
         load_script=section['load_script'],
-        make_command=section['make_command'],
         setup_command=section['setup_command'],
         run_command=section['run_command'],
     )
