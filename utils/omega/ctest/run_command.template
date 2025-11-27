@@ -6,9 +6,9 @@ echo ""
 echo "(Copy the following to a comment in your Omega PR)"
 echo ""
 echo "### CTest unit tests:"
-echo "- Machine: `{{ machine }}`"
-echo "- Compiler: `{{ compiler }}`"
-echo "- Build type: `{{ build_type }}`"
+echo "- Machine: \`{{ machine }}\`"
+echo "- Compiler: \`{{ compiler }}\`"
+echo "- Build type: \`{{ build_type }}\`"
 
 # Summarize CTest results
 if grep -q "100% tests passed" ctests.log; then
@@ -39,7 +39,7 @@ else
 	if [ -n "${failed_from_block}" ]; then
 		echo "${failures_header}"
 		while IFS= read -r testname; do
-			[ -n "$testname" ] && echo "  - `$testname`"
+			[ -n "$testname" ] && echo "  - \`$testname\`"
 		done <<< "${failed_from_block}"
 	else
 		# Fallback: parse per-test lines that include ***Failed
@@ -48,11 +48,11 @@ else
 		if [ -n "${failed_from_lines}" ]; then
 			echo "${failures_header}"
 			while IFS= read -r testname; do
-				[ -n "$testname" ] && echo "  - `$testname`"
+				[ -n "$testname" ] && echo "  - \`$testname\`"
 			done <<< "${failed_from_lines}"
 		else
 			echo "- Result: Some tests failed"
 		fi
 	fi
 fi
-echo "- Log: `${log_path}`"
+echo "- Log: \`${log_path}\`"
