@@ -554,7 +554,7 @@ def _build_conda_env(options, activate_base):
     else:
         mpi_prefix = f'mpi_{conda_mpi}'
 
-    channel_list = ['-c conda-forge', '-c defaults']
+    channel_list = ['-c conda-forge']
     if use_local:
         channel_list = ['--use-local'] + channel_list
     if local_conda_build is not None:
