@@ -10,7 +10,7 @@ import socket
 import stat
 import subprocess
 import time
-from configparser import ConfigParser
+from configparser import ConfigParser, ExtendedInterpolation
 from typing import Dict
 
 import progressbar
@@ -269,7 +269,7 @@ def _get_config(config_file, machine):
     # we can't load polaris so we find the config files
     here = os.path.abspath(os.path.dirname(__file__))
     default_config = os.path.join(here, 'default.cfg')
-    config = ConfigParser()
+    config = ConfigParser(interpolation=ExtendedInterpolation())
     config.read(default_config)
 
     if machine is not None:
@@ -554,7 +554,7 @@ def _build_conda_env(options, activate_base):
     else:
         mpi_prefix = f'mpi_{conda_mpi}'
 
-    channel_list = ['-c conda-forge', '-c defaults']
+    channel_list = ['-c conda-forge']
     if use_local:
         channel_list = ['--use-local'] + channel_list
     if local_conda_build is not None:
@@ -986,7 +986,7 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
         specs.append(f'metis@{metis}+int64+real64~shared')
     if moab != 'None':
         specs.append(
-            f'moab@{moab}+mpi+hdf5+netcdf+pnetcdf+metis+parmetis+tempest'
+            f'moab@{moab}+eigen+fortran+hdf5+mpi+netcdf+pnetcdf+zoltan+tempest'
         )
     if parmetis != 'None':
         specs.append(f'parmetis@{parmetis}+int64~shared')
@@ -1038,10 +1038,8 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
         mpi=mpi,
         shell='sh',
         machine=machine,
-        config_file=machine_config,
         include_e3sm_lapack=include_e3sm_lapack,
         include_e3sm_hdf5_netcdf=e3sm_hdf5_netcdf,
-        yaml_template=yaml_template,
     )
 
     spack_view = (
@@ -1517,7 +1515,7 @@ def _get_possible_hosts():
     possible_hosts = dict()
     for filename in files:
         machine = os.path.splitext(os.path.split(filename)[1])[0]
-        config = ConfigParser()
+        config = ConfigParser(interpolation=ExtendedInterpolation())
         config.read(filename)
         if config.has_section('discovery') and config.has_option(
             'discovery', 'hostname_contains'

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
-from configparser import ConfigParser
+from configparser import ConfigParser, ExtendedInterpolation
 
 from deploy.shared import (
     check_call,
@@ -105,7 +105,7 @@ def _get_config(config_file):
     # we can't load polaris so we find the config files
     here = os.path.abspath(os.path.dirname(__file__))
     default_config = os.path.join(here, 'deploy/default.cfg')
-    config = ConfigParser()
+    config = ConfigParser(interpolation=ExtendedInterpolation())
     config.read(default_config)
 
     if config_file is not None:
