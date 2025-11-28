@@ -1,5 +1,5 @@
 # Base
-python>=3.10,<3.14
+python>=3.10,<3.15
 cartopy
 cartopy_offlinedata
 cmocean
