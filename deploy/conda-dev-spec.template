@@ -11,9 +11,9 @@ importlib_resources
 ipython
 jupyter
 lxml
-{% if include_mache %}
+{%- if include_mache %}
 mache={{ mache }}
-{% endif %}
+{%- endif %}
 matplotlib-base>=3.9.0
 metis={{ metis }}
 moab={{ moab }}=*_tempest_*
@@ -22,9 +22,9 @@ mpas_tools={{ mpas_tools }}
 nco
 netcdf4=*=nompi_*
 numpy>=2.0,<3.0
-{% if supports_otps %}
+{%- if supports_otps %}
 otps={{ otps }}
-{% endif %}
+{%- endif %}
 progressbar2
 pyamg>=4.2.2
 pyproj
@@ -49,7 +49,7 @@ pre-commit
 ruff
 
 # Development
-{% if mpi != "nompi" %}
+{%- if mpi != "nompi" %}
 c-compiler
 cmake
 cxx-compiler
@@ -62,7 +62,7 @@ m4
 make
 {{ mpi }}
 {{ openmp }}
-{% endif %}
+{%- endif %}
 
 # CF-compliance
 cfchecker
