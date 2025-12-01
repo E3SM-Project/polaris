@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.barotropic\_channel.viz.Viz.run
+===================================================
+
+.. currentmodule:: polaris.tasks.ocean.barotropic_channel.viz
+
+.. automethod:: Viz.run

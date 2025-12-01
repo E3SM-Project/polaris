@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.barotropic\_channel.add\_barotropic\_channel\_tasks
+=======================================================================
+
+.. currentmodule:: polaris.tasks.ocean.barotropic_channel
+
+.. autofunction:: add_barotropic_channel_tasks

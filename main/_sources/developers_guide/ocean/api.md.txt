@@ -61,6 +61,30 @@
    rpe.analysis.Analysis.run
 ```
 
+### barotropic_channel
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.barotropic_channel
+
+.. autosummary::
+   :toctree: generated/
+
+   add_barotropic_channel_tasks
+
+   forward.Forward
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   init.Init
+   init.Init.setup
+   init.Init.run
+
+   viz.Viz
+   viz.Viz.run
+
+   default.Default
+```
+
 ### barotropic_gyre
 
 ```{eval-rst}

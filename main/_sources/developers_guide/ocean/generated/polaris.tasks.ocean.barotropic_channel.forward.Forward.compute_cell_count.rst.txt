@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.barotropic\_channel.forward.Forward.compute\_cell\_count
+============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.barotropic_channel.forward
+
+.. automethod:: Forward.compute_cell_count
