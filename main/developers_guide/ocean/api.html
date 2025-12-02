@@ -282,40 +282,43 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.add_barotropic_gyre_tasks.html#polaris.tasks.ocean.barotropic_gyre.add_barotropic_gyre_tasks" title="polaris.tasks.ocean.barotropic_gyre.add_barotropic_gyre_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_barotropic_gyre_tasks</span></code></a>(component)</p></td>
 <td><p>Add a task that defines a convergence test for inertial gravity waves</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.BarotropicGyre.html#polaris.tasks.ocean.barotropic_gyre.BarotropicGyre" title="polaris.tasks.ocean.barotropic_gyre.BarotropicGyre"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BarotropicGyre</span></code></a>(component, test_name)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.BarotropicGyre.html#polaris.tasks.ocean.barotropic_gyre.BarotropicGyre" title="polaris.tasks.ocean.barotropic_gyre.BarotropicGyre"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BarotropicGyre</span></code></a>(component, subdir, test_name, ...)</p></td>
 <td><p>The convergence test case for inertial gravity waves</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.html#polaris.tasks.ocean.barotropic_gyre.analysis.Analysis" title="polaris.tasks.ocean.barotropic_gyre.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, indir[, ...])</p></td>
-<td><p>A step for analysing the output from the barotropic gyre test case</p></td>
+<td><p>A step for analyzing the output from the barotropic gyre test case.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.compute_error.html#polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.compute_error" title="polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.compute_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.compute_error</span></code></a>(ds_mesh, ...)</p></td>
 <td><p>Compute the error for a given resolution</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.exact_solution.html#polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.exact_solution" title="polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.exact_solution</span></code></a>(ds_mesh, config)</p></td>
-<td><p>Exact solution to the sea surface height for the linearized Munk layer experiments.</p></td>
+<td><p>Exact solution to the barotropic streamfunction for the linearized Munk layer experiments.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.run.html#polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.run" title="polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.run</span></code></a>()</p></td>
 <td><p>Run the step.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.forward.compute_max_time_step.html#polaris.tasks.ocean.barotropic_gyre.forward.compute_max_time_step" title="polaris.tasks.ocean.barotropic_gyre.forward.compute_max_time_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.compute_max_time_step</span></code></a>(config)</p></td>
-<td><p>Compute the approximate maximum time step for stability</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component[, name, subdir, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component[, name, subdir, ...])</p></td>
 <td><p>A step for performing forward ocean component runs as part of barotropic gyre tasks.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
 <td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_max_time_step.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_max_time_step" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_max_time_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_max_time_step</span></code></a>(config)</p></td>
+<td><p>Compute the approximate maximum time step for stability</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.init.Init.html#polaris.tasks.ocean.barotropic_gyre.init.Init" title="polaris.tasks.ocean.barotropic_gyre.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, subdir)</p></td>
-<td><p>A step for creating a mesh and initial condition for baroclinic channel tasks</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.setup.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.setup" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.setup</span></code></a>()</p></td>
+<td><p>TEMP: symlink initial condition to name hard-coded in Omega</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.init.Init.setup.html#polaris.tasks.ocean.barotropic_gyre.init.Init.setup" title="polaris.tasks.ocean.barotropic_gyre.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.init.Init.html#polaris.tasks.ocean.barotropic_gyre.init.Init" title="polaris.tasks.ocean.barotropic_gyre.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, indir[, name, ...])</p></td>
+<td><p>A step for creating a mesh and initial condition for barotropic gyre tasks</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.init.Init.setup.html#polaris.tasks.ocean.barotropic_gyre.init.Init.setup" title="polaris.tasks.ocean.barotropic_gyre.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
 <td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.init.Init.run.html#polaris.tasks.ocean.barotropic_gyre.init.Init.run" title="polaris.tasks.ocean.barotropic_gyre.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.barotropic_gyre.init.Init.run.html#polaris.tasks.ocean.barotropic_gyre.init.Init.run" title="polaris.tasks.ocean.barotropic_gyre.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Create the at rest inital condition for the barotropic gyre testcase</p></td>
 </tr>
 </tbody>

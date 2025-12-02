@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count" href="polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count.html" />
-    <link rel="prev" title="polaris.tasks.ocean.barotropic_gyre.forward.compute_max_time_step" href="polaris.tasks.ocean.barotropic_gyre.forward.compute_max_time_step.html" />
+    <link rel="prev" title="polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.run" href="polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.run.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -138,42 +138,42 @@
 <h1>polaris.tasks.ocean.barotropic_gyre.forward.Forward<a class="headerlink" href="#polaris-tasks-ocean-barotropic-gyre-forward-forward" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.barotropic_gyre.forward.Forward">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.barotropic_gyre.forward.</span></span><span class="sig-name descname"><span class="pre">Forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'forward'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_tasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openmp_threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_time_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'graph.info'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/barotropic_gyre/forward.html#Forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.barotropic_gyre.forward.Forward" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.barotropic_gyre.forward.</span></span><span class="sig-name descname"><span class="pre">Forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'forward'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'munk'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_condition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'free-slip'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_tasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openmp_threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_time_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'graph.info'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/barotropic_gyre/forward.html#Forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.barotropic_gyre.forward.Forward" title="Link to this definition"></a></dt>
 <dd><p>A step for performing forward ocean component runs as part of barotropic
 gyre tasks.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>resolution</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The resolution of the task in km</p></li>
-<li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The model time step in seconds</p></li>
 <li><p><strong>run_time_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><em>None</em>) – Number of time steps to run for</p></li>
+<li><p><strong>test_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the test case (e.g., ‘munk’)</p></li>
+<li><p><strong>boundary_condition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The type of boundary condition (‘free-slip’ or ‘no-slip’)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.barotropic_gyre.forward.Forward.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'forward'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_tasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openmp_threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_time_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'graph.info'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/barotropic_gyre/forward.html#Forward.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.barotropic_gyre.forward.Forward.__init__" title="Link to this definition"></a></dt>
-<dd><p>Create a new task</p>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'forward'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'munk'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_condition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'free-slip'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_tasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openmp_threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_time_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'graph.info'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/barotropic_gyre/forward.html#Forward.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.barotropic_gyre.forward.Forward.__init__" title="Link to this definition"></a></dt>
+<dd><p>Create a new Forward step for the barotropic gyre task.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>component</strong> (<a class="reference internal" href="../../generated/polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – The component the step belongs to</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – the name of the task</p></li>
-<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – <dl class="simple">
-<dt>the subdirectory for the step.  If neither this nor <code class="docutils literal notranslate"><span class="pre">indir</span></code></dt><dd><p>are provided, the directory is the <code class="docutils literal notranslate"><span class="pre">name</span></code></p>
-</dd>
-</dl>
-</p></li>
-<li><p><strong>indir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – the directory the step is in, to which <code class="docutils literal notranslate"><span class="pre">name</span></code> will be appended</p></li>
-<li><p><strong>ntasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of tasks the step would ideally use.  If fewer tasks
+<li><p><strong>component</strong> (<a class="reference internal" href="../../generated/polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – The component the step belongs to.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the step. Default is ‘forward’.</p></li>
+<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The subdirectory for the step. If neither this nor <code class="docutils literal notranslate"><span class="pre">indir</span></code>
+are provided, the directory is the <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p></li>
+<li><p><strong>indir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The directory the step is in, to which <code class="docutils literal notranslate"><span class="pre">name</span></code> will be appended.</p></li>
+<li><p><strong>test_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the test case (e.g., ‘munk’). Default is ‘munk’.</p></li>
+<li><p><strong>boundary_condition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The type of boundary condition (‘free-slip’ or ‘no-slip’).
+Default is ‘free-slip’.</p></li>
+<li><p><strong>ntasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The number of tasks the step would ideally use. If fewer tasks
 are available on the system, the step will run on all available
-tasks as long as this is not below <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code></p></li>
-<li><p><strong>min_tasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of tasks the step requires.  If the system has fewer
-than this number of tasks, the step will fail</p></li>
-<li><p><strong>openmp_threads</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of OpenMP threads the step will use</p></li>
-<li><p><strong>run_time_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><em>None</em>) – Number of time steps to run for</p></li>
+tasks as long as this is not below <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>.</p></li>
+<li><p><strong>min_tasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The minimum number of tasks required. If the system has fewer
+than this number of tasks, the step will fail.</p></li>
+<li><p><strong>openmp_threads</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The number of OpenMP threads the step will use. Default is 1.</p></li>
+<li><p><strong>run_time_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Number of time steps to run for. If None, uses config default.</p></li>
 <li><p><strong>graph_target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The graph file name (relative to the base work directory).
-If none, it will be created.</p></li>
+Default is ‘graph.info’.</p></li>
 </ul>
 </dd>
 </dl>
@@ -183,7 +183,7 @@ If none, it will be created.</p></li>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#polaris.tasks.ocean.barotropic_gyre.forward.Forward.__init__" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component[, name, subdir, indir, ...])</p></td>
-<td><p>Create a new task</p></td>
+<td><p>Create a new Forward step for the barotropic gyre task.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dependency</span></code>(step[, name])</p></td>
 <td><p>Add <cite>step</cite> as a dependency of this step (i.e. this step can't run until the dependency has finished).</p></td>
@@ -209,55 +209,58 @@ If none, it will be created.</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_cell_count</span></code></a>()</p></td>
 <td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_cores)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_max_time_step.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_max_time_step" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_max_time_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_max_time_step</span></code></a>(config)</p></td>
+<td><p>Compute the approximate maximum time step for stability</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_cores)</p></td>
 <td><p>Update the number of MPI tasks to use based on the estimated mesh size</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dynamic_model_config</span></code></a>(at_setup)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dynamic_model_config</span></code></a>(at_setup)</p></td>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_configs</span></code>(configs, config_model)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_configs</span></code>(configs, config_model)</p></td>
 <td><p>A mapping between model sections and config options from MPAS-Ocean to Omega</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_options</span></code>(options, config_model)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_options</span></code>(options, config_model)</p></td>
 <td><p>A mapping between model config options from MPAS-Ocean to Omega</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_streams</span></code>(streams, config_model)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_streams</span></code>(streams, config_model)</p></td>
 <td><p>A mapping between model streams from different models.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_to_namelist</span></code>(options)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_to_namelist</span></code>(options)</p></td>
 <td><p>A mapping from yaml model config options to namelist options.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code>([graph_file])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code>([graph_file])</p></td>
 <td><p>Partition the domain for the requested number of tasks</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
 <td><p>Process the model as an input, then call the parent class' version</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>()</p></td>
 <td><p>Run the step.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
 <td><p>Update PIO namelist options, make graph file, and partition graph file (if any of these are requested)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_model_resources</span></code>([ntasks, min_tasks, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_model_resources</span></code>([ntasks, min_tasks, ...])</p></td>
 <td><p>Update the resources for the step.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code>(config[, link])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code>(config[, link])</p></td>
 <td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code>()</p></td>
-<td><p>Determine if we will make yaml files or namelists and streams files, then, determine the number of MPI tasks to use based on the estimated mesh size</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.barotropic_gyre.forward.Forward.setup.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.setup" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
+<td><p>TEMP: symlink initial condition to name hard-coded in Omega</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_eos</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_eos</span></code>()</p></td>
 <td><p>Modify the namelist to make it consistent with eos config options</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code>()</p></td>
 <td><p>Modify the namelist so the number of PIO tasks and the stride between them consistent with the number of nodes and cores (one PIO task per node).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
 </tr>
 </tbody>
@@ -278,7 +281,7 @@ If none, it will be created.</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.ocean.barotropic_gyre.forward.compute_max_time_step.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.barotropic_gyre.forward.compute_max_time_step" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.run.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_cell_count" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

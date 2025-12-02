@@ -22,6 +22,7 @@
       ~Forward.add_streams_file
       ~Forward.add_yaml_file
       ~Forward.compute_cell_count
+      ~Forward.compute_max_time_step
       ~Forward.constrain_resources
       ~Forward.dynamic_model_config
       ~Forward.map_yaml_configs

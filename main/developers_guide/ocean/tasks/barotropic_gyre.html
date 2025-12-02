@@ -69,7 +69,7 @@
 <li class="toctree-l3"><a class="reference internal" href="barotropic_channel.html">barotropic_channel</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">barotropic_gyre</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1">barotropic_gyre</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated_tracers_2d</a></li>
@@ -159,7 +159,7 @@ defines a step for setting up the initial state for each test case.</p>
 <p>First, a mesh appropriate for the resolution is generated using
 <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vmaster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  Then, the mesh is
 culled to remove periodicity in the x and y directions.  A vertical grid is
-generated, with 1 layer by default.  Next, the wind stress forcing field is
+generated, with 3 layers by default.  Next, the wind stress forcing field is
 generated.</p>
 </section>
 <section id="forward">
@@ -176,9 +176,10 @@ tasks have as their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
 graph partition is generated as part of <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code>.  Next, the ocean
 model is run. If <code class="docutils literal notranslate"><span class="pre">run_time_steps</span></code> is provided then this determines the run
-duration, otherwise the duration is 3 years. Finally, validation of
-<code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> file are performed
-against a baseline if one is provided when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
+duration, otherwise the duration is given by the config option <code class="docutils literal notranslate"><span class="pre">run_duration</span></code>.
+Finally, validation of <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the <code class="docutils literal notranslate"><span class="pre">output.nc</span></code>
+file are performed against a baseline if one is provided when calling
+<a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
 </section>
 <section id="analysis">
 <h3>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h3>
@@ -189,10 +190,11 @@ figure with the model solution, the analytical solution, and the difference
 between the two.</p>
 </section>
 </section>
-<section id="default">
-<span id="dev-ocean-baroclinic-gyre-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.baroclinic_channel.default.Default.html#polaris.tasks.ocean.baroclinic_channel.default.Default" title="polaris.tasks.ocean.baroclinic_channel.default.Default"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.baroclinic_channel.default.Default</span></code></a>
-test performs a test of the linearized dynamics.</p>
+<section id="id1">
+<h2>barotropic_gyre<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.barotropic_gyre.BarotropicGyre.html#polaris.tasks.ocean.barotropic_gyre.BarotropicGyre" title="polaris.tasks.ocean.barotropic_gyre.BarotropicGyre"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.barotropic_gyre.BarotropicGyre</span></code></a>
+test performs either the Munk free-slip or the Munk no-slip cases depending
+on the <code class="docutils literal notranslate"><span class="pre">test_name</span></code> and <code class="docutils literal notranslate"><span class="pre">boundary_condition</span></code> parameters provided.</p>
 </section>
 </section>
 

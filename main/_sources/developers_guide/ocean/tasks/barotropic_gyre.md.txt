@@ -22,7 +22,7 @@ defines a step for setting up the initial state for each test case.
 First, a mesh appropriate for the resolution is generated using
 {py:func}`mpas_tools.planar_hex.make_planar_hex_mesh()`.  Then, the mesh is
 culled to remove periodicity in the x and y directions.  A vertical grid is
-generated, with 1 layer by default.  Next, the wind stress forcing field is
+generated, with 3 layers by default.  Next, the wind stress forcing field is
 generated.
 
 ### forward
@@ -39,9 +39,10 @@ tasks have as their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
 graph partition is generated as part of `runtime_setup()`.  Next, the ocean
 model is run. If `run_time_steps` is provided then this determines the run
-duration, otherwise the duration is 3 years. Finally, validation of
-`layerThickness` and `normalVelocity` in the `output.nc` file are performed
-against a baseline if one is provided when calling {ref}`dev-polaris-setup`.
+duration, otherwise the duration is given by the config option `run_duration`.
+Finally, validation of `layerThickness` and `normalVelocity` in the `output.nc`
+file are performed against a baseline if one is provided when calling
+{ref}`dev-polaris-setup`.
 
 ### analysis
 
@@ -51,9 +52,8 @@ the analytical solution for the linearized dynamics. This step also produces a
 figure with the model solution, the analytical solution, and the difference
 between the two.
 
-(dev-ocean-baroclinic-gyre-default)=
+## barotropic_gyre
 
-## default
-
-The {py:class}`polaris.tasks.ocean.baroclinic_channel.default.Default`
-test performs a test of the linearized dynamics.
+The {py:class}`polaris.tasks.ocean.barotropic_gyre.BarotropicGyre`
+test performs either the Munk free-slip or the Munk no-slip cases depending
+on the `test_name` and `boundary_condition` parameters provided.

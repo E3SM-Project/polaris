@@ -63,8 +63,11 @@
 <li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#munk-free-slip">munk free-slip</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#munk-no-slip">munk no-slip</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated tracers 2-d</a></li>
@@ -169,8 +172,14 @@ this case and should be qualitatively similar.</p>
 clockwise circulation. The comparison with the analytical solution is performed
 via a streamfunction. The L2 norm is printed and the following figure is
 produced:</p>
-<a class="reference internal image-reference" href="../../../_images/barotropic_gyre_solution.png"><img alt="../../../_images/barotropic_gyre_solution.png" class="align-center" src="../../../_images/barotropic_gyre_solution.png" style="width: 800px;" />
+<a class="reference internal image-reference" href="../../../_images/barotropic_gyre_free-slip_solution.png"><img alt="../../../_images/barotropic_gyre_free-slip_solution.png" class="align-center" src="../../../_images/barotropic_gyre_free-slip_solution.png" style="width: 800px;" />
 </a>
+<p>The analytic solution for the free slip condition is derived from
+Henderschott’s General Circulation of the Ocean doi:10.1007/978-1-4612-4636-7
+p.223 unnumbered equation after 2.3.9.</p>
+<p>The analytic solution for the no slip condition is derived from
+Vallis’s Atmospheric and Oceanic Fluid Dynamics doi:10.1017/9781107588417
+p.743 equation 19.49.</p>
 </section>
 <section id="mesh">
 <h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
@@ -229,9 +238,13 @@ is indicated by the coriolis parameter and determined by the config options
 <p>where <code class="docutils literal notranslate"><span class="pre">tau_0</span></code> is given by a config option.</p>
 <a class="reference internal image-reference" href="../../../_images/barotropic_gyre_forcing.png"><img alt="../../../_images/barotropic_gyre_forcing.png" class="align-center" src="../../../_images/barotropic_gyre_forcing.png" style="width: 500px;" />
 </a>
+</section>
 <section id="config-options">
-<h3>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h3>
+<h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[barotropic_gyre]</span>
+
+<span class="c1"># time integrator</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">split_explicit_ab2</span>
 
 <span class="c1"># distance in kilometers between cell centers</span>
 <span class="na">resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20</span>
@@ -245,17 +258,14 @@ is indicated by the coriolis parameter and determined by the config options
 <span class="c1"># Maximum amplitude of the zonal wind stress [N m-2]</span>
 <span class="na">tau_0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
 
-<span class="c1"># Horizontal visocity [m2 s-1]</span>
-<span class="na">nu_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4e2</span>
-
-<span class="c1"># [s-1 m-1]</span>
-<span class="na">beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10e-11</span>
-
-<span class="c1"># [s-1]</span>
-<span class="na">f_0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10e-4</span>
+<span class="c1"># Horizontal gradient in coriolis parameter [s-1 m-1]</span>
+<span class="na">beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-10</span>
 
 <span class="c1"># homogenous fluid density [kg m-3]</span>
 <span class="na">rho_0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1000</span>
+
+<span class="c1"># Duration of forward step if run_time_steps not given [years]</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.</span>
 </pre></div>
 </div>
 <p>The config option <code class="docutils literal notranslate"><span class="pre">nu_2</span></code> specifies the del2 horizontal viscosity. This value
@@ -263,30 +273,62 @@ will be compared against the resolution to check for stability at set-up. All
 other config options are explained further in previous sections.</p>
 </section>
 <section id="cores">
-<h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
+<h2>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h2>
 <p>The number of cores is determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file.</p>
 </section>
-</section>
 <section id="supported-models">
 <span id="ocean-barotropic-gyre-default"></span><h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
-<p>These tasks support only MPAS-Ocean.</p>
-</section>
-<section id="default">
-<h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
-<p>The default case is designed such that only a short forward run is performed.
-However, when users set up the default case, a long forward run is also set
-up and may be run along with the analysis step to compare the numerical
-solution with an analytical solution. The user should change the
-<code class="docutils literal notranslate"><span class="pre">barotropic_gyre:</span> <span class="pre">steps_to_run</span></code> config option to include desired steps.</p>
+<p>These tasks support both MPAS-Ocean and Omega.</p>
 <section id="time-step-and-run-duration">
 <h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h3>
 <p>The time step for forward integration is set as a function of the CFL
 condition assuming a maximum velocity of 1 m/s and a function of the coriolis
 parameter <code class="docutils literal notranslate"><span class="pre">f_0</span></code>. The stability parameter is set to 0.25 based on the stability
 of MPAS-Ocean for this test case.</p>
-<p>The run duration is 3 time steps for the <code class="docutils literal notranslate"><span class="pre">short_forward</span></code> step and 3 years for
+<p>The run duration is 3 time steps for the <code class="docutils literal notranslate"><span class="pre">short_forward</span></code> step and 2 years for
 the <code class="docutils literal notranslate"><span class="pre">long_forward</span></code> step.</p>
+</section>
+</section>
+<section id="munk-free-slip">
+<h2>munk free-slip<a class="headerlink" href="#munk-free-slip" title="Link to this heading"></a></h2>
+<p>The Munk free-slip test case uses its own set of default horizontal viscosity
+and coriolis parameter values. It also automatically compares against the
+analytic solution for the free-slip case during the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step.</p>
+<p>The case is designed such that only a short forward run is performed.
+However, when users set up the default case, a long forward run and analysis
+step are also set up and may be run together to compare the numerical
+solution with an analytical solution. The user should change the
+<code class="docutils literal notranslate"><span class="pre">barotropic_gyre_munk_free-slip:</span> <span class="pre">steps_to_run</span></code> config option to include desired
+steps.</p>
+<section id="id1">
+<h3>config options<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[barotropic_gyre_munk_free-slip]</span>
+
+<span class="c1"># Horizontal visocity [m2 s-1]</span>
+<span class="na">nu_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e2</span>
+
+<span class="c1"># Coriolis parameter [s-1]</span>
+<span class="na">f_0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-4</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="munk-no-slip">
+<h2>munk no-slip<a class="headerlink" href="#munk-no-slip" title="Link to this heading"></a></h2>
+<p>This case has the same attributes described in munk free-slip except the no-
+slip solution and a separate cfg section are used.</p>
+<section id="id2">
+<h3>config options<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[barotropic_gyre_munk_no-slip]</span>
+
+<span class="c1"># Horizontal visocity [m2 s-1]</span>
+<span class="na">nu_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4e2</span>
+
+<span class="c1"># Coriolis parameter [s-1]</span>
+<span class="na">f_0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-3</span>
+</pre></div>
+</div>
 </section>
 </section>
 </section>
