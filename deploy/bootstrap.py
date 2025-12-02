@@ -869,6 +869,7 @@ def _build_spack_soft_env(options):  # noqa: C901
     os.chdir(build_dir)
 
     esmf = config.get('deploy', 'esmf')
+    moab = config.get('deploy', 'spack_moab')
 
     if config.has_option('deploy', 'spack_mirror'):
         spack_mirror = config.get('deploy', 'spack_mirror')
@@ -894,6 +895,11 @@ def _build_spack_soft_env(options):  # noqa: C901
 
     if esmf != 'None':
         specs.append(f'esmf@{esmf}+mpi+netcdf~pnetcdf~external-parallelio')
+
+    if moab != 'None':
+        specs.append(
+            f'moab@{moab}+eigen+fortran+hdf5+mpi+netcdf+pnetcdf+zoltan+tempest'
+        )
 
     yaml_template: str | None = None
     template_path = f'{spack_template_path}/{machine}_{compiler}_{mpi}.yaml'
@@ -950,7 +956,6 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
     cmake = config.get('deploy', 'cmake')
     lapack = config.get('deploy', 'lapack')
     metis = config.get('deploy', 'metis')
-    moab = config.get('deploy', 'spack_moab')
     parmetis = config.get('deploy', 'parmetis')
     petsc = config.get('deploy', 'petsc')
     scorpio = config.get('deploy', 'scorpio')
@@ -984,10 +989,6 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
         include_e3sm_lapack = True
     if metis != 'None':
         specs.append(f'metis@{metis}+int64+real64~shared')
-    if moab != 'None':
-        specs.append(
-            f'moab@{moab}+eigen+fortran+hdf5+mpi+netcdf+pnetcdf+zoltan+tempest'
-        )
     if parmetis != 'None':
         specs.append(f'parmetis@{parmetis}+int64~shared')
     if petsc != 'None':
