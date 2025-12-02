@@ -102,10 +102,11 @@
    analysis.Analysis.exact_solution
    analysis.Analysis.run
 
-   forward.compute_max_time_step
    forward.Forward
    forward.Forward.compute_cell_count
+   forward.Forward.compute_max_time_step
    forward.Forward.dynamic_model_config
+   forward.Forward.setup
 
    init.Init
    init.Init.setup

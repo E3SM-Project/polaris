@@ -4,17 +4,39 @@ ocean:
     config_run_duration: none
   time_integration:
     config_dt: {{ dt }}
-    config_time_integrator: RK4
+    config_time_integrator: {{ time_integrator }}
   hmix_del2:
     config_use_mom_del2: true
     config_mom_del2: {{ nu }}
+  hmix_del4:
+    config_use_mom_del4: false
+  forcing:
+    config_use_bulk_wind_stress: true
+  debug:
+    config_disable_vel_explicit_bottom_drag: true
+
+mpas-ocean:
+  run_modes:
+    config_ocean_run_mode: forward
+  decomposition:
+    config_block_decomp_file_prefix: graph.info.part.
+  advection:
+    config_thickness_flux_type: constant
+#  lateral_walls:  # Uncomment this section when free-slip BC are supported
+#    config_wall_slip_factor: {{ slip_factor }}
+  debug:
+    config_disable_thick_vadv: true
+    config_disable_vel_hadv: true
+    config_disable_vel_hmix: false
+    config_disable_tr_all_tend: true
+
   streams:
     mesh:
       filename_template: init.nc
     input:
       filename_template: init.nc
     forcing:
-      filename_template: forcing.nc
+      filename_template: init.nc
       input_interval: initial_only
       type: input
       contents:
@@ -31,20 +53,37 @@ ocean:
       - normalVelocity
       - layerThickness
       - ssh
-
-mpas-ocean:
-  advection:
-    config_thickness_flux_type: constant
-  bottom_drag:
-    config_implicit_constant_bottom_drag_coeff: 0.
-  forcing:
-    config_use_bulk_wind_stress: true
-  debug:
-    config_disable_vel_hadv: true
-    config_disable_vel_hmix: false
-    config_disable_tr_all_tend: true
+      - relativeVorticity
 
 Omega:
   Tendencies:
-    VelDiffTendencyEnable: true
-    VelHyperDiffTendencyEnable: false
+    TracerHorzAdvTendencyEnable : false
+    TracerDiffTendencyEnable : false
+    TracerHyperDiffTendencyEnable : false
+  Advection:
+    FluxThicknessType: Center
+  IOStreams:
+    InitialVertCoord:
+      Filename: init.nc
+      Mode: read
+    InitialState:
+      UsePointerFile: false
+      Filename: init.nc
+      Mode: read
+      Contents:
+      - State
+      - WindStressZonal
+      - WindStressMeridional
+    History:
+      UsePointerFile: false
+      Filename: output.nc
+      Mode: write
+      IfExists: append
+      Freq: {{ output_interval }}
+      FreqUnits: {{ output_interval_units }}
+      Contents:
+      - AuxiliaryState
+      - State
+      - SshCell
+      FileFreq: 9999
+      FileFreqUnits: years

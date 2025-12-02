@@ -4,7 +4,6 @@ import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import mosaic
 import numpy as np
-import xarray as xr
 from matplotlib import colors as mcolors
 from mpas_tools.ocean import compute_barotropic_streamfunction
 
@@ -15,21 +14,40 @@ from polaris.viz import use_mplstyle
 
 class Analysis(OceanIOStep):
     """
-    A step for analysing the output from the barotropic gyre
-    test case
+    A step for analyzing the output from the barotropic gyre test case.
+
+    Attributes
+    ----------
+    boundary_condition : str
+        The type of boundary condition to use ('free-slip' or 'no-slip').
+
+    test_name : str
+        The name of the test case (e.g., 'munk').
     """
 
-    def __init__(self, component, indir, boundary_condition='free slip'):
+    def __init__(
+        self,
+        component,
+        indir,
+        test_name='munk',
+        boundary_condition='free-slip',
+    ):
         """
-        Create the step
+        Create the analysis step.
 
         Parameters
         ----------
         component : polaris.Component
-            The component the step belongs to
+            The component the step belongs to.
 
         indir : str
-            the directory the step is in, to which ``name`` will be appended
+            The directory the step is in, to which ``name`` will be appended.
+
+        test_name : str, optional
+            The name of the test case (default is 'munk').
+
+        boundary_condition : str, optional
+            The type of boundary condition to use (default is 'free-slip').
         """
         super().__init__(component=component, name='analysis', indir=indir)
         self.add_input_file(
@@ -40,15 +58,19 @@ class Analysis(OceanIOStep):
             filename='output.nc', target='../long_forward/output.nc'
         )
         self.boundary_condition = boundary_condition
+        self.test_name = test_name
 
     def run(self):
-        ds_mesh = xr.open_dataset('mesh.nc')
-        ds_init = xr.open_dataset('init.nc')
-        ds = xr.open_dataset('output.nc')
+        logger = self.logger
+        ds_mesh = self.open_model_dataset('mesh.nc')
+        ds_init = self.open_model_dataset('init.nc')
+        ds = self.open_model_dataset('output.nc')
 
         field_mpas = compute_barotropic_streamfunction(
             ds_init.isel(Time=0), ds, prefix='', time_index=-1
         )
+        x_maxpsi = ds_mesh.xVertex.isel(nVertices=np.argmax(field_mpas.values))
+        logger.info(f'Streamfunction reaches maximum at x = {x_maxpsi.values}')
         field_exact = self.exact_solution(
             ds_mesh,
             self.config,
@@ -66,13 +88,14 @@ class Analysis(OceanIOStep):
             variable_name='psi',
             boundary_condition=self.boundary_condition,
         )
-        print(f'L2 error norm for {self.boundary_condition} bsf: {error:1.2e}')
+        logger.info(
+            f'L2 error norm for {self.boundary_condition} bsf: {error:1.2e}'
+        )
 
         descriptor = mosaic.Descriptor(ds_mesh)
 
         use_mplstyle()
         pad = 20
-        fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(12, 2))
         x0 = ds_mesh.xEdge.min().values
         y0 = ds_mesh.yEdge.min().values
 
@@ -81,6 +104,8 @@ class Analysis(OceanIOStep):
         descriptor.vertex_patches[..., 1] -= y0
         # convert to km
         descriptor.vertex_patches *= 1.0e-3
+
+        fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(12, 2))
 
         eta0 = max(
             np.max(np.abs(field_exact.values)),
@@ -205,15 +230,28 @@ class Analysis(OceanIOStep):
         self, ds_mesh, config, loc='Cell', boundary_condition='free slip'
     ):
         """
-        Exact solution to the sea surface height for the linearized Munk layer
-        experiments.
+        Exact solution to the barotropic streamfunction for the linearized Munk
+        layer experiments.
 
         Parameters
         ----------
         ds_mesh : xarray.Dataset
-            Must contain the fields: f'x{loc}', f'y{loc}'
+            The mesh dataset. Must contain the fields: f'x{loc}', f'y{loc}'.
+
+        config : polaris.config.PolarisConfigParser
+            The configuration options for the test case.
+
+        loc : str, optional
+            The location type ('Cell', 'Vertex', etc.) for which to compute
+            the solution.
+
+        boundary_condition : str, optional
+            The type of boundary condition to use ('free-slip' or 'no-slip').
         """
 
+        logger = self.logger
+        test_name = self.test_name
+        boundary_condition = self.boundary_condition
         x = ds_mesh[f'x{loc}']
         x = x - ds_mesh.xEdge.min()
         y = ds_mesh[f'y{loc}']
@@ -224,13 +262,17 @@ class Analysis(OceanIOStep):
         # df/dy where f is coriolis parameter
         beta = config.getfloat('barotropic_gyre', 'beta')
         # Laplacian viscosity
-        nu = config.getfloat('barotropic_gyre', 'nu_2')
+        nu = config.getfloat(
+            f'barotropic_gyre_{test_name}_{boundary_condition}', 'nu_2'
+        )
 
         # Compute some non-dimensional numbers
         delta_m = (nu / (beta * L_y**3.0)) ** (1.0 / 3.0)
         gamma = (np.sqrt(3.0) * x) / (2.0 * delta_m * L_x)
+        x_maxpsi = 2 * delta_m / np.sqrt(3.0)
+        logger.info(f'Streamfunction should reach maximum at x = {x_maxpsi}')
 
-        if boundary_condition == 'no slip':
+        if boundary_condition == 'no-slip':
             psi = (
                 pi
                 * np.sin(pi * y / L_y)
@@ -246,15 +288,18 @@ class Analysis(OceanIOStep):
                 )
             )
 
-        elif boundary_condition == 'free slip':
+        elif boundary_condition == 'free-slip':
             psi = (
                 pi
-                * (1.0 - x / L_x)
-                * np.sin(pi * y / L_y)
+                * np.sin(pi * (y / L_y))
                 * (
-                    1.0
-                    - np.exp(-x / (2.0 * delta_m * L_x))
-                    * (np.cos(gamma) + (1.0 / np.sqrt(3.0)) * np.sin(gamma))
+                    (1.0 - (x / L_x) - delta_m)
+                    + (np.exp((-(x / L_x)) / (2.0 * delta_m)))
+                    * (
+                        (-2 / 3) * (1 - delta_m) * np.cos(gamma - (pi / 6))
+                        + ((2.0 / np.sqrt(3.0)) * np.sin(gamma))
+                    )
+                    + delta_m * np.exp((((x / L_x) - 1) / delta_m))
                 )
             )
         return psi
