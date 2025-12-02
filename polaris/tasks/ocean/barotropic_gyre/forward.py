@@ -233,7 +233,7 @@ class Forward(OceanModelStep):
                     days=output_interval * 30.0
                 )
 
-        slip_factor_dict = {'no-slip': 0.0, 'free-slip': 1.0}
+        # slip_factor_dict = {'no-slip': 0.0, 'free-slip': 1.0}  # noqa: E501 Uncomment this when free-slip BCs are supported
         time_integrator = config.get('barotropic_gyre', 'time_integrator')
         time_integrator_map = dict([('RK4', 'RungeKutta4')])
         if model == 'omega':
@@ -254,7 +254,7 @@ class Forward(OceanModelStep):
             output_interval_units=output_interval_units,
             time_integrator=time_integrator,
             nu=f'{nu:02g}',
-            slip_factor=f'{slip_factor_dict[self.boundary_condition]:02g}',
+            # slip_factor=f'{slip_factor_dict[self.boundary_condition]:02g}',  # noqa: E501 Uncomment this when free-slip BCs are supported
         )
 
         # make sure output is double precision
