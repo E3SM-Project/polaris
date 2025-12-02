@@ -34,9 +34,6 @@ mpas-ocean:
       - tracers
       - xtime
       - normalVelocity
+      - kineticEnergyCell
       - layerThickness
-      - ssh
-      - vertVelocityTop
-      - density
       - daysSinceStartOfSim
-      - relativeVorticity

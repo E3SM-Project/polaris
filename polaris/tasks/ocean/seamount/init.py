@@ -54,7 +54,7 @@ class Init(OceanIOStep):
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         dc = 1e3 * resolution
         ds_mesh = make_planar_hex_mesh(
-            nx=nx, ny=ny, dc=dc, nonperiodic_x=True, nonperiodic_y=True
+            nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=False
         )
         self.write_model_dataset(ds_mesh, 'base_mesh.nc')
 
@@ -99,12 +99,12 @@ class Init(OceanIOStep):
 
         ds = ds_mesh.copy()
 
-        xMidGlobal = (ds.xCell.max() - ds.xCell.min()) / 2.0 + ds.xCell.min()
-        yMidGlobal = (ds.yCell.max() - ds.yCell.min()) / 2.0 + ds.yCell.min()
+        x_mid_global = (ds.xCell.max() - ds.xCell.min()) / 2.0 + ds.xCell.min()
+        y_mid_global = (ds.yCell.max() - ds.yCell.min()) / 2.0 + ds.yCell.min()
         # Set bottomDepth.
         # See Beckmann and Haidvogel 1993 eqn 12, Shchepetkin 2003 eqn 4.2
         ds['radius'] = np.sqrt(
-            (ds.xCell - xMidGlobal) ** 2 + (ds.yCell - yMidGlobal) ** 2
+            (ds.xCell - x_mid_global) ** 2 + (ds.yCell - y_mid_global) ** 2
         )
         ds['bottomDepth'] = max_bottom_depth - seamount_height * np.exp(
             -(ds.radius**2) / seamount_width**2

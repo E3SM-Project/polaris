@@ -119,18 +119,12 @@ class Forward(OceanModelStep):
         section = config[f'seamount_{self.task_name}']
         run_duration = section.getfloat('run_duration')
         output_interval = section.getfloat('output_interval')
-        if self.task_name == 'rpe':
-            run_duration_str = get_time_interval_string(days=run_duration)
-            output_interval_str = get_time_interval_string(
-                days=output_interval
-            )
-        else:
-            run_duration_str = get_time_interval_string(
-                seconds=run_duration * 60.0
-            )
-            output_interval_str = get_time_interval_string(
-                seconds=output_interval
-            )
+        run_duration_str = get_time_interval_string(
+            seconds=run_duration * 86400.0
+        )
+        output_interval_str = get_time_interval_string(
+            seconds=output_interval * 86400.0
+        )
 
         replacements = dict(
             dt=dt_str,
