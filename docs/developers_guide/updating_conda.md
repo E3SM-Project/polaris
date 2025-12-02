@@ -99,10 +99,11 @@ multiple places during the deployment workflow if needed.
 
 **Note:** We treat the MOAB package as a special case with different versions
 from conda-forge (`conda_moab`) and Spack (`spack_moab`).  This is because
-MOAB has infrequent releases and we currently need features and bug fixes for
-many Polaris workflows that are only available from the `master` branch.
-Since the `master` version is not available on conda-forge, we fall back on
-the latest release for use on login nodes and unsupported machines.
+MOAB has infrequent releases and, in the past, we have need features and bug
+fixes that are only available from the `master` branch. Since the `master`
+version is not available on conda-forge, when we need the latest MOAB features
+on machines with spack support, we still must fall back on the latest release
+for use on login nodes and unsupported machines.
 
 Some versions defined in `default.cfg` apply to both Conda and Spack package:
 
