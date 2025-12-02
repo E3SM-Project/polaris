@@ -22,8 +22,8 @@ mpas-ocean:
     config_block_decomp_file_prefix: graph.info.part.
   advection:
     config_thickness_flux_type: constant
-  lateral_walls:
-    config_wall_slip_factor: {{ slip_factor }}
+#  lateral_walls:  # Uncomment this section when free-slip BC are supported
+#    config_wall_slip_factor: {{ slip_factor }}
   debug:
     config_disable_thick_vadv: true
     config_disable_vel_hadv: true
