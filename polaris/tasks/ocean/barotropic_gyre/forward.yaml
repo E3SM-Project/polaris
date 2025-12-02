@@ -82,6 +82,7 @@ Omega:
       Freq: {{ output_interval }}
       FreqUnits: {{ output_interval_units }}
       Contents:
+      - AuxiliaryState
       - State
       - SshCell
       FileFreq: 9999
