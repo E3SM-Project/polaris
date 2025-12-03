@@ -16,7 +16,7 @@ These tasks support only MPAS-Ocean.
 
 The test case begins with a zero velocity field and is unforced, so the exact solution is to remain motionless. 
 The seamount rises from a flat sea floor in the center of the domain. 
-In a pure z-level vertical coordinate without partial bottom cells, the pressure gradient will remain zero to machine precision and induce no flow. When any layer tilting is added, including from partial bottom cells, some flow is introduced by the pressure gradient error. This is fundamentally because the pressure must be extrapolated vertically at cell centers to the mid-depth of the edge.
+In a pure z-level vertical coordinate without partial bottom cells, the pressure gradient will be very small and induce minimal flow. When any layer tilting is added, including from partial bottom cells, some flow is introduced by the pressure gradient error. This is fundamentally because the pressure must be extrapolated vertically at cell centers to the mid-depth of the edge.
 
 ```{image} images/seamount_initial_temperature.png
 :align: center
@@ -28,7 +28,7 @@ In a pure z-level vertical coordinate without partial bottom cells, the pressure
 The domain is planar and periodic on the zonal boundaries and solid on the
 meridional boundaries. Only 5km resolution is tested by default, but the
 resolution may be changed with the ``resolution`` config option. The domain is
-20km by 250km, as given by the config options ``lx`` and ``ly``.
+320 km by 320 km, as given by the config options ``lx`` and ``ly``.
 
 ### vertical grid
 
