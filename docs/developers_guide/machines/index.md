@@ -36,6 +36,7 @@ Below are specifics for each supported machine
 ```{toctree}
 :titlesonly: true
 
+aurora
 chrysalis
 frontier
 perlmutter
