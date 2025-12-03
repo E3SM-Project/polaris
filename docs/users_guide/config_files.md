@@ -179,7 +179,7 @@ threads = 8
 format = NETCDF3_64BIT
 
 # the NetCDF output engine: netcdf4 or scipy
-# the netcdf4 engine is not performing well on Chrysalis and Anvil, so we will
+# the netcdf4 engine is not performing well on Chrysalis, so we will
 # try scipy for now.  If we can switch to NETCDF4 format, netcdf4 will be
 # required
 # source: /home/xylar/code/polaris/customize_config_parser/polaris/default.cfg

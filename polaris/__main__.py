@@ -52,10 +52,10 @@ The available polaris commands are:
         'serial': run_serial.main,
     }
 
-    # only allow the "polaris cache" command if we're on Anvil or Chrysalis
+    # only allow the "polaris cache" command if we're on Chrysalis
     allow_cache = 'POLARIS_MACHINE' in os.environ and os.environ[
         'POLARIS_MACHINE'
-    ] in ['anvil', 'chrysalis']
+    ] in ['chrysalis']
 
     if allow_cache:
         commands['cache'] = cache.main
