@@ -16,12 +16,7 @@ These tasks support only MPAS-Ocean.
 
 The test case begins with a zero velocity field and is unforced, so the exact solution is to remain motionless. 
 The seamount rises from a flat sea floor in the center of the domain. 
-In a pure z-level vertical coordinate without partial bottom cells, the pressure gradient will be very small and induce minimal flow. When any layer tilting is added, including from partial bottom cells, some flow is introduced by the pressure gradient error. This is fundamentally because the pressure must be extrapolated vertically at cell centers to the mid-depth of the edge.
-
-```{image} images/seamount_initial_temperature.png
-:align: center
-:width: 500 px
-```
+In a pure z-level vertical coordinate without partial bottom cells (`partial_cell_type = full`), the pressure gradient will remain zero and induce no flow to machine precision. When any layer tilting is added, including from partial bottom cells, some flow is introduced by the pressure gradient error. This is fundamentally because the pressure must be extrapolated vertically at cell centers to the mid-depth of the edge.
 
 ### mesh
 
@@ -50,7 +45,7 @@ vert_levels = 10
 grid_type = uniform
 
 # The type of vertical coordinate (e.g. z-level, z-star)
-coord_type = z-level
+coord_type = sigma
 
 # Whether to use "partial" or "full", or "None" to not alter the topography
 partial_cell_type = None
@@ -59,14 +54,10 @@ partial_cell_type = None
 ### initial conditions
 
 Salinity is constant throughout the domain at the value given by the config
-option ``background_salinity`` (35 PSU by default).  The initial temperature
-has a linear background stratification from 20.1 degrees C (config option
-``surface_temperature``) to 10.1 degrees C (config option
-``bottom_temperature``). There is a sinusoidal perturbation in the center of
-the domain with amplitude given by the config option
-``temperature_difference``, 2 degrees C by default. The width of the
-perturbation is given by 2 times the config option ``amplitude_width_dist`` or
-2 times the ``amplitude_width_frac`` times ``ly``.
+option ``constant_salinity`` (35 PSU by default).  The initial density 
+is based on the formulas given in [Haidvogel and Beckmann (1993)](https://journals.ametsoc.org/view/journals/phoc/23/11/1520-0485_1993_023_2373_nsofaa_2_0_co_2.xml) equations 15-16. 
+The initial temperature is back-computed from this density with an assumed linear equation of state using 
+`seamount_density_Tref` and `seamount_density_alpha`.
 
 ### forcing
 
@@ -74,15 +65,15 @@ N/A
 
 ### time step and run duration
 
-The time step for forward integration is 5 minutes. The run duration is 3 time steps.
+The time step for forward integration is automatically computed based on the gridcell size. The run duration is as follows.
 
 ```cfg
 [seamount_default]
 
-# Run duration (minutes)
-run_duration = 12.
+# Run duration (days)
+run_duration = 6.
 
-# Output interval (seconds)
+# Output interval (hours)
 output_interval = 1.
 ```
 

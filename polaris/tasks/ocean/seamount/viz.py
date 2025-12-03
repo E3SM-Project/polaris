@@ -87,7 +87,7 @@ class Viz(Step):
             title=f'{field_name} at y={1e-3 * y_mid:.1f} km, final time',
             out_filename=f'final_{field_name}_section.png',
             vmin=vmin,
-            vmax=vmax / 200.0,
+            vmax=vmax / 10.0,
             cmap='cmo.thermal',
             colorbar_label=r'm/s',
             color_start_and_end=False,
