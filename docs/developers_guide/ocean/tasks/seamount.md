@@ -19,10 +19,9 @@ The class {py:class}`polaris.tasks.ocean.seamount.init.Init`
 defines a step for setting up the initial state for each test case.
 
 First, a mesh appropriate for the resolution is generated using
-{py:func}`mpas_tools.planar_hex.make_planar_hex_mesh()`.  Then, the mesh is
-culled to remove periodicity in the x and y directions.  The bottom topography
-is defined along with a vertical grid with 60 layers by default.  Next, the
-ocean state is generated with cold water on the continental shelf.
+{py:func}`mpas_tools.planar_hex.make_planar_hex_mesh()`. The bottom topography
+is defined along with a vertical grid with 10 layers by default.  Next, the
+ocean state is generated with a vertical temperature stratification.
 
 ### forward
 
@@ -39,14 +38,18 @@ prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
 graph partition is generated as part of `runtime_setup()`.  Next, the ocean
 model is run. The duration is set by `run_duration` in the config section
 corresponding to the task (`seamount_default`). Finally,
-validation of `layerThickness`, `temperature` and `normalVelocity` in the
-`output.nc` file are performed against a baseline if one is provided when
-calling {ref}`dev-polaris-setup`.
+the variables `kineticEnergyCell` and `normalVelocity` in the
+`output.nc` file are visualized in the `viz` directory.
+
 
 ### viz
 
-The {py:class}`polaris.tasks.ocean.seamount.viz.Viz` plots the initial and
-final temperature along a transect perpendicular to the continental slope.
+The {py:class}`polaris.tasks.ocean.seamount.viz.Viz` plots the maximum velocity
+as a function of time; a horizontal cross-section of the normal velocity;
+and a vertical cross-section of the kinetic energy. The vertical cross-section
+is also convenient to see the vertical coordinate (sigma versus z-level) and
+the bottom topography.
+
 
 (dev-ocean-seamount-default)=
 

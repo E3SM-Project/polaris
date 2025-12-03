@@ -2,9 +2,11 @@
 
 # seamount
 
-The ``ocean/seamount`` test is a standard sigma coordinate test problem, which is documented in [Haidvogel and Beckmann (1993)](https://journals.ametsoc.org/view/journals/phoc/23/11/1520-0485_1993_023_2373_nsofaa_2_0_co_2.xml) and [Shchepetkin and McWilliams (2003)](https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2001JC001047). This case tests the error due to pressure gradients in tilted layers. 
+The ``ocean/seamount`` test is a standard sigma coordinate test problem, which is documented in 
+[Beckmann and Haidvogel (1993)](https://journals.ametsoc.org/view/journals/phoc/23/8/1520-0485_1993_023_1736_nsofaa_2_0_co_2.xml), [Haidvogel et al. (1993)](https://journals.ametsoc.org/view/journals/phoc/23/11/1520-0485_1993_023_2373_nsofaa_2_0_co_2.xml) and [Shchepetkin and McWilliams (2003)](https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2001JC001047).
+This case tests the error due to pressure gradients in tilted layers. 
 
-## suppported models
+## supported models
 
 These tasks support only MPAS-Ocean.
 
@@ -16,20 +18,34 @@ These tasks support only MPAS-Ocean.
 
 The test case begins with a zero velocity field and is unforced, so the exact solution is to remain motionless. 
 The seamount rises from a flat sea floor in the center of the domain. 
-In a pure z-level vertical coordinate without partial bottom cells (`partial_cell_type = full`), the pressure gradient will remain zero and induce no flow to machine precision. When any layer tilting is added, including from partial bottom cells, some flow is introduced by the pressure gradient error. This is fundamentally because the pressure must be extrapolated vertically at cell centers to the mid-depth of the edge.
+In a pure z-level vertical coordinate without partial bottom cells (`partial_cell_type = full`), the pressure gradient will remain zero and induce no flow to machine precision. When any layer tilting is added, including from partial bottom cells, some flow is introduced by the pressure gradient error. This is fundamentally because the pressure must be extrapolated vertically at cell centers to the mid-depth of the edge. The default setting is the sigma coordinate. These are the images produced in the `viz` folder.
+
+```{image} images/seamount_velocity_max_t.png
+:align: center
+:width: 700 px
+```
+
+```{image} images/seamount_final_kineticEnergyCell_section.png
+:align: center
+:width: 700 px
+```
+
+```{image} images/seamount_final_normalVelocity.png
+:align: center
+:width: 400 px
+```
+
 
 ### mesh
 
 The domain is planar and periodic on the zonal boundaries and solid on the
-meridional boundaries. Only 5km resolution is tested by default, but the
-resolution may be changed with the ``resolution`` config option. The domain is
+meridional boundaries. The 6.7 km resolution is tested by default, 
+which is set by the ``resolution`` config option. The domain is
 320 km by 320 km, as given by the config options ``lx`` and ``ly``.
 
 ### vertical grid
 
-There are no restrictions on the vertical grid inherent to the test case except
-that there should be sufficient vertical levels to capture the stratification
-structure.
+The default setting is a sigma (terrain-following) vertical coordinate. One may also test z-level coordinates (`coord_type = z-level`) with full cells (`partial_cell_type = full`) or partial bottom cells (`partial_cell_type = None`). Here `None` means no alteration, so it uses original bottom depth. 
 
 ```cfg
 # Options related to the vertical grid
@@ -55,7 +71,7 @@ partial_cell_type = None
 
 Salinity is constant throughout the domain at the value given by the config
 option ``constant_salinity`` (35 PSU by default).  The initial density 
-is based on the formulas given in [Haidvogel and Beckmann (1993)](https://journals.ametsoc.org/view/journals/phoc/23/11/1520-0485_1993_023_2373_nsofaa_2_0_co_2.xml) equations 15-16. 
+is based on the formulas given in [Beckmann and Haidvogel (1993)](https://journals.ametsoc.org/view/journals/phoc/23/8/1520-0485_1993_023_1736_nsofaa_2_0_co_2.xml) equations 15-16.
 The initial temperature is back-computed from this density with an assumed linear equation of state using 
 `seamount_density_Tref` and `seamount_density_alpha`.
 
@@ -113,10 +129,10 @@ seamount_density_coef_linear = 1024.0
 # Density coefficient for exponential vertical stratification (kg m^{-3})
 seamount_density_coef_exp = 1028.0
 
-# Density gradient for linear vertical stratification, Delta_z rho in Beckmann Haidvogel eqn 15 (kg m^{-3})
+# Density gradient for linear vertical stratification, Delta_z rho in Beckmann and Haidvogel eqn 15 (kg m^{-3})
 seamount_density_gradient_linear = 0.1
 
-# Density gradient for exponential vertical stratification, Delta_z rho in Beckmann Haidvogel eqn 16 (kg m^{-3})
+# Density gradient for exponential vertical stratification, Delta_z rho in Beckmann and Haidvogel eqn 16 (kg m^{-3})
 seamount_density_gradient_exp = 3.0
 
 # Density reference depth for linear vertical stratification (m)
