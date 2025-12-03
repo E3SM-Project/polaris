@@ -1032,9 +1032,9 @@ directory, providing the names of the steps whose outputs should be added to
 the cache.  The resulting `<component>_cached_files.json` should be copied
 to `polaris/<component>/cached_files.json` in a polaris branch.
 
-Calls to `polaris cache` must be made on Chrysalis or Anvil.  If outputs were
-produced on another machine, they must be transferred to one of these two
-machines before calling `polaris cache`.  File can be added manually to the
+Calls to `polaris cache` must be made on Chrysalis.  If outputs were
+produced on another machine, they must be transferred to Chrysalis
+before calling `polaris cache`.  File can be added manually to the
 LCRC server and the `cached_files.json` databases but this is not
 recommended.
 

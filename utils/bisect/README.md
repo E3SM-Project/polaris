@@ -29,5 +29,4 @@ or tag.
 
 Since the code will be compiled on a compute node, any baseline use for
 comparison should also be built on a compute node.  Otherwise, you may get
-non-bit-for-bit results simply because of where the code was compiled.  This
-has been seen with Intel on Anvil.
+non-bit-for-bit results simply because of where the code was compiled.

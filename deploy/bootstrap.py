@@ -772,15 +772,6 @@ def _get_env_vars(machine, compiler, mpi):
 
     env_vars = f'{env_vars}export MPAS_EXTERNAL_LIBS=""\n'
 
-    if 'intel' in compiler and machine == 'anvil':
-        env_vars = (
-            f'{env_vars}'
-            f'export I_MPI_CC=icc\n'
-            f'export I_MPI_CXX=icpc\n'
-            f'export I_MPI_F77=ifort\n'
-            f'export I_MPI_F90=ifort\n'
-        )
-
     if machine.startswith('conda'):
         # we're using parallelio so we don't have ADIOS support
         env_vars = f'{env_vars}export HAVE_ADIOS=false\n'
@@ -1063,7 +1054,7 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
             stdcxx = '-lc++'
         else:
             stdcxx = '-lstdc++'
-        if mpi == 'openmpi' and machine in ['anvil', 'chrysalis']:
+        if mpi == 'openmpi' and machine in ['chrysalis']:
             mpicxx = '-lmpi_cxx'
         else:
             mpicxx = ''

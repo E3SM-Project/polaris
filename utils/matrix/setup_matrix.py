@@ -10,18 +10,11 @@ from shared import check_call, get_logger
 # build targets from
 # https://mpas-dev.github.io/polaris/latest/developers_guide/machines/index.html#supported-machines
 all_build_targets = {
-    'anvil': {
-        ('intel', 'impi'): 'intel-mpi',
-        ('intel', 'openmpi'): 'ifort',
-        ('gnu', 'openmpi'): 'gfortran',
-    },
-    'chicoma-cpu': {('gnu', 'mpich'): 'gnu-cray'},
     'chrysalis': {
         ('intel', 'impi'): 'intel-mpi',
         ('intel', 'openmpi'): 'ifort',
         ('gnu', 'openmpi'): 'gfortran',
     },
-    'compy': {('intel', 'impi'): 'intel-mpi'},
     'frontier': {
         ('craygnu', 'mpich'): 'gnu-cray',
         ('craycray', 'mpich'): 'cray-cray',

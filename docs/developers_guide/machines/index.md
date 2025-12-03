@@ -20,7 +20,7 @@ Omega or an MPAS component and work with polaris.  Just source the script that
 should appear in the base of your polaris branch, e.g.:
 
 ```bash
-source load_dev_polaris_0.1.0-alpha.1_anvil_intel_impi.sh
+source load_dev_polaris_0.10.0-alpha.1_chrysalis_intel_openmpi.sh
 ```
 
 After loading this environment, you can set up tasks or suites, and
@@ -36,10 +36,7 @@ Below are specifics for each supported machine
 ```{toctree}
 :titlesonly: true
 
-anvil
-chicoma
 chrysalis
-compy
 frontier
 perlmutter
 ```
@@ -55,19 +52,9 @@ These are the machines supported by MPAS-Ocean and -Seaice, including the
 +--------------+------------+-----------+-------------------+
 | Machine      | Compiler   | MPI lib.  |  MPAS make target |
 +==============+============+===========+===================+
-| anvil        | intel      | impi      | intel-mpi         |
-|              |            +-----------+-------------------+
-|              |            | openmpi   | ifort             |
-|              +------------+-----------+-------------------+
-|              | gnu        | openmpi   | gfortran          |
-+--------------+------------+-----------+-------------------+
-| chicoma-cpu  | gnu        | mpich     | gnu-cray          |
-+--------------+------------+-----------+-------------------+
 | chrysalis    | intel      | openmpi   | ifort             |
 |              +------------+-----------+-------------------+
 |              | gnu        | openmpi   | gfortran          |
-+--------------+------------+-----------+-------------------+
-| compy        | intel      | impi      | intel-mpi         |
 +--------------+------------+-----------+-------------------+
 | frontier     | craygnu    | mpich     | gnu-cray          |
 |              +------------+-----------+-------------------+
@@ -96,8 +83,6 @@ E3SM default for the given machine an compiler.
 +==============+==================+===========+
 | aurora       | oneapi-ifx       | mpich     |
 +--------------+------------------+-----------+
-| chicoma-cpu  | gnu              | mpich     |
-+--------------+------------------+-----------+
 | chrysalis    | intel            | openmpi   |
 |              +------------------+-----------+
 |              | gnu              | openmpi   |
@@ -121,10 +106,6 @@ E3SM default for the given machine an compiler.
 | pm-gpu       | gnugpu           | mpich     |
 +--------------+------------------+-----------+
 ```
-
-:::{note}
-Omega does not currently support Compy and Anvil.
-:::
 
 (dev-other-machines)=
 
