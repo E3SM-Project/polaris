@@ -63,24 +63,6 @@ class Viz(Step):
             spherical=False,
         )
 
-        # field_name = 'temperature'
-        # cellMask = ds_init.cellMask.isel(nVertLevels=0)
-        # mpas_field = ds_init[field_name].isel(Time=t_index)
-        # mpas_field_valid = ds_init[field_name].isel(nCells=cellMask == 1)
-        # vmin = mpas_field_valid.min().values
-        # vmax = mpas_field_valid.max().values
-        # plot_transect(
-        #    ds_transect=ds_transect,
-        #    mpas_field=mpas_field,
-        #    title=f'{field_name} at y={1e-3 * y_mid:.1f} km',
-        #    out_filename=f'init_{field_name}_section.png',
-        #    vmin=vmin,
-        #    vmax=vmax,
-        #    cmap='cmo.thermal',
-        #    colorbar_label=r'$^\circ$C',
-        #    color_start_and_end=False,
-        # )
-
         t_index = ds.sizes['Time'] - 1
         ds_transect = compute_transect(
             x=x,
@@ -93,32 +75,36 @@ class Viz(Step):
             spherical=False,
         )
 
-        field_name = 'temperature'
+        field_name = 'kineticEnergyCell'
         cellMask = ds_init.cellMask.isel(nVertLevels=0)
         mpas_field = ds[field_name].isel(Time=t_index)
-        mpas_field_valid = ds_init[field_name].isel(nCells=cellMask == 1)
+        mpas_field_valid = ds[field_name].isel(nCells=cellMask == 1)
         vmin = mpas_field_valid.min().values
         vmax = mpas_field_valid.max().values
         plot_transect(
             ds_transect=ds_transect,
             mpas_field=mpas_field,
-            title=f'{field_name} at y={1e-3 * y_mid:.1f} km',
+            title=f'{field_name} at y={1e-3 * y_mid:.1f} km, final time',
             out_filename=f'final_{field_name}_section.png',
             vmin=vmin,
-            vmax=vmax,
+            vmax=vmax / 200.0,
             cmap='cmo.thermal',
-            colorbar_label=r'$^\circ$C',
+            colorbar_label=r'm/s',
             color_start_and_end=False,
         )
 
+        field_name = 'normalVelocity'
         cell_mask = ds_init.maxLevelCell >= 1
         edge_mask = cell_mask_to_edge_mask(ds_init, cell_mask)
-        max_velocity = np.max(np.abs(ds.normalVelocity.values))
+        mpas_field = ds[field_name].isel(Time=t_index)
+        max_velocity = np.max(np.abs(mpas_field.values))
         plot_horiz_field(
             ds_mesh,
-            ds['normalVelocity'],
-            'final_normalVelocity.png',
+            ds[field_name],
+            f'final_{field_name}.png',
+            title=f'{field_name} in layer 2, final time',
             t_index=t_index,
+            z_index=1,
             vmin=-max_velocity,
             vmax=max_velocity,
             cmap='cmo.balance',
@@ -130,11 +116,11 @@ class Viz(Step):
         plt.figure(figsize=[12, 6], dpi=100)
         umax = np.amax(ds.normalVelocity[:, :, 0].values, axis=1)
         t = ds.daysSinceStartOfSim.values
-        time = pd.to_timedelta(t) / 1.0e9
-        print('time', time)
-        plt.plot(time, umax, 'k-o', label='max(normalVelocity)')
-        plt.xlabel('Time (s)')
-        plt.ylabel('Velocity (m/s)')
+        time = pd.to_timedelta(t)
+        days_float = time / pd.Timedelta(days=1)
+        plt.plot(days_float, umax, 'k-o', label='max(normalVelocity)')
+        plt.xlabel('Time (days)')
+        plt.ylabel('Maximum Velocity (m/s)')
         plt.legend()
         plt.savefig('velocity_max_t.png', dpi=200)
         plt.close()

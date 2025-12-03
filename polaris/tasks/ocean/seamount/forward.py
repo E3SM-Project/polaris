@@ -123,7 +123,7 @@ class Forward(OceanModelStep):
             seconds=run_duration * 86400.0
         )
         output_interval_str = get_time_interval_string(
-            seconds=output_interval * 86400.0
+            seconds=output_interval * 3600.0
         )
 
         replacements = dict(
