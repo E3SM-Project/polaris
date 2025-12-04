@@ -176,8 +176,7 @@ It then resets the E3SM repository so it is no longer in a `bisect` state.
 - Since the code is built and run on a compute node, any baseline you use for
    comparison (e.g., for non-bit-for-bit checks) should also be built on a
    compute node. Otherwise, you may see differences purely due to where the
-   code was compiled. This has been observed, for example, with Intel on
-   Anvil.
+   code was compiled.
 - The bisect process can be expensive (many builds and runs). Consider using
    a dedicated scratch directory for `work_base` with enough quota and
    performance.

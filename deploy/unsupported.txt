@@ -1,23 +1,9 @@
 # a list of unsupported machine, compiler and mpi combinations
 
 # no spack available
-anvil, gnu, impi
-chicoma-cpu, aocc, mpich
-chicoma-cpu, amdclang, mpich
 chrysalis, intel, impi
 chrysalis, gnu, impi
 chrysalis, oneapi-ifx, openmpi
 chrysalis, oneapi-ifx, impi
-compy, intel, mvapich2
-compy, gnu, openmpi
-compy, pgi, impi
-compy, pgi, mvapich2
 pm-cpu, aocc, mpich
 pm-cpu, amdclang, mpich
-
-# cannot build MOAB in spack
-anvil, gnu, mvapich
-
-# compiles but tests unreliable (errors or hanging),
-# see https://github.com/MPAS-Dev/compass/issues/336
-anvil, intel, mvapich

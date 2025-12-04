@@ -248,15 +248,7 @@ def _get_job_options(
     job_section = config['job']
     partition_or_queue = job_section.get(partition_or_queue_option)
     if partition_or_queue == '<<<default>>>':
-        if machine == 'anvil' and partition_or_queue == 'partition':
-            # choose the partition based on the number of nodes
-            if nodes <= 5:
-                partition_or_queue = 'acme-small'
-            elif nodes <= 60:
-                partition_or_queue = 'acme-medium'
-            else:
-                partition_or_queue = 'acme-large'
-        elif par_section.has_option(partitions_or_queues):
+        if par_section.has_option(partitions_or_queues):
             # get the first, which is the default
             partition_or_queue = par_section.getlist(partitions_or_queues)[0]
         else:

@@ -89,15 +89,9 @@ update Spack dependencies in Polaris.
      ## Testing
 
      MPAS-Ocean with `pr`:
-     - [ ] anvil (@xylar)
-       - [ ] intel and impi
-       - [ ] intel and openmpi
-       - [ ] gnu and openmpi
      - [ ] chrysalis (@xylar)
        - [ ] intel and openmpi
        - [ ] gnu and openmpi
-     - [ ] compy (@xylar)
-       - [ ] intel and impi - still seeing https://github.com/E3SM-Project/polaris/issues/205
      - [ ] frontier (@xylar)
        - [ ] craygnu and mpich
        - [ ] craycray and mpich
@@ -132,15 +126,9 @@ update Spack dependencies in Polaris.
      ## Deploying
 
      MPAS-Ocean with `pr`:
-     - [ ] anvil (@xylar)
-       - [ ] intel and impi
-       - [ ] intel and openmpi
-       - [ ] gnu and openmpi
      - [ ] chrysalis (@xylar)
        - [ ] intel and openmpi
        - [ ] gnu and openmpi
-     - [ ] compy (@xylar)
-       - [ ] intel and impi
      - [ ] frontier (@xylar)
        - [ ] craygnu and mpich
        - [ ] craycray and mpich

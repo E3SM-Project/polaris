@@ -334,9 +334,9 @@ so that new revisions can be added without removing older ones (supported by
 older polaris versions).  See {ref}`dev-step-cached-output` for more details.
 
 The command `polaris cache` is used to update the file `cached_files.json`
-within a component.  This command is only available on Anvil and Chrysalis,
+within a component.  This command is only available on Chrysalis,
 since developers can only copy files from a Polaris work directory onto the
-LCRC server from these two machines.
+LCRC server from Chrysalis.
 ```none
 $ polaris cache --help
 usage: polaris cache [-h] [-i STEP [STEP ...]] [-d DATE] [-r]

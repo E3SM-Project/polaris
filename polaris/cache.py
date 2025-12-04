@@ -35,10 +35,10 @@ def update_cache(step_paths, date_string=None, dry_run=False):
         invalid = True
     else:
         machine = os.environ['POLARIS_MACHINE']
-        invalid = machine not in ['anvil', 'chrysalis']
+        invalid = machine not in ['chrysalis']
 
     if invalid:
-        raise ValueError('You must cache files from either Anvil or Chrysalis')
+        raise ValueError('You must cache files from Chrysalis')
 
     config = PolarisConfigParser()
     config.add_from_package('polaris.machines', f'{machine}.cfg')

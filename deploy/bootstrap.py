@@ -10,7 +10,7 @@ import socket
 import stat
 import subprocess
 import time
-from configparser import ConfigParser
+from configparser import ConfigParser, ExtendedInterpolation
 from typing import Dict
 
 import progressbar
@@ -269,7 +269,7 @@ def _get_config(config_file, machine):
     # we can't load polaris so we find the config files
     here = os.path.abspath(os.path.dirname(__file__))
     default_config = os.path.join(here, 'default.cfg')
-    config = ConfigParser()
+    config = ConfigParser(interpolation=ExtendedInterpolation())
     config.read(default_config)
 
     if machine is not None:
@@ -554,7 +554,7 @@ def _build_conda_env(options, activate_base):
     else:
         mpi_prefix = f'mpi_{conda_mpi}'
 
-    channel_list = ['-c conda-forge', '-c defaults']
+    channel_list = ['-c conda-forge']
     if use_local:
         channel_list = ['--use-local'] + channel_list
     if local_conda_build is not None:
@@ -772,15 +772,6 @@ def _get_env_vars(machine, compiler, mpi):
 
     env_vars = f'{env_vars}export MPAS_EXTERNAL_LIBS=""\n'
 
-    if 'intel' in compiler and machine == 'anvil':
-        env_vars = (
-            f'{env_vars}'
-            f'export I_MPI_CC=icc\n'
-            f'export I_MPI_CXX=icpc\n'
-            f'export I_MPI_F77=ifort\n'
-            f'export I_MPI_F90=ifort\n'
-        )
-
     if machine.startswith('conda'):
         # we're using parallelio so we don't have ADIOS support
         env_vars = f'{env_vars}export HAVE_ADIOS=false\n'
@@ -869,6 +860,7 @@ def _build_spack_soft_env(options):  # noqa: C901
     os.chdir(build_dir)
 
     esmf = config.get('deploy', 'esmf')
+    moab = config.get('deploy', 'spack_moab')
 
     if config.has_option('deploy', 'spack_mirror'):
         spack_mirror = config.get('deploy', 'spack_mirror')
@@ -894,6 +886,11 @@ def _build_spack_soft_env(options):  # noqa: C901
 
     if esmf != 'None':
         specs.append(f'esmf@{esmf}+mpi+netcdf~pnetcdf~external-parallelio')
+
+    if moab != 'None':
+        specs.append(
+            f'moab@{moab}+eigen+fortran+hdf5+mpi+netcdf+pnetcdf+zoltan+tempest'
+        )
 
     yaml_template: str | None = None
     template_path = f'{spack_template_path}/{machine}_{compiler}_{mpi}.yaml'
@@ -950,7 +947,6 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
     cmake = config.get('deploy', 'cmake')
     lapack = config.get('deploy', 'lapack')
     metis = config.get('deploy', 'metis')
-    moab = config.get('deploy', 'spack_moab')
     parmetis = config.get('deploy', 'parmetis')
     petsc = config.get('deploy', 'petsc')
     scorpio = config.get('deploy', 'scorpio')
@@ -984,10 +980,6 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
         include_e3sm_lapack = True
     if metis != 'None':
         specs.append(f'metis@{metis}+int64+real64~shared')
-    if moab != 'None':
-        specs.append(
-            f'moab@{moab}+mpi+hdf5+netcdf+pnetcdf+metis+parmetis+tempest'
-        )
     if parmetis != 'None':
         specs.append(f'parmetis@{parmetis}+int64~shared')
     if petsc != 'None':
@@ -1038,10 +1030,8 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
         mpi=mpi,
         shell='sh',
         machine=machine,
-        config_file=machine_config,
         include_e3sm_lapack=include_e3sm_lapack,
         include_e3sm_hdf5_netcdf=e3sm_hdf5_netcdf,
-        yaml_template=yaml_template,
     )
 
     spack_view = (
@@ -1064,7 +1054,7 @@ def _build_spack_libs_env(options, compiler, mpi, env_vars):  # noqa: C901
             stdcxx = '-lc++'
         else:
             stdcxx = '-lstdc++'
-        if mpi == 'openmpi' and machine in ['anvil', 'chrysalis']:
+        if mpi == 'openmpi' and machine in ['chrysalis']:
             mpicxx = '-lmpi_cxx'
         else:
             mpicxx = ''
@@ -1517,7 +1507,7 @@ def _get_possible_hosts():
     possible_hosts = dict()
     for filename in files:
         machine = os.path.splitext(os.path.split(filename)[1])[0]
-        config = ConfigParser()
+        config = ConfigParser(interpolation=ExtendedInterpolation())
         config.read(filename)
         if config.has_section('discovery') and config.has_option(
             'discovery', 'hostname_contains'
