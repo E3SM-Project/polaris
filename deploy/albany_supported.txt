@@ -1,9 +1,6 @@
 # a list of supported machine, compiler and mpi combinations for Albany
 
-anvil, gnu, openmpi
-chicoma-cpu, gnu, mpich
 chrysalis, gnu, openmpi
-compy, gnu, openmpi
 frontier, craygnu, mpich
 frontier, craygnu-mphipcc, mpich
 frontier, craycray, mpich
