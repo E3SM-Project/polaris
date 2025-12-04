@@ -1,3 +1,5 @@
+import os
+
 from polaris.config import PolarisConfigParser as PolarisConfigParser
 from polaris.tasks.ocean.barotropic_channel.default import Default as Default
 
@@ -12,7 +14,10 @@ def add_barotropic_channel_tasks(component):
 
     group_name = 'barotropic_channel'
     config_filename = f'{group_name}.cfg'
-    config = PolarisConfigParser(filepath=f'polaris.tasks.{config_filename}')
+    filepath = os.path.join(
+        component.name, 'planar', group_name, config_filename
+    )
+    config = PolarisConfigParser(filepath=filepath)
     config.add_from_package(
         f'polaris.tasks.ocean.{group_name}', config_filename
     )
