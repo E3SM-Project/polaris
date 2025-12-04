@@ -118,6 +118,9 @@ jobs:
             source load_polaris_test_mpich.sh
           fi
           python -c "import polaris; import polaris.version; print(polaris.version.__version__)"
+          polaris --help
+          polaris list --help
+          polaris list
 
       - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
         name: Build Sphinx Docs
