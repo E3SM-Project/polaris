@@ -126,32 +126,14 @@ documentation as soon as there is one.  Until then please refer to the
 (currently <a class="reference external" href="https://earthsystemmodeling.org/">ESMF</a>,
 <a class="reference external" href="https://sigma.mcs.anl.gov/moab-library/">MOAB</a> and
 <a class="reference external" href="https://e3sm.org/scorpio-parallel-io-library/">SCORPIO</a>) built with system
-MPI using <a class="reference external" href="https://spack.io/">spack</a> on our standard machines (Anvil, Chicoma,
-Chrysalis, Compy, and  Perlmutter).  Once there is a polaris release,
+MPI using <a class="reference external" href="https://spack.io/">spack</a> on our standard machines (Aurora,
+Chrysalis, Frontier, and  Perlmutter).  Once there is a polaris release,
 these will be the commands to load the environments and set you up for building
 the desired E3SM component (MPAS-Ocean, MALI or Omega):</p>
-<ul class="simple">
-<li><p>Anvil (Blues):</p></li>
-</ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/lcrc/soft/climate/polaris/anvil/load_latest_polaris.sh
-</pre></div>
-</div>
-<ul class="simple">
-<li><p>Chicoma (CPU nodes):</p></li>
-</ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/projects/climate/SHARED_CLIMATE/polaris/chicoma-cpu/load_latest_polaris.sh
-</pre></div>
-</div>
 <ul class="simple">
 <li><p>Chrysalis:</p></li>
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/lcrc/soft/climate/polaris/chrysalis/load_latest_polaris.sh
-</pre></div>
-</div>
-<ul class="simple">
-<li><p>Compy:</p></li>
-</ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/share/apps/E3SM/conda_envs/polaris/load_latest_polaris.sh
 </pre></div>
 </div>
 <ul class="simple">
@@ -162,9 +144,9 @@ the desired E3SM component (MPAS-Ocean, MALI or Omega):</p>
 </div>
 <p>These same paths (minus <code class="docutils literal notranslate"><span class="pre">load_latest_polaris.sh</span></code>) also will have load scripts
 for  the latest version of polaris with all the supported compiler and MPI
-combinations.  For example, on Anvil, you will be able to get an environment
+combinations.  For example, on Chrysalis, you will be able to get an environment
 appropriate for building E3SM components with Gnu compilers and OpenMPI using:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/lcrc/soft/climate/polaris/anvil/load_latest_polaris_gnu_openmpi.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/lcrc/soft/climate/polaris/chrysalis/load_latest_polaris_gnu_openmpi.sh
 </pre></div>
 </div>
 </section>

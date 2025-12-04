@@ -211,10 +211,11 @@ convenient for testing) and so that we can easily reference these versions in
 multiple places during the deployment workflow if needed.</p>
 <p><strong>Note:</strong> We treat the MOAB package as a special case with different versions
 from conda-forge (<code class="docutils literal notranslate"><span class="pre">conda_moab</span></code>) and Spack (<code class="docutils literal notranslate"><span class="pre">spack_moab</span></code>).  This is because
-MOAB has infrequent releases and we currently need features and bug fixes for
-many Polaris workflows that are only available from the <code class="docutils literal notranslate"><span class="pre">master</span></code> branch.
-Since the <code class="docutils literal notranslate"><span class="pre">master</span></code> version is not available on conda-forge, we fall back on
-the latest release for use on login nodes and unsupported machines.</p>
+MOAB has infrequent releases and, in the past, we have need features and bug
+fixes that are only available from the <code class="docutils literal notranslate"><span class="pre">master</span></code> branch. Since the <code class="docutils literal notranslate"><span class="pre">master</span></code>
+version is not available on conda-forge, when we need the latest MOAB features
+on machines with spack support, we still must fall back on the latest release
+for use on login nodes and unsupported machines.</p>
 <p>Some versions defined in <code class="docutils literal notranslate"><span class="pre">default.cfg</span></code> apply to both Conda and Spack package:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># versions of conda or spack packages (depending on machine type)</span>
 <span class="na">esmf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8.8.1</span>

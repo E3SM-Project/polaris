@@ -1014,9 +1014,9 @@ running the <a class="reference internal" href="../command_line.html#dev-polaris
 directory, providing the names of the steps whose outputs should be added to
 the cache.  The resulting <code class="docutils literal notranslate"><span class="pre">&lt;component&gt;_cached_files.json</span></code> should be copied
 to <code class="docutils literal notranslate"><span class="pre">polaris/&lt;component&gt;/cached_files.json</span></code> in a polaris branch.</p>
-<p>Calls to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">cache</span></code> must be made on Chrysalis or Anvil.  If outputs were
-produced on another machine, they must be transferred to one of these two
-machines before calling <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">cache</span></code>.  File can be added manually to the
+<p>Calls to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">cache</span></code> must be made on Chrysalis.  If outputs were
+produced on another machine, they must be transferred to Chrysalis
+before calling <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">cache</span></code>.  File can be added manually to the
 LCRC server and the <code class="docutils literal notranslate"><span class="pre">cached_files.json</span></code> databases but this is not
 recommended.</p>
 <p>More details on cached outputs are available in the compass design document

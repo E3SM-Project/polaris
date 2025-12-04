@@ -142,11 +142,8 @@ to use the default MPI variant for each compiler on each machine.
 ```{toctree}
 :titlesonly: true
 
-anvil
 aurora
-chicoma
 chrysalis
-compy
 frontier
 perlmutter
 ```

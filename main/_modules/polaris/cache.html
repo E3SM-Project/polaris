@@ -147,10 +147,10 @@
         <span class="n">invalid</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">machine</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_MACHINE&#39;</span><span class="p">]</span>
-        <span class="n">invalid</span> <span class="o">=</span> <span class="n">machine</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;anvil&#39;</span><span class="p">,</span> <span class="s1">&#39;chrysalis&#39;</span><span class="p">]</span>
+        <span class="n">invalid</span> <span class="o">=</span> <span class="n">machine</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;chrysalis&#39;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">invalid</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;You must cache files from either Anvil or Chrysalis&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;You must cache files from Chrysalis&#39;</span><span class="p">)</span>
 
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.machines&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">)</span>

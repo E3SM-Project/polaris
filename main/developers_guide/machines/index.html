@@ -19,7 +19,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Anvil" href="anvil.html" />
+    <link rel="next" title="Aurora" href="aurora.html" />
     <link rel="prev" title="Visualization" href="../framework/visualization.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -68,10 +68,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Machines</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#supported-machines">Supported Machines</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="anvil.html">Anvil</a></li>
-<li class="toctree-l3"><a class="reference internal" href="chicoma.html">Chicoma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="aurora.html">Aurora</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compy.html">CompyMcNodeFace</a></li>
 <li class="toctree-l3"><a class="reference internal" href="frontier.html">Frontier</a></li>
 <li class="toctree-l3"><a class="reference internal" href="perlmutter.html">Perlmutter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mpas-ocean-and-seaice-supported-machines">MPAS-Ocean and -Seaice Supported Machines</a></li>
@@ -145,7 +143,7 @@ activation script for activating the development conda environment, setting
 loading system modules and setting environment variables so you can build
 Omega or an MPAS component and work with polaris.  Just source the script that
 should appear in the base of your polaris branch, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_dev_polaris_0.1.0-alpha.1_anvil_intel_impi.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_dev_polaris_0.10.0-alpha.1_chrysalis_intel_openmpi.sh
 </pre></div>
 </div>
 <p>After loading this environment, you can set up tasks or suites, and
@@ -158,10 +156,8 @@ the MPAS model.</p>
 <p>Below are specifics for each supported machine</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="anvil.html">Anvil</a></li>
-<li class="toctree-l1"><a class="reference internal" href="chicoma.html">Chicoma</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aurora.html">Aurora</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="compy.html">CompyMcNodeFace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="frontier.html">Frontier</a></li>
 <li class="toctree-l1"><a class="reference internal" href="perlmutter.html">Perlmutter</a></li>
 </ul>
@@ -179,23 +175,6 @@ the MPAS model.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td rowspan="3"><p>anvil</p></td>
-<td rowspan="2"><p>intel</p></td>
-<td><p>impi</p></td>
-<td><p>intel-mpi</p></td>
-</tr>
-<tr class="row-odd"><td><p>openmpi</p></td>
-<td><p>ifort</p></td>
-</tr>
-<tr class="row-even"><td><p>gnu</p></td>
-<td><p>openmpi</p></td>
-<td><p>gfortran</p></td>
-</tr>
-<tr class="row-odd"><td><p>chicoma-cpu</p></td>
-<td><p>gnu</p></td>
-<td><p>mpich</p></td>
-<td><p>gnu-cray</p></td>
-</tr>
 <tr class="row-even"><td rowspan="2"><p>chrysalis</p></td>
 <td><p>intel</p></td>
 <td><p>openmpi</p></td>
@@ -205,26 +184,21 @@ the MPAS model.</p>
 <td><p>openmpi</p></td>
 <td><p>gfortran</p></td>
 </tr>
-<tr class="row-even"><td><p>compy</p></td>
-<td><p>intel</p></td>
-<td><p>impi</p></td>
-<td><p>intel-mpi</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="2"><p>frontier</p></td>
+<tr class="row-even"><td rowspan="2"><p>frontier</p></td>
 <td><p>craygnu</p></td>
 <td><p>mpich</p></td>
 <td><p>gnu-cray</p></td>
 </tr>
-<tr class="row-even"><td><p>craycray</p></td>
+<tr class="row-odd"><td><p>craycray</p></td>
 <td><p>mpich</p></td>
 <td><p>cray-cray</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="2"><p>pm-cpu</p></td>
+<tr class="row-even"><td rowspan="2"><p>pm-cpu</p></td>
 <td><p>gnu</p></td>
 <td><p>mpich</p></td>
 <td><p>gnu-cray</p></td>
 </tr>
-<tr class="row-even"><td><p>intel</p></td>
+<tr class="row-odd"><td><p>intel</p></td>
 <td><p>mpich</p></td>
 <td><p>intel-cray</p></td>
 </tr>
@@ -251,53 +225,45 @@ E3SM default for the given machine an compiler.</p>
 <td><p>oneapi-ifx</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-odd"><td><p>chicoma-cpu</p></td>
-<td><p>gnu</p></td>
-<td><p>mpich</p></td>
-</tr>
-<tr class="row-even"><td rowspan="2"><p>chrysalis</p></td>
+<tr class="row-odd"><td rowspan="2"><p>chrysalis</p></td>
 <td><p>intel</p></td>
 <td><p>openmpi</p></td>
 </tr>
-<tr class="row-odd"><td><p>gnu</p></td>
+<tr class="row-even"><td><p>gnu</p></td>
 <td><p>openmpi</p></td>
 </tr>
-<tr class="row-even"><td rowspan="6"><p>frontier</p></td>
+<tr class="row-odd"><td rowspan="6"><p>frontier</p></td>
 <td><p>craygnu</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-odd"><td><p>craygnu-mphipcc</p></td>
+<tr class="row-even"><td><p>craygnu-mphipcc</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-even"><td><p>crayamd</p></td>
+<tr class="row-odd"><td><p>crayamd</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-odd"><td><p>crayamd-mphipcc</p></td>
+<tr class="row-even"><td><p>crayamd-mphipcc</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-even"><td><p>craycray</p></td>
+<tr class="row-odd"><td><p>craycray</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-odd"><td><p>craycray-mphipcc</p></td>
+<tr class="row-even"><td><p>craycray-mphipcc</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-even"><td rowspan="2"><p>pm-cpu</p></td>
+<tr class="row-odd"><td rowspan="2"><p>pm-cpu</p></td>
 <td><p>gnu</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-odd"><td><p>intel</p></td>
+<tr class="row-even"><td><p>intel</p></td>
 <td><p>mpich</p></td>
 </tr>
-<tr class="row-even"><td><p>pm-gpu</p></td>
+<tr class="row-odd"><td><p>pm-gpu</p></td>
 <td><p>gnugpu</p></td>
 <td><p>mpich</p></td>
 </tr>
 </tbody>
 </table>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Omega does not currently support Compy and Anvil.</p>
-</div>
 </section>
 </section>
 <section id="other-machines">
@@ -579,7 +545,7 @@ into the polaris main repo to add your supported machine.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../framework/visualization.html" class="btn btn-neutral float-left" title="Visualization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="anvil.html" class="btn btn-neutral float-right" title="Anvil" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="aurora.html" class="btn btn-neutral float-right" title="Aurora" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

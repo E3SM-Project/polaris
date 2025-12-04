@@ -164,10 +164,10 @@
         <span class="s1">&#39;serial&#39;</span><span class="p">:</span> <span class="n">run_serial</span><span class="o">.</span><span class="n">main</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="c1"># only allow the &quot;polaris cache&quot; command if we&#39;re on Anvil or Chrysalis</span>
+    <span class="c1"># only allow the &quot;polaris cache&quot; command if we&#39;re on Chrysalis</span>
     <span class="n">allow_cache</span> <span class="o">=</span> <span class="s1">&#39;POLARIS_MACHINE&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span>
         <span class="s1">&#39;POLARIS_MACHINE&#39;</span>
-    <span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;anvil&#39;</span><span class="p">,</span> <span class="s1">&#39;chrysalis&#39;</span><span class="p">]</span>
+    <span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;chrysalis&#39;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">allow_cache</span><span class="p">:</span>
         <span class="n">commands</span><span class="p">[</span><span class="s1">&#39;cache&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">main</span>

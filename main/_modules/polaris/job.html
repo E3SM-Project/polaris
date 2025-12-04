@@ -367,15 +367,7 @@
     <span class="n">job_section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;job&#39;</span><span class="p">]</span>
     <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="n">job_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">partition_or_queue_option</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">partition_or_queue</span> <span class="o">==</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">machine</span> <span class="o">==</span> <span class="s1">&#39;anvil&#39;</span> <span class="ow">and</span> <span class="n">partition_or_queue</span> <span class="o">==</span> <span class="s1">&#39;partition&#39;</span><span class="p">:</span>
-            <span class="c1"># choose the partition based on the number of nodes</span>
-            <span class="k">if</span> <span class="n">nodes</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">:</span>
-                <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="s1">&#39;acme-small&#39;</span>
-            <span class="k">elif</span> <span class="n">nodes</span> <span class="o">&lt;=</span> <span class="mi">60</span><span class="p">:</span>
-                <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="s1">&#39;acme-medium&#39;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="s1">&#39;acme-large&#39;</span>
-        <span class="k">elif</span> <span class="n">par_section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">partitions_or_queues</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">par_section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">partitions_or_queues</span><span class="p">):</span>
             <span class="c1"># get the first, which is the default</span>
             <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="n">par_section</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="n">partitions_or_queues</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
