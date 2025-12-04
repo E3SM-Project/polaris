@@ -55,9 +55,16 @@ class PbsSystem(ParallelSystem):
 
     def get_parallel_command(self, args, cpus_per_task, ntasks):
         config = self.config
-        command = config.get('parallel', 'parallel_executable').split(' ')
-        # PBS mpiexec/mpirun may not use -N for nodes, but -n for tasks and
-        # -c for cpus-per-task are common
-        command.extend(['-n', f'{ntasks}', '-c', f'{cpus_per_task}'])
+        section = config['parallel']
+        command = section.get('parallel_executable').split(' ')
+        # PBS mpiexec/mpirun options are launcher's responsibility, so the
+        # flag used for CPUs per task is configurable per machine
+        if section.has_option('cpus_per_task_flag'):
+            cpus_per_task_flag = section.get('cpus_per_task_flag')
+        else:
+            cpus_per_task_flag = '-c'
+        command.extend(
+            ['-n', f'{ntasks}', cpus_per_task_flag, f'{cpus_per_task}']
+        )
         command.extend(args)
         return command
