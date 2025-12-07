@@ -149,8 +149,8 @@ def integrate_geometric_height(
         )
     if len(z_tilde_nodes) < 2:
         raise ValueError('Need at least two collocation nodes.')
-    if not np.all(np.diff(z_tilde_nodes) > 0):
-        raise ValueError('z_tilde_nodes must be strictly increasing.')
+    if not np.all(np.diff(z_tilde_nodes) <= 0):
+        raise ValueError('z_tilde_nodes must be strictly non-increasing.')
     if not np.all(np.diff(z_tilde_interfaces) <= 0):
         raise ValueError('z_tilde_interfaces must be non-increasing.')
     if subdivisions < 1:
@@ -161,8 +161,11 @@ def integrate_geometric_height(
     def spec_vol_ct_sa_at(
         z_tilde: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        sa = np.interp(z_tilde, z_tilde_nodes, sa_nodes)
-        ct = np.interp(z_tilde, z_tilde_nodes, ct_nodes)
+        # np.interp requires xp to be increasing; our
+        # z_tilde_nodes are decreasing, so flip the signs of
+        # z_tilde and z_tilde_nodes for the interpolation
+        sa = np.interp(-z_tilde, -z_tilde_nodes, sa_nodes)
+        ct = np.interp(-z_tilde, -z_tilde_nodes, ct_nodes)
         p_pa = -rho0 * g * z_tilde
         # gsw expects pressure in dbar
         spec_vol = gsw.specvol(sa, ct, p_pa * 1.0e-4)
