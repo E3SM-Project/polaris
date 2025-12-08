@@ -406,6 +406,7 @@ def _log_and_run_task(
             )
 
         status = f'  task execution:   {run_status}'
+        task_logger.info(f'POLARIS TASK: {"PASS" if task_pass else "FAIL"}')
         if task_pass:
             stdout_logger.info(status)
             if baselines_passed is None:
@@ -422,6 +423,10 @@ def _log_and_run_task(
                     success = False
                 status = f'  baseline comp.:   {baseline_str}'
                 stdout_logger.info(status)
+                task_logger.info(
+                    f'POLARIS BASELINE: '
+                    f'{"PASS" if baselines_passed else "FAIL"}'
+                )
 
         else:
             stdout_logger.error(status)
