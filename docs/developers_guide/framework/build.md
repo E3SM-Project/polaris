@@ -120,6 +120,9 @@ You can trigger these builders directly from the CLI by passing build flags to
 - `--clean_build`: Start fresh (removes prior build state) and implies
   `--build`. Without this flag, an incremental build is used when possible to
   save time.
+- `--quiet_build`: Write build output to a log file in the base work directory
+   but not to stdout/stderr. By default, output is written to both. This
+   flag implies `--build`.
 - `--cmake_flags <string>`: Extra flags passed through to the build system.
   For MPAS-Ocean, this string is forwarded to `make` (e.g., `-j 8` or extra
   `VAR=VALUE` assignments). For Omega, it is forwarded to CMake as additional
