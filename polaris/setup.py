@@ -32,6 +32,7 @@ def setup_tasks(
     build=None,
     branch=None,
     clean_build=None,
+    quiet_build=None,
     cmake_flags=None,
     debug=None,
 ):
@@ -97,6 +98,9 @@ def setup_tasks(
         Whether to clean the build directory before building the model.
         ``clean_build = True`` implies ``build = True``.
 
+    quiet_build : bool, optional
+        Whether to build the model without output. Implies ``build = True``.
+
     cmake_flags : str, optional
         Additional flags to pass to make or CMake when building the model
 
@@ -147,6 +151,7 @@ def setup_tasks(
         cmake_flags=cmake_flags,
         debug=debug,
         clean_build=clean_build,
+        quiet_build=quiet_build,
     )
 
     component.configure(basic_config)
@@ -166,6 +171,7 @@ def setup_tasks(
             basic_config=basic_config,
             component=component,
             machine=machine,
+            work_dir=work_dir,
         )
 
     if clean_work:
@@ -444,6 +450,12 @@ def main():
         '--build.',
     )
     parser.add_argument(
+        '--quiet_build',
+        dest='quiet_build',
+        action='store_true',
+        help='If the model should be built without output. Implies --build.',
+    )
+    parser.add_argument(
         '--cmake_flags',
         dest='cmake_flags',
         help='Additional flags to pass to make or CMake when building the '
@@ -486,6 +498,7 @@ def main():
         build=args.build,
         branch=args.branch,
         clean_build=args.clean_build,
+        quiet_build=args.quiet_build,
         cmake_flags=args.cmake_flags,
         debug=args.debug,
     )
@@ -762,6 +775,7 @@ def _get_basic_config(
     cmake_flags,
     debug,
     clean_build,
+    quiet_build,
 ):
     """
     Get a base config parser for the machine and component but not a specific
@@ -825,11 +839,19 @@ def _get_basic_config(
     if clean_build is not None:
         config.set('build', 'clean', str(clean_build), user=True)
 
+    if quiet_build is not None:
+        config.set('build', 'quiet', str(quiet_build), user=True)
+
     build = config.getboolean('build', 'build')
     clean_build = config.getboolean('build', 'clean')
     if clean_build and not build:
         # the user presumably expects to clean the build, notice that it's
         # absent, and build again
+        config.set('build', 'build', 'True', user=True)
+
+    if quiet_build and not build:
+        # the user presumably expects to build, since they want to build
+        # quietly
         config.set('build', 'build', 'True', user=True)
 
     return config
@@ -923,11 +945,12 @@ def _check_dependencies(tasks):
                     )
 
 
-def _build_model(basic_config, component, machine):
+def _build_model(basic_config, component, machine, work_dir):
     model = basic_config.get(component.name, 'model')
     section = basic_config['build']
     branch = section.get('branch')
     clean_build = section.getboolean('clean')
+    quiet_build = section.getboolean('quiet')
     debug = section.getboolean('debug')
     cmake_flags = section.get('cmake_flags')
 
@@ -939,13 +962,16 @@ def _build_model(basic_config, component, machine):
         account = None
 
     if model == 'omega':
+        log_filename = os.path.join(work_dir, 'build_omega.log')
         build_omega(
             branch=branch,
             build_dir=build_dir,
             clean=clean_build,
+            quiet=quiet_build,
             debug=debug,
             cmake_flags=cmake_flags,
             account=account,
+            log_filename=log_filename,
         )
     elif model == 'mpas-ocean':
         section = basic_config['build']
@@ -959,13 +985,16 @@ def _build_model(basic_config, component, machine):
             )
         make_target = section.get(key)
 
+        log_filename = os.path.join(work_dir, 'build_mpas_ocean.log')
         build_mpas_ocean(
             branch=branch,
             build_dir=build_dir,
             clean=clean_build,
+            quiet=quiet_build,
             debug=debug,
             make_flags=cmake_flags,
             make_target=make_target,
+            log_filename=log_filename,
         )
     else:
         raise ValueError(
