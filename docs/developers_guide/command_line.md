@@ -186,6 +186,9 @@ flags configure the build:
 - `--clean_build`: Start from a clean build directory (removes prior CMake/
    configure state, implying `--build`). Without this flag, an incremental build
    is performed to save time when appropriate.
+- `--quiet_build`: Write build output to a log file in the base work directory
+   but not to stdout/stderr. By default, output is written to both. This
+   flag implies `--build`.
 - `--cmake_flags <string>`: Extra build flags. For MPAS-Ocean, this string is
    passed through to `make` (e.g., `-j 8` for parallel builds, or additional
    variable assignments); for Omega, it is passed through to CMake as additional
