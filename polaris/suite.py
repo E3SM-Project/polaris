@@ -148,6 +148,12 @@ def main():
         '--build.',
     )
     parser.add_argument(
+        '--quiet_build',
+        dest='quiet_build',
+        action='store_true',
+        help='If the model should be built without output. Implies --build.',
+    )
+    parser.add_argument(
         '--cmake_flags',
         dest='cmake_flags',
         help='Additional flags to pass to CMake when building the model.',
@@ -175,6 +181,7 @@ def main():
         build=args.build,
         branch=args.branch,
         clean_build=args.clean_build,
+        quiet_build=args.quiet_build,
         cmake_flags=args.cmake_flags,
         debug=args.debug,
     )

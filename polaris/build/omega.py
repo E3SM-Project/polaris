@@ -5,7 +5,16 @@ import subprocess
 from jinja2 import Template
 
 
-def build_omega(branch, build_dir, clean, debug, cmake_flags, account=None):
+def build_omega(
+    branch,
+    build_dir,
+    clean,
+    quiet,
+    debug,
+    cmake_flags,
+    account=None,
+    log_filename=None,
+):
     """
     Build Omega on the current machine.
 
@@ -20,6 +29,9 @@ def build_omega(branch, build_dir, clean, debug, cmake_flags, account=None):
     clean : bool
         Whether to clean the build directory before building.
 
+    quiet : bool
+        Whether to build quietly (suppress output).
+
     debug : bool
         Whether to build in debug mode.
 
@@ -28,6 +40,9 @@ def build_omega(branch, build_dir, clean, debug, cmake_flags, account=None):
 
     account : str, optional
         The account to use for the build.
+
+    log_filename : str, optional
+        The filename to use for logging build output.
     """
     print('\nBuilding Omega:\n')
 
@@ -57,9 +72,14 @@ def build_omega(branch, build_dir, clean, debug, cmake_flags, account=None):
 
     # clear environment variables and start fresh with those from login
     # so spack doesn't get confused by conda
-    subprocess.check_call(
-        f'env -i HOME="$HOME" bash -l {script_filename}', shell=True
-    )
+    command = f'env -i HOME="$HOME" bash -l {script_filename}'
+    if log_filename is not None:
+        print(f'Logging build to: {log_filename}')
+        if quiet:
+            command += f' > {log_filename} 2>&1 '
+        else:
+            command += f' 2>&1 | tee {log_filename}'
+    subprocess.check_call(command, shell=True)
 
     print(f'Omega builds script written to:\n  {script_filename}\n')
 
