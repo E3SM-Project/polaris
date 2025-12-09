@@ -48,7 +48,7 @@ class Viz(Step):
         x_max = ds_mesh.xVertex.max().values
         y_mid = ds_mesh.yCell.median().values
 
-        x = xr.DataArray(data=np.linspace(x_min, x_max, 2), dims=('nPoints',))
+        x = xr.DataArray(data=[x_min, x_max], dims=('nPoints',))
         y = y_mid * xr.ones_like(x)
 
         t_index = 0

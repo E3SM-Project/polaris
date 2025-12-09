@@ -88,11 +88,10 @@ class Init(OceanIOStep):
         seamount_density_depth_exp = section.getfloat(
             'seamount_density_depth_exp'
         )
-        seamount_density_ref = section.getfloat('seamount_density_ref')
-        seamount_density_Tref = section.getfloat('seamount_density_Tref')
-        seamount_density_alpha = section.getfloat('seamount_density_alpha')
+        eos_linear_rhoref = self.config.getfloat('ocean', 'eos_linear_rhoref')
+        eos_linear_tref = self.config.getfloat('ocean', 'eos_linear_tref')
+        eos_linear_alpha = self.config.getfloat('ocean', 'eos_linear_alpha')
         seamount_height = section.getfloat('seamount_height')
-        # seamount_radius = section.getfloat('seamount_radius')
         seamount_width = section.getfloat('seamount_width')
         constant_salinity = section.getfloat('constant_salinity')
         coriolis_parameter = section.getfloat('coriolis_parameter')
@@ -103,11 +102,11 @@ class Init(OceanIOStep):
         y_mid_global = (ds.yCell.max() - ds.yCell.min()) / 2.0 + ds.yCell.min()
         # Set bottomDepth.
         # See Beckmann and Haidvogel 1993 eqn 12, Shchepetkin 2003 eqn 4.2
-        ds['radius'] = np.sqrt(
+        radius = np.sqrt(
             (ds.xCell - x_mid_global) ** 2 + (ds.yCell - y_mid_global) ** 2
         )
         ds['bottomDepth'] = max_bottom_depth - seamount_height * np.exp(
-            -(ds.radius**2) / seamount_width**2
+            -(radius**2) / seamount_width**2
         )
 
         # ssh is zero
@@ -136,8 +135,8 @@ class Init(OceanIOStep):
         # Back-solve linear EOS for temperature, with S=S_ref
         # T = T_ref - (rho - rho_ref)/alpha
         temperature = (
-            seamount_density_Tref
-            - (densityCell - seamount_density_ref) / seamount_density_alpha
+            eos_linear_tref
+            - (densityCell - eos_linear_rhoref) / eos_linear_alpha
         )
 
         ds['temperature'] = temperature
