@@ -523,6 +523,7 @@
             <span class="p">)</span>
 
         <span class="n">status</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;  task execution:   </span><span class="si">{</span><span class="n">run_status</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">task_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;POLARIS TASK: </span><span class="si">{</span><span class="s2">&quot;PASS&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">task_pass</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;FAIL&quot;</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">task_pass</span><span class="p">:</span>
             <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">baselines_passed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -539,6 +540,10 @@
                     <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">status</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;  baseline comp.:   </span><span class="si">{</span><span class="n">baseline_str</span><span class="si">}</span><span class="s1">&#39;</span>
                 <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+                <span class="n">task_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;POLARIS BASELINE: &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot;PASS&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">baselines_passed</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;FAIL&quot;</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">stdout_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
