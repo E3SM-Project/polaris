@@ -732,6 +732,43 @@
 </tbody>
 </table>
 </section>
+<section id="seamount">
+<h3>seamount<a class="headerlink" href="#seamount" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.add_seamount_tasks.html#polaris.tasks.ocean.seamount.add_seamount_tasks" title="polaris.tasks.ocean.seamount.add_seamount_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_seamount_tasks</span></code></a>(component)</p></td>
+<td><p>Add a task following the seamount test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.default.Default.html#polaris.tasks.ocean.seamount.default.Default" title="polaris.tasks.ocean.seamount.default.Default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default</span></code></a>(component, indir, init)</p></td>
+<td><p>The default seamount test case simply creates the mesh and initial condition, then performs a short forward run on 4 cores.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.forward.Forward.html#polaris.tasks.ocean.seamount.forward.Forward" title="polaris.tasks.ocean.seamount.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, init[, ...])</p></td>
+<td><p>A step for performing forward MPAS-Ocean runs as part of seamount test cases.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
+<td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
+<td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.init.Init.html#polaris.tasks.ocean.seamount.init.Init" title="polaris.tasks.ocean.seamount.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component[, name, indir])</p></td>
+<td><p>A step for creating a mesh and initial condition for seamount test cases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.init.Init.setup.html#polaris.tasks.ocean.seamount.init.Init.setup" title="polaris.tasks.ocean.seamount.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
+<td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.init.Init.run.html#polaris.tasks.ocean.seamount.init.Init.run" title="polaris.tasks.ocean.seamount.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.viz.Viz.html#polaris.tasks.ocean.seamount.viz.Viz" title="polaris.tasks.ocean.seamount.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir)</p></td>
+<td><p>A step for plotting the results of the default seamount forward step</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.viz.Viz.run.html#polaris.tasks.ocean.seamount.viz.Viz.run" title="polaris.tasks.ocean.seamount.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<td><p>Run this step of the task</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="single-column">
 <h3>single_column<a class="headerlink" href="#single-column" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
