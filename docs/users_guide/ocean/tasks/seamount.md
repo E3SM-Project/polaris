@@ -38,7 +38,7 @@ In a pure z-level vertical coordinate without partial bottom cells (`partial_cel
 
 ### mesh
 
-The domain is planar and periodic on the zonal boundaries and solid on the
+The domain is planar and periodic on the zonal and the
 meridional boundaries. The 6.7 km resolution is tested by default, 
 which is set by the ``resolution`` config option. The domain is
 320 km by 320 km, as given by the config options ``lx`` and ``ly``.
