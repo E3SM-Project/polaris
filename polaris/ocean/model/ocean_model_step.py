@@ -353,7 +353,7 @@ class OceanModelStep(ModelStep):
             'config_eos_type': eos_type,
             'config_eos_linear_alpha': eos_linear_alpha,
             'config_eos_linear_beta': eos_linear_beta,
-            'config_eos_linear_rhoref': eos_linear_rhoref,
+            'config_eos_linear_densityref': eos_linear_rhoref,
             'config_eos_linear_Tref': eos_linear_Tref,
             'config_eos_linear_Sref': eos_linear_Sref,
         }

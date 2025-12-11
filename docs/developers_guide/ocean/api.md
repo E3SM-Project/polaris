@@ -372,6 +372,30 @@
 
 ```
 
+### seamount
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.seamount
+
+.. autosummary::
+   :toctree: generated/
+
+   add_seamount_tasks
+
+   default.Default
+
+   forward.Forward
+   forward.Forward.dynamic_model_config
+   forward.Forward.compute_cell_count
+
+   init.Init
+   init.Init.setup
+   init.Init.run
+
+   viz.Viz
+   viz.Viz.run
+```
+
 ### single_column
 
 ```{eval-rst}
