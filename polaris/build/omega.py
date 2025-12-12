@@ -61,7 +61,6 @@ def build_omega(
         branch=branch,
         build_dir=build_dir,
         debug=debug,
-        clean=clean,
         cmake_flags=cmake_flags,
         account=account,
     )
@@ -97,7 +96,6 @@ def make_build_script(
     branch,
     build_dir,
     debug,
-    clean,
     cmake_flags,
     account=None,
 ):
@@ -121,9 +119,6 @@ def make_build_script(
 
     debug : bool
         Whether to build in debug mode.
-
-    clean : bool
-        Whether to clean the build directory before building.
 
     cmake_flags : str
         Additional flags to pass to CMake.
@@ -178,7 +173,6 @@ def make_build_script(
         metis_root=metis_root,
         parmetis_root=parmetis_root,
         build_type=build_type,
-        clean=clean,
         cmake_flags=cmake_flags,
         nersc_host=nersc_host,
     )
