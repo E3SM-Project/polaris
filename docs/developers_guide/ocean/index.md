@@ -67,7 +67,7 @@ the base work directory (`${paths:base_work_dir}/build`, typically supplied
 on the command line with `-w`), and this is the value used for
 `${paths:component_path}` in the default ocean configuration.  If you
 prefer to store builds elsewhere, supply a different value with `-p` on the
-`polaris` command line or supploy a user config file with `--config_file` in
+`polaris` command line or supply a user config file with `--config_file` in
 which you update `${paths:component_path}`.  Unless you have build the model at
 the supplied location in advance, you should supply one of the `--build`,
 `--clean_build` or `--quiet_build` flags to build the model.
