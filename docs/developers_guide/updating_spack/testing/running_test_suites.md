@@ -27,7 +27,7 @@ with Intel and OpenMPI):
 
 3. **Set Up (and Auto-Build) the Suite**
 
-   Let Polaris make a clean build MPAS-Ocean for you with `--clean_build`
+   Let Polaris make a clean build of MPAS-Ocean for you with `--clean_build`
    and `--model mpas-ocean`:
 
    ```bash
@@ -36,11 +36,12 @@ with Intel and OpenMPI):
    ```
 
    Notes:
-   - By default, Polaris builds into
-     `build_mpas_ocean/build_<machine>_<compiler>_<mpi>` and generates a build
-     script under `build_mpas_ocean/` (see {ref}`dev-build`).
-   - Don't use the`--branch` flag so that, the E3SM submodule in your Polaris
-     tree is used, and required submodules are checked out automatically.
+   - By default, Polaris builds into the `build` subdirectory of the suite
+     work directory supplied with `-w` and generates a build
+     script in this directory (see {ref}`dev-build`).
+   - Using the`--branch` flag is not recommended so that the Omega submodule
+     in your Polaris tree is used, and required submodules are checked out
+     automatically.
    - You can pass extra make flags via `--cmake_flags` (e.g.,
      `--cmake_flags "-j 8"`).
 
@@ -92,20 +93,25 @@ with Intel and OpenMPI):
 
 5. **Set Up (and Auto-Build) the Suite**
 
-   Omega will have already been built by the CTest utility in the default
-   location where Polaris will look when setting up a test suite,
-   `build_omega/build_<machine>_<compiler>` (see {ref}`dev-build`).  You can
-   set up the `omega_pr` suite with:
+    Omega will have already been built by the CTest utility in
+    `build_omega/build_<machine>_<compiler>` under your Polaris branch (see
+    {ref}`dev-build`).  To reuse that build when setting up the `omega_pr`
+    suite, point `--component_path` at this directory, for example:
 
-   ```bash
-   polaris suite -c ocean -t omega_pr --model omega \
-       -w /path/to/polaris_scratch/omega_pr_intel_openmpi
-   ```
+    ```bash
+    polaris suite -c ocean -t omega_pr --model omega \
+          -w /path/to/polaris_scratch/omega_pr_intel_openmpi \
+          -p /path/to/polaris_branch/build_omega/build_<machine>_<compiler>
+    ```
 
-   Notes:
-   - Don't use the`--branch` flag so that, the Omega submodule in your Polaris
-     tree is used, and required submodules are checked out automatically.
-   - You can pass extra CMake flags via `--cmake_flags`
+    If you omit `-p` and instead pass `--build`, Polaris will build Omega into
+    the `build` subdirectory of the suite work directory (supplied with `-w`).
+
+    Notes:
+    - Using the`--branch` flag is not recommended so that the Omega submodule
+      in your Polaris tree is used, and required submodules are checked out
+      automatically.
+    - You can pass extra CMake flags via `--cmake_flags`.
 
 6. **Run the Suite**
 

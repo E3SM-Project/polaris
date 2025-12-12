@@ -122,11 +122,12 @@ above for how to list the supported machines.
 You can supply the directory where you have built the MPAS component with the
 `-p` or `--component_path` flag.  This can be a relative or absolute path.  The
 default for the `landice` component is
-`e3sm_submodules/MALI-Dev/components/mpas-albany-landice`
-and the default for the `ocean` component depends on whether you are using
-MPAS-Ocean or Omega.  For MPAS-Ocean, it is
-`e3sm_submodules/E3SM-Project/components/mpas-ocean`.  For Omega, it is
-`e3sm_submodules/Omega/components/omega`
+`e3sm_submodules/MALI-Dev/components/mpas-albany-landice`.
+For the `ocean` component, the default value of `component_path` comes from the
+ocean configuration file; by default, both MPAS-Ocean and Omega use the
+`build` subdirectory of the base work directory supplied with `-w` when Polaris
+manages the build for you. If you build MPAS-Ocean or Omega in a different
+location, supply that directory explicitly with `-p` or via a config file.
 
 You can also supply a config file with config options pointing to the
 directories for cached data files, the location of the MPAS component, and much
@@ -198,9 +199,9 @@ flags configure the build:
 
 Defaults and paths:
 
-- Build output directory (`--component_path`) defaults to:
-   - Omega: `build_omega/build_<machine>_<compiler>`
-   - MPAS-Ocean: `build_mpas_ocean/build_<machine>_<compiler>_<mpi>`
+- Build output directory (`--component_path`) defaults to the `build`
+  subdirectory of the base work directory you pass with `-w` for both
+  MPAS-Ocean and Omega.
 - Generated build scripts are saved to:
    - Omega: `./build_omega/build_omega_<machine>_<compiler>.sh`
    - MPAS-Ocean: `./build_mpas_ocean/build_mpas_ocean_<machine>_<compiler>_<mpi>.sh`
