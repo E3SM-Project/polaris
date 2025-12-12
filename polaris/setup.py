@@ -27,7 +27,7 @@ def setup_tasks(
     suite_name='custom',
     cached=None,
     copy_executable=False,
-    clean_work=False,
+    clean_tasks=False,
     model=None,
     build=None,
     branch=None,
@@ -79,8 +79,8 @@ def setup_tasks(
     copy_executable : bool, optional
         Whether to copy the model executable to the work directory
 
-    clean : bool, optional
-        Whether to delete the contents of the base work directory before
+    clean_tasks : bool, optional
+        Whether to delete the contents of the task work directories before
         setting up tasks
 
     model : str, optional
@@ -174,7 +174,7 @@ def setup_tasks(
             machine=machine,
         )
 
-    if clean_work:
+    if clean_tasks:
         print('')
         print('Cleaning task and step work directories:')
         _clean_tasks_and_steps(tasks, work_dir)
@@ -418,10 +418,10 @@ def main():
         help='If the model executable should be copied to the work directory.',
     )
     parser.add_argument(
-        '--clean_work',
-        dest='clean_work',
+        '--clean_tasks',
+        dest='clean_tasks',
         action='store_true',
-        help='If the base work directory should be deleted '
+        help='If the task work directories should be deleted '
         'before setting up the tasks.',
     )
     parser.add_argument(
@@ -493,7 +493,7 @@ def main():
         suite_name=args.suite_name,
         cached=cached,
         copy_executable=args.copy_executable,
-        clean_work=args.clean_work,
+        clean_tasks=args.clean_tasks,
         model=args.model,
         build=args.build,
         branch=args.branch,

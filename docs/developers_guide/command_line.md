@@ -165,10 +165,11 @@ work directory rather than just symlinked.  This is useful if wish to run
 the tasks again later but anticipate that you may have removed (or replaced)
 the model code.
 
-Finally, if you specify `--clean`. The base work directory pointed to with the
-`-w` flag will be deleted before setting up the tasks.  This is useful if you
-want to do a fresh run, since polaris will not rerun steps that have already
-been run.
+Finally, if you specify `--clean_tasks`, the work directories for all of the
+tasks and steps will be deleted before setting them up again. This is useful if
+you want to do a fresh run, since polaris will not rerun steps that have
+already been run. This flag does not remove the build directory before
+rebuilding the model.  Use `--clean_build` for this purpose.
 
 See {ref}`dev-setup` for more about the underlying framework.
 
