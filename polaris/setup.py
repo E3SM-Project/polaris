@@ -152,6 +152,7 @@ def setup_tasks(
         debug=debug,
         clean_build=clean_build,
         quiet_build=quiet_build,
+        work_dir=work_dir,
     )
 
     component.configure(basic_config)
@@ -171,7 +172,6 @@ def setup_tasks(
             basic_config=basic_config,
             component=component,
             machine=machine,
-            work_dir=work_dir,
         )
 
     if clean_work:
@@ -776,6 +776,7 @@ def _get_basic_config(
     debug,
     clean_build,
     quiet_build,
+    work_dir,
 ):
     """
     Get a base config parser for the machine and component but not a specific
@@ -853,6 +854,8 @@ def _get_basic_config(
         # the user presumably expects to build, since they want to build
         # quietly
         config.set('build', 'build', 'True', user=True)
+
+    config.set('paths', 'base_work_dir', work_dir, user=True)
 
     return config
 
@@ -945,7 +948,7 @@ def _check_dependencies(tasks):
                     )
 
 
-def _build_model(basic_config, component, machine, work_dir):
+def _build_model(basic_config, component, machine):
     model = basic_config.get(component.name, 'model')
     section = basic_config['build']
     branch = section.get('branch')
@@ -962,7 +965,7 @@ def _build_model(basic_config, component, machine, work_dir):
         account = None
 
     if model == 'omega':
-        log_filename = os.path.join(work_dir, 'build_omega.log')
+        log_filename = os.path.join(build_dir, 'build_omega.log')
         build_omega(
             branch=branch,
             build_dir=build_dir,
@@ -985,7 +988,7 @@ def _build_model(basic_config, component, machine, work_dir):
             )
         make_target = section.get(key)
 
-        log_filename = os.path.join(work_dir, 'build_mpas_ocean.log')
+        log_filename = os.path.join(build_dir, 'build_mpas_ocean.log')
         build_mpas_ocean(
             branch=branch,
             build_dir=build_dir,

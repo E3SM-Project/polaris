@@ -1,5 +1,6 @@
 import importlib.resources
 import os
+import shutil
 import subprocess
 
 from jinja2 import Template
@@ -50,6 +51,12 @@ def build_mpas_ocean(
     machine = os.environ['POLARIS_MACHINE']
     compiler = os.environ['POLARIS_COMPILER']
     mpilib = os.environ['POLARIS_MPI']
+
+    # remove and/or create build directory first so the log file can be created
+    # there if needed
+    if clean and os.path.exists(build_dir):
+        shutil.rmtree(build_dir)
+    os.makedirs(build_dir, exist_ok=True)
 
     script_filename = make_build_script(
         machine=machine,
@@ -171,11 +178,8 @@ def make_build_script(
         make_flags=make_flags,
     )
 
-    build_mpas_ocean_dir = os.path.abspath('build_mpas_ocean')
-    os.makedirs(build_mpas_ocean_dir, exist_ok=True)
-
     script_filename = f'build_mpas_ocean_{machine}_{compiler}_{mpilib}.sh'
-    script_filename = os.path.join(build_mpas_ocean_dir, script_filename)
+    script_filename = os.path.join(build_dir, script_filename)
 
     with open(script_filename, 'w', encoding='utf-8') as f:
         f.write(script)
