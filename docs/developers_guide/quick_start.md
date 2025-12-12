@@ -526,10 +526,11 @@ You can remove `-DOMEGA_BUILD_TEST=ON` to skip building CTests.  You can change
 mode.
 
 You can alter the example above to build whichever Omega branch and in whatever
-location you like.  If you build in a location other than
-`e3sm_submodules/Omega/components/omega/build`, you will need to point to the
-relative or absolute path using the `-p` flag when you call `polaris setup` or
-`polaris suite`.
+location you like.  Regardless of where you build Omega, you should point
+`polaris setup` or `polaris suite` at the build directory with the `-p` flag
+or via a config file.  When Polaris manages the build for you with `--build`,
+the default `component_path` for the ocean component is the `build`
+subdirectory of the base work directory supplied with `-w`.
 
 As with MPAS-Ocean, to set up tasks and suites to use Omega, it should be
 sufficient to point to an Omega build with the `-p` flag to `polaris setup` or

@@ -33,7 +33,7 @@ MPAS-Ocean tasks also have these config options:
 
 # the relative or absolute path to the root of a branch where MPAS-Ocean
 # or Omega has been built
-component_path = ${paths:polaris_branch}/e3sm_submodules/E3SM-Project/components/mpas-ocean
+component_path = ${paths:base_work_dir}/build
 
 # The namelists section defines paths to example_compact namelists that will
 # be used to generate specific namelists. By default, these point to the
@@ -62,19 +62,29 @@ init    = ${paths:component_path}/default_inputs/streams.ocean.init
 component = ${paths:component_path}/ocean_model
 ```
 
-The default location for MPAS-Ocean is in the
+By default, Polaris builds MPAS-Ocean or Omega into the `build` subdirectory of
+the base work directory (`${paths:base_work_dir}/build`, typically supplied
+on the command line with `-w`), and this is the value used for
+`${paths:component_path}` in the default ocean configuration.  If you
+prefer to store builds elsewhere, supply a different value with `-p` on the
+`polaris` command line or supply a user config file with `--config_file` in
+which you update `${paths:component_path}`.  Unless you have build the model at
+the supplied location in advance, you should supply one of the `--build`,
+`--clean_build` or `--quiet_build` flags to build the model.
+
+The MPAS-Ocean source used by Polaris typically comes from the
 [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
 `e3sm_submodules/E3SM-Project` in the directory `components/mpas-ocean`.  The
-submodule  may not point to the latest MPAS-Ocean code in on the E3SM
+submodule may not point to the latest MPAS-Ocean code in the E3SM
 [master](https://github.com/E3SM-Project/E3SM/tree/master)
 branch but the plan is to update the submodule frequently.  The current version
 of the submodule should always be guaranteed to be compatible with the
 corresponding version of polaris.
 
 Similarly, the `e3sm_submodules/Omega` submodule is where you can find
-a verison of Omega that is compatible with the current polaris.  The model
-can be built from the `components/omega` directory.  The  submodule may not
-point to the latest Omega code in on the `Omega`
+a version of Omega that is compatible with the current polaris.  The model
+source is in the `components/omega` directory.  The submodule may not
+point to the latest Omega code on the `Omega`
 [develop](https://github.com/E3SM-Project/Omega/tree/develop)
 branch but, again, the plan is to update the submodule frequently and to
 maintain compatibility of the submodule with polaris.

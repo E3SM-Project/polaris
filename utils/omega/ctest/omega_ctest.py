@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import shutil
 import subprocess
 
 from jinja2 import Template
@@ -37,13 +38,17 @@ def make_build_script(
     # Ensure the build directory matches job script expectations
     build_dir = os.path.join(build_omega_dir, f'build_{machine}_{compiler}')
 
+    # there if needed
+    if clean and os.path.exists(build_dir):
+        shutil.rmtree(build_dir)
+    os.makedirs(build_dir, exist_ok=True)
+
     base_script = make_base_build_script(
         machine=machine,
         compiler=compiler,
         branch=branch,
         build_dir=build_dir,
         debug=debug,
-        clean=clean,
         cmake_flags=cmake_flags,
         account=account,
     )
@@ -60,7 +65,7 @@ def make_build_script(
         appended_script = base_script
     else:
         appended_script = os.path.join(
-            build_omega_dir, f'build_and_ctest_omega_{machine}_{compiler}.sh'
+            build_dir, f'build_and_ctest_omega_{machine}_{compiler}.sh'
         )
 
         extra = f'{extra}./omega_ctest.sh\n'

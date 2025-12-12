@@ -1,11 +1,21 @@
 import importlib.resources
 import os
+import shutil
 import subprocess
 
 from jinja2 import Template
 
 
-def build_mpas_ocean(branch, build_dir, clean, debug, make_flags, make_target):
+def build_mpas_ocean(
+    branch,
+    build_dir,
+    clean,
+    quiet,
+    debug,
+    make_flags,
+    make_target,
+    log_filename=None,
+):
     """
     Build MPAS-Ocean on the current machine.
 
@@ -21,6 +31,9 @@ def build_mpas_ocean(branch, build_dir, clean, debug, make_flags, make_target):
     clean : bool
         Whether to clean the build directory before building.
 
+    quiet : bool
+        Whether to build quietly (suppress output).
+
     debug : bool
         Whether to build in debug mode.
 
@@ -29,12 +42,21 @@ def build_mpas_ocean(branch, build_dir, clean, debug, make_flags, make_target):
 
     make_target : str
         The make target to build.
+
+    log_filename : str, optional
+        The filename to use for logging build output.
     """
     print('\nBuilding MPAS-Ocean:\n')
 
     machine = os.environ['POLARIS_MACHINE']
     compiler = os.environ['POLARIS_COMPILER']
     mpilib = os.environ['POLARIS_MPI']
+
+    # remove and/or create build directory first so the log file can be created
+    # there if needed
+    if clean and os.path.exists(build_dir):
+        shutil.rmtree(build_dir)
+    os.makedirs(build_dir, exist_ok=True)
 
     script_filename = make_build_script(
         machine=machine,
@@ -58,9 +80,14 @@ def build_mpas_ocean(branch, build_dir, clean, debug, make_flags, make_target):
 
     # clear environment variables and start fresh with those from login
     # so spack doesn't get confused by conda
-    subprocess.check_call(
-        f'env -i HOME="$HOME" bash -l {script_filename}', shell=True
-    )
+    command = f'env -i HOME="$HOME" bash -l {script_filename}'
+    if log_filename is not None:
+        print(f'Logging build to: {log_filename}')
+        if quiet:
+            command += f' > {log_filename} 2>&1 '
+        else:
+            command += f' 2>&1 | tee {log_filename}'
+    subprocess.check_call(command, shell=True)
 
     print(f'MPAS-Ocean builds script written to:\n  {script_filename}\n')
 
@@ -151,11 +178,8 @@ def make_build_script(
         make_flags=make_flags,
     )
 
-    build_mpas_ocean_dir = os.path.abspath('build_mpas_ocean')
-    os.makedirs(build_mpas_ocean_dir, exist_ok=True)
-
     script_filename = f'build_mpas_ocean_{machine}_{compiler}_{mpilib}.sh'
-    script_filename = os.path.join(build_mpas_ocean_dir, script_filename)
+    script_filename = os.path.join(build_dir, script_filename)
 
     with open(script_filename, 'w', encoding='utf-8') as f:
         f.write(script)

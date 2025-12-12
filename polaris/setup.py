@@ -27,11 +27,12 @@ def setup_tasks(
     suite_name='custom',
     cached=None,
     copy_executable=False,
-    clean_work=False,
+    clean_tasks=False,
     model=None,
     build=None,
     branch=None,
     clean_build=None,
+    quiet_build=None,
     cmake_flags=None,
     debug=None,
 ):
@@ -78,8 +79,8 @@ def setup_tasks(
     copy_executable : bool, optional
         Whether to copy the model executable to the work directory
 
-    clean : bool, optional
-        Whether to delete the contents of the base work directory before
+    clean_tasks : bool, optional
+        Whether to delete the contents of the task work directories before
         setting up tasks
 
     model : str, optional
@@ -96,6 +97,9 @@ def setup_tasks(
     clean_build : bool, optional
         Whether to clean the build directory before building the model.
         ``clean_build = True`` implies ``build = True``.
+
+    quiet_build : bool, optional
+        Whether to build the model without output. Implies ``build = True``.
 
     cmake_flags : str, optional
         Additional flags to pass to make or CMake when building the model
@@ -147,6 +151,8 @@ def setup_tasks(
         cmake_flags=cmake_flags,
         debug=debug,
         clean_build=clean_build,
+        quiet_build=quiet_build,
+        work_dir=work_dir,
     )
 
     component.configure(basic_config)
@@ -168,7 +174,7 @@ def setup_tasks(
             machine=machine,
         )
 
-    if clean_work:
+    if clean_tasks:
         print('')
         print('Cleaning task and step work directories:')
         _clean_tasks_and_steps(tasks, work_dir)
@@ -412,10 +418,10 @@ def main():
         help='If the model executable should be copied to the work directory.',
     )
     parser.add_argument(
-        '--clean_work',
-        dest='clean_work',
+        '--clean_tasks',
+        dest='clean_tasks',
         action='store_true',
-        help='If the base work directory should be deleted '
+        help='If the task work directories should be deleted '
         'before setting up the tasks.',
     )
     parser.add_argument(
@@ -442,6 +448,12 @@ def main():
         action='store_true',
         help='If the model should be cleaned before building. Implies '
         '--build.',
+    )
+    parser.add_argument(
+        '--quiet_build',
+        dest='quiet_build',
+        action='store_true',
+        help='If the model should be built without output. Implies --build.',
     )
     parser.add_argument(
         '--cmake_flags',
@@ -481,11 +493,12 @@ def main():
         suite_name=args.suite_name,
         cached=cached,
         copy_executable=args.copy_executable,
-        clean_work=args.clean_work,
+        clean_tasks=args.clean_tasks,
         model=args.model,
         build=args.build,
         branch=args.branch,
         clean_build=args.clean_build,
+        quiet_build=args.quiet_build,
         cmake_flags=args.cmake_flags,
         debug=args.debug,
     )
@@ -762,6 +775,8 @@ def _get_basic_config(
     cmake_flags,
     debug,
     clean_build,
+    quiet_build,
+    work_dir,
 ):
     """
     Get a base config parser for the machine and component but not a specific
@@ -825,12 +840,22 @@ def _get_basic_config(
     if clean_build is not None:
         config.set('build', 'clean', str(clean_build), user=True)
 
+    if quiet_build is not None:
+        config.set('build', 'quiet', str(quiet_build), user=True)
+
     build = config.getboolean('build', 'build')
     clean_build = config.getboolean('build', 'clean')
     if clean_build and not build:
         # the user presumably expects to clean the build, notice that it's
         # absent, and build again
         config.set('build', 'build', 'True', user=True)
+
+    if quiet_build and not build:
+        # the user presumably expects to build, since they want to build
+        # quietly
+        config.set('build', 'build', 'True', user=True)
+
+    config.set('paths', 'base_work_dir', work_dir, user=True)
 
     return config
 
@@ -928,6 +953,7 @@ def _build_model(basic_config, component, machine):
     section = basic_config['build']
     branch = section.get('branch')
     clean_build = section.getboolean('clean')
+    quiet_build = section.getboolean('quiet')
     debug = section.getboolean('debug')
     cmake_flags = section.get('cmake_flags')
 
@@ -939,13 +965,16 @@ def _build_model(basic_config, component, machine):
         account = None
 
     if model == 'omega':
+        log_filename = os.path.join(build_dir, 'build_omega.log')
         build_omega(
             branch=branch,
             build_dir=build_dir,
             clean=clean_build,
+            quiet=quiet_build,
             debug=debug,
             cmake_flags=cmake_flags,
             account=account,
+            log_filename=log_filename,
         )
     elif model == 'mpas-ocean':
         section = basic_config['build']
@@ -959,13 +988,16 @@ def _build_model(basic_config, component, machine):
             )
         make_target = section.get(key)
 
+        log_filename = os.path.join(build_dir, 'build_mpas_ocean.log')
         build_mpas_ocean(
             branch=branch,
             build_dir=build_dir,
             clean=clean_build,
+            quiet=quiet_build,
             debug=debug,
             make_flags=cmake_flags,
             make_target=make_target,
+            log_filename=log_filename,
         )
     else:
         raise ValueError(

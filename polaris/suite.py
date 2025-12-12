@@ -116,10 +116,10 @@ def main():
         help='If the model executable should be copied to the work directory.',
     )
     parser.add_argument(
-        '--clean_work',
-        dest='clean_work',
+        '--clean_tasks',
+        dest='clean_tasks',
         action='store_true',
-        help='If the base work directory should be deleted '
+        help='If the task work directories should be deleted '
         'before setting up the suite.',
     )
     parser.add_argument(
@@ -148,6 +148,12 @@ def main():
         '--build.',
     )
     parser.add_argument(
+        '--quiet_build',
+        dest='quiet_build',
+        action='store_true',
+        help='If the model should be built without output. Implies --build.',
+    )
+    parser.add_argument(
         '--cmake_flags',
         dest='cmake_flags',
         help='Additional flags to pass to CMake when building the model.',
@@ -170,11 +176,12 @@ def main():
         baseline_dir=args.baseline_dir,
         component_path=args.component_path,
         copy_executable=args.copy_executable,
-        clean_work=args.clean_work,
+        clean_tasks=args.clean_tasks,
         model=args.model,
         build=args.build,
         branch=args.branch,
         clean_build=args.clean_build,
+        quiet_build=args.quiet_build,
         cmake_flags=args.cmake_flags,
         debug=args.debug,
     )
