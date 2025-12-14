@@ -362,28 +362,6 @@ class OceanModelStep(ModelStep):
             options=replacements, config_model='ocean'
         )
 
-    def validate_baselines(self) -> Tuple[bool, bool]:
-        """
-        Compare variables between output files in this step and in the same
-        step from a baseline run if one was provided.
-
-        Returns
-        -------
-        compared : bool
-            Whether a baseline comparison was performed
-
-        success : bool
-            Whether the outputs were successfully validated against a baseline
-        """
-        # translate variable names to native model names
-        validate_vars = {}
-        for filename, vars in self.validate_vars.items():
-            validate_vars[filename] = (
-                self.component.map_var_list_to_native_model(vars)
-            )
-        self.validate_vars = validate_vars
-        return super().validate_baselines()
-
     def _update_ntasks(self) -> None:
         """
         Update ``ntasks`` and ``min_tasks`` for the step based on the estimated

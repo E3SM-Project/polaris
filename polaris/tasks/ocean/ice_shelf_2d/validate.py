@@ -89,18 +89,21 @@ class Validate(Step):
             'accumulatedLandIceFrazilMass',
         ]
         output_pass = compare_variables(
+            component=self.component,
             variables=output_variables,
             filename1=self.inputs[0],
             filename2=self.inputs[3],
             logger=self.logger,
         )
         land_ice_pass = compare_variables(
+            component=self.component,
             variables=land_ice_variables,
             filename1=self.inputs[1],
             filename2=self.inputs[4],
             logger=self.logger,
         )
         frazil_pass = compare_variables(
+            component=self.component,
             variables=frazil_variables,
             filename1=self.inputs[2],
             filename2=self.inputs[5],
