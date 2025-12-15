@@ -9,10 +9,6 @@ mpas-ocean:
     config_btr_dt: 0000_00:00:30
   forcing:
     config_use_bulk_wind_stress: true
-  tracer_forcing_activeTracers:
-    config_use_activeTracers_surface_bulk_forcing: true
-    config_use_activeTracers_surface_restoring: true
-    config_use_activeTracers_interior_restoring: true
   streams:
     mesh:
       filename_template: initial_state.nc
