@@ -567,7 +567,11 @@ class Step:
                 this_filename = os.path.join(self.work_dir, filename)
                 baseline_filename = os.path.join(self.baseline_dir, filename)
                 result = compare_variables(
-                    variables, this_filename, baseline_filename, logger=logger
+                    self.component,
+                    variables,
+                    this_filename,
+                    baseline_filename,
+                    logger=logger,
                 )
                 success = success and result
                 compared = True

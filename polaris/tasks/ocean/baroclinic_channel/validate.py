@@ -50,6 +50,7 @@ class Validate(Step):
             'normalVelocity',
         ]
         all_pass = compare_variables(
+            component=self.component,
             variables=variables,
             filename1=self.inputs[0],
             filename2=self.inputs[1],

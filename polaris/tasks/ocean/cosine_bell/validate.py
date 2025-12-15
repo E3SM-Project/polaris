@@ -62,6 +62,7 @@ class Validate(OceanIOStep):
             ds2 = self.open_model_dataset(filename2)
 
             all_pass = compare_variables(
+                component=self.component,
                 variables=variables,
                 filename1=filename1,
                 filename2=filename2,

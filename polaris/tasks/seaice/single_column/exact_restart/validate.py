@@ -59,6 +59,7 @@ class Validate(Step):
         super().run()
         step_subdirs = self.step_subdirs
         all_pass = compare_variables(
+            component=self.component,
             variables=self.variables,
             filename1=self.inputs[0],
             filename2=self.inputs[1],

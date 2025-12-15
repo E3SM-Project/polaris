@@ -5,6 +5,7 @@ import xarray as xr
 
 
 def compare_variables(
+    component,
     variables,
     filename1,
     filename2,
@@ -82,10 +83,10 @@ def compare_variables(
             return False
 
     if ds1 is None:
-        ds1 = xr.open_dataset(filename1)
+        ds1 = component.open_model_dataset(filename1)
 
     if ds2 is None:
-        ds2 = xr.open_dataset(filename2)
+        ds2 = component.open_model_dataset(filename2)
 
     all_pass = True
 

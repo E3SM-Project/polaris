@@ -1,6 +1,9 @@
 import importlib.resources as imp_res
 import json
 
+import xarray as xr
+from mpas_tools.io import write_netcdf
+
 
 class Component:
     """
@@ -165,6 +168,42 @@ class Component:
         step.set_shared_config(config, link=config_filename)
         self.add_step(step)
         return step
+
+    def open_model_dataset(self, filename, **kwargs):
+        """
+        Open the given dataset, mapping variable and dimension names from Omega
+        to MPAS-Ocean names if appropriate
+
+        Parameters
+        ----------
+        filename : str
+            The path for the NetCDF file to open
+
+        kwargs
+            keyword arguments passed to `xarray.open_dataset()`
+
+        Returns
+        -------
+        ds : xarray.Dataset
+            The dataset with variables named as expected in MPAS-Ocean
+        """
+        ds = xr.open_dataset(filename, **kwargs)
+        return ds
+
+    def write_model_dataset(self, ds, filename):
+        """
+        Write out the given dataset, mapping dimension and variable names from
+        MPAS-Ocean to Omega names if appropriate
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean variable names
+
+        filename : str
+            The path for the NetCDF file to write
+        """
+        write_netcdf(ds=ds, fileName=filename)
 
     def _read_cached_files(self):
         """Read in the dictionary of cached files from cached_files.json"""
