@@ -114,3 +114,24 @@ config:
     config_eos_linear_alpha: DRhoDT
     config_eos_linear_beta: DRhoDS
     config_eos_linear_densityref: RhoT0S0
+
+- section:
+    cvmix: [VertMix, Background]
+  options:
+    config_cvmix_background_diffusion: Diffusivity
+    config_cvmix_background_viscosity: Viscosity
+
+- section:
+    cvmix: [VertMix, Convective]
+  options:
+    config_use_cvmix_convection: Enable
+    config_cvmix_convective_diffusion: Diffusivity
+    config_cvmix_convective_triggerBVF: TriggerBVF
+
+- section:
+    cvmix: [VertMix, Shear]
+  options:
+    config_use_cvmix_shear: Enable
+    config_cvmix_shear_PP_nu_zero: NuZero
+    config_cvmix_shear_PP_alpha: Alpha
+    config_cvmix_shear_PP_exp: Exponent
