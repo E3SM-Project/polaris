@@ -196,8 +196,14 @@ file mappings are read in from <code class="docutils literal notranslate"><span 
 <tr class="row-even"><td><p><a class="reference internal" href="polaris.Component.get_or_create_shared_step.html#polaris.Component.get_or_create_shared_step" title="polaris.Component.get_or_create_shared_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_or_create_shared_step</span></code></a>(step_cls, subdir, ...)</p></td>
 <td><p>Get a shared step from the component if it exists, otherwise create and add it.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Component.remove_step.html#polaris.Component.remove_step" title="polaris.Component.remove_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_step</span></code></a>(step)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_model_dataset</span></code>(filename, **kwargs)</p></td>
+<td><p>Open the given dataset, mapping variable and dimension names from Omega to MPAS-Ocean names if appropriate</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Component.remove_step.html#polaris.Component.remove_step" title="polaris.Component.remove_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_step</span></code></a>(step)</p></td>
 <td><p>Remove the given step from this component</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_model_dataset</span></code>(ds, filename)</p></td>
+<td><p>Write out the given dataset, mapping dimension and variable names from MPAS-Ocean to Omega names if appropriate</p></td>
 </tr>
 </tbody>
 </table>

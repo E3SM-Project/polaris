@@ -208,18 +208,21 @@
             <span class="s1">&#39;accumulatedLandIceFrazilMass&#39;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="n">output_pass</span> <span class="o">=</span> <span class="n">compare_variables</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
             <span class="n">variables</span><span class="o">=</span><span class="n">output_variables</span><span class="p">,</span>
             <span class="n">filename1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
             <span class="n">filename2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">land_ice_pass</span> <span class="o">=</span> <span class="n">compare_variables</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
             <span class="n">variables</span><span class="o">=</span><span class="n">land_ice_variables</span><span class="p">,</span>
             <span class="n">filename1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
             <span class="n">filename2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">frazil_pass</span> <span class="o">=</span> <span class="n">compare_variables</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
             <span class="n">variables</span><span class="o">=</span><span class="n">frazil_variables</span><span class="p">,</span>
             <span class="n">filename1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
             <span class="n">filename2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span>

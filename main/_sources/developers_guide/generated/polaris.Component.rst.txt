@@ -19,7 +19,9 @@
       ~Component.add_task
       ~Component.configure
       ~Component.get_or_create_shared_step
+      ~Component.open_model_dataset
       ~Component.remove_step
+      ~Component.write_model_dataset
    
    
 
