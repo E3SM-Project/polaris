@@ -472,10 +472,13 @@ def _run_task(task, available_resources):
                 step.work_dir, 'baseline_failed.log'
             )
 
+            baseline_status = None
             if os.path.exists(baseline_pass_filename):
                 baseline_str = pass_str
+                baseline_status = True
             elif os.path.exists(baseline_fail_filename):
                 baseline_str = fail_str
+                baseline_status = False
             else:
                 baseline_str = None
 
@@ -483,6 +486,12 @@ def _run_task(task, available_resources):
                 _print_to_stdout(
                     task, f'          baseline comp.:   {baseline_str}'
                 )
+
+            if baseline_status is not None:
+                if baselines_passed is None:
+                    baselines_passed = baseline_status
+                elif not baseline_status:
+                    baselines_passed = False
             continue
         if step.cached:
             _print_to_stdout(task, '          cached')
