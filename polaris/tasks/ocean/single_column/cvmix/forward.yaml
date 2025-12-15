@@ -6,6 +6,10 @@ mpas-ocean:
     config_mom_del4: 2.0e14
   frazil_ice:
     config_use_frazil_ice_formation: true
+  tracer_forcing_activeTracers:
+    config_use_activeTracers_surface_bulk_forcing: true
+    config_use_activeTracers_surface_restoring: true
+    config_use_activeTracers_interior_restoring: true
   cvmix:
     config_use_cvmix_convection: true
     config_use_cvmix_shear: true
