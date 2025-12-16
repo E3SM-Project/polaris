@@ -32,10 +32,6 @@ git submodule update --init --recursive \
 
 cd ${cwd}
 
-{%- if clean %}
-rm -rf {{ build_dir }}
-{%- endif %}
-mkdir -p {{ build_dir }}
 cd {{ build_dir }}
 
 export METIS_ROOT={{ metis_root }}

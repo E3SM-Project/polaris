@@ -26,8 +26,6 @@ make clean
 
 make {{ make_flags }} {{ make_target }}
 
-rm -rf {{ build_dir }}
-mkdir -p {{ build_dir }}
 mkdir -p {{ build_dir }}/default_inputs
 mkdir -p {{ build_dir }}/src
 

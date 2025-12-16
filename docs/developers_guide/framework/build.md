@@ -19,10 +19,10 @@ then runs that script from a pristine login environment (clearing the current
 process environment) to avoid interference from Conda or other package managers.
 The generated scripts are saved so you can re-run or inspect them later.
 
-Locations for generated scripts:
+Names of generated scripts within the build directory:
 
-- MPAS-Ocean: `./build_mpas_ocean/build_mpas_ocean_<machine>_<compiler>_<mpi>.sh`
-- Omega: `./build_omega/build_omega_<machine>_<compiler>.sh`
+- MPAS-Ocean: `build_mpas_ocean_<machine>_<compiler>_<mpi>.sh`
+- Omega: `build_omega_<machine>_<compiler>.sh`
 
 ## Required environment
 
@@ -120,6 +120,9 @@ You can trigger these builders directly from the CLI by passing build flags to
 - `--clean_build`: Start fresh (removes prior build state) and implies
   `--build`. Without this flag, an incremental build is used when possible to
   save time.
+- `--quiet_build`: Write build output to a log file in the base work directory
+   but not to stdout/stderr. By default, output is written to both. This
+   flag implies `--build`.
 - `--cmake_flags <string>`: Extra flags passed through to the build system.
   For MPAS-Ocean, this string is forwarded to `make` (e.g., `-j 8` or extra
   `VAR=VALUE` assignments). For Omega, it is forwarded to CMake as additional
@@ -129,9 +132,9 @@ You can trigger these builders directly from the CLI by passing build flags to
 
 Defaults and directories:
 
-- The build output directory used by Polaris (`--component_path`) defaults to:
-  - Omega: `build_omega/build_<machine>_<compiler>`
-  - MPAS-Ocean: `build_mpas_ocean/build_<machine>_<compiler>_<mpi>`
-- MPAS-Ocean copies files required by Polaris into the build directory so you
+- The build output directory used by Polaris (`--component_path`) defaults to
+  the `build` subdirectory of the base work directory you pass with `-w` (for
+  both MPAS-Ocean and Omega).
+- MPAS-Ocean copies files required by Polaris into this build directory so you
   can reuse the same source checkout to create builds for different machines,
   compilers, or MPI libraries without conflicts.
