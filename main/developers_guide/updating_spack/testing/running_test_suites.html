@@ -156,7 +156,7 @@ with Intel and OpenMPI):</p>
 and MPI as appropriate. See <a class="reference internal" href="../../machines/index.html#dev-mpas-supported-machines"><span class="std std-ref">MPAS-Ocean and -Seaice Supported Machines</span></a>.)</em></p>
 </li>
 <li><p><strong>Set Up (and Auto-Build) the Suite</strong></p>
-<p>Let Polaris make a clean build MPAS-Ocean for you with <code class="docutils literal notranslate"><span class="pre">--clean_build</span></code>
+<p>Let Polaris make a clean build of MPAS-Ocean for you with <code class="docutils literal notranslate"><span class="pre">--clean_build</span></code>
 and <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">mpas-ocean</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>pr<span class="w"> </span>--clean_build<span class="w"> </span>--model<span class="w"> </span>mpas-ocean<span class="se">\</span>
 <span class="w">    </span>-w<span class="w"> </span>/path/to/polaris_scratch/mpaso_pr_intel_openmpi
@@ -164,11 +164,12 @@ and <code class="docutils literal notranslate"><span class="pre">--model</span> 
 </div>
 <p>Notes:</p>
 <ul class="simple">
-<li><p>By default, Polaris builds into
-<code class="docutils literal notranslate"><span class="pre">build_mpas_ocean/build_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;</span></code> and generates a build
-script under <code class="docutils literal notranslate"><span class="pre">build_mpas_ocean/</span></code> (see <a class="reference internal" href="../../framework/build.html#dev-build"><span class="std std-ref">Build utilities</span></a>).</p></li>
-<li><p>Don’t use the<code class="docutils literal notranslate"><span class="pre">--branch</span></code> flag so that, the E3SM submodule in your Polaris
-tree is used, and required submodules are checked out automatically.</p></li>
+<li><p>By default, Polaris builds into the <code class="docutils literal notranslate"><span class="pre">build</span></code> subdirectory of the suite
+work directory supplied with <code class="docutils literal notranslate"><span class="pre">-w</span></code> and generates a build
+script in this directory (see <a class="reference internal" href="../../framework/build.html#dev-build"><span class="std std-ref">Build utilities</span></a>).</p></li>
+<li><p>Using the<code class="docutils literal notranslate"><span class="pre">--branch</span></code> flag is not recommended so that the Omega submodule
+in your Polaris tree is used, and required submodules are checked out
+automatically.</p></li>
 <li><p>You can pass extra make flags via <code class="docutils literal notranslate"><span class="pre">--cmake_flags</span></code> (e.g.,
 <code class="docutils literal notranslate"><span class="pre">--cmake_flags</span> <span class="pre">&quot;-j</span> <span class="pre">8&quot;</span></code>).</p></li>
 </ul>
@@ -214,19 +215,23 @@ repo), note the problem, and link to the issue next to the (unchecked)
 checkbox in the PR description.</p>
 </li>
 <li><p><strong>Set Up (and Auto-Build) the Suite</strong></p>
-<p>Omega will have already been built by the CTest utility in the default
-location where Polaris will look when setting up a test suite,
-<code class="docutils literal notranslate"><span class="pre">build_omega/build_&lt;machine&gt;_&lt;compiler&gt;</span></code> (see <a class="reference internal" href="../../framework/build.html#dev-build"><span class="std std-ref">Build utilities</span></a>).  You can
-set up the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite with:</p>
+<p>Omega will have already been built by the CTest utility in
+<code class="docutils literal notranslate"><span class="pre">build_omega/build_&lt;machine&gt;_&lt;compiler&gt;</span></code> under your Polaris branch (see
+<a class="reference internal" href="../../framework/build.html#dev-build"><span class="std std-ref">Build utilities</span></a>).  To reuse that build when setting up the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code>
+suite, point <code class="docutils literal notranslate"><span class="pre">--component_path</span></code> at this directory, for example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>omega_pr<span class="w"> </span>--model<span class="w"> </span>omega<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-w<span class="w"> </span>/path/to/polaris_scratch/omega_pr_intel_openmpi
+<span class="w">      </span>-w<span class="w"> </span>/path/to/polaris_scratch/omega_pr_intel_openmpi<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>-p<span class="w"> </span>/path/to/polaris_branch/build_omega/build_&lt;machine&gt;_&lt;compiler&gt;
 </pre></div>
 </div>
+<p>If you omit <code class="docutils literal notranslate"><span class="pre">-p</span></code> and instead pass <code class="docutils literal notranslate"><span class="pre">--build</span></code>, Polaris will build Omega into
+the <code class="docutils literal notranslate"><span class="pre">build</span></code> subdirectory of the suite work directory (supplied with <code class="docutils literal notranslate"><span class="pre">-w</span></code>).</p>
 <p>Notes:</p>
 <ul class="simple">
-<li><p>Don’t use the<code class="docutils literal notranslate"><span class="pre">--branch</span></code> flag so that, the Omega submodule in your Polaris
-tree is used, and required submodules are checked out automatically.</p></li>
-<li><p>You can pass extra CMake flags via <code class="docutils literal notranslate"><span class="pre">--cmake_flags</span></code></p></li>
+<li><p>Using the<code class="docutils literal notranslate"><span class="pre">--branch</span></code> flag is not recommended so that the Omega submodule
+in your Polaris tree is used, and required submodules are checked out
+automatically.</p></li>
+<li><p>You can pass extra CMake flags via <code class="docutils literal notranslate"><span class="pre">--cmake_flags</span></code>.</p></li>
 </ul>
 </li>
 <li><p><strong>Run the Suite</strong></p>

@@ -221,11 +221,12 @@ above for how to list the supported machines.</p>
 <p>You can supply the directory where you have built the MPAS component with the
 <code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">--component_path</span></code> flag.  This can be a relative or absolute path.  The
 default for the <code class="docutils literal notranslate"><span class="pre">landice</span></code> component is
-<code class="docutils literal notranslate"><span class="pre">e3sm_submodules/MALI-Dev/components/mpas-albany-landice</span></code>
-and the default for the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component depends on whether you are using
-MPAS-Ocean or Omega.  For MPAS-Ocean, it is
-<code class="docutils literal notranslate"><span class="pre">e3sm_submodules/E3SM-Project/components/mpas-ocean</span></code>.  For Omega, it is
-<code class="docutils literal notranslate"><span class="pre">e3sm_submodules/Omega/components/omega</span></code></p>
+<code class="docutils literal notranslate"><span class="pre">e3sm_submodules/MALI-Dev/components/mpas-albany-landice</span></code>.
+For the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component, the default value of <code class="docutils literal notranslate"><span class="pre">component_path</span></code> comes from the
+ocean configuration file; by default, both MPAS-Ocean and Omega use the
+<code class="docutils literal notranslate"><span class="pre">build</span></code> subdirectory of the base work directory supplied with <code class="docutils literal notranslate"><span class="pre">-w</span></code> when Polaris
+manages the build for you. If you build MPAS-Ocean or Omega in a different
+location, supply that directory explicitly with <code class="docutils literal notranslate"><span class="pre">-p</span></code> or via a config file.</p>
 <p>You can also supply a config file with config options pointing to the
 directories for cached data files, the location of the MPAS component, and much
 more (see <a class="reference internal" href="../users_guide/config_files.html#config-files"><span class="std std-ref">Config Files</span></a> and <a class="reference internal" href="../users_guide/invalid_quick_start.html#setup-overview"><span class="std std-ref">Setting up tasks</span></a>).  Point to your config
@@ -255,10 +256,11 @@ pre-generated files if they are available (see <a class="reference internal" hre
 work directory rather than just symlinked.  This is useful if wish to run
 the tasks again later but anticipate that you may have removed (or replaced)
 the model code.</p>
-<p>Finally, if you specify <code class="docutils literal notranslate"><span class="pre">--clean</span></code>. The base work directory pointed to with the
-<code class="docutils literal notranslate"><span class="pre">-w</span></code> flag will be deleted before setting up the tasks.  This is useful if you
-want to do a fresh run, since polaris will not rerun steps that have already
-been run.</p>
+<p>Finally, if you specify <code class="docutils literal notranslate"><span class="pre">--clean_tasks</span></code>, the work directories for all of the
+tasks and steps will be deleted before setting them up again. This is useful if
+you want to do a fresh run, since polaris will not rerun steps that have
+already been run. This flag does not remove the build directory before
+rebuilding the model.  Use <code class="docutils literal notranslate"><span class="pre">--clean_build</span></code> for this purpose.</p>
 <p>See <a class="reference internal" href="framework/commands.html#dev-setup"><span class="std std-ref">setup module</span></a> for more about the underlying framework.</p>
 <section id="automatic-component-builds-mpas-ocean-and-omega">
 <h3>Automatic component builds (MPAS-Ocean and Omega)<a class="headerlink" href="#automatic-component-builds-mpas-ocean-and-omega" title="Link to this heading"></a></h3>
@@ -275,6 +277,9 @@ out automatically.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--clean_build</span></code>: Start from a clean build directory (removes prior CMake/
 configure state, implying <code class="docutils literal notranslate"><span class="pre">--build</span></code>). Without this flag, an incremental build
 is performed to save time when appropriate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--quiet_build</span></code>: Write build output to a log file in the base work directory
+but not to stdout/stderr. By default, output is written to both. This
+flag implies <code class="docutils literal notranslate"><span class="pre">--build</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--cmake_flags</span> <span class="pre">&lt;string&gt;</span></code>: Extra build flags. For MPAS-Ocean, this string is
 passed through to <code class="docutils literal notranslate"><span class="pre">make</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">-j</span> <span class="pre">8</span></code> for parallel builds, or additional
 variable assignments); for Omega, it is passed through to CMake as additional
@@ -284,12 +289,9 @@ Ocean adds <code class="docutils literal notranslate"><span class="pre">debug=TR
 </ul>
 <p>Defaults and paths:</p>
 <ul class="simple">
-<li><p>Build output directory (<code class="docutils literal notranslate"><span class="pre">--component_path</span></code>) defaults to:</p>
-<ul>
-<li><p>Omega: <code class="docutils literal notranslate"><span class="pre">build_omega/build_&lt;machine&gt;_&lt;compiler&gt;</span></code></p></li>
-<li><p>MPAS-Ocean: <code class="docutils literal notranslate"><span class="pre">build_mpas_ocean/build_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;</span></code></p></li>
-</ul>
-</li>
+<li><p>Build output directory (<code class="docutils literal notranslate"><span class="pre">--component_path</span></code>) defaults to the <code class="docutils literal notranslate"><span class="pre">build</span></code>
+subdirectory of the base work directory you pass with <code class="docutils literal notranslate"><span class="pre">-w</span></code> for both
+MPAS-Ocean and Omega.</p></li>
 <li><p>Generated build scripts are saved to:</p>
 <ul>
 <li><p>Omega: <code class="docutils literal notranslate"><span class="pre">./build_omega/build_omega_&lt;machine&gt;_&lt;compiler&gt;.sh</span></code></p></li>

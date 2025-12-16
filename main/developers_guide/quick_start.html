@@ -588,10 +588,11 @@ cmake<span class="w"> </span><span class="se">\</span>
 <code class="docutils literal notranslate"><span class="pre">-DOMEGA_BUILD_TYPE=Release</span></code> to <code class="docutils literal notranslate"><span class="pre">-DOMEGA_BUILD_TYPE=Debug</span></code> to build in debug
 mode.</p>
 <p>You can alter the example above to build whichever Omega branch and in whatever
-location you like.  If you build in a location other than
-<code class="docutils literal notranslate"><span class="pre">e3sm_submodules/Omega/components/omega/build</span></code>, you will need to point to the
-relative or absolute path using the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag when you call <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or
-<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>.</p>
+location you like.  Regardless of where you build Omega, you should point
+<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> at the build directory with the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag
+or via a config file.  When Polaris manages the build for you with <code class="docutils literal notranslate"><span class="pre">--build</span></code>,
+the default <code class="docutils literal notranslate"><span class="pre">component_path</span></code> for the ocean component is the <code class="docutils literal notranslate"><span class="pre">build</span></code>
+subdirectory of the base work directory supplied with <code class="docutils literal notranslate"><span class="pre">-w</span></code>.</p>
 <p>As with MPAS-Ocean, to set up tasks and suites to use Omega, it should be
 sufficient to point to an Omega build with the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>, which should allow Omega to be detected automatically.

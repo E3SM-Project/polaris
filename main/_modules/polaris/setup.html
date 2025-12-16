@@ -139,11 +139,12 @@
     <span class="n">suite_name</span><span class="o">=</span><span class="s1">&#39;custom&#39;</span><span class="p">,</span>
     <span class="n">cached</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">copy_executable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">clean_work</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">clean_tasks</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">build</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">branch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">clean_build</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">quiet_build</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">cmake_flags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">debug</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
@@ -190,8 +191,8 @@
 <span class="sd">    copy_executable : bool, optional</span>
 <span class="sd">        Whether to copy the model executable to the work directory</span>
 
-<span class="sd">    clean : bool, optional</span>
-<span class="sd">        Whether to delete the contents of the base work directory before</span>
+<span class="sd">    clean_tasks : bool, optional</span>
+<span class="sd">        Whether to delete the contents of the task work directories before</span>
 <span class="sd">        setting up tasks</span>
 
 <span class="sd">    model : str, optional</span>
@@ -208,6 +209,9 @@
 <span class="sd">    clean_build : bool, optional</span>
 <span class="sd">        Whether to clean the build directory before building the model.</span>
 <span class="sd">        ``clean_build = True`` implies ``build = True``.</span>
+
+<span class="sd">    quiet_build : bool, optional</span>
+<span class="sd">        Whether to build the model without output. Implies ``build = True``.</span>
 
 <span class="sd">    cmake_flags : str, optional</span>
 <span class="sd">        Additional flags to pass to make or CMake when building the model</span>
@@ -259,6 +263,8 @@
         <span class="n">cmake_flags</span><span class="o">=</span><span class="n">cmake_flags</span><span class="p">,</span>
         <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
         <span class="n">clean_build</span><span class="o">=</span><span class="n">clean_build</span><span class="p">,</span>
+        <span class="n">quiet_build</span><span class="o">=</span><span class="n">quiet_build</span><span class="p">,</span>
+        <span class="n">work_dir</span><span class="o">=</span><span class="n">work_dir</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">component</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">basic_config</span><span class="p">)</span>
@@ -280,7 +286,7 @@
             <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">clean_work</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">clean_tasks</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Cleaning task and step work directories:&#39;</span><span class="p">)</span>
         <span class="n">_clean_tasks_and_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
@@ -528,10 +534,10 @@
         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the model executable should be copied to the work directory.&#39;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--clean_work&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;clean_work&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--clean_tasks&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;clean_tasks&#39;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the base work directory should be deleted &#39;</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the task work directories should be deleted &#39;</span>
         <span class="s1">&#39;before setting up the tasks.&#39;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -558,6 +564,12 @@
         <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the model should be cleaned before building. Implies &#39;</span>
         <span class="s1">&#39;--build.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--quiet_build&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;quiet_build&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the model should be built without output. Implies --build.&#39;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s1">&#39;--cmake_flags&#39;</span><span class="p">,</span>
@@ -597,11 +609,12 @@
         <span class="n">suite_name</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">suite_name</span><span class="p">,</span>
         <span class="n">cached</span><span class="o">=</span><span class="n">cached</span><span class="p">,</span>
         <span class="n">copy_executable</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">copy_executable</span><span class="p">,</span>
-        <span class="n">clean_work</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">clean_work</span><span class="p">,</span>
+        <span class="n">clean_tasks</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">clean_tasks</span><span class="p">,</span>
         <span class="n">model</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
         <span class="n">build</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">build</span><span class="p">,</span>
         <span class="n">branch</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">branch</span><span class="p">,</span>
         <span class="n">clean_build</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">clean_build</span><span class="p">,</span>
+        <span class="n">quiet_build</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">quiet_build</span><span class="p">,</span>
         <span class="n">cmake_flags</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">cmake_flags</span><span class="p">,</span>
         <span class="n">debug</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
     <span class="p">)</span>
@@ -878,6 +891,8 @@
     <span class="n">cmake_flags</span><span class="p">,</span>
     <span class="n">debug</span><span class="p">,</span>
     <span class="n">clean_build</span><span class="p">,</span>
+    <span class="n">quiet_build</span><span class="p">,</span>
+    <span class="n">work_dir</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a base config parser for the machine and component but not a specific</span>
@@ -941,12 +956,22 @@
     <span class="k">if</span> <span class="n">clean_build</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;clean&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">clean_build</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">quiet_build</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;quiet&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">quiet_build</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
     <span class="n">build</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">)</span>
     <span class="n">clean_build</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;clean&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">clean_build</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">build</span><span class="p">:</span>
         <span class="c1"># the user presumably expects to clean the build, notice that it&#39;s</span>
         <span class="c1"># absent, and build again</span>
         <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">quiet_build</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">build</span><span class="p">:</span>
+        <span class="c1"># the user presumably expects to build, since they want to build</span>
+        <span class="c1"># quietly</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;base_work_dir&#39;</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">config</span>
 
@@ -1044,6 +1069,7 @@
     <span class="n">section</span> <span class="o">=</span> <span class="n">basic_config</span><span class="p">[</span><span class="s1">&#39;build&#39;</span><span class="p">]</span>
     <span class="n">branch</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;branch&#39;</span><span class="p">)</span>
     <span class="n">clean_build</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;clean&#39;</span><span class="p">)</span>
+    <span class="n">quiet_build</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;quiet&#39;</span><span class="p">)</span>
     <span class="n">debug</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;debug&#39;</span><span class="p">)</span>
     <span class="n">cmake_flags</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cmake_flags&#39;</span><span class="p">)</span>
 
@@ -1055,13 +1081,16 @@
         <span class="n">account</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+        <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="s1">&#39;build_omega.log&#39;</span><span class="p">)</span>
         <span class="n">build_omega</span><span class="p">(</span>
             <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span>
             <span class="n">build_dir</span><span class="o">=</span><span class="n">build_dir</span><span class="p">,</span>
             <span class="n">clean</span><span class="o">=</span><span class="n">clean_build</span><span class="p">,</span>
+            <span class="n">quiet</span><span class="o">=</span><span class="n">quiet_build</span><span class="p">,</span>
             <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
             <span class="n">cmake_flags</span><span class="o">=</span><span class="n">cmake_flags</span><span class="p">,</span>
             <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
+            <span class="n">log_filename</span><span class="o">=</span><span class="n">log_filename</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">basic_config</span><span class="p">[</span><span class="s1">&#39;build&#39;</span><span class="p">]</span>
@@ -1075,13 +1104,16 @@
             <span class="p">)</span>
         <span class="n">make_target</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
+        <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="s1">&#39;build_mpas_ocean.log&#39;</span><span class="p">)</span>
         <span class="n">build_mpas_ocean</span><span class="p">(</span>
             <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span>
             <span class="n">build_dir</span><span class="o">=</span><span class="n">build_dir</span><span class="p">,</span>
             <span class="n">clean</span><span class="o">=</span><span class="n">clean_build</span><span class="p">,</span>
+            <span class="n">quiet</span><span class="o">=</span><span class="n">quiet_build</span><span class="p">,</span>
             <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
             <span class="n">make_flags</span><span class="o">=</span><span class="n">cmake_flags</span><span class="p">,</span>
             <span class="n">make_target</span><span class="o">=</span><span class="n">make_target</span><span class="p">,</span>
+            <span class="n">log_filename</span><span class="o">=</span><span class="n">log_filename</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>

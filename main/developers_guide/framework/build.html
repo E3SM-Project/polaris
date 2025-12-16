@@ -150,10 +150,10 @@ can reliably build from a clean login environment.</p>
 then runs that script from a pristine login environment (clearing the current
 process environment) to avoid interference from Conda or other package managers.
 The generated scripts are saved so you can re-run or inspect them later.</p>
-<p>Locations for generated scripts:</p>
+<p>Names of generated scripts within the build directory:</p>
 <ul class="simple">
-<li><p>MPAS-Ocean: <code class="docutils literal notranslate"><span class="pre">./build_mpas_ocean/build_mpas_ocean_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code></p></li>
-<li><p>Omega: <code class="docutils literal notranslate"><span class="pre">./build_omega/build_omega_&lt;machine&gt;_&lt;compiler&gt;.sh</span></code></p></li>
+<li><p>MPAS-Ocean: <code class="docutils literal notranslate"><span class="pre">build_mpas_ocean_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code></p></li>
+<li><p>Omega: <code class="docutils literal notranslate"><span class="pre">build_omega_&lt;machine&gt;_&lt;compiler&gt;.sh</span></code></p></li>
 </ul>
 </section>
 <section id="required-environment">
@@ -260,6 +260,9 @@ submodules will be checked out automatically during the build.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--clean_build</span></code>: Start fresh (removes prior build state) and implies
 <code class="docutils literal notranslate"><span class="pre">--build</span></code>. Without this flag, an incremental build is used when possible to
 save time.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--quiet_build</span></code>: Write build output to a log file in the base work directory
+but not to stdout/stderr. By default, output is written to both. This
+flag implies <code class="docutils literal notranslate"><span class="pre">--build</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--cmake_flags</span> <span class="pre">&lt;string&gt;</span></code>: Extra flags passed through to the build system.
 For MPAS-Ocean, this string is forwarded to <code class="docutils literal notranslate"><span class="pre">make</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">-j</span> <span class="pre">8</span></code> or extra
 <code class="docutils literal notranslate"><span class="pre">VAR=VALUE</span></code> assignments). For Omega, it is forwarded to CMake as additional
@@ -269,13 +272,10 @@ For MPAS-Ocean, this string is forwarded to <code class="docutils literal notran
 </ul>
 <p>Defaults and directories:</p>
 <ul class="simple">
-<li><p>The build output directory used by Polaris (<code class="docutils literal notranslate"><span class="pre">--component_path</span></code>) defaults to:</p>
-<ul>
-<li><p>Omega: <code class="docutils literal notranslate"><span class="pre">build_omega/build_&lt;machine&gt;_&lt;compiler&gt;</span></code></p></li>
-<li><p>MPAS-Ocean: <code class="docutils literal notranslate"><span class="pre">build_mpas_ocean/build_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;</span></code></p></li>
-</ul>
-</li>
-<li><p>MPAS-Ocean copies files required by Polaris into the build directory so you
+<li><p>The build output directory used by Polaris (<code class="docutils literal notranslate"><span class="pre">--component_path</span></code>) defaults to
+the <code class="docutils literal notranslate"><span class="pre">build</span></code> subdirectory of the base work directory you pass with <code class="docutils literal notranslate"><span class="pre">-w</span></code> (for
+both MPAS-Ocean and Omega).</p></li>
+<li><p>MPAS-Ocean copies files required by Polaris into this build directory so you
 can reuse the same source checkout to create builds for different machines,
 compilers, or MPI libraries without conflicts.</p></li>
 </ul>

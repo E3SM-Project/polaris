@@ -145,7 +145,7 @@ default config options:</p>
 
 <span class="c1"># the relative or absolute path to the root of a branch where MPAS-Ocean</span>
 <span class="c1"># or Omega has been built</span>
-<span class="na">component_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:polaris_branch}/e3sm_submodules/E3SM-Project/components/mpas-ocean</span>
+<span class="na">component_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:base_work_dir}/build</span>
 
 <span class="c1"># The namelists section defines paths to example_compact namelists that will</span>
 <span class="c1"># be used to generate specific namelists. By default, these point to the</span>
@@ -174,18 +174,27 @@ default config options:</p>
 <span class="na">component</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:component_path}/ocean_model</span>
 </pre></div>
 </div>
-<p>The default location for MPAS-Ocean is in the
+<p>By default, Polaris builds MPAS-Ocean or Omega into the <code class="docutils literal notranslate"><span class="pre">build</span></code> subdirectory of
+the base work directory (<code class="docutils literal notranslate"><span class="pre">${paths:base_work_dir}/build</span></code>, typically supplied
+on the command line with <code class="docutils literal notranslate"><span class="pre">-w</span></code>), and this is the value used for
+<code class="docutils literal notranslate"><span class="pre">${paths:component_path}</span></code> in the default ocean configuration.  If you
+prefer to store builds elsewhere, supply a different value with <code class="docutils literal notranslate"><span class="pre">-p</span></code> on the
+<code class="docutils literal notranslate"><span class="pre">polaris</span></code> command line or supply a user config file with <code class="docutils literal notranslate"><span class="pre">--config_file</span></code> in
+which you update <code class="docutils literal notranslate"><span class="pre">${paths:component_path}</span></code>.  Unless you have build the model at
+the supplied location in advance, you should supply one of the <code class="docutils literal notranslate"><span class="pre">--build</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--clean_build</span></code> or <code class="docutils literal notranslate"><span class="pre">--quiet_build</span></code> flags to build the model.</p>
+<p>The MPAS-Ocean source used by Polaris typically comes from the
 <a class="reference external" href="https://git-scm.com/book/en/v2/Git-Tools-Submodules">git submodule</a>
 <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/E3SM-Project</span></code> in the directory <code class="docutils literal notranslate"><span class="pre">components/mpas-ocean</span></code>.  The
-submodule  may not point to the latest MPAS-Ocean code in on the E3SM
+submodule may not point to the latest MPAS-Ocean code in the E3SM
 <a class="reference external" href="https://github.com/E3SM-Project/E3SM/tree/master">master</a>
 branch but the plan is to update the submodule frequently.  The current version
 of the submodule should always be guaranteed to be compatible with the
 corresponding version of polaris.</p>
 <p>Similarly, the <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/Omega</span></code> submodule is where you can find
-a verison of Omega that is compatible with the current polaris.  The model
-can be built from the <code class="docutils literal notranslate"><span class="pre">components/omega</span></code> directory.  The  submodule may not
-point to the latest Omega code in on the <code class="docutils literal notranslate"><span class="pre">Omega</span></code>
+a version of Omega that is compatible with the current polaris.  The model
+source is in the <code class="docutils literal notranslate"><span class="pre">components/omega</span></code> directory.  The submodule may not
+point to the latest Omega code on the <code class="docutils literal notranslate"><span class="pre">Omega</span></code>
 <a class="reference external" href="https://github.com/E3SM-Project/Omega/tree/develop">develop</a>
 branch but, again, the plan is to update the submodule frequently and to
 maintain compatibility of the submodule with polaris.</p>
