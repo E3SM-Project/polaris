@@ -447,6 +447,38 @@ def _log_and_run_task(
     return result_str, success, task_time, exec_failed, diff_failed
 
 
+def _read_baseline_status_from_logs(step_work_dir: str) -> Optional[bool]:
+    """Get baseline comparison status from existing log markers.
+
+    Returns
+    -------
+    Optional[bool]
+        True if ``baseline_passed.log`` exists, False if
+        ``baseline_failed.log`` exists, otherwise None.
+    """
+    baseline_pass_filename = os.path.join(step_work_dir, 'baseline_passed.log')
+    baseline_fail_filename = os.path.join(step_work_dir, 'baseline_failed.log')
+
+    if os.path.exists(baseline_pass_filename):
+        return True
+    if os.path.exists(baseline_fail_filename):
+        return False
+    return None
+
+
+def _accumulate_baselines(
+    baselines_passed: Optional[bool], status: bool
+) -> Optional[bool]:
+    """Aggregate baseline results across steps.
+
+    None means no baseline comparisons were performed. If any comparison fails,
+    the aggregate becomes False.
+    """
+    if baselines_passed is None:
+        return status
+    return baselines_passed and status
+
+
 def _run_task(task, available_resources):
     """
     Run each step of the task
@@ -465,27 +497,20 @@ def _run_task(task, available_resources):
         if os.path.exists(complete_filename):
             _print_to_stdout(task, '          already completed')
             # print results of baseline comparison if it was done
-            baseline_pass_filename = os.path.join(
-                step.work_dir, 'baseline_passed.log'
-            )
-            baseline_fail_filename = os.path.join(
-                step.work_dir, 'baseline_failed.log'
-            )
-
-            if os.path.exists(baseline_pass_filename):
-                baseline_str = pass_str
-            elif os.path.exists(baseline_fail_filename):
-                baseline_str = fail_str
-            else:
-                baseline_str = None
-
-            if baseline_str is not None:
+            baseline_status = _read_baseline_status_from_logs(step.work_dir)
+            if baseline_status is not None:
+                baseline_str = pass_str if baseline_status else fail_str
                 _print_to_stdout(
                     task, f'          baseline comp.:   {baseline_str}'
+                )
+                baselines_passed = _accumulate_baselines(
+                    baselines_passed, baseline_status
                 )
             continue
         if step.cached:
             _print_to_stdout(task, '          cached')
+            # cached steps never perform baseline comparisons; leave
+            # baselines_passed unchanged
             continue
 
         step_start = time.time()
@@ -510,8 +535,11 @@ def _run_task(task, available_resources):
         except Exception:
             _print_to_stdout(task, f'          execution:        {error_str}')
             raise
+        finally:
+            # Always restore the working directory, even if a step fails.
+            os.chdir(cwd)
+
         _print_to_stdout(task, f'          execution:        {success_str}')
-        os.chdir(cwd)
         step_time = time.time() - step_start
         step_time_str = str(timedelta(seconds=round(step_time)))
 
@@ -524,10 +552,7 @@ def _run_task(task, available_resources):
             _print_to_stdout(
                 task, f'          baseline comp.:   {baseline_str}'
             )
-            if baselines_passed is None:
-                baselines_passed = status
-            elif not status:
-                baselines_passed = False
+            baselines_passed = _accumulate_baselines(baselines_passed, status)
 
         _print_to_stdout(
             task,
