@@ -64,6 +64,8 @@ class Forward(OceanModelStep):
         task_name : str, optional
             the name of the test case
         """
+        if not enable_vadv:
+            name = f'{name}_no_vadv'
         super().__init__(
             component=component,
             name=name,
@@ -96,6 +98,16 @@ class Forward(OceanModelStep):
         self.task_name = task_name
 
         self.enable_vadv = enable_vadv
+
+    def setup(self):
+        """
+        TEMP: symlink initial condition to name hard-coded in Omega
+        """
+        super().setup()
+        model = self.config.get('ocean', 'model')
+        # TODO: remove as soon as Omega no longer hard-codes this file
+        if model == 'omega':
+            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
 
     def dynamic_model_config(self, at_setup):
         super().dynamic_model_config(at_setup=at_setup)
