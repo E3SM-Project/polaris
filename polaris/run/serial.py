@@ -466,6 +466,29 @@ def _read_baseline_status_from_logs(step_work_dir: str) -> Optional[bool]:
     return None
 
 
+def _read_property_status_from_logs(step_work_dir: str) -> Optional[bool]:
+    """Get property check status from existing log markers.
+
+    Returns
+    -------
+    Optional[bool]
+        True if ``property_check_passed.log`` exists, False if
+        ``property_check_failed.log`` exists, otherwise None.
+    """
+    property_check_pass_filename = os.path.join(
+        step_work_dir, 'property_check_passed.log'
+    )
+    property_check_fail_filename = os.path.join(
+        step_work_dir, 'property_check_failed.log'
+    )
+
+    if os.path.exists(property_check_pass_filename):
+        return True
+    if os.path.exists(property_check_fail_filename):
+        return False
+    return None
+
+
 def _accumulate_baselines(
     baselines_passed: Optional[bool], status: bool
 ) -> Optional[bool]:
@@ -486,6 +509,7 @@ def _run_task(task, available_resources):
     logger = task.logger
     cwd = os.getcwd()
     baselines_passed = None
+    property_passed = None
     for step_name in task.steps_to_run:
         step = task.steps[step_name]
         complete_filename = os.path.join(
@@ -505,6 +529,16 @@ def _run_task(task, available_resources):
                 )
                 baselines_passed = _accumulate_baselines(
                     baselines_passed, baseline_status
+                )
+            property_status = None
+            property_status = _read_property_status_from_logs(step.work_dir)
+            if property_status is not None:
+                property_str = pass_str if property_status else fail_str
+                _print_to_stdout(
+                    task, f'          property comp.:   {property_str}'
+                )
+                property_passed = _accumulate_baselines(
+                    property_passed, property_status
                 )
             continue
         if step.cached:
@@ -552,10 +586,7 @@ def _run_task(task, available_resources):
             _print_to_stdout(
                 task, f'          property verification:   {property_str}'
             )
-            if property_passed is None:
-                property_passed = status
-            elif not status:
-                property_passed = False
+            property_passed = _accumulate_baselines(property_passed, status)
 
         compared, status = step.validate_baselines()
         if compared:
