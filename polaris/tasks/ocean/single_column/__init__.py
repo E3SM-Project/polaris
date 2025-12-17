@@ -35,16 +35,14 @@ def add_single_column_tasks(component):
         config=config,
         config_filename=f'{name}.cfg',
     )
-    for enable_vadv in [True, False]:
-        component.add_task(
-            CVMix(
-                component=component,
-                config=config,
-                init=init_step,
-                indir=f'{group_name}',
-                enable_vadv=enable_vadv,
-            )
+    component.add_task(
+        CVMix(
+            component=component,
+            config=config,
+            init=init_step,
+            indir=f'{group_name}',
         )
+    )
 
     forcing_name = 'wind'
     name = 'ekman'

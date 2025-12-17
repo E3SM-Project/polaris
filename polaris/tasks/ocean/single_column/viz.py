@@ -11,7 +11,9 @@ class Viz(Step):
     A step for plotting the results of a single-column test
     """
 
-    def __init__(self, component, indir, ideal_age=False):
+    def __init__(
+        self, component, indir, ideal_age=False, comparison_path=None
+    ):
         """
         Create the step
 
@@ -29,12 +31,17 @@ class Viz(Step):
         """
         super().__init__(component=component, name='viz', indir=indir)
         self.ideal_age = ideal_age
+        self.comparison_path = comparison_path
         self.add_input_file(
             filename='initial_state.nc', target='../init/initial_state.nc'
         )
         self.add_input_file(
             filename='output.nc', target='../forward/output.nc'
         )
+        if comparison_path is not None:
+            self.add_input_file(
+                filename='comparison.nc', target=f'{comparison_path}/output.nc'
+            )
 
     def run(self):
         """
@@ -43,6 +50,8 @@ class Viz(Step):
         use_mplstyle()
         ideal_age = self.ideal_age
         ds = xr.load_dataset('output.nc')
+        if self.comparison_path is not None:
+            ds_comp = xr.load_dataset('comparison.nc')
         t_days = ds.daysSinceStartOfSim.values
         t = t_days.astype('timedelta64[ns]')
         t = t / np.timedelta64(1, 'D')
@@ -64,10 +73,15 @@ class Viz(Step):
             var = ds[field_name].mean(dim='nCells')
             var_init = var.isel(Time=0)
             var_final = var.isel(Time=t_index)
+            if self.comparison_path is not None:
+                var_comp = ds_comp[field_name].mean(dim='nCells')
+                var_comp = var_comp.isel(Time=t_index)
             plt.figure(figsize=(3, 5))
             ax = plt.subplot(111)
             ax.plot(var_init, z_mid_init, '--k', label='initial')
             ax.plot(var_final, z_mid_final, '-k', label='final')
+            if self.comparison_path is not None:
+                ax.plot(var_comp, z_mid_final, '-r', label='comparison')
             ax.set_xlabel(f'{field_name} ({field_units})')
             ax.set_ylabel('z (m)')
             ax.legend()
