@@ -1,6 +1,8 @@
-mpas-ocean:
+ocean:
   time_management:
     config_run_duration: 0010_00:00:00
+
+mpas-ocean:
   tracer_forcing_activeTracers:
     config_use_activeTracers_surface_bulk_forcing: false
     config_use_activeTracers_surface_restoring: false

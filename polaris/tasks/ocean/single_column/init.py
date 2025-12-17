@@ -33,7 +33,6 @@ class Init(Step):
             'culled_mesh.nc',
             'culled_graph.info',
             'initial_state.nc',
-            'forcing.nc',
         ]:
             self.add_output_file(file)
 
@@ -148,10 +147,9 @@ class Init(Step):
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
-        write_netcdf(ds, 'initial_state.nc')
 
         # create forcing stream
-        ds_forcing = xr.Dataset()
+        ds_forcing = ds.copy()
         forcing_array = xr.ones_like(temperature)
         forcing_array_surface = xr.ones_like(ds.bottomDepth)
         forcing_array_surface = forcing_array_surface.expand_dims(
@@ -234,4 +232,4 @@ class Init(Step):
         ds_forcing['icebergFreshWaterFlux'] = (
             iceberg_flux * forcing_array_surface
         )
-        write_netcdf(ds_forcing, 'forcing.nc')
+        write_netcdf(ds_forcing, 'initial_state.nc')
