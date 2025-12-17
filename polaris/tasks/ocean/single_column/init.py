@@ -150,10 +150,9 @@ class Init(OceanIOStep):
         ds.attrs['dc'] = dc
 
         self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
-        self.write_initial_state_dataset(ds, 'init.nc', config)
 
         # create forcing stream
-        ds_forcing = xr.Dataset()
+        ds_forcing = ds.copy()
         forcing_array = xr.ones_like(temperature)
         forcing_array_surface = xr.ones_like(ds.bottomDepth)
         forcing_array_surface = forcing_array_surface.expand_dims(
@@ -236,4 +235,4 @@ class Init(OceanIOStep):
         ds_forcing['icebergFreshWaterFlux'] = (
             iceberg_flux * forcing_array_surface
         )
-        write_netcdf(ds_forcing, 'forcing.nc')
+        self.write_initial_state_dataset(ds_forcing, 'init.nc', config)

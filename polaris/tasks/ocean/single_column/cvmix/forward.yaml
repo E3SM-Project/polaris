@@ -1,4 +1,11 @@
 ocean:
+  time_management:
+    config_run_duration: 0010_00:00:00
+  hmix_del4:
+    config_use_mom_del4: false
+  cvmix:
+    config_use_cvmix_convection: false
+    config_use_cvmix_shear: false
   eos:
     config_eos_type: linear
   eos_linear:
@@ -8,11 +15,6 @@ ocean:
     config_eos_linear_densityref: 1000.65
 
 mpas-ocean:
-  time_management:
-    config_run_duration: 0010_00:00:00
-  hmix_del4:
-    config_use_mom_del4: true
-    config_mom_del4: 2.0e14
   frazil_ice:
     config_use_frazil_ice_formation: true
   tracer_forcing_activeTracers:
@@ -20,11 +22,28 @@ mpas-ocean:
     config_use_activeTracers_surface_restoring: true
     config_use_activeTracers_interior_restoring: true
   cvmix:
-    config_use_cvmix_convection: true
-    config_use_cvmix_shear: true
     config_cvmix_shear_mixing_scheme: KPP
     config_use_cvmix_kpp: true
     config_cvmix_kpp_matching: MatchBoth
     config_cvmix_kpp_interpolationOMLType: cubic
   streams:
     KPP_testing: {}
+
+Omega:
+  Tendencies:
+    ThicknessFluxTendencyEnable: true
+    PVTendencyEnable: false
+    KETendencyEnable: false
+    SSHTendencyEnable: false
+    VelDiffTendencyEnable: false
+    VelHyperDiffTendencyEnable: false
+    VelVertMixTendencyEnable: true
+    PresForceTendencyEnable: false
+    PresGradForceTendencyEnable: false
+    GeoptGradTendencyEnable: false
+    WindForcingTendencyEnable: true
+    BottomDragTendencyEnable: false
+    TracerHorzAdvTendencyEnable: false
+    TracerDiffTendencyEnable: false
+    TracerHyperDiffTendencyEnable: false
+    TracerVertMixTendencyEnable: true
