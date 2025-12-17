@@ -6,7 +6,11 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from ruamel.yaml import YAML
 
 from polaris.model_step import ModelStep
-from polaris.ocean.conservation import compute_total_mass
+from polaris.ocean.conservation import (
+    compute_total_energy,
+    compute_total_mass,
+    compute_total_salt,
+)
 from polaris.tasks.ocean import Ocean
 
 OptionValue = Union[str, int, float, bool]
@@ -386,14 +390,28 @@ class OceanModelStep(ModelStep):
                     )
                     init_mass = compute_total_mass(ds_mesh, ds.isel(Time=0))
                     final_mass = compute_total_mass(ds_mesh, ds.isel(Time=-1))
-                    # mass_flux = compute_total_mass(ds.isel(Time=-1))
-                    result = abs(init_mass - final_mass) < tol
-                    # absMassError = netMassFlux * dtAvg - massChange
-                    # relMassError = absoluteMassError / (finalmass + 1.)
-                    # absSaltError = netSaltFlux * dtAvg - saltChange
-                    # relSaltError = absoluteSaltError / (finalSalt - 1.)
-                    # absEnergyError = netEnergyFlux * dtAvg - energyChange
-                    # relEnergyError = absoluteEnergyError / (finalEnergy - 1.)
+                    mass_change = final_mass - init_mass
+                    result = abs(mass_change) / (final_mass + 1.0) < tol
+                elif output_property == 'salt conservation':
+                    tol = self.config.getfloat(
+                        'ocean', 'salt_conservation_tolerance'
+                    )
+                    init_salt = compute_total_salt(ds_mesh, ds.isel(Time=0))
+                    final_salt = compute_total_salt(ds_mesh, ds.isel(Time=-1))
+                    salt_change = final_salt - init_salt
+                    result = abs(salt_change) / (final_salt - 1.0) < tol
+                elif output_property == 'energy conservation':
+                    tol = self.config.getfloat(
+                        'ocean', 'energy_conservation_tolerance'
+                    )
+                    init_energy = compute_total_energy(
+                        ds_mesh, ds.isel(Time=0)
+                    )
+                    final_energy = compute_total_energy(
+                        ds_mesh, ds.isel(Time=-1)
+                    )
+                    energy_change = final_energy - init_energy
+                    result = abs(energy_change) / (final_energy - 1.0) < tol
                 else:
                     raise ValueError(
                         'Could not find method to execute property check '
@@ -403,8 +421,8 @@ class OceanModelStep(ModelStep):
                 success = success and result
                 checked = True
                 if not result:
-                    failed_properties.extend(output_property)
-
+                    failed_properties.append(output_property)
+                    print(failed_properties)
         if checked and success:
             log_filename = os.path.join(
                 self.work_dir, 'property_check_passed.log'
