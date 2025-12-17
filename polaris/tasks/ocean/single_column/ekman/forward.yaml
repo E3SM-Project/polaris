@@ -1,24 +1,27 @@
-mpas-ocean:
+ocean:
   time_management:
     config_run_duration: 0005_00:00:00
   hmix_del4:
     config_use_mom_del4: false
-  frazil_ice:
-    config_use_frazil_ice_formation: false
-  bottom_drag:
-    config_implicit_constant_bottom_drag_coeff: 0.0
   cvmix:
-    config_cvmix_background_scheme: constant
     config_cvmix_background_diffusion: 0.0
     config_use_cvmix_convection: false
     config_use_cvmix_shear: false
-    config_use_cvmix_kpp: false
   eos:
     config_eos_type: linear
   eos_linear:
     config_eos_linear_beta: 0.01
   forcing:
     config_use_bulk_wind_stress: true
+
+mpas-ocean:
+  bottom_drag:
+    config_implicit_constant_bottom_drag_coeff: 0.0
+  frazil_ice:
+    config_use_frazil_ice_formation: false
+  cvmix:
+    config_cvmix_background_scheme: constant
+    config_use_cvmix_kpp: false
   tracer_forcing_activeTracers:
     config_use_activeTracers_surface_bulk_forcing: false
     config_use_activeTracers_surface_restoring: false
