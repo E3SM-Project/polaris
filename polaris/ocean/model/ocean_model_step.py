@@ -1,10 +1,12 @@
 import importlib.resources as imp_res
+import os
 from types import ModuleType
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from ruamel.yaml import YAML
 
 from polaris.model_step import ModelStep
+from polaris.ocean.conservation import compute_total_mass
 from polaris.tasks.ocean import Ocean
 
 OptionValue = Union[str, int, float, bool]
@@ -361,6 +363,68 @@ class OceanModelStep(ModelStep):
         self.add_model_config_options(
             options=replacements, config_model='ocean'
         )
+
+    def verify_properties(self):
+        checked = False
+        success = True
+        if self.work_dir is None:
+            raise ValueError(
+                'The work directory must be set before the step '
+                'output properties can be verified.'
+            )
+        failed_properties = []
+        for filename, properties in self.properties_to_verify.items():
+            filename = str(filename)
+            mesh_filename = os.path.join(self.work_dir, 'mesh.nc')
+            this_filename = os.path.join(self.work_dir, filename)
+            ds_mesh = self.component.open_model_dataset(mesh_filename)
+            ds = self.component.open_model_dataset(this_filename)
+            for output_property in properties:
+                if output_property == 'mass conservation':
+                    tol = self.config.getfloat(
+                        'ocean', 'mass_conservation_tolerance'
+                    )
+                    init_mass = compute_total_mass(ds_mesh, ds.isel(Time=0))
+                    final_mass = compute_total_mass(ds_mesh, ds.isel(Time=-1))
+                    # mass_flux = compute_total_mass(ds.isel(Time=-1))
+                    result = abs(init_mass - final_mass) < tol
+                    # absMassError = netMassFlux * dtAvg - massChange
+                    # relMassError = absoluteMassError / (finalmass + 1.)
+                    # absSaltError = netSaltFlux * dtAvg - saltChange
+                    # relSaltError = absoluteSaltError / (finalSalt - 1.)
+                    # absEnergyError = netEnergyFlux * dtAvg - energyChange
+                    # relEnergyError = absoluteEnergyError / (finalEnergy - 1.)
+                else:
+                    raise ValueError(
+                        'Could not find method to execute property check '
+                        f'{output_property}'
+                    )
+
+                success = success and result
+                checked = True
+                if not result:
+                    failed_properties.extend(output_property)
+
+        if checked and success:
+            log_filename = os.path.join(
+                self.work_dir, 'property_check_passed.log'
+            )
+            with open(log_filename, 'w') as result_log_file:
+                result_log_file.write(
+                    f'Output file {filename} passed property checks.\n'
+                )
+        elif checked and not success:
+            log_filename = os.path.join(
+                self.work_dir, 'property_check_failed.log'
+            )
+            failed_properties_str = '\n  '.join(failed_properties)
+            with open(log_filename, 'w') as result_log_file:
+                result_log_file.write(
+                    f'Property checks on {filename} failed for:\n '
+                    f'{failed_properties_str}\n'
+                )
+
+        return checked, success
 
     def _update_ntasks(self) -> None:
         """
