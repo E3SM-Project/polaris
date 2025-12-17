@@ -139,6 +139,9 @@ class Forward(OceanModelStep):
                 'normalVelocity',
                 'temperature',
             ],
+            check_properties=[
+                'mass conservation',
+            ],
         )
 ```
 

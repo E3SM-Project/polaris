@@ -7,6 +7,10 @@ cp_sw = constants['SHR_CONST_CPSW']
 
 
 def compute_total_mass(ds_mesh, ds):
+    """
+    Compute the total mass in an ocean model output file using a constant
+    density
+    """
     ds = _reduce_dataset_time_dim(ds)
     area_cell = ds_mesh.areaCell
     layer_thickness = ds.layerThickness
@@ -17,6 +21,10 @@ def compute_total_mass(ds_mesh, ds):
 
 
 def compute_total_mass_nonboussinesq(ds_mesh, ds):
+    """
+    Compute the total mass in an ocean model output file using the density
+    field given in the output file
+    """
     ds = _reduce_dataset_time_dim(ds)
     area_cell = ds_mesh.areaCell
     layer_thickness = ds.layerThickness
@@ -28,6 +36,9 @@ def compute_total_mass_nonboussinesq(ds_mesh, ds):
 
 
 def compute_total_energy(ds_mesh, ds):
+    """
+    Compute the total heat content an ocean model output file
+    """
     ds = _reduce_dataset_time_dim(ds)
     area_cell = ds_mesh.areaCell
     layer_thickness = ds.layerThickness
@@ -43,6 +54,9 @@ def compute_total_energy(ds_mesh, ds):
 
 
 def compute_total_salt(ds_mesh, ds):
+    """
+    Compute the total salt in an ocean model output file
+    """
     ds = _reduce_dataset_time_dim(ds)
     area_cell = ds_mesh.areaCell
     layer_thickness = ds.layerThickness

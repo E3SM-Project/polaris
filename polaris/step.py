@@ -124,6 +124,9 @@ class Step:
         comparison should be performed if a baseline run has been provided. The
         baseline validation is performed after the step has run.
 
+    properties_to_check: dict of list
+        A list of properties to check for each output file.
+
     logger : logging.Logger
         A logger for output from the step
 
