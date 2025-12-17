@@ -14,7 +14,7 @@ the vertical dynamics of the ocean model only. The test cases are:
 
 ## suppported models
 
-These tasks support only MPAS-Ocean.
+These tasks support MPAS-Ocean and Omega.
 
 ## mesh
 
@@ -58,30 +58,8 @@ min_pc_fraction = 0.1
 
 ## initial conditions
 
-The temperature and salinity profiles are defined using the following equations:
-
-$$
-\Phi(z) = \begin{cases}
-    \Phi_0 &\text{ if } z = z[0]\\
-    \Phi_0 + {d\Phi/dz}_{ML} z &
-    \text{ if } z > z_{MLD}\\
-    (\Phi_0 + {\Delta\Phi}_{ML}) + {d\Phi/dz}_{int} (z - z_{MLD}) &
-    \text{ if } z \le z_{MLD}
-\end{cases}
-$$
-
-where $\Phi_0 = $`surface_X`, ${d\Phi/dz}_{ML} = $`X_gradient_mixed_layer`,
-$z_{MLD} = -$`mixed_layer_depth_X`, ${\Delta\Phi}_{ML} = $
-`X_difference_across_mixed_layer`, and ${d\Phi/dz}_{int} = $
-`X_gradient_interior`. `X` in the config options above is either `temperature`
-or `salinity`.
-
-The initial velocity is vertically uniform and given by
-`single_column:zonal_velocity` and `single_column:meridional_velocity`, which
-are 0 by default (at rest).
-
-The Coriolis parameter is spatially constant and set equal to
-`coriolis_parameter`.
+The initial conditions are either stably stratified or uniform. See each task
+below.
 
 ### forcing
 
@@ -245,7 +223,34 @@ See {ref}`ocean-single-column`.
 
 See {ref}`ocean-single-column`.
 
+(ocean-single-column-stable)=
+
 ### initial conditions
+
+The temperature and salinity profiles are defined using the following equations:
+
+$$
+\Phi(z) = \begin{cases}
+    \Phi_0 &\text{ if } z = z[0]\\
+    \Phi_0 + {d\Phi/dz}_{ML} z &
+    \text{ if } z > z_{MLD}\\
+    (\Phi_0 + {\Delta\Phi}_{ML}) + {d\Phi/dz}_{int} (z - z_{MLD}) &
+    \text{ if } z \le z_{MLD}
+\end{cases}
+$$
+
+where $\Phi_0 = $`surface_X`, ${d\Phi/dz}_{ML} = $`X_gradient_mixed_layer`,
+$z_{MLD} = -$`mixed_layer_depth_X`, ${\Delta\Phi}_{ML} = $
+`X_difference_across_mixed_layer`, and ${d\Phi/dz}_{int} = $
+`X_gradient_interior`. `X` in the config options above is either `temperature`
+or `salinity`.
+
+The initial velocity is vertically uniform and given by
+`single_column:zonal_velocity` and `single_column:meridional_velocity`, which
+are 0 by default (at rest).
+
+The Coriolis parameter is spatially constant and set equal to
+`coriolis_parameter`.
 
 These config options overwrite those in {ref}`ocean-single-column`:
 
@@ -263,7 +268,7 @@ mixed_layer_depth_temperature =  25.0
 salinity_difference_across_mixed_layer = 1.0
 ```
 
-The rest of the config options are given in {ref}`ocean-single-column`.
+(ocean-single-column-wind-evap)=
 
 ### forcing
 
@@ -301,8 +306,7 @@ days.
 
 ### config options
 
-See {ref}`ocean-single-column`. Currently, config options are only given in the
-shared framework.
+See {ref}`ocean-single-column-wind-evap` and {ref}`ocean-single-column-stable`.
 
 ### cores
 
@@ -345,7 +349,8 @@ The rest of the vertical grid features follow {ref}`ocean-single-column`.
 ### initial conditions
 
 The temperature and salinity are constant and the flow is at rest.
-See {ref}`ocean-single-column`.
+
+(ocean-single-column-wind)=
 
 ### forcing
 
@@ -378,7 +383,8 @@ viscosity:
 vertical_viscosity = 1.e-3
 ```
 
-All other config options derive from {ref}`ocean-single-column`.
+All other config options derive from {ref}`ocean-single-column` and
+{ref}`ocean-single-column-wind`.
 
 ### cores
 
@@ -412,6 +418,7 @@ See {ref}`ocean-single-column`.
 ### initial conditions
 
 `idealAgeTracers` is initialized as zero seconds throughout the water column.
+See {ref}`ocean-single-column-stable`.
 
 ### forcing
 
