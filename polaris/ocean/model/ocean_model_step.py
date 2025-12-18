@@ -378,6 +378,7 @@ class OceanModelStep(ModelStep):
                 'The work directory must be set before the step '
                 'output properties can be checked.'
             )
+        passed_properties = []
         failed_properties = []
         for filename, properties in self.properties_to_check.items():
             filename = str(filename)
@@ -402,7 +403,8 @@ class OceanModelStep(ModelStep):
                     init_mass = compute_total_mass(ds_mesh, ds.isel(Time=0))
                     final_mass = compute_total_mass(ds_mesh, ds.isel(Time=-1))
                     mass_change = final_mass - init_mass
-                    result = abs(mass_change) / (final_mass + 1.0) < tol
+                    relative_error = abs(mass_change) / (final_mass + 1.0)
+                    result = relative_error < tol
                 elif output_property == 'salt conservation':
                     tol = self.config.getfloat(
                         'ocean', 'salt_conservation_tolerance'
@@ -410,7 +412,8 @@ class OceanModelStep(ModelStep):
                     init_salt = compute_total_salt(ds_mesh, ds.isel(Time=0))
                     final_salt = compute_total_salt(ds_mesh, ds.isel(Time=-1))
                     salt_change = final_salt - init_salt
-                    result = abs(salt_change) / (final_salt - 1.0) < tol
+                    relative_error = abs(salt_change) / (final_salt - 1.0)
+                    result = relative_error < tol
                 elif output_property == 'tracer conservation':
                     tol = self.config.getfloat(
                         'ocean', 'tracer_conservation_tolerance'
@@ -432,9 +435,20 @@ class OceanModelStep(ModelStep):
                                 ds_mesh, ds.isel(Time=-1), tracer_name=tracer
                             )
                             tracer_change = final_tracer - init_tracer
-                            result = result and (
-                                abs(tracer_change) / (final_tracer - 1.0) < tol
+                            relative_error = abs(tracer_change) / (
+                                final_tracer - 1.0
                             )
+                            result = relative_error < tol
+                            if not result:
+                                failed_properties.append(
+                                    f'{tracer} conservation relative error '
+                                    f'{relative_error:.3e} exceeds {tol}'
+                                )
+                            else:
+                                passed_properties.append(
+                                    f'{tracer} conservation relative error '
+                                    f'{relative_error:.3e}'
+                                )
                             if result:
                                 continue
                 elif output_property == 'energy conservation':
@@ -448,7 +462,8 @@ class OceanModelStep(ModelStep):
                         ds_mesh, ds.isel(Time=-1)
                     )
                     energy_change = final_energy - init_energy
-                    result = abs(energy_change) / (final_energy - 1.0) < tol
+                    relative_error = abs(energy_change) / (final_energy - 1.0)
+                    result = relative_error < tol
                 else:
                     raise ValueError(
                         'Could not find method to execute property check '
@@ -457,16 +472,27 @@ class OceanModelStep(ModelStep):
 
                 success = success and result
                 checked = True
-                if not result:
-                    failed_properties.append(output_property)
-                    print(failed_properties)
+                # We already appended log strings for tracer conservation
+                if output_property != 'tracer conservation':
+                    if not result:
+                        failed_properties.append(
+                            f'{output_property} relative error '
+                            f'{relative_error:.3e} exceeds {tol}'
+                        )
+                    else:
+                        passed_properties.append(
+                            f'{output_property} relative error '
+                            f'{relative_error:.3e}'
+                        )
         if checked and success:
             log_filename = os.path.join(
                 self.work_dir, 'property_check_passed.log'
             )
+            passed_properties_str = '\n  '.join(passed_properties)
             with open(log_filename, 'w') as result_log_file:
                 result_log_file.write(
                     f'Output file {filename} passed property checks.\n'
+                    f'{passed_properties_str}\n'
                 )
         elif checked and not success:
             log_filename = os.path.join(
