@@ -10,7 +10,7 @@ set -x
 {%- if update_e3sm_submodule %}
 cd {{ polaris_source_dir }}
 
-if [ ! -d e3sm_submodules/E3SM-Project/.git ]; then
+if [ ! -e e3sm_submodules/E3SM-Project/.git ]; then
     git submodule update --init e3sm_submodules/E3SM-Project
 fi
 
