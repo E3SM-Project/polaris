@@ -9,6 +9,7 @@ from polaris.model_step import ModelStep
 from polaris.ocean.conservation import (
     compute_total_energy,
     compute_total_mass,
+    # compute_total_mass_nonboussinesq, # Add when Omega EOS is used
     compute_total_salt,
 )
 from polaris.tasks.ocean import Ocean
@@ -388,6 +389,15 @@ class OceanModelStep(ModelStep):
                     tol = self.config.getfloat(
                         'ocean', 'mass_conservation_tolerance'
                     )
+                    # Add when Omega EOS is used
+                    # if self.config.get('ocean', 'model') == 'omega':
+                    #     init_mass = compute_total_mass_nonboussinesq(
+                    #         ds_mesh, ds.isel(Time=0)
+                    #     )
+                    #     final_mass = compute_total_mass_nonboussinesq(
+                    #         ds_mesh, ds.isel(Time=-1)
+                    #     )
+                    # else:
                     init_mass = compute_total_mass(ds_mesh, ds.isel(Time=0))
                     final_mass = compute_total_mass(ds_mesh, ds.isel(Time=-1))
                     mass_change = final_mass - init_mass
