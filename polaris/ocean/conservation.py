@@ -53,18 +53,25 @@ def compute_total_energy(ds_mesh, ds):
     return total_energy
 
 
-def compute_total_salt(ds_mesh, ds):
+def compute_total_tracer(ds_mesh, ds, tracer_name='tracer1'):
     """
     Compute the total salt in an ocean model output file
     """
     ds = _reduce_dataset_time_dim(ds)
     area_cell = ds_mesh.areaCell
     layer_thickness = ds.layerThickness
-    salinity = ds.salinity
-    total_salt = (
-        area_cell * (layer_thickness * salinity).sum(dim='nVertLevels')
+    tracer = ds[tracer_name]
+    total_tracer = (
+        area_cell * (layer_thickness * tracer).sum(dim='nVertLevels')
     ).sum(dim='nCells')
-    return total_salt
+    return total_tracer
+
+
+def compute_total_salt(ds_mesh, ds):
+    """
+    Compute the total salt in an ocean model output file
+    """
+    return compute_total_tracer(ds_mesh, ds, tracer_name='salinity')
 
 
 def _reduce_dataset_time_dim(ds):

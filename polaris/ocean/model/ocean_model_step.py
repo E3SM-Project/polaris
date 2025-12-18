@@ -11,6 +11,7 @@ from polaris.ocean.conservation import (
     compute_total_mass,
     # compute_total_mass_nonboussinesq, # Add when Omega EOS is used
     compute_total_salt,
+    compute_total_tracer,
 )
 from polaris.tasks.ocean import Ocean
 
@@ -410,6 +411,32 @@ class OceanModelStep(ModelStep):
                     final_salt = compute_total_salt(ds_mesh, ds.isel(Time=-1))
                     salt_change = final_salt - init_salt
                     result = abs(salt_change) / (final_salt - 1.0) < tol
+                elif output_property == 'tracer conservation':
+                    tol = self.config.getfloat(
+                        'ocean', 'tracer_conservation_tolerance'
+                    )
+                    # Loop through all tracers in mpaso_to_omega.yaml
+                    tracers_to_check = [
+                        'temperature',
+                        'salinity',
+                        'tracer1',
+                        'tracer2',
+                        'tracer3',
+                    ]
+                    for tracer in tracers_to_check:
+                        if tracer in ds.keys():
+                            init_tracer = compute_total_tracer(
+                                ds_mesh, ds.isel(Time=0), tracer_name=tracer
+                            )
+                            final_tracer = compute_total_tracer(
+                                ds_mesh, ds.isel(Time=-1), tracer_name=tracer
+                            )
+                            tracer_change = final_tracer - init_tracer
+                            result = result and (
+                                abs(tracer_change) / (final_tracer - 1.0) < tol
+                            )
+                            if result:
+                                continue
                 elif output_property == 'energy conservation':
                     tol = self.config.getfloat(
                         'ocean', 'energy_conservation_tolerance'
