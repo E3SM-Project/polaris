@@ -461,6 +461,20 @@
 
 ## Ocean Framework
 
+### Conservation utilities
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.conservation
+
+.. autosummary::
+   :toctree: generated/
+
+   compute_total_mass
+   compute_total_mass_nonboussinesq
+   compute_total_salt
+   compute_total_energy
+```
+
 ### Convergence Tests
 
 ```{eval-rst}
@@ -533,6 +547,7 @@
 
    OceanModelStep
    OceanModelStep.setup
+   OceanModelStep.check_properties
    OceanModelStep.constrain_resources
    OceanModelStep.compute_cell_count
    OceanModelStep.map_yaml_options

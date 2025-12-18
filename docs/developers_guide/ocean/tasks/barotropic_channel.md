@@ -32,7 +32,7 @@ stream is also generated with wind stress fields.
 The class {py:class}`polaris.tasks.ocean.barotropic_channel.forward.Forward`
 defines a step for running the ocean from the initial condition produced in
 the `init` step. Namelist and streams files are updated in
-{py:meth}`polaris.tasks.ocean.overflow.forward.Forward.dynamic_model_config()`.
+{py:meth}`polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config()`.
 The number of cells is approximated from config options in
 {py:meth}`polaris.tasks.ocean.barotropic_channel.forward.Forward.compute_cell_count()`
 so that this can be used to constrain the number of MPI tasks that Polaris
@@ -47,7 +47,7 @@ The {py:class}`polaris.tasks.ocean.barotropic_channel.viz.Viz` plots the initial
 final velocity components, relative vorticity, and circulation at the bottommost
 vertical layer.
 
-(dev-ocean-overflow-default)=
+(dev-ocean-barotropic-channel-default)=
 
 ## default
 
