@@ -1,0 +1,274 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>external_gravity_wave</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=486e5634"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="geostrophic" href="geostrophic.html" />
+    <link rel="prev" title="cosine_bell" href="cosine_bell.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic_gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated_tracers_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine_bell</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">external_gravity_wave</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analysis">analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice_shelf_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial_gravity_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured_solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single_column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework.html">Ocean framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">external_gravity_wave</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/developers_guide/ocean/tasks/external_gravity_wave.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="external-gravity-wave">
+<span id="dev-ocean-external-gravity-wave"></span><h1>external_gravity_wave<a class="headerlink" href="#external-gravity-wave" title="Link to this heading"></a></h1>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.external_gravity_wave.ExternalGravityWave</span></code>
+task provides a test case to evaluate the time-convergence of time-stepping
+schemes in the simplest possible model configuration.</p>
+<p>Note that this is <em>not</em> a shallow water test case.
+While the standard, non-linear shallow water thickness equation
+has been left alone, all tendencies in the  momentum equation have been turned
+off, save the pressure gradient term. The resulting equations are given by
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align}
+    &amp;\partial_t \mathbf{u} = -g \nabla h \\
+    &amp;\partial_t h + \nabla \cdot (h\mathbf{u}) = 0 \,.
+\end{align}
+\end{split}\]</div>
+</p>
+<p>In particular, this task is used to  test the convergence of local
+time-stepping schemes (<code class="docutils literal notranslate"><span class="pre">LTS</span></code> and <code class="docutils literal notranslate"><span class="pre">FB_LTS</span></code>) that employ a operator splitting
+in which tendency terms other than those above are advanced with
+a first-order error. As a result, this task helps to show that these local
+time-stepping schemes are achieving the correct theoretical order of
+convergence if said splitting was not used.</p>
+<p>To calculate errors, the task runs the case once at a small time-step
+to generate a reference solution.</p>
+<section id="framework">
+<h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
+<p>The config options for the <code class="docutils literal notranslate"><span class="pre">external_gravity_wave</span></code> tests are described in
+<a class="reference internal" href="../../../users_guide/ocean/tasks/external_gravity_wave.html#ocean-external-gravity-wave"><span class="std std-ref">external gravity wave</span></a> in the User’s Guide.</p>
+<section id="base-mesh">
+<h3>base_mesh<a class="headerlink" href="#base-mesh" title="Link to this heading"></a></h3>
+<p>External gravity wave tasks use shared <code class="docutils literal notranslate"><span class="pre">base_mesh</span></code> steps for creating
+<a class="reference internal" href="../framework.html#dev-ocean-spherical-meshes"><span class="std std-ref">Quasi-uniform and Icosahedral Spherical Meshes</span></a> at a sequence of resolutions.</p>
+</section>
+<section id="init">
+<h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
+<p>The class <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.external_graivty_wave.init.Init</span></code>
+defines a step for setting up the initial state.</p>
+</section>
+<section id="init-lts">
+<h3>init_lts<a class="headerlink" href="#init-lts" title="Link to this heading"></a></h3>
+<p>The class
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.external_graivty_wave.lts_regions.LTSRegions</span></code>
+descends from <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.step</span></code>.
+This step labels the cells and edges of a mesh generated in an <code class="docutils literal notranslate"><span class="pre">init</span></code> step
+for use with an LTS method.</p>
+</section>
+<section id="forward">
+<h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
+<p>The class <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.external_gravity_wave.forward.Forward</span></code>
+descends from
+<a class="reference internal" href="../generated/polaris.ocean.convergence.spherical.SphericalConvergenceForward.html#polaris.ocean.convergence.spherical.SphericalConvergenceForward" title="polaris.ocean.convergence.spherical.SphericalConvergenceForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceForward</span></code></a>,
+and defines a step for running MPAS-Ocean from an initial condition produced in
+an <code class="docutils literal notranslate"><span class="pre">init</span></code> step. See <a class="reference internal" href="../framework.html#dev-ocean-convergence"><span class="std std-ref">Convergence Tests</span></a> for some relevant
+discussion of the parent class.</p>
+<p>Additionally, the class
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.external_gravity_wave.forward.ReferenceForward</span></code>
+descends directly from <a class="reference internal" href="../generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep</span></code></a>.
+This is done to create a forward step to generate the reference solution
+independent of the rest of the convergence framework.</p>
+<p>The time steps are determined from the resolution
+based on the <code class="docutils literal notranslate"><span class="pre">{time_integrator}_dt_per_km</span></code> config option in the <code class="docutils literal notranslate"><span class="pre">[convergence_forward]</span></code>
+section.  Other model config options are taken from <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>.</p>
+</section>
+</section>
+<section id="analysis">
+<h2>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h2>
+<p>The class
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.external_graivty_wave.analysis.Analysis</span></code>
+descends from
+<a class="reference internal" href="../generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis" title="polaris.ocean.convergence.analysis.ConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.analysis.ConvergenceAnalysis</span></code></a> and
+defines a step for computing the error norm (L2) for results for each
+time-step against the reference solution, saving them in
+<code class="docutils literal notranslate"><span class="pre">convergence_layerThickness.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">convergence_normalVelocity.csv</span></code>, and
+plotting them in <code class="docutils literal notranslate"><span class="pre">convergence_layerThickness.png</span></code> and
+<code class="docutils literal notranslate"><span class="pre">convergence_normalVelocity.png</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cosine_bell.html" class="btn btn-neutral float-left" title="cosine_bell" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="geostrophic.html" class="btn btn-neutral float-right" title="geostrophic" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.8.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

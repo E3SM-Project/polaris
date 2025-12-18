@@ -1,0 +1,293 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Making a New Category of Tasks</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=486e5634"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Adding a Shared Step" href="adding_shared_step.html" />
+    <link rel="prev" title="Getting Started" href="getting_started.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Developer Tutorial: Adding a New Category of Tasks</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of the Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Making a New Category of Tasks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#test-it-out">Test it out</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#commit-the-changes">Commit the Changes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="adding_shared_step.html">Adding a Shared Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_first_task.html">Adding a First Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_first_task.html">Testing the First Task and Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fleshing_out_step.html">Fleshing out the <code class="docutils literal notranslate"><span class="pre">init</span></code> Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_plots.html">Adding Plots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_outputs.html">Adding Step Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_forward.html">Adding a <code class="docutils literal notranslate"><span class="pre">forward</span></code> Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_viz.html">Adding a Visualization Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documenting.html">Documentation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+      <li class="breadcrumb-item active">Making a New Category of Tasks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/tutorials/dev_add_category_of_tasks/creating_category_of_tasks.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="making-a-new-category-of-tasks">
+<h1>Making a New Category of Tasks<a class="headerlink" href="#making-a-new-category-of-tasks" title="Link to this heading"></a></h1>
+<p>This page walks you through creating a new category of tasks in Polaris, using
+the ocean component as an example. In Polaris, a “category of tasks” is simply
+a set of related tasks grouped in a Python package (subdirectory) within a
+component’s <code class="docutils literal notranslate"><span class="pre">tasks</span></code> directory.</p>
+<p>Use any method you like for editing code. If you haven’t settled on a method
+and are working on your own laptop or desktop, you may want to try an
+integrated development environment (<a class="reference external" href="https://code.visualstudio.com/">VS Code</a>
+is a really nice one). These tools help ensure your code adheres to the style
+required for Polaris (see <a class="reference internal" href="../../developers_guide/overview.html#dev-style"><span class="std std-ref">Code Style</span></a>). <code class="docutils literal notranslate"><span class="pre">vim</span></code> or a similar tool will work
+fine on supercomputers (though VS Code can also be used via ssh).</p>
+<p>To create a new category of tasks, start by making a new subdirectory under the
+appropriate component’s <code class="docutils literal notranslate"><span class="pre">tasks</span></code> directory. For example, to create a new group
+called <code class="docutils literal notranslate"><span class="pre">my_overflow</span></code> for the ocean component, create the following
+directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>mkdir<span class="w"> </span>polaris/tasks/ocean/my_overflow
+$<span class="w"> </span>touch<span class="w"> </span>polaris/tasks/ocean/my_overflow/__init__.py
+</pre></div>
+</div>
+<p>Next, add a function to <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> that will be used to add all the tasks
+in this category to the component. This function should be named
+<code class="docutils literal notranslate"><span class="pre">add_&lt;my_category&gt;_tasks()</span></code> and take the component as an argument. For now, it
+can just <code class="docutils literal notranslate"><span class="pre">pass</span></code> since we haven’t created any tasks yet:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">add_my_overflow_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a task following the &quot;my overflow&quot; test case of Petersen et al. (2015)</span>
+<span class="sd">    doi:10.1016/j.ocemod.2014.12.004</span>
+
+<span class="sd">    component : polaris.ocean.Ocean</span>
+<span class="sd">        the ocean component that the task will be added to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Later, as you add tasks, you will update this function to instantiate and add
+each task to the component using <code class="docutils literal notranslate"><span class="pre">component.add_task()</span></code>.</p>
+<p>This function needs to be called from the component’s <code class="docutils literal notranslate"><span class="pre">add_tasks.py</span></code> module to
+register all tasks in this category.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.manufactured_solution</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">add_manufactured_solution_tasks</span> <span class="k">as</span> <span class="n">add_manufactured_solution_tasks</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.my_overflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_my_overflow_tasks</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.overflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_overflow_tasks</span>
+<span class="o">...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add_ocean_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add all ocean-related tasks to the ocean component.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">        The ocean component to which tasks will be added.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># planar tasks</span>
+    <span class="o">...</span>
+    <span class="n">add_manufactured_solution_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
+<span class="hll">    <span class="n">add_my_overflow_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
+</span>    <span class="n">add_overflow_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>We keep categories of tasks sorted first by planar, single column or
+spherical mesh types, then alphabetically within these categories.</p>
+<p>Naming conventions in Python are that we use
+<a class="reference external" href="https://en.wikipedia.org/wiki/Camel_case">CamelCase</a> for classes (which always
+start with a capital letter), and all lowercase, possibly with underscores,
+for variable, module, package, function, and method names. We avoid all-caps
+like <code class="docutils literal notranslate"><span class="pre">MPAS</span></code>, even though this might seem preferable. (We use <code class="docutils literal notranslate"><span class="pre">E3SM</span></code> in a few
+places because <code class="docutils literal notranslate"><span class="pre">E3sm</span></code> looks really awkward.)</p>
+<p>You are encouraged to add docstrings (enclosed in <code class="docutils literal notranslate"><span class="pre">&quot;&quot;&quot;</span></code>) to briefly document
+classes, methods, and functions as you write them. We use the
+<a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> style
+conventions, as described in <a class="reference internal" href="../../developers_guide/docs.html#dev-docstrings"><span class="std std-ref">Docstrings</span></a>.</p>
+<p>That’s all you need to do to set up a new category of tasks! In the next
+steps, you’ll add actual task classes and update your
+<code class="docutils literal notranslate"><span class="pre">add_my_overflow_tasks()</span></code> function to register them with the
+component.</p>
+<section id="test-it-out">
+<h2>Test it out<a class="headerlink" href="#test-it-out" title="Link to this heading"></a></h2>
+<p>There’s not too much to test so far, but you can make sure you can run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>list
+</pre></div>
+</div>
+<p>If you don’t have access to the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> command, you probably need to source
+the load script, something like:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_dev_polaris_0.1.0-alpha.3_chrysalis_intel_openmpi.sh
+</pre></div>
+</div>
+<p>If <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code> gives you import errors, something isn’t quite hooked up
+right.  You shouldn’t expect to see anything new yet because we haven’t added
+a task yet.</p>
+</section>
+<section id="commit-the-changes">
+<h2>Commit the Changes<a class="headerlink" href="#commit-the-changes" title="Link to this heading"></a></h2>
+<p>It is a good idea to commit frequently during development.  You can always
+use <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">rebase</span></code> later to clean things up and consolidate commits that belong
+together.  One advantage of committing frequently is that your code will be
+linted and formatted using several tools such as <code class="docutils literal notranslate"><span class="pre">ruff</span> <span class="pre">check</span></code>, <code class="docutils literal notranslate"><span class="pre">ruff</span> <span class="pre">format</span></code>
+and <code class="docutils literal notranslate"><span class="pre">mypy</span></code> as you go.  These tools help to keep a consistent style throughout
+Polaris and catch many types of errors before you run the code. See
+<a class="reference internal" href="../../developers_guide/quick_start.html#dev-polaris-style"><span class="std std-ref">Code style for polaris</span></a>.</p>
+<hr class="docutils" />
+<p>← <a class="reference internal" href="getting_started.html"><span class="std std-doc">Back to <em>Getting Started</em></span></a></p>
+<p>→ <a class="reference internal" href="adding_shared_step.html"><span class="std std-doc">Continue to <em>Adding a Shared Step</em></span></a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="getting_started.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="adding_shared_step.html" class="btn btn-neutral float-right" title="Adding a Shared Step" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.8.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

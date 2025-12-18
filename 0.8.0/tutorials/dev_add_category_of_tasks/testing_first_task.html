@@ -1,0 +1,322 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Testing the First Task and Step</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=486e5634"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Fleshing out the init Step" href="fleshing_out_step.html" />
+    <link rel="prev" title="Adding a First Task" href="adding_first_task.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Developer Tutorial: Adding a New Category of Tasks</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of the Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating_category_of_tasks.html">Making a New Category of Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_shared_step.html">Adding a Shared Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_first_task.html">Adding a First Task</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Testing the First Task and Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fleshing_out_step.html">Fleshing out the <code class="docutils literal notranslate"><span class="pre">init</span></code> Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_plots.html">Adding Plots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_outputs.html">Adding Step Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_forward.html">Adding a <code class="docutils literal notranslate"><span class="pre">forward</span></code> Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_viz.html">Adding a Visualization Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documenting.html">Documentation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+      <li class="breadcrumb-item active">Testing the First Task and Step</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/tutorials/dev_add_category_of_tasks/testing_first_task.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="testing-the-first-task-and-step">
+<h1>Testing the First Task and Step<a class="headerlink" href="#testing-the-first-task-and-step" title="Link to this heading"></a></h1>
+<p>As you’ve seen, it’s a good idea to test things out frequently as you develop
+tasks and steps. Before we add any more features (certainly before we add any
+more steps or tasks), we’ll run <code class="docutils literal notranslate"><span class="pre">default</span></code> and make sure we can create mesh.
+It would be good to make sure what we’ve done so far works well before we move
+on.</p>
+<p>The first way to test things out is just to list the tasks and make sure your
+new one show up:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>polaris<span class="w"> </span>list
+
+Testcases:
+<span class="w">  </span>...
+<span class="w">  </span><span class="m">94</span>:<span class="w"> </span>ocean/planar/my_overflow/default
+<span class="w">  </span>...
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Your numbers will be different from these, as new tasks are constantly being
+added to Polaris.</p>
+</div>
+<p>A quick way to just get the task(s) you want is:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>polaris<span class="w"> </span>list<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>my_overflow
+<span class="w">  </span><span class="m">94</span>:<span class="w"> </span>ocean/planar/my_overflow/default
+</pre></div>
+</div>
+<p>If the tasks doesn’t show up, you probably missed a step (adding the
+<code class="docutils literal notranslate"><span class="pre">add_my_overflow_tasks()</span></code> call to the component or adding the <code class="docutils literal notranslate"><span class="pre">default</span></code> task
+within that function).  If you get import, missing file, or syntax errors,
+you’ll need to fix those first.</p>
+<p>If listing works out, it’s time to set up your task:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>polaris<span class="w"> </span>setup<span class="w"> </span>-n<span class="w"> </span><span class="m">94</span><span class="w"> </span>-p<span class="w"> </span>e3sm_submodules/E3SM-Project/components/mpas-ocean<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-w<span class="w"> </span>&lt;work_dir&gt;
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../../developers_guide/command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a> for the details. If that works, you’re ready to
+do a test run.  If you get errors during setup, you have some debugging to do.</p>
+<p>You can run the test with a job script or an interactive node.  For debugging,
+the interactive node is usually more efficient. To run the task, open a
+new terminal, go to the work directory, start an interactive session on
+however many nodes you need (most often 1 when you’re just debugging something
+small) and for a long enough time that your debugging doesn’t get interrupted,
+e.g. on Chrysalis:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>&lt;work_dir&gt;
+$<span class="w"> </span>srun<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>-t<span class="w"> </span><span class="m">2</span>:00:00<span class="w"> </span>--pty<span class="w"> </span>bash
+</pre></div>
+</div>
+<p>Let’s navigate into the task directory and see what it looks like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd ocean/planar/my_overflow/default
+$ ls
+init  job_script.sh  load_polaris_env.sh  my_overflow.cfg  task.pickle
+</pre></div>
+</div>
+<p>If we open up <code class="docutils literal notranslate"><span class="pre">my_overflow.cfg</span></code> we can see that it contains our newly added
+<code class="docutils literal notranslate"><span class="pre">[my_overflow]</span></code> section along with a bunch of other sections. Let’s go to
+the <code class="docutils literal notranslate"><span class="pre">[default]</span></code> section, where you will see <code class="docutils literal notranslate"><span class="pre">steps_to_run</span> <span class="pre">=</span> <span class="pre">init</span></code>.
+This means that when we run our case, the meshshould be generated
+if we didn’t make any mistakes in setting up the step (fingers crossed!).</p>
+<p>Then, on the interactive node, source the local link the load script and run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>load_polaris_env.sh
+$<span class="w"> </span>polaris<span class="w"> </span>serial
+</pre></div>
+</div>
+<p>(The <code class="docutils literal notranslate"><span class="pre">serial</span></code> in <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> is for “task serial” – we have ambitions of
+running in task parallel in the future.  Jobs may still run with MPI or Python
+parallelism when launched with <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code>.)</p>
+<p>If you get errors, once again, you have some debugging to do. After fixing
+bugs, it may sometimes be necessary to set up the test again before your
+fix becomes available in the work directory (though many code changes should
+take effect without you having to set up again).  It is typically usefule to
+have at least two terminals open, one for editing code and setting up the
+task and a second one (logged into an interactive job) for running and looking
+at the results.</p>
+<p>Now let’s see what’s in the <code class="docutils literal notranslate"><span class="pre">init</span></code> directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ls init
+base_mesh.nc       job_script.sh        polaris_step_complete.log
+culled_graph.info  load_polaris_env.sh  step.pickle
+culled_mesh.nc     my_overflow.cfg
+
+</pre></div>
+</div>
+<p>Our <code class="docutils literal notranslate"><span class="pre">base_mesh.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">culled_mesh.nc</span></code> files are there.</p>
+<p>One important aspect of this testing will be to change config options in the
+work directory and make sure the task is modified in the expected way.  If
+you change <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code>, does the domain size change in the <code class="docutils literal notranslate"><span class="pre">culled_mesh.nc</span></code>
+as expected?</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ncdump -h init/culled_mesh.nc
+netcdf culled_mesh {
+dimensions:
+	nEdges = 7248 ;
+	nCells = 2400 ;
+	nVertices = 4848 ;
+	maxEdges = 6 ;
+	TWO = 2 ;
+	vertexDegree = 3 ;
+	maxEdges2 = 12 ;
+variables:
+	double angleEdge(nEdges) ;
+		angleEdge:long_name = &quot;angle to edges&quot; ;
+	double areaCell(nCells) ;
+		areaCell:long_name = &quot;surface areas of cells&quot; ;
+...
+</pre></div>
+</div>
+<p>If you want to rerun, you have to remove the following file first.  Otherwise,
+Polaris just thinks the step has finished successuflly and won’t rerun it.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rm init/polaris_step_complete.log
+</pre></div>
+</div>
+<p>Then, you can modify the size of the domain or the resolution (e.g. <code class="docutils literal notranslate"><span class="pre">lx</span> <span class="pre">=</span> <span class="pre">80</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ly</span> <span class="pre">=</span> <span class="pre">400</span></code>):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vim<span class="w"> </span>my_overflow.cfg
+</pre></div>
+</div>
+<p>and rerun the task:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>polaris<span class="w"> </span>serial
+</pre></div>
+</div>
+<p>As expected, the mesh now has 4 times as many cells:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ $ ncdump -h init/culled_mesh.nc
+netcdf culled_mesh {
+dimensions:
+	nEdges = 27692 ;
+	nCells = 9200 ;
+	nVertices = 18492 ;
+	maxEdges = 6 ;
+	TWO = 2 ;
+	vertexDegree = 3 ;
+	maxEdges2 = 12 ;
+variables:
+	double angleEdge(nEdges) ;
+		angleEdge:long_name = &quot;angle to edges&quot; ;
+	double areaCell(nCells) ;
+		areaCell:long_name = &quot;surface areas of cells&quot; ;
+...
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>← <a class="reference internal" href="adding_first_task.html"><span class="std std-doc">Back to <em>Adding a First Task</em></span></a></p>
+<p>→ <a class="reference internal" href="fleshing_out_step.html"><span class="std std-doc">Continue to <em>Fleshing out the <code class="docutils literal notranslate"><span class="pre">init</span></code> Step</em></span></a></p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="adding_first_task.html" class="btn btn-neutral float-left" title="Adding a First Task" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fleshing_out_step.html" class="btn btn-neutral float-right" title="Fleshing out the init Step" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.8.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

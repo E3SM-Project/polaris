@@ -1,0 +1,6 @@
+﻿polaris.parallel.set\_cores\_per\_node
+======================================
+
+.. currentmodule:: polaris.parallel
+
+.. autofunction:: set_cores_per_node

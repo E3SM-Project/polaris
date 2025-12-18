@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.baroclinic\_channel.threads.Threads
+=======================================================
+
+.. currentmodule:: polaris.tasks.ocean.baroclinic_channel.threads
+
+.. autoclass:: Threads
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Threads.__init__
+      ~Threads.add_step
+      ~Threads.configure
+      ~Threads.remove_step
+      ~Threads.set_shared_config
+   
+   
+
+   
+   
+   

@@ -1,0 +1,334 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.ocean.ice_shelf</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=486e5634"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.ocean.ice_shelf</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.ocean.ice_shelf</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span> <span class="k">as</span> <span class="n">Dict</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Step</span> <span class="k">as</span> <span class="n">Step</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Task</span> <span class="k">as</span> <span class="n">Task</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.ice_shelf.ssh_adjustment</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SshAdjustment</span> <span class="k">as</span> <span class="n">SshAdjustment</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.ice_shelf.ssh_forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">SshForward</span> <span class="k">as</span> <span class="n">SshForward</span>
+
+
+<div class="viewcode-block" id="IceShelfTask">
+<a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.ice_shelf.IceShelfTask.html#polaris.ocean.ice_shelf.IceShelfTask">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IceShelfTask</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for tasks with domains containing ice shelves</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sshdir : string</span>
+<span class="sd">        The directory to put the ssh_adjustment steps in</span>
+
+<span class="sd">    component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">        The ocean component that this task belongs to</span>
+
+<span class="sd">    min_resolution : float</span>
+<span class="sd">        The resolution of the test case in km</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="IceShelfTask.__init__">
+<a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.ice_shelf.IceShelfTask.html#polaris.ocean.ice_shelf.IceShelfTask.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">min_resolution</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">sshdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct ice shelf task</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">            The ocean component that this task belongs to</span>
+
+<span class="sd">        min_resolution : float</span>
+<span class="sd">            The resolution of the test case in km</span>
+
+<span class="sd">        name : string</span>
+<span class="sd">            The name of the step</span>
+
+<span class="sd">        subdir : string</span>
+<span class="sd">            The subdirectory for the step</span>
+
+<span class="sd">        sshdir : string, optional</span>
+<span class="sd">            The directory to put the ssh_adjustment steps in. If None,</span>
+<span class="sd">            defaults to subdir.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">sshdir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sshdir</span> <span class="o">=</span> <span class="n">subdir</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sshdir</span> <span class="o">=</span> <span class="n">sshdir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">component</span> <span class="o">=</span> <span class="n">component</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_resolution</span> <span class="o">=</span> <span class="n">min_resolution</span></div>
+
+
+<div class="viewcode-block" id="IceShelfTask.setup_ssh_adjustment_steps">
+<a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.ice_shelf.IceShelfTask.setup_ssh_adjustment_steps.html#polaris.ocean.ice_shelf.IceShelfTask.setup_ssh_adjustment_steps">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_ssh_adjustment_steps</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mesh_filename</span><span class="p">,</span>
+        <span class="n">graph_target</span><span class="p">,</span>
+        <span class="n">init_filename</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">config_filename</span><span class="p">,</span>
+        <span class="n">ForwardStep</span><span class="p">,</span>
+        <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;ssh_forward.yaml&#39;</span><span class="p">,</span>
+        <span class="n">yaml_replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup ssh_forward and ssh_adjustment steps for all iterations</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mesh_filename : str</span>
+<span class="sd">            the mesh filename (relative to the base work directory)</span>
+
+<span class="sd">        graph_target: str</span>
+<span class="sd">            the graph filename (relative to the base work directory)</span>
+
+<span class="sd">        init_filename : str</span>
+<span class="sd">            the initial condition filename (relative to the base work</span>
+<span class="sd">            directory)</span>
+
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            The configuration for this task</span>
+
+<span class="sd">        config_filename : str</span>
+<span class="sd">            the configuration filename</span>
+
+<span class="sd">        ForwardStep : polaris.ocean.ice_shelf.ssh_forward.SshForward</span>
+<span class="sd">            the step class used to create ssh_forward steps</span>
+
+<span class="sd">        package : Package</span>
+<span class="sd">            The package name or module object that contains ``namelist``</span>
+<span class="sd">            from which ssh_forward steps will derive their configuration</span>
+
+<span class="sd">        yaml_filename : str, optional</span>
+<span class="sd">            the yaml filename used for ssh_forward steps</span>
+
+<span class="sd">        yaml_replacements : Dict, optional</span>
+<span class="sd">            key, string combinations for templated replacements in the yaml</span>
+<span class="sd">            file</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        final_step : polaris.Step</span>
+<span class="sd">            the final ssh_adjustment step that produces the input to the next</span>
+<span class="sd">            forward step</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">min_resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_resolution</span>
+        <span class="n">component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span>
+        <span class="n">sshdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sshdir</span>
+
+        <span class="n">num_iterations</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;ssh_adjustment&#39;</span><span class="p">,</span> <span class="s1">&#39;iterations&#39;</span><span class="p">)</span>
+
+        <span class="c1"># for the first iteration, ssh_forward step is run from the initial</span>
+        <span class="c1"># state</span>
+        <span class="n">current_init_filename</span> <span class="o">=</span> <span class="n">init_filename</span>
+        <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;ssh_forward_</span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sshdir</span><span class="si">}</span><span class="s1">/ssh_adjustment/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">ssh_forward</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+                <span class="n">step_cls</span><span class="o">=</span><span class="n">ForwardStep</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+                <span class="n">min_resolution</span><span class="o">=</span><span class="n">min_resolution</span><span class="p">,</span>
+                <span class="n">init_filename</span><span class="o">=</span><span class="n">current_init_filename</span><span class="p">,</span>
+                <span class="n">graph_target</span><span class="o">=</span><span class="n">graph_target</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
+                <span class="n">yaml_filename</span><span class="o">=</span><span class="n">yaml_filename</span><span class="p">,</span>
+                <span class="n">yaml_replacements</span><span class="o">=</span><span class="n">yaml_replacements</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">sshdir</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">:</span>
+                <span class="n">symlink</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;ssh_adjustment/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">ssh_forward</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
+
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;ssh_adjust_</span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sshdir</span><span class="si">}</span><span class="s1">/ssh_adjustment/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">ssh_adjust</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+                <span class="n">step_cls</span><span class="o">=</span><span class="n">SshAdjustment</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+                <span class="n">mesh_filename</span><span class="o">=</span><span class="n">mesh_filename</span><span class="p">,</span>
+                <span class="n">forward</span><span class="o">=</span><span class="n">ssh_forward</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">sshdir</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">:</span>
+                <span class="n">symlink</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;ssh_adjustment/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">ssh_adjust</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
+            <span class="c1"># for the next iteration, ssh_forward is run from the adjusted</span>
+            <span class="c1"># initial state (the output of ssh_adustment)</span>
+            <span class="n">current_init_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ssh_adjust</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span>
+            <span class="n">final_step</span> <span class="o">=</span> <span class="n">ssh_adjust</span>
+
+        <span class="k">return</span> <span class="n">final_step</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.8.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,301 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How Conda and Spack Work Together in Polaris</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=486e5634"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Updating Conda Dependencies" href="updating_conda.html" />
+    <link rel="prev" title="Building the Documentation" href="building_docs.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How Conda and Spack Work Together in Polaris</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#why-combine-conda-and-spack">Why Combine Conda and Spack?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#conda">✅ Conda</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spack">✅ Spack</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-challenge">❗ The Challenge</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#architecture-how-they-work-together">Architecture: How They Work Together</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#shared-infrastructure">Shared Infrastructure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#future-alternatives">Future Alternatives</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#option-e4s-extreme-scale-scientific-software-stack">Option: <strong>E4S (Extreme-scale Scientific Software Stack)</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#other-approaches-less-suitable-currently">Other Approaches (less suitable currently):</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">How Conda and Spack Work Together in Polaris</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/developers_guide/conda_vs_spack.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="how-conda-and-spack-work-together-in-polaris">
+<h1>How Conda and Spack Work Together in Polaris<a class="headerlink" href="#how-conda-and-spack-work-together-in-polaris" title="Link to this heading"></a></h1>
+<p>Polaris uses a hybrid approach that combines Conda and Spack to build
+and deploy a comprehensive software environment for analysis and diagnostics.
+This page explains the motivation for this strategy, how the components
+interact, and the shared infrastructure that supports Polaris and related
+projects (e.g. <a class="reference external" href="https://docs.e3sm.org/e3sm-unified/main/releasing/release-workflow.html">E3SM-Unified</a>).</p>
+<hr class="docutils" />
+<section id="why-combine-conda-and-spack">
+<h2>Why Combine Conda and Spack?<a class="headerlink" href="#why-combine-conda-and-spack" title="Link to this heading"></a></h2>
+<p>Each tool solves a different part of the problem:</p>
+<section id="conda">
+<h3>✅ Conda<a class="headerlink" href="#conda" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Excellent for managing Python packages and their dependencies</p></li>
+<li><p>Supports rapid installation and reproducibility</p></li>
+<li><p>Compatible with conda-forge and custom channels</p></li>
+<li><p>User-friendly interface, especially for scientists and developers</p></li>
+</ul>
+</section>
+<section id="spack">
+<h3>✅ Spack<a class="headerlink" href="#spack" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Designed for building performance-sensitive HPC software</p></li>
+<li><p>Allows fine-grained control over compilers, MPI implementations, and system
+libraries</p></li>
+<li><p>Better suited for tools written in Fortran/C/C++ with MPI dependencies</p></li>
+</ul>
+</section>
+<section id="the-challenge">
+<h3>❗ The Challenge<a class="headerlink" href="#the-challenge" title="Link to this heading"></a></h3>
+<p>Neither system alone is sufficient:</p>
+<ul class="simple">
+<li><p>Conda cannot reliably build or run MPI-based binaries across multiple nodes
+on HPC systems.</p></li>
+<li><p>Spack lacks strong support for modern Python environments and is generally
+harder to use for scientists accustomed to Conda-based workflows.</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="architecture-how-they-work-together">
+<h2>Architecture: How They Work Together<a class="headerlink" href="#architecture-how-they-work-together" title="Link to this heading"></a></h2>
+<p>Polaris environments:</p>
+<ol class="arabic simple">
+<li><p>Use <strong>Conda</strong> to install the core Python tools and lightweight dependencies</p></li>
+<li><p>Rely on <strong>Spack</strong> to build performance-critical tools outside Conda as
+well as libraries required for build E3SM components to be tested in Polaris</p></li>
+<li><p>Are bundled into a single workflow that ensures compatibility across both</p></li>
+</ol>
+<p>System-specific setup scripts ensure both components are activated correctly.</p>
+<p>For MPI-based tools:</p>
+<ul class="simple">
+<li><p>The tools are built with Spack using system compilers and MPI</p></li>
+<li><p>Users automatically access these builds when running on compute nodes</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="shared-infrastructure">
+<h2>Shared Infrastructure<a class="headerlink" href="#shared-infrastructure" title="Link to this heading"></a></h2>
+<p>Polaris, E3SM-Unified, and Compass all rely on the same key components:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/E3SM-Project/mache"><code class="docutils literal notranslate"><span class="pre">mache</span></code></a>: A configuration library
+for detecting machine-specific settings (modules, compilers, paths)</p></li>
+<li><p><a class="reference external" href="https://github.com/E3SM-Project/spack">E3SM’s Spack fork</a>: Centralized
+control over package versions and build settings</p></li>
+<li><p>Conda: Used consistently to install <code class="docutils literal notranslate"><span class="pre">mache</span></code>, lightweight tools, and Python
+dependencies</p></li>
+</ul>
+<p>This shared foundation ensures reproducibility and consistency across
+workflows, testbeds, and developer tools in the E3SM ecosystem.  <code class="docutils literal notranslate"><span class="pre">mache</span></code> also
+helps to ensure that libraries used by E3SM components come from the
+same system module in Polaris as they do in E3SM.  In cases where libraries
+are built with Spack, <code class="docutils literal notranslate"><span class="pre">mache</span></code> ensures that the compilers and MPI libraries
+used to build them are the same as will be used to build the components
+themselves.</p>
+</section>
+<hr class="docutils" />
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>The hybrid Conda + Spack model in Polaris balances ease of use with HPC
+performance. While more complex to maintain, it provides flexibility,
+compatibility, and performance across diverse systems. Shared infrastructure
+(like <code class="docutils literal notranslate"><span class="pre">mache</span></code> and E3SM’s Spack fork) reduces duplication across projects and
+streamlines the release process.</p>
+</section>
+<hr class="docutils" />
+<section id="future-alternatives">
+<h2>Future Alternatives<a class="headerlink" href="#future-alternatives" title="Link to this heading"></a></h2>
+<p>As complexity grows, other strategies may be worth evaluating:</p>
+<section id="option-e4s-extreme-scale-scientific-software-stack">
+<h3>Option: <strong>E4S (Extreme-scale Scientific Software Stack)</strong><a class="headerlink" href="#option-e4s-extreme-scale-scientific-software-stack" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Spack-based stack of curated HPC tools</p></li>
+<li><p>E4S environments aim to replace the need for manual Spack+Conda integration</p></li>
+<li><p>May offer better long-term sustainability, but lacks Python focus today</p></li>
+</ul>
+<p>🔗 <a class="reference external" href="https://e4s.io">Explore E4S</a></p>
+</section>
+<section id="other-approaches-less-suitable-currently">
+<h3>Other Approaches (less suitable currently):<a class="headerlink" href="#other-approaches-less-suitable-currently" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Pure Spack builds (harder for Python workflows)</p></li>
+<li><p>Pure Conda builds (harder for HPC performance tools and likely can’t provide
+libraries needed to build E3SM components)</p></li>
+<li><p>Containers (portability gains, but complex for HPC integration)</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id1">
+<h2>Summary<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>The hybrid Conda + Spack model in Polaris balances ease of use with HPC
+performance. While more complex to maintain, it provides flexibility,
+compatibility, and performance across diverse systems. Shared infrastructure
+(like <code class="docutils literal notranslate"><span class="pre">mache</span></code> and E3SM’s Spack fork) reduces duplication across projects and
+streamlines the release process.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="building_docs.html" class="btn btn-neutral float-left" title="Building the Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="updating_conda.html" class="btn btn-neutral float-right" title="Updating Conda Dependencies" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.8.0">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

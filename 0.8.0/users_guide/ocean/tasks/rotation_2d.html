@@ -1,0 +1,488 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rotation 2-d</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=486e5634"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="single column" href="single_column.html" />
+    <link rel="prev" title="overflow" href="overflow.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated tracers 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_gravity_wave.html">external gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice shelf 2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">rotation 2-d</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#description">description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#suppported-models">suppported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">rotation 2-d</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/users_guide/ocean/tasks/rotation_2d.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="rotation-2-d">
+<span id="ocean-rotation-2d"></span><h1>rotation 2-d<a class="headerlink" href="#rotation-2-d" title="Link to this heading"></a></h1>
+<section id="description">
+<h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">rotation_2d</span></code> and <code class="docutils literal notranslate"><span class="pre">rotation_2d/with_viz</span></code> tasks implement the
+rotational flow field test of numerical order of convergence.
+This test is similar to <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> except the axis of rotation is a config
+option and can be offset from the z-axis.</p>
+<p>The numerical order of convergence is analyzed in the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step and
+produces a figure similar to the following showing L2 error norm as a function
+of horizontal resolution:</p>
+<a class="reference internal image-reference" href="../../../_images/rotation_2d_convergence.png"><img alt="../../../_images/rotation_2d_convergence.png" class="align-center" src="../../../_images/rotation_2d_convergence.png" style="width: 500px;" />
+</a>
+</section>
+<section id="suppported-models">
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
+<p>These tasks support only MPAS-Ocean.</p>
+</section>
+<section id="mesh">
+<h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
+<p>Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. Thus,
+there are 4 variants of the task:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">rotation_2d</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">rotation_2d</span><span class="o">/</span><span class="n">with_viz</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">rotation_2d</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">rotation_2d</span><span class="o">/</span><span class="n">with_viz</span>
+</pre></div>
+</div>
+<p>The default resolutions used in the task depends on the mesh type.</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">icos</span></code> mesh type, the defaults are:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[spherical_convergence]</span>
+
+<span class="c1"># a list of icosahedral mesh resolutions (km) to test</span>
+<span class="na">icos_resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60, 120, 240, 480</span>
+</pre></div>
+</div>
+<p>for the <code class="docutils literal notranslate"><span class="pre">qu</span></code> mesh type, they are:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[spherical_convergence]</span>
+
+<span class="c1"># a list of quasi-uniform mesh resolutions (km) to test</span>
+<span class="na">qu_resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60, 90, 120, 150, 180, 210, 240</span>
+</pre></div>
+</div>
+<p>To alter the resolutions used in this task, you will need to create your own
+config file (or add a <code class="docutils literal notranslate"><span class="pre">spherical_convergence</span></code> section to a config file if
+you’re already using one).  The resolutions are a comma-separated list of the
+resolution of the mesh in km.  If you specify a different list
+before setting up <code class="docutils literal notranslate"><span class="pre">rotation_2d</span></code>, steps will be generated with the requested
+resolutions.  (If you alter <code class="docutils literal notranslate"><span class="pre">icos_resolutions</span></code> or <code class="docutils literal notranslate"><span class="pre">qu_resolutions</span></code>) in the
+task’s config file in the work directory, nothing will happen.)  For <code class="docutils literal notranslate"><span class="pre">icos</span></code>
+meshes, make sure you use a resolution close to those listed in
+<a class="reference internal" href="../../../developers_guide/mesh/framework/spherical.html#dev-spherical-meshes"><span class="std std-ref">Spherical Meshes</span></a>.  Each resolution will be rounded to the nearest
+allowed icosahedral resolution.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">base_mesh</span></code> steps are shared with other tasks so they are not housed in
+the <code class="docutils literal notranslate"><span class="pre">rotation_2d</span></code> work directory.  Instead, they are in work directories
+like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">base_mesh</span><span class="o">/</span><span class="mi">60</span><span class="n">km</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">base_mesh</span><span class="o">/</span><span class="mi">60</span><span class="n">km</span>
+</pre></div>
+</div>
+<p>For convenience, there are symlinks inside of the <code class="docutils literal notranslate"><span class="pre">rotation_2d</span></code> and
+<code class="docutils literal notranslate"><span class="pre">rotation_2d/with_viz</span></code> work directories, e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">rotation_2d</span><span class="o">/</span><span class="n">base_mesh</span><span class="o">/</span><span class="mi">60</span><span class="n">km</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">rotation_2d</span><span class="o">/</span><span class="n">base_mesh</span><span class="o">/</span><span class="mi">60</span><span class="n">km</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">rotation_2d</span><span class="o">/</span><span class="n">with_viz</span><span class="o">/</span><span class="n">base_mesh</span><span class="o">/</span><span class="mi">60</span><span class="n">km</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">qu</span><span class="o">/</span><span class="n">rotation_2d</span><span class="o">/</span><span class="n">with_viz</span><span class="o">/</span><span class="n">base_mesh</span><span class="o">/</span><span class="mi">60</span><span class="n">km</span>
+</pre></div>
+</div>
+</section>
+<section id="vertical-grid">
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
+<p>This task only exercises the shallow water dynamics. As such, a single
+vertical level may be used. The bottom depth is constant and the
+results should be insensitive to the choice of <code class="docutils literal notranslate"><span class="pre">bottom_depth</span></code>.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
+<span class="k">[vertical_grid]</span>
+
+<span class="c1"># the type of vertical grid</span>
+<span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">uniform</span>
+
+<span class="c1"># Number of vertical levels</span>
+<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>
+
+<span class="c1"># Depth of the bottom of the ocean</span>
+<span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">300.0</span>
+
+<span class="c1"># The type of vertical coordinate (e.g. z-level, z-star)</span>
+<span class="na">coord_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">z-level</span>
+
+<span class="c1"># Whether to use &quot;partial&quot; or &quot;full&quot;, or &quot;None&quot; to not alter the topography</span>
+<span class="na">partial_cell_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+
+<span class="c1"># The minimum fraction of a layer for partial cells</span>
+<span class="na">min_pc_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+</pre></div>
+</div>
+</section>
+<section id="initial-conditions">
+<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
+<p>The initial condition is characterized by three separate tracer distributions
+stored in three <code class="docutils literal notranslate"><span class="pre">debugTracers</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tracer1</span></code>: A c-infinity function used for convergence analysis</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tracer2</span></code>: A pair of c-2 cosine bells</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tracer3</span></code>: A discontinuous pair of slotted cylinders</p></li>
+</ul>
+<a class="reference internal image-reference" href="../../../_images/rotation_2d_init_tracer1.png"><img alt="../../../_images/rotation_2d_init_tracer1.png" class="align-center" src="../../../_images/rotation_2d_init_tracer1.png" style="width: 500px;" />
+</a>
+<a class="reference internal image-reference" href="../../../_images/rotation_2d_init_tracer2.png"><img alt="../../../_images/rotation_2d_init_tracer2.png" class="align-center" src="../../../_images/rotation_2d_init_tracer2.png" style="width: 500px;" />
+</a>
+<a class="reference internal image-reference" href="../../../_images/rotation_2d_init_tracer3.png"><img alt="../../../_images/rotation_2d_init_tracer3.png" class="align-center" src="../../../_images/rotation_2d_init_tracer3.png" style="width: 500px;" />
+</a>
+<p>The velocity is that of rigid rotation about an axis offset from the z-axis of
+the sphere. It is not given in Lauritzen et al. The axis of rotation is defined by a vector given by the cfg option <code class="docutils literal notranslate"><span class="pre">rotation_vector</span></code>.</p>
+<p>Temperature and salinity are not evolved in this task and are given
+constant values determined by config options <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">salinity</span></code>.</p>
+<p>The Coriolis parameters <code class="docutils literal notranslate"><span class="pre">fCell</span></code>, <code class="docutils literal notranslate"><span class="pre">fEdge</span></code>, and <code class="docutils literal notranslate"><span class="pre">fVertex</span></code> do not need to be
+specified for a global mesh and are initialized as zeros.</p>
+</section>
+<section id="forcing">
+<h2>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h2>
+<p>This flow velocity case is forced to follow the constant rotation rate given
+in the config options.</p>
+</section>
+<section id="time-step-and-run-duration">
+<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
+<p>This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step
+for forward integration is determined by multiplying the resolution by a config
+option, <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code>, so that coarser meshes have longer time steps. You can
+alter this before setup (in a user config file) or before running the task (in
+the config file in the work directory).</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[spherical_convergence_forward]</span>
+
+<span class="c1"># time integrator: {&#39;split_explicit&#39;, &#39;RK4&#39;}</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+
+<span class="c1"># RK4 time step per resolution (s/km), since dt is proportional to resolution</span>
+<span class="na">rk4_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code>, <code class="docutils literal notranslate"><span class="pre">run_duration</span></code> and <code class="docutils literal notranslate"><span class="pre">output_interval</span></code> are the
+period for advection to make a full rotation around the globe, 12 days:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[spherical_convergence_forward]</span>
+
+<span class="c1"># Run duration in days</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${sphere_transport:vel_pd}</span>
+
+<span class="c1"># Output interval in days</span>
+<span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${sphere_transport:vel_pd}</span>
+</pre></div>
+</div>
+<p>Here, <code class="docutils literal notranslate"><span class="pre">${sphere_transport:vel_pd}</span></code> means that the same value is used as in the
+option <code class="docutils literal notranslate"><span class="pre">vel_pd</span></code> in section <code class="docutils literal notranslate"><span class="pre">[sphere_transport]</span></code>, see below.</p>
+</section>
+<section id="config-options">
+<h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">rotation_2d</span></code> config options include:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for all sphere transport test cases</span>
+<span class="k">[sphere_transport]</span>
+
+<span class="c1"># temperature</span>
+<span class="na">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">15.</span>
+
+<span class="c1"># salinity</span>
+<span class="na">salinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">35.</span>
+
+<span class="c1"># time (hours) for bell to transit equator once</span>
+<span class="na">vel_pd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">288.0</span>
+
+<span class="c1"># radius of cosine bells tracer distributions</span>
+<span class="na">cosine_bells_radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
+
+<span class="c1"># background value of cosine bells tracer distribution</span>
+<span class="na">cosine_bells_background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+
+<span class="c1"># amplitude of cosine bells tracer distribution</span>
+<span class="na">cosine_bells_amplitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.9</span>
+
+<span class="c1"># radius of slotted cylinders tracer distributions</span>
+<span class="na">slotted_cylinders_radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
+
+<span class="c1"># background value of slotted cylinders tracer distribution</span>
+<span class="na">slotted_cylinders_background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+
+<span class="c1"># amplitude of slotted cylinders tracer distribution</span>
+<span class="na">slotted_cylinders_amplitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+
+
+<span class="c1"># options for tracer visualization for the sphere transport test case</span>
+<span class="k">[sphere_transport_viz_tracer]</span>
+
+<span class="c1"># colormap options</span>
+<span class="c1"># colormap</span>
+<span class="na">colormap_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">viridis</span>
+
+<span class="c1"># the type of norm used in the colormap</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0., 1.</span>
+
+
+<span class="c1"># options for plotting tracer differences from sphere transport tests</span>
+<span class="k">[sphere_transport_viz_tracer_diff]</span>
+
+<span class="c1"># colormap options</span>
+<span class="c1"># colormap</span>
+<span class="na">colormap_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">cmo.balance</span>
+
+<span class="c1"># the type of norm used in the colormap</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-0.25, 0.25</span>
+
+
+<span class="c1"># options for thickness visualization for the sphere transport test case</span>
+<span class="k">[sphere_transport_viz_h]</span>
+
+<span class="c1"># colormap options</span>
+<span class="c1"># colormap</span>
+<span class="na">colormap_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">viridis</span>
+
+<span class="c1"># the type of norm used in the colormap</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">99., 101.</span>
+
+
+<span class="c1"># options for plotting tracer differences from sphere transport tests</span>
+<span class="k">[sphere_transport_viz_h_diff]</span>
+
+<span class="c1"># colormap options</span>
+<span class="c1"># colormap</span>
+<span class="na">colormap_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">cmo.balance</span>
+
+<span class="c1"># the type of norm used in the colormap</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># colorbar limits</span>
+<span class="na">colorbar_limits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-0.25, 0.25</span>
+
+
+<span class="c1"># options for rotation 2-d test case</span>
+<span class="k">[rotation_2d]</span>
+
+<span class="c1"># rotation vector in cartesian coordinates</span>
+<span class="na">rotation_vector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.2, 0.7, 1.0</span>
+
+<span class="c1"># convergence threshold below which the test fails</span>
+<span class="na">convergence_thresh_tracer1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.4</span>
+<span class="na">convergence_thresh_tracer2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.8</span>
+<span class="na">convergence_thresh_tracer3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.4</span>
+</pre></div>
+</div>
+<p>The options in section <code class="docutils literal notranslate"><span class="pre">sphere_transport</span></code> are used by all 4 test cases based
+on Lauritzen et al. (2012) and control the initial condition. The options in
+section <code class="docutils literal notranslate"><span class="pre">rotation_2d</span></code> control the convergence rate threshold.</p>
+<p>The options in sections <code class="docutils literal notranslate"><span class="pre">sphere_transport_viz*</span></code> control properties of the <code class="docutils literal notranslate"><span class="pre">viz</span></code>
+step of the test case.</p>
+<p>The default options for the convergence analysis step can be changed here:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[spherical_convergence]</span>
+
+<span class="c1"># Evaluation time for convergence analysis (in days)</span>
+<span class="na">convergence_eval_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${sphere_transport:vel_pd}</span>
+
+<span class="c1"># Type of error to compute</span>
+<span class="na">error_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">l2</span>
+</pre></div>
+</div>
+</section>
+<section id="cores">
+<h2>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h2>
+<p>The target and minimum number of cores are determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code>
+and <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> from the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file,
+respectively. This ensures that the number of cells per core is roughly
+constant across the different resolutions in the convergence study.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="overflow.html" class="btn btn-neutral float-left" title="overflow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="single_column.html" class="btn btn-neutral float-right" title="single column" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.8.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

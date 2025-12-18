@@ -1,0 +1,271 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modules for polaris commands</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=486e5634"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Config files" href="config.html" />
+    <link rel="prev" title="Framework" href="index.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Modules for polaris commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#list-module">list module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setup-module">setup module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#suite-module">suite module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-serial-module">run.serial module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cache-module">cache module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Config files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io.html">IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpas.html">MPAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model.html">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallel.html">Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html">Provenance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="remapping.html">Remapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Framework</a></li>
+      <li class="breadcrumb-item active">Modules for polaris commands</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/framework/commands.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="modules-for-polaris-commands">
+<span id="dev-command-mods"></span><h1>Modules for polaris commands<a class="headerlink" href="#modules-for-polaris-commands" title="Link to this heading"></a></h1>
+<section id="list-module">
+<span id="dev-list"></span><h2>list module<a class="headerlink" href="#list-module" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.list.list_cases.html#polaris.list.list_cases" title="polaris.list.list_cases"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_cases()</span></code></a>, <a class="reference internal" href="../generated/polaris.list.list_machines.html#polaris.list.list_machines" title="polaris.list.list_machines"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_machines()</span></code></a>
+and <a class="reference internal" href="../generated/polaris.list.list_suites.html#polaris.list.list_suites" title="polaris.list.list_suites"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_suites()</span></code></a> functions are used by the
+<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code> command to list tasks, supported machines and test
+suites, respectively.  These functions are not currently used anywhere else
+in polaris.</p>
+</section>
+<section id="setup-module">
+<span id="dev-setup"></span><h2>setup module<a class="headerlink" href="#setup-module" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.setup.setup_tasks.html#polaris.setup.setup_tasks" title="polaris.setup.setup_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_tasks()</span></code></a> and <a class="reference internal" href="../generated/polaris.setup.setup_task.html#polaris.setup.setup_task" title="polaris.setup.setup_task"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_task()</span></code></a>
+functions are used by <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> to set up a list
+of tasks and a single task, respectively, in a work directory.
+Subdirectories will be created for each task and its steps; input,
+namelist and streams files will be downloaded, symlinked and/or generated
+in the setup process. A <a class="reference external" href="https://docs.python.org/3/library/pickle.html">pickle file</a>
+called <code class="docutils literal notranslate"><span class="pre">task.pickle</span></code> will be written to each task directory
+containing the task object for later use in calls to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">run</span></code>.
+Similarly, a file <code class="docutils literal notranslate"><span class="pre">step.pickle</span></code> containing both the step and task
+objects will be written to each step directory, allowing the step to be run
+on its own with <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">run</span></code>.  In contrast to <a class="reference internal" href="../../users_guide/config_files.html#config-files"><span class="std std-ref">Config Files</span></a>, these
+pickle files are not intended for users (or developers) to read or modify.
+Properties of the task and step objects are not intended to change between
+setting up and running a suite, task or step.</p>
+</section>
+<section id="suite-module">
+<span id="dev-suite"></span><h2>suite module<a class="headerlink" href="#suite-module" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.suite.setup_suite.html#polaris.suite.setup_suite" title="polaris.suite.setup_suite"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.suite.setup_suite()</span></code></a> function is used by <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>
+to set up a suite in a work directory.  Setting up a suite includes setting up
+the tasks (see <a class="reference internal" href="#dev-setup"><span class="std std-ref">setup module</span></a>), writing out a <a class="reference internal" href="provenance.html#dev-provenance"><span class="std std-ref">Provenance</span></a> file, and
+saving a pickle file containing a python dictionary that defines the suite for
+later use by <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">run</span></code>.  The “target” and “minimum” number of cores
+required for running the suite are displayed.  The “target” is determined
+based on the maximum product of the <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>
+attributes of each step in the suite.  This is the number of cores to run
+on to complete the suite as quickly as possible, with the
+caveat that many cores may sit idle for some fraction of the runtime.  The
+“minimum” number of cores is the maximum of the product of the <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>
+and <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code> attribute for all steps in the suite, indicating the
+fewest cores that the test may be run with before at least some steps in the
+suite will fail.</p>
+</section>
+<section id="run-serial-module">
+<span id="dev-run"></span><h2>run.serial module<a class="headerlink" href="#run-serial-module" title="Link to this heading"></a></h2>
+<p>The function <a class="reference internal" href="../generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks" title="polaris.run.serial.run_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tasks()</span></code></a> is used to run a
+suite or task and <a class="reference internal" href="../generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step" title="polaris.run.serial.run_single_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_single_step()</span></code></a> is
+used to run a single step using <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">run</span></code>.  <code class="docutils literal notranslate"><span class="pre">run_tasks()</span></code> performs
+setup operations like creating a log file and figuring out the number of tasks
+and CPUs per task for each step, then it calls each step’s <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.</p>
+<p>Suites run from the base work directory with a pickle file starting with the
+suite name, or <code class="docutils literal notranslate"><span class="pre">custom.pickle</span></code> if a suite name was not given. Tasks or
+steps run from their respective subdirectories with a <code class="docutils literal notranslate"><span class="pre">task.pickle</span></code> or
+<code class="docutils literal notranslate"><span class="pre">step.pickle</span></code> file in them. Both of these functions reads the local pickle
+file to retrieve information about the suite, task and/or step that
+was stored during setup.</p>
+<p>If <a class="reference internal" href="../generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks" title="polaris.run.serial.run_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tasks()</span></code></a> is used for a suite, it will
+run each task in the suite in the order that they are given in the
+text file defining the suite (<code class="docutils literal notranslate"><span class="pre">polaris/&lt;component&gt;/suites/&lt;suite_name&gt;.txt</span></code>).
+Output from tasks and their steps are stored in log files in the
+<code class="docutils literal notranslate"><span class="pre">case_output</span></code> subdirectory of the base work directory. If the function is
+used for a single task, it will run the steps of that task, writing
+output for each step to a log file starting with the step’s name. In either
+case (suite or individual test), it displays a <code class="docutils literal notranslate"><span class="pre">SUCCESS</span></code> or <code class="docutils literal notranslate"><span class="pre">ERROR</span></code> message for
+the execution of each step, indicates whether baseline comparisons <code class="docutils literal notranslate"><span class="pre">PASS</span></code> or
+<code class="docutils literal notranslate"><span class="pre">FAIL</span></code> for any steps that include them (and if a baseline was provided),
+and finally indicates if the overall task execution was <code class="docutils literal notranslate"><span class="pre">SUCCESS</span></code> or <code class="docutils literal notranslate"><span class="pre">ERROR</span></code>.
+Execution times are provided for individual steps, tasks and the suite as a
+whole.</p>
+<p><a class="reference internal" href="../generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step" title="polaris.run.serial.run_single_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_single_step()</span></code></a> runs only the selected step
+from a given task, skipping any others, displaying the output in the terminal
+window rather than a log file.</p>
+</section>
+<section id="cache-module">
+<span id="dev-cache"></span><h2>cache module<a class="headerlink" href="#cache-module" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.cache.update_cache.html#polaris.cache.update_cache" title="polaris.cache.update_cache"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.cache.update_cache()</span></code></a> function is used by
+<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">cache</span></code> to copy step outputs to the <code class="docutils literal notranslate"><span class="pre">polaris_cache</span></code> database on
+the LCRC server and to update <code class="docutils literal notranslate"><span class="pre">&lt;component&gt;_cached_files.json</span></code> files that
+contain a mapping between these cached files and the original outputs.  This
+functionality enables running steps with <a class="reference internal" href="../organization/steps.html#dev-step-cached-output"><span class="std std-ref">Cached output files</span></a>, which
+can be used to skip time-consuming initialization steps for faster development
+and debugging.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Framework" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="config.html" class="btn btn-neutral float-right" title="Config files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.8.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

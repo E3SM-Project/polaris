@@ -1,0 +1,6 @@
+﻿polaris.cache.update\_cache
+===========================
+
+.. currentmodule:: polaris.cache
+
+.. autofunction:: update_cache

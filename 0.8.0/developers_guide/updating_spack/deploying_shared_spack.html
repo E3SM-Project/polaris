@@ -1,0 +1,265 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deploying the Final Shared Spack Environment</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=486e5634"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Maintaining Past Versions" href="maintaining_past_versions.html" />
+    <link rel="prev" title="Adding a New Machine" href="adding_new_machines.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Updating Shared Spack Environments</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="workflow.html">Overview of the Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="updating_packages.html">Updating Spack Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing/index.html">Deployment and Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_new_machines.html">Adding a New Machine</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Deploying the Final Shared Spack Environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pr-merge-checklist">✅ PR Merge Checklist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-by-step-finalization">Step-by-Step Finalization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tag-a-release-of-the-previous-polaris-version">1. Tag a Release of the <em>Previous</em> Polaris Version</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#deploy-shared-spack-environments-on-hpc-systems">2. Deploy Shared Spack Environments on HPC Systems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#announce-the-release">3. Announce the Release</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#post-release-maintenance">🔁 Post-Release Maintenance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="maintaining_past_versions.html">Maintaining Past Versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Updating Shared Spack Environments</a></li>
+      <li class="breadcrumb-item active">Deploying the Final Shared Spack Environment</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/updating_spack/deploying_shared_spack.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="deploying-the-final-shared-spack-environment">
+<h1>Deploying the Final Shared Spack Environment<a class="headerlink" href="#deploying-the-final-shared-spack-environment" title="Link to this heading"></a></h1>
+<p>Once all dependencies have been tested and validated, and the new Polaris
+version has passed testing across the relevant HPC systems, it is time to
+deploy shared Spack environments. This page outlines the process of finalizing
+the Polaris version update and notifying the community.</p>
+<hr class="docutils" />
+<section id="pr-merge-checklist">
+<h2>✅ PR Merge Checklist<a class="headerlink" href="#pr-merge-checklist" title="Link to this heading"></a></h2>
+<p>Before merging the PR:</p>
+<ul class="simple">
+<li><p>[ ] Final deployments have been completed on all target HPC machines</p></li>
+<li><p>[ ] Test suites for each supported E3SM component have passed on all machines</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="step-by-step-finalization">
+<h2>Step-by-Step Finalization<a class="headerlink" href="#step-by-step-finalization" title="Link to this heading"></a></h2>
+<section id="tag-a-release-of-the-previous-polaris-version">
+<h3>1. Tag a Release of the <em>Previous</em> Polaris Version<a class="headerlink" href="#tag-a-release-of-the-previous-polaris-version" title="Link to this heading"></a></h3>
+<p>For provenance and to have a citation, we tag the last commit of the previous
+Polaris version as the release.</p>
+<p>If you want to, you can make a branch to update <code class="docutils literal notranslate"><span class="pre">polaris/version.py</span></code> to
+the release version (e.g. <code class="docutils literal notranslate"><span class="pre">0.8.0</span></code>), make a PR and merge it into <code class="docutils literal notranslate"><span class="pre">main</span></code>.  This
+is not strictly necessary as no one will use this release version in our
+current workflows.</p>
+<p>Either way, go to <code class="docutils literal notranslate"><span class="pre">Releases</span></code> on the right on the
+<a class="reference external" href="https://github.com/E3SM-Project/polaris">main page</a> of the repo and
+click <code class="docutils literal notranslate"><span class="pre">Draft</span> <span class="pre">a</span> <span class="pre">new</span> <span class="pre">release</span></code> at the top.</p>
+<p>Document the changes in this version (or you can use the
+<code class="docutils literal notranslate"><span class="pre">Generate</span> <span class="pre">release</span> <span class="pre">notes</span></code> to generate these automatically, but then please
+remove bot PRs for updating pre-commit dependencies).  Here is an
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/releases/tag/0.7.0">example</a>.</p>
+</section>
+<section id="deploy-shared-spack-environments-on-hpc-systems">
+<h3>2. Deploy Shared Spack Environments on HPC Systems<a class="headerlink" href="#deploy-shared-spack-environments-on-hpc-systems" title="Link to this heading"></a></h3>
+<p>Use the same process as during test deployment but you do <em>not</em> use the
+<code class="docutils literal notranslate"><span class="pre">--spack</span></code> flag to specify a test deployment location.  For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">SCRATCH</span><span class="o">=</span>&lt;path_to_scratch&gt;
+<span class="nv">CONDA_BASE</span><span class="o">=</span>~/miniforge3
+mdkir<span class="w"> </span>-p<span class="w"> </span><span class="nv">$SCRATCH</span>/tmp_spack
+./configure_polaris_envs.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--conda<span class="w"> </span><span class="nv">$CONDA_BASE</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--update_spack<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tmpdir<span class="w"> </span><span class="nv">$SCRATCH</span>/tmp_spack<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--compiler<span class="w"> </span>intel<span class="w"> </span>intel<span class="w"> </span>gnu<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--mpi<span class="w"> </span>openmpi<span class="w"> </span>impi<span class="w"> </span>openmpi<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--recreate<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--verbose
+</pre></div>
+</div>
+<p>This creates a local activation scripts like:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">load_polaris_dev_&lt;version&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code></p></li>
+</ul>
+</section>
+<section id="announce-the-release">
+<h3>3. Announce the Release<a class="headerlink" href="#announce-the-release" title="Link to this heading"></a></h3>
+<p>Optionally, share the updated version:</p>
+<ul class="simple">
+<li><p>📣 <strong>Slack</strong> (<code class="docutils literal notranslate"><span class="pre">#omega</span></code> and <code class="docutils literal notranslate"><span class="pre">#mpas-devops</span></code>) with release highlights</p></li>
+</ul>
+<p>Things you may want to include:</p>
+<ul class="simple">
+<li><p>List of supported HPC machines</p></li>
+<li><p>Summary of major changes, fixes, and new features</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="post-release-maintenance">
+<h2>🔁 Post-Release Maintenance<a class="headerlink" href="#post-release-maintenance" title="Link to this heading"></a></h2>
+<p>On each supported machine:</p>
+<ul class="simple">
+<li><p>Remove test spack environments and temp directory</p></li>
+<li><p>Delete the <code class="docutils literal notranslate"><span class="pre">update-to-&lt;version&gt;</span></code> branch</p></li>
+</ul>
+<hr class="docutils" />
+<p>➡ Next: <a class="reference internal" href="maintaining_past_versions.html"><span class="std std-doc">Maintaining Past Versions</span></a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="adding_new_machines.html" class="btn btn-neutral float-left" title="Adding a New Machine" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="maintaining_past_versions.html" class="btn btn-neutral float-right" title="Maintaining Past Versions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.8.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

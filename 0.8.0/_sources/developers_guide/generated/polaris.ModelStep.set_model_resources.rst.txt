@@ -1,0 +1,6 @@
+﻿polaris.ModelStep.set\_model\_resources
+=======================================
+
+.. currentmodule:: polaris
+
+.. automethod:: ModelStep.set_model_resources

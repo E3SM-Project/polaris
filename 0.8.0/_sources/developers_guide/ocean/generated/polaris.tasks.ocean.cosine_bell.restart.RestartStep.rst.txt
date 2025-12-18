@@ -1,0 +1,47 @@
+﻿polaris.tasks.ocean.cosine\_bell.restart.RestartStep
+====================================================
+
+.. currentmodule:: polaris.tasks.ocean.cosine_bell.restart
+
+.. autoclass:: RestartStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RestartStep.__init__
+      ~RestartStep.add_dependency
+      ~RestartStep.add_input_file
+      ~RestartStep.add_model_config_options
+      ~RestartStep.add_namelist_file
+      ~RestartStep.add_output_file
+      ~RestartStep.add_streams_file
+      ~RestartStep.add_yaml_file
+      ~RestartStep.compute_cell_count
+      ~RestartStep.constrain_resources
+      ~RestartStep.dynamic_model_config
+      ~RestartStep.map_yaml_configs
+      ~RestartStep.map_yaml_options
+      ~RestartStep.map_yaml_streams
+      ~RestartStep.map_yaml_to_namelist
+      ~RestartStep.partition
+      ~RestartStep.process_inputs_and_outputs
+      ~RestartStep.run
+      ~RestartStep.runtime_setup
+      ~RestartStep.set_model_resources
+      ~RestartStep.set_resources
+      ~RestartStep.set_shared_config
+      ~RestartStep.setup
+      ~RestartStep.update_namelist_eos
+      ~RestartStep.update_namelist_pio
+      ~RestartStep.validate_baselines
+   
+   
+
+   
+   
+   

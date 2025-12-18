@@ -1,0 +1,36 @@
+﻿polaris.mesh.base.so.SOBaseMesh
+===============================
+
+.. currentmodule:: polaris.mesh.base.so
+
+.. autoclass:: SOBaseMesh
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SOBaseMesh.__init__
+      ~SOBaseMesh.add_dependency
+      ~SOBaseMesh.add_input_file
+      ~SOBaseMesh.add_output_file
+      ~SOBaseMesh.build_cell_width_lat_lon
+      ~SOBaseMesh.constrain_resources
+      ~SOBaseMesh.make_jigsaw_mesh
+      ~SOBaseMesh.process_inputs_and_outputs
+      ~SOBaseMesh.run
+      ~SOBaseMesh.runtime_setup
+      ~SOBaseMesh.save_and_plot_cell_width
+      ~SOBaseMesh.set_resources
+      ~SOBaseMesh.set_shared_config
+      ~SOBaseMesh.setup
+      ~SOBaseMesh.validate_baselines
+   
+   
+
+   
+   
+   

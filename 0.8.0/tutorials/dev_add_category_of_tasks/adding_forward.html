@@ -1,0 +1,629 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adding a forward Step</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=486e5634"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Adding a Visualization Step" href="adding_viz.html" />
+    <link rel="prev" title="Adding Step Outputs" href="adding_outputs.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Developer Tutorial: Adding a New Category of Tasks</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of the Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating_category_of_tasks.html">Making a New Category of Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_shared_step.html">Adding a Shared Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_first_task.html">Adding a First Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_first_task.html">Testing the First Task and Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fleshing_out_step.html">Fleshing out the <code class="docutils literal notranslate"><span class="pre">init</span></code> Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_plots.html">Adding Plots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_outputs.html">Adding Step Outputs</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Adding a <code class="docutils literal notranslate"><span class="pre">forward</span></code> Step</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#defining-model-config-options-and-streams">Defining model config options and streams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dynamically-computhing-the-number-of-tasks">Dynamically Computhing the Number of Tasks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-the-forward-step-to-the-task">Adding the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step to the task</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing">Testing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="adding_viz.html">Adding a Visualization Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documenting.html">Documentation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+      <li class="breadcrumb-item active">Adding a <code class="docutils literal notranslate"><span class="pre">forward</span></code> Step</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/tutorials/dev_add_category_of_tasks/adding_forward.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="adding-a-forward-step">
+<h1>Adding a <code class="docutils literal notranslate"><span class="pre">forward</span></code> Step<a class="headerlink" href="#adding-a-forward-step" title="Link to this heading"></a></h1>
+<p>Now that we know that the first step seems to be working, we’re ready to add
+another. We will add a <code class="docutils literal notranslate"><span class="pre">forward</span></code> step for running the MPAS-Ocean model forward
+in time from the initial condition created in <code class="docutils literal notranslate"><span class="pre">init</span></code>.  <code class="docutils literal notranslate"><span class="pre">forward</span></code>
+will be a little more complicated than <code class="docutils literal notranslate"><span class="pre">init</span></code> as we get started.
+We’re going to start from the <a class="reference internal" href="../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep</span></code></a>
+subclass that descends from <a class="reference internal" href="../../developers_guide/generated/polaris.ModelStep.html#polaris.ModelStep" title="polaris.ModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ModelStep</span></code></a>, which in turn
+descends from <code class="docutils literal notranslate"><span class="pre">Step</span></code>.  <code class="docutils literal notranslate"><span class="pre">ModelStep</span></code> adds quite a bit of useful functionality
+for steps that run E3SM model components (MALI, MPAS-Ocean, MPAS-seaice or
+Omega) and <code class="docutils literal notranslate"><span class="pre">OceanModelStep</span></code> adds on to that with some functionality specific to
+the ocean. We’ll explore some aspects of the functionality that each of these
+subclasses brings in here, but there may be other capabilities that we don’t
+cover here that will be important for your tasks so it likely will be useful to
+have a look at the general <a class="reference internal" href="../../developers_guide/framework/model.html#dev-model"><span class="std std-ref">Model</span></a> section and potentially the
+ocean-specific <a class="reference internal" href="../../developers_guide/ocean/framework.html#dev-ocean-model"><span class="std std-ref">Model</span></a> section as well.  MALI and MPAS-seaice
+steps will likely descend from <code class="docutils literal notranslate"><span class="pre">ModelStep</span></code>, though there may be advantages in
+defining <code class="docutils literal notranslate"><span class="pre">LandiceModelStep</span></code> and <code class="docutils literal notranslate"><span class="pre">SeaiceModelStep</span></code> classes in the future.</p>
+<p>We start with a <code class="docutils literal notranslate"><span class="pre">Forward</span></code> class that descends from <code class="docutils literal notranslate"><span class="pre">OceanModelStep</span></code> and a
+constructor with the name of the step.  This time, we also supply the target
+number of MPI tasks (<code class="docutils literal notranslate"><span class="pre">ntasks</span></code>), minimum number of MPI tasks (<code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>), and
+number of threads (the <code class="docutils literal notranslate"><span class="pre">init</span></code> used the default of 1 task, 1 CPU per
+task and 1 thread):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vim<span class="w"> </span>polaris/tasks/ocean/my_overflow/forward.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A step for performing forward MPAS-Ocean runs as part of overflow</span>
+<span class="sd">    test cases.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">init</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">indir</span><span class="p">,</span>
+        <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new test case</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        name : str</span>
+<span class="sd">            the name of the task</span>
+
+<span class="sd">        init : polaris.tasks.ocean.my_overflow.init.Init</span>
+<span class="sd">            the initial state step</span>
+
+<span class="sd">        indir : str</span>
+<span class="sd">            The directory the task is in, to which ``name`` will be appended</span>
+
+<span class="sd">        ntasks : int, optional</span>
+<span class="sd">            the number of tasks the step would ideally use.  If fewer tasks</span>
+<span class="sd">            are available on the system, the step will run on all available</span>
+<span class="sd">            tasks as long as this is not below ``min_tasks``</span>
+
+<span class="sd">        min_tasks : int, optional</span>
+<span class="sd">            the number of tasks the step requires.  If the system has fewer</span>
+<span class="sd">            than this number of tasks, the step will fail</span>
+
+<span class="sd">        openmp_threads : int, optional</span>
+<span class="sd">            the number of OpenMP threads the step will use</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">min_tasks</span> <span class="o">=</span> <span class="n">ntasks</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
+            <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
+            <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+            <span class="n">update_eos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+</pre></div>
+</div>
+<p>By default, the number of MPI tasks <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> isn’t specified yet, nor is the
+minimum number of MPI tasks <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>.  If they aren’t specified explicitly,
+they will be computed algorithmically later on based on the number of cells in
+the mesh, as well discuss below. The constructor also takes the <code class="docutils literal notranslate"><span class="pre">component</span></code> and
+the shared <code class="docutils literal notranslate"><span class="pre">init</span></code> step.  The subdirectory <code class="docutils literal notranslate"><span class="pre">indir</span></code> is the location within
+the component’s work directory of the taks that this step belongs to, to which
+<code class="docutils literal notranslate"><span class="pre">name</span></code> will be appended to get the steps subdirectory.  This is in contrast
+to <code class="docutils literal notranslate"><span class="pre">init</span></code>, which lives outside of any task because it is a step shared between
+tasks.</p>
+<p>Next, we add some inputs (from <code class="docutils literal notranslate"><span class="pre">init</span></code>) and outputs that we will define later:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vim<span class="w"> </span>polaris/tasks/ocean/my_overflow/forward.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">init</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">indir</span><span class="p">,</span>
+        <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="o">...</span>
+
+<span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc&#39;</span><span class="p">,</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span>
+</span><span class="hll">                <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">],</span>
+</span><span class="hll">        <span class="p">)</span>
+</span></pre></div>
+</div>
+<p>By defining <code class="docutils literal notranslate"><span class="pre">validate_vars</span></code> as part of the output, we ensure that these
+variables will be compared with output from a baseline Polaris run if one
+is provided to ensure that the results are identical.</p>
+<section id="defining-model-config-options-and-streams">
+<h2>Defining model config options and streams<a class="headerlink" href="#defining-model-config-options-and-streams" title="Link to this heading"></a></h2>
+<p>The E3SM components supported by Polaris require both model config options
+and streams definitions (namelist and streams files for MPAS components, and
+yaml files for Omega, see <a class="reference internal" href="../../developers_guide/framework/model.html#dev-model-yaml-namelists-and-streams"><span class="std std-ref">Adding yaml, namelist and streams files</span></a>) to work
+properly.  An important part of Polaris’ functionality is that it takes the
+default model config options and E3SM component and modifies only those options
+that are specific to the task to produce the final model config files used to
+run the model.</p>
+<p>In Polaris, there are two main ways to set model config options and we will
+demonstrate both in this task.  First, you can define a namelist or yaml
+file with the desired values.  This is useful for model config options that are
+always the same for this task and can’t be changed based on config options
+from the Polaris config file.</p>
+<p>In the ocean component, we want the same tasks to work with either Omega
+or MPAS-Ocean.  We have decided to define model config options using the new
+yaml file format that Omega will use, whereas the seaice and landice components
+of Polaris will use the namelist and streams files that MPAS components use.
+This tutorial will focus on the yaml format but the concepts will not be hugely
+different for namelist and streams files.</p>
+<p>Here is the <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file for <code class="docutils literal notranslate"><span class="pre">my_overflow</span></code> (a simplified version of
+the one from <code class="docutils literal notranslate"><span class="pre">overflow</span></code>):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vim<span class="w"> </span>polaris/tasks/ocean/my_overflowl/forward.yaml
+</pre></div>
+</div>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mpas-ocean</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">time_management</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_stop_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">none</span>
+<span class="w">    </span><span class="nt">config_run_duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0000_00:12:00</span>
+<span class="w">  </span><span class="nt">time_integration</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_dt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20.0</span>
+<span class="w">    </span><span class="nt">config_time_integrator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">split_explicit_ab2</span>
+<span class="w">  </span><span class="nt">io</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_write_output_on_startup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">hmix_del2</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_use_mom_del2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">config_mom_del2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000.0</span>
+<span class="w">  </span><span class="nt">bottom_drag</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_implicit_bottom_drag_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">constant</span>
+<span class="w">    </span><span class="nt">config_implicit_constant_bottom_drag_coeff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.01</span>
+<span class="w">  </span><span class="nt">cvmix</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_cvmix_background_scheme</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">none</span>
+<span class="w">    </span><span class="nt">config_use_cvmix_convection</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">split_explicit_ts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_btr_dt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5.0</span>
+<span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">mesh</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">filename_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">initial_state.nc</span>
+<span class="w">    </span><span class="nt">input</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">filename_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">initial_state.nc</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">output_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0010_00:00:00</span>
+<span class="w">    </span><span class="nt">output</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output</span>
+<span class="w">      </span><span class="nt">filename_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.nc</span>
+<span class="w">      </span><span class="nt">output_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0000_00:00:01</span>
+<span class="w">      </span><span class="nt">clobber_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truncate</span>
+<span class="w">      </span><span class="nt">contents</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tracers</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">xtime</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">normalVelocity</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">layerThickness</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssh</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vertVelocityTop</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">density</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">daysSinceStartOfSim</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">relativeVorticity</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For comparison, here is a typical seaice namelist file:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>config_nSnowLayers = 5
+
+config_use_velocity_solver = false
+config_use_advection = false
+
+config_use_ocean_mixed_layer = false
+</pre></div>
+</div>
+<p>And a truncated streams file:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;streams&gt;</span>
+<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;mesh&quot;</span>
+<span class="w">                  </span><span class="na">type=</span><span class="s">&quot;none&quot;</span>
+<span class="w">                  </span><span class="na">filename_template=</span><span class="s">&quot;mesh_variables.nc&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+
+<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;input&quot;</span>
+<span class="w">                  </span><span class="na">type=</span><span class="s">&quot;input&quot;</span>
+<span class="w">                  </span><span class="na">filename_template=</span><span class="s">&quot;grid.nc&quot;</span>
+<span class="w">                  </span><span class="na">filename_interval=</span><span class="s">&quot;none&quot;</span>
+<span class="w">                  </span><span class="na">input_interval=</span><span class="s">&quot;initial_only&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+
+<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;restart&quot;</span>
+<span class="w">                  </span><span class="na">type=</span><span class="s">&quot;input;output&quot;</span>
+<span class="w">                  </span><span class="na">filename_template=</span><span class="s">&quot;restarts/restart.$Y-$M-$D_$h.$m.$s.nc&quot;</span>
+<span class="w">                  </span><span class="na">filename_interval=</span><span class="s">&quot;00_00:00:01&quot;</span>
+<span class="w">                  </span><span class="na">input_interval=</span><span class="s">&quot;initial_only&quot;</span>
+<span class="w">                  </span><span class="na">output_interval=</span><span class="s">&quot;00-03-00_00:00:00&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+
+<span class="nt">&lt;stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;output&quot;</span>
+<span class="w">        </span><span class="na">type=</span><span class="s">&quot;output&quot;</span>
+<span class="w">        </span><span class="na">filename_template=</span><span class="s">&quot;output/output.$Y.nc&quot;</span>
+<span class="w">        </span><span class="na">filename_interval=</span><span class="s">&quot;01-00-00_00:00:00&quot;</span>
+<span class="w">        </span><span class="na">clobber_mode=</span><span class="s">&quot;replace_files&quot;</span>
+<span class="w">        </span><span class="na">output_interval=</span><span class="s">&quot;00-00-00_01:00:00&quot;</span><span class="w"> </span><span class="nt">&gt;</span>
+
+<span class="w">	</span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;xtime&quot;</span><span class="nt">/&gt;</span>
+<span class="w">	</span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;daysSinceStartOfSim&quot;</span><span class="nt">/&gt;</span>
+<span class="w">	</span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;iceAreaCell&quot;</span><span class="nt">/&gt;</span>
+<span class="w">	</span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;iceVolumeCell&quot;</span><span class="nt">/&gt;</span>
+<span class="w">	</span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;snowVolumeCell&quot;</span><span class="nt">/&gt;</span>
+<span class="w">	</span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;surfaceTemperatureCell&quot;</span><span class="nt">/&gt;</span>
+<span class="w">	</span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;shortwaveDown&quot;</span><span class="nt">/&gt;</span>
+<span class="w">	</span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;longwaveDown&quot;</span><span class="nt">/&gt;</span>
+
+<span class="nt">&lt;/stream&gt;</span>
+
+...
+
+<span class="nt">&lt;/streams&gt;</span>
+</pre></div>
+</div>
+</div>
+<p>There is also a shared <code class="docutils literal notranslate"><span class="pre">output.yaml</span></code> file for ocean tasks that makes sure
+we get double-precision output (the default is single precision, which saves a
+lot of space but isn’t great for regression testing):</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mpas-ocean</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">output</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output</span>
+<span class="w">      </span><span class="nt">precision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">double</span>
+</pre></div>
+</div>
+<p>In the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step, we add these namelists as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">init</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">indir</span><span class="p">,</span>
+        <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="o">...</span>
+
+<span class="hll">        <span class="c1"># make sure output is double precision</span>
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;output.yaml&#39;</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.my_overflow&#39;</span><span class="p">,</span> <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>The first argument to <a class="reference internal" href="../../developers_guide/generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a> is the
+python package where the namelist file can be found, and the second is the
+file name.  Files within the polaris package can’t be referenced directly
+with a file path but rather with a package like in these examples.</p>
+<p>The model config options will start with the default set for the E3SM
+component, provided along with the model executable at the end of compilation.
+For MPAS-Ocean, MPAS-seaice and MALI, this will be in
+<code class="docutils literal notranslate"><span class="pre">default_inputs/namelist.&lt;component&gt;.forward</span></code>.  For Omega, this is
+<code class="docutils literal notranslate"><span class="pre">configs/Default.yml</span></code>. Each time a yaml or namelist file is added to a step,
+the model config options changed in that file will override the previous
+values. So the order of the files may matter if the same model config options
+are changed in multiple files in Polaris.</p>
+<p>Streams are handled a little differently.  Again, the starting point is a set
+of defaults from the E3SM components, either
+<code class="docutils literal notranslate"><span class="pre">default_inputs/streams.&lt;component&gt;.forward</span></code> or <code class="docutils literal notranslate"><span class="pre">configs/Default.yml</span></code>.  But in
+this case, streams are only included in the step if they are referenced in one
+of the yaml or streams files added to it.  If you want the default definition
+of a stream, referring to it is enough:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mpas-ocean</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+</pre></div>
+</div>
+<p>If you want to change one of its attributes but not its contents, you can do
+that:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mpas-ocean</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">input</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">filename_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">initial_state.nc</span>
+</pre></div>
+</div>
+<p>Other attributes will remain as they are in the defaults.  You can
+change the contents (the variables or arrays) of a stream in addition to the
+attributes.  In this case, the contents you provide will replace the default
+contents:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vim<span class="w"> </span>polaris/tasks/ocean/my_overflow/forward.yaml
+</pre></div>
+</div>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mpas-ocean</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">streams</span><span class="p p-Indicator">:</span>
+<span class="w">    </span><span class="nt">output</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output</span>
+<span class="w">      </span><span class="nt">filename_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.nc</span>
+<span class="w">      </span><span class="nt">output_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0000_00:00:01</span>
+<span class="w">      </span><span class="nt">clobber_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truncate</span>
+<span class="w">      </span><span class="nt">contents</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tracers</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">xtime</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">normalVelocity</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">layerThickness</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssh</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vertVelocityTop</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">density</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">daysSinceStartOfSim</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">relativeVorticity</span>
+</pre></div>
+</div>
+<p>Finally, you can add completely new streams that don’t exist in the default
+model config files to a step by defining all of the relevant streams attributes
+and contents.  We don’t demonstrate that in this tutorial.</p>
+</section>
+<section id="dynamically-computhing-the-number-of-tasks">
+<h2>Dynamically Computhing the Number of Tasks<a class="headerlink" href="#dynamically-computhing-the-number-of-tasks" title="Link to this heading"></a></h2>
+<p>In the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component in steps that descend from <code class="docutils literal notranslate"><span class="pre">OceanModelStep</span></code>, it is
+possible to compute the number of MPI tasks dynamically based on the mesh size.
+This requires an estimate for the number of cells in the mesh, based on
+config options such as the domain size and resolution.  To take advantage of
+this, we override the <code class="docutils literal notranslate"><span class="pre">compute_cell_count()</span></code> method to estimate the cell count:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.planar</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+<span class="hll">    <span class="k">def</span><span class="w"> </span><span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="hll"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span class="hll"><span class="sd">        Compute the approximate number of cells in the mesh, used to constrain</span>
+</span><span class="hll"><span class="sd">        resources</span>
+</span><span class="hll">
+</span><span class="hll"><span class="sd">        Returns</span>
+</span><span class="hll"><span class="sd">        -------</span>
+</span><span class="hll"><span class="sd">        cell_count : int or None</span>
+</span><span class="hll"><span class="sd">            The approximate number of cells in the mesh</span>
+</span><span class="hll"><span class="sd">        &quot;&quot;&quot;</span>
+</span><span class="hll">        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;my_overflow&#39;</span><span class="p">]</span>
+</span><span class="hll">        <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ly&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">resolution</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;resolution&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">cell_count</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">*</span> <span class="n">ny</span>
+</span><span class="hll">        <span class="k">return</span> <span class="n">cell_count</span>
+</span></pre></div>
+</div>
+<p>So far, this type of capability hasn’t been implemented in other components
+but may come in the future.</p>
+</section>
+<section id="adding-the-forward-step-to-the-task">
+<h2>Adding the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step to the task<a class="headerlink" href="#adding-the-forward-step-to-the-task" title="Link to this heading"></a></h2>
+<p>Returning to the <code class="docutils literal notranslate"><span class="pre">default</span></code> task, we are now ready to add
+<code class="docutils literal notranslate"><span class="pre">initial_state</span></code> and <code class="docutils literal notranslate"><span class="pre">forward</span></code> steps to the task.  In
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/my_overflow/default/__init__.py</span></code>, we add:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.my_overflow.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
+</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
+        <span class="o">...</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">)</span>
+
+<span class="hll">        <span class="n">forward_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+</span><span class="hll">            <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+</span><span class="hll">            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>We put the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step in the <code class="docutils literal notranslate"><span class="pre">default</span></code> task’s subdirectory and pass along
+the shared init step.</p>
+<section id="testing">
+<h3>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h3>
+<p>We’re ready to run some more tests just like we did in
+<a class="reference internal" href="testing_first_task.html"><span class="std std-doc">Testing the First Task and Step</span></a>.  Again, we’ll start
+with <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code> to make sure that works fine and the task still shows
+up.  Then, we’ll set up the task with <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> as before.  Next,
+we will go to the task’s work directory and use <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code>
+(on an interactive node) or submit a job script to make sure the task runs both
+steps (<code class="docutils literal notranslate"><span class="pre">init</span></code> and <code class="docutils literal notranslate"><span class="pre">forward</span></code>) that we’ve added so far.</p>
+<hr class="docutils" />
+<p>← <a class="reference internal" href="adding_outputs.html"><span class="std std-doc">Back to <em>Adding Step Outputs</em></span></a></p>
+<p>→ <a class="reference internal" href="adding_viz.html"><span class="std std-doc">Continue to <em>Adding a Visualization Step</em></span></a></p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="adding_outputs.html" class="btn btn-neutral float-left" title="Adding Step Outputs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="adding_viz.html" class="btn btn-neutral float-right" title="Adding a Visualization Step" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.8.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

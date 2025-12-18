@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.internal\_wave.forward.Forward.compute\_cell\_count
+=======================================================================
+
+.. currentmodule:: polaris.tasks.ocean.internal_wave.forward
+
+.. automethod:: Forward.compute_cell_count

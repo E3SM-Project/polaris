@@ -1,0 +1,38 @@
+﻿polaris.mesh.IcosahedralMeshStep
+================================
+
+.. currentmodule:: polaris.mesh
+
+.. autoclass:: IcosahedralMeshStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~IcosahedralMeshStep.__init__
+      ~IcosahedralMeshStep.add_dependency
+      ~IcosahedralMeshStep.add_input_file
+      ~IcosahedralMeshStep.add_output_file
+      ~IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon
+      ~IcosahedralMeshStep.constrain_resources
+      ~IcosahedralMeshStep.get_cell_width
+      ~IcosahedralMeshStep.get_subdivisions
+      ~IcosahedralMeshStep.make_jigsaw_mesh
+      ~IcosahedralMeshStep.process_inputs_and_outputs
+      ~IcosahedralMeshStep.run
+      ~IcosahedralMeshStep.runtime_setup
+      ~IcosahedralMeshStep.save_and_plot_cell_width
+      ~IcosahedralMeshStep.set_resources
+      ~IcosahedralMeshStep.set_shared_config
+      ~IcosahedralMeshStep.setup
+      ~IcosahedralMeshStep.validate_baselines
+   
+   
+
+   
+   
+   

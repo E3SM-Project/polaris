@@ -1,0 +1,279 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ice_shelf_2d</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=486e5634"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="inertial_gravity_wave" href="inertial_gravity_wave.html" />
+    <link rel="prev" title="divergent_2d" href="divergent_2d.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic_gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated_tracers_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine_bell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_gravity_wave.html">external_gravity_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent_2d</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ice_shelf_2d</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#with-restart">with_restart</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#default-tidal-forcing">default_tidal_forcing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial_gravity_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured_solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single_column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework.html">Ocean framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">ice_shelf_2d</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/developers_guide/ocean/tasks/ice_shelf_2d.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="ice-shelf-2d">
+<span id="dev-ocean-ice-shelf-2d"></span><h1>ice_shelf_2d<a class="headerlink" href="#ice-shelf-2d" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d</span></code> test group
+(<code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.ice_shelf_2d.IceShelf2d</span></code>)
+implements a very simplified ice-shelf cavity that is invariant in the x
+direction (see <a class="reference internal" href="../../../users_guide/ocean/tasks/ice_shelf_2d.html#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a>). Here, we describe the shared
+framework for this test group and the 2 test cases.</p>
+<section id="framework">
+<span id="dev-ocean-ice-shelf-2d-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
+<p>The shared config options for the <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d</span></code> test group
+are described in <a class="reference internal" href="../../../users_guide/ocean/tasks/ice_shelf_2d.html#ocean-ice-shelf-2d"><span class="std std-ref">ice shelf 2d</span></a> in the User’s Guide.</p>
+<p>Additionally, the test group has shared <code class="docutils literal notranslate"><span class="pre">ssh_forward.yaml</span></code> and <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>
+files with common namelist options and streams related to the <code class="docutils literal notranslate"><span class="pre">ssh_adjustment</span></code>
+and <code class="docutils literal notranslate"><span class="pre">forward</span></code> steps, respectively.</p>
+<p>The test case class is inherited from
+<a class="reference internal" href="../generated/polaris.ocean.ice_shelf.IceShelfTask.html#polaris.ocean.ice_shelf.IceShelfTask" title="polaris.ocean.ice_shelf.IceShelfTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.IceShelfTask</span></code></a> and
+its <a class="reference internal" href="../generated/polaris.ocean.ice_shelf.SshForward.html#polaris.ocean.ice_shelf.SshForward" title="polaris.ocean.ice_shelf.ssh_forward.SshForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.ssh_forward.SshForward</span></code></a> and
+<a class="reference internal" href="../generated/polaris.ocean.ice_shelf.SshAdjustment.html#polaris.ocean.ice_shelf.SshAdjustment" title="polaris.ocean.ice_shelf.ssh_adjustment.SshAdjustment"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.ssh_adjustment.SshAdjustment</span></code></a> step classes
+are used to set up one of each step for each iteration given by the config
+option <code class="docutils literal notranslate"><span class="pre">ssh_adjustment:iterations</span></code>.</p>
+<section id="init">
+<span id="dev-ocean-ice-shelf-2d-init"></span><h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
+<p>The class :py:class:<code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.ice_shelf_2d.init.Init</span></code>
+defines a step for setting up the initial state for each test case.</p>
+<p>First, a mesh appropriate for the resolution is generated using
+<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vmaster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  Then, the mesh is
+culled to remove periodicity in the y direction.  A vertical grid is generated,
+with 20 layers of 100-m thickness each by default.  Then, the 1D grid is either
+“squashed” down so the sea-surface height corresponds to the location of the
+ice-ocean interface (ice draft) using a z-star <a class="reference internal" href="../framework.html#dev-ocean-framework-vertical"><span class="std std-ref">Vertical coordinate</span></a>
+or top layers are removed where there is an ice shelf using a z-level
+coordinate. Finally, the initial salinity profile is computed along with
+uniform temperature and zero initial velocity.</p>
+</section>
+<section id="forward">
+<span id="dev-ocean-ice-shelf-2d-forward"></span><h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
+<p>The class <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.tests.ice_shelf_2d.forward.Forward</span></code>
+defines a step for running MPAS-Ocean from the initial condition produced in
+the <code class="docutils literal notranslate"><span class="pre">init</span></code> step. For MPAS-Ocean, PIO namelist options are modified and a
+graph partition is generated as part of <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code>.  Next, the ocean
+model is run.</p>
+</section>
+<section id="validate">
+<span id="dev-ocean-ice-shelf-2d-validate"></span><h3>validate<a class="headerlink" href="#validate" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.ice_shelf_2d.validate.Validate.html#polaris.tasks.ocean.ice_shelf_2d.validate.Validate" title="polaris.tasks.ocean.ice_shelf_2d.validate.Validate"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.ice_shelf_2d.validate.Validate</span></code></a>
+defines a step for validating outputs in two step directories against one
+another.  This step ensures that <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>
+and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are identical in <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> files in the two steps.
+It also checks a number of land ice variables and frazil variables stored in
+<code class="docutils literal notranslate"><span class="pre">land_ice_fluxes.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">frazil.nc</span></code>, respectively. This step is used by the
+restart test (see <a class="reference internal" href="#dev-ocean-ice-shelf-2d-restart"><span class="std std-ref">with_restart</span></a>).</p>
+</section>
+<section id="viz">
+<span id="dev-ocean-ice-shelf-2d-viz"></span><h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.ice_shelf_2d.viz.Viz.html#polaris.tasks.ocean.ice_shelf_2d.viz.Viz" title="polaris.tasks.ocean.ice_shelf_2d.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.ice_shelf_2d.viz.Viz</span></code></a> uses the planar
+visualization capabilities provided by
+<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.ocean.viz.transect.compute_transect.html#mpas_tools.ocean.viz.transect.compute_transect" title="(in mpas_tools vmaster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.ocean.viz.transect.compute_transect()</span></code></a>.</p>
+</section>
+</section>
+<section id="default">
+<span id="dev-ocean-ice-shelf-2d-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.ice_shelf_2d.default.Default.html#polaris.tasks.ocean.ice_shelf_2d.default.Default" title="polaris.tasks.ocean.ice_shelf_2d.default.Default"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.ice_shelf_2d.default.Default</span></code></a> test case
+config options are described in <a class="reference internal" href="../../../users_guide/ocean/tasks/ice_shelf_2d.html#ocean-ice-shelf-2d-default"><span class="std std-ref">default</span></a>.</p>
+<p>The test creates and mesh and initial condition, performs 15 iterations of
+SSH adjustment to make sure the SSH is as close as possible to being in
+dynamic balance with the land-ice pressure.  Then, it performs a 10-minute
+forward simulation. If a baseline is provided, a large number of variables
+(both prognostic and related to land-ice fluxes) are checked to make sure
+they match the baseline.</p>
+</section>
+<section id="with-restart">
+<span id="dev-ocean-ice-shelf-2d-restart"></span><h2>with_restart<a class="headerlink" href="#with-restart" title="Link to this heading"></a></h2>
+<p>The restart test, <code class="docutils literal notranslate"><span class="pre">ocean/planar/ice_shelf_2d/$RES/$COORD_TYPE/default/with_restart</span></code>
+is just a variant of the default test that has two additional steps, a <code class="docutils literal notranslate"><span class="pre">forward</span></code>
+step and a <code class="docutils literal notranslate"><span class="pre">validate</span></code> step.</p>
+</section>
+<section id="default-tidal-forcing">
+<span id="dev-ocean-ice-shelf-2d-tidal-forcing"></span><h2>default_tidal_forcing<a class="headerlink" href="#default-tidal-forcing" title="Link to this heading"></a></h2>
+<p>The tidal forcing test, <code class="docutils literal notranslate"><span class="pre">ocean/planar/ice_shelf_2d/$RES/$COORD_TYPE/default_tidal_forcing</span></code>
+is a variant of the <code class="docutils literal notranslate"><span class="pre">default</span></code> test that has tidal forcing, is run for longer
+(0.1 days), and uses the RK4 time integration scheme by default.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="divergent_2d.html" class="btn btn-neutral float-left" title="divergent_2d" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="inertial_gravity_wave.html" class="btn btn-neutral float-right" title="inertial_gravity_wave" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.8.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

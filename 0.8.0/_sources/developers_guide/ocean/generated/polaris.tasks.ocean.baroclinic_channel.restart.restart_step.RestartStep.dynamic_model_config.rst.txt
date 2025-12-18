@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.baroclinic\_channel.restart.restart\_step.RestartStep.dynamic\_model\_config
+================================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.baroclinic_channel.restart.restart_step
+
+.. automethod:: RestartStep.dynamic_model_config

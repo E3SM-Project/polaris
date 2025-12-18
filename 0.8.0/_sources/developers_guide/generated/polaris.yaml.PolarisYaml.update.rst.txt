@@ -1,0 +1,6 @@
+﻿polaris.yaml.PolarisYaml.update
+===============================
+
+.. currentmodule:: polaris.yaml
+
+.. automethod:: PolarisYaml.update

@@ -1,0 +1,28 @@
+﻿polaris.tasks.ocean.Ocean
+=========================
+
+.. currentmodule:: polaris.tasks.ocean
+
+.. autoclass:: Ocean
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Ocean.__init__
+      ~Ocean.add_config
+      ~Ocean.add_step
+      ~Ocean.add_task
+      ~Ocean.configure
+      ~Ocean.get_or_create_shared_step
+      ~Ocean.remove_step
+   
+   
+
+   
+   
+   

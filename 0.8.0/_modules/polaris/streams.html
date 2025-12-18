@@ -1,0 +1,386 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.streams</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=486e5634"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.streams</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.streams</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">jinja2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lxml</span><span class="w"> </span><span class="kn">import</span> <span class="n">etree</span>
+
+
+<div class="viewcode-block" id="read">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.streams.read.html#polaris.streams.read">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">streams_filename</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse the given streams file</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    package : Package</span>
+<span class="sd">        The package name or module object that contains the streams file</span>
+
+<span class="sd">    streams_filename : str</span>
+<span class="sd">        The name of the streams file to read from</span>
+
+<span class="sd">    tree : lxml.etree, optional</span>
+<span class="sd">        An existing set of streams to add to or modify</span>
+
+<span class="sd">    replacements : dict, optional</span>
+<span class="sd">        A dictionary of replacements, in which case ``streams_filename`` is</span>
+<span class="sd">        assumed to be a Jinja2 template to be rendered with these replacements</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tree : lxml.etree</span>
+<span class="sd">        A tree of XML data describing MPAS i/o streams with the content from</span>
+<span class="sd">        the given streams file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">streams_filename</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">replacements</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">replacements</span><span class="p">)</span>
+
+    <span class="n">new_tree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">update_tree</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">new_tree</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">tree</span></div>
+
+
+
+<div class="viewcode-block" id="write">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.streams.write.html#polaris.streams.write">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="n">streams</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;write the streams XML data to the file&quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream_file</span><span class="p">:</span>
+        <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&lt;streams&gt;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Write out all immutable streams first</span>
+        <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="n">streams</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;immutable_stream&#39;</span><span class="p">):</span>
+            <span class="n">stream_name</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+
+            <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&lt;immutable_stream name=&quot;</span><span class="si">{</span><span class="n">stream_name</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+            <span class="c1"># Process all attributes on the stream</span>
+            <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">stream</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span>
+                    <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">                  </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s1">=&quot;</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+
+            <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;/&gt;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Write out all immutable streams</span>
+        <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="n">streams</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;stream&#39;</span><span class="p">):</span>
+            <span class="n">stream_name</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+
+            <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&lt;stream name=&quot;</span><span class="si">{</span><span class="n">stream_name</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Process all attributes</span>
+            <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">stream</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span>
+                    <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">        </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s1">=&quot;</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+
+            <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&gt;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Write out all contents of the stream</span>
+            <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;stream&#39;</span><span class="p">,</span> <span class="s1">&#39;var_struct&#39;</span><span class="p">,</span> <span class="s1">&#39;var_array&#39;</span><span class="p">,</span> <span class="s1">&#39;var&#39;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">stream</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+                    <span class="n">child_name</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;stream&#39;</span> <span class="ow">and</span> <span class="n">child_name</span> <span class="o">==</span> <span class="n">stream_name</span><span class="p">:</span>
+                        <span class="c1"># don&#39;t include the stream itself</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="s1">&#39;packages&#39;</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="n">package_name</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;packages&#39;</span><span class="p">]</span>
+                        <span class="n">entry</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="sa">f</span><span class="s1">&#39;    &lt;</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s1"> name=&quot;</span><span class="si">{</span><span class="n">child_name</span><span class="si">}</span><span class="s1">&quot; &#39;</span>
+                            <span class="sa">f</span><span class="s1">&#39;packages=&quot;</span><span class="si">{</span><span class="n">package_name</span><span class="si">}</span><span class="s1">&quot;/&gt;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">entry</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;    &lt;</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s1"> name=&quot;</span><span class="si">{</span><span class="n">child_name</span><span class="si">}</span><span class="s1">&quot;/&gt;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+
+            <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&lt;/stream&gt;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">stream_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&lt;/streams&gt;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="update_defaults">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.streams.update_defaults.html#polaris.streams.update_defaults">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_defaults</span><span class="p">(</span><span class="n">new_child</span><span class="p">,</span> <span class="n">defaults</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update a stream or its children (sub-stream, var, etc.) starting from the</span>
+<span class="sd">    defaults or add it if it&#39;s new.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">new_child</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="n">new_child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">defaults</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="n">new_child</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Trying to update stream &quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot; with &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;inconsistent tags </span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1"> vs. &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">new_child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">.&#39;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># copy the attributes</span>
+            <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">new_child</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_child</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># we don&#39;t want default grandchildren</span>
+                <span class="k">for</span> <span class="n">grandchild</span> <span class="ow">in</span> <span class="n">child</span><span class="p">:</span>
+                    <span class="n">child</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">grandchild</span><span class="p">)</span>
+
+            <span class="c1"># copy or add the grandchildren&#39;s contents</span>
+            <span class="k">for</span> <span class="n">new_grandchild</span> <span class="ow">in</span> <span class="n">new_child</span><span class="p">:</span>
+                <span class="n">update_defaults</span><span class="p">(</span><span class="n">new_grandchild</span><span class="p">,</span> <span class="n">child</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+        <span class="c1"># add a deep copy of the element</span>
+        <span class="n">defaults</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">new_child</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="update_tree">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.streams.update_tree.html#polaris.streams.update_tree">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_tree</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">new_tree</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse the given streams file</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tree : lxml.etree</span>
+<span class="sd">        An existing set of streams to add to or modify</span>
+
+<span class="sd">    new_tree : lxml.etree</span>
+<span class="sd">        A new set of streams to add or modify</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tree : lxml.etree</span>
+<span class="sd">        A tree of XML data describing MPAS i/o streams with the content from</span>
+<span class="sd">        the given streams file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">tree</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">new_tree</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">streams</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">))</span>
+        <span class="n">new_streams</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">new_tree</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">new_stream</span> <span class="ow">in</span> <span class="n">new_streams</span><span class="p">:</span>
+            <span class="n">_update_element</span><span class="p">(</span><span class="n">new_stream</span><span class="p">,</span> <span class="n">streams</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">tree</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_update_element</span><span class="p">(</span><span class="n">new_child</span><span class="p">,</span> <span class="n">elements</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    add the new child/grandchildren or add/update attributes if they exist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">new_child</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="n">new_child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="n">new_child</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Trying to update stream &quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot; with &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;inconsistent tags </span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1"> vs. &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">new_child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">.&#39;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># copy the attributes</span>
+            <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">new_child</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+            <span class="c1"># copy or add the grandchildren&#39;s contents</span>
+            <span class="k">for</span> <span class="n">new_grandchild</span> <span class="ow">in</span> <span class="n">new_child</span><span class="p">:</span>
+                <span class="n">_update_element</span><span class="p">(</span><span class="n">new_grandchild</span><span class="p">,</span> <span class="n">child</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+        <span class="c1"># add a deep copy of the element</span>
+        <span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">new_child</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">set_default_io_type</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">io_type</span><span class="o">=</span><span class="s1">&#39;pnetcdf,cdf5&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set io_type attribute for all &lt;stream&gt; and &lt;immutable_stream&gt;</span>
+<span class="sd">    elements if not already set, except for immutable_stream with name &#39;mesh&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">streams</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;streams&#39;</span><span class="p">))</span>
+    <span class="n">all_streams</span> <span class="o">=</span> <span class="n">streams</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;stream&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">streams</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
+        <span class="s1">&#39;immutable_stream&#39;</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="n">all_streams</span><span class="p">:</span>
+        <span class="n">stream_type</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;io_type&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stream</span><span class="o">.</span><span class="n">attrib</span> <span class="ow">and</span> <span class="s1">&#39;output&#39;</span> <span class="ow">in</span> <span class="n">stream_type</span><span class="p">:</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;io_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">io_type</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.8.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

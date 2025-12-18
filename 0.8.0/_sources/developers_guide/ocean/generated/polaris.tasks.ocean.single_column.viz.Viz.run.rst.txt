@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.single\_column.viz.Viz.run
+==============================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.viz
+
+.. automethod:: Viz.run

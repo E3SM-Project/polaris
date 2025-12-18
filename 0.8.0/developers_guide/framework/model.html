@@ -1,0 +1,679 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=486e5634"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Parallel" href="parallel.html" />
+    <link rel="prev" title="MPAS" href="mpas.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="commands.html">Modules for polaris commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Config files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io.html">IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpas.html">MPAS</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#running-an-e3sm-component">Running an E3SM component</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#adding-yaml-namelist-and-streams-files">Adding yaml, namelist and streams files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#adding-e3sm-component-as-an-input">Adding E3SM component as an input</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#partitioning-the-mesh">Partitioning the mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-pio-namelist-options">Updating PIO namelist options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#making-a-graph-file">Making a graph file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#detailed-documentation-polaris-namelist-polaris-streams-and-polaris-yaml">Detailed Documentation: polaris.namelist, polaris.streams, and polaris.yaml</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#polaris-namelist"><code class="docutils literal notranslate"><span class="pre">polaris.namelist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#polaris-streams"><code class="docutils literal notranslate"><span class="pre">polaris.streams</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#polaris-yaml"><code class="docutils literal notranslate"><span class="pre">polaris.yaml</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="parallel.html">Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html">Provenance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="remapping.html">Remapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Framework</a></li>
+      <li class="breadcrumb-item active">Model</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/framework/model.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="model">
+<span id="dev-model"></span><h1>Model<a class="headerlink" href="#model" title="Link to this heading"></a></h1>
+<section id="running-an-e3sm-component">
+<h2>Running an E3SM component<a class="headerlink" href="#running-an-e3sm-component" title="Link to this heading"></a></h2>
+<p>Steps that run a standalone build of an E3SM component should descend from the
+<a class="reference internal" href="../generated/polaris.ModelStep.html#polaris.ModelStep" title="polaris.ModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ModelStep</span></code></a> class.</p>
+<p>By default (if the attribute <code class="docutils literal notranslate"><span class="pre">update_pio</span> <span class="pre">=</span> <span class="pre">True</span></code>), at runtime, the namelist
+options associated with the <a class="reference external" href="https://ncar.github.io/ParallelIO/">PIO library</a>
+will automatically be set.  If the <code class="docutils literal notranslate"><span class="pre">make_graph</span> <span class="pre">=</span> <span class="pre">True</span></code>, the mesh will be
+partitioned across MPI tasks at runtime.</p>
+<p>During construction or by setting attributes directly, you can can provide
+non-default names for the graph, namelist and streams files.  At construction
+or with the <a class="reference internal" href="../generated/polaris.ModelStep.set_model_resources.html#polaris.ModelStep.set_model_resources" title="polaris.ModelStep.set_model_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.set_model_resources()</span></code></a>
+method,  you can set number of tasks, threads, etc. determined from the
+<code class="docutils literal notranslate"><span class="pre">ntasks</span></code>, <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>, <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>, <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task`</span></code> and
+<code class="docutils literal notranslate"><span class="pre">openmp_threads</span></code> attributes.  These resources need to be set at construction or
+in the  <a class="reference internal" href="../organization/steps.html#dev-step-setup"><span class="std std-ref">setup()</span></a> method (i.e. before calling <a class="reference internal" href="../organization/steps.html#dev-step-run"><span class="std std-ref">run()</span></a>)
+so that  the polaris framework  can ensure that the required resources are
+available.</p>
+<section id="adding-yaml-namelist-and-streams-files">
+<span id="dev-model-yaml-namelists-and-streams"></span><h3>Adding yaml, namelist and streams files<a class="headerlink" href="#adding-yaml-namelist-and-streams-files" title="Link to this heading"></a></h3>
+<p>Components and tasks can provide yaml config options,
+namelist and streams files that are used to replace default model config
+options  and streams definitions before the E3SM component gets run.  Namelist
+and streams files within the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package must start with the prefix
+<code class="docutils literal notranslate"><span class="pre">namelist.</span></code> and <code class="docutils literal notranslate"><span class="pre">streams.</span></code>,  respectively, to ensure that they are included
+when we build the package.  Yaml files must end with <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> or <code class="docutils literal notranslate"><span class="pre">.yml</span></code> for the
+same reason.</p>
+<p>You can make calls to <a class="reference internal" href="../generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a>,
+<a class="reference internal" href="../generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a>,
+<a class="reference internal" href="../generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a>  and
+<a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> as described below to indicate
+how yaml, namelist and streams file should be built up by modifying the
+defaults for the  E3SM component.  The yaml, namelists and streams files
+themselves  are generated  automatically (which of these depends on the E3SM
+component in question) as part of setting up the task.</p>
+<section id="adding-a-yaml-file">
+<span id="dev-model-add-yaml-file"></span><h4>Adding a yaml file<a class="headerlink" href="#adding-a-yaml-file" title="Link to this heading"></a></h4>
+<p>Typically, a step that runs an E3SM component will include one or more calls
+to  <a class="reference internal" href="../generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a> or
+<a class="reference internal" href="../generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a> within the <a class="reference internal" href="../organization/steps.html#dev-step-init"><span class="std std-ref">constructor</span></a>
+or <a class="reference internal" href="../organization/steps.html#dev-step-setup"><span class="std std-ref">setup()</span></a> method.  Calling one of these methods simply adds the
+file to  a list that will be parsed if and when the step gets set up.  (This
+way, it is  safe to add namelist files to a step in init even if that task
+will never  get set up or run.)</p>
+<p>The format of the yaml file is a hierarchical list of sections with config
+options and values, followed by streams:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">ocean</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">run_modes</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_ocean_run_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">forward</span>
+<span class="w">  </span><span class="nt">time_management</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_run_duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0024_00:00:00</span>
+<span class="w">  </span><span class="nt">ALE_vertical_grid</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_vert_coord_movement</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">impermeable_interfaces</span>
+<span class="w">  </span><span class="nt">decomposition</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_block_decomp_file_prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">graph.info.part.</span>
+<span class="w">  </span><span class="nt">time_integration</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_time_integrator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RK4</span>
+
+<span class="w">  </span><span class="nt">streams</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">mesh</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">filename_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">init.nc</span>
+<span class="w">    </span><span class="nt">input</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">filename_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">init.nc</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">output_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0030_00:00:00</span>
+<span class="w">    </span><span class="nt">output</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output</span>
+<span class="w">      </span><span class="nt">filename_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.nc</span>
+<span class="w">      </span><span class="nt">output_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0024_00:00:00</span>
+<span class="w">      </span><span class="nt">clobber_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truncate</span>
+<span class="w">      </span><span class="nt">reference_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0001-01-01_00:00:00</span>
+<span class="w">      </span><span class="nt">contents</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tracers</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mesh</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">xtime</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">normalVelocity</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">layerThickness</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">refZMid</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">refLayerThickness</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kineticEnergyCell</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">relativeVorticityCell</span>
+</pre></div>
+</div>
+<p>Unlike for namelist files (see below), we require that config options be placed
+in appropriate sections both for clarity and because there is no guarantee that
+config options must have unique names.</p>
+<p>A typical yaml file is added by passing a package where the yaml file
+is located and the name of the input yaml file within that package
+as arguments to <a class="reference internal" href="../generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.global_convergence.cosine_bell&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Model config values are replaced by the files (or options, see below) in the
+sequence they are given.  This way, you can add the model config substitutions
+common to related tasks first, and then override those with the replacements
+specific to the task or step.</p>
+</section>
+<section id="adding-a-namelist-file">
+<span id="dev-model-add-namelists-file"></span><h4>Adding a namelist file<a class="headerlink" href="#adding-a-namelist-file" title="Link to this heading"></a></h4>
+<p>Typically, a step that runs the E3SM component will include one or more calls
+to  <a class="reference internal" href="../generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a> or
+<a class="reference internal" href="../generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a> within the <a class="reference internal" href="../organization/steps.html#dev-step-init"><span class="std std-ref">constructor</span></a>
+or <a class="reference internal" href="../organization/steps.html#dev-step-setup"><span class="std std-ref">setup()</span></a> method.  Calling this method simply adds the file to
+a list that will be parsed if and when the step gets set up.  (This way, it is
+safe to add namelist files to a step in init even if that task will never
+get set up or run.)</p>
+<p>The format of the namelist file is simply a list of namelist options and
+the replacement values:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>config_write_output_on_startup = .false.
+config_run_duration = &#39;0000_00:15:00&#39;
+config_use_mom_del2 = .true.
+config_implicit_bottom_drag_coeff = 1.0e-2
+config_use_cvmix_background = .true.
+config_cvmix_background_diffusion = 0.0
+config_cvmix_background_viscosity = 1.0e-4
+</pre></div>
+</div>
+<p>Since all MPAS namelist options must have unique names, we do not worry about
+which specific namelist within the file each belongs to.</p>
+<p>A typical namelist file is added by passing a package where the namelist file
+is located and the name of the input namelist file within that package
+as arguments to <a class="reference internal" href="../generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.baroclinic_channel&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Namelist values are replaced by the files (or options, see below) in the
+sequence they are given.  This way, you can add the namelist substitutions for
+that are common to related tasks first, and then override those with the
+replacements that are specific to the task or step.</p>
+</section>
+<section id="adding-model-config-options">
+<span id="dev-model-add-model-config-options"></span><h4>Adding model config options<a class="headerlink" href="#adding-model-config-options" title="Link to this heading"></a></h4>
+<p>Sometimes, it is easier to replace yaml or namelist options (together referred
+to as model config options)  using a dictionary within  the code, rather than
+a yaml or namelist file.  This is appropriate when there are only 1 or 2
+options to  replace (so creating a file seems like overkill) or when the
+model config options rely on values that are determined by the code (e.g.
+different  values for different resolutions).  Simply create a dictionary
+replacements and call <a class="reference internal" href="../generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a>
+either  at init or in the <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method of the step.  These replacements are
+parsed, along  with replacements from files, in the order they are added.
+Thus, you could add replacements from a model config file common to multiple
+tasks, specific to a task, and/or specific to step.  Then, you could override
+them with namelist options in a dictionary for the task or step, as in this
+example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">nu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># update the viscosity to the requested value</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">config_mom_del2</span><span class="o">=</span><span class="n">nu</span><span class="p">))</span>
+
+<span class="c1"># make sure output is double precision</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;output.yaml&#39;</span><span class="p">)</span>
+
+<span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.baroclinic_channel&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<p>Here, we set the viscosity <code class="docutils literal notranslate"><span class="pre">nu</span></code>, which is an option passed in when creating
+this step.  Then, we get default model config options for ocean model output
+(<code class="docutils literal notranslate"><span class="pre">output.yaml</span></code>) and for baroclinic channel forward steps (<code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Model config options can have values of type <code class="docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">str</span></code>,
+and are automatically converted to the appropriate type in the yaml or namelist
+file.</p>
+</div>
+</section>
+<section id="dynamic-model-config-options">
+<span id="dev-model-dynamic-model-config-options"></span><h4>Dynamic model config options<a class="headerlink" href="#dynamic-model-config-options" title="Link to this heading"></a></h4>
+<p>It is sometimes useful to have model config options that are based on Polaris
+config options and/or algorithms.  In such cases, the model config options
+need to be computed once at setup and again (possibly based on updated
+config options) at runtime.  A step needs to override the
+<a class="reference internal" href="../generated/polaris.ModelStep.dynamic_model_config.html#polaris.ModelStep.dynamic_model_config" title="polaris.ModelStep.dynamic_model_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.dynamic_model_config()</span></code></a> method, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add model config options, namelist, streams and yaml files using config</span>
+<span class="sd">    options or template replacements that need to be set both during step</span>
+<span class="sd">    setup and at runtime</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    at_setup : bool</span>
+<span class="sd">        Whether this method is being run during setup of the step, as</span>
+<span class="sd">        opposed to at runtime</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="p">)</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+
+    <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="c1"># dt is proportional to resolution: default 30 seconds per km</span>
+    <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">,</span> <span class="s1">&#39;dt_per_km&#39;</span><span class="p">)</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">dt_per_km</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
+    <span class="c1"># https://stackoverflow.com/a/1384565/7728169</span>
+    <span class="n">options</span><span class="p">[</span><span class="s1">&#39;config_dt&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">dt</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># default run duration is a few time steps</span>
+        <span class="n">run_seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="o">*</span> <span class="n">dt</span>
+        <span class="n">options</span><span class="p">[</span><span class="s1">&#39;config_run_duration&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">run_seconds</span><span class="p">))</span>
+
+    <span class="c1"># btr_dt is also proportional to resolution: default 1.5 seconds per km</span>
+    <span class="n">btr_dt_per_km</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">,</span> <span class="s1">&#39;btr_dt_per_km&#39;</span><span class="p">)</span>
+    <span class="n">btr_dt</span> <span class="o">=</span> <span class="n">btr_dt_per_km</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
+    <span class="n">options</span><span class="p">[</span><span class="s1">&#39;config_btr_dt&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">btr_dt</span><span class="p">))</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">btr_dt</span> <span class="o">=</span> <span class="n">btr_dt</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="adding-a-streams-file">
+<span id="dev-model-add-streams-file"></span><h4>Adding a streams file<a class="headerlink" href="#adding-a-streams-file" title="Link to this heading"></a></h4>
+<p>Streams files are a bit more complicated than namelist files because
+streams files are XML documents, requiring some slightly more sophisticated
+parsing.</p>
+<p>Typically, a step that runs the E3SM component will include one or more calls
+to <a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> within the
+<a class="reference internal" href="../organization/steps.html#dev-step-init"><span class="std std-ref">constructor</span></a> or <a class="reference internal" href="../organization/steps.html#dev-step-setup"><span class="std std-ref">setup()</span></a> method.  Calling this function
+simply adds the file to a list within the <code class="docutils literal notranslate"><span class="pre">step</span></code> dictionary that will be parsed
+if an when the step gets set up.  (This way, it is safe to add streams files to
+a step at init even if that task will never get set up or run.)</p>
+<p>The format of the streams file is essentially the same as the default and
+generated streams file, e.g.:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;streams&gt;</span>
+
+<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;mesh&quot;</span>
+<span class="w">                  </span><span class="na">filename_template=</span><span class="s">&quot;init.nc&quot;</span><span class="nt">/&gt;</span>
+
+<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;input&quot;</span>
+<span class="w">                  </span><span class="na">filename_template=</span><span class="s">&quot;init.nc&quot;</span><span class="nt">/&gt;</span>
+
+<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;restart&quot;</span><span class="nt">/&gt;</span>
+
+<span class="nt">&lt;stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;output&quot;</span>
+<span class="w">        </span><span class="na">type=</span><span class="s">&quot;output&quot;</span>
+<span class="w">        </span><span class="na">filename_template=</span><span class="s">&quot;output.nc&quot;</span>
+<span class="w">        </span><span class="na">output_interval=</span><span class="s">&quot;0000_00:00:01&quot;</span>
+<span class="w">        </span><span class="na">clobber_mode=</span><span class="s">&quot;truncate&quot;</span><span class="nt">&gt;</span>
+
+<span class="w">    </span><span class="nt">&lt;var_struct</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;tracers&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;xtime&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;normalVelocity&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;layerThickness&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/stream&gt;</span>
+
+<span class="nt">&lt;/streams&gt;</span>
+</pre></div>
+</div>
+<p>These are all streams that are already defined in the default forward streams
+for MPAS-Ocean, so the defaults will be updated.  If only the attributes of
+a stream are given, the contents of the stream (the <code class="docutils literal notranslate"><span class="pre">var</span></code>, <code class="docutils literal notranslate"><span class="pre">var_struct</span></code>
+and <code class="docutils literal notranslate"><span class="pre">var_array</span></code> tags within the stream) are taken from the defaults.  If
+any contents are given, as for the <code class="docutils literal notranslate"><span class="pre">output</span></code> stream in the example above, they
+replace the default contents.  Polaris does not include a way to add or
+remove contents from the defaults, just keep the default contents or replace
+them all.  (Past experience has shown that such a feature would be
+confusing and difficult to keep synchronized with the E3SM code.)</p>
+<p>A typical streams file is added by calling
+<a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> with a package where the streams
+file is located and the name of the input streams file within that package:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.baroclinic_channel&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;streams.forward&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If the streams file should have a different name than the default
+(<code class="docutils literal notranslate"><span class="pre">streams.&lt;component&gt;</span></code>), the name can be given via the <code class="docutils literal notranslate"><span class="pre">out_name</span></code> keyword
+argument.   If <code class="docutils literal notranslate"><span class="pre">init</span></code> mode is desired, rather than the default, <code class="docutils literal notranslate"><span class="pre">forward</span></code>
+mode, this can also be specified.</p>
+</section>
+<section id="adding-a-template-streams-file">
+<span id="dev-model-add-streams-file-template"></span><h4>Adding a template streams file<a class="headerlink" href="#adding-a-template-streams-file" title="Link to this heading"></a></h4>
+<p>The main difference between namelists and streams files is that there is no
+direct equivalent for streams of <a class="reference internal" href="../generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a>.
+It is simply too confusing to try to define streams within the code.</p>
+<p>Instead, <a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> includes a keyword
+argument <code class="docutils literal notranslate"><span class="pre">template_replacements</span></code>.  If you provide a dictionary of
+replacements to this argument, the input streams file will be treated as a
+<a class="reference external" href="https://jinja.palletsprojects.com/">Jinja2 template</a> that is rendered
+using the provided replacements.  Here is an example of such a template streams
+file:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;streams&gt;</span>
+
+<span class="nt">&lt;stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;output&quot;</span>
+<span class="w">        </span><span class="na">output_interval=</span><span class="s">&quot;{{ output_interval }}&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;restart&quot;</span>
+<span class="w">                  </span><span class="na">filename_template=</span><span class="s">&quot;../restarts/rst.$Y-$M-$D_$h.$m.$s.nc&quot;</span>
+<span class="w">                  </span><span class="na">output_interval=</span><span class="s">&quot;{{ restart_interval }}&quot;</span><span class="nt">/&gt;</span>
+
+<span class="nt">&lt;/streams&gt;</span>
+</pre></div>
+</div>
+<p>And here is how it would be added, along with replacements:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">stream_replacements</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;output_interval&#39;</span><span class="p">:</span> <span class="s1">&#39;00-00-01_00:00:00&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;restart_interval&#39;</span><span class="p">:</span> <span class="s1">&#39;00-00-01_00:00:00&#39;</span><span class="p">}</span>
+<span class="n">add_streams_file</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="s1">&#39;streams.template&#39;</span><span class="p">,</span>
+                 <span class="n">template_replacements</span><span class="o">=</span><span class="n">stream_replacements</span><span class="p">)</span>
+
+<span class="o">...</span>
+
+<span class="n">stream_replacements</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;output_interval&#39;</span><span class="p">:</span> <span class="s1">&#39;00-00-01_00:00:00&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;restart_interval&#39;</span><span class="p">:</span> <span class="s1">&#39;00-00-01_00:00:00&#39;</span><span class="p">}</span>
+<span class="n">add_streams_file</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="s1">&#39;streams.template&#39;</span><span class="p">,</span>
+                 <span class="n">template_replacements</span><span class="o">=</span><span class="n">stream_replacements</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example, taken from
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.global_ocean.mesh.qu240.dynamic_adjustement.QU240DynamicAdjustment</span></code>,
+we are creating a series of steps that will be used to perform dynamic
+adjustment of the ocean model, each of which might have different durations and
+restart intervals.  Rather than creating a streams file for each step of the
+spin up, we reuse the same template with just a few appropriate replacements.
+Thus, calls to <a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> with
+<code class="docutils literal notranslate"><span class="pre">template_replacements</span></code> are qualitatively similar to namelist calls to
+<a class="reference internal" href="../generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a>.</p>
+</section>
+</section>
+<section id="adding-e3sm-component-as-an-input">
+<h3>Adding E3SM component as an input<a class="headerlink" href="#adding-e3sm-component-as-an-input" title="Link to this heading"></a></h3>
+<p>If a step involves running the E3SM component, it should descend from
+:py:class<code class="docutils literal notranslate"><span class="pre">polaris.ModelStep</span></code>.  The model executable will  automatically be
+linked and added as an input to the step.  This way, if the user has forgotten
+to compile the model, this will be obvious by the broken symlink and the step
+will immediately fail because of the missing input.  The path to the executable
+is automatically detected based on the work directory for the step and the
+config options.</p>
+</section>
+</section>
+<section id="partitioning-the-mesh">
+<h2>Partitioning the mesh<a class="headerlink" href="#partitioning-the-mesh" title="Link to this heading"></a></h2>
+<p>The method <a class="reference internal" href="../generated/polaris.ModelStep.partition.html#polaris.ModelStep.partition" title="polaris.ModelStep.partition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.partition()</span></code></a> calls the graph
+partitioning  executable (<a class="reference external" href="https://arc.vt.edu/userguide/metis/">gpmetis</a> by
+default) to  divide up the MPAS mesh across MPI tasks.  If you create a
+<code class="docutils literal notranslate"><span class="pre">ModelStep</span></code> with <code class="docutils literal notranslate"><span class="pre">partition_graph=True</span></code> (the default), this method is called
+automatically.</p>
+<p>In some circumstances, a step may need to partition the mesh separately from
+running the model.  Typically, this applies to cases where the model is run
+multiple times with the same partition and we don’t want to waste time
+creating the same partition over and over.  For such cases, you can
+provide <code class="docutils literal notranslate"><span class="pre">partition_graph=False</span></code> and then call
+<a class="reference internal" href="../generated/polaris.ModelStep.partition.html#polaris.ModelStep.partition" title="polaris.ModelStep.partition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.partition()</span></code></a> manually where appropriate.</p>
+</section>
+<section id="updating-pio-namelist-options">
+<h2>Updating PIO namelist options<a class="headerlink" href="#updating-pio-namelist-options" title="Link to this heading"></a></h2>
+<p>You can use <a class="reference internal" href="../generated/polaris.ModelStep.update_namelist_pio.html#polaris.ModelStep.update_namelist_pio" title="polaris.ModelStep.update_namelist_pio"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.update_namelist_pio()</span></code></a> to
+automatically set  the MPAS namelist options <code class="docutils literal notranslate"><span class="pre">config_pio_num_iotasks</span></code> and
+<code class="docutils literal notranslate"><span class="pre">config_pio_stride</span></code> such that there is 1 PIO task per node of the MPAS run.
+This is particularly useful for PIO v1, which we have found performs much
+better in this  configuration than when there is 1 PIO task per core, the MPAS
+default.  When running with PIO v2, we have found little performance difference
+between the MPAS default and the polaris default of one task per node, so we
+feel this is a safe default.</p>
+<p>By default, this function is called in
+<a class="reference internal" href="../generated/polaris.ModelStep.runtime_setup.html#polaris.ModelStep.runtime_setup" title="polaris.ModelStep.runtime_setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.runtime_setup()</span></code></a>.  If the same namelist
+file is used for multiple model runs, it may be useful to update the number of
+PIO tasks only once.  In this case, set the attribute <code class="docutils literal notranslate"><span class="pre">update_pio</span> <span class="pre">=</span> <span class="pre">False</span></code> and
+<a class="reference internal" href="../generated/polaris.ModelStep.update_namelist_pio.html#polaris.ModelStep.update_namelist_pio" title="polaris.ModelStep.update_namelist_pio"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.update_namelist_pio()</span></code></a> yourself.</p>
+<p>If you wish to use the MPAS default behavior of 1 PIO task per core, or wish to
+set <code class="docutils literal notranslate"><span class="pre">config_pio_num_iotasks</span></code> and <code class="docutils literal notranslate"><span class="pre">config_pio_stride</span></code> yourself, simply
+set <code class="docutils literal notranslate"><span class="pre">update_pio</span> <span class="pre">=</span> <span class="pre">False</span></code>.</p>
+</section>
+<section id="making-a-graph-file">
+<h2>Making a graph file<a class="headerlink" href="#making-a-graph-file" title="Link to this heading"></a></h2>
+<p>Some polaris tasks take advantage of the fact that the
+<a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/mesh_conversion.html#cell-culler">MPAS-Tools cell culler</a>
+can produce a graph file as part of the process of culling cells from an
+MPAS mesh.  In tasks that do not require cells to be culled, you can
+call <a class="reference internal" href="../generated/polaris.model_step.make_graph_file.html#polaris.model_step.make_graph_file" title="polaris.model_step.make_graph_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.model_step.make_graph_file()</span></code></a> to produce a graph file
+from an MPAS mesh file.  Optionally, you can provide the name of an MPAS field
+on cells in the mesh file that gives different weight to different cells
+(<code class="docutils literal notranslate"><span class="pre">weight_field</span></code>) in the partitioning process.</p>
+</section>
+<section id="detailed-documentation-polaris-namelist-polaris-streams-and-polaris-yaml">
+<h2>Detailed Documentation: polaris.namelist, polaris.streams, and polaris.yaml<a class="headerlink" href="#detailed-documentation-polaris-namelist-polaris-streams-and-polaris-yaml" title="Link to this heading"></a></h2>
+<section id="polaris-namelist">
+<h3><code class="docutils literal notranslate"><span class="pre">polaris.namelist</span></code><a class="headerlink" href="#polaris-namelist" title="Link to this heading"></a></h3>
+<p>This module provides utilities for reading, parsing, updating, and writing
+MPAS-style namelist files. It is used to manage namelist options for E3SM
+components.</p>
+<p><strong>Key Functions:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">parse_replacements(package,</span> <span class="pre">namelist)</span></code>: Reads a namelist file from a
+package and returns a dictionary of option replacements.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ingest(defaults_filename)</span></code>: Reads a full namelist file and returns a nested
+dictionary of records and options.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">replace(namelist,</span> <span class="pre">replacements)</span></code>: Applies replacements to a namelist
+dictionary.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write(namelist,</span> <span class="pre">filename)</span></code>: Writes a nested namelist dictionary to a file.</p></li>
+</ul>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">namelist</span>
+
+<span class="n">replacements</span> <span class="o">=</span> <span class="n">namelist</span><span class="o">.</span><span class="n">parse_replacements</span><span class="p">(</span><span class="s1">&#39;my_package&#39;</span><span class="p">,</span> <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
+<span class="n">namelist_dict</span> <span class="o">=</span> <span class="n">namelist</span><span class="o">.</span><span class="n">ingest</span><span class="p">(</span><span class="s1">&#39;namelist.defaults&#39;</span><span class="p">)</span>
+<span class="n">updated</span> <span class="o">=</span> <span class="n">namelist</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">namelist_dict</span><span class="p">,</span> <span class="n">replacements</span><span class="p">)</span>
+<span class="n">namelist</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">updated</span><span class="p">,</span> <span class="s1">&#39;namelist.input&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="polaris-streams">
+<h3><code class="docutils literal notranslate"><span class="pre">polaris.streams</span></code><a class="headerlink" href="#polaris-streams" title="Link to this heading"></a></h3>
+<p>This module provides tools for reading, updating, and writing MPAS streams XML
+files, including support for Jinja2 templating.</p>
+<p><strong>Key Functions:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">read(package,</span> <span class="pre">streams_filename,</span> <span class="pre">tree=None,</span> <span class="pre">replacements=None)</span></code>: Reads a
+streams XML file (optionally as a Jinja2 template) and returns an XML tree.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write(streams,</span> <span class="pre">out_filename)</span></code>: Writes a streams XML tree to a file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">update_tree(tree,</span> <span class="pre">new_tree)</span></code>: Updates an existing streams tree with new
+streams.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_default_io_type(tree,</span> <span class="pre">io_type='pnetcdf,cdf5')</span></code>: Sets the <code class="docutils literal notranslate"><span class="pre">io_type</span></code>
+attribute for output streams if not already set.</p></li>
+</ul>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">streams</span>
+
+<span class="n">tree</span> <span class="o">=</span> <span class="n">streams</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;my_package&#39;</span><span class="p">,</span> <span class="s1">&#39;streams.forward&#39;</span><span class="p">)</span>
+<span class="n">streams</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s1">&#39;streams.xml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="polaris-yaml">
+<h3><code class="docutils literal notranslate"><span class="pre">polaris.yaml</span></code><a class="headerlink" href="#polaris-yaml" title="Link to this heading"></a></h3>
+<p>This module provides a class for reading, writing, and updating YAML
+configuration files for E3SM components, including support for Jinja2
+templating and conversion between YAML and MPAS namelist/streams formats.</p>
+<p><strong>Key Classes and Functions:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PolarisYaml</span></code>: Main class for managing YAML configs.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">PolarisYaml.read(filename,</span> <span class="pre">package=None,</span> <span class="pre">replacements=None,</span> <span class="pre">...)</span></code>: Reads
+a YAML file (optionally as a Jinja2 template).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PolarisYaml.update(configs=None,</span> <span class="pre">options=None,</span> <span class="pre">quiet=True)</span></code>: Updates the
+config with new options.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PolarisYaml.write(filename)</span></code>: Writes the config to a YAML file.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mpas_namelist_and_streams_to_yaml(...)</span></code>: Converts MPAS namelist and streams
+files to a YAML config.</p></li>
+</ul>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisYaml</span>
+
+<span class="n">yaml_cfg</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;config.yaml&#39;</span><span class="p">)</span>
+<span class="n">yaml_cfg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;config_dt&#39;</span><span class="p">:</span> <span class="s1">&#39;00:10:00&#39;</span><span class="p">})</span>
+<span class="n">yaml_cfg</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;updated_config.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>See also:</strong>
+Refer to the API documentation for each module for a full list of functions
+and classes:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../generated/polaris.namelist.parse_replacements.html#polaris.namelist.parse_replacements" title="polaris.namelist.parse_replacements"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.namelist.parse_replacements()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.namelist.ingest.html#polaris.namelist.ingest" title="polaris.namelist.ingest"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.namelist.ingest()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.namelist.replace.html#polaris.namelist.replace" title="polaris.namelist.replace"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.namelist.replace()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.namelist.write.html#polaris.namelist.write" title="polaris.namelist.write"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.namelist.write()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.streams.read.html#polaris.streams.read" title="polaris.streams.read"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.streams.read()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.streams.write.html#polaris.streams.write" title="polaris.streams.write"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.streams.write()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.streams.update_defaults.html#polaris.streams.update_defaults" title="polaris.streams.update_defaults"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.streams.update_defaults()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.streams.update_tree.html#polaris.streams.update_tree" title="polaris.streams.update_tree"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.streams.update_tree()</span></code></a></p></li>
+<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.streams.set_default_io_type()</span></code></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.yaml.PolarisYaml.html#polaris.yaml.PolarisYaml" title="polaris.yaml.PolarisYaml"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.yaml.PolarisYaml</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.yaml.PolarisYaml.read.html#polaris.yaml.PolarisYaml.read" title="polaris.yaml.PolarisYaml.read"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.yaml.PolarisYaml.read()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.yaml.PolarisYaml.update.html#polaris.yaml.PolarisYaml.update" title="polaris.yaml.PolarisYaml.update"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.yaml.PolarisYaml.update()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.yaml.PolarisYaml.write.html#polaris.yaml.PolarisYaml.write" title="polaris.yaml.PolarisYaml.write"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.yaml.PolarisYaml.write()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.yaml.mpas_namelist_and_streams_to_yaml.html#polaris.yaml.mpas_namelist_and_streams_to_yaml" title="polaris.yaml.mpas_namelist_and_streams_to_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.yaml.mpas_namelist_and_streams_to_yaml()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.yaml.yaml_to_mpas_streams.html#polaris.yaml.yaml_to_mpas_streams" title="polaris.yaml.yaml_to_mpas_streams"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.yaml.yaml_to_mpas_streams()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.yaml.main_mpas_to_yaml.html#polaris.yaml.main_mpas_to_yaml" title="polaris.yaml.main_mpas_to_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.yaml.main_mpas_to_yaml()</span></code></a></p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mpas.html" class="btn btn-neutral float-left" title="MPAS" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="parallel.html" class="btn btn-neutral float-right" title="Parallel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.8.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

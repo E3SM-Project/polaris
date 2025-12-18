@@ -1,0 +1,47 @@
+﻿polaris.ocean.convergence.spherical.SphericalConvergenceForward
+===============================================================
+
+.. currentmodule:: polaris.ocean.convergence.spherical
+
+.. autoclass:: SphericalConvergenceForward
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SphericalConvergenceForward.__init__
+      ~SphericalConvergenceForward.add_dependency
+      ~SphericalConvergenceForward.add_input_file
+      ~SphericalConvergenceForward.add_model_config_options
+      ~SphericalConvergenceForward.add_namelist_file
+      ~SphericalConvergenceForward.add_output_file
+      ~SphericalConvergenceForward.add_streams_file
+      ~SphericalConvergenceForward.add_yaml_file
+      ~SphericalConvergenceForward.compute_cell_count
+      ~SphericalConvergenceForward.constrain_resources
+      ~SphericalConvergenceForward.dynamic_model_config
+      ~SphericalConvergenceForward.map_yaml_configs
+      ~SphericalConvergenceForward.map_yaml_options
+      ~SphericalConvergenceForward.map_yaml_streams
+      ~SphericalConvergenceForward.map_yaml_to_namelist
+      ~SphericalConvergenceForward.partition
+      ~SphericalConvergenceForward.process_inputs_and_outputs
+      ~SphericalConvergenceForward.run
+      ~SphericalConvergenceForward.runtime_setup
+      ~SphericalConvergenceForward.set_model_resources
+      ~SphericalConvergenceForward.set_resources
+      ~SphericalConvergenceForward.set_shared_config
+      ~SphericalConvergenceForward.setup
+      ~SphericalConvergenceForward.update_namelist_eos
+      ~SphericalConvergenceForward.update_namelist_pio
+      ~SphericalConvergenceForward.validate_baselines
+   
+   
+
+   
+   
+   
