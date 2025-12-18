@@ -38,6 +38,7 @@ class ConvergenceForward(OceanModelStep):
         graph_target=None,
         output_filename='output.nc',
         validate_vars=None,
+        check_properties=None,
         refinement='both',
     ):
         """
@@ -108,9 +109,14 @@ class ConvergenceForward(OceanModelStep):
         self.add_input_file(
             filename='init.nc', work_dir_target=f'{init.path}/initial_state.nc'
         )
+        self.add_input_file(
+            filename='mesh.nc', work_dir_target=f'{init.path}/mesh.nc'
+        )
 
         self.add_output_file(
-            filename=output_filename, validate_vars=validate_vars
+            filename=output_filename,
+            validate_vars=validate_vars,
+            check_properties=check_properties,
         )
 
     def compute_cell_count(self):
