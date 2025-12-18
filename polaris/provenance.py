@@ -121,16 +121,16 @@ def write(work_dir, tasks, config=None, machine=None, baseline_dir=None):
 
 
 def _get_component_git_version(config):
-    if config.has_option('paths', 'component_path'):
-        component_path = config.get('paths', 'component_path')
+    if config.has_option('build', 'branch'):
+        branch = config.get('build', 'branch')
     else:
-        component_path = None
+        branch = None
 
-    if component_path is None or not os.path.exists(component_path):
+    if branch is None or not os.path.exists(branch):
         return None
 
     cwd = os.getcwd()
-    os.chdir(component_path)
+    os.chdir(branch)
 
     try:
         args = ['git', 'describe', '--tags', '--dirty', '--always']
