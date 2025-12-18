@@ -1,0 +1,25 @@
+﻿polaris.parallel.system.ParallelSystem
+======================================
+
+.. currentmodule:: polaris.parallel.system
+
+.. autoclass:: ParallelSystem
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ParallelSystem.__init__
+      ~ParallelSystem.get_available_resources
+      ~ParallelSystem.get_parallel_command
+      ~ParallelSystem.set_cores_per_node
+   
+   
+
+   
+   
+   

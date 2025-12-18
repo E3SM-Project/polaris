@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Culling MPAS Base Meshes to Land/River or Ocean/Sea Ice Regions</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link rel="next" title="Mesh component" href="../../../../mesh/index.html" />
+    <link rel="prev" title="Remapping Topography to MPAS Base Meshes" href="remap.html" />
+    <link href="../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">E3SM initial condition (e3sm/init) component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Tasks</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#topography-tasks">Topography Tasks</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="combine.html">Combine Steps and Tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="remap.html">Remapping Topography to MPAS Base Meshes</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Culling MPAS Base Meshes to Land/River or Ocean/Sea Ice Regions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">E3SM initial condition (e3sm/init) component</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">Culling MPAS Base Meshes to Land/River or Ocean/Sea Ice Regions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/developers_guide/e3sm/init/tasks/topo/cull.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="culling-mpas-base-meshes-to-land-river-or-ocean-sea-ice-regions">
+<span id="dev-e3sm-init-topo-cull-tasks"></span><h1>Culling MPAS Base Meshes to Land/River or Ocean/Sea Ice Regions<a class="headerlink" href="#culling-mpas-base-meshes-to-land-river-or-ocean-sea-ice-regions" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> component includes a workflow for culling MPAS base meshes to
+produce meshes for specific regions, such as land/river or ocean/sea-ice
+domains. This process uses remapped topography and mask information to remove
+cells not belonging to the desired region, ensuring that the resulting meshes
+are contiguous and scientifically meaningful for E3SM simulations.</p>
+<section id="culling-workflow-overview">
+<h2>Culling Workflow Overview<a class="headerlink" href="#culling-workflow-overview" title="Link to this heading"></a></h2>
+<p>The culling workflow is composed of several modular steps, each responsible for
+a specific part of the process:</p>
+<ul class="simple">
+<li><p><strong>Mask Generation</strong>: The <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.cull.CullMaskStep.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull.CullMaskStep</span></code></a>
+creates masks for land, ocean (with and without ice-shelf cavities), and
+Antarctic land ice. This step uses critical transects, flood-filling, and
+land-locked cell detection to ensure the masks are physically consistent
+and contiguous.</p></li>
+<li><p><strong>Mesh Culling</strong>: The <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.cull.CullMeshStep.html#polaris.tasks.e3sm.init.topo.cull.CullMeshStep" title="polaris.tasks.e3sm.init.topo.cull.CullMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull.CullMeshStep</span></code></a>
+uses the generated masks to cull the MPAS base mesh, producing separate
+meshes for land, ocean/sea-ice, and ocean without ice-shelf cavities. It also
+generates mapping files between the culled and base meshes, and graph files
+for the ocean meshes.</p></li>
+<li><p><strong>Task Orchestration</strong>: The <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.cull.CullTopoTask.html#polaris.tasks.e3sm.init.topo.cull.CullTopoTask" title="polaris.tasks.e3sm.init.topo.cull.CullTopoTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull.CullTopoTask</span></code></a>
+orchestrates these steps for each supported MPAS base mesh.</p></li>
+</ul>
+</section>
+<section id="step-dependencies">
+<h2>Step Dependencies<a class="headerlink" href="#step-dependencies" title="Link to this heading"></a></h2>
+<p>The typical dependency chain is:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RemapTopoStep</span></code> (remaps topography to MPAS mesh, unsmoothed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CullMaskStep</span></code> (creates masks for culling)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CullMeshStep</span></code> (culls the mesh to each region)</p></li>
+</ol>
+</section>
+<section id="configuration-options">
+<h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Link to this heading"></a></h2>
+<p>The culling steps are configured through the <code class="docutils literal notranslate"><span class="pre">[cull_mesh]</span></code> section in the configuration file. Key options include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code>: Number of cores to use for culling.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">include_critical_transects</span></code>: Whether to use critical land and ocean
+transects from geometric_features to enforce connectivity.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sea_ice_latitude_threshold</span></code>: Latitude above which transects are widened to prevent land-locked sea-ice cells.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">land_locked_cell_iterations</span></code>: Number of passes to check for land-locked
+ocean cells.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">land_ice_max_latitude</span></code>: Latitude, south of which critical land transects are
+considered to belong to land ice.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">land_ice_min_fraction</span></code>: Minimum land-ice fraction for flood-filling the
+land-ice mask.</p></li>
+</ul>
+<p>See <code class="docutils literal notranslate"><span class="pre">cull.cfg</span></code> for the full set of options.</p>
+</section>
+<section id="workflow">
+<h2>Workflow<a class="headerlink" href="#workflow" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Mask Generation</strong>: The <code class="docutils literal notranslate"><span class="pre">CullMaskStep</span></code> creates masks for ocean, ocean
+without cavities, land, and Antarctic land ice. It uses critical transects,
+flood-filling from seed points, and land-locked cell detection to ensure the
+masks are contiguous and scientifically meaningful.</p></li>
+<li><p><strong>Mesh Culling</strong>: The <code class="docutils literal notranslate"><span class="pre">CullMeshStep</span></code> uses the generated masks to cull the
+MPAS base mesh, producing separate meshes for land, ocean/sea-ice, and ocean
+without ice-shelf cavities. It also generates mapping files and graph files
+as needed.</p></li>
+<li><p><strong>Output</strong>: The final culled meshes and masks are saved as NetCDF files for
+each region.</p></li>
+</ol>
+</section>
+<section id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
+<p>Below is an example of how the culling steps can be added to a Polaris task:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.cull</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_default_cull_topo_steps</span>
+
+<span class="n">steps</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="n">get_default_cull_topo_steps</span><span class="p">(</span>
+    <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+    <span class="n">base_mesh_step</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
+    <span class="n">unsmoothed_topo_step</span><span class="o">=</span><span class="n">unsmoothed_topo_step</span><span class="p">,</span>
+    <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-culled-ocean-mesh">
+<h2>Example: Culled Ocean Mesh<a class="headerlink" href="#example-culled-ocean-mesh" title="Link to this heading"></a></h2>
+<p>Below is an example of a 30-km ocean mesh from which land has been culled:</p>
+<a class="reference internal image-reference" href="../../../../../_images/icos30_culled_ocean.png"><img alt="Culled ocean mesh" class="align-center" src="../../../../../_images/icos30_culled_ocean.png" style="width: 250px;" />
+</a>
+<p>The culled mesh is contiguous and ocean flow has been ensured through the use
+of ocean critical transects (e.g. narrow straits) or blocked through the use of
+land critical transects (e.g. narrow peninsulas or isthmuses).</p>
+</section>
+<section id="customizing-mask-generation">
+<h2>Customizing Mask Generation<a class="headerlink" href="#customizing-mask-generation" title="Link to this heading"></a></h2>
+<p>Developers may wish to customize how masks are generated. To implement a custom
+approach for generating masks, create a subclass of
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.cull.CullMaskStep.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull.CullMaskStep</span></code></a> and override methods
+such as <code class="docutils literal notranslate"><span class="pre">define_critical_land_transects</span></code>, <code class="docutils literal notranslate"><span class="pre">define_critical_ocean_transects</span></code>,
+<code class="docutils literal notranslate"><span class="pre">refine_ocean_cull_mask</span></code>, or <code class="docutils literal notranslate"><span class="pre">refine_land_cull_mask</span></code>. These methods receive the
+geometric features, base mesh, topography, and current masks, and should return
+updated masks as <code class="docutils literal notranslate"><span class="pre">xarray.DataArray</span></code> objects.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.cull</span><span class="w"> </span><span class="kn">import</span> <span class="n">CullMaskStep</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyCustomCullMaskStep</span><span class="p">(</span><span class="n">CullMaskStep</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">refine_ocean_cull_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_base_mesh</span><span class="p">,</span> <span class="n">ds_topo</span><span class="p">,</span> <span class="n">cull_mask</span><span class="p">):</span>
+        <span class="c1"># Custom logic for refining the ocean cull mask</span>
+        <span class="c1"># e.g., add or remove cells based on scientific criteria</span>
+        <span class="k">return</span> <span class="n">cull_mask</span>
+</pre></div>
+</div>
+<p>You can then use your custom step in place of the default <code class="docutils literal notranslate"><span class="pre">CullMaskStep</span></code> when
+constructing your workflow.</p>
+<section id="integration">
+<h3>Integration<a class="headerlink" href="#integration" title="Link to this heading"></a></h3>
+<p>To use your custom step, simply instantiate it in your workflow or override the
+step creation logic in your task or workflow setup.</p>
+<p>For more details, refer to the docstrings and source code of
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.cull.CullMaskStep.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull.CullMaskStep</span></code></a>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="remap.html" class="btn btn-neutral float-left" title="Remapping Topography to MPAS Base Meshes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../../../mesh/index.html" class="btn btn-neutral float-right" title="Mesh component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.9.0">
+  <meta name="doc-site-root" content="../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

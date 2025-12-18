@@ -1,0 +1,662 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shared steps</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Template" href="template.html" />
+    <link rel="prev" title="Design Documents" href="index.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Shared steps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-shared-steps-are-run-once">Requirement: Shared steps are run once.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-shared-steps-are-run-before-steps-that-depend-on-their-output">Requirement: Shared steps are run before steps that depend on their output.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-shared-steps-are-not-daughters-of-a-task">Requirement: Shared steps are not daughters of a task</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-working-directory-structure-is-intuitive">Requirement: Working directory structure is intuitive.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-working-directory-step-paths-are-easily-discoverable-by-users">Requirement: Working directory step paths are easily discoverable by users.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-output-of-shared-steps-may-be-used-by-multiple-tasks">Requirement: The output of shared steps may be used by multiple tasks.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks">Requirement: tasks do not rely on outputs from steps in other tasks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-shared-steps-are-set-up-once">Implementation: Shared steps are set up once.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-shared-steps-are-run-before-steps-that-depend-on-their-output">Implementation: Shared steps are run before steps that depend on their output.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-shared-steps-are-not-daughters-of-a-task">Implementation: Shared steps are not daughters of a task</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-working-directory-structure-is-intuitive">Implementation: Working directory structure is intuitive.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-working-directory-step-paths-are-easily-discoverable-by-users">Implementation: Working directory step paths are easily discoverable by users.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-output-of-shared-steps-may-be-used-by-multiple-tasks">Implementation: The output of shared steps may be used by multiple tasks.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks">Implementation: tasks do not rely on outputs from steps in other tasks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-shared-steps-are-run-once">Testing And Validation: Shared steps are run once.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-shared-steps-are-run-before-steps-that-depend-on-their-output">Testing And Validation: Shared steps are run before steps that depend on their output.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-shared-steps-are-not-daughters-of-a-task">Testing And Validation: Shared steps are not daughters of a task</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-working-directory-structure-is-intuitive">Testing And Validation: Working directory structure is intuitive.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-working-directory-step-paths-are-easily-discoverable-by-users">Testing And Validation: Working directory step paths are easily discoverable by users.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-output-of-shared-steps-may-be-used-by-multiple-tasks">Testing And Validation: The output of shared steps may be used by multiple tasks.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks">Testing And Validation: tasks do not rely on outputs from steps in other tasks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Shared steps</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/shared_steps.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="shared-steps">
+<h1>Shared steps<a class="headerlink" href="#shared-steps" title="Link to this heading"></a></h1>
+<p>date: 2023/08/18</p>
+<p>Contributors: Carolyn Begeman, Xylar Asay-Davis</p>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>The capability designed here is the ability to share steps across tasks.
+In this design document, “shared steps” refers to any step which may be used by
+multiple tasks that are available in polaris.</p>
+<p>The main motivation behind this capability is the computational expense of
+running steps that could shared across tasks multiple times. In order to
+reflect the fact that steps are shared to the user, we present a new design for
+the working directory structure. The design is successful insofar as it
+guarantees that shared steps are run once per slurm job and that the role of
+shared steps is clear to users.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-shared-steps-are-run-once">
+<h3>Requirement: Shared steps are run once.<a class="headerlink" href="#requirement-shared-steps-are-run-once" title="Link to this heading"></a></h3>
+<p>Shared steps should be run once per invocation of <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> or
+<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">run</span></code>.</p>
+</section>
+<section id="requirement-shared-steps-are-run-before-steps-that-depend-on-their-output">
+<h3>Requirement: Shared steps are run before steps that depend on their output.<a class="headerlink" href="#requirement-shared-steps-are-run-before-steps-that-depend-on-their-output" title="Link to this heading"></a></h3>
+</section>
+<section id="requirement-shared-steps-are-not-daughters-of-a-task">
+<h3>Requirement: Shared steps are not daughters of a task<a class="headerlink" href="#requirement-shared-steps-are-not-daughters-of-a-task" title="Link to this heading"></a></h3>
+<p>A shared step’s class attributes do not include any task-related information
+such as a task it belongs to.</p>
+</section>
+<section id="requirement-working-directory-structure-is-intuitive">
+<h3>Requirement: Working directory structure is intuitive.<a class="headerlink" href="#requirement-working-directory-structure-is-intuitive" title="Link to this heading"></a></h3>
+<p>Shared step directories should be located at the highest level in the working
+directory structure where all tasks that use that step are run at or below that
+level.</p>
+</section>
+<section id="requirement-working-directory-step-paths-are-easily-discoverable-by-users">
+<h3>Requirement: Working directory step paths are easily discoverable by users.<a class="headerlink" href="#requirement-working-directory-step-paths-are-easily-discoverable-by-users" title="Link to this heading"></a></h3>
+<p>There should be a way to list the paths within the work directory of all steps
+in each task.  There should also be a way for a user to find the steps
+in a task from the task’s work directory.</p>
+</section>
+<section id="requirement-the-output-of-shared-steps-may-be-used-by-multiple-tasks">
+<h3>Requirement: The output of shared steps may be used by multiple tasks.<a class="headerlink" href="#requirement-the-output-of-shared-steps-may-be-used-by-multiple-tasks" title="Link to this heading"></a></h3>
+<p>A step may only be shared across multiple tasks if its output would be
+identical for each task.</p>
+</section>
+<section id="requirement-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks">
+<h3>Requirement: tasks do not rely on outputs from steps in other tasks<a class="headerlink" href="#requirement-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks" title="Link to this heading"></a></h3>
+<p>All tasks are self-contained and rely only on either shared steps or steps they
+contain.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-shared-steps-are-set-up-once">
+<h3>Implementation: Shared steps are set up once.<a class="headerlink" href="#implementation-shared-steps-are-set-up-once" title="Link to this heading"></a></h3>
+<p>As before, setup of either a list of tasks or a suite proceeds by iterating
+through the tasks and then through the steps in each task. An attribute
+<code class="docutils literal notranslate"><span class="pre">setup_complete</span></code> has been added to <code class="docutils literal notranslate"><span class="pre">Step</span></code> and is initialized to <code class="docutils literal notranslate"><span class="pre">False</span></code>.
+In the <code class="docutils literal notranslate"><span class="pre">setup_task()</span></code> function, setup is skipped for any steps where
+<code class="docutils literal notranslate"><span class="pre">step.setup_complete</span> <span class="pre">==</span> <span class="pre">True</span></code>, and this attribute is set to <code class="docutils literal notranslate"><span class="pre">True</span></code> when a step
+has been completed.</p>
+</section>
+<section id="implementation-shared-steps-are-run-before-steps-that-depend-on-their-output">
+<h3>Implementation: Shared steps are run before steps that depend on their output.<a class="headerlink" href="#implementation-shared-steps-are-run-before-steps-that-depend-on-their-output" title="Link to this heading"></a></h3>
+<p>Requirement is already satisfied as part of task parallelism design, which
+makes use of file dependencies.  When running in task-serial mode, the
+implementation will be to make sure shared steps are added to the dictionary of
+steps before other steps that rely on them.</p>
+</section>
+<section id="implementation-shared-steps-are-not-daughters-of-a-task">
+<h3>Implementation: Shared steps are not daughters of a task<a class="headerlink" href="#implementation-shared-steps-are-not-daughters-of-a-task" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">task</span></code> attribute and constructor argument of the <code class="docutils literal notranslate"><span class="pre">Step</span></code> class has been
+replaced by the <code class="docutils literal notranslate"><span class="pre">component</span></code> attribute.  The step’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code> attribute is now
+relative to the component’s work directory, rather than a parent task’s work
+directory.</p>
+</section>
+<section id="implementation-working-directory-structure-is-intuitive">
+<h3>Implementation: Working directory structure is intuitive.<a class="headerlink" href="#implementation-working-directory-structure-is-intuitive" title="Link to this heading"></a></h3>
+<p>The only shared steps that reside inside of a task’s work directory are in
+situations where another task also lies within the task’s work directory.
+The only such tasks at the moment are the <code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code> tasks, which
+reside inside the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> tasks.  The <code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code> tasks share
+all of the steps of the <code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code> (base-mesh, init and forward for each
+resolution, and a single analysis step) and also add remapping and
+visualization steps that are not shared with any other tasks:</p>
+<p><code class="docutils literal notranslate"><span class="pre">cosine_bell</span></code>:</p>
+<ul class="simple">
+<li><p>ocean</p>
+<ul>
+<li><p>spherical</p>
+<ul>
+<li><p>qu</p>
+<ul>
+<li><p>base_mesh</p>
+<ul>
+<li><p>60km</p></li>
+<li><p>90km</p></li>
+<li><p>120km</p></li>
+<li><p>150km</p></li>
+<li><p>180km</p></li>
+<li><p>210km</p></li>
+<li><p>240km</p></li>
+</ul>
+</li>
+<li><p>cosine_bell</p>
+<ul>
+<li><p>init</p>
+<ul>
+<li><p>60km</p></li>
+<li><p>90km</p></li>
+<li><p>120km</p></li>
+<li><p>150km</p></li>
+<li><p>180km</p></li>
+<li><p>210km</p></li>
+<li><p>240km</p></li>
+</ul>
+</li>
+<li><p>forward</p>
+<ul>
+<li><p>60km</p></li>
+<li><p>90km</p></li>
+<li><p>120km</p></li>
+<li><p>150km</p></li>
+<li><p>180km</p></li>
+<li><p>210km</p></li>
+<li><p>240km</p></li>
+</ul>
+</li>
+<li><p>analysis</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code>:</p>
+<ul class="simple">
+<li><p>ocean</p>
+<ul>
+<li><p>spherical</p>
+<ul>
+<li><p>qu</p>
+<ul>
+<li><p>base_mesh</p>
+<ul>
+<li><p>60km</p></li>
+<li><p>90km</p></li>
+<li><p>120km</p></li>
+<li><p>150km</p></li>
+<li><p>180km</p></li>
+<li><p>210km</p></li>
+<li><p>240km</p></li>
+</ul>
+</li>
+<li><p>cosine_bell</p>
+<ul>
+<li><p>init</p>
+<ul>
+<li><p>60km</p></li>
+<li><p>90km</p></li>
+<li><p>120km</p></li>
+<li><p>150km</p></li>
+<li><p>180km</p></li>
+<li><p>210km</p></li>
+<li><p>240km</p></li>
+</ul>
+</li>
+<li><p>forward</p>
+<ul>
+<li><p>60km</p></li>
+<li><p>90km</p></li>
+<li><p>120km</p></li>
+<li><p>150km</p></li>
+<li><p>180km</p></li>
+<li><p>210km</p></li>
+<li><p>240km</p></li>
+</ul>
+</li>
+<li><p>analysis</p></li>
+<li><p>with_viz</p>
+<ul>
+<li><p>map</p>
+<ul>
+<li><p>60km</p></li>
+<li><p>90km</p></li>
+<li><p>120km</p></li>
+<li><p>150km</p></li>
+<li><p>180km</p></li>
+<li><p>210km</p></li>
+<li><p>240km</p></li>
+</ul>
+</li>
+<li><p>viz</p>
+<ul>
+<li><p>60km</p></li>
+<li><p>90km</p></li>
+<li><p>120km</p></li>
+<li><p>150km</p></li>
+<li><p>180km</p></li>
+<li><p>210km</p></li>
+<li><p>240km</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="implementation-working-directory-step-paths-are-easily-discoverable-by-users">
+<h3>Implementation: Working directory step paths are easily discoverable by users.<a class="headerlink" href="#implementation-working-directory-step-paths-are-easily-discoverable-by-users" title="Link to this heading"></a></h3>
+<p>This is implemented in two ways.</p>
+<p>First, <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span> <span class="pre">--verbose</span></code> now lists the work-directory relative path of
+steps, rather than their path relative to the task’s work directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ polaris list --verbose
+
+...
+
+  10: path:          ocean/spherical/qu/cosine_bell/with_viz
+      name:          cosine_bell
+      component:     ocean
+      subdir:        spherical/qu/cosine_bell/with_viz
+      steps:
+       - qu_base_mesh_60km:  ocean/spherical/qu/base_mesh/60km
+       - qu_init_60km:       ocean/spherical/qu/cosine_bell/init/60km
+       - qu_forward_60km:    ocean/spherical/qu/cosine_bell/forward/60km
+       - qu_map_60km:        ocean/spherical/qu/cosine_bell/with_viz/map/60km
+       - qu_viz_60km:        ocean/spherical/qu/cosine_bell/with_viz/viz/60km
+       - qu_base_mesh_90km:  ocean/spherical/qu/base_mesh/90km
+       - qu_init_90km:       ocean/spherical/qu/cosine_bell/init/90km
+       - qu_forward_90km:    ocean/spherical/qu/cosine_bell/forward/90km
+       - qu_map_90km:        ocean/spherical/qu/cosine_bell/with_viz/map/90km
+       - qu_viz_90km:        ocean/spherical/qu/cosine_bell/with_viz/viz/90km
+       - qu_base_mesh_120km: ocean/spherical/qu/base_mesh/120km
+       - qu_init_120km:      ocean/spherical/qu/cosine_bell/init/120km
+       - qu_forward_120km:   ocean/spherical/qu/cosine_bell/forward/120km
+       - qu_map_120km:       ocean/spherical/qu/cosine_bell/with_viz/map/120km
+       - qu_viz_120km:       ocean/spherical/qu/cosine_bell/with_viz/viz/120km
+       - qu_base_mesh_150km: ocean/spherical/qu/base_mesh/150km
+       - qu_init_150km:      ocean/spherical/qu/cosine_bell/init/150km
+       - qu_forward_150km:   ocean/spherical/qu/cosine_bell/forward/150km
+       - qu_map_150km:       ocean/spherical/qu/cosine_bell/with_viz/map/150km
+       - qu_viz_150km:       ocean/spherical/qu/cosine_bell/with_viz/viz/150km
+       - qu_base_mesh_180km: ocean/spherical/qu/base_mesh/180km
+       - qu_init_180km:      ocean/spherical/qu/cosine_bell/init/180km
+       - qu_forward_180km:   ocean/spherical/qu/cosine_bell/forward/180km
+       - qu_map_180km:       ocean/spherical/qu/cosine_bell/with_viz/map/180km
+       - qu_viz_180km:       ocean/spherical/qu/cosine_bell/with_viz/viz/180km
+       - qu_base_mesh_210km: ocean/spherical/qu/base_mesh/210km
+       - qu_init_210km:      ocean/spherical/qu/cosine_bell/init/210km
+       - qu_forward_210km:   ocean/spherical/qu/cosine_bell/forward/210km
+       - qu_map_210km:       ocean/spherical/qu/cosine_bell/with_viz/map/210km
+       - qu_viz_210km:       ocean/spherical/qu/cosine_bell/with_viz/viz/210km
+       - qu_base_mesh_240km: ocean/spherical/qu/base_mesh/240km
+       - qu_init_240km:      ocean/spherical/qu/cosine_bell/init/240km
+       - qu_forward_240km:   ocean/spherical/qu/cosine_bell/forward/240km
+       - qu_map_240km:       ocean/spherical/qu/cosine_bell/with_viz/map/240km
+       - qu_viz_240km:       ocean/spherical/qu/cosine_bell/with_viz/viz/240km
+       - analysis:           ocean/spherical/qu/cosine_bell/analysis
+</pre></div>
+</div>
+<p>Second, we add symlinks within the task to the shared step.  In what follows,
+the subdirectories in bold are shared steps that reside elsewhere up the
+directory tree: each resolution in the <code class="docutils literal notranslate"><span class="pre">base_mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">init</span></code> and <code class="docutils literal notranslate"><span class="pre">forward</span></code>, and
+also <code class="docutils literal notranslate"><span class="pre">analysis</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cosine_bell/with_viz</span></code>:</p>
+<ul class="simple">
+<li><p>ocean</p>
+<ul>
+<li><p>spherical</p>
+<ul>
+<li><p>qu</p>
+<ul>
+<li><p>cosine_bell</p>
+<ul>
+<li><p>with_viz</p>
+<ul>
+<li><p>base_mesh</p>
+<ul>
+<li><p><strong>60km</strong></p></li>
+<li><p><strong>90km</strong></p></li>
+<li><p><strong>120km</strong></p></li>
+<li><p><strong>150km</strong></p></li>
+<li><p><strong>180km</strong></p></li>
+<li><p><strong>210km</strong></p></li>
+<li><p><strong>240km</strong></p></li>
+</ul>
+</li>
+<li><p>init</p>
+<ul>
+<li><p><strong>60km</strong></p></li>
+<li><p><strong>90km</strong></p></li>
+<li><p><strong>120km</strong></p></li>
+<li><p><strong>150km</strong></p></li>
+<li><p><strong>180km</strong></p></li>
+<li><p><strong>210km</strong></p></li>
+<li><p><strong>240km</strong></p></li>
+</ul>
+</li>
+<li><p>forward</p>
+<ul>
+<li><p><strong>60km</strong></p></li>
+<li><p><strong>90km</strong></p></li>
+<li><p><strong>120km</strong></p></li>
+<li><p><strong>150km</strong></p></li>
+<li><p><strong>180km</strong></p></li>
+<li><p><strong>210km</strong></p></li>
+<li><p><strong>240km</strong></p></li>
+</ul>
+</li>
+<li><p>map</p>
+<ul>
+<li><p>60km</p></li>
+<li><p>90km</p></li>
+<li><p>120km</p></li>
+<li><p>150km</p></li>
+<li><p>180km</p></li>
+<li><p>210km</p></li>
+<li><p>240km</p></li>
+</ul>
+</li>
+<li><p>viz</p>
+<ul>
+<li><p>60km</p></li>
+<li><p>90km</p></li>
+<li><p>120km</p></li>
+<li><p>150km</p></li>
+<li><p>180km</p></li>
+<li><p>210km</p></li>
+<li><p>240km</p></li>
+</ul>
+</li>
+<li><p><strong>analysis</strong></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Thus, a structure similar to what we had before shared steps is maintained
+locally, which should make debugging easier.</p>
+</section>
+<section id="implementation-the-output-of-shared-steps-may-be-used-by-multiple-tasks">
+<h3>Implementation: The output of shared steps may be used by multiple tasks.<a class="headerlink" href="#implementation-the-output-of-shared-steps-may-be-used-by-multiple-tasks" title="Link to this heading"></a></h3>
+<p>Task steps that use the output of shared steps will make use of symbolic
+links as before.</p>
+</section>
+<section id="implementation-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks">
+<h3>Implementation: tasks do not rely on outputs from steps in other tasks<a class="headerlink" href="#implementation-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks" title="Link to this heading"></a></h3>
+<p>There were not any polaris tasks that relied on outputs from other tasks even
+before the implementation of shared steps.  There are tasks in Compass, though,
+such as global ocean <code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">init</span></code> and <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment</span></code>, that do allow
+outputs from one task to be inputs of another.  As these are ported to Polaris,
+we will make sure they use shared steps instead.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-shared-steps-are-run-once">
+<h3>Testing And Validation: Shared steps are run once.<a class="headerlink" href="#testing-and-validation-shared-steps-are-run-once" title="Link to this heading"></a></h3>
+<p>Output from running a series of tasks or a suite indicates when shared steps
+are skipped because they already ran (<code class="docutils literal notranslate"><span class="pre">already</span> <span class="pre">completed</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span>
+  <span class="o">*</span> <span class="n">step</span><span class="p">:</span> <span class="n">icos_base_mesh_60km</span>
+          <span class="n">execution</span><span class="p">:</span>        <span class="n">SUCCESS</span>
+          <span class="n">runtime</span><span class="p">:</span>          <span class="mi">0</span><span class="p">:</span><span class="mi">01</span><span class="p">:</span><span class="mi">00</span>
+  <span class="o">*</span> <span class="n">step</span><span class="p">:</span> <span class="n">icos_init_60km</span>
+          <span class="n">execution</span><span class="p">:</span>        <span class="n">SUCCESS</span>
+          <span class="n">runtime</span><span class="p">:</span>          <span class="mi">0</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span>
+  <span class="o">*</span> <span class="n">step</span><span class="p">:</span> <span class="n">icos_forward_60km</span>
+          <span class="n">execution</span><span class="p">:</span>        <span class="n">SUCCESS</span>
+          <span class="n">runtime</span><span class="p">:</span>          <span class="mi">0</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">38</span>
+  <span class="o">...</span>
+  <span class="o">*</span> <span class="n">step</span><span class="p">:</span> <span class="n">analysis</span>
+          <span class="n">execution</span><span class="p">:</span>        <span class="n">SUCCESS</span>
+          <span class="n">runtime</span><span class="p">:</span>          <span class="mi">0</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">02</span>
+  <span class="n">task</span> <span class="n">execution</span><span class="p">:</span>   <span class="n">SUCCESS</span>
+  <span class="n">task</span> <span class="n">runtime</span><span class="p">:</span>     <span class="mi">0</span><span class="p">:</span><span class="mi">02</span><span class="p">:</span><span class="mi">59</span>
+
+<span class="n">ocean</span><span class="o">/</span><span class="n">spherical</span><span class="o">/</span><span class="n">icos</span><span class="o">/</span><span class="n">cosine_bell</span><span class="o">/</span><span class="n">with_viz</span>
+  <span class="o">*</span> <span class="n">step</span><span class="p">:</span> <span class="n">icos_base_mesh_60km</span>
+          <span class="n">already</span> <span class="n">completed</span>
+  <span class="o">*</span> <span class="n">step</span><span class="p">:</span> <span class="n">icos_init_60km</span>
+          <span class="n">already</span> <span class="n">completed</span>
+  <span class="o">*</span> <span class="n">step</span><span class="p">:</span> <span class="n">icos_forward_60km</span>
+          <span class="n">already</span> <span class="n">completed</span>
+  <span class="o">*</span> <span class="n">step</span><span class="p">:</span> <span class="n">icos_map_60km</span>
+          <span class="n">execution</span><span class="p">:</span>        <span class="n">SUCCESS</span>
+          <span class="n">runtime</span><span class="p">:</span>          <span class="mi">0</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">20</span>
+  <span class="o">*</span> <span class="n">step</span><span class="p">:</span> <span class="n">icos_viz_60km</span>
+          <span class="n">execution</span><span class="p">:</span>        <span class="n">SUCCESS</span>
+          <span class="n">runtime</span><span class="p">:</span>          <span class="mi">0</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">06</span>
+  <span class="o">...</span>
+  <span class="o">*</span> <span class="n">step</span><span class="p">:</span> <span class="n">analysis</span>
+          <span class="n">already</span> <span class="n">completed</span>
+  <span class="n">task</span> <span class="n">execution</span><span class="p">:</span>   <span class="n">SUCCESS</span>
+  <span class="n">task</span> <span class="n">runtime</span><span class="p">:</span>     <span class="mi">0</span><span class="p">:</span><span class="mi">03</span><span class="p">:</span><span class="mi">23</span>
+</pre></div>
+</div>
+</section>
+<section id="testing-and-validation-shared-steps-are-run-before-steps-that-depend-on-their-output">
+<h3>Testing And Validation: Shared steps are run before steps that depend on their output.<a class="headerlink" href="#testing-and-validation-shared-steps-are-run-before-steps-that-depend-on-their-output" title="Link to this heading"></a></h3>
+<p>As before, steps are added to tasks in the order they are to be run, ensuring
+that shared steps run before steps that require their output when running in
+task serial (<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code>).  Task parallelism already has mechanisms to
+prevent steps from running before their dependencies are available, and this
+is not expected to be affected by shared steps.  However, no testing with
+task parallelism will be performed at this time.</p>
+</section>
+<section id="testing-and-validation-shared-steps-are-not-daughters-of-a-task">
+<h3>Testing And Validation: Shared steps are not daughters of a task<a class="headerlink" href="#testing-and-validation-shared-steps-are-not-daughters-of-a-task" title="Link to this heading"></a></h3>
+<p>Steps run successfully even after we have removed the <code class="docutils literal notranslate"><span class="pre">task</span></code> attribute from
+them, indicating that they no longer rely on information about a task they
+formerly belonged to.</p>
+</section>
+<section id="testing-and-validation-working-directory-structure-is-intuitive">
+<h3>Testing And Validation: Working directory structure is intuitive.<a class="headerlink" href="#testing-and-validation-working-directory-structure-is-intuitive" title="Link to this heading"></a></h3>
+<p>The intuitive work structure will need to be maintained by developers as new
+tasks and steps are added, as this is not enforced by the framework.  The
+proposed implementation ensures that shared steps either reside close to the
+root of the directory structure from the tasks that use them or that they
+live inside of the tasks, which we have deemed an intuitive structure.</p>
+</section>
+<section id="testing-and-validation-working-directory-step-paths-are-easily-discoverable-by-users">
+<h3>Testing And Validation: Working directory step paths are easily discoverable by users.<a class="headerlink" href="#testing-and-validation-working-directory-step-paths-are-easily-discoverable-by-users" title="Link to this heading"></a></h3>
+<p>Between <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span> <span class="pre">--verbose</span></code> and the local symlinks to shared steps within
+each task, we think the shared steps will be discoverable by users and
+developers.</p>
+</section>
+<section id="testing-and-validation-the-output-of-shared-steps-may-be-used-by-multiple-tasks">
+<h3>Testing And Validation: The output of shared steps may be used by multiple tasks.<a class="headerlink" href="#testing-and-validation-the-output-of-shared-steps-may-be-used-by-multiple-tasks" title="Link to this heading"></a></h3>
+<p>We have implemented shared steps for base meshes, initial conditions and
+forward runs, and shown that multiple tasks can make use of their output.</p>
+</section>
+<section id="testing-and-validation-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks">
+<h3>Testing And Validation: tasks do not rely on outputs from steps in other tasks<a class="headerlink" href="#testing-and-validation-tasks-do-not-rely-on-outputs-from-steps-in-other-tasks" title="Link to this heading"></a></h3>
+<p>This is not enforced, it will simply need to be maintained as the preferred
+convention for future development.  Currently, all tasks can be run
+independently and do not rely on any other tasks.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Design Documents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="template.html" class="btn btn-neutral float-right" title="Template" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.9.0">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

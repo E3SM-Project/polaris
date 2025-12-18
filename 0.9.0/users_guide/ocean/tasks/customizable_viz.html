@@ -1,0 +1,326 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>customizable viz</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="external gravity wave" href="external_gravity_wave.html" />
+    <link rel="prev" title="cosine bell" href="cosine_bell.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_channel.html">barotropic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated tracers 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">customizable viz</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#suppported-models">suppported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="external_gravity_wave.html">external gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice shelf 2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">customizable viz</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/users_guide/ocean/tasks/customizable_viz.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="customizable-viz">
+<span id="ocean-customizable-viz"></span><h1>customizable viz<a class="headerlink" href="#customizable-viz" title="Link to this heading"></a></h1>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">customizable_viz</span></code> task generates visualizations from ocean
+model outputs using configurable map projection, variable selection, and
+plotting options. All visualizations are done on the native MPAS mesh using
+All visualizations are done on the native MPAS mesh using
+<code class="docutils literal notranslate"><span class="pre">[mosaic](https://github.com/E3SM-Project/mosaic)</span></code></p>
+<p>The customizable_viz task can produce plots of two types, horizontal field
+plots and vertical transect plots, from global MPAS fields.</p>
+<a class="reference internal image-reference" href="../../../_images/viz_horiz_field.png"><img alt="../../../_images/viz_horiz_field.png" class="align-center" src="../../../_images/viz_horiz_field.png" style="width: 500px;" />
+</a>
+<a class="reference internal image-reference" href="../../../_images/viz_transect.png"><img alt="../../../_images/viz_transect.png" class="align-center" src="../../../_images/viz_transect.png" style="width: 500px;" />
+</a>
+<section id="suppported-models">
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
+<p>The task is designed to support output from global MPAS-Ocean or Omega
+simulations and netcdf files generated by MPAS-Analysis. It is likely
+extensible to MPAS-Seaice but this has not been tested.</p>
+</section>
+<section id="mesh">
+<h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
+<p>The mesh file must be pre-generated and provided via a filepath in the config
+option <code class="docutils literal notranslate"><span class="pre">customizable_viz:mesh_filename</span></code>. The mesh must be global.</p>
+</section>
+<section id="vertical-grid">
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
+<p>There are no restrictions on the vertical grid specifications inherent to
+the test case. The <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> config section is not used.</p>
+<p>Note that the vertical layer used for plotting a horizontal field will
+correspond to the layer that has the closest mean z-mid value to the cfg
+option <code class="docutils literal notranslate"><span class="pre">customizable_viz_horiz_field:z_target</span></code>.</p>
+</section>
+<section id="initial-conditions">
+<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
+<p>If the user wants to plot an MPAS initial condition, it must be pregenerated
+and the path to the file must be provided in cfg option <code class="docutils literal notranslate"><span class="pre">customizable_viz:input_filename</span></code>.</p>
+</section>
+<section id="forcing">
+<h2>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h2>
+<p>N/A</p>
+</section>
+<section id="time-step-and-run-duration">
+<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
+<p>N/A</p>
+</section>
+<section id="config-options">
+<span id="ocean-customizable-viz-config"></span><h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[customizable_viz]</span>
+<span class="c1"># Mesh file, absolute file path</span>
+<span class="na">mesh_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${MESH_FILE}</span>
+
+<span class="c1"># Data file, absolute file path</span>
+<span class="na">input_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${INPUT_FILE}</span>
+
+<span class="k">[customizable_viz_horiz_field]</span>
+
+<span class="c1"># Projection to use for the horizontal field plot, must be supported by mosaic</span>
+<span class="na">projection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">PlateCarree</span>
+
+<span class="c1"># Fields to plot, comma-separated</span>
+<span class="na">variables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">temperature, salinity</span>
+
+<span class="c1"># Bounding box for the plot, global by default</span>
+<span class="na">min_latitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-90</span>
+
+<span class="na">max_latitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">90</span>
+
+<span class="na">min_longitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
+
+<span class="na">max_longitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">360</span>
+
+<span class="c1"># Optional: name of the colormap to use, including cmocean</span>
+<span class="c1">#colormap_name = cmo.balance</span>
+
+<span class="c1"># Optional: additional arguments to provide to the colormap norm</span>
+<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{}</span>
+
+<span class="c1"># Optional: colormap range is set in terms of percentile from</span>
+<span class="c1"># colormap_range_percent to 100 - colormap_range_percent</span>
+<span class="c1">#colormap_range_percent = 5</span>
+
+<span class="c1"># the type of norm used in the colormap</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># Note: for some projections, choosing a different central longitude may</span>
+<span class="c1"># result in cells spanning the plot boundary</span>
+<span class="na">central_longitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">180.</span>
+
+<span class="c1"># The depth in m below the surface to use for layer selection</span>
+<span class="c1"># Only one vertical level will be selected and its depth may vary</span>
+<span class="na">z_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.</span>
+
+<span class="k">[customizable_viz_transect]</span>
+
+<span class="c1"># Fields to plot, comma-separated</span>
+<span class="na">variables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">temperature, salinity</span>
+
+<span class="c1"># The start and end coordinates for the transect</span>
+<span class="c1"># where x is longitude and y is latitude</span>
+<span class="na">x_start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-5.0</span>
+<span class="na">y_start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-65.0</span>
+<span class="na">x_end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10.0</span>
+<span class="na">y_end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-65.0</span>
+
+<span class="c1"># Optional: limits for colormap scaling</span>
+<span class="c1">#vmin = None</span>
+<span class="c1">#vmax = None</span>
+
+<span class="c1"># Color to use for interfaces between vertical levels</span>
+<span class="na">layer_interface_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+</pre></div>
+</div>
+<p>Note that the config options listed in each step section will be used for all
+variables listed. For example, if a colormap cfg option is provided, all plots
+will use the same colormap. If the colormap is not provided, the colormaps
+derive from their defaults and may differ by variable.</p>
+</section>
+<section id="cores">
+<h2>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h2>
+<p>N/A</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cosine_bell.html" class="btn btn-neutral float-left" title="cosine bell" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="external_gravity_wave.html" class="btn btn-neutral float-right" title="external gravity wave" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.9.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

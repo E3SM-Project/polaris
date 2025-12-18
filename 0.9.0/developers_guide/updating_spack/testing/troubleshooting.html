@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Troubleshooting Deployment</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Adding a New Machine" href="../adding_new_machines.html" />
+    <link rel="prev" title="Running Required Test Suites" href="running_test_suites.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Updating Shared Spack Environments</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../workflow.html">Overview of the Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../updating_packages.html">Updating Spack Dependencies</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Deployment and Testing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="overview.html">Overview of Deployment and Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="updating_spack_fork.html">Updating the E3SM Spack Fork for Polaris</a></li>
+<li class="toctree-l3"><a class="reference internal" href="updating_mache.html">Updating <code class="docutils literal notranslate"><span class="pre">mache</span></code> for Polaris</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deploying_spack.html">Deploying Spack Environments on HPCs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="running_test_suites.html">Running Required Test Suites</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Troubleshooting Deployment</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spack-build-failures">1. 🛠️ Spack Build Failures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#activation-script-or-module-issues">2. 🔢 Activation Script or Module Issues</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#conda-environment-problems">3. 🚫 Conda Environment Problems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#filesystem-and-permission-issues">4. 💾 Filesystem and Permission Issues</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mache-configuration-problems">5. 🧰 <code class="docutils literal notranslate"><span class="pre">mache</span></code> Configuration Problems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spack-caching-and-environment-contamination">6. 🪖 Spack Caching and Environment Contamination</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#common-fix-full-clean-re-run">7. ⚠️ Common Fix: Full Clean + Re-run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#related-tools-tips">📎 Related Tools &amp; Tips</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../adding_new_machines.html">Adding a New Machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deploying_shared_spack.html">Deploying the Final Shared Spack Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../maintaining_past_versions.html">Maintaining Past Versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Updating Shared Spack Environments</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Deployment and Testing</a></li>
+      <li class="breadcrumb-item active">Troubleshooting Deployment</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/developers_guide/updating_spack/testing/troubleshooting.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="troubleshooting-deployment">
+<h1>Troubleshooting Deployment<a class="headerlink" href="#troubleshooting-deployment" title="Link to this heading"></a></h1>
+<p>Even with well-maintained tools, deployment of Polaris on HPC systems
+often encounters system-specific or environment-specific problems. This page
+outlines common categories of issues and how to diagnose and resolve them.</p>
+<p>This is an evolving list.  Please make PRs to add descriptions of issues
+you have encountered and solutions you have found.</p>
+<hr class="docutils" />
+<section id="spack-build-failures">
+<h2>1. 🛠️ Spack Build Failures<a class="headerlink" href="#spack-build-failures" title="Link to this heading"></a></h2>
+<section id="common-causes">
+<h3>Common Causes<a class="headerlink" href="#common-causes" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Missing or incompatible system modules (<code class="docutils literal notranslate"><span class="pre">cmake</span></code>, <code class="docutils literal notranslate"><span class="pre">perl</span></code>, <code class="docutils literal notranslate"><span class="pre">bison</span></code>, etc.)</p></li>
+<li><p>Outdated Spack package definitions in the <code class="docutils literal notranslate"><span class="pre">spack_for_mache_&lt;version&gt;</span></code>
+branch on the E3SM fork</p></li>
+<li><p>Spack build cache pollution</p></li>
+<li><p>Environment not set correctly for Spack to detect compilers/libraries</p></li>
+</ul>
+</section>
+<section id="solutions">
+<h3>Solutions<a class="headerlink" href="#solutions" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>If Spack is attempting to build common system tools (<code class="docutils literal notranslate"><span class="pre">cmake</span></code>, <code class="docutils literal notranslate"><span class="pre">tar</span></code>, etc.),
+add their system versions to the Spack templates in <code class="docutils literal notranslate"><span class="pre">mache</span></code> with
+<code class="docutils literal notranslate"><span class="pre">buildable:</span> <span class="pre">false</span></code> instead to save time and prevent build problems.</p></li>
+<li><p>Check with <code class="docutils literal notranslate"><span class="pre">spack</span> <span class="pre">find</span></code>, <code class="docutils literal notranslate"><span class="pre">spack</span> <span class="pre">config</span> <span class="pre">get</span> <span class="pre">compilers</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">spack</span> <span class="pre">config</span> <span class="pre">get</span> <span class="pre">modules</span></code></p></li>
+<li><p>Load required modules manually before re-running</p></li>
+<li><p>Rebuild: <code class="docutils literal notranslate"><span class="pre">spack</span> <span class="pre">uninstall</span> <span class="pre">-y</span> <span class="pre">&lt;package&gt;</span></code> or delete the full deployment
+directory</p></li>
+<li><p>Double-check you are using the correct <code class="docutils literal notranslate"><span class="pre">spack_for_mache_&lt;version&gt;</span></code> branch</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="activation-script-or-module-issues">
+<h2>2. 🔢 Activation Script or Module Issues<a class="headerlink" href="#activation-script-or-module-issues" title="Link to this heading"></a></h2>
+<section id="symptoms">
+<h3>Symptoms<a class="headerlink" href="#symptoms" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Scripts not found or symlinks broken</p></li>
+<li><p>Compute node not detected</p></li>
+</ul>
+</section>
+<section id="fixes">
+<h3>Fixes<a class="headerlink" href="#fixes" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Inspect Jinja2 templates for logic errors (especially for new systems)</p></li>
+<li><p>Re-run deployment with <code class="docutils literal notranslate"><span class="pre">--recreate</span></code></p></li>
+<li><p>Validate compute node detection logic (<code class="docutils literal notranslate"><span class="pre">$SLURM_JOB_ID</span></code>, <code class="docutils literal notranslate"><span class="pre">$COBALT_JOBID</span></code>,
+etc.)</p></li>
+<li><p>For new schedulers (e.g., PBS), extend template logic accordingly</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="conda-environment-problems">
+<h2>3. 🚫 Conda Environment Problems<a class="headerlink" href="#conda-environment-problems" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>Symptoms<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Conda fails to resolve dependencies</p></li>
+<li><p>Environments install but are missing key packages</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3>Fixes<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Run with <code class="docutils literal notranslate"><span class="pre">--recreate</span></code> to force a rebuild</p></li>
+<li><p>Inspect logs carefully for root cause messages</p></li>
+<li><p>Use troubleshooting scripts to bisect failing specs</p></li>
+<li><p>Check for channel mismatches or conflicting dev-label dependencies</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="filesystem-and-permission-issues">
+<h2>4. 💾 Filesystem and Permission Issues<a class="headerlink" href="#filesystem-and-permission-issues" title="Link to this heading"></a></h2>
+<section id="id3">
+<h3>Symptoms<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Scripts not executable by collaborators</p></li>
+<li><p>Environment directories not group-readable</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>Fixes<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Run: <code class="docutils literal notranslate"><span class="pre">chmod</span> <span class="pre">-R</span> <span class="pre">g+rx</span></code> and <code class="docutils literal notranslate"><span class="pre">chgrp</span> <span class="pre">-R</span> <span class="pre">&lt;group&gt;</span></code> as needed</p></li>
+<li><p>Confirm deployment messages show permission updates succeeded</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">ls</span> <span class="pre">-l</span></code> to inspect group ownership and mode bits</p></li>
+<li><p>You may need to coordinate with administrators or previous maintainers to
+set permissions</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="mache-configuration-problems">
+<h2>5. 🧰 <code class="docutils literal notranslate"><span class="pre">mache</span></code> Configuration Problems<a class="headerlink" href="#mache-configuration-problems" title="Link to this heading"></a></h2>
+<section id="id5">
+<h3>Symptoms<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Unknown machine error during deployment</p></li>
+<li><p>Spack fails to load environment due to incorrect module list</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3>Fixes<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Ensure the correct <code class="docutils literal notranslate"><span class="pre">mache</span></code> version or branch is being installed</p></li>
+<li><p>Ensure that the machine has been added to <code class="docutils literal notranslate"><span class="pre">mache</span></code> both under
+<a class="reference external" href="https://github.com/E3SM-Project/mache/tree/main/mache/machines">machine config files</a>
+and in the logic for
+<a class="reference external" href="https://github.com/E3SM-Project/mache/blob/main/mache/discover.py">machine discovery</a></p></li>
+<li><p>Validate updates to <code class="docutils literal notranslate"><span class="pre">config_machines.xml</span></code> and spack YAML templates</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="spack-caching-and-environment-contamination">
+<h2>6. 🪖 Spack Caching and Environment Contamination<a class="headerlink" href="#spack-caching-and-environment-contamination" title="Link to this heading"></a></h2>
+<section id="id7">
+<h3>Symptoms<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Builds complete but produce incorrect or stale binaries</p></li>
+<li><p>Environment behaves inconsistently between deploys</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3>Fixes<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ul>
+<li><p>Clear Spack caches manually if needed</p></li>
+<li><p>Always deploy from a clean <code class="docutils literal notranslate"><span class="pre">$TMPDIR</span></code> and fresh clone if unsure</p></li>
+<li><p>Delete the entire directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-rf<span class="w"> </span>&lt;spack_env_dir&gt;
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="common-fix-full-clean-re-run">
+<h2>7. ⚠️ Common Fix: Full Clean + Re-run<a class="headerlink" href="#common-fix-full-clean-re-run" title="Link to this heading"></a></h2>
+<p>When in doubt, remove and rebuild everything:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-rf<span class="w"> </span>&lt;spack_env_dir&gt;
+./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>~/miniforge3<span class="w"> </span>--recreate
+</pre></div>
+</div>
+<p>This often resolves cases where previous state is interfering with a clean
+build.</p>
+</section>
+<hr class="docutils" />
+<section id="related-tools-tips">
+<h2>📎 Related Tools &amp; Tips<a class="headerlink" href="#related-tools-tips" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">screen</span></code>, <code class="docutils literal notranslate"><span class="pre">tmux</span></code>, or <code class="docutils literal notranslate"><span class="pre">nohup</span></code> for long deployments</p></li>
+<li><p>Always log output: <code class="docutils literal notranslate"><span class="pre">...</span> <span class="pre">2&gt;&amp;1</span> <span class="pre">|</span> <span class="pre">tee</span> <span class="pre">deploy.log</span></code></p></li>
+<li><p>Validate final symlinks and paths manually after deployment</p></li>
+<li><p>Document which system + compiler + MPI variants have been tested</p></li>
+</ul>
+<hr class="docutils" />
+<p>Back to: <a class="reference internal" href="deploying_spack.html"><span class="std std-doc">Deploying Spack Environments on HPCs</span></a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="running_test_suites.html" class="btn btn-neutral float-left" title="Running Required Test Suites" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../adding_new_machines.html" class="btn btn-neutral float-right" title="Adding a New Machine" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.9.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

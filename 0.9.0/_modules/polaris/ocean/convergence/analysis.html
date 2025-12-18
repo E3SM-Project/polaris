@@ -1,0 +1,690 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.ocean.convergence.analysis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../convergence.html">polaris.ocean.convergence</a></li>
+      <li class="breadcrumb-item active">polaris.ocean.convergence.analysis</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.ocean.convergence.analysis</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas</span><span class="w"> </span><span class="kn">import</span> <span class="n">area_for_field</span><span class="p">,</span> <span class="n">time_since_start</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.convergence</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_resolution_for_task</span><span class="p">,</span>
+    <span class="n">get_timestep_for_task</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
+
+
+<div class="viewcode-block" id="ConvergenceAnalysis">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConvergenceAnalysis</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A step for analyzing the output from convergence tests</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dependencies_dict : dict of dict of polaris.Steps</span>
+<span class="sd">        The dependencies of this step must be given as separate keys in the</span>
+<span class="sd">        dict:</span>
+
+<span class="sd">            mesh : dict of polaris.Steps</span>
+<span class="sd">                Keys of the dict correspond to `resolutions`</span>
+<span class="sd">                Values of the dict are polaris.Steps, which must have the</span>
+<span class="sd">                attribute `path`, the path to `base_mesh.nc` of that</span>
+<span class="sd">                resolution</span>
+<span class="sd">            init : dict of polaris.Steps</span>
+<span class="sd">                Keys of the dict correspond to `resolutions`</span>
+<span class="sd">                Values of the dict are polaris.Steps, which must have the</span>
+<span class="sd">                attribute `path`, the path to `initial_state.nc` of that</span>
+<span class="sd">                resolution</span>
+<span class="sd">            forward : dict of polaris.Steps</span>
+<span class="sd">                Keys of the dict correspond to `resolutions`</span>
+<span class="sd">                Values of the dict are polaris.Steps, which must have the</span>
+<span class="sd">                attribute `path`, the path to `forward.nc` of that</span>
+<span class="sd">                resolution</span>
+
+<span class="sd">    convergence_vars: list of dict</span>
+<span class="sd">        The attributes for each variable for which to analyze the convergence</span>
+<span class="sd">        rate. Each dict must contain the following keys:</span>
+
+<span class="sd">            name : str</span>
+<span class="sd">                The name of the variable as given in the output netcdf file</span>
+
+<span class="sd">            title : str</span>
+<span class="sd">                The name of the variable to use in the plot title</span>
+
+<span class="sd">            zidx : int</span>
+<span class="sd">                The z-index to use for variables that have an nVertLevels</span>
+<span class="sd">                dimension, which should be None for variables that don&#39;t</span>
+
+<span class="sd">    refinement : str</span>
+<span class="sd">        Refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39; indicating both</span>
+<span class="sd">        space and time</span>
+
+<span class="sd">    mesh_filename : str</span>
+<span class="sd">        The name of the mesh file to use for calculating mesh metrics</span>
+<span class="sd">        (i.e. cell area) needed for computing the error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ConvergenceAnalysis.__init__">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="p">,</span>
+        <span class="n">dependencies</span><span class="p">,</span>
+        <span class="n">convergence_vars</span><span class="p">,</span>
+        <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span>
+        <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        subdir : str</span>
+<span class="sd">            The subdirectory that the step resides in</span>
+
+<span class="sd">        dependencies : dict of dict of polaris.Steps</span>
+<span class="sd">            The dependencies of this step must be given as separate keys in the</span>
+<span class="sd">            dict:</span>
+
+<span class="sd">                mesh : dict of polaris.Steps</span>
+<span class="sd">                    Keys of the dict correspond to `refinement_factors`</span>
+<span class="sd">                    Values of the dict are polaris.Steps, which must have the</span>
+<span class="sd">                    attribute `path`, the path to `base_mesh.nc` of that</span>
+<span class="sd">                    resolution</span>
+<span class="sd">                init : dict of polaris.Steps</span>
+<span class="sd">                    Keys of the dict correspond to `refinement_factors`</span>
+<span class="sd">                    Values of the dict are polaris.Steps, which must have the</span>
+<span class="sd">                    attribute `path`, the path to `initial_state.nc` of that</span>
+<span class="sd">                    resolution</span>
+<span class="sd">                forward : dict of polaris.Steps</span>
+<span class="sd">                    Keys of the dict correspond to `refinement_factors`</span>
+<span class="sd">                    Values of the dict are polaris.Steps, which must have the</span>
+<span class="sd">                    attribute `path`, the path to `forward.nc` of that</span>
+<span class="sd">                    resolution</span>
+
+<span class="sd">        convergence_vars: list of dict</span>
+<span class="sd">            The convergence attributes for each variable. Each dict must</span>
+<span class="sd">            contain the following keys:</span>
+
+<span class="sd">                name : str</span>
+<span class="sd">                    The name of the variable as given in the output netcdf file</span>
+
+<span class="sd">                title : str</span>
+<span class="sd">                    The name of the variable to use in the plot title</span>
+
+<span class="sd">                zidx : int</span>
+<span class="sd">                    The z-index to use for variables that have an nVertLevels</span>
+<span class="sd">                    dimension, which should be None for variables that don&#39;t</span>
+
+<span class="sd">        refinement : str, optional</span>
+<span class="sd">            Refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39; indicating both</span>
+<span class="sd">            space and time</span>
+
+<span class="sd">        mesh_filename : str</span>
+<span class="sd">            The name of the mesh file to use for calculating mesh metrics</span>
+<span class="sd">            (i.e. cell area) needed for computing the error</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;analysis&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span> <span class="o">=</span> <span class="n">dependencies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">convergence_vars</span> <span class="o">=</span> <span class="n">convergence_vars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="n">refinement</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_filename</span> <span class="o">=</span> <span class="n">mesh_filename</span>
+
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">convergence_vars</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;convergence_</span><span class="si">{</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConvergenceAnalysis.setup">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.setup.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.setup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add input files based on resolutions, which may have been changed by</span>
+<span class="sd">        user config options</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">dependencies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refinement</span> <span class="o">==</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span>
+            <span class="n">option</span> <span class="o">=</span> <span class="s1">&#39;refinement_factors_time&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">option</span> <span class="o">=</span> <span class="s1">&#39;refinement_factors_space&#39;</span>
+        <span class="n">refinement_factors</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;convergence&#39;</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">refinement_factor</span> <span class="ow">in</span> <span class="n">refinement_factors</span><span class="p">:</span>
+            <span class="n">mesh</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;mesh&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span>
+            <span class="n">init</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;init&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span>
+            <span class="n">forward</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;mesh_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;init_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/initial_state.nc&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;output_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConvergenceAnalysis.run">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.run.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run this step of the test case</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">switch_backend</span><span class="p">(</span><span class="s1">&#39;Agg&#39;</span><span class="p">)</span>
+        <span class="n">convergence_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convergence_vars</span>
+        <span class="n">variables_failed</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">convergence_vars</span><span class="p">:</span>
+            <span class="n">convergence_failed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_convergence</span><span class="p">(</span>
+                <span class="n">variable_name</span><span class="o">=</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span> <span class="n">zidx</span><span class="o">=</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;zidx&#39;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">convergence_failed</span><span class="p">:</span>
+                <span class="n">variables_failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">variables_failed</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Convergence rate below minimum tolerance for &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;variables </span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">variables_failed</span><span class="p">)</span><span class="si">}</span><span class="s1">.&#39;</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConvergenceAnalysis.plot_convergence">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.plot_convergence.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.plot_convergence">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_convergence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">zidx</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the error norm for each resolution and produce a convergence</span>
+<span class="sd">        plot</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        variable_name : str</span>
+<span class="sd">            The name of the variable as given in the output netcdf file</span>
+
+<span class="sd">        title : str</span>
+<span class="sd">            The name of the variable to use in the plot title</span>
+
+<span class="sd">        zidx : int</span>
+<span class="sd">            The z-index to use for variables that have an nVertLevels</span>
+<span class="sd">            dimension, which should be None for variables that don&#39;t</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">conv_thresh</span><span class="p">,</span> <span class="n">error_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convergence_parameters</span><span class="p">(</span>
+            <span class="n">field_name</span><span class="o">=</span><span class="n">variable_name</span>
+        <span class="p">)</span>
+
+        <span class="n">error</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refinement</span> <span class="o">==</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span>
+            <span class="n">option</span> <span class="o">=</span> <span class="s1">&#39;refinement_factors_time&#39;</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="s1">&#39;time step&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">option</span> <span class="o">=</span> <span class="s1">&#39;refinement_factors_space&#39;</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="s1">&#39;resolution&#39;</span>
+        <span class="n">refinement_factors</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;convergence&#39;</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">resolutions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">timesteps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">refinement_factor</span> <span class="ow">in</span> <span class="n">refinement_factors</span><span class="p">:</span>
+            <span class="n">timestep</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_timestep_for_task</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">refinement</span>
+            <span class="p">)</span>
+            <span class="n">timesteps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timestep</span><span class="p">)</span>
+            <span class="n">resolution</span> <span class="o">=</span> <span class="n">get_resolution_for_task</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">refinement</span>
+            <span class="p">)</span>
+            <span class="n">resolutions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
+            <span class="n">error_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_error</span><span class="p">(</span>
+                <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
+                <span class="n">variable_name</span><span class="o">=</span><span class="n">variable_name</span><span class="p">,</span>
+                <span class="n">zidx</span><span class="o">=</span><span class="n">zidx</span><span class="p">,</span>
+                <span class="n">error_type</span><span class="o">=</span><span class="n">error_type</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">error</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">error_res</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refinement</span> <span class="o">==</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span>
+            <span class="n">refinement_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">timesteps</span><span class="p">)</span>
+            <span class="n">x_label</span> <span class="o">=</span> <span class="s1">&#39;Time (s)&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">refinement_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">resolutions</span><span class="p">)</span>
+            <span class="n">x_label</span> <span class="o">=</span> <span class="s1">&#39;Horizontal resolution (km)&#39;</span>
+        <span class="n">error_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;convergence_</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s1">.csv&#39;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">refinement_array</span><span class="p">,</span> <span class="n">error_array</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">header</span><span class="p">,</span> <span class="n">error_type</span><span class="p">])</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;convergence_</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">convergence_failed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">poly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">refinement_array</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">error_array</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">convergence</span> <span class="o">=</span> <span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">conv_round</span> <span class="o">=</span> <span class="n">convergence</span>
+
+        <span class="n">fit</span> <span class="o">=</span> <span class="n">refinement_array</span> <span class="o">**</span> <span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">poly</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">order1</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">0.5</span> <span class="o">*</span> <span class="n">error_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">refinement_array</span> <span class="o">/</span> <span class="n">refinement_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="n">order2</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">0.5</span>
+            <span class="o">*</span> <span class="n">error_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="o">*</span> <span class="p">(</span><span class="n">refinement_array</span> <span class="o">/</span> <span class="n">refinement_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="p">)</span>
+
+        <span class="n">use_mplstyle</span><span class="p">()</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+        <span class="n">error_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;l2&#39;</span><span class="p">:</span> <span class="s1">&#39;L2 norm&#39;</span><span class="p">,</span> <span class="s1">&#39;inf&#39;</span><span class="p">:</span> <span class="s1">&#39;L-infinity norm&#39;</span><span class="p">}</span>
+        <span class="n">error_title</span> <span class="o">=</span> <span class="n">error_dict</span><span class="p">[</span><span class="n">error_type</span><span class="p">]</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+            <span class="n">refinement_array</span><span class="p">,</span> <span class="n">order1</span><span class="p">,</span> <span class="s1">&#39;--k&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;first order&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+            <span class="n">refinement_array</span><span class="p">,</span> <span class="n">order2</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;second order&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+            <span class="n">refinement_array</span><span class="p">,</span>
+            <span class="n">fit</span><span class="p">,</span>
+            <span class="s1">&#39;k&#39;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;linear fit (order=</span><span class="si">{</span><span class="n">convergence</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">refinement_array</span><span class="p">,</span> <span class="n">error_array</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;numerical&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">baseline_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">baseline_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">baseline_filename</span><span class="p">):</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">baseline_filename</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">error_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">error_type</span><span class="si">}</span><span class="s1"> not available for baseline&#39;</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">refinement_array</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">resolution</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+                    <span class="n">error_array</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">error_type</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+                    <span class="n">poly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">refinement_array</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">error_array</span><span class="p">),</span> <span class="mi">1</span>
+                    <span class="p">)</span>
+                    <span class="n">base_convergence</span> <span class="o">=</span> <span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">conv_round</span> <span class="o">=</span> <span class="n">base_convergence</span>
+
+                    <span class="n">fit</span> <span class="o">=</span> <span class="n">refinement_array</span> <span class="o">**</span> <span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">poly</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+                        <span class="n">refinement_array</span><span class="p">,</span>
+                        <span class="n">error_array</span><span class="p">,</span>
+                        <span class="s1">&#39;o&#39;</span><span class="p">,</span>
+                        <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#ff7f0e&#39;</span><span class="p">,</span>
+                        <span class="n">label</span><span class="o">=</span><span class="s1">&#39;baseline&#39;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+                        <span class="n">refinement_array</span><span class="p">,</span>
+                        <span class="n">fit</span><span class="p">,</span>
+                        <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#ff7f0e&#39;</span><span class="p">,</span>
+                        <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;linear fit, baseline &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;(order=</span><span class="si">{</span><span class="n">base_convergence</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">,</span>
+                    <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">x_label</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">error_title</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error Convergence of </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower left&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;convergence_</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span>
+            <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Order of convergence for </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">conv_round</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">conv_round</span> <span class="o">&lt;</span> <span class="n">conv_thresh</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Error: order of convergence for </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="n">conv_round</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1"> &lt; min tolerance &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">conv_thresh</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+            <span class="n">convergence_failed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">convergence_failed</span></div>
+
+
+<div class="viewcode-block" id="ConvergenceAnalysis.compute_error">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.compute_error.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.compute_error">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_error</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_type</span><span class="o">=</span><span class="s1">&#39;l2&#39;</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the error for a given resolution</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        refinement_factor : float</span>
+<span class="sd">            The factor by which step is refined in space, time or both</span>
+
+<span class="sd">        variable_name : str</span>
+<span class="sd">            The variable name of which to evaluate error with respect to the</span>
+<span class="sd">            exact solution</span>
+
+<span class="sd">        zidx : int, optional</span>
+<span class="sd">            The z index to use to slice the field given by variable name</span>
+
+<span class="sd">        error_type: {&#39;l2&#39;, &#39;inf&#39;}, optional</span>
+<span class="sd">            The type of error to compute</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        error : float</span>
+<span class="sd">            The error of the variable given by variable_name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">norm_type</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;l2&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;inf&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">}</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;mesh_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;convergence&#39;</span><span class="p">]</span>
+        <span class="n">eval_time</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;convergence_eval_time&#39;</span><span class="p">)</span>
+        <span class="n">s_per_hour</span> <span class="o">=</span> <span class="mf">3600.0</span>
+
+        <span class="n">field_exact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exact_solution</span><span class="p">(</span>
+            <span class="n">refinement_factor</span><span class="p">,</span>
+            <span class="n">variable_name</span><span class="p">,</span>
+            <span class="n">time</span><span class="o">=</span><span class="n">eval_time</span> <span class="o">*</span> <span class="n">s_per_hour</span><span class="p">,</span>
+            <span class="n">zidx</span><span class="o">=</span><span class="n">zidx</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">field_mpas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_output_field</span><span class="p">(</span>
+            <span class="n">refinement_factor</span><span class="p">,</span>
+            <span class="n">variable_name</span><span class="p">,</span>
+            <span class="n">time</span><span class="o">=</span><span class="n">eval_time</span> <span class="o">*</span> <span class="n">s_per_hour</span><span class="p">,</span>
+            <span class="n">zidx</span><span class="o">=</span><span class="n">zidx</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">field_exact</span> <span class="o">-</span> <span class="n">field_mpas</span>
+
+        <span class="c1"># Only the L2 norm is area-weighted</span>
+        <span class="k">if</span> <span class="n">error_type</span> <span class="o">==</span> <span class="s1">&#39;l2&#39;</span><span class="p">:</span>
+            <span class="n">area</span> <span class="o">=</span> <span class="n">area_for_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span>
+            <span class="n">field_exact</span> <span class="o">=</span> <span class="n">field_exact</span> <span class="o">*</span> <span class="n">area</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">diff</span> <span class="o">*</span> <span class="n">area</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="nb">ord</span><span class="o">=</span><span class="n">norm_type</span><span class="p">[</span><span class="n">error_type</span><span class="p">])</span>
+
+        <span class="c1"># Normalize the error norm by the vector norm of the exact solution</span>
+        <span class="n">den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">field_exact</span><span class="p">,</span> <span class="nb">ord</span><span class="o">=</span><span class="n">norm_type</span><span class="p">[</span><span class="n">error_type</span><span class="p">])</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">den</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">error</span></div>
+
+
+<div class="viewcode-block" id="ConvergenceAnalysis.exact_solution">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.exact_solution.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.exact_solution">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exact_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the exact solution</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        refinement_factor : float</span>
+<span class="sd">            The factor by which step is refined in space, time or both</span>
+
+<span class="sd">        field_name : str</span>
+<span class="sd">            The name of the variable of which we evaluate convergence</span>
+<span class="sd">            For the default method, we use the same convergence rate for all</span>
+<span class="sd">            fields</span>
+
+<span class="sd">        time : float</span>
+<span class="sd">            The time at which to evaluate the exact solution in seconds.</span>
+<span class="sd">            For the default method, we always use the initial state.</span>
+
+<span class="sd">        zidx : int, optional</span>
+<span class="sd">            The z-index for the vertical level at which to evaluate the exact</span>
+<span class="sd">            solution</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        solution : xarray.DataArray</span>
+<span class="sd">            The exact solution as derived from the initial condition</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;init_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">)</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">zidx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ds_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">zidx</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ConvergenceAnalysis.get_output_field">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.get_output_field.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.get_output_field">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the model output field at the given time and z index</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        e str</span>
+<span class="sd">            The mesh name which is the prefix for the output file</span>
+
+<span class="sd">        field_name : str</span>
+<span class="sd">            The name of the variable of which we evaluate convergence</span>
+
+<span class="sd">        time : float</span>
+<span class="sd">            The time at which to evaluate the exact solution in seconds</span>
+
+<span class="sd">        zidx : int, optional</span>
+<span class="sd">            The z-index for the vertical level to take the field from</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        field_mpas : xarray.DataArray</span>
+<span class="sd">            model output field</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;output_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-o&#39;</span><span class="p">:</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">time_since_start</span><span class="p">(</span><span class="n">ds_out</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># time is seconds since the start of the simulation in Omega</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">Time</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="n">tidx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dt</span> <span class="o">-</span> <span class="n">time</span><span class="p">))</span>
+
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">tidx</span><span class="p">)</span>
+        <span class="n">field_mpas</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">zidx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;nVertLevels&#39;</span> <span class="ow">in</span> <span class="n">field_mpas</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="n">field_mpas</span> <span class="o">=</span> <span class="n">field_mpas</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">zidx</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">field_mpas</span></div>
+
+
+<div class="viewcode-block" id="ConvergenceAnalysis.convergence_parameters">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.convergence_parameters.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.convergence_parameters">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convergence_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get convergence parameters</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        field_name : str</span>
+<span class="sd">            The name of the variable of which we evaluate convergence</span>
+<span class="sd">            For the default method, we use the same convergence rate for all</span>
+<span class="sd">            fields</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        conv_thresh : float</span>
+<span class="sd">            The minimum convergence rate</span>
+
+<span class="sd">        error_type : {&#39;l2&#39;, &#39;inf&#39;}, str</span>
+<span class="sd">            The error norm to compute</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;convergence&#39;</span><span class="p">]</span>
+        <span class="n">conv_thresh</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;convergence_thresh&#39;</span><span class="p">)</span>
+        <span class="n">error_type</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;error_type&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">conv_thresh</span><span class="p">,</span> <span class="n">error_type</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.9.0">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

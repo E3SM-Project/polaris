@@ -1,0 +1,6 @@
+﻿polaris.mpas.area\_for\_field
+=============================
+
+.. currentmodule:: polaris.mpas
+
+.. autofunction:: area_for_field

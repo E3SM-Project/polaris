@@ -1,0 +1,296 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deploying Spack Environments on HPCs</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Running Required Test Suites" href="running_test_suites.html" />
+    <link rel="prev" title="Updating mache for Polaris" href="updating_mache.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Updating Shared Spack Environments</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../workflow.html">Overview of the Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../updating_packages.html">Updating Spack Dependencies</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Deployment and Testing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="overview.html">Overview of Deployment and Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="updating_spack_fork.html">Updating the E3SM Spack Fork for Polaris</a></li>
+<li class="toctree-l3"><a class="reference internal" href="updating_mache.html">Updating <code class="docutils literal notranslate"><span class="pre">mache</span></code> for Polaris</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Deploying Spack Environments on HPCs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#deployment-workflow">Deployment Workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#key-deployment-components">Key Deployment Components</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#common-command-line-flags">Common Command-Line Flags</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#notes-and-best-practices">Notes and Best Practices</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="running_test_suites.html">Running Required Test Suites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html">Troubleshooting Deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../adding_new_machines.html">Adding a New Machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deploying_shared_spack.html">Deploying the Final Shared Spack Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../maintaining_past_versions.html">Maintaining Past Versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Updating Shared Spack Environments</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Deployment and Testing</a></li>
+      <li class="breadcrumb-item active">Deploying Spack Environments on HPCs</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/developers_guide/updating_spack/testing/deploying_spack.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="deploying-spack-environments-on-hpcs">
+<h1>Deploying Spack Environments on HPCs<a class="headerlink" href="#deploying-spack-environments-on-hpcs" title="Link to this heading"></a></h1>
+<p>Once you have updated Spack dependencies and bumped the Polaris version, you
+must deploy and test the new environments on supported HPC systems. This
+ensures compatibility with system modules and successful builds of E3SM
+components.</p>
+<p>This page outlines the deployment workflow, key files, command-line flags, and
+best practices for deploying and validating Spack environments in Polaris.</p>
+<hr class="docutils" />
+<section id="deployment-workflow">
+<h2>Deployment Workflow<a class="headerlink" href="#deployment-workflow" title="Link to this heading"></a></h2>
+<p>Deployment is managed via the <code class="docutils literal notranslate"><span class="pre">configure_polaris_envs.py</span></code> script and associated
+infrastructure. The process is typically:</p>
+<ol class="arabic">
+<li><p><strong>Update configuration files</strong>:</p>
+<ul class="simple">
+<li><p>Set the target version in <code class="docutils literal notranslate"><span class="pre">polaris/version.py</span></code></p></li>
+<li><p>Update Spack and Conda package versions in <code class="docutils literal notranslate"><span class="pre">deploy/default.cfg</span></code></p></li>
+<li><p>Update machine configs in <code class="docutils literal notranslate"><span class="pre">polaris/machines/</span></code> as needed</p></li>
+</ul>
+</li>
+<li><p><strong>Test the build</strong> on one or more HPC machines:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">SCRATCH</span><span class="o">=</span>&lt;path_to_scratch&gt;
+<span class="nv">CONDA_BASE</span><span class="o">=</span>~/miniforge3
+mdkir<span class="w"> </span>-p<span class="w"> </span><span class="nv">$SCRATCH</span>/tmp_spack
+./configure_polaris_envs.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--conda<span class="w"> </span><span class="nv">$CONDA_BASE</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--update_spack<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--spack<span class="w"> </span><span class="nv">$SCRATCH</span>/test_spack<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tmpdir<span class="w"> </span><span class="nv">$SCRATCH</span>/tmp_spack<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--compiler<span class="w"> </span>intel<span class="w"> </span>intel<span class="w"> </span>gnu<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--mpi<span class="w"> </span>openmpi<span class="w"> </span>impi<span class="w"> </span>openmpi<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--recreate<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--verbose
+</pre></div>
+</div>
+</li>
+</ol>
+<p><em>Adjust <code class="docutils literal notranslate"><span class="pre">--compiler</span></code> and <code class="docutils literal notranslate"><span class="pre">--mpi</span></code> as needed for your machine and test matrix.</em></p>
+<p><em>You may want to use <code class="docutils literal notranslate"><span class="pre">screen</span></code> or <code class="docutils literal notranslate"><span class="pre">tmux</span></code> and pipe output to a log file:</em></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>...<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tee<span class="w"> </span>deploy.log
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p><strong>Check output</strong> and validate:</p>
+<ul class="simple">
+<li><p>Spack built the expected packages</p></li>
+<li><p>Conda environment was created and activated</p></li>
+<li><p>Activation scripts were generated and symlinked correctly</p></li>
+<li><p>Permissions have been updated successfully</p></li>
+</ul>
+</li>
+<li><p><strong>Test E3SM component builds and workflows</strong> using the new environment</p></li>
+<li><p><strong>Deploy more broadly</strong> once core systems pass testing</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="key-deployment-components">
+<h2>Key Deployment Components<a class="headerlink" href="#key-deployment-components" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">configure_polaris_envs.py</span></code></strong>: Main entry point for deploying Polaris
+environments. Handles both Conda and Spack setup.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">deploy/default.cfg</span></code></strong>: Specifies package versions and deployment options.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">deploy/shared.py</span></code></strong>: Shared logic for deployment scripts.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">deploy/bootstrap.py</span></code></strong>: Handles environment creation and Spack builds
+after the bootstrap environment is set up.</p></li>
+<li><p><strong>Templates</strong>: Jinja2 templates in <code class="docutils literal notranslate"><span class="pre">deploy/</span></code> and <code class="docutils literal notranslate"><span class="pre">deploy/spack/</span></code> for
+environment specs and activation scripts.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="common-command-line-flags">
+<h2>Common Command-Line Flags<a class="headerlink" href="#common-command-line-flags" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--conda</span> <span class="pre">&lt;path&gt;</span></code>: Path to your Miniforge3 installation (required).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--update_spack</span></code>: Build or rebuild the Spack environment.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--spack</span> <span class="pre">&lt;path&gt;</span></code>: Path to install Spack environments (for testing).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--tmpdir</span> <span class="pre">&lt;path&gt;</span></code>: Temporary directory for Spack builds (recommended).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--compiler</span> <span class="pre">&lt;compiler(s)&gt;</span></code>: Specify compiler(s) to build for.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--mpi</span> <span class="pre">&lt;mpi(s)&gt;</span></code>: Specify MPI library/libraries.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--with_albany</span></code>: Include Albany in the Spack environment
+(see <code class="docutils literal notranslate"><span class="pre">albany_supported.txt</span></code> for supported combos).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--with_petsc</span></code>: Include PETSc and Netlib LAPACK (see <code class="docutils literal notranslate"><span class="pre">petsc_supported.txt</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--recreate</span></code>: Recreate environments even if they exist.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--mache_fork</span></code> and <code class="docutils literal notranslate"><span class="pre">--mache_branch</span></code>: Use a specific fork/branch of <code class="docutils literal notranslate"><span class="pre">mache</span></code>
+(for co-development/testing).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--verbose</span></code>: Print all output to the terminal.</p></li>
+</ul>
+<p>See <code class="docutils literal notranslate"><span class="pre">./configure_polaris_envs.py</span> <span class="pre">--help</span></code> for the full list.</p>
+</section>
+<hr class="docutils" />
+<section id="notes-and-best-practices">
+<h2>Notes and Best Practices<a class="headerlink" href="#notes-and-best-practices" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Use your own Miniforge3 installation (not Miniconda or a shared install).</p></li>
+<li><p>Use a unique Spack install location for testing (<code class="docutils literal notranslate"><span class="pre">--spack</span></code>).</p></li>
+<li><p>Use a scratch or group directory for Spack’s temporary build files
+(<code class="docutils literal notranslate"><span class="pre">--tmpdir</span></code>).</p></li>
+<li><p>Only deploy shared Spack environments after thorough testing.</p></li>
+<li><p>Check <code class="docutils literal notranslate"><span class="pre">albany_supported.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">petsc_supported.txt</span></code> for supported
+machine/compiler/MPI combos.</p></li>
+<li><p>For troubleshooting, see <a class="reference internal" href="troubleshooting.html"><span class="std std-doc">Troubleshooting Deployment</span></a>.</p></li>
+</ul>
+<hr class="docutils" />
+<p>➡ Next: <a class="reference internal" href="troubleshooting.html"><span class="std std-doc">Troubleshooting Deployment</span></a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="updating_mache.html" class="btn btn-neutral float-left" title="Updating mache for Polaris" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="running_test_suites.html" class="btn btn-neutral float-right" title="Running Required Test Suites" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.9.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

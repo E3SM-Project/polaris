@@ -1,0 +1,240 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.viz.helper</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.viz.helper</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.viz.helper</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cartopy.crs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ccrs</span>
+
+<span class="n">projections</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;PlateCarree&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">,</span>
+    <span class="s1">&#39;LambertCylindrical&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">LambertCylindrical</span><span class="p">,</span>
+    <span class="s1">&#39;Mercator&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">Mercator</span><span class="p">,</span>
+    <span class="s1">&#39;Miller&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">Miller</span><span class="p">,</span>
+    <span class="s1">&#39;Robinson&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">Robinson</span><span class="p">,</span>
+    <span class="s1">&#39;Stereographic&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">Stereographic</span><span class="p">,</span>
+    <span class="s1">&#39;RotatedPole&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">RotatedPole</span><span class="p">,</span>
+    <span class="s1">&#39;InterruptedGoodeHomolosine&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">InterruptedGoodeHomolosine</span><span class="p">,</span>
+    <span class="s1">&#39;EckertI&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">EckertI</span><span class="p">,</span>
+    <span class="s1">&#39;EckertII&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">EckertII</span><span class="p">,</span>
+    <span class="s1">&#39;EckertIII&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">EckertIII</span><span class="p">,</span>
+    <span class="s1">&#39;EckertIV&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">EckertIV</span><span class="p">,</span>
+    <span class="s1">&#39;EckertV&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">EckertV</span><span class="p">,</span>
+    <span class="s1">&#39;EckertVI&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">EckertVI</span><span class="p">,</span>
+    <span class="s1">&#39;EqualEarth&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">EqualEarth</span><span class="p">,</span>
+    <span class="s1">&#39;NorthPolarStereo&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">NorthPolarStereo</span><span class="p">,</span>
+    <span class="s1">&#39;SouthPolarStereo&#39;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">SouthPolarStereo</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># indexed by mpas-ocean variable name in instantaneous output</span>
+<span class="n">viz_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;bottomDepth&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;colormap&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.deep&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;m&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;layerThickness&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;colormap&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.thermal&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;m&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;colormap&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.thermal&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;$^{\circ}$C&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;salinity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;colormap&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.haline&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;g/kg&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;density&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;colormap&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.dense&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;kg/m$^3$&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;ssh&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;colormap&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.delta&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;m&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;vertVelocityTop&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;colormap&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;m/s&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;normalVelocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;colormap&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;m/s&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;velocityZonal&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;colormap&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;m/s&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;velocityMeridional&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;colormap&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;m/s&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;landIceFraction&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;colormap&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.ice&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;seaIceFraction&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;colormap&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.ice&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;colormap&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.dense&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;&#39;</span><span class="p">},</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_projection">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.get_projection.html#polaris.viz.get_projection">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_projection</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a Cartopy projection by string name.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">projections</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unknown projection &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;. Available: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">projections</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">projections</span><span class="p">[</span><span class="n">name</span><span class="p">](</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_viz_defaults">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.get_viz_defaults.html#polaris.viz.get_viz_defaults">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_viz_defaults</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the whole dictionary of MPAS variables and default viz properties</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">viz_dict</span></div>
+
+
+
+<div class="viewcode-block" id="determine_time_variable">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.determine_time_variable.html#polaris.viz.determine_time_variable">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">determine_time_variable</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Identify the variable prefix and time variable for MPAS datasets</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">time_variable</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="s1">&#39;xtime_startMonthly&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;timeMonthly_avg_&#39;</span>
+        <span class="n">time_variable</span> <span class="o">=</span> <span class="s1">&#39;xtime_startMonthly&#39;</span>
+    <span class="k">elif</span> <span class="s1">&#39;xtime&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">time_variable</span> <span class="o">=</span> <span class="s1">&#39;xtime&#39;</span>
+    <span class="k">elif</span> <span class="s1">&#39;Time&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;timeMonthly_avg_&#39;</span>
+        <span class="n">time_variable</span> <span class="o">=</span> <span class="s1">&#39;Time&#39;</span>
+    <span class="k">return</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">time_variable</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.9.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

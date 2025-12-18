@@ -1,0 +1,429 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>overflow</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="rotation 2-d" href="rotation_2d.html" />
+    <link rel="prev" title="nondivergent 2-d" href="nondivergent_2d.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_channel.html">barotropic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated tracers 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customizable_viz.html">customizable viz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_gravity_wave.html">external gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice shelf 2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">overflow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#suppported-models">suppported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#description">description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rpe">rpe</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">overflow</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/users_guide/ocean/tasks/overflow.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="overflow">
+<span id="ocean-overflow"></span><h1>overflow<a class="headerlink" href="#overflow" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">ocean/overflow</span></code> test group induces a density current flowing down a
+continental slope and includes two test cases.</p>
+<section id="suppported-models">
+<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
+<p>These tasks support only MPAS-Ocean.</p>
+</section>
+<section id="description">
+<h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
+<p>This test case derives from
+<a class="reference external" href="https://doi.org/10.1016/j.ocemod.2014.12.004">Petersen et al. 2015</a>. A cold,
+dense block of water starts out on a flat continental shelf and flows down a
+continental slope, ending up along a deep, flat seafloor. This test case is
+generally used for evaluating spurious mixing associated with different
+vertical coordinate systems in the presence of bottom topography.</p>
+<a class="reference internal image-reference" href="../../../_images/overflow-Petersen-et-al-2015-fig4.png"><img alt="../../../_images/overflow-Petersen-et-al-2015-fig4.png" class="align-center" src="../../../_images/overflow-Petersen-et-al-2015-fig4.png" style="width: 500px;" />
+</a>
+</section>
+<section id="mesh">
+<h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
+<p>The mesh is planar and the resolution is specified by config option
+<code class="docutils literal notranslate"><span class="pre">overflow:resolution</span></code>, which defaults to 1 km.</p>
+<p>The horizontal dimensions of the domain are set by config options
+<code class="docutils literal notranslate"><span class="pre">overflow:lx</span></code> and <code class="docutils literal notranslate"><span class="pre">overflow:ly</span></code>, defaulting to 200 km by 40 km.</p>
+<p>The domain is periodic on the zonal boundaries and solid on the meridional
+boundaries.</p>
+</section>
+<section id="vertical-grid">
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
+<p>The topography includes a continental slope defined by</p>
+<div class="math notranslate nohighlight">
+\[
+z_{bed} = z_{shelf} + \frac{1}{2} (z_{floor} - z_{shelf}) (1 + \tanh((x - x_{slope})/L_{slope})
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(z_{shelf}\)</span> corresponds to config option <code class="docutils literal notranslate"><span class="pre">overflow:shelf_depth</span></code>,
+<span class="math notranslate nohighlight">\(z_{floor}\)</span> to <code class="docutils literal notranslate"><span class="pre">overflow:max_bottom_depth</span></code>, <span class="math notranslate nohighlight">\(x_{slope}\)</span> to <code class="docutils literal notranslate"><span class="pre">overflow:x_slope</span></code>
+and <span class="math notranslate nohighlight">\(L_{slope}\)</span> to <code class="docutils literal notranslate"><span class="pre">overflow:L_slope</span></code>.</p>
+<p>Any vertical coordinate and number of vertical levels above the minimum needed
+for baroclinic dynamics may be used.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
+<span class="k">[vertical_grid]</span>
+
+<span class="c1"># Depth of the bottom of the ocean (m)</span>
+<span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2000.0</span>
+
+<span class="c1"># Number of vertical levels</span>
+<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60</span>
+
+<span class="c1"># The type of vertical grid</span>
+<span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">uniform</span>
+
+<span class="c1"># The type of vertical coordinate (e.g. z-level, z-star)</span>
+<span class="na">coord_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">z-star</span>
+
+<span class="c1"># Whether to use &quot;partial&quot; or &quot;full&quot;, or &quot;None&quot; to not alter the topography</span>
+<span class="na">partial_cell_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+</pre></div>
+</div>
+</section>
+<section id="initial-conditions">
+<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
+<p>Salinity is constant throughout the domain (at 35 PSU).  The
+initial temperature is bimodal with low temperature throughout the continental
+shelf region set by the config option <code class="docutils literal notranslate"><span class="pre">overflow:low_temperature</span></code> (default value of 10
+<span class="math notranslate nohighlight">\(^{\circ}\)</span>C) and high temperature over the slope and deep ocean set by the config
+option <code class="docutils literal notranslate"><span class="pre">overflow:high_temperature</span></code> (default value of 20 <span class="math notranslate nohighlight">\(^{\circ}\)</span>C). The transition between
+the two zones is set by the config option <code class="docutils literal notranslate"><span class="pre">overflow:x_dense</span></code> (default value of 20 km).
+This perturbation initiates slumping of the cold, denser water mass and flow
+down the slope as a bottom boundary current.</p>
+<p>The initial state is at rest. The coriolis parameter is set to 0.</p>
+</section>
+<section id="forcing">
+<h2>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h2>
+<p>N/A</p>
+</section>
+<section id="config-options">
+<h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
+<p>These config options are common to all overflow tests:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the overflow case</span>
+<span class="k">[overflow]</span>
+
+<span class="c1"># Timestep per km horizontal resolution (s)</span>
+<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10.</span>
+
+<span class="c1"># Barotropic timestep per km horizontal resolution (s)</span>
+<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.5</span>
+
+<span class="c1"># The width of the domain in the across-slope dimension (km)</span>
+<span class="na">ly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">40</span>
+
+<span class="c1"># The length of the domain in the along-slope dimension (km)</span>
+<span class="na">lx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">200</span>
+
+<span class="c1"># Distance from two cell centers (km)</span>
+<span class="na">resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.0</span>
+
+<span class="c1"># Bottom depth at bottom of overflow</span>
+<span class="na">max_bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${vertical_grid:bottom_depth}</span>
+
+<span class="c1"># Shelf depth (m)</span>
+<span class="na">shelf_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">500.0</span>
+
+<span class="c1"># Cold water range (km)</span>
+<span class="na">x_dense</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20.0</span>
+
+<span class="c1"># Lateral position of the shelf-break (km)</span>
+<span class="na">x_slope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">40.0</span>
+
+<span class="c1"># Length-scale of the slope (km)</span>
+<span class="na">L_slope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">7.0</span>
+
+<span class="c1"># Beta in eos</span>
+<span class="na">eos_linear_beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.8</span>
+
+<span class="c1"># Initial salinity throughout the domain (PSU)</span>
+<span class="na">salinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">35.0</span>
+
+<span class="c1"># Reference salinity (PSU)</span>
+<span class="na">eos_linear_Sref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${overflow:salinity}</span>
+
+<span class="c1"># Lower temperature (deg C)</span>
+<span class="na">lower_temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10.0</span>
+
+<span class="c1"># Higher temperature (deg C)</span>
+<span class="na">higher_temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20.0</span>
+</pre></div>
+</div>
+<p>The linear EOS is used because it is convenient for computing RPE. The
+namelist parameters for the linear EOS can be altered using config options
+<code class="docutils literal notranslate"><span class="pre">overflow:eos_linear_beta</span></code> and <code class="docutils literal notranslate"><span class="pre">overflow:eos_linear_Sref</span></code>.</p>
+</section>
+<section id="cores">
+<h2>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h2>
+<p>The number of cores is determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and
+<code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file.</p>
+</section>
+<section id="default">
+<h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>The default case is the same as described above except the run is stopped
+before it is allowed to reach equilibrium to facilitate rapid testing.</p>
+</section>
+<section id="id2">
+<h3>mesh<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-overflow"><span class="std std-ref">overflow</span></a>.</p>
+</section>
+<section id="id3">
+<h3>vertical grid<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-overflow"><span class="std std-ref">overflow</span></a>.</p>
+</section>
+<section id="id4">
+<h3>initial conditions<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-overflow"><span class="std std-ref">overflow</span></a>.</p>
+</section>
+<section id="id5">
+<h3>forcing<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-overflow"><span class="std std-ref">overflow</span></a>.</p>
+</section>
+<section id="time-step-and-run-duration">
+<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h3>
+<p>The time step for forward integration is set by <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and the model
+resolution. The barotropic time step is 15s. The run duration is 12 minutes.</p>
+</section>
+<section id="id6">
+<h3>config options<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>The config options specific to the default case are:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[overflow_default]</span>
+
+<span class="c1"># Run duration (minutes)</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">12.</span>
+
+<span class="c1"># Output interval (seconds)</span>
+<span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.</span>
+</pre></div>
+</div>
+<p>Include here any further description of each of the config options.</p>
+</section>
+<section id="id7">
+<h3>cores<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-overflow"><span class="std std-ref">overflow</span></a>.</p>
+</section>
+</section>
+<section id="rpe">
+<h2>rpe<a class="headerlink" href="#rpe" title="Link to this heading"></a></h2>
+<section id="id8">
+<h3>description<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">rpe</span></code> case is the same as the default except it runs to 40 days by which
+time the dense blob is mostly at depth. It also includs several forward runs
+corresponding to different values of the laplacian viscosity specified by the
+config option <code class="docutils literal notranslate"><span class="pre">overflow_rpe:viscosities</span></code>. The analysis step is a substitute for the viz step as
+it includes the same cross-section visualizations of temperature but also
+includes a computation and plot of the evolution of the Resting Potential
+Energy (RPE) for each forward run.</p>
+<a class="reference internal image-reference" href="../../../_images/overflow-rpe-sections.png"><img alt="../../../_images/overflow-rpe-sections.png" class="align-center" src="../../../_images/overflow-rpe-sections.png" style="width: 500px;" />
+</a>
+<a class="reference internal image-reference" href="../../../_images/overflow-rpe-t.png"><img alt="../../../_images/overflow-rpe-t.png" class="align-center" src="../../../_images/overflow-rpe-t.png" style="width: 500px;" />
+</a>
+</section>
+<section id="id9">
+<h3>config options<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>The config options specific to the RPE case are:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[overflow_rpe]</span>
+
+<span class="c1"># Run duration (days)</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">40.</span>
+
+<span class="c1"># Output interval (days)</span>
+<span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.</span>
+
+<span class="c1"># Viscosity values to test for rpe test case</span>
+<span class="na">viscosities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1, 5, 10, 100, 1000</span>
+
+<span class="c1"># The time at which to plot cross-sections in the analysis step (days)</span>
+<span class="na">plot_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${overflow_rpe:run_duration}</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="nondivergent_2d.html" class="btn btn-neutral float-left" title="nondivergent 2-d" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rotation_2d.html" class="btn btn-neutral float-right" title="rotation 2-d" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.9.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+﻿polaris.Step.setup
+==================
+
+.. currentmodule:: polaris
+
+.. automethod:: Step.setup

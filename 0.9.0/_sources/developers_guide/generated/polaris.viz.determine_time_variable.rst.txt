@@ -1,0 +1,6 @@
+﻿polaris.viz.determine\_time\_variable
+=====================================
+
+.. currentmodule:: polaris.viz
+
+.. autofunction:: determine_time_variable

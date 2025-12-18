@@ -1,0 +1,456 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adding a Shared Step</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Adding a First Task" href="adding_first_task.html" />
+    <link rel="prev" title="Making a New Category of Tasks" href="creating_category_of_tasks.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Developer Tutorial: Adding a New Category of Tasks</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of the Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating_category_of_tasks.html">Making a New Category of Tasks</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Adding a Shared Step</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#adding-the-init-step">Adding the <code class="docutils literal notranslate"><span class="pre">init</span></code> Step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-a-shared-step-object">Create a Shared Step Object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-things-out-again">Test Things Out Again</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-a-config-file">Adding a Config File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-a-shared-config-file-to-the-step">Add a Shared Config File to the Step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-horizontal-mesh">Creating a Horizontal Mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-a-the-config-options-to-the-config-file">Adding a the Config Options to the Config File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-things-one-more-time">Test Things One More Time</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="adding_first_task.html">Adding a First Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_first_task.html">Testing the First Task and Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fleshing_out_step.html">Fleshing out the <code class="docutils literal notranslate"><span class="pre">init</span></code> Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_plots.html">Adding Plots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_outputs.html">Adding Step Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_forward.html">Adding a <code class="docutils literal notranslate"><span class="pre">forward</span></code> Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adding_viz.html">Adding a Visualization Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documenting.html">Documentation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+      <li class="breadcrumb-item active">Adding a Shared Step</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/tutorials/dev_add_category_of_tasks/adding_shared_step.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="adding-a-shared-step">
+<h1>Adding a Shared Step<a class="headerlink" href="#adding-a-shared-step" title="Link to this heading"></a></h1>
+<p>In Polaris, <strong>shared steps</strong> are a powerful way to avoid redundant computation
+and ensure consistency across related tasks. Rather than each task duplicating
+the same setup or preprocessing work, a shared step can be created once and
+then referenced by multiple tasks that need it. This is especially useful
+when many tasks require identical inputs or initial conditions. For more on
+the concept and implementation of shared steps, see the
+<a class="reference internal" href="../../developers_guide/organization/steps.html#dev-shared-steps"><span class="std std-ref">Shared steps</span></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> step in <code class="docutils literal notranslate"><span class="pre">overflow</span></code> (which we will mimic in
+<code class="docutils literal notranslate"><span class="pre">my_overflow</span></code>) represents a common example. Many tasks use the same
+mesh and initial condition for a given resolution, so it makes sense to define
+a single <code class="docutils literal notranslate"><span class="pre">init</span></code> step and share it among all relevant tasks. This approach saves
+compute time and ensures that all tasks are using exactly the same initial
+state.</p>
+<p>In this section, we’ll walk through how to create a shared <code class="docutils literal notranslate"><span class="pre">init</span></code> step for your
+new category of tasks, following the established pattern in Polairs.</p>
+<p>This step is involved enough that it divided into several pages, each
+covering a different part of the process.  We’ll start out by just setting
+up some basic infrastructure, and making sure it’s wired together right.</p>
+<section id="adding-the-init-step">
+<h2>Adding the <code class="docutils literal notranslate"><span class="pre">init</span></code> Step<a class="headerlink" href="#adding-the-init-step" title="Link to this heading"></a></h2>
+<p>In polaris, steps are defined in python modules by classes that descend
+from the <a class="reference internal" href="../../developers_guide/generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a> base class.  The modules can be defined
+within the task package (if they are unique to the task) or in the
+category of tasks (if they are shared among several tasks).  In this example,
+we have only added one task (<code class="docutils literal notranslate"><span class="pre">default</span></code>) so far but we anticipate
+adding more.  All tasks will require a similar <code class="docutils literal notranslate"><span class="pre">init</span></code> step, so
+it makes sense for the <code class="docutils literal notranslate"><span class="pre">init.py</span></code> module to be located in the test
+group’s package to promote <a class="reference internal" href="../../developers_guide/overview.html#dev-code-sharing"><span class="std std-ref">Code sharing</span></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> step will create the MPAS mesh and initial condition for
+the task.  To start with, we’ll just create a new <code class="docutils literal notranslate"><span class="pre">Init</span></code> class.  In this
+example, we will have <code class="docutils literal notranslate"><span class="pre">Init</span></code> descend from <code class="docutils literal notranslate"><span class="pre">Step</span></code>.  (In the <code class="docutils literal notranslate"><span class="pre">overflow</span></code> version,
+it descends from <code class="docutils literal notranslate"><span class="pre">OceanIOStep</span></code> so add some functionality for writing out files
+either in Omega or MPAS-Ocean format, just so you’re not surprised by the
+difference.) Here’s the beginnings of the <code class="docutils literal notranslate"><span class="pre">Init</span></code> step:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vim<span class="w"> </span>polaris/tasks/ocean/my_overflow/init.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A step for creating a mesh and initial condition for &quot;my overflow&quot; test</span>
+<span class="sd">    cases.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        name : str</span>
+<span class="sd">            The name of the step</span>
+
+<span class="sd">        indir : str</span>
+<span class="sd">            The name of the directory the task will be set up in</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The step takes the component it belongs to as an input to its constructor,
+and passes that along to the superclass’ version of the constructor, along with
+the name of the step and the directory that the step should go in wihtin a
+subdirectory that’s the same as <code class="docutils literal notranslate"><span class="pre">name</span></code>.  An alternative would be to provide
+<code class="docutils literal notranslate"><span class="pre">subdir</span></code> argument if we want to specify the full subdirectory of the step
+withing the component without using <code class="docutils literal notranslate"><span class="pre">name</span></code> as the final subdirectory.</p>
+</section>
+<section id="create-a-shared-step-object">
+<h2>Create a Shared Step Object<a class="headerlink" href="#create-a-shared-step-object" title="Link to this heading"></a></h2>
+<p>Update your <code class="docutils literal notranslate"><span class="pre">add_my_overflow_tasks()</span></code> function in
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/my_overflow/__init__.py</span></code> to create and add the shared
+<code class="docutils literal notranslate"><span class="pre">Init</span></code> step:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.my_overflow.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span> <span class="k">as</span> <span class="n">Init</span>
+</span><span class="hll">
+</span><span class="hll">
+</span><span class="k">def</span><span class="w"> </span><span class="nf">add_my_overflow_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a task following the &quot;my overflow&quot; test case of Petersen et al. (2015)</span>
+<span class="sd">    doi:10.1016/j.ocemod.2014.12.004</span>
+
+<span class="sd">    component : polaris.ocean.Ocean</span>
+<span class="sd">        the ocean component that the task will be added to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<span class="hll">    <span class="n">init_step</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>This will place the <code class="docutils literal notranslate"><span class="pre">init</span></code> step in a subdirectory <code class="docutils literal notranslate"><span class="pre">planar/my_overflow/init</span></code>
+within the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component.  It will also define a shared config file at
+<code class="docutils literal notranslate"><span class="pre">planar/my_overflow/my_overflow.cfg</span></code> that will have the config options for
+<code class="docutils literal notranslate"><span class="pre">my_overflow</span></code> tasks and steps generally and <code class="docutils literal notranslate"><span class="pre">init</span></code> in particular.</p>
+</section>
+<section id="test-things-out-again">
+<h2>Test Things Out Again<a class="headerlink" href="#test-things-out-again" title="Link to this heading"></a></h2>
+<p>There’s still not much to test but it doesn’t hurt to rerun:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>list
+</pre></div>
+</div>
+<p>Again, if you get import errors, something isn’t quite hooked up right. It’s
+still to early to see anything new in the list of tasks.</p>
+</section>
+<section id="adding-a-config-file">
+<h2>Adding a Config File<a class="headerlink" href="#adding-a-config-file" title="Link to this heading"></a></h2>
+<p>To set default config options (see <a class="reference internal" href="../../users_guide/config_files.html#config-files"><span class="std std-ref">Config Files</span></a>) that are shared across
+all the tasks and steps of a category of tasks, we typically add them to to a
+config file with the same name as the category of tasks (e.g.
+<code class="docutils literal notranslate"><span class="pre">my_overflow.cfg</span></code>). Having a shared config file means fewer places that a user
+has to edit the config options. (But for this same reason it’s improtant that
+the config options really can be shared between steps and tasks – if the
+same config option should have different values for different tasks, it
+obviously doesn’t make sense to try to use a config file shared between these
+tasks.)</p>
+<p>In this case, we know that these config options are going to be used across
+many tasks so it makes sense to put them directly in the
+<code class="docutils literal notranslate"><span class="pre">my_overflow</span></code> subdirectory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vim<span class="w"> </span>polaris/tasks/ocean/my_overflow/my_overflow.cfg
+</pre></div>
+</div>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the &quot;my overflow&quot; case</span>
+<span class="k">[my_overflow]</span>
+</pre></div>
+</div>
+<p>We’ll flesh out the config options as we need them below.</p>
+<p>There is another way to get define default config options.  The <code class="docutils literal notranslate"><span class="pre">my_overflow</span></code>
+tasks don’t use this but we can also define them in the code in
+a <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method of the task.  These config options will also show
+up in the config file in the task’s work directory.  There is no
+<code class="docutils literal notranslate"><span class="pre">configure()</span></code> method for individual steps because it is not a good idea to
+change config options within a step, since other steps may be affected in
+potentially unexpected ways.  You can see an example of this in the
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/6a541bb778751985191138be4d4a64887c05c18b/polaris/tasks/ocean/cosine_bell/__init__.py#L268-L282">cosine_bell task</a>.</p>
+</section>
+<section id="add-a-shared-config-file-to-the-step">
+<h2>Add a Shared Config File to the Step<a class="headerlink" href="#add-a-shared-config-file-to-the-step" title="Link to this heading"></a></h2>
+<p>Here’s what you need to add in ``polaris/tasks/ocean/my_overflow/<strong>init</strong>.py<code class="docutils literal notranslate"><span class="pre">to</span> <span class="pre">create</span> <span class="pre">a</span> <span class="pre">shared</span> <span class="pre">config</span> <span class="pre">file</span> <span class="pre">and</span> <span class="pre">add</span> <span class="pre">it</span> <span class="pre">to</span> <span class="pre">your</span></code>init` step:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span> <span class="k">as</span> <span class="n">PolarisConfigParser</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.my_overflow.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span> <span class="k">as</span> <span class="n">Init</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add_my_overflow_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a task following the &quot;my overflow&quot; test case of Petersen et al. (2015)</span>
+<span class="sd">    doi:10.1016/j.ocemod.2014.12.004</span>
+
+<span class="sd">    component : polaris.ocean.Ocean</span>
+<span class="sd">        the ocean component that the task will be added to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">indir</span> <span class="o">=</span> <span class="s1">&#39;planar/my_overflow&#39;</span>
+<span class="hll">    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;my_overflow.cfg&#39;</span>
+</span><span class="hll">    <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">config_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</span><span class="hll">    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.my_overflow&#39;</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
+</span>
+    <span class="n">init_step</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+<span class="hll">    <span class="n">init_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>The config file will live within the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component in a work directory
+at <code class="docutils literal notranslate"><span class="pre">planar/my_overflow/my_overflow.cfg</span></code>. Later, we’ll add it to the tasks
+within <code class="docutils literal notranslate"><span class="pre">my_overflow</span></code> as well.</p>
+</section>
+<section id="creating-a-horizontal-mesh">
+<h2>Creating a Horizontal Mesh<a class="headerlink" href="#creating-a-horizontal-mesh" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">run()</span></code> method of the <code class="docutils literal notranslate"><span class="pre">init</span></code> step does the actual work of
+creating a mesh and initial condition. Below, We will present the method in 3
+pieces.  Please browse the code yourself to see the complete method.</p>
+<p>First, we create a regular, planar, hexagonal mesh that is periodic in the x
+direction but not in y. The number of cells in mesh are based on the physical
+sizes of the mesh in x and y, which come from config options <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code>
+discussed below.  The distance between grid-cell centers <code class="docutils literal notranslate"><span class="pre">dc</span></code> is just the
+resolution converted from km to m.  Then, we “cull” (remove) the the top and
+bottom row of cells in the y direction so the mesh is no longer periodic in
+that direction (<code class="docutils literal notranslate"><span class="pre">nonperiodic_y=True</span></code>).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vim<span class="w"> </span>polaris/tasks/ocean/my_overflow/init.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
+</span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert</span><span class="p">,</span> <span class="n">cull</span>
+</span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.planar_hex</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_planar_hex_mesh</span>
+</span><span class="hll">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.planar</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
+</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+<span class="hll">    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="hll"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span class="hll"><span class="sd">        Run this step of the test case</span>
+</span><span class="hll"><span class="sd">        &quot;&quot;&quot;</span>
+</span><span class="hll">        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+</span><span class="hll">        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;my_overflow&#39;</span><span class="p">]</span>
+</span><span class="hll">        <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ly&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">resolution</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;resolution&#39;</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">dc</span> <span class="o">=</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">resolution</span>
+</span><span class="hll">        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">make_planar_hex_mesh</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">nx</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span> <span class="n">dc</span><span class="o">=</span><span class="n">dc</span><span class="p">,</span> <span class="n">nonperiodic_x</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nonperiodic_y</span><span class="o">=</span><span class="kc">False</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">cull</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>We use <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vmaster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a> to compute the
+number of grid cells in x and y from the physical sizes and the resolution.</p>
+<p>We will continue with the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method as we move through the tutorial, but
+first it is worth discussing how to set the config options used to generate
+the horizontal mesh.</p>
+</section>
+<section id="adding-a-the-config-options-to-the-config-file">
+<h2>Adding a the Config Options to the Config File<a class="headerlink" href="#adding-a-the-config-options-to-the-config-file" title="Link to this heading"></a></h2>
+<p>We need a way to get the physical extent of the mesh <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code> in km and
+the <code class="docutils literal notranslate"><span class="pre">resolution</span></code> (in km) of the cells. We could hard-code these in the task
+directly and sometimes we do but this can also have several disadvantages.
+First and foremost, unless they are explicitly given as part of the name of
+the task or step, this it hides these physical values in a way that isn’t
+accessible to users.  They become “magic numbers” in the code. Second, by
+making them available to users, they should be easy to alter so a user can
+explore the effects of modifying them if they choose to.  Finally, the config
+options are available to each step in the tasks so it is easy to look them up
+again later (e.g. during plotting) if they are needed.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vim<span class="w"> </span>polaris/ocean/tasks/my_overflow/my_overflow.cfg
+</pre></div>
+</div>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the &quot;my overflow&quot; case</span>
+<span class="k">[my_overflow]</span>
+
+<span class="hll"><span class="c1"># The width of the domain in the across-slope dimension (km)</span>
+</span><span class="hll"><span class="na">ly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">40</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># The length of the domain in the along-slope dimension (km)</span>
+</span><span class="hll"><span class="na">lx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">200</span>
+</span><span class="hll">
+</span><span class="hll"><span class="c1"># Distance from two cell centers (km)</span>
+</span><span class="hll"><span class="na">resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.0</span>
+</span></pre></div>
+</div>
+</section>
+<section id="test-things-one-more-time">
+<h2>Test Things One More Time<a class="headerlink" href="#test-things-one-more-time" title="Link to this heading"></a></h2>
+<p>Give it one more test:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>list
+</pre></div>
+</div>
+<p>Import errors, missing files, and such will tell you something’s missing or
+not hooked up quite right.</p>
+<hr class="docutils" />
+<p>← <a class="reference internal" href="creating_category_of_tasks.html"><span class="std std-doc">Back to <em>Making a New Category of Tasks</em></span></a></p>
+<p>→ <a class="reference internal" href="adding_first_task.html"><span class="std std-doc">Continue to <em>Adding a First Task</em></span></a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="creating_category_of_tasks.html" class="btn btn-neutral float-left" title="Making a New Category of Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="adding_first_task.html" class="btn btn-neutral float-right" title="Adding a First Task" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.9.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

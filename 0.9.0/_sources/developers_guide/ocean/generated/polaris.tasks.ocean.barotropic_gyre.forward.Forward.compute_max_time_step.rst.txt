@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.barotropic\_gyre.forward.Forward.compute\_max\_time\_step
+=============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.barotropic_gyre.forward
+
+.. automethod:: Forward.compute_max_time_step

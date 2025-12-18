@@ -1,0 +1,347 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>single_column</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Ocean framework" href="../framework.html" />
+    <link rel="prev" title="rotation_2d" href="rotation_2d.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_channel.html">barotropic_channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic_gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated_tracers_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine_bell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customizable_viz.html">customizable_viz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_gravity_wave.html">external_gravity_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice_shelf_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial_gravity_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured_solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation_2d</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">single_column</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cvmix">cvmix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ekman">ekman</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ideal-age">ideal age</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#inertial">inertial</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework.html">Ocean framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">single_column</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/developers_guide/ocean/tasks/single_column.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="single-column">
+<span id="dev-ocean-single-column"></span><h1>single_column<a class="headerlink" href="#single-column" title="Link to this heading"></a></h1>
+<p>The single column tests in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column</span></code> exercise
+the vertical dynamics of the ocean model only. The test cases are:</p>
+<ul class="simple">
+<li><p>Testing the vertical mixing library, CVMix, under surface forcing</p></li>
+<li><p>Testing the Ideal Age tracer under surface forcing</p></li>
+<li><p>Testing the Coriolis term by quantifying the inertial frequency</p></li>
+<li><p>Testing the Ekman solution under wind forcing</p></li>
+</ul>
+<p>Here, we describe the tests and their shared framework.</p>
+<section id="framework">
+<span id="dev-ocean-single-column-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
+<p>The shared config options for the <code class="docutils literal notranslate"><span class="pre">single_column</span></code> tests
+are described in <a class="reference internal" href="../../../users_guide/ocean/tasks/single_column.html#ocean-single-column"><span class="std std-ref">single column</span></a> in the User’s Guide.</p>
+<p>Additionally, the tests share a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with
+a few common model config options related to the initial state, coriolis
+forcing, run duration and surface forcing, as well as defining <code class="docutils literal notranslate"><span class="pre">mesh</span></code>,
+<code class="docutils literal notranslate"><span class="pre">input</span></code>, <code class="docutils literal notranslate"><span class="pre">restart</span></code>, and <code class="docutils literal notranslate"><span class="pre">output</span></code>, streams.</p>
+<section id="init">
+<h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.init.Init.html#polaris.tasks.ocean.single_column.init.Init" title="polaris.tasks.ocean.single_column.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.init.Init</span></code></a>
+defines a step for setting up the initial state for each test case.</p>
+<p>4×4 planar hex mesh is generated for this task using
+<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools vmaster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>. The number of cells in
+each dimension can be modified with config options <code class="docutils literal notranslate"><span class="pre">single_column:nx</span></code>,
+<code class="docutils literal notranslate"><span class="pre">single_column:ny</span></code>.
+By default, the mesh is 960 m in horizontal resolution and is not intended to
+resolve any lateral gradients. The horizontal resolution can be modified with
+config option <code class="docutils literal notranslate"><span class="pre">single_column:resolution</span></code></p>
+<p>A vertical grid is
+generated, with 100 layers of 4 m thickness each by default.</p>
+<p>The
+initial temperature and salinity field are computed with variability in the
+vertical dimension only. The config options that determine these profiles are
+located in section <code class="docutils literal notranslate"><span class="pre">single_column</span></code> and include:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">surface_temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">surface_salinity</span></code></p></td>
+<td><p>Initial surface values</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperature_gradient_mixed_layer</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity_gradient_mixed_layer</span></code></p></td>
+<td><p>Gradients within the mixed layer</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature_difference_across_mixed_layer</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity_difference_across_mixed_layer</span></code></p></td>
+<td><p>Profile discontinuity across the mixed layer</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity_gradient_interior</span></code></p></td>
+<td><p>Interior (below mixed layer) gradients</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mixed_layer_depth_temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">mixed_layer_depth_salinity</span></code></p></td>
+<td><p>Mixed layer depths (typically ~40 m)</p></td>
+</tr>
+</tbody>
+</table>
+<p>For cases with ideal age tracers, an initial profile for the ideal age tracer is
+also constructed and is equal to zero seconds throughout the column.</p>
+<p>A forcing netCDF file is also created based on the config options given in the
+<code class="docutils literal notranslate"><span class="pre">single_column_forcing</span></code> section. A subset of those options are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature_piston_velocity</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity_piston_velocity</span></code></p></td>
+<td><p>Surface restoring rates</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperature_surface_restoring_value</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity_surface_restoring_value</span></code></p></td>
+<td><p>Target surface values</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature_interior_restoring_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity_interior_restoring_rate</span></code></p></td>
+<td><p>Interior restoring rates</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">latent_heat_flux</span></code>, <code class="docutils literal notranslate"><span class="pre">sensible_heat_flux</span></code>, <code class="docutils literal notranslate"><span class="pre">shortwave_heat_flux</span></code></p></td>
+<td><p>Surface heat flux components</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">evaporation_flux</span></code>, <code class="docutils literal notranslate"><span class="pre">rain_flux</span></code></p></td>
+<td><p>Surface freshwater fluxes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wind_stress_zonal</span></code>, <code class="docutils literal notranslate"><span class="pre">wind_stress_meridional</span></code></p></td>
+<td><p>Wind stress values</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="forward">
+<h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.forward.Forward.html#polaris.tasks.ocean.single_column.forward.Forward" title="polaris.tasks.ocean.single_column.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.forward.Forward</span></code></a>
+defines a step for running MPAS-Ocean from the initial condition produced in
+the <code class="docutils literal notranslate"><span class="pre">init</span></code> step. The ocean model is run.</p>
+</section>
+<section id="viz">
+<h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.viz.Viz.html#polaris.tasks.ocean.single_column.viz.Viz" title="polaris.tasks.ocean.single_column.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.viz.Viz</span></code></a>
+produces figures comparing the initial and final profiles of temperature and
+salinity.</p>
+</section>
+</section>
+<section id="cvmix">
+<span id="dev-ocean-single-column-cvmix"></span><h2>cvmix<a class="headerlink" href="#cvmix" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.cvmix.CVMix.html#polaris.tasks.ocean.single_column.cvmix.CVMix" title="polaris.tasks.ocean.single_column.cvmix.CVMix"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.cvmix.CVMix</span></code></a>
+test performs a 10-day run on 1 cores.  Then, validation of <code class="docutils literal notranslate"><span class="pre">temperature</span></code>,
+<code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are performed against a
+baseline if one is provided when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
+</section>
+<section id="ekman">
+<h2>ekman<a class="headerlink" href="#ekman" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.cvmix.CVMix.html#polaris.tasks.ocean.single_column.cvmix.CVMix" title="polaris.tasks.ocean.single_column.cvmix.CVMix"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.cvmix.CVMix</span></code></a>
+test performs a 5-day run on 1 cores.  Then, validation of <code class="docutils literal notranslate"><span class="pre">temperature</span></code>,
+<code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are performed against a
+baseline if one is provided when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
+</section>
+<section id="ideal-age">
+<h2>ideal age<a class="headerlink" href="#ideal-age" title="Link to this heading"></a></h2>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.cvmix.IdealAge</span></code> test
+performs the same 10-day run on 1 cores as the
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.cvmix.CVMix.html#polaris.tasks.ocean.single_column.cvmix.CVMix" title="polaris.tasks.ocean.single_column.cvmix.CVMix"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.cvmix.CVMix</span></code></a> test, but with a
+single ideal age tracer included. An additional <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file is
+included in the ideal age tracer test case for enabeling on the ideal age
+tracers and ideal age surface forcing, as well as for defining
+<code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> streams. Validation of <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> are performed against a baseline if one is provided
+when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
+</section>
+<section id="inertial">
+<h2>inertial<a class="headerlink" href="#inertial" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.inertial.Inertial.html#polaris.tasks.ocean.single_column.inertial.Inertial" title="polaris.tasks.ocean.single_column.inertial.Inertial"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.inertial.Inertial</span></code></a>
+test performs a 10-day run on 1 cores.  Then, validation of <code class="docutils literal notranslate"><span class="pre">temperature</span></code>,
+<code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are performed against a
+baseline if one is provided when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>. Then, the
+analysis step is run, and the viz step is optionally run.</p>
+<section id="analysis">
+<h3>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h3>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.inertial.analysis.Analysis.html#polaris.tasks.ocean.single_column.inertial.analysis.Analysis" title="polaris.tasks.ocean.single_column.inertial.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.inertial.analysis.Analysis</span></code></a>
+compares the inertial frequency with its theoretical value and induces a
+failure if the frequency is more than a given fractional difference from
+theory, as determined by the config option
+<code class="docutils literal notranslate"><span class="pre">single_column_inertial:period_tolerance_fraction</span></code>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rotation_2d.html" class="btn btn-neutral float-left" title="rotation_2d" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../framework.html" class="btn btn-neutral float-right" title="Ocean framework" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.9.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build utilities</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Parallel" href="parallel.html" />
+    <link rel="prev" title="Model" href="model.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="commands.html">Modules for polaris commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Config files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io.html">IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpas.html">MPAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model.html">Model</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Build utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-it-works">How it works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#required-environment">Required environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mpas-ocean-builder">MPAS-Ocean builder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#omega-builder">Omega builder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage-examples">Usage examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#integration-with-polaris-setup-and-polaris-suite">Integration with <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="parallel.html">Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html">Provenance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="remapping.html">Remapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Framework</a></li>
+      <li class="breadcrumb-item active">Build utilities</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/framework/build.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="build-utilities">
+<span id="dev-build"></span><h1>Build utilities<a class="headerlink" href="#build-utilities" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris.build</span></code> package provides helpers to generate portable build scripts
+for model components used by Polaris. These scripts encapsulate machine- and
+compiler-specific details via templates and a few environment variables, so you
+can reliably build from a clean login environment.</p>
+<p>Currently supported builders:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">polaris.build.mpas_ocean</span></code> — build MPAS-Ocean from an E3SM checkout</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">polaris.build.omega</span></code> — build Omega from the standalone repo or submodule</p></li>
+</ul>
+<section id="how-it-works">
+<h2>How it works<a class="headerlink" href="#how-it-works" title="Link to this heading"></a></h2>
+<p>Each builder renders a Jinja2 template into a machine-specific shell script and
+then runs that script from a pristine login environment (clearing the current
+process environment) to avoid interference from Conda or other package managers.
+The generated scripts are saved so you can re-run or inspect them later.</p>
+<p>Locations for generated scripts:</p>
+<ul class="simple">
+<li><p>MPAS-Ocean: <code class="docutils literal notranslate"><span class="pre">./build_mpas_ocean/build_mpas_ocean_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code></p></li>
+<li><p>Omega: <code class="docutils literal notranslate"><span class="pre">./build_omega/build_omega_&lt;machine&gt;_&lt;compiler&gt;.sh</span></code></p></li>
+</ul>
+</section>
+<section id="required-environment">
+<h2>Required environment<a class="headerlink" href="#required-environment" title="Link to this heading"></a></h2>
+<p>Builders read a small number of environment variables to select the correct
+template logic and paths, all of which are set by a polaris load script:</p>
+<p>Common:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">POLARIS_BRANCH</span></code> — absolute path to the Polaris source tree (used to locate
+submodules and templates)</p></li>
+</ul>
+<p>MPAS-Ocean:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">POLARIS_MACHINE</span></code> — machine ID used by the template (e.g., chrysalis, anvil)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POLARIS_COMPILER</span></code> — compiler toolchain ID (e.g., intel, gnu)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POLARIS_MPI</span></code> — MPI library ID (e.g., openmpi, mpich)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LOAD_POLARIS_ENV</span></code> — path to the shell snippet used to load the Polaris build
+env on the target machine</p></li>
+</ul>
+<p>Omega:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">POLARIS_MACHINE</span></code> — machine ID</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POLARIS_COMPILER</span></code> — compiler toolchain ID</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">METIS_ROOT</span></code>, <code class="docutils literal notranslate"><span class="pre">PARMETIS_ROOT</span></code> — paths to METIS and ParMETIS installs</p></li>
+</ul>
+<p>Notes:</p>
+<ul class="simple">
+<li><p>If the <code class="docutils literal notranslate"><span class="pre">branch</span></code> argument points to the corresponding submodule inside
+<code class="docutils literal notranslate"><span class="pre">POLARIS_BRANCH/e3sm_submodules/...</span></code>, the generated script will optionally
+update that submodule before building.</p></li>
+<li><p>On NERSC Perlmuter (<code class="docutils literal notranslate"><span class="pre">POLARIS_MACHINE</span></code> in <code class="docutils literal notranslate"><span class="pre">pm-cpu</span></code> or <code class="docutils literal notranslate"><span class="pre">pm-gpu</span></code>), the builder
+sets <code class="docutils literal notranslate"><span class="pre">NERSC_HOST</span></code> as required by the environment.  For whatever reason this
+variable is unset in a fresh bash job and is required to identify the
+machine.</p></li>
+</ul>
+</section>
+<section id="mpas-ocean-builder">
+<h2>MPAS-Ocean builder<a class="headerlink" href="#mpas-ocean-builder" title="Link to this heading"></a></h2>
+<p>Python entry points:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../generated/polaris.build.mpas_ocean.build_mpas_ocean.html#polaris.build.mpas_ocean.build_mpas_ocean" title="polaris.build.mpas_ocean.build_mpas_ocean"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.build.mpas_ocean.build_mpas_ocean()</span></code></a> — render and run a build</p></li>
+<li><p><a class="reference internal" href="../generated/polaris.build.mpas_ocean.make_build_script.html#polaris.build.mpas_ocean.make_build_script" title="polaris.build.mpas_ocean.make_build_script"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.build.mpas_ocean.make_build_script()</span></code></a> — render the script only</p></li>
+</ul>
+<p>Behavior:</p>
+<ul class="simple">
+<li><p>Renders <code class="docutils literal notranslate"><span class="pre">polaris.build/build_mpas_ocean.template</span></code></p></li>
+<li><p>Writes the script under <code class="docutils literal notranslate"><span class="pre">./build_mpas_ocean/</span></code></p></li>
+<li><p>Executes the script with <code class="docutils literal notranslate"><span class="pre">env</span> <span class="pre">-i</span> <span class="pre">HOME=&quot;$HOME&quot;</span> <span class="pre">bash</span> <span class="pre">-l</span> <span class="pre">&lt;script&gt;</span></code></p></li>
+</ul>
+</section>
+<section id="omega-builder">
+<h2>Omega builder<a class="headerlink" href="#omega-builder" title="Link to this heading"></a></h2>
+<p>Python entry points:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../generated/polaris.build.omega.build_omega.html#polaris.build.omega.build_omega" title="polaris.build.omega.build_omega"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.build.omega.build_omega()</span></code></a> — render and run a build</p></li>
+<li><p><a class="reference internal" href="../generated/polaris.build.omega.make_build_script.html#polaris.build.omega.make_build_script" title="polaris.build.omega.make_build_script"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.build.omega.make_build_script()</span></code></a> — render the script only</p></li>
+</ul>
+<p>Behavior:</p>
+<ul class="simple">
+<li><p>Renders <code class="docutils literal notranslate"><span class="pre">polaris.build/build_omega.template</span></code></p></li>
+<li><p>Writes the script under <code class="docutils literal notranslate"><span class="pre">./build_omega/</span></code></p></li>
+<li><p>Executes the script with <code class="docutils literal notranslate"><span class="pre">env</span> <span class="pre">-i</span> <span class="pre">HOME=&quot;$HOME&quot;</span> <span class="pre">bash</span> <span class="pre">-l</span> <span class="pre">&lt;script&gt;</span></code></p></li>
+</ul>
+</section>
+<section id="usage-examples">
+<h2>Usage examples<a class="headerlink" href="#usage-examples" title="Link to this heading"></a></h2>
+<p>From Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.mpas_ocean</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_mpas_ocean</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.omega</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_omega</span>
+
+<span class="c1"># Build MPAS-Ocean</span>
+<span class="n">build_mpas_ocean</span><span class="p">(</span>
+    <span class="n">branch</span><span class="o">=</span><span class="s2">&quot;/path/to/E3SM-Project&quot;</span><span class="p">,</span>
+    <span class="n">build_dir</span><span class="o">=</span><span class="s2">&quot;/path/to/build/mpas-ocean&quot;</span><span class="p">,</span>
+    <span class="n">clean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">make_flags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">make_target</span><span class="o">=</span><span class="s2">&quot;ocean&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Build Omega</span>
+<span class="n">build_omega</span><span class="p">(</span>
+    <span class="n">branch</span><span class="o">=</span><span class="s2">&quot;/path/to/Omega&quot;</span><span class="p">,</span>
+    <span class="n">build_dir</span><span class="o">=</span><span class="s2">&quot;/path/to/build/omega&quot;</span><span class="p">,</span>
+    <span class="n">clean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">cmake_flags</span><span class="o">=</span><span class="s2">&quot;-DUSE_FEATURE_X=ON&quot;</span><span class="p">,</span>
+    <span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Tip: You can call the lower-level <code class="docutils literal notranslate"><span class="pre">make_build_script(...)</span></code> variants to inspect
+or tweak the generated scripts before running them yourself.</p>
+</section>
+<section id="integration-with-polaris-setup-and-polaris-suite">
+<h2>Integration with <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code><a class="headerlink" href="#integration-with-polaris-setup-and-polaris-suite" title="Link to this heading"></a></h2>
+<p>You can trigger these builders directly from the CLI by passing build flags to
+<a class="reference internal" href="../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a> or <a class="reference internal" href="../command_line.html#dev-polaris-suite"><span class="std std-ref">polaris suite</span></a>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--build</span></code>: Build the selected component before setup.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--branch</span> <span class="pre">&lt;path&gt;</span></code>: Path to the MPAS-Ocean (E3SM-Project) or Omega checkout.
+Defaults to the corresponding submodule within your Polaris branch. Required
+submodules will be checked out automatically during the build.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--clean_build</span></code>: Start fresh (removes prior build state) and implies
+<code class="docutils literal notranslate"><span class="pre">--build</span></code>. Without this flag, an incremental build is used when possible to
+save time.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--cmake_flags</span> <span class="pre">&lt;string&gt;</span></code>: Extra flags passed through to the build system.
+For MPAS-Ocean, this string is forwarded to <code class="docutils literal notranslate"><span class="pre">make</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">-j</span> <span class="pre">8</span></code> or extra
+<code class="docutils literal notranslate"><span class="pre">VAR=VALUE</span></code> assignments). For Omega, it is forwarded to CMake as additional
+<code class="docutils literal notranslate"><span class="pre">-D...</span></code> definitions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--debug</span></code>: Enable debug builds (<code class="docutils literal notranslate"><span class="pre">CMAKE_BUILD_TYPE=Debug</span></code> for Omega; adds
+<code class="docutils literal notranslate"><span class="pre">debug=TRUE</span></code> to MPAS-Ocean make flags).</p></li>
+</ul>
+<p>Defaults and directories:</p>
+<ul class="simple">
+<li><p>The build output directory used by Polaris (<code class="docutils literal notranslate"><span class="pre">--component_path</span></code>) defaults to:</p>
+<ul>
+<li><p>Omega: <code class="docutils literal notranslate"><span class="pre">build_omega/build_&lt;machine&gt;_&lt;compiler&gt;</span></code></p></li>
+<li><p>MPAS-Ocean: <code class="docutils literal notranslate"><span class="pre">build_mpas_ocean/build_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;</span></code></p></li>
+</ul>
+</li>
+<li><p>MPAS-Ocean copies files required by Polaris into the build directory so you
+can reuse the same source checkout to create builds for different machines,
+compilers, or MPI libraries without conflicts.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="model.html" class="btn btn-neutral float-left" title="Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="parallel.html" class="btn btn-neutral float-right" title="Parallel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.9.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

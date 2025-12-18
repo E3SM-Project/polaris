@@ -1,0 +1,53 @@
+﻿polaris.ocean.model.OceanModelStep
+==================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. autoclass:: OceanModelStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OceanModelStep.__init__
+      ~OceanModelStep.add_dependency
+      ~OceanModelStep.add_input_file
+      ~OceanModelStep.add_model_config_options
+      ~OceanModelStep.add_namelist_file
+      ~OceanModelStep.add_output_file
+      ~OceanModelStep.add_streams_file
+      ~OceanModelStep.add_yaml_file
+      ~OceanModelStep.compute_cell_count
+      ~OceanModelStep.constrain_resources
+      ~OceanModelStep.dynamic_model_config
+      ~OceanModelStep.map_yaml_configs
+      ~OceanModelStep.map_yaml_options
+      ~OceanModelStep.map_yaml_streams
+      ~OceanModelStep.map_yaml_to_namelist
+      ~OceanModelStep.partition
+      ~OceanModelStep.process_inputs_and_outputs
+      ~OceanModelStep.run
+      ~OceanModelStep.runtime_setup
+      ~OceanModelStep.set_model_resources
+      ~OceanModelStep.set_resources
+      ~OceanModelStep.set_shared_config
+      ~OceanModelStep.setup
+      ~OceanModelStep.update_namelist_eos
+      ~OceanModelStep.update_namelist_pio
+      ~OceanModelStep.validate_baselines
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OceanModelStep.component
+   
+   

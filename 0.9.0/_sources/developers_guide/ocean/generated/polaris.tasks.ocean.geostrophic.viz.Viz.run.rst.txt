@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.geostrophic.viz.Viz.run
+===========================================
+
+.. currentmodule:: polaris.tasks.ocean.geostrophic.viz
+
+.. automethod:: Viz.run

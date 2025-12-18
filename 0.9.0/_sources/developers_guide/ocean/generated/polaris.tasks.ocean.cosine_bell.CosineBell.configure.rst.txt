@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.cosine\_bell.CosineBell.configure
+=====================================================
+
+.. currentmodule:: polaris.tasks.ocean.cosine_bell
+
+.. automethod:: CosineBell.configure

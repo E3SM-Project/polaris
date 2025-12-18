@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview: module code</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Overview: module code</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>All modules for which code is available</h1>
+<ul><li><a href="polaris/__main__.html">polaris.__main__</a></li>
+<li><a href="polaris/build/mpas_ocean.html">polaris.build.mpas_ocean</a></li>
+<li><a href="polaris/build/omega.html">polaris.build.omega</a></li>
+<li><a href="polaris/cache.html">polaris.cache</a></li>
+<li><a href="polaris/component.html">polaris.component</a></li>
+<li><a href="polaris/config.html">polaris.config</a></li>
+<li><a href="polaris/io.html">polaris.io</a></li>
+<li><a href="polaris/job.html">polaris.job</a></li>
+<li><a href="polaris/list.html">polaris.list</a></li>
+<li><a href="polaris/logging.html">polaris.logging</a></li>
+<li><a href="polaris/mesh/base.html">polaris.mesh.base</a></li>
+<ul><li><a href="polaris/mesh/base/add.html">polaris.mesh.base.add</a></li>
+<li><a href="polaris/mesh/base/rrs.html">polaris.mesh.base.rrs</a></li>
+<li><a href="polaris/mesh/base/so.html">polaris.mesh.base.so</a></li>
+</ul><li><a href="polaris/mesh/planar.html">polaris.mesh.planar</a></li>
+<li><a href="polaris/mesh/spherical.html">polaris.mesh.spherical</a></li>
+<li><a href="polaris/model_step.html">polaris.model_step</a></li>
+<li><a href="polaris/mpas/area.html">polaris.mpas.area</a></li>
+<li><a href="polaris/mpas/mask.html">polaris.mpas.mask</a></li>
+<li><a href="polaris/mpas/time.html">polaris.mpas.time</a></li>
+<li><a href="polaris/namelist.html">polaris.namelist</a></li>
+<li><a href="polaris/ocean/convergence.html">polaris.ocean.convergence</a></li>
+<ul><li><a href="polaris/ocean/convergence/analysis.html">polaris.ocean.convergence.analysis</a></li>
+<li><a href="polaris/ocean/convergence/forward.html">polaris.ocean.convergence.forward</a></li>
+<li><a href="polaris/ocean/convergence/spherical/forward.html">polaris.ocean.convergence.spherical.forward</a></li>
+</ul><li><a href="polaris/ocean/ice_shelf.html">polaris.ocean.ice_shelf</a></li>
+<ul><li><a href="polaris/ocean/ice_shelf/ssh_adjustment.html">polaris.ocean.ice_shelf.ssh_adjustment</a></li>
+<li><a href="polaris/ocean/ice_shelf/ssh_forward.html">polaris.ocean.ice_shelf.ssh_forward</a></li>
+</ul><li><a href="polaris/ocean/model/ocean_io_step.html">polaris.ocean.model.ocean_io_step</a></li>
+<li><a href="polaris/ocean/model/ocean_model_step.html">polaris.ocean.model.ocean_model_step</a></li>
+<li><a href="polaris/ocean/model/time.html">polaris.ocean.model.time</a></li>
+<li><a href="polaris/ocean/rpe.html">polaris.ocean.rpe</a></li>
+<li><a href="polaris/ocean/vertical.html">polaris.ocean.vertical</a></li>
+<ul><li><a href="polaris/ocean/vertical/grid_1d.html">polaris.ocean.vertical.grid_1d</a></li>
+<li><a href="polaris/ocean/vertical/partial_cells.html">polaris.ocean.vertical.partial_cells</a></li>
+<li><a href="polaris/ocean/vertical/sigma.html">polaris.ocean.vertical.sigma</a></li>
+<li><a href="polaris/ocean/vertical/zlevel.html">polaris.ocean.vertical.zlevel</a></li>
+<li><a href="polaris/ocean/vertical/zstar.html">polaris.ocean.vertical.zstar</a></li>
+</ul><li><a href="polaris/parallel.html">polaris.parallel</a></li>
+<ul><li><a href="polaris/parallel/login.html">polaris.parallel.login</a></li>
+<li><a href="polaris/parallel/pbs.html">polaris.parallel.pbs</a></li>
+<li><a href="polaris/parallel/single_node.html">polaris.parallel.single_node</a></li>
+<li><a href="polaris/parallel/slurm.html">polaris.parallel.slurm</a></li>
+<li><a href="polaris/parallel/system.html">polaris.parallel.system</a></li>
+</ul><li><a href="polaris/provenance.html">polaris.provenance</a></li>
+<li><a href="polaris/remap/mapping_file_step.html">polaris.remap.mapping_file_step</a></li>
+<li><a href="polaris/resolution.html">polaris.resolution</a></li>
+<li><a href="polaris/run.html">polaris.run</a></li>
+<ul><li><a href="polaris/run/serial.html">polaris.run.serial</a></li>
+</ul><li><a href="polaris/setup.html">polaris.setup</a></li>
+<li><a href="polaris/step.html">polaris.step</a></li>
+<li><a href="polaris/streams.html">polaris.streams</a></li>
+<li><a href="polaris/suite.html">polaris.suite</a></li>
+<li><a href="polaris/task.html">polaris.task</a></li>
+<li><a href="polaris/tasks/e3sm/init/add_tasks.html">polaris.tasks.e3sm.init.add_tasks</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/combine/step.html">polaris.tasks.e3sm.init.topo.combine.step</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/combine/task.html">polaris.tasks.e3sm.init.topo.combine.task</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/combine/viz.html">polaris.tasks.e3sm.init.topo.combine.viz</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/cull/cull.html">polaris.tasks.e3sm.init.topo.cull.cull</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/cull/mask.html">polaris.tasks.e3sm.init.topo.cull.mask</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/cull/task.html">polaris.tasks.e3sm.init.topo.cull.task</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/remap/mask.html">polaris.tasks.e3sm.init.topo.remap.mask</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/remap/remap.html">polaris.tasks.e3sm.init.topo.remap.remap</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/remap/task.html">polaris.tasks.e3sm.init.topo.remap.task</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/remap/viz.html">polaris.tasks.e3sm.init.topo.remap.viz</a></li>
+<li><a href="polaris/tasks/mesh/add_tasks.html">polaris.tasks.mesh.add_tasks</a></li>
+<li><a href="polaris/tasks/mesh/base.html">polaris.tasks.mesh.base</a></li>
+<li><a href="polaris/tasks/ocean.html">polaris.tasks.ocean</a></li>
+<ul><li><a href="polaris/tasks/ocean/add_tasks.html">polaris.tasks.ocean.add_tasks</a></li>
+<li><a href="polaris/tasks/ocean/baroclinic_channel.html">polaris.tasks.ocean.baroclinic_channel</a></li>
+<ul><li><a href="polaris/tasks/ocean/baroclinic_channel/decomp.html">polaris.tasks.ocean.baroclinic_channel.decomp</a></li>
+<li><a href="polaris/tasks/ocean/baroclinic_channel/default.html">polaris.tasks.ocean.baroclinic_channel.default</a></li>
+<li><a href="polaris/tasks/ocean/baroclinic_channel/forward.html">polaris.tasks.ocean.baroclinic_channel.forward</a></li>
+<li><a href="polaris/tasks/ocean/baroclinic_channel/init.html">polaris.tasks.ocean.baroclinic_channel.init</a></li>
+<li><a href="polaris/tasks/ocean/baroclinic_channel/restart.html">polaris.tasks.ocean.baroclinic_channel.restart</a></li>
+<ul><li><a href="polaris/tasks/ocean/baroclinic_channel/restart/restart_step.html">polaris.tasks.ocean.baroclinic_channel.restart.restart_step</a></li>
+</ul><li><a href="polaris/tasks/ocean/baroclinic_channel/rpe.html">polaris.tasks.ocean.baroclinic_channel.rpe</a></li>
+<ul><li><a href="polaris/tasks/ocean/baroclinic_channel/rpe/analysis.html">polaris.tasks.ocean.baroclinic_channel.rpe.analysis</a></li>
+</ul><li><a href="polaris/tasks/ocean/baroclinic_channel/threads.html">polaris.tasks.ocean.baroclinic_channel.threads</a></li>
+<li><a href="polaris/tasks/ocean/baroclinic_channel/validate.html">polaris.tasks.ocean.baroclinic_channel.validate</a></li>
+<li><a href="polaris/tasks/ocean/baroclinic_channel/viz.html">polaris.tasks.ocean.baroclinic_channel.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/barotropic_channel.html">polaris.tasks.ocean.barotropic_channel</a></li>
+<ul><li><a href="polaris/tasks/ocean/barotropic_channel/default.html">polaris.tasks.ocean.barotropic_channel.default</a></li>
+<li><a href="polaris/tasks/ocean/barotropic_channel/forward.html">polaris.tasks.ocean.barotropic_channel.forward</a></li>
+<li><a href="polaris/tasks/ocean/barotropic_channel/init.html">polaris.tasks.ocean.barotropic_channel.init</a></li>
+<li><a href="polaris/tasks/ocean/barotropic_channel/viz.html">polaris.tasks.ocean.barotropic_channel.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/barotropic_gyre.html">polaris.tasks.ocean.barotropic_gyre</a></li>
+<ul><li><a href="polaris/tasks/ocean/barotropic_gyre/analysis.html">polaris.tasks.ocean.barotropic_gyre.analysis</a></li>
+<li><a href="polaris/tasks/ocean/barotropic_gyre/forward.html">polaris.tasks.ocean.barotropic_gyre.forward</a></li>
+<li><a href="polaris/tasks/ocean/barotropic_gyre/init.html">polaris.tasks.ocean.barotropic_gyre.init</a></li>
+</ul><li><a href="polaris/tasks/ocean/cosine_bell.html">polaris.tasks.ocean.cosine_bell</a></li>
+<ul><li><a href="polaris/tasks/ocean/cosine_bell/analysis.html">polaris.tasks.ocean.cosine_bell.analysis</a></li>
+<li><a href="polaris/tasks/ocean/cosine_bell/decomp.html">polaris.tasks.ocean.cosine_bell.decomp</a></li>
+<li><a href="polaris/tasks/ocean/cosine_bell/forward.html">polaris.tasks.ocean.cosine_bell.forward</a></li>
+<li><a href="polaris/tasks/ocean/cosine_bell/init.html">polaris.tasks.ocean.cosine_bell.init</a></li>
+<li><a href="polaris/tasks/ocean/cosine_bell/restart.html">polaris.tasks.ocean.cosine_bell.restart</a></li>
+<ul><li><a href="polaris/tasks/ocean/cosine_bell/restart/restart_step.html">polaris.tasks.ocean.cosine_bell.restart.restart_step</a></li>
+</ul><li><a href="polaris/tasks/ocean/cosine_bell/validate.html">polaris.tasks.ocean.cosine_bell.validate</a></li>
+<li><a href="polaris/tasks/ocean/cosine_bell/viz.html">polaris.tasks.ocean.cosine_bell.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/customizable_viz.html">polaris.tasks.ocean.customizable_viz</a></li>
+<ul><li><a href="polaris/tasks/ocean/customizable_viz/viz_horiz_field.html">polaris.tasks.ocean.customizable_viz.viz_horiz_field</a></li>
+<li><a href="polaris/tasks/ocean/customizable_viz/viz_transect.html">polaris.tasks.ocean.customizable_viz.viz_transect</a></li>
+</ul><li><a href="polaris/tasks/ocean/geostrophic.html">polaris.tasks.ocean.geostrophic</a></li>
+<ul><li><a href="polaris/tasks/ocean/geostrophic/analysis.html">polaris.tasks.ocean.geostrophic.analysis</a></li>
+<li><a href="polaris/tasks/ocean/geostrophic/forward.html">polaris.tasks.ocean.geostrophic.forward</a></li>
+<li><a href="polaris/tasks/ocean/geostrophic/init.html">polaris.tasks.ocean.geostrophic.init</a></li>
+<li><a href="polaris/tasks/ocean/geostrophic/viz.html">polaris.tasks.ocean.geostrophic.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/ice_shelf_2d.html">polaris.tasks.ocean.ice_shelf_2d</a></li>
+<ul><li><a href="polaris/tasks/ocean/ice_shelf_2d/default.html">polaris.tasks.ocean.ice_shelf_2d.default</a></li>
+<li><a href="polaris/tasks/ocean/ice_shelf_2d/forward.html">polaris.tasks.ocean.ice_shelf_2d.forward</a></li>
+<li><a href="polaris/tasks/ocean/ice_shelf_2d/init.html">polaris.tasks.ocean.ice_shelf_2d.init</a></li>
+<li><a href="polaris/tasks/ocean/ice_shelf_2d/validate.html">polaris.tasks.ocean.ice_shelf_2d.validate</a></li>
+<li><a href="polaris/tasks/ocean/ice_shelf_2d/viz.html">polaris.tasks.ocean.ice_shelf_2d.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/inertial_gravity_wave.html">polaris.tasks.ocean.inertial_gravity_wave</a></li>
+<ul><li><a href="polaris/tasks/ocean/inertial_gravity_wave/analysis.html">polaris.tasks.ocean.inertial_gravity_wave.analysis</a></li>
+<li><a href="polaris/tasks/ocean/inertial_gravity_wave/exact_solution.html">polaris.tasks.ocean.inertial_gravity_wave.exact_solution</a></li>
+<li><a href="polaris/tasks/ocean/inertial_gravity_wave/forward.html">polaris.tasks.ocean.inertial_gravity_wave.forward</a></li>
+<li><a href="polaris/tasks/ocean/inertial_gravity_wave/init.html">polaris.tasks.ocean.inertial_gravity_wave.init</a></li>
+<li><a href="polaris/tasks/ocean/inertial_gravity_wave/viz.html">polaris.tasks.ocean.inertial_gravity_wave.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/internal_wave.html">polaris.tasks.ocean.internal_wave</a></li>
+<ul><li><a href="polaris/tasks/ocean/internal_wave/default.html">polaris.tasks.ocean.internal_wave.default</a></li>
+<li><a href="polaris/tasks/ocean/internal_wave/forward.html">polaris.tasks.ocean.internal_wave.forward</a></li>
+<li><a href="polaris/tasks/ocean/internal_wave/init.html">polaris.tasks.ocean.internal_wave.init</a></li>
+<li><a href="polaris/tasks/ocean/internal_wave/rpe.html">polaris.tasks.ocean.internal_wave.rpe</a></li>
+<ul><li><a href="polaris/tasks/ocean/internal_wave/rpe/analysis.html">polaris.tasks.ocean.internal_wave.rpe.analysis</a></li>
+</ul><li><a href="polaris/tasks/ocean/internal_wave/viz.html">polaris.tasks.ocean.internal_wave.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/manufactured_solution.html">polaris.tasks.ocean.manufactured_solution</a></li>
+<ul><li><a href="polaris/tasks/ocean/manufactured_solution/analysis.html">polaris.tasks.ocean.manufactured_solution.analysis</a></li>
+<li><a href="polaris/tasks/ocean/manufactured_solution/exact_solution.html">polaris.tasks.ocean.manufactured_solution.exact_solution</a></li>
+<li><a href="polaris/tasks/ocean/manufactured_solution/forward.html">polaris.tasks.ocean.manufactured_solution.forward</a></li>
+<li><a href="polaris/tasks/ocean/manufactured_solution/init.html">polaris.tasks.ocean.manufactured_solution.init</a></li>
+<li><a href="polaris/tasks/ocean/manufactured_solution/viz.html">polaris.tasks.ocean.manufactured_solution.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/merry_go_round.html">polaris.tasks.ocean.merry_go_round</a></li>
+<ul><li><a href="polaris/tasks/ocean/merry_go_round/analysis.html">polaris.tasks.ocean.merry_go_round.analysis</a></li>
+<li><a href="polaris/tasks/ocean/merry_go_round/default.html">polaris.tasks.ocean.merry_go_round.default</a></li>
+<ul><li><a href="polaris/tasks/ocean/merry_go_round/default/viz.html">polaris.tasks.ocean.merry_go_round.default.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/merry_go_round/forward.html">polaris.tasks.ocean.merry_go_round.forward</a></li>
+<li><a href="polaris/tasks/ocean/merry_go_round/init.html">polaris.tasks.ocean.merry_go_round.init</a></li>
+<li><a href="polaris/tasks/ocean/merry_go_round/viz.html">polaris.tasks.ocean.merry_go_round.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/overflow.html">polaris.tasks.ocean.overflow</a></li>
+<ul><li><a href="polaris/tasks/ocean/overflow/default.html">polaris.tasks.ocean.overflow.default</a></li>
+<li><a href="polaris/tasks/ocean/overflow/forward.html">polaris.tasks.ocean.overflow.forward</a></li>
+<li><a href="polaris/tasks/ocean/overflow/init.html">polaris.tasks.ocean.overflow.init</a></li>
+<li><a href="polaris/tasks/ocean/overflow/rpe.html">polaris.tasks.ocean.overflow.rpe</a></li>
+<ul><li><a href="polaris/tasks/ocean/overflow/rpe/analysis.html">polaris.tasks.ocean.overflow.rpe.analysis</a></li>
+</ul><li><a href="polaris/tasks/ocean/overflow/viz.html">polaris.tasks.ocean.overflow.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/single_column.html">polaris.tasks.ocean.single_column</a></li>
+<ul><li><a href="polaris/tasks/ocean/single_column/cvmix.html">polaris.tasks.ocean.single_column.cvmix</a></li>
+<li><a href="polaris/tasks/ocean/single_column/ekman.html">polaris.tasks.ocean.single_column.ekman</a></li>
+<ul><li><a href="polaris/tasks/ocean/single_column/ekman/analysis.html">polaris.tasks.ocean.single_column.ekman.analysis</a></li>
+</ul><li><a href="polaris/tasks/ocean/single_column/forward.html">polaris.tasks.ocean.single_column.forward</a></li>
+<li><a href="polaris/tasks/ocean/single_column/ideal_age.html">polaris.tasks.ocean.single_column.ideal_age</a></li>
+<li><a href="polaris/tasks/ocean/single_column/inertial.html">polaris.tasks.ocean.single_column.inertial</a></li>
+<ul><li><a href="polaris/tasks/ocean/single_column/inertial/analysis.html">polaris.tasks.ocean.single_column.inertial.analysis</a></li>
+</ul><li><a href="polaris/tasks/ocean/single_column/init.html">polaris.tasks.ocean.single_column.init</a></li>
+<li><a href="polaris/tasks/ocean/single_column/viz.html">polaris.tasks.ocean.single_column.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/sphere_transport.html">polaris.tasks.ocean.sphere_transport</a></li>
+<ul><li><a href="polaris/tasks/ocean/sphere_transport/analysis.html">polaris.tasks.ocean.sphere_transport.analysis</a></li>
+<li><a href="polaris/tasks/ocean/sphere_transport/filament_analysis.html">polaris.tasks.ocean.sphere_transport.filament_analysis</a></li>
+<li><a href="polaris/tasks/ocean/sphere_transport/forward.html">polaris.tasks.ocean.sphere_transport.forward</a></li>
+<li><a href="polaris/tasks/ocean/sphere_transport/init.html">polaris.tasks.ocean.sphere_transport.init</a></li>
+<li><a href="polaris/tasks/ocean/sphere_transport/mixing_analysis.html">polaris.tasks.ocean.sphere_transport.mixing_analysis</a></li>
+<li><a href="polaris/tasks/ocean/sphere_transport/viz.html">polaris.tasks.ocean.sphere_transport.viz</a></li>
+</ul></ul><li><a href="polaris/tasks/seaice/add_tasks.html">polaris.tasks.seaice.add_tasks</a></li>
+<li><a href="polaris/tasks/seaice/single_column.html">polaris.tasks.seaice.single_column</a></li>
+<ul><li><a href="polaris/tasks/seaice/single_column/exact_restart.html">polaris.tasks.seaice.single_column.exact_restart</a></li>
+<ul><li><a href="polaris/tasks/seaice/single_column/exact_restart/validate.html">polaris.tasks.seaice.single_column.exact_restart.validate</a></li>
+</ul><li><a href="polaris/tasks/seaice/single_column/forward.html">polaris.tasks.seaice.single_column.forward</a></li>
+<li><a href="polaris/tasks/seaice/single_column/standard_physics.html">polaris.tasks.seaice.single_column.standard_physics</a></li>
+<ul><li><a href="polaris/tasks/seaice/single_column/standard_physics/viz.html">polaris.tasks.seaice.single_column.standard_physics.viz</a></li>
+</ul></ul><li><a href="polaris/validate.html">polaris.validate</a></li>
+<li><a href="polaris/viz/helper.html">polaris.viz.helper</a></li>
+<li><a href="polaris/viz/planar.html">polaris.viz.planar</a></li>
+<li><a href="polaris/viz/spherical.html">polaris.viz.spherical</a></li>
+<li><a href="polaris/viz/style.html">polaris.viz.style</a></li>
+<li><a href="polaris/yaml.html">polaris.yaml</a></li>
+</ul>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.9.0">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.baroclinic\_channel.validate.Validate.run
+=============================================================
+
+.. currentmodule:: polaris.tasks.ocean.baroclinic_channel.validate
+
+.. automethod:: Validate.run

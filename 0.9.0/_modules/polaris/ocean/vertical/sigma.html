@@ -1,0 +1,321 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.ocean.vertical.sigma</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../vertical.html">polaris.ocean.vertical</a></li>
+      <li class="breadcrumb-item active">polaris.ocean.vertical.sigma</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.ocean.vertical.sigma</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.grid_1d</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_1d_grid</span>
+
+
+<div class="viewcode-block" id="init_sigma_vertical_coord">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.sigma.init_sigma_vertical_coord.html#polaris.ocean.vertical.sigma.init_sigma_vertical_coord">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">init_sigma_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a sigma (terrain-following) vertical coordinate based on the config</span>
+<span class="sd">    options in the `vertical_grid`` section and the ``bottomDepth`` and</span>
+<span class="sd">    ``ssh`` variables of the mesh data set.</span>
+
+<span class="sd">    The following new variables will be added to the data set:</span>
+
+<span class="sd">      * ``minLevelCell`` - the index of the top valid layer</span>
+
+<span class="sd">      * ``maxLevelCell`` - the index of the bottom valid layer</span>
+
+<span class="sd">      * ``cellMask`` - a mask of where cells are valid</span>
+
+<span class="sd">      * ``layerThickness`` - the thickness of each layer</span>
+
+<span class="sd">      * ``restingThickness`` - the thickness of each layer stretched as if</span>
+<span class="sd">        ``ssh = 0``</span>
+
+<span class="sd">      * ``zMid`` - the elevation of the midpoint of each layer</span>
+
+<span class="sd">    The sigma coordinate makes use of a 1D reference vertical grid. The</span>
+<span class="sd">    following variables associated with that field are also added to the mesh:</span>
+
+<span class="sd">      * ``refTopDepth`` - the positive-down depth of the top of each ref. level</span>
+
+<span class="sd">      * ``refZMid`` - the positive-down depth of the middle of each ref. level</span>
+
+<span class="sd">      * ``refBottomDepth`` - the positive-down depth of the bottom of each ref.</span>
+<span class="sd">        level</span>
+
+<span class="sd">      * ``refInterfaces`` - the positive-down depth of the interfaces between</span>
+<span class="sd">        ref. levels (with ``nVertLevels`` + 1 elements).</span>
+
+<span class="sd">      * ``vertCoordMovementWeights`` - the weights (all ones) for coordinate</span>
+<span class="sd">        movement</span>
+
+<span class="sd">    There is considerable redundancy between these variables but each is</span>
+<span class="sd">    sometimes convenient.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Configuration options with parameters used to construct the vertical</span>
+<span class="sd">        grid</span>
+
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        A data set containing ``bottomDepth`` and ``ssh`` variables used to</span>
+<span class="sd">        construct the vertical coordinate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">add_1d_grid</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;vertCoordMovementWeights&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">refBottomDepth</span><span class="p">)</span>
+
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">ds</span><span class="o">.</span><span class="n">ssh</span>
+    <span class="n">cell_mask</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">refBottomDepth</span><span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;cellMask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cell_mask</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
+
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;minLevelCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;maxLevelCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">xarray</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span>
+    <span class="p">)</span>
+
+    <span class="n">resting_ssh</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">)</span>
+
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;restingThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_sigma_layer_thickness</span><span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">refInterfaces</span><span class="p">,</span> <span class="n">resting_ssh</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span>
+    <span class="p">)</span>
+
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_sigma_layer_thickness</span><span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">refInterfaces</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="update_sigma_layer_thickness">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.sigma.update_sigma_layer_thickness.html#polaris.ocean.vertical.sigma.update_sigma_layer_thickness">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_sigma_layer_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the sigma vertical coordinate layer thicknesses based on the</span>
+<span class="sd">    ``bottomDepth`` and ``ssh`` variables of the mesh data set.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Configuration options with parameters used to construct the vertical</span>
+<span class="sd">        grid</span>
+
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        A data set containing ``bottomDepth`` and ``ssh`` variables used to</span>
+<span class="sd">        construct the vertical coordinate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_sigma_layer_thickness</span><span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">refInterfaces</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_sigma_layer_thickness</span><span class="p">(</span>
+    <span class="n">ref_interfaces</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">bottom_depth</span><span class="p">,</span> <span class="n">max_level</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute sigma layer thickness by stretching restingThickness based on ssh</span>
+<span class="sd">    and bottom_depth</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ref_interfaces : xarray.DataArray</span>
+<span class="sd">        the interfaces of the reference coordinate used to define sigma layer</span>
+<span class="sd">        spacing.  The interfaces are renormalized to be between 0 and 1</span>
+
+<span class="sd">    ssh : xarray.DataArray</span>
+<span class="sd">        The sea surface height</span>
+
+<span class="sd">    bottom_depth : xarray.DataArray</span>
+<span class="sd">        The positive-down depth of the seafloor</span>
+
+<span class="sd">    max_level : int, optional</span>
+<span class="sd">        The maximum number of levels used for the sigma coordinate.  The</span>
+<span class="sd">        default is ``nVertLevels``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    layer_thickness : xarray.DataArray</span>
+<span class="sd">        The thickness of each layer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_vert_levels</span> <span class="o">=</span> <span class="n">ref_interfaces</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">max_level</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_level</span> <span class="o">=</span> <span class="n">n_vert_levels</span>
+
+    <span class="c1"># renormalize ref_interfaces to a coordinate between 0 and 1</span>
+    <span class="n">stretch</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref_interfaces</span> <span class="o">-</span> <span class="n">ref_interfaces</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">stretch</span> <span class="o">=</span> <span class="n">stretch</span> <span class="o">/</span> <span class="n">stretch</span><span class="p">[</span><span class="n">max_level</span><span class="p">]</span>
+
+    <span class="n">column_thickness</span> <span class="o">=</span> <span class="n">ssh</span> <span class="o">+</span> <span class="n">bottom_depth</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">bottom_depth</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">ssh</span>
+    <span class="n">layer_thickness</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">z_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_level</span><span class="p">):</span>
+        <span class="n">thickness</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">stretch</span><span class="p">[</span><span class="n">z_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">stretch</span><span class="p">[</span><span class="n">z_index</span><span class="p">]</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="n">column_thickness</span>
+        <span class="n">thickness</span> <span class="o">=</span> <span class="n">thickness</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">layer_thickness</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thickness</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_level</span><span class="p">,</span> <span class="n">n_vert_levels</span><span class="p">):</span>
+        <span class="n">layer_thickness</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xarray</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">bottom_depth</span><span class="p">))</span>
+    <span class="n">layer_thickness_array</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">layer_thickness</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">layer_thickness_array</span> <span class="o">=</span> <span class="n">layer_thickness_array</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+        <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">layer_thickness_array</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.9.0">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>
