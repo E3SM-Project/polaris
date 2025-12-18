@@ -577,14 +577,14 @@ def _run_task(task, available_resources):
         step_time = time.time() - step_start
         step_time_str = str(timedelta(seconds=round(step_time)))
 
-        compared, status = step.verify_properties()
+        compared, status = step.check_properties()
         if compared:
             if status:
                 property_str = pass_str
             else:
                 property_str = fail_str
             _print_to_stdout(
-                task, f'          property verification:   {property_str}'
+                task, f'          property checks:   {property_str}'
             )
             property_passed = _accumulate_baselines(property_passed, status)
 

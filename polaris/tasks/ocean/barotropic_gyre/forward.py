@@ -107,7 +107,7 @@ class Forward(OceanModelStep):
         self.add_output_file(
             filename='output.nc',
             validate_vars=['layerThickness', 'normalVelocity'],
-            verify_properties=['mass conservation'],
+            check_properties=['mass conservation'],
         )
 
         self.package = 'polaris.tasks.ocean.barotropic_gyre'

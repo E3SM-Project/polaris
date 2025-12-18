@@ -368,16 +368,16 @@ class OceanModelStep(ModelStep):
             options=replacements, config_model='ocean'
         )
 
-    def verify_properties(self):
+    def check_properties(self):
         checked = False
         success = True
         if self.work_dir is None:
             raise ValueError(
                 'The work directory must be set before the step '
-                'output properties can be verified.'
+                'output properties can be checked.'
             )
         failed_properties = []
-        for filename, properties in self.properties_to_verify.items():
+        for filename, properties in self.properties_to_check.items():
             filename = str(filename)
             mesh_filename = os.path.join(self.work_dir, 'mesh.nc')
             this_filename = os.path.join(self.work_dir, filename)

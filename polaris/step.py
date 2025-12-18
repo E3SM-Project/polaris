@@ -262,7 +262,7 @@ class Step:
         # may be set during setup if there is a baseline for comparison
         self.baseline_dir = None
         self.validate_vars = dict()
-        self.properties_to_verify = dict()
+        self.properties_to_check = dict()
         self.setup_complete = False
 
         # these will be set before running the step, dummy placeholders for now
@@ -479,7 +479,7 @@ class Step:
         )
 
     def add_output_file(
-        self, filename, validate_vars=None, verify_properties=None
+        self, filename, validate_vars=None, check_properties=None
     ):
         """
         Add the output file that must be produced by this step and may be made
@@ -502,8 +502,8 @@ class Step:
         self.outputs.append(filename)
         if validate_vars is not None:
             self.validate_vars[filename] = validate_vars
-        if verify_properties is not None:
-            self.properties_to_verify[filename] = verify_properties
+        if check_properties is not None:
+            self.properties_to_check[filename] = check_properties
 
     def add_dependency(self, step, name=None):
         """
@@ -539,9 +539,9 @@ class Step:
         target = f'{step.path}/step_after_run.pickle'
         self.add_input_file(filename=filename, work_dir_target=target)
 
-    def verify_properties(self):
+    def check_properties(self):
         """
-        This method should be overridden to verify properties of step outputs
+        This method should be overridden to check properties of step outputs
         """
         checked = False
         success = True
