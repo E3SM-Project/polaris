@@ -303,7 +303,7 @@ variables.</p>
 <code class="docutils literal notranslate"><span class="pre">polaris/machines</span></code>.  The config file needs to describe the parallel
 environment and some paths where shared Spack environments will be installed
 and shared data will be downloaded.  The easiest place to start is one of the
-examples provided (machine <code class="docutils literal notranslate"><span class="pre">morpheus</span></code> for now, but more will be added soon.)</p>
+examples provided (machine <code class="docutils literal notranslate"><span class="pre">katara</span></code> for now, but more will be added soon.)</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># The parallel section describes options related to running jobs in parallel</span>
 <span class="k">[parallel]</span>
 
@@ -334,11 +334,11 @@ examples provided (machine <code class="docutils literal notranslate"><span clas
 <span class="k">[paths]</span>
 
 <span class="c1"># A shared root directory where MPAS standalone data can be found</span>
-<span class="na">database_root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/home/xylar/data/mpas/mpas_standalonedata</span>
+<span class="na">database_root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/home/xylar/data/polaris</span>
 
 <span class="c1"># the path to the base conda environment where polaris environments have</span>
 <span class="c1"># been created</span>
-<span class="na">polaris_envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/home/xylar/data/mpas/polaris_envs</span>
+<span class="na">polaris_envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/home/xylar/data/polaris_envs</span>
 
 
 <span class="c1"># Options related to deploying a polaris conda environment on supported</span>
@@ -348,11 +348,14 @@ examples provided (machine <code class="docutils literal notranslate"><span clas
 <span class="c1"># the compiler set to use for system libraries and MPAS builds</span>
 <span class="na">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">gnu</span>
 
+<span class="c1"># the compiler to use to build software (e.g. ESMF and MOAB) with spack</span>
+<span class="na">software_compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">gnu</span>
+
 <span class="c1"># the system MPI library to use for gnu compiler</span>
 <span class="na">mpi_gnu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">openmpi</span>
 
 <span class="c1"># the base path for spack environments used by polaris</span>
-<span class="na">spack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/home/xylar/data/mpas/spack</span>
+<span class="na">spack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/home/xylar/data/polaris/spack</span>
 
 <span class="c1"># whether to use the same modules for hdf5, netcdf-c, netcdf-fortran and</span>
 <span class="c1"># pnetcdf as E3SM (spack modules are used otherwise)</span>
@@ -363,7 +366,15 @@ examples provided (machine <code class="docutils literal notranslate"><span clas
 <span class="k">[discovery]</span>
 
 <span class="c1"># a substring used to identify this machine from its hostname</span>
-<span class="na">hostname_contains</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">morpheus</span>
+<span class="na">hostname_contains</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">katara</span>
+
+
+<span class="c1"># Config options related to building components</span>
+<span class="k">[build]</span>
+
+<span class="c1"># make targets for different compilers and MPI libraries</span>
+<span class="na">gnu_openmpi_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">gfortran</span>
+<span class="na">gnu_mpich_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">gfortran</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">[parallel]</span></code> section should describe the type of parallel queuing

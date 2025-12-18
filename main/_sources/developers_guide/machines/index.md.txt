@@ -159,7 +159,7 @@ The first step in adding a new supported machine to add a config file in
 `polaris/machines`.  The config file needs to describe the parallel
 environment and some paths where shared Spack environments will be installed
 and shared data will be downloaded.  The easiest place to start is one of the
-examples provided (machine `morpheus` for now, but more will be added soon.)
+examples provided (machine `katara` for now, but more will be added soon.)
 
 ```cfg
 # The parallel section describes options related to running jobs in parallel
@@ -192,11 +192,11 @@ modules_after = False
 [paths]
 
 # A shared root directory where MPAS standalone data can be found
-database_root = /home/xylar/data/mpas/mpas_standalonedata
+database_root = /home/xylar/data/polaris
 
 # the path to the base conda environment where polaris environments have
 # been created
-polaris_envs = /home/xylar/data/mpas/polaris_envs
+polaris_envs = /home/xylar/data/polaris_envs
 
 
 # Options related to deploying a polaris conda environment on supported
@@ -206,11 +206,14 @@ polaris_envs = /home/xylar/data/mpas/polaris_envs
 # the compiler set to use for system libraries and MPAS builds
 compiler = gnu
 
+# the compiler to use to build software (e.g. ESMF and MOAB) with spack
+software_compiler = gnu
+
 # the system MPI library to use for gnu compiler
 mpi_gnu = openmpi
 
 # the base path for spack environments used by polaris
-spack = /home/xylar/data/mpas/spack
+spack = /home/xylar/data/polaris/spack
 
 # whether to use the same modules for hdf5, netcdf-c, netcdf-fortran and
 # pnetcdf as E3SM (spack modules are used otherwise)
@@ -221,7 +224,15 @@ use_e3sm_hdf5_netcdf = False
 [discovery]
 
 # a substring used to identify this machine from its hostname
-hostname_contains = morpheus
+hostname_contains = katara
+
+
+# Config options related to building components
+[build]
+
+# make targets for different compilers and MPI libraries
+gnu_openmpi_target = gfortran
+gnu_mpich_target = gfortran
 ```
 
 The `[parallel]` section should describe the type of parallel queuing
