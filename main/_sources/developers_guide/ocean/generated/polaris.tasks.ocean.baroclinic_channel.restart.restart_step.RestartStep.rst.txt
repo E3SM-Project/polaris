@@ -21,6 +21,7 @@
       ~RestartStep.add_output_file
       ~RestartStep.add_streams_file
       ~RestartStep.add_yaml_file
+      ~RestartStep.check_properties
       ~RestartStep.compute_cell_count
       ~RestartStep.constrain_resources
       ~RestartStep.dynamic_model_config

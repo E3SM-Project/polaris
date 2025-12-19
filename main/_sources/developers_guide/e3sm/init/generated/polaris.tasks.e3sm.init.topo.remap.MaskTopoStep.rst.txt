@@ -17,6 +17,7 @@
       ~MaskTopoStep.add_dependency
       ~MaskTopoStep.add_input_file
       ~MaskTopoStep.add_output_file
+      ~MaskTopoStep.check_properties
       ~MaskTopoStep.constrain_resources
       ~MaskTopoStep.define_masks
       ~MaskTopoStep.process_inputs_and_outputs

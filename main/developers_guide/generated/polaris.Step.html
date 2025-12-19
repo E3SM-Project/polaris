@@ -211,6 +211,7 @@ for use in comparing variables and timers</p></li>
 <li><p><strong>validate_vars</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – A list of variables for each output file for which a baseline
 comparison should be performed if a baseline run has been provided. The
 baseline validation is performed after the step has run.</p></li>
+<li><p><strong>properties_to_check</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – A list of properties to check for each output file.</p></li>
 <li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>logging.Logger</em></a>) – A logger for output from the step</p></li>
 <li><p><strong>log_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – At run time, the name of a log file where output/errors from the step
 are being logged, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if output is to stdout/stderr</p></li>
@@ -283,31 +284,34 @@ additional subprocesses).</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code></a>([filename, target, database, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code></a>(filename[, validate_vars])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code></a>(filename[, validate_vars, ...])</p></td>
 <td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other tasks.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.constrain_resources.html#polaris.Step.constrain_resources" title="polaris.Step.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code></a>(available_resources)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.check_properties.html#polaris.Step.check_properties" title="polaris.Step.check_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_properties</span></code></a>()</p></td>
+<td><p>This method should be overridden to check properties of step outputs</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.constrain_resources.html#polaris.Step.constrain_resources" title="polaris.Step.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code></a>(available_resources)</p></td>
 <td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
 <td><p>Process the inputs to and outputs from a step added with <a class="reference internal" href="polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> and <a class="reference internal" href="polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.run.html#polaris.Step.run" title="polaris.Step.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.run.html#polaris.Step.run" title="polaris.Step.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
 <td><p>Run the step.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.runtime_setup.html#polaris.Step.runtime_setup" title="polaris.Step.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.runtime_setup.html#polaris.Step.runtime_setup" title="polaris.Step.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code></a>()</p></td>
 <td><p>Update attributes of the step at runtime before calling the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.set_resources.html#polaris.Step.set_resources" title="polaris.Step.set_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code></a>([cpus_per_task, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.set_resources.html#polaris.Step.set_resources" title="polaris.Step.set_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code></a>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.set_shared_config.html#polaris.Step.set_shared_config" title="polaris.Step.set_shared_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code></a>(config[, link])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.set_shared_config.html#polaris.Step.set_shared_config" title="polaris.Step.set_shared_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code></a>(config[, link])</p></td>
 <td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
 <td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.validate_baselines.html#polaris.Step.validate_baselines" title="polaris.Step.validate_baselines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.validate_baselines.html#polaris.Step.validate_baselines" title="polaris.Step.validate_baselines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code></a>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
 </tr>
 </tbody>

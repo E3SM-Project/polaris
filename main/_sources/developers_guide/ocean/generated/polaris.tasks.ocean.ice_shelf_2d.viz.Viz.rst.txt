@@ -17,6 +17,7 @@
       ~Viz.add_dependency
       ~Viz.add_input_file
       ~Viz.add_output_file
+      ~Viz.check_properties
       ~Viz.constrain_resources
       ~Viz.process_inputs_and_outputs
       ~Viz.run

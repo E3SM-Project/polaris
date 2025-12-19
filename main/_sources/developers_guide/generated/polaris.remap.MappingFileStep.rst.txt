@@ -17,6 +17,7 @@
       ~MappingFileStep.add_dependency
       ~MappingFileStep.add_input_file
       ~MappingFileStep.add_output_file
+      ~MappingFileStep.check_properties
       ~MappingFileStep.constrain_resources
       ~MappingFileStep.process_inputs_and_outputs
       ~MappingFileStep.run

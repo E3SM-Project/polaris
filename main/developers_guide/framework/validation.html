@@ -83,6 +83,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#datasets">Datasets</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#property-checks">Property checks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#conservation-checks">Conservation checks</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
 </ul>
 </li>
@@ -331,6 +335,50 @@ which need to have their variables renamed to the MPAS-Ocean names for use in
 Polaris.  The <code class="docutils literal notranslate"><span class="pre">ds1</span></code> and <code class="docutils literal notranslate"><span class="pre">ds2</span></code> keyword arguments are used to supply datasets
 corresponding to <code class="docutils literal notranslate"><span class="pre">filename1</span></code> and <code class="docutils literal notranslate"><span class="pre">filename2</span></code>, respectively, in such
 circumstances.</p>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="property-checks">
+<h1>Property checks<a class="headerlink" href="#property-checks" title="Link to this heading"></a></h1>
+<p>For some output files, you may wish to run checks of certain properties such as
+conservation of mass or energy. Currently, only conservation checks for the
+ocean are available.</p>
+<p>To run property checks, add a list of properties
+the keyword argument <code class="docutils literal notranslate"><span class="pre">verify_properties</span></code> to the
+:py:meth:<code class="docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code> method.  As an example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/culled_mesh.nc&#39;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+                             <span class="n">verify_properties</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mass conservation&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<section id="conservation-checks">
+<h2>Conservation checks<a class="headerlink" href="#conservation-checks" title="Link to this heading"></a></h2>
+<p>Mass, salt and energy conservation checks are available for ocean model output.
+The checks will fail if the relative change in the total quantity exceeds the
+tolerance given in</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related the ocean component</span>
+<span class="k">[ocean]</span>
+
+<span class="c1"># Tolerance for mass conservation, normalized by total mass</span>
+<span class="na">mass_conservation_tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-8</span>
+
+<span class="c1"># Tolerance for salt conservation, normalized by total salt</span>
+<span class="na">salt_conservation_tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-8</span>
+
+<span class="c1"># Tolerance for thermal energy conservation, normalized by total energy</span>
+<span class="na">energy_conservation_tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-8</span>
+</pre></div>
+</div>
+<p>As shown in the previous example, we have added a mesh file with the name
+‘mesh.nc’ because conservation checks require the area of cells.</p>
 </section>
 </section>
 

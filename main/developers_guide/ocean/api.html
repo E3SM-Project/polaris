@@ -873,6 +873,22 @@
 </section>
 <section id="ocean-framework">
 <h2>Ocean Framework<a class="headerlink" href="#ocean-framework" title="Link to this heading"></a></h2>
+<section id="conservation-utilities">
+<h3>Conservation utilities<a class="headerlink" href="#conservation-utilities" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.conservation.compute_total_mass.html#polaris.ocean.conservation.compute_total_mass" title="polaris.ocean.conservation.compute_total_mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_total_mass</span></code></a>(ds_mesh, ds)</p></td>
+<td><p>Compute the total mass in an ocean model output file using a constant density</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.conservation.compute_total_salt.html#polaris.ocean.conservation.compute_total_salt" title="polaris.ocean.conservation.compute_total_salt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_total_salt</span></code></a>(ds_mesh, ds)</p></td>
+<td><p>Compute the total salt in an ocean model output file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.conservation.compute_total_energy.html#polaris.ocean.conservation.compute_total_energy" title="polaris.ocean.conservation.compute_total_energy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_total_energy</span></code></a>(ds_mesh, ds)</p></td>
+<td><p>Compute the total heat content an ocean model output file</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="convergence-tests">
 <h3>Convergence Tests<a class="headerlink" href="#convergence-tests" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -988,19 +1004,22 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.setup.html#polaris.ocean.model.OceanModelStep.setup" title="polaris.ocean.model.OceanModelStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.setup</span></code></a>()</p></td>
 <td><p>Determine if we will make yaml files or namelists and streams files, then, determine the number of MPI tasks to use based on the estimated mesh size</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.constrain_resources.html#polaris.ocean.model.OceanModelStep.constrain_resources" title="polaris.ocean.model.OceanModelStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.constrain_resources</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.check_properties.html#polaris.ocean.model.OceanModelStep.check_properties" title="polaris.ocean.model.OceanModelStep.check_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.check_properties</span></code></a>()</p></td>
+<td><p>This method should be overridden to check properties of step outputs</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.constrain_resources.html#polaris.ocean.model.OceanModelStep.constrain_resources" title="polaris.ocean.model.OceanModelStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.constrain_resources</span></code></a>(...)</p></td>
 <td><p>Update the number of MPI tasks to use based on the estimated mesh size</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.compute_cell_count.html#polaris.ocean.model.OceanModelStep.compute_cell_count" title="polaris.ocean.model.OceanModelStep.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.compute_cell_count</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.compute_cell_count.html#polaris.ocean.model.OceanModelStep.compute_cell_count" title="polaris.ocean.model.OceanModelStep.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.compute_cell_count</span></code></a>()</p></td>
 <td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_options.html#polaris.ocean.model.OceanModelStep.map_yaml_options" title="polaris.ocean.model.OceanModelStep.map_yaml_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.map_yaml_options</span></code></a>(options, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_options.html#polaris.ocean.model.OceanModelStep.map_yaml_options" title="polaris.ocean.model.OceanModelStep.map_yaml_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.map_yaml_options</span></code></a>(options, ...)</p></td>
 <td><p>A mapping between model config options from MPAS-Ocean to Omega</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_configs.html#polaris.ocean.model.OceanModelStep.map_yaml_configs" title="polaris.ocean.model.OceanModelStep.map_yaml_configs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.map_yaml_configs</span></code></a>(configs, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_configs.html#polaris.ocean.model.OceanModelStep.map_yaml_configs" title="polaris.ocean.model.OceanModelStep.map_yaml_configs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.map_yaml_configs</span></code></a>(configs, ...)</p></td>
 <td><p>A mapping between model sections and config options from MPAS-Ocean to Omega</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_time_interval_string.html#polaris.ocean.model.get_time_interval_string" title="polaris.ocean.model.get_time_interval_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_interval_string</span></code></a>([days, seconds])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_time_interval_string.html#polaris.ocean.model.get_time_interval_string" title="polaris.ocean.model.get_time_interval_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_interval_string</span></code></a>([days, seconds])</p></td>
 <td><p>Convert a time interval in days and/or seconds to a string for use in a model config option.</p></td>
 </tr>
 </tbody>

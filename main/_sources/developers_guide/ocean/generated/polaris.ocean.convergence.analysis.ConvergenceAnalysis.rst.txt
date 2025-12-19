@@ -17,6 +17,7 @@
       ~ConvergenceAnalysis.add_dependency
       ~ConvergenceAnalysis.add_input_file
       ~ConvergenceAnalysis.add_output_file
+      ~ConvergenceAnalysis.check_properties
       ~ConvergenceAnalysis.compute_error
       ~ConvergenceAnalysis.constrain_resources
       ~ConvergenceAnalysis.convergence_parameters

@@ -21,6 +21,7 @@
       ~ModelStep.add_output_file
       ~ModelStep.add_streams_file
       ~ModelStep.add_yaml_file
+      ~ModelStep.check_properties
       ~ModelStep.constrain_resources
       ~ModelStep.dynamic_model_config
       ~ModelStep.map_yaml_configs

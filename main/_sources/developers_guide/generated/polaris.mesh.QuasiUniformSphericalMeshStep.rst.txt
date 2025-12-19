@@ -18,6 +18,7 @@
       ~QuasiUniformSphericalMeshStep.add_input_file
       ~QuasiUniformSphericalMeshStep.add_output_file
       ~QuasiUniformSphericalMeshStep.build_cell_width_lat_lon
+      ~QuasiUniformSphericalMeshStep.check_properties
       ~QuasiUniformSphericalMeshStep.constrain_resources
       ~QuasiUniformSphericalMeshStep.make_jigsaw_mesh
       ~QuasiUniformSphericalMeshStep.process_inputs_and_outputs

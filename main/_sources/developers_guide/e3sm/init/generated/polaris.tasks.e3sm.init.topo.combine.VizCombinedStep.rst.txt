@@ -17,6 +17,7 @@
       ~VizCombinedStep.add_dependency
       ~VizCombinedStep.add_input_file
       ~VizCombinedStep.add_output_file
+      ~VizCombinedStep.check_properties
       ~VizCombinedStep.constrain_resources
       ~VizCombinedStep.process_inputs_and_outputs
       ~VizCombinedStep.run

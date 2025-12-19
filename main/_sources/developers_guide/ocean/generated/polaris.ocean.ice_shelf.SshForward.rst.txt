@@ -21,6 +21,7 @@
       ~SshForward.add_output_file
       ~SshForward.add_streams_file
       ~SshForward.add_yaml_file
+      ~SshForward.check_properties
       ~SshForward.compute_cell_count
       ~SshForward.constrain_resources
       ~SshForward.dynamic_model_config

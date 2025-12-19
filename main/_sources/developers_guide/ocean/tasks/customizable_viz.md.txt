@@ -1,4 +1,4 @@
-(dev-ocean-customizable_viz)=
+(dev-ocean-customizable-viz)=
 
 # customizable_viz
 
@@ -10,7 +10,7 @@ controlled via the task configuration.
 ## framework
 
 The config options for the `customizable_viz` tests are described in
-{ref}`ocean-customizable_viz` in the User's Guide.
+{ref}`ocean-customizable-viz` in the User's Guide.
 
 The test also makes use of `polaris.viz.helper` and `polaris.viz.mplstyle`.
 

@@ -17,6 +17,7 @@
       ~RemapTopoStep.add_dependency
       ~RemapTopoStep.add_input_file
       ~RemapTopoStep.add_output_file
+      ~RemapTopoStep.check_properties
       ~RemapTopoStep.constrain_resources
       ~RemapTopoStep.define_smoothing
       ~RemapTopoStep.process_inputs_and_outputs

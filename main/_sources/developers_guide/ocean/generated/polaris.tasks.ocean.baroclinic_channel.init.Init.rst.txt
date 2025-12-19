@@ -17,6 +17,7 @@
       ~Init.add_dependency
       ~Init.add_input_file
       ~Init.add_output_file
+      ~Init.check_properties
       ~Init.constrain_resources
       ~Init.process_inputs_and_outputs
       ~Init.run

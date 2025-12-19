@@ -17,6 +17,7 @@
       ~Validate.add_dependency
       ~Validate.add_input_file
       ~Validate.add_output_file
+      ~Validate.check_properties
       ~Validate.constrain_resources
       ~Validate.process_inputs_and_outputs
       ~Validate.run

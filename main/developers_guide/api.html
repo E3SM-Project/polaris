@@ -455,7 +455,7 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_input_file</span></code></a>([filename, target, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_output_file</span></code></a>(filename[, validate_vars])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_output_file</span></code></a>(filename[, ...])</p></td>
 <td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other tasks.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.add_dependency</span></code></a>(step[, name])</p></td>
@@ -464,7 +464,10 @@ documentation.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.validate_baselines.html#polaris.Step.validate_baselines" title="polaris.Step.validate_baselines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.validate_baselines</span></code></a>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.set_shared_config.html#polaris.Step.set_shared_config" title="polaris.Step.set_shared_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.set_shared_config</span></code></a>(config[, link])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Step.check_properties.html#polaris.Step.check_properties" title="polaris.Step.check_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.check_properties</span></code></a>()</p></td>
+<td><p>This method should be overridden to check properties of step outputs</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Step.set_shared_config.html#polaris.Step.set_shared_config" title="polaris.Step.set_shared_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Step.set_shared_config</span></code></a>(config[, link])</p></td>
 <td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
 </tbody>

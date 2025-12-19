@@ -266,8 +266,11 @@ tasks.</p>
 </span><span class="hll">                <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
 </span><span class="hll">                <span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
 </span><span class="hll">            <span class="p">],</span>
-</span><span class="hll">        <span class="p">)</span>
-</span></pre></div>
+</span><span class="hll">            <span class="n">check_properties</span><span class="o">=</span><span class="p">[</span>
+</span>                <span class="s1">&#39;mass conservation&#39;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+</pre></div>
 </div>
 <p>By defining <code class="docutils literal notranslate"><span class="pre">validate_vars</span></code> as part of the output, we ensure that these
 variables will be compared with output from a baseline Polaris run if one

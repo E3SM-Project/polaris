@@ -17,6 +17,7 @@
       ~Analysis.add_dependency
       ~Analysis.add_input_file
       ~Analysis.add_output_file
+      ~Analysis.check_properties
       ~Analysis.constrain_resources
       ~Analysis.process_inputs_and_outputs
       ~Analysis.run

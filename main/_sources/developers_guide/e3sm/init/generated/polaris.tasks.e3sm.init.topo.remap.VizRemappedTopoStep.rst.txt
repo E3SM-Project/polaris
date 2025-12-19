@@ -17,6 +17,7 @@
       ~VizRemappedTopoStep.add_dependency
       ~VizRemappedTopoStep.add_input_file
       ~VizRemappedTopoStep.add_output_file
+      ~VizRemappedTopoStep.check_properties
       ~VizRemappedTopoStep.constrain_resources
       ~VizRemappedTopoStep.process_inputs_and_outputs
       ~VizRemappedTopoStep.run

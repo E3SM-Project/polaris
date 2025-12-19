@@ -174,43 +174,46 @@ smoothing</p></li>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code>([filename, target, database, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename[, validate_vars])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename[, validate_vars, ...])</p></td>
 <td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other tasks.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.constrain_resources" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code></a>(available_resources)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_properties</span></code>()</p></td>
+<td><p>This method should be overridden to check properties of step outputs</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.constrain_resources" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code></a>(available_resources)</p></td>
 <td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_land_transects.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_land_transects" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_land_transects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_critical_land_transects</span></code></a>(gf)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_land_transects.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_land_transects" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_land_transects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_critical_land_transects</span></code></a>(gf)</p></td>
 <td><p>Define transects along which land must be present (e.g. to block ocean flow).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_ocean_transects.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_ocean_transects" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_ocean_transects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_critical_ocean_transects</span></code></a>(gf)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_ocean_transects.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_ocean_transects" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_ocean_transects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_critical_ocean_transects</span></code></a>(gf)</p></td>
 <td><p>Define transects along which ocean must be present (e.g. to allow ocean flow).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
 <td><p>Process the inputs to and outputs from a step added with <a class="reference internal" href="../../../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> and <a class="reference internal" href="../../../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_land_cull_mask.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_land_cull_mask" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_land_cull_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refine_land_cull_mask</span></code></a>(ds_base_mesh, ds_topo, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_land_cull_mask.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_land_cull_mask" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_land_cull_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refine_land_cull_mask</span></code></a>(ds_base_mesh, ds_topo, ...)</p></td>
 <td><p>Refine the mask for culling ocean from the land.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_ocean_cull_mask.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_ocean_cull_mask" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_ocean_cull_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refine_ocean_cull_mask</span></code></a>(ds_base_mesh, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_ocean_cull_mask.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_ocean_cull_mask" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_ocean_cull_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refine_ocean_cull_mask</span></code></a>(ds_base_mesh, ...)</p></td>
 <td><p>Refine the mask for culling land and (optionally) grounded ice from the ocean.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.run.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.run" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.run.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.run" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
 <td><p>Update attributes of the step at runtime before calling the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code>(config[, link])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code>(config[, link])</p></td>
 <td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.setup.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.setup" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.setup.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.setup" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
 <td><p>Set up the step in the work directory, including downloading any dependencies.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
 </tr>
 </tbody>

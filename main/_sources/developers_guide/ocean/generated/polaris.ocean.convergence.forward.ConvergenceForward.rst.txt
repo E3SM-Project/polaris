@@ -21,6 +21,7 @@
       ~ConvergenceForward.add_output_file
       ~ConvergenceForward.add_streams_file
       ~ConvergenceForward.add_yaml_file
+      ~ConvergenceForward.check_properties
       ~ConvergenceForward.compute_cell_count
       ~ConvergenceForward.constrain_resources
       ~ConvergenceForward.dynamic_model_config

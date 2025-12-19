@@ -17,6 +17,7 @@
       ~CombineStep.add_dependency
       ~CombineStep.add_input_file
       ~CombineStep.add_output_file
+      ~CombineStep.check_properties
       ~CombineStep.constrain_resources
       ~CombineStep.get_subdir
       ~CombineStep.process_inputs_and_outputs

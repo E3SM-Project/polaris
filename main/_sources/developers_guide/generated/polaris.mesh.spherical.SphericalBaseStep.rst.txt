@@ -17,6 +17,7 @@
       ~SphericalBaseStep.add_dependency
       ~SphericalBaseStep.add_input_file
       ~SphericalBaseStep.add_output_file
+      ~SphericalBaseStep.check_properties
       ~SphericalBaseStep.constrain_resources
       ~SphericalBaseStep.process_inputs_and_outputs
       ~SphericalBaseStep.run

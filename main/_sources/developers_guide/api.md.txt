@@ -161,6 +161,7 @@ seaice/api
    Step.add_output_file
    Step.add_dependency
    Step.validate_baselines
+   Step.check_properties
    Step.set_shared_config
 ```
 

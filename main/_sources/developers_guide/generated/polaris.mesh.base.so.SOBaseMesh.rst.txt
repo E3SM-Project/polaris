@@ -18,6 +18,7 @@
       ~SOBaseMesh.add_input_file
       ~SOBaseMesh.add_output_file
       ~SOBaseMesh.build_cell_width_lat_lon
+      ~SOBaseMesh.check_properties
       ~SOBaseMesh.constrain_resources
       ~SOBaseMesh.make_jigsaw_mesh
       ~SOBaseMesh.process_inputs_and_outputs

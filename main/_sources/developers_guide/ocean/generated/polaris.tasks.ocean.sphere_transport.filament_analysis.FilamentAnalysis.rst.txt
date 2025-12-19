@@ -17,6 +17,7 @@
       ~FilamentAnalysis.add_dependency
       ~FilamentAnalysis.add_input_file
       ~FilamentAnalysis.add_output_file
+      ~FilamentAnalysis.check_properties
       ~FilamentAnalysis.constrain_resources
       ~FilamentAnalysis.process_inputs_and_outputs
       ~FilamentAnalysis.run

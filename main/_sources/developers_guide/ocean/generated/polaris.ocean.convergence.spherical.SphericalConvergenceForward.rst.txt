@@ -21,6 +21,7 @@
       ~SphericalConvergenceForward.add_output_file
       ~SphericalConvergenceForward.add_streams_file
       ~SphericalConvergenceForward.add_yaml_file
+      ~SphericalConvergenceForward.check_properties
       ~SphericalConvergenceForward.compute_cell_count
       ~SphericalConvergenceForward.constrain_resources
       ~SphericalConvergenceForward.dynamic_model_config

@@ -21,6 +21,7 @@
       ~OceanModelStep.add_output_file
       ~OceanModelStep.add_streams_file
       ~OceanModelStep.add_yaml_file
+      ~OceanModelStep.check_properties
       ~OceanModelStep.compute_cell_count
       ~OceanModelStep.constrain_resources
       ~OceanModelStep.dynamic_model_config

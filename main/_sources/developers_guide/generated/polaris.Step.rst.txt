@@ -17,6 +17,7 @@
       ~Step.add_dependency
       ~Step.add_input_file
       ~Step.add_output_file
+      ~Step.check_properties
       ~Step.constrain_resources
       ~Step.process_inputs_and_outputs
       ~Step.run

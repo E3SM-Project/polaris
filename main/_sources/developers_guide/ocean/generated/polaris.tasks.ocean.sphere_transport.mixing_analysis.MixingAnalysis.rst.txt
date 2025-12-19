@@ -17,6 +17,7 @@
       ~MixingAnalysis.add_dependency
       ~MixingAnalysis.add_input_file
       ~MixingAnalysis.add_output_file
+      ~MixingAnalysis.check_properties
       ~MixingAnalysis.constrain_resources
       ~MixingAnalysis.process_inputs_and_outputs
       ~MixingAnalysis.run

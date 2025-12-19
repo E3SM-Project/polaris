@@ -18,6 +18,7 @@
       ~RRSBaseMesh.add_input_file
       ~RRSBaseMesh.add_output_file
       ~RRSBaseMesh.build_cell_width_lat_lon
+      ~RRSBaseMesh.check_properties
       ~RRSBaseMesh.constrain_resources
       ~RRSBaseMesh.make_jigsaw_mesh
       ~RRSBaseMesh.process_inputs_and_outputs
