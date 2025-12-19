@@ -20,21 +20,6 @@ def compute_total_mass(ds_mesh, ds):
     return total_mass
 
 
-def compute_total_mass_nonboussinesq(ds_mesh, ds):
-    """
-    Compute the total mass in an ocean model output file using the density
-    field given in the output file
-    """
-    ds = _reduce_dataset_time_dim(ds)
-    area_cell = ds_mesh.areaCell
-    layer_thickness = ds.layerThickness
-    rho = ds.density
-    total_mass = rho * (
-        area_cell * (layer_thickness * rho).sum(dim='nVertLevels')
-    ).sum(dim='nCells')
-    return total_mass
-
-
 def compute_total_energy(ds_mesh, ds):
     """
     Compute the total heat content an ocean model output file
