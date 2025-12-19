@@ -386,6 +386,24 @@ class OceanModelStep(ModelStep):
             this_filename = os.path.join(self.work_dir, filename)
             ds_mesh = self.component.open_model_dataset(mesh_filename)
             ds = self.component.open_model_dataset(this_filename)
+            if 'tracer conservation' in properties:
+                # All tracers in mpaso_to_omega.yaml
+                tracers_to_check = [
+                    'temperature',
+                    'salinity',
+                    'tracer1',
+                    'tracer2',
+                    'tracer3',
+                ]
+                # Expand 'tracer conservation' into list of tracers to check
+                properties = [
+                    item
+                    for item in properties
+                    if item != 'tracer conservation'
+                ]
+                for tracer in tracers_to_check:
+                    if tracer in ds.keys():
+                        properties.append(f'tracer conservation-{tracer}')
             for output_property in properties:
                 if output_property == 'mass conservation':
                     tol = self.config.getfloat(
@@ -393,83 +411,48 @@ class OceanModelStep(ModelStep):
                     )
                     # Add when Omega EOS is used
                     # if self.config.get('ocean', 'model') == 'omega':
-                    #     init_mass = compute_total_mass_nonboussinesq(
-                    #         ds_mesh, ds.isel(Time=0)
-                    #     )
-                    #     final_mass = compute_total_mass_nonboussinesq(
-                    #         ds_mesh, ds.isel(Time=-1)
-                    #     )
+                    # relative_error  = self._compute_rel_err(
+                    #    compute_total_mass_nonboussinesq, ds_mesh, ds
+                    # )
                     # else:
-                    init_mass = compute_total_mass(ds_mesh, ds.isel(Time=0))
-                    final_mass = compute_total_mass(ds_mesh, ds.isel(Time=-1))
-                    mass_change = final_mass - init_mass
-                    relative_error = abs(mass_change) / (final_mass + 1.0)
-                    result = relative_error < tol
+                    relative_error = self._compute_rel_err(
+                        compute_total_mass, ds_mesh=ds_mesh, ds=ds
+                    )
                 elif output_property == 'salt conservation':
                     tol = self.config.getfloat(
                         'ocean', 'salt_conservation_tolerance'
                     )
-                    init_salt = compute_total_salt(ds_mesh, ds.isel(Time=0))
-                    final_salt = compute_total_salt(ds_mesh, ds.isel(Time=-1))
-                    salt_change = final_salt - init_salt
-                    relative_error = abs(salt_change) / (final_salt - 1.0)
-                    result = relative_error < tol
-                elif output_property == 'tracer conservation':
+                    relative_error = self._compute_rel_err(
+                        compute_total_mass, ds_mesh, ds
+                    )
+                    relative_error = self._compute_rel_err(
+                        compute_total_salt, ds_mesh, ds
+                    )
+                elif output_property.split('-')[0] == 'tracer conservation':
                     tol = self.config.getfloat(
                         'ocean', 'tracer_conservation_tolerance'
                     )
-                    # Loop through all tracers in mpaso_to_omega.yaml
-                    tracers_to_check = [
-                        'temperature',
-                        'salinity',
-                        'tracer1',
-                        'tracer2',
-                        'tracer3',
-                    ]
-                    for tracer in tracers_to_check:
-                        if tracer in ds.keys():
-                            init_tracer = compute_total_tracer(
-                                ds_mesh, ds.isel(Time=0), tracer_name=tracer
-                            )
-                            final_tracer = compute_total_tracer(
-                                ds_mesh, ds.isel(Time=-1), tracer_name=tracer
-                            )
-                            tracer_change = final_tracer - init_tracer
-                            relative_error = abs(tracer_change) / (
-                                final_tracer - 1.0
-                            )
-                            result = relative_error < tol
-                            if not result:
-                                failed_properties.append(
-                                    f'{tracer} conservation relative error '
-                                    f'{relative_error:.3e} exceeds {tol}'
-                                )
-                            else:
-                                passed_properties.append(
-                                    f'{tracer} conservation relative error '
-                                    f'{relative_error:.3e}'
-                                )
-                            if result:
-                                continue
+                    tracer = output_property.split('-')[1]
+                    relative_error = self._compute_rel_err(
+                        compute_total_tracer,
+                        ds_mesh,
+                        ds,
+                        tracer_name=tracer,
+                    )
                 elif output_property == 'energy conservation':
                     tol = self.config.getfloat(
                         'ocean', 'energy_conservation_tolerance'
                     )
-                    init_energy = compute_total_energy(
-                        ds_mesh, ds.isel(Time=0)
+                    relative_error = self._compute_rel_err(
+                        compute_total_energy, ds_mesh, ds
                     )
-                    final_energy = compute_total_energy(
-                        ds_mesh, ds.isel(Time=-1)
-                    )
-                    energy_change = final_energy - init_energy
-                    relative_error = abs(energy_change) / (final_energy - 1.0)
-                    result = relative_error < tol
                 else:
                     raise ValueError(
                         'Could not find method to execute property check '
                         f'{output_property}'
                     )
 
+                result = relative_error < tol
                 success = success and result
                 checked = True
                 # We already appended log strings for tracer conservation
@@ -690,6 +673,20 @@ class OceanModelStep(ModelStep):
         out_option, out_value = self._map_handle_not(out_option, value)
 
         return out_sections, out_option, out_value
+
+    def _compute_rel_err(
+        self,
+        func,
+        ds_mesh,
+        ds,
+        time_index_start=0,
+        time_index_end=-1,
+        **kwargs,
+    ):
+        init_val = func(ds_mesh, ds.isel(Time=time_index_start), **kwargs)
+        final_val = func(ds_mesh, ds.isel(Time=time_index_end), **kwargs)
+        val_change = final_val - init_val
+        return abs(val_change) / (final_val + 1.0)
 
     @staticmethod
     def _warn_not_found(not_found: List[str]) -> None:
