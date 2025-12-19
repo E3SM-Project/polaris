@@ -36,7 +36,7 @@ variables:
   tracer3: Debug3
 
   # state
-  layerThickness: LayerThickness
+  layerThickness: GeomLayerThickness
   normalVelocity: NormalVelocity
 
   vertVelocityTop: VerticalVelocity
@@ -46,6 +46,12 @@ variables:
   windStressZonal: WindStressZonal
   windStressMeridional: WindStressMeridional
   relativeVorticity: RelVortVertex
+
+  # vertical coordinate
+  zMid: GeomZMid
+  zInterface: GeomZInterface
+  pressure: PressureMid
+
 
 config:
 - section:
