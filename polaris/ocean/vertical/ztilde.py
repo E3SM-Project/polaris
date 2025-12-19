@@ -36,6 +36,7 @@ def z_tilde_from_pressure(p: xr.DataArray, rho0: float) -> xr.DataArray:
     ----------
     p : xarray.DataArray
         Sea pressure in Pascals (Pa).
+
     rho0 : float
         Reference density in kg m^-3.
 
@@ -67,6 +68,7 @@ def pressure_from_z_tilde(z_tilde: xr.DataArray, rho0: float) -> xr.DataArray:
     ----------
     z_tilde : xarray.DataArray
         Pseudo-height in meters (m), positive upward.
+
     rho0 : float
         Reference density in kg m^-3.
 
@@ -83,7 +85,7 @@ def pressure_from_z_tilde(z_tilde: xr.DataArray, rho0: float) -> xr.DataArray:
         {
             'long_name': 'sea pressure',
             'units': 'Pa',
-            'note': 'p = -z_tilde * (rho0 * g)',
+            'note': 'p = -rho0 * g * z_tilde',
         }
     )
 
@@ -104,7 +106,7 @@ def pressure_from_geom_thickness(
         The surface pressure at the top of the water column.
 
     geom_layer_thickness : xarray.DataArray
-        The geometric thickness of each layer.
+        The geometric thickness of each layer, set to zero for invalid layers.
 
     spec_vol : xarray.DataArray
         The specific volume at each layer.
@@ -205,6 +207,11 @@ def pressure_and_spec_vol_from_state_at_geom_height(
     """
 
     rho0 = config.getfloat('vertical_grid', 'rho0')
+    if rho0 is None:
+        raise ValueError(
+            'Config option [vertical_grid] rho0 must be set to use '
+            'pressure_and_spec_vol_from_state_at_geom_height().'
+        )
 
     spec_vol = 1.0 / rho0 * xr.ones_like(geom_layer_thickness)
 
@@ -240,3 +247,56 @@ def pressure_and_spec_vol_from_state_at_geom_height(
         )
 
     return p_interface, p_mid, spec_vol
+
+
+def geom_height_from_pseudo_height(
+    geom_z_bot: xr.DataArray,
+    h_tilde: xr.DataArray,
+    spec_vol: xr.DataArray,
+    rho0: float,
+) -> tuple[xr.DataArray, xr.DataArray]:
+    """
+    Sum geometric heights from pseudo-heights and specific volume.
+
+    Parameters
+    ----------
+    geom_z_bot : xarray.DataArray
+        Geometric height at the bathymetry for each water column.
+
+    h_tilde : xarray.DataArray
+        Pseudo-thickness of vertical layers, set to zero for invalid layers.
+
+    spec_vol : xarray.DataArray
+        Specific volume at midpoints of vertical layers.
+
+    rho0 : float
+        Reference density in kg m^-3.
+
+    Returns
+    -------
+    geom_z_inter : xarray.DataArray
+        Geometric height at layer interfaces.
+
+    geom_z_mid : xarray.DataArray
+        Geometric height at layer midpoints.
+    """
+    # geometric height starts with geom_z_bot at the bottom
+    # and adds up the contributions from each layer above
+
+    n_vert_levels = spec_vol.sizes['nVertLevels']
+
+    geom_thickness = spec_vol * h_tilde * rho0
+
+    geom_z_inter_list: list[xr.DataArray] = [geom_z_bot]
+    geom_z_mid_list: list[xr.DataArray] = []
+    geom_z_prev = geom_z_bot
+    for z_index in range(n_vert_levels):
+        thickness = geom_thickness.isel(nVertLevels=z_index)
+        geom_z_next = geom_z_prev + thickness
+        geom_z_inter_list.append(geom_z_next)
+        geom_z_mid_list.append(geom_z_prev + 0.5 * thickness)
+        geom_z_prev = geom_z_next
+
+    geom_z_inter = xr.concat(geom_z_inter_list, dim='nVertLevelsP1')
+    geom_z_mid = xr.concat(geom_z_mid_list, dim='nVertLevels')
+    return geom_z_inter, geom_z_mid
