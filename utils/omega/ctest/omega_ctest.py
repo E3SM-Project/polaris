@@ -89,9 +89,9 @@ def download_meshes(config):
     base_url = 'https://web.lcrc.anl.gov/public/e3sm/polaris/'
 
     files = [
-        'ocean.QU.240km.151209.nc',
-        'PlanarPeriodic48x48.nc',
-        'cosine_bell_icos480_initial_state.230220.nc',
+        'ocean.QU.240km.omega_vars.251219.nc',
+        'PlanarPeriodic48x48.omega_vars.251219.nc',
+        'cosine_bell_icos480.omega_vars.250219.nc',
     ]
 
     database_path = 'ocean/omega_ctest'
