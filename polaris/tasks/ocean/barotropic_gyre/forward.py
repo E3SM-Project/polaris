@@ -99,11 +99,15 @@ class Forward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
+        self.add_input_file(
+            filename='mesh.nc', target='../init/culled_mesh.nc'
+        )
         self.add_input_file(filename='init.nc', target='../init/init.nc')
 
         self.add_output_file(
             filename='output.nc',
             validate_vars=['layerThickness', 'normalVelocity'],
+            check_properties=['mass conservation'],
         )
 
         self.package = 'polaris.tasks.ocean.barotropic_gyre'

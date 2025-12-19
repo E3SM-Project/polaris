@@ -86,6 +86,7 @@ class Forward(ConvergenceForward):
             graph_target=f'{init.path}/culled_graph.info',
             output_filename='output.nc',
             validate_vars=['layerThickness', 'normalVelocity'],
+            check_properties=['mass conservation'],
         )
         self.del2 = del2
         self.del4 = del4

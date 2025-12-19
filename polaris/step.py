@@ -124,6 +124,9 @@ class Step:
         comparison should be performed if a baseline run has been provided. The
         baseline validation is performed after the step has run.
 
+    properties_to_check: dict of list
+        A list of properties to check for each output file.
+
     logger : logging.Logger
         A logger for output from the step
 
@@ -262,6 +265,7 @@ class Step:
         # may be set during setup if there is a baseline for comparison
         self.baseline_dir = None
         self.validate_vars = dict()
+        self.properties_to_check = dict()
         self.setup_complete = False
 
         # these will be set before running the step, dummy placeholders for now
@@ -477,7 +481,9 @@ class Step:
             )
         )
 
-    def add_output_file(self, filename, validate_vars=None):
+    def add_output_file(
+        self, filename, validate_vars=None, check_properties=None
+    ):
         """
         Add the output file that must be produced by this step and may be made
         available as an input to steps, perhaps in other tasks.  This file
@@ -499,6 +505,8 @@ class Step:
         self.outputs.append(filename)
         if validate_vars is not None:
             self.validate_vars[filename] = validate_vars
+        if check_properties is not None:
+            self.properties_to_check[filename] = check_properties
 
     def add_dependency(self, step, name=None):
         """
@@ -533,6 +541,14 @@ class Step:
         filename = f'dependencies/{name}_after_run.pickle'
         target = f'{step.path}/step_after_run.pickle'
         self.add_input_file(filename=filename, work_dir_target=target)
+
+    def check_properties(self):
+        """
+        This method should be overridden to check properties of step outputs
+        """
+        checked = False
+        success = True
+        return checked, success
 
     def validate_baselines(self):
         """

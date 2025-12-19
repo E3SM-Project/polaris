@@ -211,3 +211,51 @@ which need to have their variables renamed to the MPAS-Ocean names for use in
 Polaris.  The `ds1` and `ds2` keyword arguments are used to supply datasets
 corresponding to `filename1` and `filename2`, respectively, in such
 circumstances.
+
+# Property checks
+
+For some output files, you may wish to run checks of certain properties such as
+conservation of mass or energy. Currently, only conservation checks for the
+ocean are available.
+
+To run property checks, add a list of properties
+the keyword argument `verify_properties` to the
+:py:meth:`polaris.Step.add_output_file()` method.  As an example:
+
+```python
+from polaris import Step
+
+
+class Forward(OceanModelStep):
+    def __init__(self, task):
+        super().__init__(task=task, name='forward')
+
+        self.add_input_file(
+            filename='mesh.nc', target='../init/culled_mesh.nc'
+        )
+        self.add_output_file('output.nc',
+                             verify_properties=['mass conservation'])
+```
+
+## Conservation checks
+
+Mass, salt and energy conservation checks are available for ocean model output.
+The checks will fail if the relative change in the total quantity exceeds the
+tolerance given in
+
+```cfg
+# Options related the ocean component
+[ocean]
+
+# Tolerance for mass conservation, normalized by total mass
+mass_conservation_tolerance = 1e-8
+
+# Tolerance for salt conservation, normalized by total salt
+salt_conservation_tolerance = 1e-8
+
+# Tolerance for thermal energy conservation, normalized by total energy
+energy_conservation_tolerance = 1e-8
+```
+
+As shown in the previous example, we have added a mesh file with the name
+'mesh.nc' because conservation checks require the area of cells.
