@@ -24,6 +24,7 @@ class Forward(OceanModelStep):
         openmp_threads=1,
         validate_vars=None,
         task_name='',
+        enable_vadv=True,
     ):
         """
         Create a new test case
@@ -62,6 +63,8 @@ class Forward(OceanModelStep):
         task_name : str, optional
             the name of the test case
         """
+        if not enable_vadv:
+            name = f'{name}_no_vadv'
         super().__init__(
             component=component,
             name=name,
@@ -75,9 +78,8 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
         self.add_input_file(
-            filename='initial_state.nc', target='../init/initial_state.nc'
+            filename='init.nc', target='../init/initial_state.nc'
         )
-        self.add_input_file(filename='forcing.nc', target='../init/forcing.nc')
         self.add_input_file(
             filename='graph.info', target='../init/culled_graph.info'
         )
@@ -93,6 +95,18 @@ class Forward(OceanModelStep):
 
         self.task_name = task_name
 
+        self.enable_vadv = enable_vadv
+
+    def setup(self):
+        """
+        TEMP: symlink initial condition to name hard-coded in Omega
+        """
+        super().setup()
+        model = self.config.get('ocean', 'model')
+        # TODO: remove as soon as Omega no longer hard-codes this file
+        if model == 'omega':
+            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
+
     def dynamic_model_config(self, at_setup):
         if self.task_name == 'ekman':
             nu = self.config.getfloat(
@@ -100,5 +114,14 @@ class Forward(OceanModelStep):
             )
             self.add_model_config_options(
                 options={'config_cvmix_background_viscosity': nu},
+                config_model='mpas-ocean',
+            )
+        if not self.enable_vadv:
+            self.add_model_config_options(
+                options={
+                    'config_vert_coord_movement': 'impermeable_interfaces',
+                    'config_disable_vel_vadv': True,
+                    'config_disable_tr_adv': True,
+                },
                 config_model='mpas-ocean',
             )
