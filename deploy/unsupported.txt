@@ -1,9 +1,0 @@
-# a list of unsupported machine, compiler and mpi combinations
-
-# no spack available
-chrysalis, intel, impi
-chrysalis, gnu, impi
-chrysalis, oneapi-ifx, openmpi
-chrysalis, oneapi-ifx, impi
-pm-cpu, aocc, mpich
-pm-cpu, amdclang, mpich
