@@ -83,7 +83,7 @@ class MerryGoRound(Task):
             Whether to refine in space, time or both space and time
         """
         name = f'merry_go_round_convergence_{refinement}'
-        subdir = f'{basedir}/convergence_{refinement}/'
+        subdir = f'{basedir}/convergence_{refinement}'
         config_filename = 'merry_go_round.cfg'
 
         super().__init__(component=component, name=name, subdir=subdir)
