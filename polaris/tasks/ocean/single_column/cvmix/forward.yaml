@@ -26,3 +26,22 @@ mpas-ocean:
     config_cvmix_kpp_interpolationOMLType: cubic
   streams:
     KPP_testing: {}
+
+Omega:
+  Tendencies:
+    ThicknessFluxTendencyEnable: true
+    PVTendencyEnable: false
+    KETendencyEnable: false
+    SSHTendencyEnable: false
+    VelDiffTendencyEnable: false
+    VelHyperDiffTendencyEnable: false
+    VelVertMixTendencyEnable: true
+    PresForceTendencyEnable: false
+    PresGradForceTendencyEnable: false
+    GeoptGradTendencyEnable: false
+    WindForcingTendencyEnable: true
+    BottomDragTendencyEnable: false
+    TracerHorzAdvTendencyEnable: false
+    TracerDiffTendencyEnable: false
+    TracerHyperDiffTendencyEnable: false
+    TracerVertMixTendencyEnable: true
