@@ -27,6 +27,10 @@ mpas-ocean:
     config_use_activeTracers_surface_restoring: false
     config_use_activeTracers_interior_restoring: false
   streams:
+    mesh:
+      filename_template: mesh.nc
+    input:
+      filename_template: init.nc
     restart: {}
     KPP_testing: {}
     mixedLayerDepthsOutput:
