@@ -236,3 +236,4 @@ class Init(OceanIOStep):
             iceberg_flux * forcing_array_surface
         )
         self.write_initial_state_dataset(ds_forcing, 'init.nc', config)
+        self.write_model_dataset(ds_forcing, 'forcing.nc', config)
