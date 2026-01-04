@@ -77,6 +77,7 @@ Omega:
       Filename: init.nc
       Contents:
       - State
+      - Tracers
       - WindStressZonal
       - WindStressMeridional
     History:
@@ -92,3 +93,27 @@ Omega:
       - State
       - Tracers
       - SshCell
+    RestartRead:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: true
+      StartTime: 0001-01-01_00:00:01
+      EndTime: 99999-12-31_00:00:00
+      Contents:
+      - Restart
+    RestartWrite:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: 6
+      FreqUnits: months
+      UseStartEnd: false
+      Contents:
+      - Restart
