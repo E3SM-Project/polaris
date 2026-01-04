@@ -28,9 +28,9 @@ mpas-ocean:
     config_use_activeTracers_interior_restoring: false
   streams:
     mesh:
-      filename_template: initial_state.nc
+      filename_template: mesh.nc
     input:
-      filename_template: initial_state.nc
+      filename_template: init.nc
     restart: {}
     KPP_testing: {}
     mixedLayerDepthsOutput:
