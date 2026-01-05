@@ -17,13 +17,9 @@ ocean/spherical/qu/cosine_bell/convergence_both
   cached: qu_base_mesh_180km qu_init_180km qu_base_mesh_210km qu_init_210km
   cached: qu_base_mesh_240km qu_init_240km
 ocean/spherical/icos/external_gravity_wave/global_time_step/convergence_time
-  cached: icos_base_mesh_60km icos_init_60km
 ocean/spherical/icos/external_gravity_wave/local_time_step/convergence_time
-  cached: icos_base_mesh_60km icos_init_60km icos_init_lts_60km
 ocean/spherical/qu/external_gravity_wave/global_time_step/convergence_time
-  cached: qu_base_mesh_120km qu_init_120km
 ocean/spherical/qu/external_gravity_wave/local_time_step/convergence_time
-  cached: qu_base_mesh_120km qu_init_120km qu_init_lts_120km
 ocean/spherical/icos/geostrophic/convergence_both
   cached: icos_base_mesh_60km icos_init_60km icos_base_mesh_120km icos_init_120km
   cached: icos_base_mesh_240km icos_init_240km icos_base_mesh_480km icos_init_480km
