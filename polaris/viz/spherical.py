@@ -31,6 +31,7 @@ def plot_global_mpas_field(
     descriptor=None,
     projection_name='PlateCarree',
     cell_indices=None,
+    ds_transect=None,
     enforce_aspect_ratio=False,
 ):
     """
@@ -144,6 +145,13 @@ def plot_global_mpas_field(
     cbar = fig.colorbar(
         pc, ax=ax, label=colorbar_label, extend='both', shrink=0.6
     )
+    if ds_transect is not None:
+        ax.plot(
+            ds_transect.lonNode.values,
+            ds_transect.latNode.values,
+            '.r',
+            transform=transform,
+        )
 
     if enforce_aspect_ratio:
         min_latitude = np.rad2deg(mesh_ds.latCell.min().values)
