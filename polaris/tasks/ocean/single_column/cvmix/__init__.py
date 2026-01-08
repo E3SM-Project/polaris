@@ -9,7 +9,7 @@ class CVMix(Task):
     then performs a short forward run testing vertical mixing on 1 core.
     """
 
-    def __init__(self, component, config, init, indir):
+    def __init__(self, component, config, init, indir, name='cvmix'):
         """
         Create the test case
         Parameters
@@ -17,7 +17,6 @@ class CVMix(Task):
         component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
         """
-        name = 'cvmix'
         super().__init__(component=component, name=name, indir=indir)
         config_filename = 'cvmix.cfg'
         self.set_shared_config(config, link=config_filename)
@@ -50,7 +49,7 @@ class CVMix(Task):
             Viz(
                 component=component,
                 indir=self.subdir,
-                comparison_path=f'{self.subdir}/forward_no_vadv',
+                comparison_path='../forward_no_vadv',
             ),
             run_by_default=False,
         )
