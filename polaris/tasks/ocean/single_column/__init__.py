@@ -17,7 +17,8 @@ def add_single_column_tasks(component):
 
     forcing = ['wind', 'evap']
     name = 'cvmix'
-    filepath = f'{component.name}/{group_name}/{name}/{name}.cfg'
+    indir = f'{group_name}_stable'
+    filepath = f'{component.name}/indir/{name}/{name}.cfg'
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package(
         'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
@@ -40,7 +41,36 @@ def add_single_column_tasks(component):
             component=component,
             config=config,
             init=init_step,
-            indir=f'{group_name}',
+            indir=indir,
+        )
+    )
+
+    name = 'cvmix'
+    forcing_name = 'wind'
+    indir = group_name
+    filepath = f'{component.name}/indir/{name}/{name}_{forcing_name}.cfg'
+    config = PolarisConfigParser(filepath=filepath)
+    config.add_from_package(
+        'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
+    )
+    config.add_from_package(
+        'polaris.tasks.ocean.single_column', f'{forcing_name}.cfg'
+    )
+    config.add_from_package(
+        'polaris.tasks.ocean.single_column', 'unstable_stratification.cfg'
+    )
+    init_step = component.get_or_create_shared_step(
+        step_cls=Init,
+        subdir=f'{group_name}/{forcing_name}/init_unstable',
+        config=config,
+        config_filename=f'{name}_{forcing_name}.cfg',
+    )
+    component.add_task(
+        CVMix(
+            component=component,
+            config=config,
+            init=init_step,
+            indir=indir,
         )
     )
 
