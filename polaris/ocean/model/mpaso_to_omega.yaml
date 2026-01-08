@@ -183,6 +183,11 @@ config:
     config_disable_vel_pgrad: not PressureGradTendencyEnable
 
 - section:
+    debug: Tendencies
+  options:
+    config_disable_vel_vmix: not VelVertMixTendencyEnable
+
+- section:
     bottom_drag: Tendencies
   options:
     config_explicit_bottom_drag_coeff: BottomDragCoeff
