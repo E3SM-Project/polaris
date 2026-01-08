@@ -92,6 +92,11 @@ config:
     config_disable_vel_explicit_bottom_drag: BottomDragTendencyEnable
 
 - section:
+    debug: Tendencies
+  options:
+    config_disable_vel_vmix: VelVertMixTendencyEnable
+
+- section:
     bottom_drag: Tendencies
   options:
     config_explicit_bottom_drag_coeff: BottomDragCoeff
