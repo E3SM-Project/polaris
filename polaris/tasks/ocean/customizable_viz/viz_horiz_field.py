@@ -1,5 +1,8 @@
+import os
+
 import cmocean  # noqa: F401
 import numpy as np
+import xarray as xr
 
 from polaris.ocean.model import OceanIOStep
 from polaris.viz import (
@@ -21,6 +24,7 @@ class VizHorizField(OceanIOStep):
         section = self.config['customizable_viz']
         self.mesh_file = section.get('mesh_file')
         self.input_file = section.get('input_file')
+        self.transect_file = section.get('transect_file')
 
         section_name = 'customizable_viz_horiz_field'
         self.variables = self.config.getlist(
@@ -205,6 +209,10 @@ class VizHorizField(OceanIOStep):
             else:
                 units = viz_dict['default']['units']
 
+            if os.path.exists(self.transect_file):
+                ds_transect = xr.open_dataset(self.transect_file)
+            else:
+                ds_transect = None
             # Only apply regional bounds for cell-centered fields
             if 'nEdges' in mpas_field.dims or 'nVertices' in mpas_field.dims:
                 descriptor = plot_global_mpas_field(
@@ -217,6 +225,7 @@ class VizHorizField(OceanIOStep):
                     colorbar_label=f'{var_name} [{units}]',
                     plot_land=True,
                     projection_name=projection_name,
+                    ds_transect=ds_transect,
                     central_longitude=central_longitude,
                 )
             elif 'nCells' in mpas_field.dims and 'nVertices' in ds_mesh.dims:
@@ -232,6 +241,7 @@ class VizHorizField(OceanIOStep):
                     projection_name=projection_name,
                     central_longitude=central_longitude,
                     cell_indices=cell_indices[0],
+                    ds_transect=ds_transect,
                 )
             else:
                 raise ValueError(
