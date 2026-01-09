@@ -1,12 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray as xr
 
-from polaris import Step
+from polaris.ocean.model import OceanIOStep
+from polaris.ocean.time import get_days_since_start
+from polaris.ocean.vertical.diagnostics import depth_from_thickness
 from polaris.viz import use_mplstyle
 
 
-class Viz(Step):
+class Viz(OceanIOStep):
     """
     A step for plotting the results of a single-column test
     """
@@ -49,33 +50,53 @@ class Viz(Step):
         """
         use_mplstyle()
         ideal_age = self.ideal_age
-        ds = xr.load_dataset('output.nc')
+
+        ds_init = self.open_model_dataset('initial_state.nc')
+        ds_init = ds_init.isel(Time=0)
+
+        ds = self.open_model_dataset('output.nc')
+        t_arr = get_days_since_start(ds)
+        t_index = np.argmin(np.abs(t_arr - 1.0))  # index nearest 1 day
+        t_days = float(t_arr[t_index])
+        ds_final = ds.isel(Time=t_index)
+
         if self.comparison_path is not None:
-            ds_comp = xr.load_dataset('comparison.nc')
-        t_days = ds.daysSinceStartOfSim.values
-        t = t_days.astype('timedelta64[ns]')
-        t = t / np.timedelta64(1, 'D')
-        t_index = np.argmin(np.abs(t - 1.0))  # ds.sizes['Time'] - 1
-        t_days = t[t_index]
+            ds_comp = self.open_model_dataset('comparison.nc')
+            ds_comp = ds_comp.isel(Time=t_index)
 
         # Plot temperature and salinity profiles
-        title = f'final time = {t_days} days'
+        title = f'final time = {t_days:2.1g} days'
         fields = {'temperature': 'degC', 'salinity': 'PSU'}
         if ideal_age:
             # Include age tracer
             fields['iAge'] = 'seconds'
-        z_mid = ds['zMid'].mean(dim='nCells')
-        z_mid_init = z_mid.isel(Time=0)
-        z_mid_final = z_mid.isel(Time=t_index)
+        z_mid_init = depth_from_thickness(ds_init).mean(dim='nCells')
+        z_mid_final = depth_from_thickness(ds_final).mean(dim='nCells')
         for field_name, field_units in fields.items():
-            if field_name not in ds.keys():
+            if field_name not in ds_init.keys():
+                raise ValueError(
+                    f'{field_name} not present in initial_state.nc'
+                )
+            if field_name not in ds_final.keys():
                 raise ValueError(f'{field_name} not present in output.nc')
-            var = ds[field_name].mean(dim='nCells')
-            var_init = var.isel(Time=0)
-            var_final = var.isel(Time=t_index)
+            var_init = ds_init[field_name].mean(dim='nCells')
+            var_final = ds_final[field_name].mean(dim='nCells')
+            print('Size of variables to plot')
+            print(t_arr)
+            print(f't_index = {t_index}')
+            print(
+                f'Change of {field_name} at the surface: '
+                f'{var_final.values[0] - var_init.values[0]}'
+            )
+            print(
+                f'Change of {field_name} at the bottom: '
+                f'{var_final.values[-1] - var_init.values[-1]}'
+            )
+
             if self.comparison_path is not None:
                 var_comp = ds_comp[field_name].mean(dim='nCells')
-                var_comp = var_comp.isel(Time=t_index)
+                if field_name not in ds_final.keys():
+                    raise ValueError(f'{field_name} not present in output.nc')
             plt.figure(figsize=(3, 5))
             ax = plt.subplot(111)
             ax.plot(var_init, z_mid_init, '--k', label='initial')
@@ -84,25 +105,26 @@ class Viz(Step):
                 ax.plot(var_comp, z_mid_final, '-r', label='comparison')
             ax.set_xlabel(f'{field_name} ({field_units})')
             ax.set_ylabel('z (m)')
-            ax.legend()
+            # ax.legend()
             plt.title(title)
             plt.tight_layout(pad=0.5)
             plt.savefig(f'{field_name}.png')
             plt.close()
 
         # Plot velocity profiles
-        u = ds['velocityZonal'].mean(dim='nCells')
-        v = ds['velocityMeridional'].mean(dim='nCells')
-        u_final = u.isel(Time=t_index)
-        v_final = v.isel(Time=t_index)
-        plt.figure(figsize=(3, 5))
-        ax = plt.subplot(111)
-        ax.plot(u_final, z_mid_final, '-k', label='u')
-        ax.plot(v_final, z_mid_final, '-b', label='v')
-        ax.set_xlabel('Velocity (m/s)')
-        ax.set_ylabel('z (m)')
-        ax.legend()
-        plt.title(title)
-        plt.tight_layout(pad=0.5)
-        plt.savefig('velocity.png')
-        plt.close()
+        if 'velocityZonal' and 'velocityMeridional' in ds.keys():
+            u = ds['velocityZonal'].mean(dim='nCells')
+            v = ds['velocityMeridional'].mean(dim='nCells')
+            u_final = u.isel(Time=t_index)
+            v_final = v.isel(Time=t_index)
+            plt.figure(figsize=(3, 5))
+            ax = plt.subplot(111)
+            ax.plot(u_final, z_mid_final, '-k', label='u')
+            ax.plot(v_final, z_mid_final, '-b', label='v')
+            ax.set_xlabel('Velocity (m/s)')
+            ax.set_ylabel('z (m)')
+            ax.legend()
+            plt.title(title)
+            plt.tight_layout(pad=0.5)
+            plt.savefig('velocity.png')
+            plt.close()
