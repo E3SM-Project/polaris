@@ -4,8 +4,8 @@ ocean:
   hmix_del4:
     config_use_mom_del4: false
   cvmix:
-    config_use_cvmix_convection: true
-    config_use_cvmix_shear: true
+    config_use_cvmix_convection: false
+    config_use_cvmix_shear: false
   eos:
     config_eos_type: linear
   eos_linear:
