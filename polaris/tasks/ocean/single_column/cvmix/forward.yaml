@@ -2,8 +2,7 @@ ocean:
   time_management:
     config_run_duration: 0010_00:00:00
   hmix_del4:
-    config_use_mom_del4: true
-    config_mom_del4: 2.0e14
+    config_use_mom_del4: false
   cvmix:
     config_use_cvmix_convection: true
     config_use_cvmix_shear: true
