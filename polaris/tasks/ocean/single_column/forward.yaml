@@ -2,9 +2,9 @@ ocean:
   time_management:
     config_stop_time: none
   time_integration:
-    config_dt: 00:10:00
+    config_dt: 0000_00:10:00
   forcing:
-    config_use_bulk_wind_stress: true
+    config_use_bulk_wind_stress: false
 
 mpas-ocean:
   run_modes:
