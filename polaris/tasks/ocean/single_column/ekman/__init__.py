@@ -40,21 +40,29 @@ class Ekman(Task):
             'layerThickness',
             'normalVelocity',
         ]
+        forward_step = Forward(
+            component=component,
+            indir=self.subdir,
+            ntasks=1,
+            min_tasks=1,
+            openmp_threads=1,
+            validate_vars=validate_vars,
+            task_name=name,
+            constant_diff=True,
+        )
+        self.add_step(forward_step)
+
         self.add_step(
-            Forward(
-                component=component,
-                indir=self.subdir,
-                ntasks=1,
-                min_tasks=1,
-                openmp_threads=1,
-                validate_vars=validate_vars,
-                task_name=name,
+            Analysis(
+                component=component, indir=self.subdir, forward=forward_step
             )
         )
 
-        self.add_step(Analysis(component=component, indir=self.subdir))
-
         self.add_step(
-            Viz(component=component, indir=self.subdir),
+            Viz(
+                component=component,
+                indir=self.subdir,
+                comparisons={'forward': '../forward_constant'},
+            ),
             run_by_default=False,
         )
