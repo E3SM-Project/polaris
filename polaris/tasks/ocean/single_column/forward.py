@@ -25,6 +25,7 @@ class Forward(OceanModelStep):
         validate_vars=None,
         task_name='',
         enable_vadv=True,
+        constant_diff=False,
     ):
         """
         Create a new test case
@@ -65,6 +66,8 @@ class Forward(OceanModelStep):
         """
         if not enable_vadv:
             name = f'{name}_no_vadv'
+        if constant_diff:
+            name = f'{name}_constant'
         super().__init__(
             component=component,
             name=name,
@@ -97,6 +100,8 @@ class Forward(OceanModelStep):
 
         self.enable_vadv = enable_vadv
 
+        self.constant_diff = constant_diff
+
     def setup(self):
         """
         TEMP: symlink initial condition to name hard-coded in Omega
@@ -124,4 +129,21 @@ class Forward(OceanModelStep):
                     'config_disable_tr_adv': True,
                 },
                 config_model='mpas-ocean',
+            )
+
+        if self.constant_diff:
+            self.add_model_config_options(
+                options={
+                    'config_use_cvmix_convection': False,
+                    'config_use_cvmix_shear': False,
+                },
+                config_model='ocean',
+            )
+        else:
+            self.add_model_config_options(
+                options={
+                    'config_use_cvmix_convection': True,
+                    'config_use_cvmix_shear': True,
+                },
+                config_model='ocean',
             )

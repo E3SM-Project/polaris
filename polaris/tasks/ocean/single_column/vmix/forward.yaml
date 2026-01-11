@@ -3,9 +3,6 @@ ocean:
     config_run_duration: 0010_00:00:00
   hmix_del4:
     config_use_mom_del4: false
-  cvmix:
-    config_use_cvmix_convection: false
-    config_use_cvmix_shear: false
   eos:
     config_eos_type: linear
   eos_linear:
@@ -38,7 +35,7 @@ Omega:
     PresForceTendencyEnable: false
     PresGradForceTendencyEnable: false
     GeoptGradTendencyEnable: false
-    WindForcingTendencyEnable: true
+    WindForcingTendencyEnable: false
     BottomDragTendencyEnable: false
     TracerHorzAdvTendencyEnable: false
     TracerDiffTendencyEnable: false

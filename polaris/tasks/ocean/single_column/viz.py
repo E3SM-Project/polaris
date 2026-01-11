@@ -13,7 +13,11 @@ class Viz(OceanIOStep):
     """
 
     def __init__(
-        self, component, indir, ideal_age=False, comparison_path=None
+        self,
+        component,
+        indir,
+        ideal_age=False,
+        comparisons=None,
     ):
         """
         Create the step
@@ -32,16 +36,17 @@ class Viz(OceanIOStep):
         """
         super().__init__(component=component, name='viz', indir=indir)
         self.ideal_age = ideal_age
-        self.comparison_path = comparison_path
+        self.comparisons = comparisons if comparisons else dict()
         self.add_input_file(
             filename='initial_state.nc', target='../init/initial_state.nc'
         )
         self.add_input_file(
             filename='output.nc', target='../forward/output.nc'
         )
-        if comparison_path is not None:
+        for comparison_name, comparison_path in self.comparisons.items():
             self.add_input_file(
-                filename='comparison.nc', target=f'{comparison_path}/output.nc'
+                filename=f'{comparison_name}.nc',
+                target=f'{comparison_path}/output.nc',
             )
 
     def run(self):
@@ -54,18 +59,15 @@ class Viz(OceanIOStep):
         ds_init = self.open_model_dataset('initial_state.nc')
         ds_init = ds_init.isel(Time=0)
 
-        ds = self.open_model_dataset('output.nc')
+        ds = self.open_model_dataset('output.nc', decode_times=False)
         t_arr = get_days_since_start(ds)
         t_index = np.argmin(np.abs(t_arr - 1.0))  # index nearest 1 day
         t_days = float(t_arr[t_index])
         ds_final = ds.isel(Time=t_index)
 
-        if self.comparison_path is not None:
-            ds_comp = self.open_model_dataset('comparison.nc')
-            ds_comp = ds_comp.isel(Time=t_index)
-
         # Plot temperature and salinity profiles
         title = f'final time = {t_days:2.1g} days'
+        print(f't_index = {t_index}, t_days = {t_days}')
         fields = {'temperature': 'degC', 'salinity': 'PSU'}
         if ideal_age:
             # Include age tracer
@@ -82,8 +84,6 @@ class Viz(OceanIOStep):
             var_init = ds_init[field_name].mean(dim='nCells')
             var_final = ds_final[field_name].mean(dim='nCells')
             print('Size of variables to plot')
-            print(t_arr)
-            print(f't_index = {t_index}')
             print(
                 f'Change of {field_name} at the surface: '
                 f'{var_final.values[0] - var_init.values[0]}'
@@ -93,16 +93,25 @@ class Viz(OceanIOStep):
                 f'{var_final.values[-1] - var_init.values[-1]}'
             )
 
-            if self.comparison_path is not None:
-                var_comp = ds_comp[field_name].mean(dim='nCells')
-                if field_name not in ds_final.keys():
-                    raise ValueError(f'{field_name} not present in output.nc')
             plt.figure(figsize=(3, 5))
             ax = plt.subplot(111)
             ax.plot(var_init, z_mid_init, '--k', label='initial')
             ax.plot(var_final, z_mid_final, '-k', label='final')
-            if self.comparison_path is not None:
-                ax.plot(var_comp, z_mid_final, '-r', label='comparison')
+            for comparison_name, _ in self.comparisons.items():
+                ds_comp = self.open_model_dataset(
+                    f'{comparison_name}.nc', decode_times=False
+                )
+                t_arr = get_days_since_start(ds_comp)
+                t_index = np.argmin(np.abs(t_arr - 1.0))  # index nearest 1 day
+                t_days = float(t_arr[t_index])
+                print(f't_index = {t_index}, t_days = {t_days}')
+                ds_comp = ds_comp.isel(Time=t_index)
+                if field_name not in ds_comp.keys():
+                    raise ValueError(
+                        f'{field_name} not present in {comparison_name}.nc'
+                    )
+                var_comp = ds_comp[field_name].mean(dim='nCells')
+                ax.plot(var_comp, z_mid_final, '-r', label=comparison_name)
             ax.set_xlabel(f'{field_name} ({field_units})')
             ax.set_ylabel('z (m)')
             # ax.legend()

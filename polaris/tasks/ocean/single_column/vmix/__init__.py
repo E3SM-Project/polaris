@@ -3,13 +3,13 @@ from polaris.tasks.ocean.single_column.forward import Forward
 from polaris.tasks.ocean.single_column.viz import Viz
 
 
-class CVMix(Task):
+class VMix(Task):
     """
-    The CVMix single-column test case creates the mesh and initial condition,
+    The VMix single-column test case creates the mesh and initial condition,
     then performs a short forward run testing vertical mixing on 1 core.
     """
 
-    def __init__(self, component, config, init, indir, name='cvmix'):
+    def __init__(self, component, config, init, indir, name='vmix'):
         """
         Create the test case
         Parameters
@@ -18,10 +18,10 @@ class CVMix(Task):
             The ocean component that this task belongs to
         """
         super().__init__(component=component, name=name, indir=indir)
-        config_filename = 'cvmix.cfg'
+        config_filename = 'vmix.cfg'
         self.set_shared_config(config, link=config_filename)
         self.config.add_from_package(
-            'polaris.tasks.ocean.single_column.cvmix', config_filename
+            'polaris.tasks.ocean.single_column.vmix', config_filename
         )
         self.add_step(init, symlink='init')
 
@@ -35,21 +35,36 @@ class CVMix(Task):
             self.add_step(
                 Forward(
                     component=component,
-                    indir=self.subdir,
+                    indir=f'{indir}/{name}',
                     ntasks=1,
                     min_tasks=1,
                     openmp_threads=1,
                     validate_vars=validate_vars,
-                    task_name=name,
+                    task_name='vmix',
                     enable_vadv=enable_vadv,
                 )
             )
+        self.add_step(
+            Forward(
+                component=component,
+                indir=f'{indir}/{name}',
+                ntasks=1,
+                min_tasks=1,
+                openmp_threads=1,
+                validate_vars=validate_vars,
+                task_name='vmix',
+                constant_diff=True,
+            )
+        )
 
         self.add_step(
             Viz(
                 component=component,
-                indir=self.subdir,
-                comparison_path='../forward_no_vadv',
+                indir=f'{indir}/{name}',
+                comparisons={
+                    'no_vadv': '../forward_no_vadv',
+                    'constant': '../forward_constant',
+                },
             ),
             run_by_default=False,
         )
