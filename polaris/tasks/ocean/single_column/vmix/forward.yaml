@@ -16,10 +16,8 @@ mpas-ocean:
     config_use_activeTracers_surface_restoring: true
     config_use_activeTracers_interior_restoring: true
   cvmix:
-    config_cvmix_shear_mixing_scheme: KPP
-    config_use_cvmix_kpp: true
-    config_cvmix_kpp_matching: MatchBoth
-    config_cvmix_kpp_interpolationOMLType: cubic
+    config_cvmix_shear_mixing_scheme: PP
+    config_use_cvmix_kpp: false
   streams:
     KPP_testing: {}
 
