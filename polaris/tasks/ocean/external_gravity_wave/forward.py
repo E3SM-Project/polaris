@@ -1,7 +1,9 @@
-import time as time
-
 from polaris.ocean.convergence.spherical import SphericalConvergenceForward
-from polaris.ocean.model import OceanModelStep, get_time_interval_string
+from polaris.ocean.model import (
+    OceanModelStep,
+    get_time_interval_string,
+    get_time_step_string,
+)
 
 
 class Forward(SphericalConvergenceForward):
@@ -228,7 +230,7 @@ class ReferenceForward(OceanModelStep):
         if not at_setup and vert_levels == 1:
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
-        dt_str = get_time_interval_string(seconds=dt)
+        dt_str = get_time_step_string(seconds=dt)
 
         s_per_hour = 3600.0
         section = config['convergence_forward']

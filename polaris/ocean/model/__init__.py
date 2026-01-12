@@ -5,3 +5,6 @@ from polaris.ocean.model.ocean_model_step import (
 from polaris.ocean.model.time import (
     get_time_interval_string as get_time_interval_string,
 )
+from polaris.ocean.model.time import (
+    get_time_step_string as get_time_step_string,
+)

@@ -4,7 +4,11 @@ from math import ceil, floor, pi
 import numpy as np
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.model import OceanModelStep, get_time_interval_string
+from polaris.ocean.model import (
+    OceanModelStep,
+    get_time_interval_string,
+    get_time_step_string,
+)
 
 
 class Forward(OceanModelStep):
@@ -195,8 +199,8 @@ class Forward(OceanModelStep):
             )
 
         dt = floor(dt_max / 5.0)
-        dt_str = get_time_interval_string(seconds=dt)
-        dt_btr_str = get_time_interval_string(seconds=dt / 20.0)
+        dt_str = get_time_step_string(seconds=dt)
+        dt_btr_str = get_time_step_string(seconds=dt / 20.0)
 
         nu_max = stability_parameter_max * (resolution * 1.0e3) ** 2.0 / dt
         if nu > nu_max:

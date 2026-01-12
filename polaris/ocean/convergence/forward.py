@@ -1,5 +1,9 @@
 from polaris.ocean.convergence import get_timestep_for_task
-from polaris.ocean.model import OceanModelStep, get_time_interval_string
+from polaris.ocean.model import (
+    OceanModelStep,
+    get_time_interval_string,
+    get_time_step_string,
+)
 
 
 class ConvergenceForward(OceanModelStep):
@@ -163,8 +167,8 @@ class ConvergenceForward(OceanModelStep):
         timestep, btr_timestep = get_timestep_for_task(
             config, refinement_factor, refinement=self.refinement
         )
-        dt_str = get_time_interval_string(seconds=timestep)
-        btr_dt_str = get_time_interval_string(seconds=btr_timestep)
+        dt_str = get_time_step_string(seconds=timestep)
+        btr_dt_str = get_time_step_string(seconds=btr_timestep)
 
         s_per_hour = 3600.0
         section = config['convergence_forward']

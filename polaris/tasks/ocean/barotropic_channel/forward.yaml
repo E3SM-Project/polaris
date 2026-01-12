@@ -3,7 +3,7 @@ ocean:
     config_stop_time: none
     config_run_duration: 0002_00:00:00
   time_integration:
-    config_dt: 00:00:01
+    config_dt: 0000_00:00:01
   hmix_del2:
     config_use_mom_del2: true
     config_mom_del2: {{ nu }}
@@ -32,7 +32,7 @@ mpas-ocean:
     config_cvmix_background_scheme: none
     config_use_cvmix_convection: true
   split_explicit_ts:
-    config_btr_dt: 00:00:05
+    config_btr_dt: 0000_00:00:05
   bottom_drag:
     config_bottom_drag_mode: explicit
   forcing:

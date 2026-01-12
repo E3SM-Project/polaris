@@ -1,5 +1,9 @@
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.model import OceanModelStep, get_time_interval_string
+from polaris.ocean.model import (
+    OceanModelStep,
+    get_time_interval_string,
+    get_time_step_string,
+)
 
 
 class Forward(OceanModelStep):
@@ -112,10 +116,8 @@ class Forward(OceanModelStep):
         resolution = config.getfloat('overflow', 'resolution')
         dt_per_km = config.getfloat('overflow', 'dt_per_km')
         btr_dt_per_km = config.getfloat('overflow', 'btr_dt_per_km')
-        dt_str = get_time_interval_string(seconds=dt_per_km * resolution)
-        btr_dt_str = get_time_interval_string(
-            seconds=btr_dt_per_km * resolution
-        )
+        dt_str = get_time_step_string(seconds=dt_per_km * resolution)
+        btr_dt_str = get_time_step_string(seconds=btr_dt_per_km * resolution)
         section = config[f'overflow_{self.task_name}']
         run_duration = section.getfloat('run_duration')
         output_interval = section.getfloat('output_interval')

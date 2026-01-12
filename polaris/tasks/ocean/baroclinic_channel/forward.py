@@ -1,7 +1,9 @@
-import time
-
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.model import OceanModelStep
+from polaris.ocean.model import (
+    OceanModelStep,
+    get_time_interval_string,
+    get_time_step_string,
+)
 
 
 class Forward(OceanModelStep):
@@ -164,23 +166,20 @@ class Forward(OceanModelStep):
         # dt is proportional to resolution: default 30 seconds per km
         dt_per_km = config.getfloat('baroclinic_channel', 'dt_per_km')
         dt = dt_per_km * self.resolution
-        # https://stackoverflow.com/a/1384565/7728169
-        options['config_dt'] = time.strftime('%H:%M:%S', time.gmtime(dt))
+        options['config_dt'] = get_time_step_string(seconds=dt)
 
         if self.run_time_steps is not None:
             # default run duration is a few time steps
             run_seconds = self.run_time_steps * dt
-            options['config_run_duration'] = time.strftime(
-                '%H:%M:%S', time.gmtime(run_seconds)
+            options['config_run_duration'] = get_time_interval_string(
+                seconds=run_seconds
             )
             options['config_stop_time'] = 'none'
 
         # btr_dt is also proportional to resolution: default 1.5 seconds per km
         btr_dt_per_km = config.getfloat('baroclinic_channel', 'btr_dt_per_km')
         btr_dt = btr_dt_per_km * self.resolution
-        options['config_btr_dt'] = time.strftime(
-            '%H:%M:%S', time.gmtime(btr_dt)
-        )
+        options['config_btr_dt'] = get_time_step_string(seconds=btr_dt)
 
         self.dt = dt
         self.btr_dt = btr_dt

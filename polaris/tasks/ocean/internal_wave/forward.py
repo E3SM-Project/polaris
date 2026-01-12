@@ -1,7 +1,9 @@
-import time
-
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.model import OceanModelStep
+from polaris.ocean.model import (
+    OceanModelStep,
+    get_time_interval_string,
+    get_time_step_string,
+)
 
 
 class Forward(OceanModelStep):
@@ -151,14 +153,13 @@ class Forward(OceanModelStep):
         resolution = config.getfloat('internal_wave', 'resolution')
         dt_per_km = config.getfloat('internal_wave', 'dt_per_km')
         dt = dt_per_km * resolution
-        # https://stackoverflow.com/a/1384565/7728169
-        options['config_dt'] = time.strftime('%H:%M:%S', time.gmtime(dt))
+        options['config_dt'] = get_time_step_string(seconds=dt)
 
         if self.run_time_steps is not None:
             # default run duration is a few time steps
             run_seconds = self.run_time_steps * dt
-            options['config_run_duration'] = time.strftime(
-                '%H:%M:%S', time.gmtime(run_seconds)
+            options['config_run_duration'] = get_time_interval_string(
+                seconds=run_seconds
             )
             options['config_stop_time'] = 'none'
         self.add_model_config_options(

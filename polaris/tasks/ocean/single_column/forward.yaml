@@ -4,7 +4,7 @@ mpas-ocean:
   time_management:
     config_stop_time: none
   time_integration:
-    config_dt: 00:10:00
+    config_dt: 0000_00:10:00
   split_explicit_ts:
     config_btr_dt: 0000_00:00:30
   forcing:

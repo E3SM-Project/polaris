@@ -1,4 +1,8 @@
-from polaris.ocean.model import OceanModelStep, get_time_interval_string
+from polaris.ocean.model import (
+    OceanModelStep,
+    get_time_interval_string,
+    get_time_step_string,
+)
 
 
 class SshForward(OceanModelStep):
@@ -160,13 +164,12 @@ class SshForward(OceanModelStep):
             dt_per_km = section.getfloat('rk4_dt_per_km')
         else:
             dt_per_km = section.getfloat('split_dt_per_km')
-        dt_str = get_time_interval_string(
-            seconds=dt_per_km * self.min_resolution
-        )
+
+        dt_str = get_time_step_string(seconds=dt_per_km * self.min_resolution)
 
         # btr_dt is also proportional to resolution
         btr_dt_per_km = section.getfloat('btr_dt_per_km')
-        btr_dt_str = get_time_interval_string(
+        btr_dt_str = get_time_step_string(
             seconds=btr_dt_per_km * self.min_resolution
         )
 

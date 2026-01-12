@@ -3,7 +3,11 @@ from math import floor
 from mpas_tools.cime.constants import constants
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.model import OceanModelStep, get_time_interval_string
+from polaris.ocean.model import (
+    OceanModelStep,
+    get_time_interval_string,
+    get_time_step_string,
+)
 
 
 class Forward(OceanModelStep):
@@ -159,11 +163,11 @@ class Forward(OceanModelStep):
         else:
             dt_per_km = section.getfloat('split_dt_per_km')
         dt = dt_per_km * self.resolution
-        dt_str = get_time_interval_string(seconds=dt)
+        dt_str = get_time_step_string(seconds=dt)
 
         # btr_dt is also proportional to resolution: default 1.5 seconds per km
         btr_dt_per_km = section.getfloat('btr_dt_per_km')
-        btr_dt_str = get_time_interval_string(
+        btr_dt_str = get_time_step_string(
             seconds=btr_dt_per_km * self.resolution
         )
 

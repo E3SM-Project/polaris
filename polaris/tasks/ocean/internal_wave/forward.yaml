@@ -16,7 +16,7 @@ mpas-ocean:
     config_cvmix_background_scheme: none
     config_use_cvmix_convection: true
   split_explicit_ts:
-    config_btr_dt: 00:00:15
+    config_btr_dt: 0000_00:00:15
   streams:
     mesh:
       filename_template: initial_state.nc
