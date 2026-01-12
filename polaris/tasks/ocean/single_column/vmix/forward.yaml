@@ -16,15 +16,44 @@ mpas-ocean:
     config_use_frazil_ice_formation: true
   tracer_forcing_activeTracers:
     config_use_activeTracers_surface_bulk_forcing: true
-    config_use_activeTracers_surface_restoring: true
-    config_use_activeTracers_interior_restoring: true
+    config_use_activeTracers_surface_restoring: false
+    config_use_activeTracers_interior_restoring: false
   cvmix:
-    config_cvmix_shear_mixing_scheme: KPP
-    config_use_cvmix_kpp: true
-    config_cvmix_kpp_matching: MatchBoth
-    config_cvmix_kpp_interpolationOMLType: cubic
+    config_use_cvmix_kpp: false
+    config_cvmix_background_diffusion: 0.
+    config_cvmix_background_viscosity: 0.
+    config_cvmix_shear_mixing_scheme: PP
+    config_cvmix_num_ri_smooth_loops: 0
+  debug:
+    config_disable_vel_vmix: false
+    config_disable_tr_vmix: false
   streams:
-    KPP_testing: {}
+    KPP_testing:
+      contents:
+      - mesh
+      - layerThickness
+      - tracers
+      - vertNonLocalFlux
+      - xtime
+      - zMid
+      - zTop
+      - velocityZonal
+      - velocityMeridional
+      - bulkRichardsonNumber
+      - bulkRichardsonNumberBuoy
+      - potentialDensity
+      - unresolvedShear
+      - boundaryLayerDepth
+      - surfaceFrictionVelocity
+      - surfaceBuoyancyForcing
+      - windStressZonal
+      - windStressMeridional
+      - transportVelocityZonal
+      - transportVelocityMeridional
+      - RiTopOfCell
+      - BruntVaisalaFreqTop
+      - vertViscTopOfCell
+      - vertDiffTopOfCell
 
 Omega:
   Tendencies:
@@ -34,13 +63,18 @@ Omega:
     SSHTendencyEnable: false
     VelDiffTendencyEnable: false
     VelHyperDiffTendencyEnable: false
-    VelVertMixTendencyEnable: true
-    PresForceTendencyEnable: false
-    PresGradForceTendencyEnable: false
-    GeoptGradTendencyEnable: false
-    WindForcingTendencyEnable: false
+    PressureGradTendencyEnable: false
+    WindForcingTendencyEnable: true
     BottomDragTendencyEnable: false
     TracerHorzAdvTendencyEnable: false
     TracerDiffTendencyEnable: false
     TracerHyperDiffTendencyEnable: false
-    TracerVertMixTendencyEnable: true
+  IOStreams:
+    History:
+      Contents:
+      - AuxiliaryState
+      - State
+      - ZMid
+      - Tracers
+      - SshCell
+      - Eos
