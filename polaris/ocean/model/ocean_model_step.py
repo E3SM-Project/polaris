@@ -1,5 +1,6 @@
 import importlib.resources as imp_res
 import os
+import re
 from types import ModuleType
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -13,6 +14,7 @@ from polaris.ocean.conservation import (
     compute_total_salt,
     compute_total_tracer,
 )
+from polaris.ocean.model.time import get_time_step_string
 from polaris.tasks.ocean import Ocean
 
 OptionValue = Union[str, int, float, bool]
@@ -294,6 +296,64 @@ class OceanModelStep(ModelStep):
         if model == 'omega' and config_model == 'ocean':
             configs = self._map_mpaso_to_omega_configs(configs)
         return configs
+
+    @staticmethod
+    def _format_omega_run_duration(value: OptionValue) -> OptionValue:
+        """
+        Ensure Omega's ``RunDuration`` is not a bare ``hh:mm:ss`` string.
+
+        Omega can misinterpret ``hh:mm:ss``; we normalize duration-like strings
+        into ``DDDD_HH:MM:SS``.
+
+        If the value already appears to be a date-time string in
+        ``YYYY-MM-DD_hh:mm:ss`` format (or isn't a recognizable time string),
+        it is left unchanged.
+        """
+        if not isinstance(value, str):
+            return value
+
+        stripped = value.strip()
+        if stripped.lower() == 'none':
+            return value
+
+        # Don't try to rewrite Jinja templates
+        if '{{' in stripped or '}}' in stripped:
+            return value
+
+        # Leave date-time strings untouched (Omega may accept these)
+        if re.match(r'^\d{4}-\d{2}-\d{2}_', stripped):
+            return value
+
+        # Normalize duration-like strings (with or without day prefix)
+        #  - DDDD_hh:mm:ss[.sss]
+        #  - hh:mm:ss[.sss]
+        #  - mm:ss[.sss]
+        #  - ss[.sss]
+        try:
+            return get_time_step_string(time_str=stripped)
+        except ValueError:
+            pass
+
+        mm_ss = re.match(
+            (
+                r'^(?P<minutes>\d+):(?P<seconds>\d{1,2})'
+                r'(?:\.(?P<fraction>\d+))?$'
+            ),
+            stripped,
+        )
+        if mm_ss is not None:
+            minutes = int(mm_ss.group('minutes'))
+            seconds = int(mm_ss.group('seconds'))
+            fraction = mm_ss.groupdict().get('fraction')
+            frac_seconds = float(f'0.{fraction}') if fraction else 0.0
+            total_seconds = minutes * 60.0 + seconds + frac_seconds
+            return get_time_step_string(seconds=total_seconds)
+
+        ss = re.match(r'^\d+(?:\.\d+)?$', stripped)
+        if ss is not None:
+            return get_time_step_string(seconds=float(stripped))
+
+        return value
 
     def add_namelist_file(
         self,
@@ -581,6 +641,9 @@ class OceanModelStep(ModelStep):
 
         out_option, out_value = self._map_handle_not(out_option, value)
 
+        if out_option == 'RunDuration':
+            out_value = self._format_omega_run_duration(out_value)
+
         return out_option, out_value
 
     def _map_mpaso_to_omega_configs(
@@ -671,6 +734,9 @@ class OceanModelStep(ModelStep):
             raise ValueError(f'No mapping found for {sec_str}/{option}')
 
         out_option, out_value = self._map_handle_not(out_option, value)
+
+        if out_option == 'RunDuration':
+            out_value = self._format_omega_run_duration(out_value)
 
         return out_sections, out_option, out_value
 
