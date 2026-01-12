@@ -139,16 +139,24 @@ cells to each core, but it will allow as many as 2000.
 It is often useful to be able to convert a `float` time interval in days or
 seconds to a model config option in the form `DDDD_HH:MM:SS.S`.  The
 {py:func}`polaris.ocean.model.get_time_interval_string()` function will do this
-for you.  For example, if you have `resolution` in km and a config `section`
-with options `dt_per_km` (in s/km) and `run_duration` (in days), you can use
-the function to get appropriate strings for filling in a template model config
-file:
+for you.
+
+Omega time step config options (e.g. ``config_dt`` and ``config_btr_dt``)
+require a day prefix and underscore, even when the number of days is 0.  For
+example, use ``0000_00:10:00`` rather than ``00:10:00``.  Omega can
+misinterpret the latter form.  The
+{py:func}`polaris.ocean.model.get_time_step_string()` function can be used to
+format time steps in the required ``DDDD_HH:MM:SS`` form.
+
+For example, if you have `resolution` in km and a config `section` with options
+`dt_per_km` (in s/km) and `run_duration` (in days), you can use these functions
+to get appropriate strings for filling in a template model config file:
 ```python
-from polaris.ocean.model import get_time_interval_string
+from polaris.ocean.model import get_time_interval_string, get_time_step_string
 
 
 dt_per_km = section.getfloat('dt_per_km')
-dt_str = get_time_interval_string(seconds=dt_per_km * resolution)
+dt_str = get_time_step_string(seconds=dt_per_km * resolution)
 
 run_duration = section.getfloat('run_duration')
 run_duration_str = get_time_interval_string(days=run_duration)

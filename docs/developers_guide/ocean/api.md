@@ -554,6 +554,7 @@
    OceanModelStep.map_yaml_configs
 
    get_time_interval_string
+   get_time_step_string
 ```
 
 
