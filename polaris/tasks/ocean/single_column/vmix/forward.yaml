@@ -1,6 +1,6 @@
 ocean:
   time_management:
-    config_run_duration: 0010_00:00:00
+    config_run_duration: 0001_00:00:00
   hmix_del4:
     config_use_mom_del4: false
   eos:
