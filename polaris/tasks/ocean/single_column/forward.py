@@ -125,6 +125,7 @@ class Forward(OceanModelStep):
             self.add_model_config_options(
                 options={
                     'config_vert_coord_movement': 'impermeable_interfaces',
+                    'config_disable_thick_vadv': True,
                     'config_disable_vel_vadv': True,
                     'config_disable_tr_adv': True,
                 },
