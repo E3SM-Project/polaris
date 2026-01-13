@@ -4,7 +4,7 @@ ocean:
   time_integration:
     config_dt: 0000_00:10:00
   forcing:
-    config_use_bulk_wind_stress: false
+    config_use_bulk_wind_stress: true
 
 mpas-ocean:
   run_modes:
@@ -13,7 +13,7 @@ mpas-ocean:
     config_btr_dt: 0000_00:00:30
   streams:
     mesh:
-      filename_template: init.nc
+      filename_template: mesh.nc
     input:
       filename_template: init.nc
     restart: {}

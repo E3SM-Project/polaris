@@ -81,10 +81,18 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
         self.add_input_file(
+            filename='mesh.nc',
+            target='../init/initial_state.nc',
+            # filename='mesh.nc', target='../init/culled_mesh.nc'
+        )
+        self.add_input_file(
             filename='init.nc', target='../init/initial_state.nc'
         )
         self.add_input_file(
             filename='graph.info', target='../init/culled_graph.info'
+        )
+        self.add_input_file(
+            filename='forcing.nc', target='../init/initial_state.nc'
         )
 
         self.add_yaml_file('polaris.tasks.ocean.single_column', 'forward.yaml')
