@@ -91,6 +91,7 @@ Omega:
       Contents:
       - AuxiliaryState
       - State
+      - ZMid
       - Tracers
       - SshCell
     RestartRead:

@@ -22,6 +22,9 @@ variables:
   cellsOnVertex: CellsOnVertex
   edgesOnVertex: EdgesOnVertex
 
+  # vertical
+  zMid: ZMid
+
   # tracers
   temperature: Temperature
   salinity: Salinity

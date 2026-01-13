@@ -3,7 +3,6 @@ import numpy as np
 
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.time import get_days_since_start
-from polaris.ocean.vertical.diagnostics import depth_from_thickness
 from polaris.viz import use_mplstyle
 
 
@@ -72,8 +71,8 @@ class Viz(OceanIOStep):
         if ideal_age:
             # Include age tracer
             fields['iAge'] = 'seconds'
-        z_mid_init = depth_from_thickness(ds_init).mean(dim='nCells')
-        z_mid_final = depth_from_thickness(ds_final).mean(dim='nCells')
+        z_mid_init = ds['zMid'].isel(Time=0).mean(dim='nCells')
+        z_mid_final = ds_final['zMid'].mean(dim='nCells')
         for field_name, field_units in fields.items():
             if field_name not in ds_init.keys():
                 raise ValueError(
