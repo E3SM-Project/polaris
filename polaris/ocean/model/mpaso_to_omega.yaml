@@ -59,6 +59,7 @@ variables:
   vertCoordMovementWeights: VertCoordMovementWeights
   # Note: restingThickness in MPAS-Ocean requires conversion to
   #       RefPseudoThickness in Omega (handled in write_vert_coord_dataset)
+  zMid: ZMid
 
   # tracers
   temperature: Temperature
