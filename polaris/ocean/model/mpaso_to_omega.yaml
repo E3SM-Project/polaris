@@ -27,6 +27,8 @@ variables:
   maxLevelCell: MaxLayerCell
   # currently hard-coded in horizontal mesh
   # bottomDepth: BottomDepth
+  # vertical
+  zMid: ZMid
 
   # tracers
   temperature: Temperature
