@@ -13,10 +13,11 @@ mpas-ocean:
     config_use_frazil_ice_formation: true
   tracer_forcing_activeTracers:
     config_use_activeTracers_surface_bulk_forcing: true
-    config_use_activeTracers_surface_restoring: true
-    config_use_activeTracers_interior_restoring: true
+    config_use_activeTracers_surface_restoring: false
+    config_use_activeTracers_interior_restoring: false
   cvmix:
     config_use_cvmix_kpp: false
+    config_cvmix_background_viscosity: 1e-2
     config_cvmix_shear_mixing_scheme: PP
   streams:
     KPP_testing: {}
