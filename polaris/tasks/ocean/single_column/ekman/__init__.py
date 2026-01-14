@@ -59,6 +59,10 @@ class Ekman(Task):
         )
 
         self.add_step(
-            Viz(component=component, indir=self.subdir),
+            Viz(
+                component=component,
+                indir=self.subdir,
+                comparisons={'forward': '../forward_constant'},
+            ),
             run_by_default=False,
         )

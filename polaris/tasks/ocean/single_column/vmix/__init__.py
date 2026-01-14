@@ -62,6 +62,7 @@ class VMix(Task):
                 component=component,
                 indir=f'{indir}/{name}',
                 comparisons={
+                    'control': '../forward',
                     'no_vadv': '../forward_no_vadv',
                     'constant': '../forward_constant',
                 },

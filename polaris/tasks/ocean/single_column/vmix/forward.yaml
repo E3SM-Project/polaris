@@ -1,6 +1,6 @@
 ocean:
   time_management:
-    config_run_duration: 0001_00:00:00
+    config_run_duration: 0010_00:00:00
   hmix_del4:
     config_use_mom_del4: false
   eos:
@@ -16,8 +16,8 @@ mpas-ocean:
     config_use_activeTracers_surface_restoring: true
     config_use_activeTracers_interior_restoring: true
   cvmix:
-    config_cvmix_shear_mixing_scheme: PP
     config_use_cvmix_kpp: false
+    config_cvmix_shear_mixing_scheme: PP
   streams:
     KPP_testing: {}
 
@@ -33,7 +33,7 @@ Omega:
     PresForceTendencyEnable: false
     PresGradForceTendencyEnable: false
     GeoptGradTendencyEnable: false
-    WindForcingTendencyEnable: false
+    WindForcingTendencyEnable: true
     BottomDragTendencyEnable: false
     TracerHorzAdvTendencyEnable: false
     TracerDiffTendencyEnable: false
