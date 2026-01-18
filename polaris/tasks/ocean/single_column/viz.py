@@ -82,17 +82,18 @@ class Viz(OceanIOStep):
                 )
             var_init = ds_init[field_name].mean(dim='nCells')
 
-            plt.figure(figsize=(3, 5))
-            ax = plt.subplot(111)
-            for comparison_name, _ in self.comparisons.items():
+            fig = plt.figure(figsize=(3, 5))
+            colors = ['b', 'r', 'darkgreen']
+            plt.plot(var_init, z_mid_init, '--k', label='initial')
+            for comparison_name, color in zip(
+                self.comparisons.keys(), colors, strict=False
+            ):
                 ds_comp = self.open_model_dataset(
                     f'{comparison_name}.nc', decode_times=False
                 )
-                ax.plot(var_init, z_mid_init, '--k', label='initial')
                 t_arr = get_days_since_start(ds_comp)
                 t_index = np.argmin(np.abs(t_arr - t_target))
                 t_days = float(t_arr[t_index])
-                print(f't_index = {t_index}, t_days = {t_days}')
                 ds_comp = ds_comp.isel(Time=t_index)
                 if field_name not in ds_comp.keys():
                     raise ValueError(
@@ -100,11 +101,17 @@ class Viz(OceanIOStep):
                     )
                 var_comp = ds_comp[field_name].mean(dim='nCells')
                 z_mid_final = ds_comp['zMid'].mean(dim='nCells')
-                ax.plot(var_comp, z_mid_final, '-r', label=comparison_name)
+                plt.plot(
+                    var_comp,
+                    z_mid_final,
+                    '-',
+                    color=color,
+                    label=comparison_name,
+                )
             title = f'final time = {t_days:2.1g} days'
-            ax.set_xlabel(f'{field_name} ({field_units})')
-            ax.set_ylabel('z (m)')
-            ax.legend(loc='lower right')
+            plt.xlabel(f'{field_name} ({field_units})')
+            plt.ylabel('z (m)')
+            fig.legend(loc='outside lower right')
             plt.title(title)
             plt.tight_layout(pad=0.5)
             plt.savefig(f'{field_name}.png')
@@ -113,7 +120,9 @@ class Viz(OceanIOStep):
         # Plot velocity profiles
         plt.figure(figsize=(3, 5))
         ax = plt.subplot(111)
-        for comparison_name, _ in self.comparisons.items():
+        for comparison_name, color in zip(
+            self.comparisons.keys(), colors, strict=False
+        ):
             ds_comp = self.open_model_dataset(
                 f'{comparison_name}.nc', decode_times=False
             )
@@ -126,8 +135,20 @@ class Viz(OceanIOStep):
             if 'velocityZonal' and 'velocityMeridional' in ds_comp.keys():
                 u_final = ds_comp['velocityZonal'].mean(dim='nCells')
                 v_final = ds_comp['velocityMeridional'].mean(dim='nCells')
-                ax.plot(u_final, z_mid_final, '-k', label='u')
-                ax.plot(v_final, z_mid_final, '-b', label='v')
+                ax.plot(
+                    u_final,
+                    z_mid_final,
+                    '-',
+                    color=color,
+                    label=f'u {comparison_name}',
+                )
+                ax.plot(
+                    v_final,
+                    z_mid_final,
+                    '--',
+                    color=color,
+                    label=f'v {comparison_name}',
+                )
         ax.set_xlabel('Velocity (m/s)')
         ax.set_ylabel('z (m)')
         ax.legend()
