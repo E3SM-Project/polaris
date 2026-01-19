@@ -1,4 +1,4 @@
-from polaris.tasks.ocean.two_column.teos10 import Teos10
+from polaris.tasks.ocean.two_column.salinity_gradient import SalinityGradient
 
 
 def add_two_column_tasks(component):
@@ -10,4 +10,4 @@ def add_two_column_tasks(component):
     component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
-    component.add_task(Teos10(component=component))
+    component.add_task(SalinityGradient(component=component))
