@@ -5,11 +5,24 @@ from polaris.tasks.ocean.two_column.init import Init
 from polaris.tasks.ocean.two_column.reference import Reference
 
 
-class Teos10(Task):
+class SalinityGradient(Task):
     """
-    The TEOS-10 two-column test case creates the mesh and initial condition,
-    then computes a quasi-analytic solution to the specific volume and
-    geopotential.
+    The salinity gradient two-column test case tests convergence of the TEOS-10
+    pressure-gradient computation in Omega at various horizontal resolutions.
+    The test uses a fixed horizontal gradient in salinity between two adjacent
+    ocean columns, with no horizontal gradient in temperature or pseudo-height.
+
+    The test includes a a quasi-analytic solution to horizontal
+    pressure-gradient force (HPGF) used for verification. It also includes a
+    set of Omega two-column initial conditions at various resolutions.
+
+    TODO:
+    Soon, the test will also include single-time-step forward model runs at
+    each resolution to output Omega's version of the HPGF, followed by an
+    analysis step to compute the error between Omega's HPGF and the
+    quasi-analytic solution.  We will also compare Omega's HPGF with a python
+    computation as part of the initial condition that is expected to match
+    Omega's HPGF to high precision.
     """
 
     def __init__(self, component):
@@ -21,7 +34,7 @@ class Teos10(Task):
         component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
         """
-        name = 'teos10'
+        name = 'salinity_gradient'
         subdir = os.path.join('two_column', name)
         super().__init__(component=component, name=name, subdir=subdir)
 
@@ -29,7 +42,8 @@ class Teos10(Task):
             'polaris.tasks.ocean.two_column', 'two_column.cfg'
         )
         self.config.add_from_package(
-            'polaris.tasks.ocean.two_column.teos10', 'teos10.cfg'
+            'polaris.tasks.ocean.two_column.salinity_gradient',
+            'salinity_gradient.cfg',
         )
 
         self._setup_steps()
