@@ -1,5 +1,6 @@
 import numpy as np
 import xarray as xr
+from mpas_tools.cime.constants import constants
 from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
@@ -230,6 +231,10 @@ class Init(OceanIOStep):
         )
         ds.GeomZInter.attrs['units'] = 'm'
 
+        self._compute_montgomery_and_hpga(
+            ds=ds, rho0=rho0, dx=resolution, p_mid=p_mid
+        )
+
         ds.layerThickness.attrs['long_name'] = 'pseudo-layer thickness'
         ds.layerThickness.attrs['units'] = 'm'
 
@@ -252,6 +257,115 @@ class Init(OceanIOStep):
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
         self.write_model_dataset(ds, 'initial_state.nc')
+
+    def _compute_montgomery_and_hpga(
+        self,
+        ds: xr.Dataset,
+        rho0: float,
+        dx: float,
+        p_mid: xr.DataArray,
+    ) -> None:
+        """Compute Montgomery potential and a 2-column HPGA.
+
+        This mimics the way Omega will compute the horizontal pressure
+        gradient: simple finite differences between the two columns.
+
+        The along-column HPGA is computed as:
+
+            HPGA = dM/dx - p_edge * d(alpha)/dx
+
+        where M is the Montgomery potential, alpha is the specific volume,
+        and p_edge is the pressure averaged between the two columns.
+
+        Outputs are added to ``ds``:
+        - MontgomeryMid (Time, nCells, nVertLevels)
+        - MontgomeryInter (Time, nCells, nVertLevels, nbnds)
+        - HPGAMid (Time, nVertLevels)
+        - HPGAInter (Time, nVertLevels, nbnds)
+        """
+
+        if ds.sizes.get('nCells', 0) != 2:
+            raise ValueError(
+                'The two-column HPGA computation requires exactly 2 cells.'
+            )
+        if dx == 0.0:
+            raise ValueError('dx must be non-zero for finite differences.')
+
+        g = constants['SHR_CONST_G']
+
+        # Midpoint quantities (alpha is layerwise constant)
+        alpha_mid = ds.SpecVol
+
+        # Interface quantities: Omega treats alpha as constant within each
+        # layer, so interface values are represented as bounds for each layer
+        # (top and bottom), with discontinuities permitted between layers.
+        z_tilde_top = ds.zInterface.isel(nVertLevelsP1=slice(0, -1)).rename(
+            {'nVertLevelsP1': 'nVertLevels'}
+        )
+        z_tilde_bot = ds.zInterface.isel(nVertLevelsP1=slice(1, None)).rename(
+            {'nVertLevelsP1': 'nVertLevels'}
+        )
+        z_top = ds.GeomZInter.isel(nVertLevelsP1=slice(0, -1)).rename(
+            {'nVertLevelsP1': 'nVertLevels'}
+        )
+        z_bot = ds.GeomZInter.isel(nVertLevelsP1=slice(1, None)).rename(
+            {'nVertLevelsP1': 'nVertLevels'}
+        )
+
+        z_tilde_bnds = xr.concat([z_tilde_top, z_tilde_bot], dim='nbnds')
+        z_bnds = xr.concat([z_top, z_bot], dim='nbnds')
+        # put nbnds last for readability/consistency
+        z_tilde_bnds = z_tilde_bnds.transpose(
+            'Time', 'nCells', 'nVertLevels', 'nbnds'
+        )
+        z_bnds = z_bnds.transpose('Time', 'nCells', 'nVertLevels', 'nbnds')
+
+        alpha_bnds = alpha_mid.expand_dims(nbnds=[0, 1]).transpose(
+            'Time', 'nCells', 'nVertLevels', 'nbnds'
+        )
+        montgomery_inter = g * (rho0 * alpha_bnds * z_tilde_bnds + z_bnds)
+        montgomery_inter = montgomery_inter.transpose(
+            'Time', 'nCells', 'nVertLevels', 'nbnds'
+        )
+
+        # Omega convention: Montgomery potential at midpoints is the mean of
+        # the two adjacent interface values.
+        montgomery_mid = 0.5 * (
+            montgomery_inter.isel(nbnds=0) + montgomery_inter.isel(nbnds=1)
+        )
+
+        # 2-column finite differences across the pair
+        dM_dx_mid = (
+            montgomery_mid.isel(nCells=1) - montgomery_mid.isel(nCells=0)
+        ) / dx
+        dalpha_dx_mid = (
+            alpha_mid.isel(nCells=1) - alpha_mid.isel(nCells=0)
+        ) / dx
+
+        # Pressure (positive downward), averaged to the edge between columns
+        p_edge_mid = 0.5 * (p_mid.isel(nCells=0) + p_mid.isel(nCells=1))
+
+        hpga_mid = dM_dx_mid - p_edge_mid * dalpha_dx_mid
+
+        ds['MontgomeryMid'] = montgomery_mid
+        ds.MontgomeryMid.attrs['long_name'] = (
+            'Montgomery potential at layer midpoints'
+        )
+        ds.MontgomeryMid.attrs['units'] = 'm2 s-2'
+
+        ds['MontgomeryInter'] = montgomery_inter
+        ds.MontgomeryInter.attrs['long_name'] = (
+            'Montgomery potential at layer interfaces (bounds)'
+        )
+        ds.MontgomeryInter.attrs['units'] = 'm2 s-2'
+
+        ds['HPGA'] = hpga_mid
+        ds.HPGA.attrs = {
+            'long_name': (
+                'along-layer pressure gradient acceleration at layer midpoints'
+            ),
+            'units': 'm s-2',
+        }
 
     def _get_geom_ssh_z_bot(
         self, x: np.ndarray
