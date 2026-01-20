@@ -54,10 +54,4 @@ def compute_specvol(
         specvol_np, dims=ct.dims, coords=ct.coords, name='specvol'
     )
 
-    return specvol.assign_attrs(
-        {
-            'long_name': 'specific volume',
-            'units': 'm^3 kg^-1',
-            'standard_name': 'specific_volume',
-        }
-    )
+    return specvol
