@@ -149,9 +149,10 @@ class Reference(OceanIOStep):
         )
         hpga = dM_dx - p0 * dalpha_dx
 
+        cells = [1, 3]  # indices for -0.5km and 0.5km
         ds = xr.Dataset()
         ds['temperature'] = xr.DataArray(
-            data=ct[np.newaxis, 1:2, 1::2],
+            data=ct[np.newaxis, cells, 1::2],
             dims=['Time', 'nCells', 'nVertLevels'],
             attrs={
                 'long_name': 'conservative temperature',
@@ -159,7 +160,7 @@ class Reference(OceanIOStep):
             },
         )
         ds['salinity'] = xr.DataArray(
-            data=sa[np.newaxis, 1:2, 1::2],
+            data=sa[np.newaxis, cells, 1::2],
             dims=['Time', 'nCells', 'nVertLevels'],
             attrs={
                 'long_name': 'salinity',
@@ -168,7 +169,7 @@ class Reference(OceanIOStep):
         )
 
         ds['SpecVol'] = xr.DataArray(
-            data=spec_vol[np.newaxis, 1:2, 1::2],
+            data=spec_vol[np.newaxis, cells, 1::2],
             dims=['Time', 'nCells', 'nVertLevels'],
             attrs={
                 'long_name': 'specific volume',
@@ -180,21 +181,21 @@ class Reference(OceanIOStep):
         ds.Density.attrs['units'] = 'kg m-3'
 
         ds['ZTildeMid'] = xr.DataArray(
-            data=z_tilde[np.newaxis, 1:2, 1::2],
+            data=z_tilde[np.newaxis, cells, 1::2],
             dims=['Time', 'nCells', 'nVertLevels'],
         )
         ds.ZTildeMid.attrs['long_name'] = 'pseudo-height at layer midpoints'
         ds.ZTildeMid.attrs['units'] = 'm'
 
         ds['ZTildeInter'] = xr.DataArray(
-            data=z_tilde[np.newaxis, 1:2, 0::2],
+            data=z_tilde[np.newaxis, cells, 0::2],
             dims=['Time', 'nCells', 'nVertLevelsP1'],
         )
         ds.ZTildeInter.attrs['long_name'] = 'pseudo-height at layer interfaces'
         ds.ZTildeInter.attrs['units'] = 'm'
 
         ds['GeomZMid'] = xr.DataArray(
-            data=z[np.newaxis, 1:2, 1::2],
+            data=z[np.newaxis, cells, 1::2],
             dims=['Time', 'nCells', 'nVertLevels'],
             attrs={
                 'long_name': 'geometric height at layer midpoints',
@@ -203,7 +204,7 @@ class Reference(OceanIOStep):
         )
 
         ds['GeomZInter'] = xr.DataArray(
-            data=z[np.newaxis, 1:2, 0::2],
+            data=z[np.newaxis, cells, 0::2],
             dims=['Time', 'nCells', 'nVertLevelsP1'],
             attrs={
                 'long_name': 'geometric height at layer interfaces',
@@ -212,7 +213,7 @@ class Reference(OceanIOStep):
         )
 
         ds['MontgomeryMid'] = xr.DataArray(
-            data=montgomery[np.newaxis, 1:2, 1::2],
+            data=montgomery[np.newaxis, cells, 1::2],
             dims=['Time', 'nCells', 'nVertLevels'],
             attrs={
                 'long_name': 'Montgomery potential at layer midpoints',
@@ -221,7 +222,7 @@ class Reference(OceanIOStep):
         )
 
         ds['MontgomeryInter'] = xr.DataArray(
-            data=montgomery[np.newaxis, 1:2, 0::2],
+            data=montgomery[np.newaxis, cells, 0::2],
             dims=['Time', 'nCells', 'nVertLevelsP1'],
             attrs={
                 'long_name': 'Montgomery potential at layer interfaces',
