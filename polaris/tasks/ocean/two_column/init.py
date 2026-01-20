@@ -238,6 +238,9 @@ class Init(OceanIOStep):
         ds.layerThickness.attrs['long_name'] = 'pseudo-layer thickness'
         ds.layerThickness.attrs['units'] = 'm'
 
+        ds.zMid.attrs['long_name'] = 'pseudo-height at layer midpoints'
+        ds.zMid.attrs['units'] = 'm'
+
         nedges = ds_mesh.sizes['nEdges']
         nvertlevels = ds.sizes['nVertLevels']
 
@@ -378,8 +381,22 @@ class Init(OceanIOStep):
         geom_ssh = get_array_from_mid_grad(config, 'geom_ssh', x)
         geom_z_bot = get_array_from_mid_grad(config, 'geom_z_bot', x)
         return (
-            xr.DataArray(data=geom_ssh, dims=['nCells']),
-            xr.DataArray(data=geom_z_bot, dims=['nCells']),
+            xr.DataArray(
+                data=geom_ssh,
+                dims=['nCells'],
+                attrs={
+                    'long_name': 'sea surface geometric height',
+                    'units': 'm',
+                },
+            ),
+            xr.DataArray(
+                data=geom_z_bot,
+                dims=['nCells'],
+                attrs={
+                    'long_name': 'seafloor geometric height',
+                    'units': 'm',
+                },
+            ),
         )
 
     def _init_z_tilde_vert_coord(
@@ -393,8 +410,12 @@ class Init(OceanIOStep):
         ds = ds_mesh.copy()
 
         ds['bottomDepth'] = pseudo_bottom_depth
+        ds.bottomDepth.attrs['long_name'] = 'seafloor pseudo-height'
+        ds.bottomDepth.attrs['units'] = 'm'
         # the pseudo-ssh is always zero (like the surface pressure)
         ds['ssh'] = xr.zeros_like(pseudo_bottom_depth)
+        ds.ssh.attrs['long_name'] = 'sea surface pseudo-height'
+        ds.ssh.attrs['units'] = 'm'
         init_vertical_coord(config, ds)
         return ds
 
