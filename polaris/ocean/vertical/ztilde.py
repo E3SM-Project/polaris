@@ -253,6 +253,8 @@ def geom_height_from_pseudo_height(
     geom_z_bot: xr.DataArray,
     h_tilde: xr.DataArray,
     spec_vol: xr.DataArray,
+    min_level_cell: np.ndarray,
+    max_level_cell: np.ndarray,
     rho0: float,
 ) -> tuple[xr.DataArray, xr.DataArray]:
     """
@@ -268,6 +270,12 @@ def geom_height_from_pseudo_height(
 
     spec_vol : xarray.DataArray
         Specific volume at midpoints of vertical layers.
+
+    min_level_cell : xarray.DataArray
+        Minimum valid zero-based level index for each cell.
+
+    max_level_cell : xarray.DataArray
+        Maximum valid zero-based level index for each cell.
 
     rho0 : float
         Reference density in kg m^-3.
@@ -287,16 +295,37 @@ def geom_height_from_pseudo_height(
 
     geom_thickness = spec_vol * h_tilde * rho0
 
-    geom_z_inter_list: list[xr.DataArray] = [geom_z_bot]
+    inter_mask = np.logical_and(
+        n_vert_levels >= min_level_cell, n_vert_levels <= max_level_cell + 1
+    )
+    geom_z_inter_list: list[xr.DataArray] = [geom_z_bot.where(inter_mask)]
     geom_z_mid_list: list[xr.DataArray] = []
     geom_z_prev = geom_z_bot
-    for z_index in range(n_vert_levels):
-        thickness = geom_thickness.isel(nVertLevels=z_index)
+    for z_index in range(n_vert_levels - 1, -1, -1):
+        mid_mask = np.logical_and(
+            z_index >= min_level_cell, z_index <= max_level_cell
+        )
+        inter_mask = np.logical_and(
+            z_index >= min_level_cell, z_index <= max_level_cell + 1
+        )
+        thickness = xr.where(
+            mid_mask, geom_thickness.isel(nVertLevels=z_index), 0.0
+        )
         geom_z_next = geom_z_prev + thickness
-        geom_z_inter_list.append(geom_z_next)
-        geom_z_mid_list.append(geom_z_prev + 0.5 * thickness)
+        geom_z_mid = geom_z_prev + 0.5 * thickness
+        geom_z_inter_list.insert(0, geom_z_next.where(inter_mask))
+        geom_z_mid_list.insert(0, geom_z_mid.where(mid_mask))
         geom_z_prev = geom_z_next
 
     geom_z_inter = xr.concat(geom_z_inter_list, dim='nVertLevelsP1')
     geom_z_mid = xr.concat(geom_z_mid_list, dim='nVertLevels')
+
+    # transpose to match h_tilde.  For geom_z_inter, replace nVertLevels with
+    # nVertLevelsP1 at the same index in the list of dimensions
+    z_mid_dims = list(h_tilde.dims)
+    z_inter_dims = z_mid_dims.copy()
+    z_inter_dims[z_mid_dims.index('nVertLevels')] = 'nVertLevelsP1'
+    geom_z_inter = geom_z_inter.transpose(*z_inter_dims)
+    geom_z_mid = geom_z_mid.transpose(*z_mid_dims)
+
     return geom_z_inter, geom_z_mid
