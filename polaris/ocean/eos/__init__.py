@@ -49,6 +49,8 @@ def compute_density(
         )
     else:
         raise ValueError(f'Unsupported equation of state type: {eos_type}')
+    density.attrs['units'] = 'kg m-3'
+    density.attrs['long_name'] = 'density'
     return density
 
 
@@ -95,4 +97,6 @@ def compute_specvol(
         )
     else:
         raise ValueError(f'Unsupported equation of state type: {eos_type}')
+    specvol.attrs['units'] = 'm3 kg-1'
+    specvol.attrs['long_name'] = 'specific volume'
     return specvol
