@@ -58,6 +58,7 @@ class Init(OceanIOStep):
         Run this step of the test case
         """
         logger = self.logger
+        # logger.setLevel(logging.INFO)
         config = self.config
         if config.get('ocean', 'model') != 'omega':
             raise ValueError(
@@ -126,6 +127,9 @@ class Init(OceanIOStep):
             z_tilde_mid = ds.zMid
             h_tilde = ds.layerThickness
 
+            logger.debug(f'z_tilde_mid = {z_tilde_mid}')
+            logger.debug(f'h_tilde = {h_tilde}')
+
             ct, sa = self._interpolate_t_s(
                 ds=ds,
                 z_tilde_mid=z_tilde_mid,
@@ -137,6 +141,10 @@ class Init(OceanIOStep):
                 rho0=rho0,
             )
 
+            logger.debug(f'ct = {ct}')
+            logger.debug(f'sa = {sa}')
+            logger.debug(f'p_mid = {p_mid}')
+
             spec_vol = compute_specvol(
                 config=config,
                 temperature=ct,
@@ -144,23 +152,40 @@ class Init(OceanIOStep):
                 pressure=p_mid,
             )
 
+            logger.debug(f'geom_z_bot = {geom_z_bot}')
+            logger.debug(f'spec_vol = {spec_vol}')
+
+            min_level_cell = ds.minLevelCell - 1
+            max_level_cell = ds.maxLevelCell - 1
+            logger.debug(f'min_level_cell = {min_level_cell}')
+            logger.debug(f'max_level_cell = {max_level_cell}')
+
             geom_z_inter, geom_z_mid = geom_height_from_pseudo_height(
                 geom_z_bot=geom_z_bot,
                 h_tilde=h_tilde,
                 spec_vol=spec_vol,
+                min_level_cell=min_level_cell,
+                max_level_cell=max_level_cell,
                 rho0=rho0,
             )
 
-            min_level_cell = ds.minLevelCell.values - 1
-            max_level_cell = ds.maxLevelCell.values - 1
+            logger.debug(f'geom_z_inter = {geom_z_inter}')
+            logger.debug(f'geom_z_mid = {geom_z_mid}')
 
-            geom_water_column_thickness = np.zeros(ncells)
+            # the water column thickness is the difference in the geometric
+            # height between the first and last valid valid interfaces
 
-            for icell in range(ncells):
-                geom_water_column_thickness[icell] = (
-                    geom_z_inter[icell, min_level_cell[icell]]
-                    - geom_z_inter[icell, max_level_cell[icell] + 1]
-                )
+            geom_z_min = geom_z_inter.isel(
+                Time=0, nVertLevelsP1=min_level_cell
+            )
+            geom_z_max = geom_z_inter.isel(
+                Time=0, nVertLevelsP1=max_level_cell + 1
+            )
+            # the min is shallower (less negative) than the max
+            geom_water_column_thickness = geom_z_min - geom_z_max
+            logger.debug(
+                f'geom_water_column_thickness = {geom_water_column_thickness}'
+            )
 
             # scale the pseudo bottom depth proportional to how far off we are
             # in the geometric water column thickness from the goal
@@ -183,31 +208,10 @@ class Init(OceanIOStep):
                 f'{pseudo_bottom_depth.values}'
             )
 
-        ds['temperature'] = xr.DataArray(
-            data=ct[np.newaxis, :, 1::2],
-            dims=['Time', 'nCells', 'nVertLevels'],
-            attrs={
-                'long_name': 'conservative temperature',
-                'units': 'degC',
-            },
-        )
-        ds['salinity'] = xr.DataArray(
-            data=sa[np.newaxis, :, 1::2],
-            dims=['Time', 'nCells', 'nVertLevels'],
-            attrs={
-                'long_name': 'salinity',
-                'units': 'g kg-1',
-            },
-        )
+        ds['temperature'] = ct
+        ds['salinity'] = sa
+        ds['SpecVol'] = spec_vol
 
-        ds['SpecVol'] = xr.DataArray(
-            data=spec_vol[np.newaxis, :, 1::2],
-            dims=['Time', 'nCells', 'nVertLevels'],
-            attrs={
-                'long_name': 'specific volume',
-                'units': 'm3 kg-1',
-            },
-        )
         ds['Density'] = 1.0 / ds['SpecVol']
         ds.Density.attrs['long_name'] = 'density'
         ds.Density.attrs['units'] = 'kg m-3'
@@ -216,23 +220,15 @@ class Init(OceanIOStep):
         ds.ZTildeMid.attrs['long_name'] = 'pseudo-height at layer midpoints'
         ds.ZTildeMid.attrs['units'] = 'm'
 
-        ds['GeomZMid'] = xr.DataArray(
-            data=geom_z_mid[np.newaxis, :, :],
-            dims=['Time', 'nCells', 'nVertLevels'],
-            attrs={
-                'long_name': 'geometric height at layer midpoints',
-                'units': 'm',
-            },
-        )
+        ds['GeomZMid'] = geom_z_mid
+        ds.GeomZMid.attrs['long_name'] = 'geometric height at layer midpoints'
+        ds.GeomZMid.attrs['units'] = 'm'
 
-        ds['GeomZInter'] = xr.DataArray(
-            data=geom_z_inter[np.newaxis, :, :],
-            dims=['Time', 'nCells', 'nVertLevelsP1'],
-            attrs={
-                'long_name': 'geometric height at layer interfaces',
-                'units': 'm',
-            },
+        ds['GeomZInter'] = geom_z_inter
+        ds.GeomZInter.attrs['long_name'] = (
+            'geometric height at layer interfaces'
         )
+        ds.GeomZInter.attrs['units'] = 'm'
 
         ds.layerThickness.attrs['long_name'] = 'pseudo-layer thickness'
         ds.layerThickness.attrs['units'] = 'm'
