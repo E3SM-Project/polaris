@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -88,6 +90,8 @@ class Viz(OceanIOStep):
             for comparison_name, color in zip(
                 self.comparisons.keys(), colors, strict=False
             ):
+                if not os.path.exists(f'{comparison_name}.nc'):
+                    continue
                 ds_comp = self.open_model_dataset(
                     f'{comparison_name}.nc', decode_times=False
                 )
@@ -123,6 +127,8 @@ class Viz(OceanIOStep):
         for comparison_name, color in zip(
             self.comparisons.keys(), colors, strict=False
         ):
+            if not os.path.exists(f'{comparison_name}.nc'):
+                continue
             ds_comp = self.open_model_dataset(
                 f'{comparison_name}.nc', decode_times=False
             )
