@@ -78,6 +78,5 @@ class VMix(Task):
                     'no_vadv': '../forward_no_vadv',
                     'constant': '../forward_no_vadv_constant',
                 },
-            ),
-            run_by_default=False,
+            )
         )
