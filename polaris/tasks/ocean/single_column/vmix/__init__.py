@@ -31,19 +31,30 @@ class VMix(Task):
             'layerThickness',
             'normalVelocity',
         ]
-        for enable_vadv in [True, False]:
-            self.add_step(
-                Forward(
-                    component=component,
-                    indir=f'{indir}/{name}',
-                    ntasks=1,
-                    min_tasks=1,
-                    openmp_threads=1,
-                    validate_vars=validate_vars,
-                    task_name='vmix',
-                    enable_vadv=enable_vadv,
-                )
+        self.add_step(
+            Forward(
+                component=component,
+                indir=f'{indir}/{name}',
+                ntasks=1,
+                min_tasks=1,
+                openmp_threads=1,
+                validate_vars=validate_vars,
+                task_name='vmix',
+                enable_vadv=True,
+            ),
+        )
+        self.add_step(
+            Forward(
+                component=component,
+                indir=f'{indir}/{name}',
+                ntasks=1,
+                min_tasks=1,
+                openmp_threads=1,
+                validate_vars=validate_vars,
+                task_name='vmix',
+                enable_vadv=False,
             )
+        )
         self.add_step(
             Forward(
                 component=component,
@@ -54,6 +65,7 @@ class VMix(Task):
                 validate_vars=validate_vars,
                 task_name='vmix',
                 constant_diff=True,
+                enable_vadv=False,
             )
         )
 
@@ -62,9 +74,8 @@ class VMix(Task):
                 component=component,
                 indir=f'{indir}/{name}',
                 comparisons={
-                    'control': '../forward',
                     'no_vadv': '../forward_no_vadv',
-                    'constant': '../forward_constant',
+                    'constant': '../forward_no_vadv_constant',
                 },
             ),
             run_by_default=False,
