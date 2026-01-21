@@ -54,6 +54,7 @@ class VMix(Task):
                 validate_vars=validate_vars,
                 task_name='vmix',
                 constant_diff=True,
+                enable_vadv=False,
             )
         )
 
@@ -64,7 +65,7 @@ class VMix(Task):
                 comparisons={
                     'control': '../forward',
                     'no_vadv': '../forward_no_vadv',
-                    'constant': '../forward_constant',
+                    'constant': '../forward_no_vadv_constant',
                 },
             ),
             run_by_default=False,
