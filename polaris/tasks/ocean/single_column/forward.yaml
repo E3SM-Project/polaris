@@ -11,6 +11,9 @@ mpas-ocean:
     config_ocean_run_mode: forward
   split_explicit_ts:
     config_btr_dt: 0000_00:00:30
+  forcing:
+    config_bulk_wind_stress_interp_isotropic: true
+    config_use_bulk_thickness_flux: true
   streams:
     mesh:
       filename_template: mesh.nc
