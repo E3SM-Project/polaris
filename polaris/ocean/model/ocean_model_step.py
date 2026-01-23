@@ -19,7 +19,7 @@ OptionValue = Union[str, int, float, bool]
 MapSectionKey = Union[str, List[str]]
 # in principle, any number of levels but 4 seems sufficient for now
 ConfigsType = Dict[
-    str,
+    Union[str, None],
     Union[
         Dict[str, OptionValue],
         Dict[str, Dict[str, OptionValue]],
@@ -238,7 +238,7 @@ class OceanModelStep(ModelStep):
         self,
         options: Dict[str, OptionValue],
         config_model: Optional[str],
-    ) -> Dict[str, OptionValue]:
+    ) -> Tuple[Optional[Dict[str, OptionValue]], Optional[ConfigsType]]:
         """
         A mapping between model config options from MPAS-Ocean to Omega
 
@@ -254,15 +254,23 @@ class OceanModelStep(ModelStep):
 
         Returns
         -------
-        options : dict
+        options : dict or None
             A revised dictionary of yaml options and value to use as
             replacements for existing values
+
+        configs : dict or None
+            A revised nested dictionary of yaml sections, options and value to
+            use as replacements for existing values
         """
         config = self.config
         model = config.get('ocean', 'model')
         if model == 'omega' and config_model == 'ocean':
-            options = self._map_mpaso_to_omega_options(options)
-        return options
+            # make a dummy configs dict with None as the section
+            mpaso_configs: ConfigsType = {None: options}
+            configs = self._map_mpaso_to_omega_configs(mpaso_configs)
+            return None, configs
+        else:
+            return options, None
 
     def map_yaml_configs(
         self,
@@ -529,60 +537,6 @@ class OceanModelStep(ModelStep):
         nested_dict = yaml_data.load(text)
         self.config_map = nested_dict['config']
 
-    def _map_mpaso_to_omega_options(
-        self,
-        options: Dict[str, OptionValue],
-    ) -> Dict[str, OptionValue]:
-        """
-        Map MPAS-Ocean namelist options to Omega config options
-        """
-
-        out_options: Dict[str, OptionValue] = {}
-        not_found = []
-        for mpaso_option, mpaso_value in options.items():
-            try:
-                omega_option, omega_value = self._map_mpaso_to_omega_option(
-                    option=mpaso_option, value=mpaso_value
-                )
-                out_options[omega_option] = omega_value
-            except ValueError:
-                not_found.append(mpaso_option)
-
-        self._warn_not_found(not_found)
-
-        return out_options
-
-    def _map_mpaso_to_omega_option(
-        self,
-        option: str,
-        value: OptionValue,
-    ) -> Tuple[str, OptionValue]:
-        """
-        Map MPAS-Ocean namelist option to Omega equivalent
-        """
-        out_option = option
-        found = False
-
-        assert self.config_map is not None
-        # traverse the map
-        for entry in self.config_map:
-            options_dict = entry['options']
-            for mpaso_option, omega_option in options_dict.items():
-                if option == mpaso_option:
-                    found = True
-                    out_option = omega_option
-                    break
-
-            if found:
-                break
-
-        if not found:
-            raise ValueError(f'No mapping found for {option}')
-
-        out_option, out_value = self._map_handle_not(out_option, value)
-
-        return out_option, out_value
-
     def _map_mpaso_to_omega_configs(
         self,
         configs: ConfigsType,
@@ -605,7 +559,7 @@ class OceanModelStep(ModelStep):
                             section=section, option=option, value=mpaso_value
                         )
                     )
-                    local_config: Dict[str, Any] = out_configs
+                    local_config: Dict[str | None, Any] = out_configs
                     sec_str = '/'.join(omega_sections)
                     for omega_section in omega_sections:
                         if omega_section not in local_config:
@@ -626,14 +580,14 @@ class OceanModelStep(ModelStep):
 
     def _map_mpaso_to_omega_section_option(
         self,
-        section: str,
         option: str,
         value: OptionValue,
+        section: str | None = None,
     ) -> Tuple[List[str], str, OptionValue]:
         """
         Map MPAS-Ocean namelist section and option to Omega equivalent
         """
-        out_sections: List[str] = [section]
+        out_sections: List[str] = []
         out_option = option
 
         assert self.config_map is not None
@@ -642,27 +596,32 @@ class OceanModelStep(ModelStep):
         # traverse the map
         for entry in self.config_map:
             section_dict = entry['section']
+            if len(section_dict) != 1:
+                raise ValueError(
+                    'Mapping entries must have exactly one section'
+                )
+
+            mpaso_section = next(iter(section_dict))
+            omega_sections: MapSectionKey = section_dict[mpaso_section]
+            if section is not None and mpaso_section != section:
+                continue
+
+            options_dict = entry['options']
+            option_found = False
             try:
-                omega_section: MapSectionKey = section_dict[section]
+                omega_option = options_dict[option]
             except KeyError:
                 continue
             else:
-                options_dict = entry['options']
-                option_found = False
-                try:
-                    omega_option = options_dict[option]
-                except KeyError:
-                    continue
-                else:
-                    option_found = True
-                    # make sure out_sections is a list
-                    out_sections = (
-                        omega_section
-                        if isinstance(omega_section, list)
-                        else [omega_section]
-                    )
-                    out_option = omega_option
-                    break
+                option_found = True
+                # make sure out_sections is a list
+                out_sections = (
+                    omega_sections
+                    if isinstance(omega_sections, list)
+                    else [omega_sections]
+                )
+                out_option = omega_option
+                break
 
         if not option_found:
             sec_str = (
