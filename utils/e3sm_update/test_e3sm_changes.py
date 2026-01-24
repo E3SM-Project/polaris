@@ -16,8 +16,6 @@ def submit_e3sm_tests(
     current,
     new,
     work_base,
-    mpas_subdir,
-    make_command,
     setup_command,
     load_script,
 ):
@@ -48,14 +46,11 @@ def submit_e3sm_tests(
     work_base : str
         the absolute or relative path for test results (subdirectories will be
         created within this path for each git hash)
-    mpas_subdir : str
-        path within the E3SM worktree to the MPAS model you want to build
-    make_command : str
-        the make command to run to build the MPAS model
     setup_command : str
         the command to set up one or more test cases or a test suite.
-        Note: the mpas model, baseline and work directories will be appended
-        automatically so don't include -p, -b or -w flags
+        Note: the component path, baseline and work directories will be
+        appended automatically so don't include --build, --clean_build,
+        ---quiet_build, --p, -b or -w flags
     load_script : bool
         the absolute or relative path to the load script use to activate the
         polaris environment
@@ -67,7 +62,7 @@ def submit_e3sm_tests(
 
     load_script = os.path.abspath(load_script)
 
-    commands = 'git submodule update --init'
+    commands = f'git submodule update --init {submodule}'
     print_and_run(commands)
 
     current_submodule = f'{submodule}-current'
@@ -83,7 +78,7 @@ def submit_e3sm_tests(
 
     # get a list of merges between the current and new hashes
     commands = (
-        f'cd {new_submodule}; '
+        f'cd {new_submodule} && '
         f'git log --oneline --first-parent --ancestry-path '
         f'{current}..{new}'
     )
@@ -105,7 +100,7 @@ def submit_e3sm_tests(
                 end = line.split('#')[-1].replace('(', ' ').replace(')', ' ')
                 pull_request = end.split()[0]
                 index = len(pull_requests)
-                worktree = f'{index + 1:02d}_{pull_request}'
+                worktree = f'e3sm_submodules/{index + 1:02d}_{pull_request}'
                 pull_requests.append(
                     {
                         'hash': hash,
@@ -134,21 +129,14 @@ def submit_e3sm_tests(
         worktree = data['worktree']
         setup_worktree(submodule, worktree=worktree, hash=hash)
 
-    print('Building each worktree and submitting comparison tasks\n')
+    print('Setting up each worktree and submitting comparison tasks\n')
 
     print('00: current\n')
     baseline = f'{work_base}/00_current'
-    build_model(
-        load_script=load_script,
-        worktree=current_submodule,
-        mpas_subdir=mpas_subdir,
-        make_command=make_command,
-    )
     setup_and_submit(
         load_script=load_script,
         setup_command=setup_command,
         worktree=current_submodule,
-        mpas_subdir=mpas_subdir,
         workdir=baseline,
     )
     previous = 'current'
@@ -158,17 +146,10 @@ def submit_e3sm_tests(
         pull_request = data['pull_request']
         workdir = f'{work_base}/{index + 1:02d}_{pull_request}_{previous}'
         print(f'{index + 1:02d}: {pull_request}\n')
-        build_model(
-            load_script=load_script,
-            worktree=worktree,
-            mpas_subdir=mpas_subdir,
-            make_command=make_command,
-        )
         setup_and_submit(
             load_script=load_script,
             setup_command=setup_command,
             worktree=worktree,
-            mpas_subdir=mpas_subdir,
             workdir=workdir,
             baseline=baseline,
         )
@@ -178,17 +159,10 @@ def submit_e3sm_tests(
     index = len(pull_requests)
     print(f'{index + 1:02d}: new\n')
     workdir = f'{work_base}/{index + 1:02d}_new_{previous}'
-    build_model(
-        load_script=load_script,
-        worktree=new_submodule,
-        mpas_subdir=mpas_subdir,
-        make_command=make_command,
-    )
     setup_and_submit(
         load_script=load_script,
         setup_command=setup_command,
         worktree=new_submodule,
-        mpas_subdir=mpas_subdir,
         workdir=workdir,
         baseline=baseline,
     )
@@ -198,28 +172,15 @@ def submit_e3sm_tests(
 
 def setup_worktree(submodule, worktree, hash):
     if not os.path.exists(worktree):
-        commands = f'cd {submodule}; git worktree add ../{worktree}'
+        commands = f'cd {submodule} && git worktree add ../../{worktree}'
         print_and_run(commands)
 
-    commands = (
-        f'cd {worktree}; '
-        f'git reset --hard {hash}; '
-        f'git submodule update --init --recursive >& submodule.log'
-    )
-    print_and_run(commands)
-
-
-def build_model(load_script, worktree, mpas_subdir, make_command):
-    commands = (
-        f'source {load_script}; '
-        f'cd {worktree}/{mpas_subdir}; '
-        f'{make_command} &> make.log'
-    )
+    commands = f'cd {worktree} && git reset --hard {hash}'
     print_and_run(commands)
 
 
 def setup_and_submit(
-    load_script, setup_command, worktree, mpas_subdir, workdir, baseline=None
+    load_script, setup_command, worktree, workdir, baseline=None
 ):
     if ' -t ' in setup_command:
         split = setup_command.split()
@@ -232,20 +193,23 @@ def setup_and_submit(
     else:
         suite = 'custom'
 
-    full_setup = f'{setup_command} -p {worktree}/{mpas_subdir} -w {workdir}'
+    full_setup = (
+        f'{setup_command} --clean_build --quiet_build --branch {worktree} '
+        f'-w {workdir}'
+    )
     if baseline is not None:
         full_setup = f'{full_setup} -b {baseline}'
 
-    commands = f'source {load_script}; {full_setup}'
+    commands = f'source {load_script} && {full_setup}'
     print_and_run(commands)
 
-    commands = f'cd {workdir}; sbatch job_script.{suite}.sh'
+    commands = f'cd {workdir} && sbatch job_script.{suite}.sh'
     print_and_run(commands)
 
 
 def print_and_run(commands, get_output=False):
     print('\nRunning:')
-    print_commands = commands.replace('; ', '\n  ')
+    print_commands = commands.replace(' && ', '\n  ')
     print(f'  {print_commands}\n\n')
     if get_output:
         output_raw = subprocess.check_output(commands, shell=True)
@@ -318,8 +282,6 @@ def main():
         current=section['current'],
         new=section['new'],
         work_base=section['work_base'],
-        mpas_subdir=section['mpas_subdir'],
-        make_command=section['make_command'],
         setup_command=section['setup_command'],
         load_script=section['load_script'],
     )
