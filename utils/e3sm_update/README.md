@@ -32,7 +32,8 @@ help of a config file similar to `example.cfg`.
    has been built and set up.
 
 5. Worktrees will be created for the current and new submodules as well as
-   each relevant E3SM pull request inbetween.  The code will be built with the
-   make command provided in the config file and then a job will be submitted
-   for running the suite or test case(s) provided in the config file, comparing
-   with the previous pull request of interest as a baseline.
+   each relevant E3SM pull request inbetween.  A job will be submitted
+   for running the suite or task(s) provided in the config file.  The
+   setup command automatically adds `--clean_build` so the model builds in the
+   work directory and compares with the previous pull request of interest as a
+   baseline.
