@@ -5,6 +5,7 @@ import numpy as np
 
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.time import get_days_since_start
+from polaris.ocean.vertical.diagnostics import depth_from_thickness
 from polaris.viz import use_mplstyle
 
 
@@ -104,11 +105,13 @@ class Viz(OceanIOStep):
                         f'{field_name} not present in {comparison_name}.nc'
                     )
                 var_comp = ds_comp[field_name].mean(dim='nCells')
-                z_mid_final = ds_comp['zMid'].mean(dim='nCells')
+                # TODO use this line when Omega zMid is correct
+                # z_mid_final = ds_comp['zMid'].mean(dim='nCells')
+                z_mid_final = depth_from_thickness(ds_comp).mean(dim='nCells')
                 plt.plot(
                     var_comp,
                     z_mid_final,
-                    '-',
+                    '.',
                     color=color,
                     label=comparison_name,
                 )
