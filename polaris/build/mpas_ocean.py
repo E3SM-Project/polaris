@@ -164,7 +164,7 @@ def make_build_script(
     if debug:
         make_flags += ' debug=TRUE'
 
-    load_script = os.environ['LOAD_POLARIS_ENV']
+    load_script = os.environ['POLARIS_LOAD_SCRIPT']
 
     script = template.render(
         load_script=load_script,

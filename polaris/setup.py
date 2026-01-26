@@ -934,8 +934,8 @@ def _setup_step(task, step, work_dir, baseline_dir, task_dir):
 
 def _symlink_load_script(work_dir):
     """make a symlink to the script for loading the polaris env."""
-    if 'LOAD_POLARIS_ENV' in os.environ:
-        script_filename = os.environ['LOAD_POLARIS_ENV']
+    if 'POLARIS_LOAD_SCRIPT' in os.environ:
+        script_filename = os.environ['POLARIS_LOAD_SCRIPT']
         symlink(script_filename, os.path.join(work_dir, 'load_polaris_env.sh'))
 
 

@@ -237,7 +237,7 @@ source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
 This will load the appropriate conda environment, load system modules for
 compilers, MPI and libraries needed to build and run E3SM components, and
 set environment variables needed for E3SM components or polaris.  It will also
-set an  environment variable `LOAD_POLARIS_ENV` that points to the activation
+set an  environment variable `POLARIS_LOAD_SCRIPT` that points to the activation
 script. Polaris uses this to make an symlink to the activation script called
 `load_polaris_env.sh` in the work directory.  When the load script is
 executed from the base of the polaris repository (i.e., as
@@ -266,7 +266,7 @@ anywhere, and it always refers to that branch.  To find out which branch you
 are actually running `polaris` from, you should run:
 
 ```bash
-echo $LOAD_POLARIS_ENV
+echo $POLARIS_LOAD_SCRIPT
 ```
 
 This will give you the path to the load script, which will also tell you where
@@ -426,7 +426,7 @@ source ./load_<env_name>.sh
 ```
 
 This will load the appropriate conda environment for polaris.  It will also
-set an environment variable `LOAD_POLARIS_ENV` that points to the activation
+set an environment variable `POLARIS_LOAD_SCRIPT` that points to the activation
 script. Polaris uses this to make a symlink to the activation script
 called `load_polaris_env.sh` in the work directory.
 
