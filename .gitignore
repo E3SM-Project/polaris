@@ -33,3 +33,12 @@ pixi-env/
 
 # vs code
 .vscode/
+
+# mypy
+.mypy_cache/
+
+# ruff
+.ruff_cache/
+
+# mache
+.mache_cache/
