@@ -47,10 +47,10 @@ def write(work_dir, tasks, config=None, machine=None, baseline_dir=None):
         component_git_version = _get_component_git_version(config)
 
     try:
-        args = ['conda', 'list']
-        conda_list = subprocess.check_output(args).decode('utf-8')
+        args = ['pixi', 'list']
+        pixi_list = subprocess.check_output(args).decode('utf-8')
     except subprocess.CalledProcessError:
-        conda_list = None
+        pixi_list = None
 
     calling_command = ' '.join(sys.argv)
 
@@ -109,9 +109,9 @@ def write(work_dir, tasks, config=None, machine=None, baseline_dir=None):
 
         provenance_file.write(f'{print_string}\n')
 
-    if conda_list is not None:
-        provenance_file.write('conda list:\n')
-        provenance_file.write(f'{conda_list}\n')
+    if pixi_list is not None:
+        provenance_file.write('pixi list:\n')
+        provenance_file.write(f'{pixi_list}\n')
 
     provenance_file.write(
         '**************************************************'
