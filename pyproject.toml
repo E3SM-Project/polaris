@@ -81,7 +81,7 @@ warn_unused_configs = true
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
-exclude = ["docs*", "conda*"]
+exclude = ["docs*"]
 line-length = 79
 
 [tool.ruff.lint]

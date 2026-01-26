@@ -28,7 +28,7 @@ def bisect(good, bad, e3sm_path, load_script, config_file, first_parent):
         initialized with ``git submodule update --init``.
     load_script : str
         The relative or absolute path to the load script used to activate
-        the polaris conda environment and set environment variables used to
+        the polaris environment and set environment variables used to
         build the E3SM component to test.
     config_file : str
         The relative or absolute path to a config file containing config

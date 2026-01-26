@@ -933,7 +933,7 @@ def _setup_step(task, step, work_dir, baseline_dir, task_dir):
 
 
 def _symlink_load_script(work_dir):
-    """make a symlink to the script for loading the polaris conda env."""
+    """make a symlink to the script for loading the polaris env."""
     if 'LOAD_POLARIS_ENV' in os.environ:
         script_filename = os.environ['LOAD_POLARIS_ENV']
         symlink(script_filename, os.path.join(work_dir, 'load_polaris_env.sh'))
