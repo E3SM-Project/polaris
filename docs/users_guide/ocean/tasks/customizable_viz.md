@@ -65,6 +65,9 @@ mesh_file = ${MESH_FILE}
 # Data file, absolute file path
 input_file = ${INPUT_FILE}
 
+# Transect file from viz_transect, optional
+transect_file = ${INPUT_FILE}
+
 [customizable_viz_horiz_field]
 
 # Projection to use for the horizontal field plot, must be supported by mosaic
