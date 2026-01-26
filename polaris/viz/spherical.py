@@ -137,10 +137,10 @@ def plot_global_mpas_field(
     gl.right_labels = False
     gl.top_labels = False
 
-    pc = mosaic.polypcolor(ax, descriptor, da, **pcolor_kwargs)
-
     if plot_land:
         _add_land_lakes_coastline(ax)
+
+    pc = mosaic.polypcolor(ax, descriptor, da, **pcolor_kwargs)
 
     cbar = fig.colorbar(
         pc, ax=ax, label=colorbar_label, extend='both', shrink=0.6
@@ -397,8 +397,15 @@ def _add_land_lakes_coastline(ax, ice_shelves=True):
         'physical',
         'land',
         '50m',
-        edgecolor='k',
+        edgecolor='none',
         facecolor=land_color,
+    )
+    coastline_50m = cartopy.feature.NaturalEarthFeature(
+        'physical',
+        'land',
+        '50m',
+        edgecolor='brown',
+        facecolor='none',
     )
     lakes_50m = cartopy.feature.NaturalEarthFeature(
         'physical',
@@ -407,14 +414,15 @@ def _add_land_lakes_coastline(ax, ice_shelves=True):
         edgecolor='k',
         facecolor=water_color,
     )
-    ax.add_feature(land_50m, zorder=2)
+    ax.add_feature(land_50m, zorder=0)
     if ice_shelves:
         ice_50m = cartopy.feature.NaturalEarthFeature(
             'physical',
             'antarctic_ice_shelves_polys',
             '50m',
-            edgecolor='k',
+            edgecolor='lightblue',
             facecolor='none',
         )
-        ax.add_feature(ice_50m, zorder=3)
-    ax.add_feature(lakes_50m, zorder=4)
+        ax.add_feature(ice_50m, zorder=11)
+    ax.add_feature(lakes_50m, zorder=2)
+    ax.add_feature(coastline_50m, zorder=10)
