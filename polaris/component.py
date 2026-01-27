@@ -121,7 +121,7 @@ class Component:
             )
         self.configs[config.filepath] = config
 
-    def configure(self, config):
+    def configure(self, config, tasks):
         """
         Configure the component
 
@@ -129,6 +129,9 @@ class Component:
         ----------
         config : polaris.config.PolarisConfigParser
             config options to modify
+
+        tasks : list of polaris.Task
+            The tasks to be set up for this component
         """
         pass
 

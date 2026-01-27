@@ -16,7 +16,8 @@ class Ocean(Component):
     Attributes
     ----------
     model : str
-        The ocean model being used, either 'mpas-ocean' or 'omega'
+        The ocean model being used, either 'mpas-ocean', 'omega', or
+        'unknown' if no OceanModelStep is present in any task
 
     mpaso_to_omega_dim_map : dict
         A map from MPAS-Ocean dimension names to their Omega equivalents
@@ -34,7 +35,7 @@ class Ocean(Component):
         self.mpaso_to_omega_dim_map: Union[None, Dict[str, str]] = None
         self.mpaso_to_omega_var_map: Union[None, Dict[str, str]] = None
 
-    def configure(self, config):
+    def configure(self, config, tasks):
         """
         Configure the component
 
@@ -42,7 +43,14 @@ class Ocean(Component):
         ----------
         config : polaris.config.PolarisConfigParser
             config options to modify
+
+        tasks : list of polaris.Task
+            The tasks to be set up for this component
         """
+        if not self._has_ocean_model_steps(tasks):
+            # No ocean model steps, so no model detection or build needed.
+            self.model = 'unknown'
+            return
         section = config['ocean']
         model = section.get('model')
         if model == 'detect':
@@ -237,6 +245,19 @@ class Ocean(Component):
         ds = xr.open_dataset(filename, **kwargs)
         ds = self.map_from_native_model_vars(ds)
         return ds
+
+    def _has_ocean_model_steps(self, tasks) -> bool:
+        """
+        Determine if any steps in this component descend from OceanModelStep
+        """
+        # local import to avoid circular imports
+        from polaris.ocean.model.ocean_model_step import OceanModelStep
+
+        return any(
+            isinstance(step, OceanModelStep)
+            for task in tasks
+            for step in task.steps.values()
+        )
 
     def _read_var_map(self):
         """
