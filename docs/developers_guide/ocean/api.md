@@ -470,7 +470,6 @@
    :toctree: generated/
 
    compute_total_mass
-   compute_total_mass_nonboussinesq
    compute_total_salt
    compute_total_energy
 ```
