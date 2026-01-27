@@ -3,6 +3,7 @@ import os
 import cmocean  # noqa: F401
 import numpy as np
 import xarray as xr
+from mpas_tools.io import write_netcdf
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris.ocean.model import OceanIOStep as OceanIOStep
@@ -24,10 +25,7 @@ class VizTransect(OceanIOStep):
         section = self.config['customizable_viz']
         self.mesh_file = section.get('mesh_file')
         self.input_file = section.get('input_file')
-        if section.has_option('transect_file'):
-            self.transect_file = section.get('transect_file')
-        else:
-            self.transect_file = ''
+        self.transect_file = section.get('transect_file')
         section_name = 'customizable_viz_transect'
         self.variables = self.config.getlist(
             section_name, 'variables', dtype=str
@@ -78,7 +76,7 @@ class VizTransect(OceanIOStep):
             ds = ds.isel(nVertLevelsP1=slice(0, -1))
         if os.path.exists(self.transect_file):
             ds_transect = xr.open_dataset(self.transect_file)
-            print(f'loading transect from {self.transect_file}')
+            self.logger.info(f'loading transect from {self.transect_file}')
         else:
             ds_transect = compute_transect(
                 x=x,
@@ -90,9 +88,11 @@ class VizTransect(OceanIOStep):
                 max_level_cell=ds_mesh.maxLevelCell - 1,
                 spherical=True,
             )
+            self.logger.info('saving transect to {self.transect_file}')
+            write_netcdf(ds_transect, self.transect_file)
 
         cell_indices = ds_transect.cellIndices
-        ds_data = ds.isel(nCells=cell_indices.values)
+        ds_data = ds.isel(nCells=cell_indices)
 
         viz_dict = get_viz_defaults()
         if self.config.has_option(section_name, 'colormap_range_percent'):
@@ -135,8 +135,11 @@ class VizTransect(OceanIOStep):
                     data.values[mask], 100.0 - colormap_range_percent
                 )
             else:
-                vmin = data.min().values
-                vmax = data.max().values
+                plot_data = data.isel(nVertLevels=ds_transect.levelIndices)
+                valid = ds_transect.validCells
+                plot_data = plot_data.where(valid)
+                vmin = plot_data.min().values
+                vmax = plot_data.max().values
 
             if self.config.has_option(
                 section_name, 'vmin'
