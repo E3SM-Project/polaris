@@ -3,6 +3,25 @@ import xarray as xr
 
 
 def depth_from_thickness(ds):
+    """
+    Compute the depth of the midpoint of each layer from `layerThickness`. It
+    is assumed that the `layerThickness` of invalid levels is 0. If
+    `ssh` is present in the dataset, depths will be offset by `ssh`. If
+    `bottomDepth` is present in the dataset, the location of the bottom of the
+    bottommost vertical level will be compared with `bottomDepth`.
+
+    Parameters
+    ----------
+    ds: xarray.Dataset
+        An ocean dataset containing `layerThickness` and optionally `ssh`
+        and `bottomDepth`
+
+    Returns
+    -------
+    z_mid : xarray.DataArray
+        The location in meters from the sea surface of the midpoing of each
+        layer (level), positive upward
+    """
     # TODO when Omega supports these variables, just fetch them
     # if 'zMid' in ds.keys():
     #    z_mid = ds['zMid']
