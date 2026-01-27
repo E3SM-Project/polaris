@@ -16,9 +16,30 @@ class VizHorizField(OceanIOStep):
     """
     A step for visualizing MPAS horizontal fields
     """
+    A step for visualizing MPAS horizontal fields
+    
+    Attributes
+    ----------
+    mesh_file : str
+        Absolute path to the mesh file
+        
+    input_file : str
+        Absolute path to the data file with fields to visualize
+        
+    transect_file : str
+        Absolute path to a transect file produced by 
+        ‎polaris.tasks.ocean.customizable_viz.viz_transect.VizTransect
+        
+    variables : list of str
+        Names of variables to visualize
+    """
 
     def __init__(self, component, name, indir):
         super().__init__(component=component, name=name, indir=indir)
+        self.mesh_file = ''
+        self.input_file = ''
+        self.transect_file = ''
+        self.variables = []
 
     def runtime_setup(self):
         section = self.config['customizable_viz']
