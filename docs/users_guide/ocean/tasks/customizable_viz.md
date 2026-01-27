@@ -5,7 +5,6 @@
 The {py:class}`customizable_viz` task generates visualizations from ocean
 model outputs using configurable map projection, variable selection, and
 plotting options. All visualizations are done on the native MPAS mesh using
-All visualizations are done on the native MPAS mesh using
 `[mosaic](https://github.com/E3SM-Project/mosaic)`
 
 The customizable_viz task can produce plots of two types, horizontal field
@@ -60,13 +59,13 @@ N/A
 ```cfg
 [customizable_viz]
 # Mesh file, absolute file path
-mesh_file = ${MESH_FILE}
+mesh_file =
 
 # Data file, absolute file path
-input_file = ${INPUT_FILE}
+input_file =
 
 # Transect file from viz_transect, optional
-transect_file = ${INPUT_FILE}
+transect_file =
 
 [customizable_viz_horiz_field]
 

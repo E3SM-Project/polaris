@@ -37,6 +37,11 @@ class VizHorizField(OceanIOStep):
             )
 
     def run(self):  # noqa:C901
+        if not os.path.exists(self.mesh_file):
+            raise ValueError(f'Mesh file {self.mesh_file} is not found')
+        if not os.path.exists(self.input_file):
+            raise ValueError(f'Input file {self.input_file} is not found')
+
         section_name = 'customizable_viz_horiz_field'
         section = self.config[section_name]
 
