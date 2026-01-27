@@ -1,7 +1,7 @@
+ocean/planar/barotropic_gyre/munk/free-slip
 ocean/planar/manufactured_solution/convergence_both/default
 ocean/planar/manufactured_solution/convergence_both/del2
 ocean/planar/manufactured_solution/convergence_both/del4
-ocean/planar/barotropic_gyre/munk/free-slip
 ocean/spherical/qu/rotation_2d
 ocean/spherical/icos/rotation_2d
 ocean/spherical/icos/cosine_bell/decomp
