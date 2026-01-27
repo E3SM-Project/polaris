@@ -338,11 +338,15 @@ class ModelStep(Step):
 
         Returns
         -------
-        options : dict
+        options : dict or None
             A revised dictionary of yaml options and value to use as
             replacements for existing values
+
+        configs : dict or None
+            A revised nested dictionary of yaml sections, options and value to
+            use as replacements for existing values
         """
-        return options
+        return options, None
 
     def map_yaml_configs(self, configs, config_model):
         """
@@ -732,11 +736,18 @@ class ModelStep(Step):
                 ):
                     # this is a dictionary of replacement model config options
                     options = entry['options']
-                    options = self.map_yaml_options(
+                    options, configs = self.map_yaml_options(
                         options=entry['options'], config_model=config_model
                     )
-                    options = self.map_yaml_to_namelist(options)
-                    replacements.update(options)
+                    if options is not None:
+                        options = self.map_yaml_to_namelist(options)
+                        replacements.update(options)
+                    if configs is not None:
+                        configs = self.map_yaml_configs(
+                            configs=configs, config_model=config_model
+                        )
+                        configs = self.map_yaml_to_namelist(configs)
+                        replacements.update(configs)
                 if 'yaml' in entry:
                     yaml = PolarisYaml.read(
                         filename=entry['yaml'],
@@ -896,10 +907,13 @@ class ModelStep(Step):
                 ):
                     # this is a dictionary of replacement model config options
                     options = entry['options']
-                    options = self.map_yaml_options(
+                    options, configs = self.map_yaml_options(
                         options=entry['options'], config_model=config_model
                     )
-                    self._yaml.update(options=options, quiet=quiet)
+                    if options is not None:
+                        self._yaml.update(options=options, quiet=quiet)
+                    if configs is not None:
+                        self._yaml.update(configs=configs, quiet=quiet)
                 if 'yaml' in entry:
                     yaml = PolarisYaml.read(
                         filename=entry['yaml'],
