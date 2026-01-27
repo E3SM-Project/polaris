@@ -129,7 +129,7 @@
 <span class="n">MapSectionKey</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
 <span class="c1"># in principle, any number of levels but 4 seems sufficient for now</span>
 <span class="n">ConfigsType</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span>
-    <span class="nb">str</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
     <span class="n">Union</span><span class="p">[</span>
         <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">],</span>
         <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]],</span>
@@ -364,7 +364,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">],</span>
         <span class="n">config_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ConfigsType</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A mapping between model config options from MPAS-Ocean to Omega</span>
 
@@ -380,15 +380,23 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        options : dict</span>
+<span class="sd">        options : dict or None</span>
 <span class="sd">            A revised dictionary of yaml options and value to use as</span>
 <span class="sd">            replacements for existing values</span>
+
+<span class="sd">        configs : dict or None</span>
+<span class="sd">            A revised nested dictionary of yaml sections, options and value to</span>
+<span class="sd">            use as replacements for existing values</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="ow">and</span> <span class="n">config_model</span> <span class="o">==</span> <span class="s1">&#39;ocean&#39;</span><span class="p">:</span>
-            <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_mpaso_to_omega_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">options</span></div>
+            <span class="c1"># make a dummy configs dict with None as the section</span>
+            <span class="n">mpaso_configs</span><span class="p">:</span> <span class="n">ConfigsType</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="n">options</span><span class="p">}</span>
+            <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_mpaso_to_omega_configs</span><span class="p">(</span><span class="n">mpaso_configs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">configs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">options</span><span class="p">,</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="OceanModelStep.map_yaml_configs">
@@ -662,60 +670,6 @@
         <span class="n">nested_dict</span> <span class="o">=</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="p">[</span><span class="s1">&#39;config&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_map_mpaso_to_omega_options</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">],</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Map MPAS-Ocean namelist options to Omega config options</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">out_options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">not_found</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">mpaso_option</span><span class="p">,</span> <span class="n">mpaso_value</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">omega_option</span><span class="p">,</span> <span class="n">omega_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_mpaso_to_omega_option</span><span class="p">(</span>
-                    <span class="n">option</span><span class="o">=</span><span class="n">mpaso_option</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">mpaso_value</span>
-                <span class="p">)</span>
-                <span class="n">out_options</span><span class="p">[</span><span class="n">omega_option</span><span class="p">]</span> <span class="o">=</span> <span class="n">omega_value</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="n">not_found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mpaso_option</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_warn_not_found</span><span class="p">(</span><span class="n">not_found</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">out_options</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_map_mpaso_to_omega_option</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">value</span><span class="p">:</span> <span class="n">OptionValue</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Map MPAS-Ocean namelist option to Omega equivalent</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">out_option</span> <span class="o">=</span> <span class="n">option</span>
-        <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
-
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="c1"># traverse the map</span>
-        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span><span class="p">:</span>
-            <span class="n">options_dict</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">mpaso_option</span><span class="p">,</span> <span class="n">omega_option</span> <span class="ow">in</span> <span class="n">options_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="n">mpaso_option</span><span class="p">:</span>
-                    <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="n">out_option</span> <span class="o">=</span> <span class="n">omega_option</span>
-                    <span class="k">break</span>
-
-            <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
-                <span class="k">break</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No mapping found for </span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-        <span class="n">out_option</span><span class="p">,</span> <span class="n">out_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_handle_not</span><span class="p">(</span><span class="n">out_option</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">out_option</span><span class="p">,</span> <span class="n">out_value</span>
-
     <span class="k">def</span><span class="w"> </span><span class="nf">_map_mpaso_to_omega_configs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">configs</span><span class="p">:</span> <span class="n">ConfigsType</span><span class="p">,</span>
@@ -738,7 +692,7 @@
                             <span class="n">section</span><span class="o">=</span><span class="n">section</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">mpaso_value</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
-                    <span class="n">local_config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_configs</span>
+                    <span class="n">local_config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_configs</span>
                     <span class="n">sec_str</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">omega_sections</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">omega_section</span> <span class="ow">in</span> <span class="n">omega_sections</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">omega_section</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">local_config</span><span class="p">:</span>
@@ -759,14 +713,14 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_map_mpaso_to_omega_section_option</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">section</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">value</span><span class="p">:</span> <span class="n">OptionValue</span><span class="p">,</span>
+        <span class="n">section</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Map MPAS-Ocean namelist section and option to Omega equivalent</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">out_sections</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">section</span><span class="p">]</span>
+        <span class="n">out_sections</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">out_option</span> <span class="o">=</span> <span class="n">option</span>
 
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -775,27 +729,32 @@
         <span class="c1"># traverse the map</span>
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span><span class="p">:</span>
             <span class="n">section_dict</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;section&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">section_dict</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Mapping entries must have exactly one section&#39;</span>
+                <span class="p">)</span>
+
+            <span class="n">mpaso_section</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">section_dict</span><span class="p">))</span>
+            <span class="n">omega_sections</span><span class="p">:</span> <span class="n">MapSectionKey</span> <span class="o">=</span> <span class="n">section_dict</span><span class="p">[</span><span class="n">mpaso_section</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">section</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mpaso_section</span> <span class="o">!=</span> <span class="n">section</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">options_dict</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">]</span>
+            <span class="n">option_found</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">omega_section</span><span class="p">:</span> <span class="n">MapSectionKey</span> <span class="o">=</span> <span class="n">section_dict</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>
+                <span class="n">omega_option</span> <span class="o">=</span> <span class="n">options_dict</span><span class="p">[</span><span class="n">option</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">options_dict</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">]</span>
-                <span class="n">option_found</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">omega_option</span> <span class="o">=</span> <span class="n">options_dict</span><span class="p">[</span><span class="n">option</span><span class="p">]</span>
-                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">option_found</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="c1"># make sure out_sections is a list</span>
-                    <span class="n">out_sections</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">omega_section</span>
-                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">omega_section</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
-                        <span class="k">else</span> <span class="p">[</span><span class="n">omega_section</span><span class="p">]</span>
-                    <span class="p">)</span>
-                    <span class="n">out_option</span> <span class="o">=</span> <span class="n">omega_option</span>
-                    <span class="k">break</span>
+                <span class="n">option_found</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="c1"># make sure out_sections is a list</span>
+                <span class="n">out_sections</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">omega_sections</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">omega_sections</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="p">[</span><span class="n">omega_sections</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">out_option</span> <span class="o">=</span> <span class="n">omega_option</span>
+                <span class="k">break</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">option_found</span><span class="p">:</span>
             <span class="n">sec_str</span> <span class="o">=</span> <span class="p">(</span>

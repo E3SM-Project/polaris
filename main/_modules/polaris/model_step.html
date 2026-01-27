@@ -467,11 +467,15 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        options : dict</span>
+<span class="sd">        options : dict or None</span>
 <span class="sd">            A revised dictionary of yaml options and value to use as</span>
 <span class="sd">            replacements for existing values</span>
+
+<span class="sd">        configs : dict or None</span>
+<span class="sd">            A revised nested dictionary of yaml sections, options and value to</span>
+<span class="sd">            use as replacements for existing values</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">options</span></div>
+        <span class="k">return</span> <span class="n">options</span><span class="p">,</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="ModelStep.map_yaml_configs">
@@ -889,11 +893,18 @@
                 <span class="p">):</span>
                     <span class="c1"># this is a dictionary of replacement model config options</span>
                     <span class="n">options</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">]</span>
-                    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_options</span><span class="p">(</span>
+                    <span class="n">options</span><span class="p">,</span> <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_options</span><span class="p">(</span>
                         <span class="n">options</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">],</span> <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span>
                     <span class="p">)</span>
-                    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_to_namelist</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
-                    <span class="n">replacements</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_to_namelist</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+                        <span class="n">replacements</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">configs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_configs</span><span class="p">(</span>
+                            <span class="n">configs</span><span class="o">=</span><span class="n">configs</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span>
+                        <span class="p">)</span>
+                        <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_to_namelist</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>
+                        <span class="n">replacements</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>
                 <span class="k">if</span> <span class="s1">&#39;yaml&#39;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
                     <span class="n">yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
                         <span class="n">filename</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">],</span>
@@ -1053,10 +1064,13 @@
                 <span class="p">):</span>
                     <span class="c1"># this is a dictionary of replacement model config options</span>
                     <span class="n">options</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">]</span>
-                    <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_options</span><span class="p">(</span>
+                    <span class="n">options</span><span class="p">,</span> <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_yaml_options</span><span class="p">(</span>
                         <span class="n">options</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">],</span> <span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span>
                     <span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">configs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_yaml</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">configs</span><span class="o">=</span><span class="n">configs</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
                 <span class="k">if</span> <span class="s1">&#39;yaml&#39;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
                     <span class="n">yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
                         <span class="n">filename</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">],</span>
