@@ -578,6 +578,7 @@
    :toctree: generated/
 
    vertical.init_vertical_coord
+   vertical.diagnostics.depth_from_thickness
    vertical.grid_1d.generate_1d_grid
    vertical.grid_1d.write_1d_grid
    vertical.partial_cells.alter_bottom_depth
