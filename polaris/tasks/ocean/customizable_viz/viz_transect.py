@@ -71,9 +71,6 @@ class VizTransect(OceanIOStep):
         else:
             time_stamp = ''
 
-        # Transect is constructed for nVertLevels quantities
-        if 'nVertLevelsP1' in ds.sizes:
-            ds = ds.isel(nVertLevelsP1=slice(0, -1))
         if os.path.exists(self.transect_file):
             ds_transect = xr.open_dataset(self.transect_file)
             self.logger.info(f'loading transect from {self.transect_file}')
@@ -135,7 +132,12 @@ class VizTransect(OceanIOStep):
                     data.values[mask], 100.0 - colormap_range_percent
                 )
             else:
-                plot_data = data.isel(nVertLevels=ds_transect.levelIndices)
+                if 'nVertLevelsP1' in ds.sizes:
+                    plot_data = data.isel(
+                        nVertLevelsP1=ds_transect.levelIndices
+                    )
+                else:
+                    plot_data = data.isel(nVertLevels=ds_transect.levelIndices)
                 valid = ds_transect.validCells
                 plot_data = plot_data.where(valid)
                 vmin = plot_data.min().values
