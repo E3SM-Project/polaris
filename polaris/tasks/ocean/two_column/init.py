@@ -344,6 +344,10 @@ class Init(OceanIOStep):
             alpha_mid.isel(nCells=1) - alpha_mid.isel(nCells=0)
         ) / dx
 
+        dsa_dx_mid = (
+            ds.salinity.isel(nCells=1) - ds.salinity.isel(nCells=0)
+        ) / dx
+
         # Pressure (positive downward), averaged to the edge between columns
         p_edge_mid = 0.5 * (p_mid.isel(nCells=0) + p_mid.isel(nCells=1))
 
@@ -367,6 +371,30 @@ class Init(OceanIOStep):
                 'along-layer pressure gradient acceleration at layer midpoints'
             ),
             'units': 'm s-2',
+        }
+
+        ds['dMdxMid'] = dM_dx_mid
+        ds.dMdxMid.attrs = {
+            'long_name': 'Gradient of Montgomery potential at layer midpoints',
+            'units': 'm s-2',
+        }
+
+        ds['PEdgeMid'] = p_edge_mid
+        ds.PEdgeMid.attrs = {
+            'long_name': 'Pressure at horizontal edge and layer midpoints',
+            'units': 'Pa',
+        }
+
+        ds['dalphadxMid'] = dalpha_dx_mid
+        ds.dalphadxMid.attrs = {
+            'long_name': 'Gradient of specific volume at layer midpoints',
+            'units': 'm2 kg-1',
+        }
+
+        ds['dSAdxMid'] = dsa_dx_mid
+        ds.dSAdxMid.attrs = {
+            'long_name': 'Gradient of absolute salinity at layer midpoints',
+            'units': 'g kg-1 m-1',
         }
 
     def _get_geom_ssh_z_bot(
