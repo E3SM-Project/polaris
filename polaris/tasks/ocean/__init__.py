@@ -1,6 +1,6 @@
 import importlib.resources as imp_res
 import os
-from typing import Dict, Union
+from typing import Dict, Tuple, Union
 
 import xarray as xr
 from mpas_tools.io import write_netcdf
@@ -47,12 +47,19 @@ class Ocean(Component):
         tasks : list of polaris.Task
             The tasks to be set up for this component
         """
-        if not self._has_ocean_model_steps(tasks):
-            # No ocean model steps, so no model detection or build needed.
-            self.model = 'unknown'
-            return
         section = config['ocean']
         model = section.get('model')
+        has_ocean_io_steps, has_ocean_model_steps = (
+            self._has_ocean_io_model_steps(tasks)
+        )
+        if not (has_ocean_model_steps or has_ocean_io_steps):
+            # No ocean I/O or model steps, so no model detection or build
+            # needed.
+            if model == 'detect':
+                model = 'unknown'
+            self.model = model
+            return
+
         if model == 'detect':
             model = self._detect_model(config)
             print('Detected ocean model:', model)
@@ -66,20 +73,22 @@ class Ocean(Component):
         config.add_from_package('polaris.ocean', configs[model])
 
         component_path = config.get('paths', 'component_path')
-        if model == 'omega':
-            detected = self._detect_omega_build(component_path)
-        else:
-            detected = self._detect_mpas_ocean_build(component_path)
+        if has_ocean_model_steps:
+            # we need to try to detect the model and build it if needed
+            if model == 'omega':
+                detected = self._detect_omega_build(component_path)
+            else:
+                detected = self._detect_mpas_ocean_build(component_path)
 
-        if not detected:
-            # looks like we need to build the model
-            build = config.getboolean('build', 'build')
-            if not build:
-                print(
-                    f'Ocean model {model} not found in '
-                    f'{component_path}, setting build option to True'
-                )
-                config.set('build', 'build', 'True', user=True)
+            if not detected:
+                # looks like we need to build the model
+                build = config.getboolean('build', 'build')
+                if not build:
+                    print(
+                        f'Ocean model {model} not found in '
+                        f'{component_path}, setting build option to True'
+                    )
+                    config.set('build', 'build', 'True', user=True)
 
         if model == 'omega':
             self._read_var_map()
@@ -246,18 +255,27 @@ class Ocean(Component):
         ds = self.map_from_native_model_vars(ds)
         return ds
 
-    def _has_ocean_model_steps(self, tasks) -> bool:
+    def _has_ocean_io_model_steps(self, tasks) -> Tuple[bool, bool]:
         """
-        Determine if any steps in this component descend from OceanModelStep
+        Determine if any steps in this component descend from OceanIOStep or
+        OceanModelStep
         """
         # local import to avoid circular imports
+        from polaris.ocean.model.ocean_io_step import OceanIOStep
         from polaris.ocean.model.ocean_model_step import OceanModelStep
 
-        return any(
+        has_ocean_model_steps = any(
             isinstance(step, OceanModelStep)
             for task in tasks
             for step in task.steps.values()
         )
+        has_ocean_io_steps = any(
+            isinstance(step, OceanIOStep)
+            for task in tasks
+            for step in task.steps.values()
+        )
+
+        return has_ocean_io_steps, has_ocean_model_steps
 
     def _read_var_map(self):
         """
