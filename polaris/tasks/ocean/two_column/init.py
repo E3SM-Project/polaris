@@ -77,6 +77,7 @@ class Init(OceanIOStep):
         nx = 2
         ny = 2
         dc = 1e3 * resolution
+        dx = 1e3 * resolution
         ds_mesh = make_planar_hex_mesh(
             nx=nx, ny=ny, dc=dc, nonperiodic_x=True, nonperiodic_y=True
         )
@@ -231,9 +232,7 @@ class Init(OceanIOStep):
         )
         ds.GeomZInter.attrs['units'] = 'm'
 
-        self._compute_montgomery_and_hpga(
-            ds=ds, rho0=rho0, dx=resolution, p_mid=p_mid
-        )
+        self._compute_montgomery_and_hpga(ds=ds, rho0=rho0, dx=dx, p_mid=p_mid)
 
         ds.layerThickness.attrs['long_name'] = 'pseudo-layer thickness'
         ds.layerThickness.attrs['units'] = 'm'
