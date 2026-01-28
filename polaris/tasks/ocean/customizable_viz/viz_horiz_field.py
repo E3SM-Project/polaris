@@ -15,21 +15,19 @@ from polaris.viz import (
 class VizHorizField(OceanIOStep):
     """
     A step for visualizing MPAS horizontal fields
-    """
-    A step for visualizing MPAS horizontal fields
-    
+
     Attributes
     ----------
     mesh_file : str
         Absolute path to the mesh file
-        
+
     input_file : str
         Absolute path to the data file with fields to visualize
-        
+
     transect_file : str
-        Absolute path to a transect file produced by 
-        ‎polaris.tasks.ocean.customizable_viz.viz_transect.VizTransect
-        
+        Absolute path to a transect file produced by
+        polaris.tasks.ocean.customizable_viz.viz_transect.VizTransect
+
     variables : list of str
         Names of variables to visualize
     """
