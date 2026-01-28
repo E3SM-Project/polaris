@@ -137,6 +137,27 @@ class Reference(OceanIOStep):
         g = constants['SHR_CONST_G']
         montgomery = g * (rho0 * spec_vol * z_tilde + z)
 
+        dx = resolution * 1.0e3  # m
+
+        check_gradient = False
+
+        if check_gradient:
+            # sanity checks for 4th-order gradient stencil
+            x_m = dx * np.array([-1.5, -0.5, 0.5, 1.5], dtype=float)
+
+            # exact for polynomials up to degree 3
+            poly = 2.5 + 1.2 * x_m - 0.7 * x_m**2 + 0.9 * x_m**3
+            _check_gradient(
+                self.logger, poly, expected=1.2, name='cubic polynomial', dx=dx
+            )
+
+            # smooth function check (should be highly accurate)
+            k = 2.0 * np.pi / (20.0 * dx)
+            sine = np.sin(k * x_m)
+            _check_gradient(
+                self.logger, sine, expected=k, name='sin(kx)', dx=dx
+            )
+
         # the HPGF is grad(M) - p * grad(alpha)
         # Here we just compute the gradient at x=0 using a 4th-order
         # finite-difference stencil
@@ -147,7 +168,10 @@ class Reference(OceanIOStep):
         dalpha_dx = _compute_4th_order_gradient(spec_vol[grad_indices, :], dx)
         hpga = dM_dx - p0 * dalpha_dx
 
-        cells = [1, 3]  # indices for -0.5km and 0.5km
+        dsa_dx = _compute_4th_order_gradient(sa[grad_indices, :], dx)
+
+        # cells = [1, 3]  # indices for -0.5km and 0.5km
+        cells = np.arange(len(x))  # use all columns
         ds = xr.Dataset()
         ds['temperature'] = xr.DataArray(
             data=ct[np.newaxis, cells, 1::2],
@@ -245,6 +269,44 @@ class Reference(OceanIOStep):
                 'long_name': 'along-layer pressure gradient acceleration at '
                 'interfaces',
                 'units': 'm s-2',
+            },
+        )
+
+        ds['dMdxMid'] = xr.DataArray(
+            data=dM_dx[np.newaxis, 1::2],
+            dims=['Time', 'nVertLevels'],
+            attrs={
+                'long_name': 'Gradient of Montgomery potential at layer '
+                'midpoints',
+                'units': 'm s-2',
+            },
+        )
+
+        ds['PEdgeMid'] = xr.DataArray(
+            data=p0[np.newaxis, 1::2],
+            dims=['Time', 'nVertLevels'],
+            attrs={
+                'long_name': 'Pressure at horizontal edge and layer midpoints',
+                'units': 'Pa',
+            },
+        )
+
+        ds['dalphadxMid'] = xr.DataArray(
+            data=dalpha_dx[np.newaxis, 1::2],
+            dims=['Time', 'nVertLevels'],
+            attrs={
+                'long_name': 'Gradient of specific volume at layer midpoints',
+                'units': 'm2 kg-1',
+            },
+        )
+
+        ds['dSAdxMid'] = xr.DataArray(
+            data=dsa_dx[np.newaxis, 1::2],
+            dims=['Time', 'nVertLevels'],
+            attrs={
+                'long_name': 'Gradient of absolute salinity at layer '
+                'midpoints',
+                'units': 'g kg-1 m-1',
             },
         )
 
@@ -725,6 +787,33 @@ def _adaptive_simpson_recursive(
         max_depth,
         depth + 1,
     )
+
+
+def _check_gradient(
+    logger,
+    values: np.ndarray,
+    expected: float,
+    name: str,
+    dx: float | None = None,
+    rel_tol: float = 1.0e-12,
+    abs_tol: float = 5.0e-8,
+) -> None:
+    """Check the 4th-order gradient stencil against an analytic value."""
+    if dx is None:
+        raise ValueError('dx must be provided for gradient checks.')
+    calc = _compute_4th_order_gradient(values[:, np.newaxis], dx)[0]
+    err = calc - expected
+    logger.info(
+        f'4th-order gradient check {name}: '
+        f'calc={calc:.6e}, expected={expected:.6e}, '
+        f'err={err:.3e}'
+    )
+    tol = max(abs_tol, rel_tol * max(1.0, abs(expected)))
+    if not np.isfinite(calc) or abs(err) > tol:
+        raise ValueError(
+            f'4th-order gradient check failed for {name}: '
+            f'calc={calc}, expected={expected}, err={err}'
+        )
 
 
 def _compute_4th_order_gradient(f: np.ndarray, dx: float) -> np.ndarray:
