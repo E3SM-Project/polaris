@@ -1,7 +1,4 @@
-import os
-
 from polaris import Task
-from polaris.config import PolarisConfigParser as PolarisConfigParser
 from polaris.tasks.ocean.customizable_viz.viz_horiz_field import (
     VizHorizField as VizHorizField,
 )
@@ -29,20 +26,15 @@ class CustomizableViz(Task):
         super().__init__(component=component, name=name, subdir=basedir)
 
         config_filename = 'customizable_viz.cfg'
-        config = PolarisConfigParser(
-            filepath=os.path.join(component.name, config_filename)
-        )
-        config.add_from_package(
+        self.config.add_from_package(
             'polaris.tasks.ocean.customizable_viz', config_filename
         )
-        self.set_shared_config(config, link=config_filename)
 
         viz_step = VizHorizField(
             component=component,
             name='viz_horiz_field',
             indir=self.subdir,
         )
-        viz_step.set_shared_config(config, link=config_filename)
         self.add_step(viz_step, run_by_default=True)
 
         transect_step = VizTransect(
@@ -50,5 +42,4 @@ class CustomizableViz(Task):
             name='viz_transect',
             indir=self.subdir,
         )
-        transect_step.set_shared_config(config, link=config_filename)
         self.add_step(transect_step, run_by_default=False)
