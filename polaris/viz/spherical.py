@@ -84,6 +84,20 @@ def plot_global_mpas_field(
     descriptor : mosaic.Descriptor, optional
         Descriptor from a previous call to ``plot_global_mpas_field()``
 
+    projection_name : str, optional
+        Name of the projection supported by mosaic
+
+    cell_indices : integer array, optional
+        Indices corresponding to which cells in the array to plot
+
+    ds_transect : xr.Dataset, optional
+        Transect dataset produced by mpas_tools which will be traced on the
+        global field
+
+    enforce_aspect_ratio : logical, optional
+        Whether to enforce the aspect ratio of the figure according to lat,
+        lon bounds
+
     Returns
     -------
     descriptor : mosaic.Descriptor
