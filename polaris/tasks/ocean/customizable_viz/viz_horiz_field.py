@@ -78,18 +78,34 @@ class VizHorizField(OceanIOStep):
         max_latitude = section.getfloat('max_latitude')
         min_longitude = section.getfloat('min_longitude')
         max_longitude = section.getfloat('max_longitude')
+
+        if min_longitude > max_longitude:
+            raise ValueError(
+                'min_longitude must be greater than max_longitude'
+            )
+
+        # Normalize longitudes given in [-180, 180] to [0, 360)
+        min_longitude_copy = min_longitude
+        max_longitude_copy = max_longitude
+        if min_longitude < 0.0:
+            min_longitude = (360.0 + min_longitude) % 360.0
+        if max_longitude < 0.0:
+            max_longitude = (360.0 + max_longitude) % 360.0
+
         lat_cell = np.rad2deg(ds_mesh['latCell'])
         lon_cell = np.rad2deg(ds_mesh['lonCell'])
-        if min_longitude < 0.0 and lon_cell.min().values > 0.0:
-            max_longitude_copy = max_longitude
-            max_longitude = 360.0 - min_longitude
-            min_longitude = max_longitude_copy
-        cell_indices = np.where(
-            (lat_cell >= min_latitude)
-            & (lat_cell <= max_latitude)
-            & (lon_cell >= min_longitude)
-            & (lon_cell <= max_longitude)
-        )
+        lat_mask = (lat_cell >= min_latitude) & (lat_cell <= max_latitude)
+        if min_longitude >= max_longitude:
+            lon_mask = (lon_cell >= min_longitude) | (
+                lon_cell <= max_longitude
+            )
+        else:
+            lon_mask = (lon_cell >= min_longitude) & (
+                lon_cell <= max_longitude
+            )
+        cell_indices = np.where(lat_mask & lon_mask)
+        print(f'min lon {min_longitude}, max lon {max_longitude} \n')
+        print(f'min lon {min_longitude_copy}, max lon {max_longitude_copy} \n')
         if len(cell_indices[0]) == 0:
             raise ValueError(
                 f'No cells of {ds_mesh.sizes["nCells"]} cells found within the'
@@ -98,6 +114,7 @@ class VizHorizField(OceanIOStep):
                 f'dataset: latitude '
                 f'{lat_cell.min().values},{lat_cell.max().values} \n'
                 f'longitude {lon_cell.min().values},{lon_cell.max().values}'
+                f'min lon {min_longitude}, max lon {max_longitude} \n'
             )
         print(
             f'Using {len(cell_indices[0])} cells of '
