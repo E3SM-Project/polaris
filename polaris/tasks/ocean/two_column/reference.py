@@ -131,6 +131,8 @@ class Reference(OceanIOStep):
                 geom_z_bot=geom_z_bot.isel(nCells=icol).item(),
             )
 
+        dx = resolution * 1e3  # m
+
         # compute montgomery potential M = alpha * p + g * z
         g = constants['SHR_CONST_G']
         montgomery = g * (rho0 * spec_vol * z_tilde + z)
@@ -138,15 +140,11 @@ class Reference(OceanIOStep):
         # the HPGF is grad(M) - p * grad(alpha)
         # Here we just compute the gradient at x=0 using a 4th-order
         # finite-difference stencil
-        p0 = rho0 * g * 0.5 * z_tilde[2, :]
+        p0 = -rho0 * g * z_tilde[2, :]
         # indices for -1.5dx, -0.5dx, 0.5dx, 1.5dx
         grad_indices = [0, 1, 3, 4]
-        dM_dx = _compute_4th_order_gradient(
-            montgomery[grad_indices, :], resolution
-        )
-        dalpha_dx = _compute_4th_order_gradient(
-            spec_vol[grad_indices, :], resolution
-        )
+        dM_dx = _compute_4th_order_gradient(montgomery[grad_indices, :], dx)
+        dalpha_dx = _compute_4th_order_gradient(spec_vol[grad_indices, :], dx)
         hpga = dM_dx - p0 * dalpha_dx
 
         cells = [1, 3]  # indices for -0.5km and 0.5km
@@ -735,7 +733,8 @@ def _compute_4th_order_gradient(f: np.ndarray, dx: float) -> np.ndarray:
     at x=0, assuming values at x = dx * [-1.5, -0.5, 0.5, 1.5].
 
     The stencil is:
-        f'(0) ≈ [-f(1.5dx) + 9 f(0.5dx) - 9 f(-0.5dx) + f(-1.5dx)] / (8 dx)
+        f'(0) ≈ [f(-1.5dx) - 27 f(-0.5dx) + 27 f(0.5dx) - f(1.5dx)]
+                 / (24 dx)
 
     Here we assume f[0,:], f[1,:], f[2,:], f[3,:] correspond to
     x = -1.5dx, -0.5dx, 0.5dx, 1.5dx respectively.
@@ -746,6 +745,6 @@ def _compute_4th_order_gradient(f: np.ndarray, dx: float) -> np.ndarray:
     )
 
     # gradient at x = 0 using the non-uniform 4-point stencil
-    df_dx = (-f[3, :] + 9.0 * f[2, :] - 9.0 * f[1, :] + f[0, :]) / (8.0 * dx)
+    df_dx = (f[0, :] - 27.0 * f[1, :] + 27.0 * f[2, :] - f[3, :]) / (24.0 * dx)
 
     return df_dx
