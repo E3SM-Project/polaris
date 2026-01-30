@@ -155,7 +155,7 @@ def setup_tasks(
         work_dir=work_dir,
     )
 
-    component.configure(basic_config)
+    component.configure(basic_config, list(tasks.values()))
 
     provenance.write(
         work_dir,
