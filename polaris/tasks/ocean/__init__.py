@@ -17,7 +17,7 @@ class Ocean(Component):
     ----------
     model : str
         The ocean model being used, either 'mpas-ocean', 'omega', or
-        'unknown' if no OceanModelStep is present in any task
+        'unknown' if no OceanModelStep or OceanIOStep is present in any task
 
     mpaso_to_omega_dim_map : dict
         A map from MPAS-Ocean dimension names to their Omega equivalents
