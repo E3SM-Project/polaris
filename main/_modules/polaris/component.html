@@ -248,7 +248,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">tasks</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Configure the component</span>
 
@@ -256,6 +256,9 @@
 <span class="sd">        ----------</span>
 <span class="sd">        config : polaris.config.PolarisConfigParser</span>
 <span class="sd">            config options to modify</span>
+
+<span class="sd">        tasks : list of polaris.Task</span>
+<span class="sd">            The tasks to be set up for this component</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 

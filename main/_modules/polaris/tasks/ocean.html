@@ -110,7 +110,7 @@
   <h1>Source code for polaris.tasks.ocean</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
@@ -128,7 +128,8 @@
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    model : str</span>
-<span class="sd">        The ocean model being used, either &#39;mpas-ocean&#39; or &#39;omega&#39;</span>
+<span class="sd">        The ocean model being used, either &#39;mpas-ocean&#39;, &#39;omega&#39;, or</span>
+<span class="sd">        &#39;unknown&#39; if no OceanModelStep or OceanIOStep is present in any task</span>
 
 <span class="sd">    mpaso_to_omega_dim_map : dict</span>
 <span class="sd">        A map from MPAS-Ocean dimension names to their Omega equivalents</span>
@@ -149,7 +150,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">tasks</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Configure the component</span>
 
@@ -157,9 +158,23 @@
 <span class="sd">        ----------</span>
 <span class="sd">        config : polaris.config.PolarisConfigParser</span>
 <span class="sd">            config options to modify</span>
+
+<span class="sd">        tasks : list of polaris.Task</span>
+<span class="sd">            The tasks to be set up for this component</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="n">has_ocean_io_steps</span><span class="p">,</span> <span class="n">has_ocean_model_steps</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_has_ocean_io_model_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">has_ocean_model_steps</span> <span class="ow">or</span> <span class="n">has_ocean_io_steps</span><span class="p">):</span>
+            <span class="c1"># No ocean I/O or model steps, so no model detection or build</span>
+            <span class="c1"># needed.</span>
+            <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;detect&#39;</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+            <span class="k">return</span>
+
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;detect&#39;</span><span class="p">:</span>
             <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_model</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Detected ocean model:&#39;</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
@@ -173,20 +188,22 @@
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean&#39;</span><span class="p">,</span> <span class="n">configs</span><span class="p">[</span><span class="n">model</span><span class="p">])</span>
 
         <span class="n">component_path</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
-            <span class="n">detected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_omega_build</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">detected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_mpas_ocean_build</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">has_ocean_model_steps</span><span class="p">:</span>
+            <span class="c1"># we need to try to detect the model and build it if needed</span>
+            <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+                <span class="n">detected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_omega_build</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">detected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_mpas_ocean_build</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">detected</span><span class="p">:</span>
-            <span class="c1"># looks like we need to build the model</span>
-            <span class="n">build</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">build</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Ocean model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> not found in &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">component_path</span><span class="si">}</span><span class="s1">, setting build option to True&#39;</span>
-                <span class="p">)</span>
-                <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">detected</span><span class="p">:</span>
+                <span class="c1"># looks like we need to build the model</span>
+                <span class="n">build</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">build</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Ocean model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> not found in &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">component_path</span><span class="si">}</span><span class="s1">, setting build option to True&#39;</span>
+                    <span class="p">)</span>
+                    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_var_map</span><span class="p">()</span>
@@ -370,6 +387,28 @@
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ds</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_has_ocean_io_model_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine if any steps in this component descend from OceanIOStep or</span>
+<span class="sd">        OceanModelStep</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># local import to avoid circular imports</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.ocean_io_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.ocean_model_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span>
+
+        <span class="n">has_ocean_model_steps</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">OceanModelStep</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span>
+            <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">has_ocean_io_steps</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">OceanIOStep</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span>
+            <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">has_ocean_io_steps</span><span class="p">,</span> <span class="n">has_ocean_model_steps</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_read_var_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

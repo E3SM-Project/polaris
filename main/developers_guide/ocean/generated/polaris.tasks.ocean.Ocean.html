@@ -143,7 +143,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The ocean model being used, either ‘mpas-ocean’ or ‘omega’</p></li>
+<li><p><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The ocean model being used, either ‘mpas-ocean’, ‘omega’, or
+‘unknown’ if no OceanModelStep or OceanIOStep is present in any task</p></li>
 <li><p><strong>mpaso_to_omega_dim_map</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – A map from MPAS-Ocean dimension names to their Omega equivalents</p></li>
 <li><p><strong>mpaso_to_omega_var_map</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – A map from MPAS-Ocean variable names to their Omega equivalents</p></li>
 </ul>
@@ -170,7 +171,7 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_task</span></code>(task)</p></td>
 <td><p>Add a task to the component</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code>(config)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code>(config, tasks)</p></td>
 <td><p>Configure the component</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_or_create_shared_step</span></code>(step_cls, subdir, ...)</p></td>
