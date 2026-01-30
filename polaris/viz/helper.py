@@ -27,15 +27,18 @@ viz_dict = {
     'temperature': {'colormap': 'cmo.thermal', 'units': r'$^{\circ}$C'},
     'salinity': {'colormap': 'cmo.haline', 'units': r'g/kg'},
     'density': {'colormap': 'cmo.dense', 'units': r'kg/m$^3$'},
+    'velocity': {'colormap': 'cmo.balance', 'units': r'm/s'},
     'ssh': {'colormap': 'cmo.delta', 'units': r'm'},
-    'vertVelocityTop': {'colormap': 'cmo.balance', 'units': r'm/s'},
-    'normalVelocity': {'colormap': 'cmo.balance', 'units': r'm/s'},
-    'velocityZonal': {'colormap': 'cmo.balance', 'units': r'm/s'},
-    'velocityMeridional': {'colormap': 'cmo.balance', 'units': r'm/s'},
     'landIceFraction': {'colormap': 'cmo.ice', 'units': r''},
     'seaIceFraction': {'colormap': 'cmo.ice', 'units': r''},
     'default': {'colormap': 'cmo.dense', 'units': r''},
 }
+viz_dict['temperatureInteriorRestoringValue'] = viz_dict['temperature']
+viz_dict['salinityInteriorRestoringValue'] = viz_dict['salinity']
+viz_dict['vertVelocityTop'] = viz_dict['velocity']
+viz_dict['normalVelocity'] = viz_dict['velocity']
+viz_dict['velocityZonal'] = viz_dict['velocity']
+viz_dict['velocityMeridional'] = viz_dict['velocity']
 
 
 def get_projection(name: str, **kwargs):
