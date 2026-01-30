@@ -95,7 +95,7 @@ class Reference(OceanIOStep):
 
         x = resolution * np.array([-1.5, -0.5, 0.0, 0.5, 1.5], dtype=float)
 
-        geom_ssh, geom_z_bot = self._get_geom_ssh_z_bot(x)
+        geom_ssh, geom_z_bot, z_tilde_bot = self._get_ssh_z_bot(x)
 
         vert_levels = config.getint('vertical_grid', 'vert_levels')
         if vert_levels is None:
@@ -129,6 +129,7 @@ class Reference(OceanIOStep):
                 salinity_node=salinity_node[icol, :],
                 geom_ssh=geom_ssh.isel(nCells=icol).item(),
                 geom_z_bot=geom_z_bot.isel(nCells=icol).item(),
+                z_tilde_bot=z_tilde_bot.isel(nCells=icol).item(),
             )
 
         dx = resolution * 1e3  # m
@@ -312,32 +313,33 @@ class Reference(OceanIOStep):
 
         self.write_model_dataset(ds, 'reference_solution.nc')
 
-    def _get_geom_ssh_z_bot(
+    def _get_ssh_z_bot(
         self, x: np.ndarray
-    ) -> tuple[xr.DataArray, xr.DataArray]:
+    ) -> tuple[xr.DataArray, xr.DataArray, xr.DataArray]:
         """
-        Get the geometric sea surface height and sea floor height for each
-        column from the configuration.
+        Get the geometric sea surface height and sea floor height, as well as
+        sea floor pseudo-height for each column from the configuration.
         """
         config = self.config
         geom_ssh = get_array_from_mid_grad(config, 'geom_ssh', x)
         geom_z_bot = get_array_from_mid_grad(config, 'geom_z_bot', x)
+        z_tilde_bot = get_array_from_mid_grad(config, 'z_tilde_bot', x)
         return (
             xr.DataArray(data=geom_ssh, dims=['nCells']),
             xr.DataArray(data=geom_z_bot, dims=['nCells']),
+            xr.DataArray(data=z_tilde_bot, dims=['nCells']),
         )
 
     def _init_z_tilde_interface(
-        self, pseudo_bottom_depth: float
+        self, pseudo_bottom_depth: float, z_tilde_bot: float
     ) -> tuple[np.ndarray, int]:
         """
         Compute z-tilde vertical interfaces.
         """
         section = self.config['vertical_grid']
         vert_levels = section.getint('vert_levels')
-        bottom_depth = section.getfloat('bottom_depth')
         z_tilde_interface = np.linspace(
-            0.0, -bottom_depth, vert_levels + 1, dtype=float
+            0.0, z_tilde_bot, vert_levels + 1, dtype=float
         )
         z_tilde_interface = np.maximum(z_tilde_interface, -pseudo_bottom_depth)
         dz = z_tilde_interface[0:-1] - z_tilde_interface[1:]
@@ -385,6 +387,7 @@ class Reference(OceanIOStep):
         salinity_node: np.ndarray,
         geom_ssh: float,
         geom_z_bot: float,
+        z_tilde_bot: float,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         config = self.config
         logger = self.logger
@@ -420,7 +423,8 @@ class Reference(OceanIOStep):
 
         for iter in range(water_col_adjust_iter_count):
             z_tilde_inter, max_layer = self._init_z_tilde_interface(
-                pseudo_bottom_depth=pseudo_bottom_depth
+                pseudo_bottom_depth=pseudo_bottom_depth,
+                z_tilde_bot=z_tilde_bot,
             )
             vert_levels = len(z_tilde_inter) - 1
 

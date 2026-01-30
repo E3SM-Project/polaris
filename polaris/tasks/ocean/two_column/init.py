@@ -124,7 +124,7 @@ class Init(OceanIOStep):
             )
 
         for iter in range(water_col_adjust_iter_count):
-            ds = self._init_z_tilde_vert_coord(ds_mesh, pseudo_bottom_depth)
+            ds = self._init_z_tilde_vert_coord(ds_mesh, pseudo_bottom_depth, x)
 
             z_tilde_mid = ds.zMid
             h_tilde = ds.layerThickness
@@ -427,12 +427,17 @@ class Init(OceanIOStep):
         )
 
     def _init_z_tilde_vert_coord(
-        self, ds_mesh: xr.Dataset, pseudo_bottom_depth: xr.DataArray
+        self,
+        ds_mesh: xr.Dataset,
+        pseudo_bottom_depth: xr.DataArray,
+        x: np.ndarray,
     ) -> xr.Dataset:
         """
         Initialize variables for a z-tilde vertical coordinate.
         """
         config = self.config
+
+        z_tilde_bot = get_array_from_mid_grad(config, 'z_tilde_bot', x)
 
         ds = ds_mesh.copy()
 
@@ -443,7 +448,22 @@ class Init(OceanIOStep):
         ds['ssh'] = xr.zeros_like(pseudo_bottom_depth)
         ds.ssh.attrs['long_name'] = 'sea surface pseudo-height'
         ds.ssh.attrs['units'] = 'm'
-        init_vertical_coord(config, ds)
+        ds_list = []
+        for icell in range(ds.sizes['nCells']):
+            # initialize the vertical coordinate for each column separately
+            # to allow different pseudo-bottom depths
+            pseudo_bottom_depth = -z_tilde_bot[icell]
+            # keep `nCells` dimension
+            ds_cell = ds.isel(nCells=slice(icell, icell + 1))
+            local_config = config.copy()
+            local_config.set(
+                'vertical_grid', 'bottom_depth', str(pseudo_bottom_depth)
+            )
+
+            init_vertical_coord(local_config, ds_cell)
+            ds_list.append(ds_cell)
+
+        ds = xr.concat(ds_list, dim='nCells')
         return ds
 
     def _get_z_tilde_t_s_nodes(
