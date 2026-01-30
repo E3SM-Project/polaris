@@ -1,6 +1,7 @@
 from polaris import Task
 from polaris.tasks.ocean.single_column.forward import Forward
 from polaris.tasks.ocean.single_column.viz import Viz
+from polaris.tasks.ocean.single_column.vmix.analysis import Analysis
 
 
 class VMix(Task):
@@ -35,19 +36,20 @@ class VMix(Task):
             Forward(
                 component=component,
                 indir=f'{indir}/{name}',
+                name='forward_kpp',
                 ntasks=1,
                 min_tasks=1,
                 openmp_threads=1,
                 validate_vars=validate_vars,
                 task_name='vmix',
-                enable_vadv=True,
+                enable_vadv=False,
             ),
-            run_by_default=False,
         )
         self.add_step(
             Forward(
                 component=component,
                 indir=f'{indir}/{name}',
+                name='forward_pp',
                 ntasks=1,
                 min_tasks=1,
                 openmp_threads=1,
@@ -75,8 +77,26 @@ class VMix(Task):
                 component=component,
                 indir=f'{indir}/{name}',
                 comparisons={
-                    'no_vadv': '../forward_no_vadv',
-                    'constant': '../forward_no_vadv_constant',
+                    'kpp': '../forward_kpp_no_vadv',
+                    'pp': '../forward_pp_no_vadv',
+                },
+                variables={
+                    'temperature': 'degC',
+                    'salinity': 'PSU',
+                    'velocity': 'm s$^{-1}$',
+                    'RiTopOfCell': '',
+                    'BruntVaisalaFreqTop': '$s^{-2}$',
+                },
+            )
+        )
+
+        self.add_step(
+            Analysis(
+                component=component,
+                indir=f'{indir}/{name}',
+                comparisons={
+                    'kpp': '../forward_kpp_no_vadv',
+                    'pp': '../forward_pp_no_vadv',
                 },
             )
         )
