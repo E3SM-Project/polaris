@@ -1,6 +1,7 @@
 from polaris import Task
 from polaris.tasks.ocean.single_column.forward import Forward
 from polaris.tasks.ocean.single_column.viz import Viz
+from polaris.tasks.ocean.single_column.vmix.analysis import Analysis
 
 
 class VMix(Task):
@@ -74,6 +75,26 @@ class VMix(Task):
                 component=component,
                 indir=f'{indir}/{name}',
                 comparisons={
+                    'standard': '../forward',
+                    'no_vadv': '../forward_no_vadv',
+                    'constant': '../forward_no_vadv_constant',
+                },
+                variables={
+                    'temperature': 'degC',
+                    'salinity': 'PSU',
+                    'velocity': 'm s$^{-1}$',
+                    'RiTopOfCell': '',
+                    'BruntVaisalaFreqTop': '$s^{-2}$',
+                },
+            )
+        )
+
+        self.add_step(
+            Analysis(
+                component=component,
+                indir=f'{indir}/{name}',
+                comparisons={
+                    'standard': '../forward',
                     'no_vadv': '../forward_no_vadv',
                     'constant': '../forward_no_vadv_constant',
                 },
