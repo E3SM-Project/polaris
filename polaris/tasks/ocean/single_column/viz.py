@@ -46,9 +46,6 @@ class Viz(OceanIOStep):
             A dictionary of variables to plot along with their units
         """
         super().__init__(component=component, name='viz', indir=indir)
-        if ideal_age:
-            # Include age tracer
-            variables['iAge'] = 'seconds'
         self.comparisons = (
             dict(comparisons)
             if comparisons
@@ -63,6 +60,9 @@ class Viz(OceanIOStep):
                 'velocity': 'm s$^{-1}$',
             }
         )
+        if ideal_age:
+            # Include age tracer
+            self.variables['iAge'] = 'seconds'
         self.add_input_file(
             filename='initial_state.nc', target='../init/initial_state.nc'
         )
@@ -179,6 +179,11 @@ class Viz(OceanIOStep):
                     t_arr = get_days_since_start(ds)
                     t_index = np.argmin(np.abs(t_arr - t_target))
                     t_days = float(t_arr[t_index])
+                    if abs(t_days - t_target) > (1 / 24):
+                        self.logger.warn(
+                            f'{comparison_name}: Time mismatch \n'
+                            f'expected {t_target}, got {t_days}'
+                        )
                     ds_final = ds.isel(Time=t_index)
                     var_comp = ds_final[field_name].mean(dim='nCells')
                     if 'nVertLevelsP1' in var_comp.dims:
@@ -188,9 +193,16 @@ class Viz(OceanIOStep):
                         var_comp[0] = np.nan
                     # TODO use this line when Omega zMid is correct
                     # z_mid_final = ds_comp['zMid'].mean(dim='nCells')
-                    z_mid_final = depth_from_thickness(ds_final).mean(
-                        dim='nCells'
-                    )
+                    if 'layerThickness' not in ds.keys():
+                        z_mid_final = z_mid_init
+                        self.logger.warn(
+                            'Using initial zMid values; may not represent '
+                            'plotted state'
+                        )
+                    else:
+                        z_mid_final = depth_from_thickness(ds_final).mean(
+                            dim='nCells'
+                        )
                     plt.plot(
                         var_comp,
                         z_mid_final,
