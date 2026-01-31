@@ -17,10 +17,37 @@ mpas-ocean:
     config_use_activeTracers_interior_restoring: false
   cvmix:
     config_use_cvmix_kpp: false
-    config_cvmix_background_viscosity: 1e-2
+    config_cvmix_background_diffusion: 0.
+    config_cvmix_background_viscosity: 0.
     config_cvmix_shear_mixing_scheme: PP
+    config_cvmix_num_ri_smooth_loops: 0
   streams:
-    KPP_testing: {}
+    KPP_testing:
+      contents:
+      - mesh
+      - layerThickness
+      - tracers
+      - vertNonLocalFlux
+      - xtime
+      - zMid
+      - zTop
+      - velocityZonal
+      - velocityMeridional
+      - bulkRichardsonNumber
+      - bulkRichardsonNumberBuoy
+      - potentialDensity
+      - unresolvedShear
+      - boundaryLayerDepth
+      - surfaceFrictionVelocity
+      - surfaceBuoyancyForcing
+      - windStressZonal
+      - windStressMeridional
+      - transportVelocityZonal
+      - transportVelocityMeridional
+      - RiTopOfCell
+      - BruntVaisalaFreqTop
+      - vertViscTopOfCell
+      - vertDiffTopOfCell
 
 Omega:
   Tendencies:
