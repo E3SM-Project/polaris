@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.diagnostics.depth\_from\_thickness
+=========================================================
+
+.. currentmodule:: polaris.ocean.vertical.diagnostics
+
+.. autofunction:: depth_from_thickness
