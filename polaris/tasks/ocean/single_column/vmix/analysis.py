@@ -58,7 +58,7 @@ class Analysis(OceanIOStep):
                     f'{comparison_name}: Time mismatch \n'
                     f'expected {t_target}, got {t_days}'
                 )
-            bld_theory = u_star * (15.0 * t_days * 86400.0 / N_sq_init) ** (
+            bld_theory = -u_star * (15.0 * t_days * 86400.0 / N_sq_init) ** (
                 1 / 3
             )
             ds_diags_1day = ds_diags.isel(Time=t_index)
