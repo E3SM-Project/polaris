@@ -155,7 +155,6 @@
 <p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">customizable_viz</span></code> task generates visualizations from ocean
 model outputs using configurable map projection, variable selection, and
 plotting options. All visualizations are done on the native MPAS mesh using
-All visualizations are done on the native MPAS mesh using
 <code class="docutils literal notranslate"><span class="pre">[mosaic](https://github.com/E3SM-Project/mosaic)</span></code></p>
 <p>The customizable_viz task can produce plots of two types, horizontal field
 plots and vertical transect plots, from global MPAS fields.</p>
@@ -199,10 +198,13 @@ and the path to the file must be provided in cfg option <code class="docutils li
 <span id="ocean-customizable-viz-config"></span><h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[customizable_viz]</span>
 <span class="c1"># Mesh file, absolute file path</span>
-<span class="na">mesh_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${MESH_FILE}</span>
+<span class="na">mesh_file</span><span class="w"> </span><span class="o">=</span>
 
 <span class="c1"># Data file, absolute file path</span>
-<span class="na">input_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${INPUT_FILE}</span>
+<span class="na">input_file</span><span class="w"> </span><span class="o">=</span>
+
+<span class="c1"># Transect file from viz_transect, optional</span>
+<span class="na">transect_file</span><span class="w"> </span><span class="o">=</span>
 
 <span class="k">[customizable_viz_horiz_field]</span>
 

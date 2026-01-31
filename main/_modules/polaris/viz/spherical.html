@@ -143,6 +143,7 @@
     <span class="n">descriptor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">projection_name</span><span class="o">=</span><span class="s1">&#39;PlateCarree&#39;</span><span class="p">,</span>
     <span class="n">cell_indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ds_transect</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">enforce_aspect_ratio</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -194,6 +195,20 @@
 
 <span class="sd">    descriptor : mosaic.Descriptor, optional</span>
 <span class="sd">        Descriptor from a previous call to ``plot_global_mpas_field()``</span>
+
+<span class="sd">    projection_name : str, optional</span>
+<span class="sd">        Name of the projection supported by mosaic</span>
+
+<span class="sd">    cell_indices : integer array, optional</span>
+<span class="sd">        Indices corresponding to which cells in the array to plot</span>
+
+<span class="sd">    ds_transect : xr.Dataset, optional</span>
+<span class="sd">        Transect dataset produced by mpas_tools which will be traced on the</span>
+<span class="sd">        global field</span>
+
+<span class="sd">    enforce_aspect_ratio : logical, optional</span>
+<span class="sd">        Whether to enforce the aspect ratio of the figure according to lat,</span>
+<span class="sd">        lon bounds</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -248,14 +263,21 @@
     <span class="n">gl</span><span class="o">.</span><span class="n">right_labels</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">gl</span><span class="o">.</span><span class="n">top_labels</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="n">pc</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">polypcolor</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">descriptor</span><span class="p">,</span> <span class="n">da</span><span class="p">,</span> <span class="o">**</span><span class="n">pcolor_kwargs</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="n">plot_land</span><span class="p">:</span>
         <span class="n">_add_land_lakes_coastline</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+
+    <span class="n">pc</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">polypcolor</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">descriptor</span><span class="p">,</span> <span class="n">da</span><span class="p">,</span> <span class="o">**</span><span class="n">pcolor_kwargs</span><span class="p">)</span>
 
     <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
         <span class="n">pc</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">colorbar_label</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.6</span>
     <span class="p">)</span>
+    <span class="k">if</span> <span class="n">ds_transect</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">ds_transect</span><span class="o">.</span><span class="n">lonNode</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">ds_transect</span><span class="o">.</span><span class="n">latNode</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="s1">&#39;.r&#39;</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">enforce_aspect_ratio</span><span class="p">:</span>
         <span class="n">min_latitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">mesh_ds</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
@@ -505,8 +527,15 @@
         <span class="s1">&#39;physical&#39;</span><span class="p">,</span>
         <span class="s1">&#39;land&#39;</span><span class="p">,</span>
         <span class="s1">&#39;50m&#39;</span><span class="p">,</span>
-        <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
+        <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
         <span class="n">facecolor</span><span class="o">=</span><span class="n">land_color</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">coastline_50m</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">NaturalEarthFeature</span><span class="p">(</span>
+        <span class="s1">&#39;physical&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;land&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;50m&#39;</span><span class="p">,</span>
+        <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;brown&#39;</span><span class="p">,</span>
+        <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">lakes_50m</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">NaturalEarthFeature</span><span class="p">(</span>
         <span class="s1">&#39;physical&#39;</span><span class="p">,</span>
@@ -515,17 +544,18 @@
         <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
         <span class="n">facecolor</span><span class="o">=</span><span class="n">water_color</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">land_50m</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">land_50m</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">ice_shelves</span><span class="p">:</span>
         <span class="n">ice_50m</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">NaturalEarthFeature</span><span class="p">(</span>
             <span class="s1">&#39;physical&#39;</span><span class="p">,</span>
             <span class="s1">&#39;antarctic_ice_shelves_polys&#39;</span><span class="p">,</span>
             <span class="s1">&#39;50m&#39;</span><span class="p">,</span>
-            <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;lightblue&#39;</span><span class="p">,</span>
             <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">ice_50m</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">lakes_50m</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">ice_50m</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">lakes_50m</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">coastline_50m</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 
            </div>
