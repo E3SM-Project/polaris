@@ -14,7 +14,7 @@ class Analysis(Step):
     A step for comparing the velocity profile to an analytic solution
     """
 
-    def __init__(self, component, indir):
+    def __init__(self, component, indir, forward):
         """
         Create the step
 
@@ -27,13 +27,20 @@ class Analysis(Step):
             The subdirectory that the task belongs to, that this step will
             go into a subdirectory of
 
+        forward : polaris.Step
+            The forward step for this test case
         """
         super().__init__(component=component, name='analysis', indir=indir)
+        self.forward = forward
+
+    def setup(self):
         self.add_input_file(
-            filename='init.nc', target='../forward/initial_state.nc'
+            filename='init.nc',
+            target=f'{self.base_work_dir}/{self.forward.path}/init.nc',
         )
         self.add_input_file(
-            filename='output.nc', target='../forward/output.nc'
+            filename='output.nc',
+            target=f'{self.base_work_dir}/{self.forward.path}/output.nc',
         )
 
     def run(self):

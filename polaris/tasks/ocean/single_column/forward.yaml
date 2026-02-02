@@ -1,23 +1,24 @@
-mpas-ocean:
-  run_modes:
-    config_ocean_run_mode: forward
+ocean:
   time_management:
     config_stop_time: none
   time_integration:
-    config_dt: 00:10:00
+    config_dt: 0000_00:10:00
+  forcing:
+    config_use_bulk_wind_stress: true
+
+mpas-ocean:
+  run_modes:
+    config_ocean_run_mode: forward
   split_explicit_ts:
     config_btr_dt: 0000_00:00:30
   forcing:
-    config_use_bulk_wind_stress: true
-  tracer_forcing_activeTracers:
-    config_use_activeTracers_surface_bulk_forcing: true
-    config_use_activeTracers_surface_restoring: true
-    config_use_activeTracers_interior_restoring: true
+    config_bulk_wind_stress_interp_isotropic: true
+    config_use_bulk_thickness_flux: true
   streams:
     mesh:
-      filename_template: initial_state.nc
+      filename_template: mesh.nc
     input:
-      filename_template: initial_state.nc
+      filename_template: init.nc
     restart: {}
     mixedLayerDepthsOutput:
       contents:
@@ -48,7 +49,7 @@ mpas-ocean:
       - frazilSalinityTendency
     forcing_data:
       type: input
-      filename_template: forcing.nc
+      filename_template: init.nc
       input_interval: initial_only
       contents:
       - tracersSurfaceRestoringFields
@@ -69,3 +70,54 @@ mpas-ocean:
       - icebergFreshWaterFlux
       - riverRunoffFlux
       - iceRunoffFlux
+
+Omega:
+  IOStreams:
+    InitialVertCoord:
+      Filename: init.nc
+    InitialState:
+      UsePointerFile: false
+      Filename: init.nc
+      Contents:
+      - State
+      - Tracers
+      - WindStressZonal
+      - WindStressMeridional
+    History:
+      Filename: output.nc
+      Freq: 1
+      FreqUnits: Seconds
+      IfExists: append
+      # effectively never
+      FileFreq: 9999
+      FileFreqUnits: years
+      Contents:
+      - AuxiliaryState
+      - State
+      - ZMid
+      - Tracers
+      - SshCell
+    RestartRead:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: true
+      StartTime: 0001-01-01_00:00:01
+      EndTime: 99999-12-31_00:00:00
+      Contents:
+      - Restart
+    RestartWrite:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: 6
+      FreqUnits: months
+      UseStartEnd: false
+      Contents:
+      - Restart

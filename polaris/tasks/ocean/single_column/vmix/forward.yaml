@@ -1,0 +1,69 @@
+ocean:
+  time_management:
+    config_run_duration: 0010_00:00:00
+  hmix_del4:
+    config_use_mom_del4: false
+  eos:
+    config_eos_type: linear
+  eos_linear:
+    config_eos_linear_beta: 0.01
+
+mpas-ocean:
+  frazil_ice:
+    config_use_frazil_ice_formation: true
+  tracer_forcing_activeTracers:
+    config_use_activeTracers_surface_bulk_forcing: true
+    config_use_activeTracers_surface_restoring: false
+    config_use_activeTracers_interior_restoring: false
+  cvmix:
+    config_use_cvmix_kpp: false
+    config_cvmix_background_diffusion: 0.
+    config_cvmix_background_viscosity: 0.
+    config_cvmix_shear_mixing_scheme: PP
+    config_cvmix_num_ri_smooth_loops: 0
+  streams:
+    KPP_testing:
+      contents:
+      - mesh
+      - layerThickness
+      - tracers
+      - vertNonLocalFlux
+      - xtime
+      - zMid
+      - zTop
+      - velocityZonal
+      - velocityMeridional
+      - bulkRichardsonNumber
+      - bulkRichardsonNumberBuoy
+      - potentialDensity
+      - unresolvedShear
+      - boundaryLayerDepth
+      - surfaceFrictionVelocity
+      - surfaceBuoyancyForcing
+      - windStressZonal
+      - windStressMeridional
+      - transportVelocityZonal
+      - transportVelocityMeridional
+      - RiTopOfCell
+      - BruntVaisalaFreqTop
+      - vertViscTopOfCell
+      - vertDiffTopOfCell
+
+Omega:
+  Tendencies:
+    ThicknessFluxTendencyEnable: true
+    PVTendencyEnable: false
+    KETendencyEnable: false
+    SSHTendencyEnable: false
+    VelDiffTendencyEnable: false
+    VelHyperDiffTendencyEnable: false
+    VelVertMixTendencyEnable: true
+    PresForceTendencyEnable: false
+    PresGradForceTendencyEnable: false
+    GeoptGradTendencyEnable: false
+    WindForcingTendencyEnable: true
+    BottomDragTendencyEnable: false
+    TracerHorzAdvTendencyEnable: false
+    TracerDiffTendencyEnable: false
+    TracerHyperDiffTendencyEnable: false
+    TracerVertMixTendencyEnable: true

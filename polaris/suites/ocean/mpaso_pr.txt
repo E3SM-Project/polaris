@@ -11,6 +11,7 @@ ocean/planar/internal_wave/vlr/default
 # ocean/planar/merry_go_round/default
 ocean/planar/overflow/default
 ocean/single_column/cvmix
+ocean/single_column/cvmix_no_vadv
 ocean/single_column/ekman
 ocean/single_column/ideal_age
 ocean/single_column/inertial
