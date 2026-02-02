@@ -328,7 +328,8 @@ class Init(OceanIOStep):
         alpha_bnds = alpha_mid.expand_dims(nbnds=[0, 1]).transpose(
             'Time', 'nCells', 'nVertLevels', 'nbnds'
         )
-        montgomery_inter = g * (rho0 * alpha_bnds * z_tilde_bnds + z_bnds)
+        # Montgomery: M = alpha * p + g * z, with p = -rho0 * g * z_tilde
+        montgomery_inter = g * (z_bnds - rho0 * alpha_bnds * z_tilde_bnds)
         montgomery_inter = montgomery_inter.transpose(
             'Time', 'nCells', 'nVertLevels', 'nbnds'
         )
