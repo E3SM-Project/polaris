@@ -89,7 +89,7 @@ config:
 - section:
     debug: Tendencies
   options:
-    config_disable_vel_explicit_bottom_drag: BottomDragTendencyEnable
+    config_disable_vel_explicit_bottom_drag: not BottomDragTendencyEnable
 
 - section:
     bottom_drag: Tendencies
@@ -111,6 +111,6 @@ config:
 - section:
    eos_linear: [Eos, Linear]
   options:
-    config_eos_linear_alpha: DRhoDT
+    config_eos_linear_alpha: not DRhoDT
     config_eos_linear_beta: DRhoDS
     config_eos_linear_densityref: RhoT0S0
