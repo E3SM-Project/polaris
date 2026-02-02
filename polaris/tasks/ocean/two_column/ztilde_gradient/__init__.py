@@ -64,7 +64,21 @@ class ZTildeGradient(Task):
         setup steps given resolutions
         """
         section = self.config['two_column']
-        resolutions = section.getexpression('resolutions')
+        horiz_resolutions = section.getexpression('horiz_resolutions')
+        vert_resolutions = section.getexpression('vert_resolutions')
+
+        assert horiz_resolutions is not None, (
+            'The "horiz_resolutions" configuration option must be set in the '
+            '"two_column" section.'
+        )
+        assert vert_resolutions is not None, (
+            'The "vert_resolutions" configuration option must be set in the '
+            '"two_column" section.'
+        )
+        assert len(horiz_resolutions) == len(vert_resolutions), (
+            'The "horiz_resolutions" and "vert_resolutions" configuration '
+            'options must have the same length.'
+        )
 
         # start fresh with no steps
         for step in list(self.steps.values()):
@@ -72,11 +86,14 @@ class ZTildeGradient(Task):
 
         self.add_step(Reference(component=self.component, indir=self.subdir))
 
-        for resolution in resolutions:
+        for horiz_res, vert_res in zip(
+            horiz_resolutions, vert_resolutions, strict=True
+        ):
             self.add_step(
                 Init(
                     component=self.component,
-                    resolution=resolution,
+                    horiz_res=horiz_res,
+                    vert_res=vert_res,
                     indir=self.subdir,
                 )
             )

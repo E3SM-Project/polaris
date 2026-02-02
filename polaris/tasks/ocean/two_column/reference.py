@@ -85,9 +85,9 @@ class Reference(OceanIOStep):
                 'Omega ocean model.'
             )
 
-        resolution = config.getfloat('two_column', 'reference_resolution')
+        resolution = config.getfloat('two_column', 'reference_horiz_res')
         assert resolution is not None, (
-            'The "reference_resolution" configuration option must be set in '
+            'The "reference_horiz_res" configuration option must be set in '
             'the "two_column" section.'
         )
         rho0 = config.getfloat('vertical_grid', 'rho0')
@@ -100,12 +100,21 @@ class Reference(OceanIOStep):
 
         geom_ssh, geom_z_bot, z_tilde_bot = self._get_ssh_z_bot(x)
 
-        vert_levels = config.getint('vertical_grid', 'vert_levels')
-        if vert_levels is None:
-            raise ValueError(
-                'The "vert_levels" configuration option must be set in the '
-                '"vertical_grid" section.'
-            )
+        vert_res = config.getfloat('two_column', 'reference_vert_res')
+        z_tilde_bot_mid = config.getfloat('two_column', 'z_tilde_bot_mid')
+
+        assert vert_res is not None, (
+            'The "reference_vert_res" configuration option must be set in '
+            'the "two_column" section.'
+        )
+        assert z_tilde_bot_mid is not None, (
+            'The "z_tilde_bot_mid" configuration option must be set in the '
+            '"two_column" section.'
+        )
+
+        vert_levels = int(-z_tilde_bot_mid / vert_res)
+
+        config.set('vertical_grid', 'vert_levels', str(vert_levels))
 
         vert_levs_inters = 2 * vert_levels + 1
         z_tilde = np.nan * np.ones((len(x), vert_levs_inters), dtype=float)
@@ -113,6 +122,7 @@ class Reference(OceanIOStep):
         spec_vol = np.nan * np.ones((len(x), vert_levs_inters), dtype=float)
         ct = np.nan * np.ones((len(x), vert_levs_inters), dtype=float)
         sa = np.nan * np.ones((len(x), vert_levs_inters), dtype=float)
+        uniform_layer_mask = np.zeros((len(x), vert_levs_inters), dtype=bool)
 
         z_tilde_node, temperature_node, salinity_node = (
             self._get_z_tilde_t_s_nodes(x)
@@ -126,6 +136,7 @@ class Reference(OceanIOStep):
                 spec_vol[icol, :],
                 ct[icol, :],
                 sa[icol, :],
+                uniform_layer_mask[icol, :],
             ) = self._compute_column(
                 z_tilde_node=z_tilde_node[icol, :],
                 temperature_node=temperature_node[icol, :],
@@ -134,6 +145,8 @@ class Reference(OceanIOStep):
                 geom_z_bot=geom_z_bot.isel(nCells=icol).item(),
                 z_tilde_bot=z_tilde_bot.isel(nCells=icol).item(),
             )
+
+        valid_grad_mask = np.all(uniform_layer_mask[[1, 2, 3], :], axis=0)
 
         dx = resolution * 1e3  # m
 
@@ -315,6 +328,25 @@ class Reference(OceanIOStep):
             },
         )
 
+        ds['ValidGradMidMask'] = xr.DataArray(
+            data=valid_grad_mask[np.newaxis, 1::2],
+            dims=['Time', 'nVertLevels'],
+            attrs={
+                'long_name': 'Mask indicating layers with valid gradients at '
+                'midpoints',
+                'units': '1',
+            },
+        )
+        ds['ValidGradInterMask'] = xr.DataArray(
+            data=valid_grad_mask[np.newaxis, 0::2],
+            dims=['Time', 'nVertLevelsP1'],
+            attrs={
+                'long_name': 'Mask indicating layers with valid gradients at '
+                'interfaces',
+                'units': '1',
+            },
+        )
+
         self.write_model_dataset(ds, 'reference_solution.nc')
 
     def _get_ssh_z_bot(
@@ -336,7 +368,7 @@ class Reference(OceanIOStep):
 
     def _init_z_tilde_interface(
         self, pseudo_bottom_depth: float, z_tilde_bot: float
-    ) -> tuple[np.ndarray, int]:
+    ) -> tuple[np.ndarray, int, np.ndarray]:
         """
         Compute z-tilde vertical interfaces.
         """
@@ -345,6 +377,9 @@ class Reference(OceanIOStep):
         z_tilde_interface = np.linspace(
             0.0, z_tilde_bot, vert_levels + 1, dtype=float
         )
+        # layers where z_tilde is not adjusted for bathymetry
+        uniform_layer_mask = z_tilde_interface >= -pseudo_bottom_depth
+
         z_tilde_interface = np.maximum(z_tilde_interface, -pseudo_bottom_depth)
         dz = z_tilde_interface[0:-1] - z_tilde_interface[1:]
         mask = dz == 0.0
@@ -352,7 +387,8 @@ class Reference(OceanIOStep):
 
         # max_layer is the index of the deepest non-nan layer interface
         max_layer = np.where(~mask)[0][-1] + 1
-        return z_tilde_interface, max_layer
+
+        return z_tilde_interface, max_layer, uniform_layer_mask
 
     def _get_z_tilde_t_s_nodes(
         self, x: np.ndarray
@@ -392,7 +428,9 @@ class Reference(OceanIOStep):
         geom_ssh: float,
         geom_z_bot: float,
         z_tilde_bot: float,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[
+        np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray
+    ]:
         config = self.config
         logger = self.logger
         section = config['two_column']
@@ -426,9 +464,11 @@ class Reference(OceanIOStep):
         )
 
         for iter in range(water_col_adjust_iter_count):
-            z_tilde_inter, max_layer = self._init_z_tilde_interface(
-                pseudo_bottom_depth=pseudo_bottom_depth,
-                z_tilde_bot=z_tilde_bot,
+            z_tilde_inter, max_layer, uniform_layer_mask_inter = (
+                self._init_z_tilde_interface(
+                    pseudo_bottom_depth=pseudo_bottom_depth,
+                    z_tilde_bot=z_tilde_bot,
+                )
             )
             vert_levels = len(z_tilde_inter) - 1
 
@@ -438,6 +478,13 @@ class Reference(OceanIOStep):
             z_tilde = np.zeros(2 * vert_levels + 1, dtype=float)
             z_tilde[0::2] = z_tilde_inter
             z_tilde[1::2] = z_tilde_mid
+
+            uniform_layer_mask_mid = (
+                uniform_layer_mask_inter[0:-1] & uniform_layer_mask_inter[1:]
+            )
+            uniform_layer_mask = np.zeros(2 * vert_levels + 1, dtype=bool)
+            uniform_layer_mask[0::2] = uniform_layer_mask_inter
+            uniform_layer_mask[1::2] = uniform_layer_mask_mid
 
             valid = slice(0, 2 * max_layer + 1)
 
@@ -480,7 +527,7 @@ class Reference(OceanIOStep):
             pseudo_bottom_depth *= scaling_factor
         logger.info('')
 
-        return z_tilde, z, spec_vol, ct, sa
+        return z_tilde, z, spec_vol, ct, sa, uniform_layer_mask
 
 
 def _integrate_geometric_height(
@@ -851,5 +898,9 @@ def _compute_4th_order_gradient(f: np.ndarray, dx: float) -> np.ndarray:
 
     # gradient at x = 0 using the non-uniform 4-point stencil
     df_dx = (f[0, :] - 27.0 * f[1, :] + 27.0 * f[2, :] - f[3, :]) / (24.0 * dx)
+
+    # mask any locations where inputs are NaN
+    nan_mask = np.any(np.isnan(f), axis=0)
+    df_dx[nan_mask] = np.nan
 
     return df_dx

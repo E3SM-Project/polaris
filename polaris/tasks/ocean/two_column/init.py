@@ -26,11 +26,14 @@ class Init(OceanIOStep):
 
     Attributes
     ----------
-    resolution : float
+    horiz_res : float
         The horizontal resolution in km
+
+    vert_res : float
+        The vertical resolution in m
     """
 
-    def __init__(self, component, resolution, indir):
+    def __init__(self, component, horiz_res, vert_res, indir):
         """
         Create the step
 
@@ -39,15 +42,19 @@ class Init(OceanIOStep):
         component : polaris.Component
             The component the step belongs to
 
-        resolution : float
+        horiz_res : float
             The horizontal resolution in km
+
+        vert_res : float
+            The vertical resolution in m
 
         indir : str
             The subdirectory that the task belongs to, that this step will
             go into a subdirectory of
         """
-        self.resolution = resolution
-        name = f'init_{resolution_to_string(resolution)}'
+        self.horiz_res = horiz_res
+        self.vert_res = vert_res
+        name = f'init_{resolution_to_string(horiz_res)}'
         super().__init__(component=component, name=name, indir=indir)
         for file in [
             'base_mesh.nc',
@@ -70,17 +77,29 @@ class Init(OceanIOStep):
                 'Omega ocean model.'
             )
 
-        resolution = self.resolution
+        horiz_res = self.horiz_res
+        vert_res = self.vert_res
         rho0 = config.getfloat('vertical_grid', 'rho0')
         assert rho0 is not None, (
             'The "rho0" configuration option must be set in the '
             '"vertical_grid" section.'
         )
 
+        z_tilde_bot_mid = config.getfloat('two_column', 'z_tilde_bot_mid')
+
+        assert z_tilde_bot_mid is not None, (
+            'The "z_tilde_bot_mid" configuration option must be set in the '
+            '"two_column" section.'
+        )
+
+        vert_levels = int(-z_tilde_bot_mid / vert_res)
+
+        config.set('vertical_grid', 'vert_levels', str(vert_levels))
+
         nx = 2
         ny = 2
-        dc = 1e3 * resolution
-        dx = 1e3 * resolution
+        dc = 1e3 * horiz_res
+        dx = 1e3 * horiz_res
         ds_mesh = make_planar_hex_mesh(
             nx=nx, ny=ny, dc=dc, nonperiodic_x=True, nonperiodic_y=True
         )
@@ -107,7 +126,7 @@ class Init(OceanIOStep):
                 f'{ncells} cells.'
             )
 
-        x = resolution * np.array([-0.5, 0.5], dtype=float)
+        x = horiz_res * np.array([-0.5, 0.5], dtype=float)
         geom_ssh, geom_z_bot = self._get_geom_ssh_z_bot(x)
 
         goal_geom_water_column_thickness = geom_ssh - geom_z_bot
