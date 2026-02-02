@@ -1,6 +1,38 @@
 import numpy as np
 import xarray as xr
 
+from polaris.ocean.vertical.ztilde import (
+    pressure_and_spec_vol_from_state_at_geom_height,
+    pseudothickness_from_pressure,
+)
+
+
+def pseudothickness_from_ds(ds, config):
+    if 'temperature' not in ds.keys() or 'salinity' not in ds.keys():
+        print(
+            'PseudoThickness is not present in the '
+            'initial condition and T,S are not present '
+            'to compute it'
+        )
+        return
+
+    surface_pressure = 10.0 * 1e4  # 10 dbar * Pa/dbar
+    p_interface, _, spec_vol = pressure_and_spec_vol_from_state_at_geom_height(
+        config,
+        ds.layerThickness,
+        ds.temperature,
+        ds.salinity,
+        surface_pressure * xr.ones_like(ds.ssh),
+        iter_count=1,
+    )
+    print('p_interface', p_interface.mean(dim='nCells').values)
+    print('rho', 1 / spec_vol.mean(dim='nCells').values)
+
+    pseudothickness = pseudothickness_from_pressure(p_interface, 1026.0)
+    print('h_tilde', pseudothickness.mean(dim='nCells').values)
+
+    return pseudothickness
+
 
 def depth_from_thickness(ds):
     """
