@@ -13,7 +13,10 @@ from polaris.ocean.vertical.ztilde import (
     pressure_from_z_tilde,
 )
 from polaris.resolution import resolution_to_string
-from polaris.tasks.ocean.two_column.column import get_array_from_mid_grad
+from polaris.tasks.ocean.two_column.column import (
+    get_array_from_mid_grad,
+    get_pchip_interpolator,
+)
 
 
 class Init(OceanIOStep):
@@ -529,7 +532,7 @@ class Init(OceanIOStep):
             z_tilde = z_tilde_node[icell, :]
             temperatures = t_node[icell, :]
             salinities = s_node[icell, :]
-            z_mid = z_tilde_mid.isel(nCells=icell).values
+            z_tilde_mid_col = z_tilde_mid.isel(Time=0, nCells=icell).values
 
             if len(z_tilde) < 2:
                 raise ValueError(
@@ -537,10 +540,24 @@ class Init(OceanIOStep):
                     'define piecewise linear initial conditions.'
                 )
 
-            temperature_np[0, icell, :] = np.interp(
-                -z_mid, -z_tilde, temperatures
+            t_interp = get_pchip_interpolator(
+                z_tilde_nodes=z_tilde,
+                values_nodes=temperatures,
+                name='temperature',
             )
-            salinity_np[0, icell, :] = np.interp(-z_mid, -z_tilde, salinities)
+            s_interp = get_pchip_interpolator(
+                z_tilde_nodes=z_tilde,
+                values_nodes=salinities,
+                name='salinity',
+            )
+            valid = np.isfinite(z_tilde_mid_col)
+            temperature_np[0, icell, :] = np.nan
+            salinity_np[0, icell, :] = np.nan
+            if np.any(valid):
+                temperature_np[0, icell, valid] = t_interp(
+                    z_tilde_mid_col[valid]
+                )
+                salinity_np[0, icell, valid] = s_interp(z_tilde_mid_col[valid])
 
         temperature = xr.DataArray(
             data=temperature_np,

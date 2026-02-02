@@ -8,7 +8,10 @@ import xarray as xr
 from mpas_tools.cime.constants import constants
 
 from polaris.ocean.model import OceanIOStep
-from polaris.tasks.ocean.two_column.column import get_array_from_mid_grad
+from polaris.tasks.ocean.two_column.column import (
+    get_array_from_mid_grad,
+    get_pchip_interpolator,
+)
 
 
 class Reference(OceanIOStep):
@@ -589,14 +592,22 @@ def _integrate_geometric_height(
 
     g = constants['SHR_CONST_G']
 
+    sa_interp = get_pchip_interpolator(
+        z_tilde_nodes=z_tilde_nodes,
+        values_nodes=sa_nodes,
+        name='salinity',
+    )
+    ct_interp = get_pchip_interpolator(
+        z_tilde_nodes=z_tilde_nodes,
+        values_nodes=ct_nodes,
+        name='temperature',
+    )
+
     def spec_vol_ct_sa_at(
         z_tilde: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        # np.interp requires xp to be increasing; our
-        # z_tilde_nodes are decreasing, so flip the signs of
-        # z_tilde and z_tilde_nodes for the interpolation
-        sa = np.interp(-z_tilde, -z_tilde_nodes, sa_nodes)
-        ct = np.interp(-z_tilde, -z_tilde_nodes, ct_nodes)
+        sa = sa_interp(z_tilde)
+        ct = ct_interp(z_tilde)
         p_pa = -rho0 * g * z_tilde
         # gsw expects pressure in dbar
         spec_vol = gsw.specvol(sa, ct, p_pa * 1.0e-4)
