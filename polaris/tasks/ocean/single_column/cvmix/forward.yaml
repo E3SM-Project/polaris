@@ -1,3 +1,11 @@
+ocean:
+  eos:
+    config_eos_type: linear
+  eos_linear:
+    config_eos_linear_alpha: 0.2
+    config_eos_linear_beta: 0.01
+    config_eos_linear_Tref: 5.0
+
 mpas-ocean:
   time_management:
     config_run_duration: 0010_00:00:00
@@ -13,9 +21,5 @@ mpas-ocean:
     config_use_cvmix_kpp: true
     config_cvmix_kpp_matching: MatchBoth
     config_cvmix_kpp_interpolationOMLType: cubic
-  eos:
-    config_eos_type: linear
-  eos_linear:
-    config_eos_linear_beta: 0.01
   streams:
     KPP_testing: {}

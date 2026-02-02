@@ -24,6 +24,7 @@ class Forward(OceanModelStep):
         openmp_threads=1,
         validate_vars=None,
         task_name='',
+        update_eos=True,
     ):
         """
         Create a new test case
