@@ -109,8 +109,13 @@ config:
     config_eos_type: EosType
 
 - section:
-   eos_linear: [Eos, Linear]
+    eos_linear: [Eos, Linear]
   options:
     config_eos_linear_alpha: not DRhoDT
     config_eos_linear_beta: DRhoDS
     config_eos_linear_densityref: RhoT0S0
+
+- section:
+    ocean_constants: VertCoord
+  options:
+    config_density0: Density0
