@@ -32,7 +32,7 @@ class OceanIOStep(Step):
         """
         return self.component.map_to_native_model_vars(ds)
 
-    def write_model_dataset(self, ds, filename):
+    def write_model_dataset(self, ds, filename, config=None):
         """
         Write out the given dataset, mapping dimension and variable names from
         MPAS-Ocean to Omega names if appropriate
@@ -45,7 +45,7 @@ class OceanIOStep(Step):
         filename : str
             The path for the NetCDF file to write
         """
-        self.component.write_model_dataset(ds, filename)
+        self.component.write_model_dataset(ds, filename, config=config)
 
     def map_from_native_model_vars(self, ds):
         """

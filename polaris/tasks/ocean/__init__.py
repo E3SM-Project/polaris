@@ -168,9 +168,14 @@ class Ocean(Component):
         filename : str
             The path for the NetCDF file to write
         """
-        ds = self.map_to_native_model_vars(ds)
-        if self.model == 'omega' and 'PseudoThickness' not in ds.keys():
+        if (
+            self.model == 'omega'
+            and 'layerThickness' in ds.keys()
+            and 'PseudoThickness' not in ds.keys()
+            and config is not None
+        ):
             ds['PseudoThickness'] = pseudothickness_from_ds(ds, config=config)
+        ds = self.map_to_native_model_vars(ds)
         write_netcdf(ds=ds, fileName=filename)
 
     def map_from_native_model_vars(self, ds):
