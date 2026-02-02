@@ -137,9 +137,10 @@ class Reference(OceanIOStep):
 
         dx = resolution * 1e3  # m
 
-        # compute montgomery potential M = alpha * p + g * z
+        # compute Montgomery potential M = alpha * p + g * z
+        # with p = -rho0 * g * z_tilde (p positive downward)
         g = constants['SHR_CONST_G']
-        montgomery = g * (rho0 * spec_vol * z_tilde + z)
+        montgomery = g * (z - rho0 * spec_vol * z_tilde)
 
         dx = resolution * 1.0e3  # m
 
