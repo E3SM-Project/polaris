@@ -5,12 +5,13 @@ from polaris.tasks.ocean.two_column.init import Init
 from polaris.tasks.ocean.two_column.reference import Reference
 
 
-class SalinityGradient(Task):
+class ZTildeGradient(Task):
     """
-    The salinity gradient two-column test case tests convergence of the TEOS-10
+    The z-tilde gradient two-column test case tests convergence of the TEOS-10
     pressure-gradient computation in Omega at various horizontal resolutions.
-    The test uses a fixed horizontal gradient in salinity between two adjacent
-    ocean columns, with no horizontal gradient in temperature or pseudo-height.
+    The test prescribes a gradient in the bottom depth of the pseudo-height
+    vertical coordinate between two adjacent ocean columns, with no horizontal
+    gradient in temperature or salinity.
 
     The test includes a a quasi-analytic solution to horizontal
     pressure-gradient acceleration (HPGA) used for verification. It also
@@ -35,7 +36,7 @@ class SalinityGradient(Task):
         component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
         """
-        name = 'salinity_gradient'
+        name = 'ztilde_gradient'
         subdir = os.path.join('two_column', name)
         super().__init__(component=component, name=name, subdir=subdir)
 
@@ -43,8 +44,8 @@ class SalinityGradient(Task):
             'polaris.tasks.ocean.two_column', 'two_column.cfg'
         )
         self.config.add_from_package(
-            'polaris.tasks.ocean.two_column.salinity_gradient',
-            'salinity_gradient.cfg',
+            'polaris.tasks.ocean.two_column.ztilde_gradient',
+            'ztilde_gradient.cfg',
         )
 
         self._setup_steps()
