@@ -669,5 +669,13 @@ class OceanModelStep(ModelStep):
         if option.startswith('not '):
             # a special case where we want the opposite of a boolean value
             option = option[4:]
-            value = not value
+            if isinstance(value, bool):
+                value = not value
+            elif isinstance(value, float):
+                value = -value
+            else:
+                raise ValueError(
+                    f"{option}: Cannot apply 'not' to option type "
+                    f'{type(value)}'
+                )
         return option, value
