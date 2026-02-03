@@ -69,7 +69,7 @@ class Init(OceanIOStep):
         ds_mesh = make_planar_hex_mesh(
             nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=False
         )
-        self.write_model_dataset(ds_mesh, 'base_mesh.nc', config)
+        self.write_model_dataset(ds_mesh, 'base_mesh.nc')
 
         ds_mesh = cull(ds_mesh, logger=logger)
         ds_mesh = convert(
@@ -109,5 +109,7 @@ class Init(OceanIOStep):
             'Time', 'nCells', 'nVertLevels'
         )
         ds['layerThickness'] = layer_thickness
+        ds['temperature'] = xr.zeros_like(layer_thickness)
+        ds['salinity'] = xr.ones_like(layer_thickness)
 
-        self.write_model_dataset(ds, 'initial_state.nc')
+        self.write_model_dataset(ds, 'initial_state.nc', config)
