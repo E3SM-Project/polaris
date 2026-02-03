@@ -100,13 +100,14 @@ class Reference(OceanIOStep):
 
         geom_ssh, geom_z_bot, z_tilde_bot = self._get_ssh_z_bot(x)
 
-        vert_res = config.getfloat('two_column', 'reference_vert_res')
+        test_vert_res = config.getexpression('two_column', 'vert_resolutions')
+        test_min_vert_res = np.min(test_vert_res)
+
+        # Use half the minimum test vertical resolution for the reference
+        # so that reference interfaces lie exactly at test midpoints
+        vert_res = test_min_vert_res / 2.0
         z_tilde_bot_mid = config.getfloat('two_column', 'z_tilde_bot_mid')
 
-        assert vert_res is not None, (
-            'The "reference_vert_res" configuration option must be set in '
-            'the "two_column" section.'
-        )
         assert z_tilde_bot_mid is not None, (
             'The "z_tilde_bot_mid" configuration option must be set in the '
             '"two_column" section.'
