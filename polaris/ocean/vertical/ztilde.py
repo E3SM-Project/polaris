@@ -20,11 +20,52 @@ from polaris.ocean.eos import compute_specvol
 
 __all__ = [
     'z_tilde_from_pressure',
+    'pseudothickness_from_pressure',
     'pressure_from_z_tilde',
     'pressure_and_spec_vol_from_state_at_geom_height',
     'pressure_from_geom_thickness',
     'geom_height_from_pseudo_height',
 ]
+
+
+def pseudothickness_from_pressure(
+    p: xr.DataArray, rho0: float
+) -> xr.DataArray:
+    """
+    Convert sea pressure to pseudo-height.
+
+    z_tilde = -p / (rho0 * g)
+
+    Parameters
+    ----------
+    p : xarray.DataArray
+        Sea pressure in Pascals (Pa) at layer interfaces.
+
+    rho0 : float
+        Reference density in kg m^-3.
+
+    Returns
+    -------
+    xarray.DataArray
+        Pseudo-height with the same shape and coords as ``p`` (units: m).
+    """
+
+    g = constants['SHR_CONST_G']
+    p_top = p.isel(nVertLevelsP1=slice(0, -1))
+    p_bot = p.isel(nVertLevelsP1=slice(1, None))
+    dims = list(p.dims)
+    dims = [item.replace('nVertLevelsP1', 'nVertLevels') for item in dims]
+    h = xr.DataArray(
+        (p_bot - p_top) / (rho0 * g),
+        dims=tuple(dims),
+    )
+    return h.assign_attrs(
+        {
+            'long_name': 'pseudo-thickness',
+            'units': 'm',
+            'note': 'h_tilde = -dp / (rho0 * g)',
+        }
+    )
 
 
 def z_tilde_from_pressure(p: xr.DataArray, rho0: float) -> xr.DataArray:
