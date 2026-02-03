@@ -16,7 +16,8 @@ def pseudothickness_from_ds(ds, config):
         )
         return
 
-    surface_pressure = 10.0 * 1e4  # 10 dbar * Pa/dbar
+    surface_pressure = config.getfloat('vertical_grid', 'surface_pressure')
+    rho0 = config.getfloat('vertical_grid', 'rho0')
     p_interface, _, spec_vol = pressure_and_spec_vol_from_state_at_geom_height(
         config,
         ds.layerThickness,
@@ -28,7 +29,7 @@ def pseudothickness_from_ds(ds, config):
     print('p_interface', p_interface.mean(dim='nCells').values)
     print('rho', 1 / spec_vol.mean(dim='nCells').values)
 
-    pseudothickness = pseudothickness_from_pressure(p_interface, 1026.0)
+    pseudothickness = pseudothickness_from_pressure(p_interface, rho0)
     print('h_tilde', pseudothickness.mean(dim='nCells').values)
 
     return pseudothickness
