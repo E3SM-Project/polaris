@@ -4,7 +4,8 @@ ocean:
   eos_linear:
     config_eos_linear_alpha: 0.2
     config_eos_linear_beta: 0.01
-    config_eos_linear_Tref: 5.0
+    # 1000.0 + 0.2 * 5 - 0.01 * 35
+    eos_linear_rhoref: 1000.65
 
 mpas-ocean:
   time_management:
