@@ -5,13 +5,13 @@ from polaris.tasks.ocean.two_column.init import Init
 from polaris.tasks.ocean.two_column.reference import Reference
 
 
-class ZTildeGradient(Task):
+class TwoColumnTask(Task):
     """
-    The z-tilde gradient two-column test case tests convergence of the TEOS-10
-    pressure-gradient computation in Omega at various horizontal resolutions.
-    The test prescribes a gradient in the bottom depth of the pseudo-height
-    vertical coordinate between two adjacent ocean columns, with no horizontal
-    gradient in temperature or salinity.
+    The two-column test case tests convergence of the TEOS-10 pressure-gradient
+    computation in Omega at various horizontal and vertical resolutions. The
+    test uses fixed horizontal gradients in various proprties (e.g. salinity
+    and pseudo-height) between two adjacent ocean columns, as set by config
+    options.
 
     The test includes a a quasi-analytic solution to horizontal
     pressure-gradient acceleration (HPGA) used for verification. It also
@@ -27,7 +27,7 @@ class ZTildeGradient(Task):
     Omega's HPGA to high precision.
     """
 
-    def __init__(self, component):
+    def __init__(self, component, name):
         """
         Create the test case
 
@@ -35,8 +35,12 @@ class ZTildeGradient(Task):
         ----------
         component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
+
+        name : str
+            The name of the test case, which must have a corresponding
+            <name>.cfg config file in the two_column package that specifies
+            which properties vary betweeen the columns.
         """
-        name = 'ztilde_gradient'
         subdir = os.path.join('two_column', name)
         super().__init__(component=component, name=name, subdir=subdir)
 
@@ -44,8 +48,8 @@ class ZTildeGradient(Task):
             'polaris.tasks.ocean.two_column', 'two_column.cfg'
         )
         self.config.add_from_package(
-            'polaris.tasks.ocean.two_column.ztilde_gradient',
-            'ztilde_gradient.cfg',
+            'polaris.tasks.ocean.two_column',
+            f'{name}.cfg',
         )
 
         self._setup_steps()
