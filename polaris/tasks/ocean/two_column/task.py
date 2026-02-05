@@ -1,6 +1,7 @@
 import os
 
 from polaris import Task
+from polaris.tasks.ocean.two_column.forward import Forward
 from polaris.tasks.ocean.two_column.init import Init
 from polaris.tasks.ocean.two_column.reference import Reference
 
@@ -18,13 +19,14 @@ class TwoColumnTask(Task):
     includes a set of Omega two-column initial conditions at various
     resolutions.
 
+    The test also includes single-time-step forward model runs at
+    each resolution that outputs Omega's version of the HPGA,
+
     TODO:
-    Soon, the test will also include single-time-step forward model runs at
-    each resolution to output Omega's version of the HPGA, followed by an
-    analysis step to compute the error between Omega's HPGA and the
-    quasi-analytic solution.  We will also compare Omega's HPGA with a python
-    computation as part of the initial condition that is expected to match
-    Omega's HPGA to high precision.
+    Soon, this task will also include an analysis step to compute the error
+    between Omega's HPGA and the high-fidelity reference solution.  We will
+    also compare Omega's HPGA with a python computation as part of the initial
+    condition that is expected to match Omega's HPGA to high precision.
     """
 
     def __init__(self, component, name):
@@ -98,6 +100,15 @@ class TwoColumnTask(Task):
                     component=self.component,
                     horiz_res=horiz_res,
                     vert_res=vert_res,
+                    indir=self.subdir,
+                )
+            )
+
+        for horiz_res in horiz_resolutions:
+            self.add_step(
+                Forward(
+                    component=self.component,
+                    horiz_res=horiz_res,
                     indir=self.subdir,
                 )
             )
