@@ -236,6 +236,15 @@ class Init(OceanIOStep):
         ds['salinity'] = sa
         ds['SpecVol'] = spec_vol
 
+        ds['SurfacePressure'] = xr.DataArray(
+            data=np.zeros((1, ncells), dtype=float),
+            dims=['Time', 'nCells'],
+            attrs={
+                'long_name': 'surface pressure',
+                'units': 'Pa',
+            },
+        )
+
         ds['Density'] = 1.0 / ds['SpecVol']
         ds.Density.attrs['long_name'] = 'density'
         ds.Density.attrs['units'] = 'kg m-3'
