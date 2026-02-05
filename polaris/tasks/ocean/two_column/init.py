@@ -57,9 +57,7 @@ class Init(OceanIOStep):
         name = f'init_{resolution_to_string(horiz_res)}'
         super().__init__(component=component, name=name, indir=indir)
         for file in [
-            'base_mesh.nc',
             'culled_mesh.nc',
-            'culled_graph.info',
             'initial_state.nc',
         ]:
             self.add_output_file(file)

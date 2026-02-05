@@ -1,5 +1,4 @@
-from polaris.tasks.ocean.two_column.salinity_gradient import SalinityGradient
-from polaris.tasks.ocean.two_column.ztilde_gradient import ZTildeGradient
+from polaris.tasks.ocean.two_column.task import TwoColumnTask
 
 
 def add_two_column_tasks(component):
@@ -11,5 +10,5 @@ def add_two_column_tasks(component):
     component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
-    component.add_task(SalinityGradient(component=component))
-    component.add_task(ZTildeGradient(component=component))
+    for name in ['salinity_gradient', 'ztilde_gradient']:
+        component.add_task(TwoColumnTask(component=component, name=name))
