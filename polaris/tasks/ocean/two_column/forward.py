@@ -48,5 +48,8 @@ class Forward(OceanModelStep):
             target=f'../{init_dir}/culled_mesh.nc',
         )
 
+        # TODO: remove as soon as Omega no longer hard-codes this file
+        self.add_input_file(filename='OmegaMesh.nc', target='initial_state.nc')
+
         validate_vars = ['NormalVelocityTend']
         self.add_output_file('output.nc', validate_vars=validate_vars)
