@@ -123,6 +123,16 @@ jobs:
           polaris list
 
       - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
+        name: Run unit tests
+        run: |
+          if [ "${{ matrix.env_only }}" = "true" ]; then
+            source load_polaris_test.sh
+          else
+            source load_polaris_test_mpich.sh
+          fi
+          pytest tests/
+
+      - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
         name: Build Sphinx Docs
         run: |
           if [ "${{ matrix.env_only }}" = "true" ]; then
