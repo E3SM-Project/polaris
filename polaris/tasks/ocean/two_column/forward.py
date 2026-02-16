@@ -36,8 +36,6 @@ class Forward(OceanModelStep):
             openmp_threads=1,
         )
 
-        self.add_yaml_file('polaris.tasks.ocean.two_column', 'forward.yaml')
-
         init_dir = f'init_{resolution_to_string(horiz_res)}'
         self.add_input_file(
             filename='initial_state.nc',
@@ -53,3 +51,21 @@ class Forward(OceanModelStep):
 
         validate_vars = ['NormalVelocityTend']
         self.add_output_file('output.nc', validate_vars=validate_vars)
+
+    def setup(self):
+        """
+        Fill in config options in the forward.yaml file based on config options
+        """
+        super().setup()
+
+        rho0 = self.config.get('vertical_grid', 'rho0')
+        if rho0 is None:
+            raise ValueError(
+                'rho0 must be specified in the config file under vertical_grid'
+            )
+
+        self.add_yaml_file(
+            'polaris.tasks.ocean.two_column',
+            'forward.yaml',
+            template_replacements={'rho0': rho0},
+        )
