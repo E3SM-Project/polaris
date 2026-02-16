@@ -13,7 +13,6 @@ import logging
 
 import numpy as np
 import xarray as xr
-from mpas_tools.cime.constants import constants
 
 from polaris.config import PolarisConfigParser
 from polaris.ocean.eos import compute_specvol
@@ -24,6 +23,10 @@ __all__ = [
     'pressure_and_spec_vol_from_state_at_geom_height',
     'pressure_from_geom_thickness',
 ]
+
+# TODO: replace with value looked up in GCD YAML file when possible
+# Temporarily hard-coded with the GCD/Omega value
+Gravity = 9.80665
 
 
 def z_tilde_from_pressure(p: xr.DataArray, rho0: float) -> xr.DataArray:
@@ -46,9 +49,7 @@ def z_tilde_from_pressure(p: xr.DataArray, rho0: float) -> xr.DataArray:
         Pseudo-height with the same shape and coords as ``p`` (units: m).
     """
 
-    g = constants['SHR_CONST_G']
-
-    z = -(p) / (rho0 * g)
+    z = -(p) / (rho0 * Gravity)
     return z.assign_attrs(
         {
             'long_name': 'pseudo-height',
@@ -78,9 +79,7 @@ def pressure_from_z_tilde(z_tilde: xr.DataArray, rho0: float) -> xr.DataArray:
         Sea pressure with the same shape and coords as ``z_tilde`` (Pa).
     """
 
-    g = constants['SHR_CONST_G']
-
-    p = -(z_tilde) * (rho0 * g)
+    p = -(z_tilde) * (rho0 * Gravity)
     return p.assign_attrs(
         {
             'long_name': 'sea pressure',
@@ -121,7 +120,6 @@ def pressure_from_geom_thickness(
     """
 
     n_vert_levels = geom_layer_thickness.sizes['nVertLevels']
-    g = constants['SHR_CONST_G']
 
     p_top = surf_pressure
     p_interface_list = [p_top]
@@ -129,7 +127,7 @@ def pressure_from_geom_thickness(
 
     for k in range(n_vert_levels):
         dp = (
-            g
+            Gravity
             / spec_vol.isel(nVertLevels=k)
             * geom_layer_thickness.isel(nVertLevels=k)
         )
