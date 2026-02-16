@@ -392,7 +392,7 @@ class Init(OceanIOStep):
         # Pressure (positive downward), averaged to the edge between columns
         p_edge_mid = 0.5 * (p_mid.isel(nCells=0) + p_mid.isel(nCells=1))
 
-        hpga_mid = dM_dx_mid - p_edge_mid * dalpha_dx_mid
+        hpga_mid = -dM_dx_mid + p_edge_mid * dalpha_dx_mid
 
         ds['MontgomeryMid'] = montgomery_mid
         ds.MontgomeryMid.attrs['long_name'] = (
