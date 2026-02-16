@@ -186,7 +186,7 @@ class Reference(OceanIOStep):
         grad_indices = [0, 1, 3, 4]
         dM_dx = _compute_4th_order_gradient(montgomery[grad_indices, :], dx)
         dalpha_dx = _compute_4th_order_gradient(spec_vol[grad_indices, :], dx)
-        hpga = dM_dx - p0 * dalpha_dx
+        hpga = -dM_dx + p0 * dalpha_dx
 
         dsa_dx = _compute_4th_order_gradient(sa[grad_indices, :], dx)
 
