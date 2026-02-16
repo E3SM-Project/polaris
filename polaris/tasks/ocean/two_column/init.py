@@ -1,6 +1,5 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.cime.constants import constants
 from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
@@ -9,6 +8,8 @@ from polaris.ocean.eos import compute_specvol
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.ocean.vertical.ztilde import (
+    # temporary until we can get this for GCD
+    Gravity,
     geom_height_from_pseudo_height,
     pressure_from_z_tilde,
 )
@@ -332,8 +333,6 @@ class Init(OceanIOStep):
         if dx == 0.0:
             raise ValueError('dx must be non-zero for finite differences.')
 
-        g = constants['SHR_CONST_G']
-
         # Midpoint quantities (alpha is layerwise constant)
         alpha_mid = ds.SpecVol
 
@@ -365,7 +364,9 @@ class Init(OceanIOStep):
             'Time', 'nCells', 'nVertLevels', 'nbnds'
         )
         # Montgomery: M = alpha * p + g * z, with p = -rho0 * g * z_tilde
-        montgomery_inter = g * (z_bnds - rho0 * alpha_bnds * z_tilde_bnds)
+        montgomery_inter = Gravity * (
+            z_bnds - rho0 * alpha_bnds * z_tilde_bnds
+        )
         montgomery_inter = montgomery_inter.transpose(
             'Time', 'nCells', 'nVertLevels', 'nbnds'
         )

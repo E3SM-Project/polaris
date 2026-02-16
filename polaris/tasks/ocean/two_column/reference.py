@@ -5,9 +5,11 @@ from typing import Callable, Literal, Sequence
 import gsw
 import numpy as np
 import xarray as xr
-from mpas_tools.cime.constants import constants
 
 from polaris.ocean.model import OceanIOStep
+
+# temporary until we can get this for GCD
+from polaris.ocean.vertical.ztilde import Gravity
 from polaris.tasks.ocean.two_column.column import (
     get_array_from_mid_grad,
     get_pchip_interpolator,
@@ -153,8 +155,7 @@ class Reference(OceanIOStep):
 
         # compute Montgomery potential M = alpha * p + g * z
         # with p = -rho0 * g * z_tilde (p positive downward)
-        g = constants['SHR_CONST_G']
-        montgomery = g * (z - rho0 * spec_vol * z_tilde)
+        montgomery = Gravity * (z - rho0 * spec_vol * z_tilde)
 
         dx = resolution * 1.0e3  # m
 
@@ -180,7 +181,7 @@ class Reference(OceanIOStep):
         # the HPGF is grad(M) - p * grad(alpha)
         # Here we just compute the gradient at x=0 using a 4th-order
         # finite-difference stencil
-        p0 = -rho0 * g * z_tilde[2, :]
+        p0 = -rho0 * Gravity * z_tilde[2, :]
         # indices for -1.5dx, -0.5dx, 0.5dx, 1.5dx
         grad_indices = [0, 1, 3, 4]
         dM_dx = _compute_4th_order_gradient(montgomery[grad_indices, :], dx)
@@ -639,8 +640,6 @@ def _integrate_geometric_height(
     if subdivisions < 1:
         raise ValueError('subdivisions must be >= 1.')
 
-    g = constants['SHR_CONST_G']
-
     sa_interp = get_pchip_interpolator(
         z_tilde_nodes=z_tilde_nodes,
         values_nodes=sa_nodes,
@@ -657,7 +656,7 @@ def _integrate_geometric_height(
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         sa = sa_interp(z_tilde)
         ct = ct_interp(z_tilde)
-        p_pa = -rho0 * g * z_tilde
+        p_pa = -rho0 * Gravity * z_tilde
         # gsw expects pressure in dbar
         spec_vol = gsw.specvol(sa, ct, p_pa * 1.0e-4)
         return spec_vol, ct, sa
