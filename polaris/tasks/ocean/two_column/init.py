@@ -243,6 +243,16 @@ class Init(OceanIOStep):
             },
         )
 
+        # bottomDepth needs to be the geometric bottom depth of the bathymetry,
+        # not the pseudo-bottom depth used for the vertical coordinate
+        ds['bottomDepth'] = -geom_z_bot
+        ds.bottomDepth.attrs['long_name'] = 'seafloor geometric height'
+        ds.bottomDepth.attrs['units'] = 'm'
+
+        ds['PressureMid'] = p_mid
+        ds.PressureMid.attrs['long_name'] = 'pressure at layer midpoints'
+        ds.PressureMid.attrs['units'] = 'Pa'
+
         ds['Density'] = 1.0 / ds['SpecVol']
         ds.Density.attrs['long_name'] = 'density'
         ds.Density.attrs['units'] = 'kg m-3'
