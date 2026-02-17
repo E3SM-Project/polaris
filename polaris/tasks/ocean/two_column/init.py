@@ -489,7 +489,7 @@ class Init(OceanIOStep):
         ds['ssh'] = xr.zeros_like(pseudo_bottom_depth)
         ds.ssh.attrs['long_name'] = 'sea surface pseudo-height'
         ds.ssh.attrs['units'] = 'm'
-        ds_list = []
+        ds_list: list[xr.Dataset] = []
         for icell in range(ds.sizes['nCells']):
             # initialize the vertical coordinate for each column separately
             # to allow different pseudo-bottom depths
@@ -502,9 +502,19 @@ class Init(OceanIOStep):
             )
 
             init_vertical_coord(local_config, ds_cell)
-            ds_list.append(ds_cell)
+            cell_vars = [
+                var
+                for var in ds_cell.data_vars
+                if 'nCells' in ds_cell[var].dims
+            ]
+            ds_list.append(ds_cell[cell_vars])
 
-        ds = xr.concat(ds_list, dim='nCells')
+        # copy back only the cell variables
+        ds_cell_vars = xr.concat(ds_list, dim='nCells')
+        for var in ds_cell_vars.data_vars:
+            attrs = ds_cell_vars[var].attrs
+            ds[var] = ds_cell_vars[var]
+            ds[var].attrs = attrs
         return ds
 
     def _get_z_tilde_t_s_nodes(
