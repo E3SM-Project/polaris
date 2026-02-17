@@ -91,6 +91,16 @@ class Init(OceanIOStep):
             '"two_column" section.'
         )
 
+        # it needs to be an error if the full water column can't be evenly
+        # divided by the resolution, because the later analysis will fail
+        if (-z_tilde_bot_mid / vert_res) % 1 != 0:
+            raise ValueError(
+                'The "z_tilde_bot_mid" value must be an integer multiple of '
+                'the vertical resolution to ensure that the vertical grid can '
+                'be evenly divided into layers. Currently, z_tilde_bot_mid = '
+                f'{z_tilde_bot_mid} and vert_res = {vert_res}, which results '
+                f'in {-z_tilde_bot_mid / vert_res} layers.'
+            )
         vert_levels = int(-z_tilde_bot_mid / vert_res)
 
         config.set('vertical_grid', 'vert_levels', str(vert_levels))

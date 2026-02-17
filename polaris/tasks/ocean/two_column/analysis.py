@@ -269,7 +269,7 @@ def _sample_reference_without_interpolation(
     rel_tol: float = 1.0e-10,
 ) -> np.ndarray:
     """
-    Sample reference values at target z-levels by exact matching within a
+    Sample reference values at target z-tilde values by exact matching within a
     strict tolerance, without interpolation.
     """
     ref_z = np.asarray(ref_z, dtype=float)
@@ -295,8 +295,9 @@ def _sample_reference_without_interpolation(
     if np.any(min_dz > tol):
         max_mismatch = float(np.max(min_dz))
         raise ValueError(
-            'Reference z-levels do not match Omega z-levels closely enough '
-            f'for subsampling without interpolation. max |dz|={max_mismatch}'
+            f'Reference z-tilde values do not match Omega z-tilde values '
+            f'closely enough for subsampling without interpolation. max '
+            f'|dz|={max_mismatch}'
         )
 
     sampled[valid_target] = ref_values_valid[indices]
