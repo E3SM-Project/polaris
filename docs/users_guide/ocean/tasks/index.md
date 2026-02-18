@@ -13,6 +13,7 @@ cosine_bell
 customizable_viz
 external_gravity_wave
 geostrophic
+horiz_press_grad
 divergent_2d
 ice_shelf_2d
 inertial_gravity_wave

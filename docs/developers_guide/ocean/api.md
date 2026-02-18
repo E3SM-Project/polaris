@@ -198,6 +198,33 @@
    viz.Viz.run
 ```
 
+### horiz_press_grad
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.horiz_press_grad
+
+.. autosummary::
+   :toctree: generated/
+
+   add_horiz_press_grad_tasks
+
+   task.HorizPressGradTask
+   task.HorizPressGradTask.configure
+
+   reference.Reference
+   reference.Reference.run
+
+   init.Init
+   init.Init.run
+
+   forward.Forward
+   forward.Forward.setup
+
+   analysis.Analysis
+   analysis.Analysis.setup
+   analysis.Analysis.run
+```
+
 ### ice_shelf_2d
 
 ```{eval-rst}
