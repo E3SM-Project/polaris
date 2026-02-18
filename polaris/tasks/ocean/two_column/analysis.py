@@ -112,6 +112,7 @@ class Analysis(OceanIOStep):
 
         ref_z = ds_ref.ZTildeInter.isel(Time=0, nCells=2).values
         ref_hpga = ds_ref.HPGAInter.isel(Time=0).values
+        ref_valid_grad_mask = ds_ref.ValidGradInterMask.isel(Time=0).values
 
         ref_errors = []
         py_errors = []
@@ -135,10 +136,28 @@ class Analysis(OceanIOStep):
                 Time=0, nEdges=edge_index
             ).values
 
+            # maxLevelCell is one-based (Fortran indexing), convert to
+            # zero-based and use the shallowest valid bottom among the two
+            # cells that bound the internal edge.
+            max_level_cells = ds_init.maxLevelCell.isel(
+                nCells=[cell0, cell1]
+            ).values.astype(int)
+            max_level_index = int(np.min(max_level_cells) - 1)
+            if max_level_index < 0:
+                raise ValueError(
+                    f'Invalid maxLevelCell values {max_level_cells} at '
+                    f'resolution {resolution:g} km.'
+                )
+
+            forward_valid_mask = np.zeros_like(hpga_forward, dtype=bool)
+            forward_valid_mask[: max_level_index + 1] = True
+
             sampled_ref_hpga = _sample_reference_without_interpolation(
                 ref_z=ref_z,
                 ref_values=ref_hpga,
                 target_z=z_tilde_forward,
+                ref_valid_mask=ref_valid_grad_mask,
+                target_valid_mask=forward_valid_mask,
             )
 
             ref_errors.append(_rms_error(hpga_forward - sampled_ref_hpga))
@@ -157,10 +176,12 @@ class Analysis(OceanIOStep):
                     'ZTilde mismatch between Python init and Omega forward '
                     f'at resolution {resolution:g} km'
                 ),
+                valid_mask=forward_valid_mask,
             )
 
             hpga_init = ds_init.HPGA.isel(Time=0).values
-            py_errors.append(_rms_error(hpga_forward - hpga_init))
+            hpga_diff = hpga_forward - hpga_init
+            py_errors.append(_rms_error(hpga_diff[forward_valid_mask]))
 
         resolution_array = np.asarray(horiz_resolutions, dtype=float)
         ref_error_array = np.asarray(ref_errors, dtype=float)
@@ -209,7 +230,7 @@ class Analysis(OceanIOStep):
             fit=py_fit,
             slope=py_slope,
             y_label='RMS difference in HPGA (m s-2)',
-            title='Omega (C++) vs Polaris (Python) HPGA Difference',
+            title='Omega vs Polaris HPGA Difference',
             output='omega_vs_python.png',
         )
 
@@ -265,6 +286,8 @@ def _sample_reference_without_interpolation(
     ref_z: np.ndarray,
     ref_values: np.ndarray,
     target_z: np.ndarray,
+    ref_valid_mask: np.ndarray | None = None,
+    target_valid_mask: np.ndarray | None = None,
     abs_tol: float = 1.0e-6,
     rel_tol: float = 1.0e-10,
 ) -> np.ndarray:
@@ -275,10 +298,32 @@ def _sample_reference_without_interpolation(
     ref_z = np.asarray(ref_z, dtype=float)
     ref_values = np.asarray(ref_values, dtype=float)
     target_z = np.asarray(target_z, dtype=float)
+    if ref_valid_mask is not None:
+        ref_valid_mask = np.asarray(ref_valid_mask, dtype=bool)
+        if ref_valid_mask.shape != ref_z.shape:
+            raise ValueError(
+                'ref_valid_mask must have the same shape as ref_z.'
+            )
+    if target_valid_mask is not None:
+        target_valid_mask = np.asarray(target_valid_mask, dtype=bool)
+        if target_valid_mask.shape != target_z.shape:
+            raise ValueError(
+                'target_valid_mask must have the same shape as target_z.'
+            )
 
     sampled = np.full_like(target_z, np.nan, dtype=float)
     valid_target = np.isfinite(target_z)
+    if target_valid_mask is not None:
+        valid_target = np.logical_and(valid_target, target_valid_mask)
     valid_ref = np.logical_and(np.isfinite(ref_z), np.isfinite(ref_values))
+    if ref_valid_mask is not None:
+        valid_ref = np.logical_and(valid_ref, ref_valid_mask)
+
+    # The bottom valid forward layer hits bathymetry and should not be used
+    # in the reference comparison.
+    if np.any(valid_target):
+        deepest = int(np.where(valid_target)[0][-1])
+        valid_target[deepest] = False
 
     ref_z_valid = ref_z[valid_ref]
     ref_values_valid = ref_values[valid_ref]
@@ -286,6 +331,11 @@ def _sample_reference_without_interpolation(
     target_valid = target_z[valid_target]
     if len(target_valid) == 0:
         return sampled
+    if len(ref_z_valid) == 0:
+        raise ValueError(
+            'No valid reference z-tilde values remain after applying '
+            'ValidGradInterMask.'
+        )
 
     dz = np.abs(ref_z_valid[:, np.newaxis] - target_valid[np.newaxis, :])
     indices = np.argmin(dz, axis=0)
@@ -308,6 +358,7 @@ def _check_vertical_match(
     z_ref: np.ndarray,
     z_test: np.ndarray,
     msg: str,
+    valid_mask: np.ndarray | None = None,
     abs_tol: float = 1.0e-6,
     rel_tol: float = 1.0e-10,
 ) -> None:
@@ -321,7 +372,17 @@ def _check_vertical_match(
             f'{msg}: shape mismatch {z_ref.shape} != {z_test.shape}'
         )
 
+    if valid_mask is not None:
+        valid_mask = np.asarray(valid_mask, dtype=bool)
+        if valid_mask.shape != z_ref.shape:
+            raise ValueError(
+                f'{msg}: valid_mask shape mismatch '
+                f'{valid_mask.shape} != {z_ref.shape}'
+            )
+
     valid = np.logical_and(np.isfinite(z_ref), np.isfinite(z_test))
+    if valid_mask is not None:
+        valid = np.logical_and(valid, valid_mask)
     if not np.any(valid):
         raise ValueError(f'{msg}: no valid levels for comparison.')
 
