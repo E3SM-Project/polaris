@@ -102,21 +102,6 @@ class Analysis(OceanIOStep):
             'The "horiz_resolutions" configuration option must be set in '
             'the "horiz_press_grad" section.'
         )
-        omega_vs_polaris_norm_rmse_threshold = section.getfloat(
-            'omega_vs_polaris_norm_rmse_threshold'
-        )
-        assert omega_vs_polaris_norm_rmse_threshold is not None, (
-            'The "omega_vs_polaris_norm_rmse_threshold" configuration '
-            'option must be set in the "horiz_press_grad" section.'
-        )
-        omega_vs_reference_high_res_norm_rmse_threshold = section.getfloat(
-            'omega_vs_reference_high_res_norm_rmse_threshold'
-        )
-        assert omega_vs_reference_high_res_norm_rmse_threshold is not None, (
-            'The "omega_vs_reference_high_res_norm_rmse_threshold" '
-            'configuration option must be set in the "horiz_press_grad" '
-            'section.'
-        )
         omega_vs_reference_convergence_rate_min = section.getfloat(
             'omega_vs_reference_convergence_rate_min'
         )
@@ -139,14 +124,6 @@ class Analysis(OceanIOStep):
             'configuration option must be set in the "horiz_press_grad" '
             'section.'
         )
-        omega_vs_reference_reference_scale_floor = section.getfloat(
-            'omega_vs_reference_reference_scale_floor'
-        )
-        assert omega_vs_reference_reference_scale_floor is not None, (
-            'The "omega_vs_reference_reference_scale_floor" '
-            'configuration option must be set in the "horiz_press_grad" '
-            'section.'
-        )
         omega_vs_reference_high_res_rms_threshold = section.getfloat(
             'omega_vs_reference_high_res_rms_threshold'
         )
@@ -154,13 +131,6 @@ class Analysis(OceanIOStep):
             'The "omega_vs_reference_high_res_rms_threshold" '
             'configuration option must be set in the "horiz_press_grad" '
             'section.'
-        )
-        omega_vs_polaris_reference_scale_floor = section.getfloat(
-            'omega_vs_polaris_reference_scale_floor'
-        )
-        assert omega_vs_polaris_reference_scale_floor is not None, (
-            'The "omega_vs_polaris_reference_scale_floor" configuration '
-            'option must be set in the "horiz_press_grad" section.'
         )
         omega_vs_polaris_rms_threshold = section.getfloat(
             'omega_vs_polaris_rms_threshold'
@@ -182,11 +152,7 @@ class Analysis(OceanIOStep):
         ref_valid_grad_mask = ds_ref.ValidGradInterMask.isel(Time=0).values
 
         ref_errors = []
-        ref_norm_errors = []
-        ref_reference_scales = []
         py_errors = []
-        py_abs_errors = []
-        py_reference_scales = []
 
         for resolution in horiz_resolutions:
             ds_init = self.open_model_dataset(f'init_r{resolution:02g}.nc')
@@ -233,17 +199,6 @@ class Analysis(OceanIOStep):
 
             hpga_ref_diff = hpga_forward - sampled_ref_hpga
             ref_errors.append(_rms_error(hpga_ref_diff))
-            ref_reference_scale = _max_abs(sampled_ref_hpga)
-            ref_reference_scales.append(ref_reference_scale)
-            if ref_reference_scale > omega_vs_reference_reference_scale_floor:
-                ref_norm_errors.append(
-                    _normalized_rms_error(
-                        values=hpga_ref_diff,
-                        reference_values=sampled_ref_hpga,
-                    )
-                )
-            else:
-                ref_norm_errors.append(np.nan)
 
             z_tilde_init = (
                 0.5
@@ -264,34 +219,11 @@ class Analysis(OceanIOStep):
 
             hpga_init = ds_init.HPGA.isel(Time=0).values
             hpga_diff = hpga_forward - hpga_init
-            py_abs_error = _rms_error(hpga_diff[forward_valid_mask])
-            py_abs_errors.append(py_abs_error)
-
-            py_reference_scale = _max_abs(
-                hpga_init,
-                valid_mask=forward_valid_mask,
-            )
-            py_reference_scales.append(py_reference_scale)
-            if py_reference_scale > omega_vs_polaris_reference_scale_floor:
-                py_errors.append(
-                    _normalized_rms_error(
-                        values=hpga_diff,
-                        reference_values=hpga_init,
-                        valid_mask=forward_valid_mask,
-                    )
-                )
-            else:
-                py_errors.append(np.nan)
+            py_errors.append(_rms_error(hpga_diff[forward_valid_mask]))
 
         resolution_array = np.asarray(horiz_resolutions, dtype=float)
         ref_error_array = np.asarray(ref_errors, dtype=float)
-        ref_norm_error_array = np.asarray(ref_norm_errors, dtype=float)
-        ref_reference_scale_array = np.asarray(
-            ref_reference_scales, dtype=float
-        )
         py_error_array = np.asarray(py_errors, dtype=float)
-        py_abs_error_array = np.asarray(py_abs_errors, dtype=float)
-        py_reference_scale_array = np.asarray(py_reference_scales, dtype=float)
 
         fit_mask = (
             resolution_array
@@ -319,7 +251,7 @@ class Analysis(OceanIOStep):
             resolution_km=resolution_array,
             rms_error=py_error_array,
             y_name='rms_error_vs_python',
-            y_units='1',
+            y_units='m s-2',
         )
 
         _plot_errors(
@@ -334,123 +266,55 @@ class Analysis(OceanIOStep):
         _plot_errors(
             resolution_km=resolution_array,
             rms_error=py_error_array,
-            y_label='Normalized RMS difference in HPGA',
-            title='Omega vs Polaris HPGA Difference',
+            y_label='RMS difference in HPGA (m s-2)',
+            title='Omega vs Polaris HPGA RMS Difference',
             output='omega_vs_python.png',
         )
 
         logger.info(f'Omega-vs-reference convergence slope: {ref_slope:1.3f}')
         logger.info(
             'Omega-vs-reference fit uses resolutions (km): '
-            f'{list(resolution_array[fit_mask])}'
+            f'{_format_resolution_list(resolution_array[fit_mask])}'
         )
         logger.info(
-            'Omega-vs-Polaris normalized RMS differences by resolution: '
-            f'{dict(zip(resolution_array, py_error_array, strict=True))}'
-        )
-
-        low_scale_ref = np.logical_not(np.isfinite(ref_norm_error_array))
-        if np.any(low_scale_ref):
-            logger.info(
-                'Omega-vs-reference low-signal resolutions using '
-                'absolute-RMS fallback (km): '
-                f'{list(resolution_array[low_scale_ref])}'
-            )
-
-        low_scale_polaris = np.logical_not(np.isfinite(py_error_array))
-        if np.any(low_scale_polaris):
-            logger.info(
-                'Omega-vs-Polaris low-signal resolutions using '
-                'absolute-RMS fallback (km): '
-                f'{list(resolution_array[low_scale_polaris])}'
-            )
-
-        failing_polaris_norm = np.logical_and(
-            np.isfinite(py_error_array),
-            py_error_array > omega_vs_polaris_norm_rmse_threshold,
-        )
-        failing_polaris_abs = np.logical_and(
-            np.logical_not(np.isfinite(py_error_array)),
-            py_abs_error_array > omega_vs_polaris_rms_threshold,
-        )
-        if np.any(failing_polaris_norm) or np.any(failing_polaris_abs):
-            failing_parts = []
-            if np.any(failing_polaris_norm):
-                failing_norm_text = ', '.join(
-                    [
-                        f'{resolution_array[index]:g} km: '
-                        f'norm={py_error_array[index]:.3e}'
-                        for index in np.where(failing_polaris_norm)[0]
-                    ]
+            'Omega-vs-Polaris RMS differences by resolution: '
+            f'{
+                _format_resolution_error_pairs(
+                    resolution_array, py_error_array
                 )
-                failing_parts.append(f'normalized: {failing_norm_text}')
-
-            if np.any(failing_polaris_abs):
-                failing_abs_text = ', '.join(
-                    [
-                        f'{resolution_array[index]:g} km: '
-                        f'abs={py_abs_error_array[index]:.3e}, '
-                        f'scale={py_reference_scale_array[index]:.3e}'
-                        for index in np.where(failing_polaris_abs)[0]
-                    ]
-                )
-                failing_parts.append(f'absolute fallback: {failing_abs_text}')
-
+            }'
+        )
+        failing_polaris = py_error_array > omega_vs_polaris_rms_threshold
+        if np.any(failing_polaris):
+            failing_text = ', '.join(
+                [
+                    f'{resolution_array[index]:g} km: '
+                    f'{py_error_array[index]:.3e}'
+                    for index in np.where(failing_polaris)[0]
+                ]
+            )
             raise ValueError(
-                'Omega-vs-Polaris error exceeds configured thresholds. '
-                'Normalized threshold '
-                f'omega_vs_polaris_norm_rmse_threshold='
-                f'{omega_vs_polaris_norm_rmse_threshold:.3e}; '
-                'absolute fallback threshold '
+                'Omega-vs-Polaris RMS difference exceeds '
                 f'omega_vs_polaris_rms_threshold='
-                f'{omega_vs_polaris_rms_threshold:.3e}. Failing cases: '
-                f'{"; ".join(failing_parts)}'
+                f'{omega_vs_polaris_rms_threshold:.3e} at: {failing_text}'
             )
 
         highest_resolution_index = int(np.argmin(resolution_array))
         highest_resolution = float(resolution_array[highest_resolution_index])
-        highest_resolution_norm_ref_error = float(
-            ref_norm_error_array[highest_resolution_index]
-        )
-        highest_resolution_ref_scale = float(
-            ref_reference_scale_array[highest_resolution_index]
+        highest_resolution_ref_error = float(
+            ref_error_array[highest_resolution_index]
         )
         if (
-            highest_resolution_ref_scale
-            > omega_vs_reference_reference_scale_floor
+            highest_resolution_ref_error
+            > omega_vs_reference_high_res_rms_threshold
         ):
-            if (
-                highest_resolution_norm_ref_error
-                > omega_vs_reference_high_res_norm_rmse_threshold
-            ):
-                raise ValueError(
-                    'Normalized Omega-vs-reference RMS error at highest '
-                    f'resolution ({highest_resolution:g} km) is '
-                    f'{highest_resolution_norm_ref_error:.3e}, which '
-                    'exceeds '
-                    'omega_vs_reference_high_res_norm_rmse_threshold '
-                    f'({omega_vs_reference_high_res_norm_rmse_threshold:.3e}).'
-                )
-        else:
-            highest_resolution_ref_abs_error = float(
-                ref_error_array[highest_resolution_index]
+            raise ValueError(
+                'Omega-vs-reference RMS error at highest resolution '
+                f'({highest_resolution:g} km) is '
+                f'{highest_resolution_ref_error:.3e}, which exceeds '
+                'omega_vs_reference_high_res_rms_threshold '
+                f'({omega_vs_reference_high_res_rms_threshold:.3e}).'
             )
-            if (
-                highest_resolution_ref_abs_error
-                > omega_vs_reference_high_res_rms_threshold
-            ):
-                raise ValueError(
-                    'Reference amplitude at highest resolution '
-                    f'({highest_resolution:g} km) is too small for '
-                    'normalized RMS validation '
-                    f'(scale={highest_resolution_ref_scale:.3e} <= '
-                    'omega_vs_reference_reference_scale_floor='
-                    f'{omega_vs_reference_reference_scale_floor:.3e}), '
-                    'and absolute Omega-vs-reference RMS error '
-                    f'{highest_resolution_ref_abs_error:.3e} exceeds '
-                    'omega_vs_reference_high_res_rms_threshold '
-                    f'({omega_vs_reference_high_res_rms_threshold:.3e}).'
-                )
 
         if not (
             omega_vs_reference_convergence_rate_min
@@ -633,69 +497,26 @@ def _rms_error(values: np.ndarray) -> float:
     return float(np.sqrt(np.mean(values[valid] ** 2)))
 
 
-def _max_abs(
-    values: np.ndarray,
-    valid_mask: np.ndarray | None = None,
-) -> float:
+def _format_resolution_list(resolution_km: np.ndarray) -> str:
     """
-    Compute max(abs(values)) over finite values and an optional valid mask.
+    Format a resolution array as a compact list of floats.
     """
-    values = np.asarray(values, dtype=float)
-    valid = np.isfinite(values)
-    if valid_mask is not None:
-        valid_mask = np.asarray(valid_mask, dtype=bool)
-        if valid_mask.shape != values.shape:
-            raise ValueError(
-                'valid_mask must have the same shape as values for max abs.'
-            )
-        valid = np.logical_and(valid, valid_mask)
-
-    if not np.any(valid):
-        raise ValueError('No finite values available for max-abs computation.')
-
-    return float(np.max(np.abs(values[valid])))
+    values = [f'{float(resolution):g}' for resolution in resolution_km]
+    return f'[{", ".join(values)}]'
 
 
-def _normalized_rms_error(
-    values: np.ndarray,
-    reference_values: np.ndarray,
-    valid_mask: np.ndarray | None = None,
-) -> float:
+def _format_resolution_error_pairs(
+    resolution_km: np.ndarray,
+    rms_error: np.ndarray,
+) -> str:
     """
-    Compute normalized RMS error using max(abs(reference_values)).
+    Format resolution/error pairs as readable key-value text.
     """
-    values = np.asarray(values, dtype=float)
-    reference_values = np.asarray(reference_values, dtype=float)
-    if values.shape != reference_values.shape:
-        raise ValueError(
-            'values and reference_values must have the same shape for '
-            'normalized RMS error.'
-        )
-
-    valid = np.logical_and(np.isfinite(values), np.isfinite(reference_values))
-    if valid_mask is not None:
-        valid_mask = np.asarray(valid_mask, dtype=bool)
-        if valid_mask.shape != values.shape:
-            raise ValueError(
-                'valid_mask must have the same shape as values for '
-                'normalized RMS error.'
-            )
-        valid = np.logical_and(valid, valid_mask)
-
-    if not np.any(valid):
-        raise ValueError(
-            'No finite values available for normalized RMS error.'
-        )
-
-    max_abs_reference = float(np.max(np.abs(reference_values[valid])))
-    if max_abs_reference <= 0.0:
-        raise ValueError(
-            'Cannot normalize RMS error because max(abs(reference_values)) '
-            'is not positive.'
-        )
-
-    rms_error = _rms_error(values[valid])
-    return rms_error / max_abs_reference
+    pairs = [
+        f'{float(resolution):g} km: {float(error):.3e}'
+        for resolution, error in zip(resolution_km, rms_error, strict=True)
+    ]
+    return '; '.join(pairs)
 
 
 def _power_law_fit(
