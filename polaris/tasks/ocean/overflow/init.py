@@ -112,15 +112,7 @@ class Init(OceanIOStep):
         salinity = section.getfloat('salinity') * np.ones_like(temperature)
         ds['salinity'] = salinity * xr.ones_like(ds.temperature)
 
-        density = compute_density(config, temperature, salinity)
-        ds['density'] = (
-            (
-                'Time',
-                'nCells',
-                'nVertLevels',
-            ),
-            np.expand_dims(density, axis=0),
-        )
+        ds['density'] = compute_density(config, ds.temperature, ds.salinity)
 
         # initial velocity on edges is stationary
         ds['normalVelocity'] = (
