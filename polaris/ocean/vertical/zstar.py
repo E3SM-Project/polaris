@@ -127,7 +127,11 @@ def update_z_star_layer_thickness(config, ds):
 
 
 def _compute_z_star_layer_thickness(
-    restingThickness, ssh, bottomDepth, minLevelCell, maxLevelCell
+    resting_thickness,
+    ssh,
+    bottom_depth,
+    min_level_cell,
+    max_level_cell,
 ):
     """
     Compute z-star layer thickness by stretching restingThickness based on ssh
@@ -135,19 +139,19 @@ def _compute_z_star_layer_thickness(
 
     Parameters
     ----------
-    restingThickness : xarray.DataArray
+    resting_thickness : xarray.DataArray
         The thickness of z-star layers when ssh = 0
 
     ssh : xarray.DataArray
         The sea surface height
 
-    bottomDepth : xarray.DataArray
+    bottom_depth : xarray.DataArray
         The positive-down depth of the seafloor
 
-    minLevelCell : xarray.DataArray
+    min_level_cell : xarray.DataArray
         The zero-based index of the top valid level
 
-    maxLevelCell : xarray.DataArray
+    max_level_cell : xarray.DataArray
         The zero-based index of the bottom valid level
 
     Returns
@@ -156,17 +160,17 @@ def _compute_z_star_layer_thickness(
         The thickness of each layer (level)
     """
 
-    n_vert_levels = restingThickness.sizes['nVertLevels']
+    n_vert_levels = resting_thickness.sizes['nVertLevels']
     z_index = xarray.DataArray(
         numpy.arange(n_vert_levels), dims=['nVertLevels']
     )
     mask = numpy.logical_and(
-        z_index >= minLevelCell, z_index <= maxLevelCell
+        z_index >= min_level_cell, z_index <= max_level_cell
     ).transpose('nCells', 'nVertLevels')
 
-    layer_stretch = (ssh + bottomDepth) / restingThickness.sum(
+    layer_stretch = (ssh + bottom_depth) / resting_thickness.sum(
         dim='nVertLevels'
     )
-    layer_thickness = layer_stretch * restingThickness
+    layer_thickness = layer_stretch * resting_thickness
 
     return layer_thickness.where(mask, 0.0)
