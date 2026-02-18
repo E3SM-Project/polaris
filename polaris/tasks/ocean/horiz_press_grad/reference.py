@@ -19,34 +19,34 @@ from polaris.tasks.ocean.horiz_press_grad.column import (
 
 
 class Reference(OceanIOStep):
-    """
+    r"""
     A step for creating a high-fidelity reference solution for two column
-    test cases
+    test cases.
 
     The reference solution is computed by first converting from the
     Omega pseudo-height coordinate :math:`\tilde z` (``z_tilde``) to true
     geometric height ``z`` by numerically integrating the hydrostatic
-    relation
+    relation:
 
     .. math::
 
-        \frac{\\partial z}{\\partial \tilde z} =
-        \rho_0\\,\nu( S_A, \\Theta, p )
+        \frac{\partial z}{\partial \tilde z} =
+        \rho_0\,\nu\left(S_A, \Theta, p\right)
 
     where :math:`\nu` is the specific volume (``spec_vol``) computed from the
     TEOS-10 equation of state, :math:`S_A` is Absolute Salinity,
-    :math:`\\Theta` is Conservative Temperature, :math:`p` is sea pressure
+    :math:`\Theta` is Conservative Temperature, :math:`p` is sea pressure
     (positive downward), and :math:`\rho_0` is a reference density used in the
-    definition of ``z_tilde = - p / (\rho_0 g)`.  The conversion therefore
-    requires an integral of the form
+    definition :math:`\tilde z = -p/(\rho_0 g)`. The conversion therefore
+    requires an integral of the form:
 
     .. math::
 
-        z(\tilde z) = z_b + \\int_{\tilde z_b}^{\tilde z}
-        \rho_0\\,\nu\big(S_A(\tilde z'),\\Theta(\tilde z'),p(\tilde z')\big)\\;
+        z(\tilde z) = z_b + \int_{\tilde z_b}^{\tilde z}
+        \rho_0\,\nu\bigl(S_A(\tilde z'),\Theta(\tilde z'),p(\tilde z')\bigr)\;
         d\tilde z' ,
 
-    with :math:`z_b = -\text{bottom\\_depth}` at the pseudo-height
+    with :math:`z_b = -\mathrm{bottom\_depth}` at the pseudo-height
     ``z_tilde_b`` at the seafloor, typically the minimum (most negative) value
     of the pseudo-height domain for a given water column.
 
