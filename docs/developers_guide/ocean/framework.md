@@ -556,11 +556,32 @@ this section of the config file. The function
 {py:func}`polaris.ocean.vertical.init_vertical_coord()` can be used to compute
 `minLevelCell`, `maxLevelCell`, `cellMask`, `layerThickness`, `zMid`,
 and `restingThickness` variables for {ref}`ocean-z-level` and
-{ref}`ocean-z-star` coordinates using the `ssh` and `bottomDepth` as well
+{ref}`ocean-z-star` coordinates (including the `z-tilde` option handled
+through z-star infrastructure) using the `ssh` and `bottomDepth` as well
 as config options from `vertical_grid`. The function
-{py:func}`polaris.ocean.vertical.update_layer_thickness` can be used to update
+{py:func}`polaris.ocean.vertical.update_layer_thickness()` can be used to update
 `layerThickness` when either or both of `bottomDepth` and `ssh` have been
-changed.
+changed.  After thicknesses are updated, tasks can call
+{py:func}`polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness()` to
+recover `zInterface` and `zMid` from the resulting layer thickness.
+
+For workflows that need pseudo-height/pressure conversion, the
+`polaris.ocean.vertical.ztilde` module provides utilities:
+
+- {py:func}`polaris.ocean.vertical.ztilde.z_tilde_from_pressure()` and
+  {py:func}`polaris.ocean.vertical.ztilde.pressure_from_z_tilde()` convert
+  between pseudo-height and pressure.
+- {py:func}`polaris.ocean.vertical.ztilde.pressure_from_geom_thickness()` and
+  {py:func}`polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height()`
+  compute hydrostatic pressure (and specific volume) from geometric layer
+  thickness and state variables.
+- {py:func}`polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height()`
+  reconstructs geometric layer-interface and midpoint heights from
+  pseudo-thickness and specific volume.
+
+For sigma coordinates, shared functionality for direct thickness computation is
+available in
+{py:func}`polaris.ocean.vertical.sigma.compute_sigma_layer_thickness()`.
 
 (dev-ocean-rpe)=
 
