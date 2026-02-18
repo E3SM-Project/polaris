@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from fractions import Fraction
+from math import gcd, lcm
 from typing import Callable, Literal, Sequence
 
 import gsw
@@ -105,11 +107,13 @@ class Reference(OceanIOStep):
         test_vert_res = config.getexpression(
             'horiz_press_grad', 'vert_resolutions'
         )
-        test_min_vert_res = np.min(test_vert_res)
-
-        # Use half the minimum test vertical resolution for the reference
-        # so that reference interfaces lie exactly at test midpoints
-        vert_res = test_min_vert_res / 2.0
+        # Choose a reference vertical resolution based on the greatest common
+        # spacing among all test vertical resolutions so every test
+        # resolution is an integer multiple of 2 * vert_res.
+        vert_res = _get_reference_vert_res(test_vert_res)
+        logger.info(
+            f'Reference vertical resolution: vert_res = {vert_res:.12g} m'
+        )
         z_tilde_bot_mid = config.getfloat(
             'horiz_press_grad', 'z_tilde_bot_mid'
         )
@@ -694,6 +698,58 @@ def _integrate_geometric_height(
 
     spec_vol, ct, sa = spec_vol_ct_sa_at(z_tilde_interfaces)
     return z, spec_vol, ct, sa
+
+
+def _get_reference_vert_res(
+    test_vert_res: Sequence[float] | np.ndarray,
+) -> float:
+    """
+    Compute the reference vertical resolution.
+
+    The returned value ``vert_res`` is chosen so that each test vertical
+    resolution is an integer multiple of ``2 * vert_res``.
+    """
+    test_vert_res = np.asarray(test_vert_res, dtype=float)
+    if test_vert_res.size == 0:
+        raise ValueError('At least one test vertical resolution is required.')
+
+    flat = test_vert_res.ravel()
+    if not np.all(np.isfinite(flat)):
+        raise ValueError('All test vertical resolutions must be finite.')
+    if np.any(flat <= 0.0):
+        raise ValueError('All test vertical resolutions must be positive.')
+
+    fractions = [Fraction(str(value)) for value in flat]
+
+    common_spacing = fractions[0]
+    for value in fractions[1:]:
+        common_spacing = _fraction_gcd(common_spacing, value)
+
+    if common_spacing <= 0:
+        raise ValueError(
+            'Could not determine a positive common spacing from '
+            'test vertical resolutions.'
+        )
+
+    vert_res = float(common_spacing) / 2.0
+
+    # Defensive check against accidental precision/pathological inputs.
+    multipliers = flat / (2.0 * vert_res)
+    if not np.allclose(
+        multipliers, np.round(multipliers), rtol=0.0, atol=1.0e-12
+    ):
+        raise ValueError(
+            'Test vertical resolutions are not integer multiples of '
+            '2 * reference vertical resolution.'
+        )
+
+    return vert_res
+
+
+def _fraction_gcd(a: Fraction, b: Fraction) -> Fraction:
+    return Fraction(
+        gcd(a.numerator, b.numerator), lcm(a.denominator, b.denominator)
+    )
 
 
 def _fixed_quadrature(
