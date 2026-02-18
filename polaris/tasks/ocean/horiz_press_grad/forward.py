@@ -65,7 +65,7 @@ class Forward(OceanModelStep):
             )
 
         self.add_yaml_file(
-            'polaris.tasks.ocean.two_column',
+            'polaris.tasks.ocean.horiz_press_grad',
             'forward.yaml',
             template_replacements={'rho0': rho0},
         )

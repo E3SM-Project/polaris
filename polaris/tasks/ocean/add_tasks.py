@@ -7,6 +7,7 @@ from polaris.tasks.ocean.external_gravity_wave import (
     add_external_gravity_wave_tasks as add_external_gravity_wave_tasks,
 )
 from polaris.tasks.ocean.geostrophic import add_geostrophic_tasks
+from polaris.tasks.ocean.horiz_press_grad import add_horiz_press_grad_tasks
 from polaris.tasks.ocean.ice_shelf_2d import add_ice_shelf_2d_tasks
 from polaris.tasks.ocean.inertial_gravity_wave import (
     add_inertial_gravity_wave_tasks as add_inertial_gravity_wave_tasks,
@@ -21,7 +22,6 @@ from polaris.tasks.ocean.overflow import add_overflow_tasks
 from polaris.tasks.ocean.seamount import add_seamount_tasks
 from polaris.tasks.ocean.single_column import add_single_column_tasks
 from polaris.tasks.ocean.sphere_transport import add_sphere_transport_tasks
-from polaris.tasks.ocean.two_column import add_two_column_tasks
 
 
 def add_ocean_tasks(component):
@@ -37,6 +37,7 @@ def add_ocean_tasks(component):
     add_baroclinic_channel_tasks(component=component)
     add_barotropic_channel_tasks(component=component)
     add_barotropic_gyre_tasks(component=component)
+    add_horiz_press_grad_tasks(component=component)
     add_ice_shelf_2d_tasks(component=component)
     add_inertial_gravity_wave_tasks(component=component)
     add_internal_wave_tasks(component=component)
@@ -48,9 +49,6 @@ def add_ocean_tasks(component):
 
     # single column tasks
     add_single_column_tasks(component=component)
-
-    # two column tasks
-    add_two_column_tasks(component=component)
 
     # spherical tasks
     add_customizable_viz_tasks(component=component)
