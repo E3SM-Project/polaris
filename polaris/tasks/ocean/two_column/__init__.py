@@ -10,5 +10,9 @@ def add_two_column_tasks(component):
     component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
     """
-    for name in ['salinity_gradient', 'ztilde_gradient']:
+    for name in [
+        'salinity_gradient',
+        'temperature_gradient',
+        'ztilde_gradient',
+    ]:
         component.add_task(TwoColumnTask(component=component, name=name))
