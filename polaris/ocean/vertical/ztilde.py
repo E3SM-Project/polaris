@@ -119,31 +119,25 @@ def pressure_from_geom_thickness(
         The pressure at layer midpoints.
     """
 
-    n_vert_levels = geom_layer_thickness.sizes['nVertLevels']
+    dp = Gravity / spec_vol * geom_layer_thickness
 
-    p_top = surf_pressure
-    p_interface_list = [p_top]
-    p_mid_list = []
+    p_interface = dp.cumsum(dim='nVertLevels').pad(
+        nVertLevels=(1, 0), mode='constant', constant_values=0.0
+    )
+    p_interface = surf_pressure + p_interface
+    p_interface = p_interface.rename({'nVertLevels': 'nVertLevelsP1'})
 
-    for k in range(n_vert_levels):
-        dp = (
-            Gravity
-            / spec_vol.isel(nVertLevels=k)
-            * geom_layer_thickness.isel(nVertLevels=k)
-        )
-        p_bot = p_top + dp
-        p_interface_list.append(p_bot)
-        p_mid_list.append(p_top + 0.5 * dp)
-        p_top = p_bot
+    p_interface_top = p_interface.isel(nVertLevelsP1=slice(0, -1)).rename(
+        {'nVertLevelsP1': 'nVertLevels'}
+    )
+    p_mid = p_interface_top + 0.5 * dp
 
     dims = list(geom_layer_thickness.dims)
-    interface_dims = list(dims) + ['nVertLevelsP1']
-    interface_dims.remove('nVertLevels')
+    interface_dims = [dim for dim in dims if dim != 'nVertLevels']
+    interface_dims.append('nVertLevelsP1')
 
-    p_interface = xr.concat(p_interface_list, dim='nVertLevelsP1').transpose(
-        *interface_dims
-    )
-    p_mid = xr.concat(p_mid_list, dim='nVertLevels').transpose(*dims)
+    p_interface = p_interface.transpose(*interface_dims)
+    p_mid = p_mid.transpose(*dims)
 
     return p_interface, p_mid
 
@@ -291,32 +285,38 @@ def geom_height_from_pseudo_height(
 
     n_vert_levels = spec_vol.sizes['nVertLevels']
 
-    geom_thickness = spec_vol * h_tilde * rho0
-
-    inter_mask = np.logical_and(
-        n_vert_levels >= min_level_cell, n_vert_levels <= max_level_cell + 1
+    z_index = xr.DataArray(np.arange(n_vert_levels), dims=['nVertLevels'])
+    mid_mask = np.logical_and(
+        z_index >= min_level_cell, z_index <= max_level_cell
     )
-    geom_z_inter_list: list[xr.DataArray] = [geom_z_bot.where(inter_mask)]
-    geom_z_mid_list: list[xr.DataArray] = []
-    geom_z_prev = geom_z_bot
-    for z_index in range(n_vert_levels - 1, -1, -1):
-        mid_mask = np.logical_and(
-            z_index >= min_level_cell, z_index <= max_level_cell
-        )
-        inter_mask = np.logical_and(
-            z_index >= min_level_cell, z_index <= max_level_cell + 1
-        )
-        thickness = xr.where(
-            mid_mask, geom_thickness.isel(nVertLevels=z_index), 0.0
-        )
-        geom_z_next = geom_z_prev + thickness
-        geom_z_mid = geom_z_prev + 0.5 * thickness
-        geom_z_inter_list.insert(0, geom_z_next.where(inter_mask))
-        geom_z_mid_list.insert(0, geom_z_mid.where(mid_mask))
-        geom_z_prev = geom_z_next
 
-    geom_z_inter = xr.concat(geom_z_inter_list, dim='nVertLevelsP1')
-    geom_z_mid = xr.concat(geom_z_mid_list, dim='nVertLevels')
+    geom_thickness = (spec_vol * h_tilde * rho0).where(mid_mask, 0.0)
+
+    dz_rev = geom_thickness.isel(nVertLevels=slice(None, None, -1))
+    sum_from_level = dz_rev.cumsum(dim='nVertLevels').isel(
+        nVertLevels=slice(None, None, -1)
+    )
+
+    geom_z_inter_top = geom_z_bot + sum_from_level
+    geom_z_inter = geom_z_inter_top.pad(
+        nVertLevels=(0, 1), mode='constant', constant_values=0.0
+    )
+    geom_z_inter[dict(nVertLevels=n_vert_levels)] = geom_z_bot
+    geom_z_inter = geom_z_inter.rename({'nVertLevels': 'nVertLevelsP1'})
+
+    z_index_p1 = xr.DataArray(
+        np.arange(n_vert_levels + 1), dims=['nVertLevelsP1']
+    )
+    inter_mask = np.logical_and(
+        z_index_p1 >= min_level_cell,
+        z_index_p1 <= max_level_cell + 1,
+    )
+    geom_z_inter = geom_z_inter.where(inter_mask)
+
+    geom_z_inter_lower = geom_z_inter.isel(
+        nVertLevelsP1=slice(1, None)
+    ).rename({'nVertLevelsP1': 'nVertLevels'})
+    geom_z_mid = (geom_z_inter_lower + 0.5 * geom_thickness).where(mid_mask)
 
     # transpose to match h_tilde.  For geom_z_inter, replace nVertLevels with
     # nVertLevelsP1 at the same index in the list of dimensions
