@@ -102,6 +102,34 @@ class Analysis(OceanIOStep):
             'The "horiz_resolutions" configuration option must be set in '
             'the "two_column" section.'
         )
+        omega_vs_polaris_norm_rmse_threshold = section.getfloat(
+            'omega_vs_polaris_norm_rmse_threshold'
+        )
+        assert omega_vs_polaris_norm_rmse_threshold is not None, (
+            'The "omega_vs_polaris_norm_rmse_threshold" configuration '
+            'option must be set in the "two_column" section.'
+        )
+        omega_vs_reference_high_res_norm_rmse_threshold = section.getfloat(
+            'omega_vs_reference_high_res_norm_rmse_threshold'
+        )
+        assert omega_vs_reference_high_res_norm_rmse_threshold is not None, (
+            'The "omega_vs_reference_high_res_norm_rmse_threshold" '
+            'configuration option must be set in the "two_column" section.'
+        )
+        omega_vs_reference_convergence_rate_min = section.getfloat(
+            'omega_vs_reference_convergence_rate_min'
+        )
+        assert omega_vs_reference_convergence_rate_min is not None, (
+            'The "omega_vs_reference_convergence_rate_min" configuration '
+            'option must be set in the "two_column" section.'
+        )
+        omega_vs_reference_convergence_rate_max = section.getfloat(
+            'omega_vs_reference_convergence_rate_max'
+        )
+        assert omega_vs_reference_convergence_rate_max is not None, (
+            'The "omega_vs_reference_convergence_rate_max" configuration '
+            'option must be set in the "two_column" section.'
+        )
 
         ds_ref = self.open_model_dataset('reference_solution.nc')
         if ds_ref.sizes.get('nCells', 0) <= 2:
@@ -115,6 +143,7 @@ class Analysis(OceanIOStep):
         ref_valid_grad_mask = ds_ref.ValidGradInterMask.isel(Time=0).values
 
         ref_errors = []
+        ref_norm_errors = []
         py_errors = []
 
         for resolution in horiz_resolutions:
@@ -160,7 +189,14 @@ class Analysis(OceanIOStep):
                 target_valid_mask=forward_valid_mask,
             )
 
-            ref_errors.append(_rms_error(hpga_forward - sampled_ref_hpga))
+            hpga_ref_diff = hpga_forward - sampled_ref_hpga
+            ref_errors.append(_rms_error(hpga_ref_diff))
+            ref_norm_errors.append(
+                _normalized_rms_error(
+                    values=hpga_ref_diff,
+                    reference_values=sampled_ref_hpga,
+                )
+            )
 
             z_tilde_init = (
                 0.5
@@ -181,19 +217,22 @@ class Analysis(OceanIOStep):
 
             hpga_init = ds_init.HPGA.isel(Time=0).values
             hpga_diff = hpga_forward - hpga_init
-            py_errors.append(_rms_error(hpga_diff[forward_valid_mask]))
+            py_errors.append(
+                _normalized_rms_error(
+                    values=hpga_diff,
+                    reference_values=hpga_init,
+                    valid_mask=forward_valid_mask,
+                )
+            )
 
         resolution_array = np.asarray(horiz_resolutions, dtype=float)
         ref_error_array = np.asarray(ref_errors, dtype=float)
+        ref_norm_error_array = np.asarray(ref_norm_errors, dtype=float)
         py_error_array = np.asarray(py_errors, dtype=float)
 
         ref_fit, ref_slope, ref_intercept = _power_law_fit(
             x=resolution_array,
             y=ref_error_array,
-        )
-        py_fit, py_slope, py_intercept = _power_law_fit(
-            x=resolution_array,
-            y=py_error_array,
         )
 
         _write_dataset(
@@ -204,15 +243,14 @@ class Analysis(OceanIOStep):
             slope=ref_slope,
             intercept=ref_intercept,
             y_name='rms_error_vs_reference',
+            y_units='m s-2',
         )
         _write_dataset(
             filename='omega_vs_python.nc',
             resolution_km=resolution_array,
             rms_error=py_error_array,
-            fit=py_fit,
-            slope=py_slope,
-            intercept=py_intercept,
             y_name='rms_error_vs_python',
+            y_units='1',
         )
 
         _plot_errors(
@@ -227,15 +265,62 @@ class Analysis(OceanIOStep):
         _plot_errors(
             resolution_km=resolution_array,
             rms_error=py_error_array,
-            fit=py_fit,
-            slope=py_slope,
-            y_label='RMS difference in HPGA (m s-2)',
+            y_label='Normalized RMS difference in HPGA',
             title='Omega vs Polaris HPGA Difference',
             output='omega_vs_python.png',
         )
 
         logger.info(f'Omega-vs-reference convergence slope: {ref_slope:1.3f}')
-        logger.info(f'Omega-vs-Python convergence slope: {py_slope:1.3f}')
+        logger.info(
+            'Omega-vs-Polaris normalized RMS differences by resolution: '
+            f'{dict(zip(resolution_array, py_error_array, strict=True))}'
+        )
+
+        failing_polaris = py_error_array > omega_vs_polaris_norm_rmse_threshold
+        if np.any(failing_polaris):
+            failing_text = ', '.join(
+                [
+                    f'{resolution_array[index]:g} km: '
+                    f'{py_error_array[index]:.3e}'
+                    for index in np.where(failing_polaris)[0]
+                ]
+            )
+            raise ValueError(
+                'Omega-vs-Polaris normalized RMS difference exceeds '
+                'omega_vs_polaris_norm_rmse_threshold '
+                f'({omega_vs_polaris_norm_rmse_threshold:.3e}) at: '
+                f'{failing_text}'
+            )
+
+        highest_resolution_index = int(np.argmin(resolution_array))
+        highest_resolution = float(resolution_array[highest_resolution_index])
+        highest_resolution_norm_ref_error = float(
+            ref_norm_error_array[highest_resolution_index]
+        )
+        if (
+            highest_resolution_norm_ref_error
+            > omega_vs_reference_high_res_norm_rmse_threshold
+        ):
+            raise ValueError(
+                'Normalized Omega-vs-reference RMS error at highest '
+                f'resolution ({highest_resolution:g} km) is '
+                f'{highest_resolution_norm_ref_error:.3e}, which exceeds '
+                'omega_vs_reference_high_res_norm_rmse_threshold '
+                f'({omega_vs_reference_high_res_norm_rmse_threshold:.3e}).'
+            )
+
+        if not (
+            omega_vs_reference_convergence_rate_min
+            <= ref_slope
+            <= omega_vs_reference_convergence_rate_max
+        ):
+            raise ValueError(
+                'Omega-vs-reference convergence slope is outside the '
+                'allowed range: '
+                f'{ref_slope:.3f} not in '
+                f'[{omega_vs_reference_convergence_rate_min:.3f}, '
+                f'{omega_vs_reference_convergence_rate_max:.3f}]'
+            )
 
 
 def _get_internal_edge(ds_init: xr.Dataset) -> tuple[int, tuple[int, int]]:
@@ -405,6 +490,48 @@ def _rms_error(values: np.ndarray) -> float:
     return float(np.sqrt(np.mean(values[valid] ** 2)))
 
 
+def _normalized_rms_error(
+    values: np.ndarray,
+    reference_values: np.ndarray,
+    valid_mask: np.ndarray | None = None,
+) -> float:
+    """
+    Compute normalized RMS error using max(abs(reference_values)).
+    """
+    values = np.asarray(values, dtype=float)
+    reference_values = np.asarray(reference_values, dtype=float)
+    if values.shape != reference_values.shape:
+        raise ValueError(
+            'values and reference_values must have the same shape for '
+            'normalized RMS error.'
+        )
+
+    valid = np.logical_and(np.isfinite(values), np.isfinite(reference_values))
+    if valid_mask is not None:
+        valid_mask = np.asarray(valid_mask, dtype=bool)
+        if valid_mask.shape != values.shape:
+            raise ValueError(
+                'valid_mask must have the same shape as values for '
+                'normalized RMS error.'
+            )
+        valid = np.logical_and(valid, valid_mask)
+
+    if not np.any(valid):
+        raise ValueError(
+            'No finite values available for normalized RMS error.'
+        )
+
+    max_abs_reference = float(np.max(np.abs(reference_values[valid])))
+    if max_abs_reference <= 0.0:
+        raise ValueError(
+            'Cannot normalize RMS error because max(abs(reference_values)) '
+            'is not positive.'
+        )
+
+    rms_error = _rms_error(values[valid])
+    return rms_error / max_abs_reference
+
+
 def _power_law_fit(
     x: np.ndarray,
     y: np.ndarray,
@@ -434,10 +561,11 @@ def _write_dataset(
     filename: str,
     resolution_km: np.ndarray,
     rms_error: np.ndarray,
-    fit: np.ndarray,
-    slope: float,
-    intercept: float,
     y_name: str,
+    y_units: str,
+    fit: np.ndarray | None = None,
+    slope: float | None = None,
+    intercept: float | None = None,
 ) -> None:
     """
     Write data used in a convergence plot to netCDF.
@@ -452,15 +580,21 @@ def _write_dataset(
     ds[y_name] = xr.DataArray(
         data=rms_error,
         dims=['nResolutions'],
-        attrs={'long_name': y_name.replace('_', ' '), 'units': 'm s-2'},
+        attrs={'long_name': y_name.replace('_', ' '), 'units': y_units},
     )
-    ds['power_law_fit'] = xr.DataArray(
-        data=fit,
-        dims=['nResolutions'],
-        attrs={'long_name': 'power-law fit to rms error', 'units': 'm s-2'},
-    )
-    ds.attrs['fit_slope'] = slope
-    ds.attrs['fit_intercept_log10'] = intercept
+    if fit is not None:
+        ds['power_law_fit'] = xr.DataArray(
+            data=fit,
+            dims=['nResolutions'],
+            attrs={
+                'long_name': 'power-law fit to rms error',
+                'units': y_units,
+            },
+        )
+    if slope is not None:
+        ds.attrs['fit_slope'] = slope
+    if intercept is not None:
+        ds.attrs['fit_intercept_log10'] = intercept
     ds.attrs['nResolutions'] = nres
     ds.to_netcdf(filename)
 
@@ -468,11 +602,11 @@ def _write_dataset(
 def _plot_errors(
     resolution_km: np.ndarray,
     rms_error: np.ndarray,
-    fit: np.ndarray,
-    slope: float,
     y_label: str,
     title: str,
     output: str,
+    fit: np.ndarray | None = None,
+    slope: float | None = None,
 ) -> None:
     """
     Plot RMS error vs. horizontal resolution with a power-law fit.
@@ -481,12 +615,15 @@ def _plot_errors(
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ax.loglog(
-        resolution_km,
-        fit,
-        'k',
-        label=f'power-law fit (slope={slope:1.3f})',
-    )
+    if fit is not None:
+        if slope is None:
+            raise ValueError('slope must be provided when fit is provided.')
+        ax.loglog(
+            resolution_km,
+            fit,
+            'k',
+            label=f'power-law fit (slope={slope:1.3f})',
+        )
     ax.loglog(resolution_km, rms_error, 'o', label='RMS error')
 
     ax.set_xlabel('Horizontal resolution (km)')
