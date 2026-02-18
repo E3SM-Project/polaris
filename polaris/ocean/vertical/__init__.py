@@ -200,40 +200,54 @@ def compute_zint_zmid_from_layer_thickness(
 
     n_vert_levels = layer_thickness.sizes['nVertLevels']
 
-    z_bot = -bottom_depth
-    k = n_vert_levels
-    mask_bot = np.logical_and(k >= min_level_cell, k - 1 <= max_level_cell)
-    z_interface_list = [z_bot.where(mask_bot)]
-    z_mid_list = []
+    z_index = xr.DataArray(np.arange(n_vert_levels), dims=['nVertLevels'])
+    mask_mid = np.logical_and(
+        z_index >= min_level_cell, z_index <= max_level_cell
+    )
 
-    for k in range(n_vert_levels - 1, -1, -1):
-        dz = layer_thickness.isel(nVertLevels=k)
-        mask_mid = np.logical_and(k >= min_level_cell, k <= max_level_cell)
-        mask_top = np.logical_and(k >= min_level_cell, k - 1 <= max_level_cell)
-        dz = dz.where(mask_mid, 0.0)
-        z_top = z_bot + dz
-        z_interface_list.append(z_top.where(mask_top))
-        z_mid = (z_bot + 0.5 * dz).where(mask_mid)
-        z_mid_list.append(z_mid)
-        z_bot = z_top
+    dz = layer_thickness.where(mask_mid, 0.0)
+    dz_rev = dz.isel(nVertLevels=slice(None, None, -1))
+    sum_from_level = dz_rev.cumsum(dim='nVertLevels').isel(
+        nVertLevels=slice(None, None, -1)
+    )
+
+    z_bot = (
+        xr.zeros_like(layer_thickness.isel(nVertLevels=0, drop=True))
+        - bottom_depth
+    )
+    z_interface_top = z_bot + sum_from_level
+    z_interface = z_interface_top.pad(nVertLevels=(0, 1), mode='constant')
+    z_interface[dict(nVertLevels=n_vert_levels)] = z_bot
+    z_interface = z_interface.rename({'nVertLevels': 'nVertLevelsP1'})
+
+    z_index_p1 = xr.DataArray(
+        np.arange(n_vert_levels + 1), dims=['nVertLevelsP1']
+    )
+    mask_interface = np.logical_and(
+        z_index_p1 >= min_level_cell,
+        z_index_p1 - 1 <= max_level_cell,
+    )
+    z_interface = z_interface.where(mask_interface)
+
+    z_interface_upper = z_interface.isel(nVertLevelsP1=slice(0, -1)).rename(
+        {'nVertLevelsP1': 'nVertLevels'}
+    )
+    z_interface_lower = z_interface.isel(nVertLevelsP1=slice(1, None)).rename(
+        {'nVertLevelsP1': 'nVertLevels'}
+    )
+    z_mid = (0.5 * (z_interface_upper + z_interface_lower)).where(mask_mid)
 
     dims = list(layer_thickness.dims)
-    interface_dims = list(dims) + ['nVertLevelsP1']
-    interface_dims.remove('nVertLevels')
-
-    z_interface = xr.concat(
-        reversed(z_interface_list), dim='nVertLevelsP1'
-    ).transpose(*interface_dims)
-    z_mid = xr.concat(reversed(z_mid_list), dim='nVertLevels').transpose(*dims)
+    interface_dims = [dim for dim in dims if dim != 'nVertLevels']
+    interface_dims.append('nVertLevelsP1')
+    z_interface = z_interface.transpose(*interface_dims)
+    z_mid = z_mid.transpose(*dims)
 
     return z_interface, z_mid
 
 
 def _compute_cell_mask(minLevelCell, maxLevelCell, nVertLevels):
-    cellMask = []
-    for zIndex in range(nVertLevels):
-        mask = np.logical_and(zIndex >= minLevelCell, zIndex <= maxLevelCell)
-        cellMask.append(mask)
-    cellMaskArray = xr.DataArray(cellMask, dims=['nVertLevels', 'nCells'])
-    cellMaskArray = cellMaskArray.transpose('nCells', 'nVertLevels')
-    return cellMaskArray
+    z_index = xr.DataArray(np.arange(nVertLevels), dims=['nVertLevels'])
+    return np.logical_and(
+        z_index >= minLevelCell, z_index <= maxLevelCell
+    ).transpose('nCells', 'nVertLevels')

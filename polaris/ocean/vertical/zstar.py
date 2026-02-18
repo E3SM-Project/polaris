@@ -156,23 +156,17 @@ def _compute_z_star_layer_thickness(
         The thickness of each layer (level)
     """
 
-    nVertLevels = restingThickness.sizes['nVertLevels']
-    layerThickness = []
+    n_vert_levels = restingThickness.sizes['nVertLevels']
+    z_index = xarray.DataArray(
+        numpy.arange(n_vert_levels), dims=['nVertLevels']
+    )
+    mask = numpy.logical_and(
+        z_index >= minLevelCell, z_index <= maxLevelCell
+    ).transpose('nCells', 'nVertLevels')
 
-    layerStretch = (ssh + bottomDepth) / restingThickness.sum(
+    layer_stretch = (ssh + bottomDepth) / restingThickness.sum(
         dim='nVertLevels'
     )
-    for zIndex in range(nVertLevels):
-        mask = numpy.logical_and(
-            zIndex >= minLevelCell, zIndex <= maxLevelCell
-        )
-        thickness = layerStretch * restingThickness.isel(nVertLevels=zIndex)
-        thickness = thickness.where(mask, 0.0)
-        layerThickness.append(thickness)
-    layerThicknessArray = xarray.DataArray(
-        layerThickness, dims=['nVertLevels', 'nCells']
-    )
-    layerThicknessArray = layerThicknessArray.transpose(
-        'nCells', 'nVertLevels'
-    )
-    return layerThicknessArray
+    layer_thickness = layer_stretch * restingThickness
+
+    return layer_thickness.where(mask, 0.0)
