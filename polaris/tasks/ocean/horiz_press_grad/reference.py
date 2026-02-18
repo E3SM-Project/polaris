@@ -10,7 +10,7 @@ from polaris.ocean.model import OceanIOStep
 
 # temporary until we can get this for GCD
 from polaris.ocean.vertical.ztilde import Gravity
-from polaris.tasks.ocean.two_column.column import (
+from polaris.tasks.ocean.horiz_press_grad.column import (
     get_array_from_mid_grad,
     get_pchip_interpolator,
 )
@@ -83,14 +83,14 @@ class Reference(OceanIOStep):
         config = self.config
         if config.get('ocean', 'model') != 'omega':
             raise ValueError(
-                'The two_column test case is only supported for the '
+                'The horiz_press_grad test case is only supported for the '
                 'Omega ocean model.'
             )
 
-        resolution = config.getfloat('two_column', 'reference_horiz_res')
+        resolution = config.getfloat('horiz_press_grad', 'reference_horiz_res')
         assert resolution is not None, (
             'The "reference_horiz_res" configuration option must be set in '
-            'the "two_column" section.'
+            'the "horiz_press_grad" section.'
         )
         rho0 = config.getfloat('vertical_grid', 'rho0')
         assert rho0 is not None, (
@@ -102,17 +102,21 @@ class Reference(OceanIOStep):
 
         geom_ssh, geom_z_bot, z_tilde_bot = self._get_ssh_z_bot(x)
 
-        test_vert_res = config.getexpression('two_column', 'vert_resolutions')
+        test_vert_res = config.getexpression(
+            'horiz_press_grad', 'vert_resolutions'
+        )
         test_min_vert_res = np.min(test_vert_res)
 
         # Use half the minimum test vertical resolution for the reference
         # so that reference interfaces lie exactly at test midpoints
         vert_res = test_min_vert_res / 2.0
-        z_tilde_bot_mid = config.getfloat('two_column', 'z_tilde_bot_mid')
+        z_tilde_bot_mid = config.getfloat(
+            'horiz_press_grad', 'z_tilde_bot_mid'
+        )
 
         assert z_tilde_bot_mid is not None, (
             'The "z_tilde_bot_mid" configuration option must be set in the '
-            '"two_column" section.'
+            '"horiz_press_grad" section.'
         )
 
         vert_levels = int(-z_tilde_bot_mid / vert_res)
@@ -435,11 +439,11 @@ class Reference(OceanIOStep):
     ]:
         config = self.config
         logger = self.logger
-        section = config['two_column']
+        section = config['horiz_press_grad']
         method = section.get('reference_quadrature_method')
         assert method is not None, (
             'The "reference_quadrature_method" configuration option must be '
-            'set in the "two_column" section.'
+            'set in the "horiz_press_grad" section.'
         )
         rho0 = config.getfloat('vertical_grid', 'rho0')
         assert rho0 is not None, (
@@ -451,7 +455,7 @@ class Reference(OceanIOStep):
         )
         assert water_col_adjust_iter_count is not None, (
             'The "water_col_adjust_iter_count" configuration option must be '
-            'set in the "two_column" section.'
+            'set in the "horiz_press_grad" section.'
         )
 
         goal_geom_water_column_thickness = geom_ssh - geom_z_bot

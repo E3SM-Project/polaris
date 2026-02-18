@@ -58,7 +58,7 @@ class Analysis(OceanIOStep):
         """
         super().setup()
 
-        section = self.config['two_column']
+        section = self.config['horiz_press_grad']
         horiz_resolutions = section.getexpression('horiz_resolutions')
         assert horiz_resolutions is not None
 
@@ -96,74 +96,78 @@ class Analysis(OceanIOStep):
             '"vertical_grid" section.'
         )
 
-        section = config['two_column']
+        section = config['horiz_press_grad']
         horiz_resolutions = section.getexpression('horiz_resolutions')
         assert horiz_resolutions is not None, (
             'The "horiz_resolutions" configuration option must be set in '
-            'the "two_column" section.'
+            'the "horiz_press_grad" section.'
         )
         omega_vs_polaris_norm_rmse_threshold = section.getfloat(
             'omega_vs_polaris_norm_rmse_threshold'
         )
         assert omega_vs_polaris_norm_rmse_threshold is not None, (
             'The "omega_vs_polaris_norm_rmse_threshold" configuration '
-            'option must be set in the "two_column" section.'
+            'option must be set in the "horiz_press_grad" section.'
         )
         omega_vs_reference_high_res_norm_rmse_threshold = section.getfloat(
             'omega_vs_reference_high_res_norm_rmse_threshold'
         )
         assert omega_vs_reference_high_res_norm_rmse_threshold is not None, (
             'The "omega_vs_reference_high_res_norm_rmse_threshold" '
-            'configuration option must be set in the "two_column" section.'
+            'configuration option must be set in the "horiz_press_grad" '
+            'section.'
         )
         omega_vs_reference_convergence_rate_min = section.getfloat(
             'omega_vs_reference_convergence_rate_min'
         )
         assert omega_vs_reference_convergence_rate_min is not None, (
             'The "omega_vs_reference_convergence_rate_min" configuration '
-            'option must be set in the "two_column" section.'
+            'option must be set in the "horiz_press_grad" section.'
         )
         omega_vs_reference_convergence_rate_max = section.getfloat(
             'omega_vs_reference_convergence_rate_max'
         )
         assert omega_vs_reference_convergence_rate_max is not None, (
             'The "omega_vs_reference_convergence_rate_max" configuration '
-            'option must be set in the "two_column" section.'
+            'option must be set in the "horiz_press_grad" section.'
         )
         omega_vs_reference_convergence_fit_max_resolution = section.getfloat(
             'omega_vs_reference_convergence_fit_max_resolution'
         )
         assert omega_vs_reference_convergence_fit_max_resolution is not None, (
             'The "omega_vs_reference_convergence_fit_max_resolution" '
-            'configuration option must be set in the "two_column" section.'
+            'configuration option must be set in the "horiz_press_grad" '
+            'section.'
         )
         omega_vs_reference_reference_scale_floor = section.getfloat(
             'omega_vs_reference_reference_scale_floor'
         )
         assert omega_vs_reference_reference_scale_floor is not None, (
             'The "omega_vs_reference_reference_scale_floor" '
-            'configuration option must be set in the "two_column" section.'
+            'configuration option must be set in the "horiz_press_grad" '
+            'section.'
         )
         omega_vs_reference_high_res_rms_threshold = section.getfloat(
             'omega_vs_reference_high_res_rms_threshold'
         )
         assert omega_vs_reference_high_res_rms_threshold is not None, (
             'The "omega_vs_reference_high_res_rms_threshold" '
-            'configuration option must be set in the "two_column" section.'
+            'configuration option must be set in the "horiz_press_grad" '
+            'section.'
         )
         omega_vs_polaris_reference_scale_floor = section.getfloat(
             'omega_vs_polaris_reference_scale_floor'
         )
         assert omega_vs_polaris_reference_scale_floor is not None, (
             'The "omega_vs_polaris_reference_scale_floor" configuration '
-            'option must be set in the "two_column" section.'
+            'option must be set in the "horiz_press_grad" section.'
         )
         omega_vs_polaris_rms_threshold = section.getfloat(
             'omega_vs_polaris_rms_threshold'
         )
         assert omega_vs_polaris_rms_threshold is not None, (
             'The "omega_vs_polaris_rms_threshold" configuration option '
-            'must be set in the "two_column" section.'
+            'must be set in the "horiz_press_grad" section.'
         )
 
         ds_ref = self.open_model_dataset('reference_solution.nc')

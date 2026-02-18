@@ -1,13 +1,13 @@
 import os
 
 from polaris import Task
-from polaris.tasks.ocean.two_column.analysis import Analysis
-from polaris.tasks.ocean.two_column.forward import Forward
-from polaris.tasks.ocean.two_column.init import Init
-from polaris.tasks.ocean.two_column.reference import Reference
+from polaris.tasks.ocean.horiz_press_grad.analysis import Analysis
+from polaris.tasks.ocean.horiz_press_grad.forward import Forward
+from polaris.tasks.ocean.horiz_press_grad.init import Init
+from polaris.tasks.ocean.horiz_press_grad.reference import Reference
 
 
-class TwoColumnTask(Task):
+class HorizPressGradTask(Task):
     """
     The two-column test case tests convergence of the TEOS-10 pressure-gradient
     computation in Omega at various horizontal and vertical resolutions. The
@@ -37,17 +37,17 @@ class TwoColumnTask(Task):
 
         name : str
             The name of the test case, which must have a corresponding
-            <name>.cfg config file in the two_column package that specifies
-            which properties vary betweeen the columns.
+            <name>.cfg config file in the horiz_press_grad package that
+            specifies which properties vary betweeen the columns.
         """
-        subdir = os.path.join('two_column', name)
+        subdir = os.path.join('horiz_press_grad', name)
         super().__init__(component=component, name=name, subdir=subdir)
 
         self.config.add_from_package(
-            'polaris.tasks.ocean.two_column', 'two_column.cfg'
+            'polaris.tasks.ocean.horiz_press_grad', 'horiz_press_grad.cfg'
         )
         self.config.add_from_package(
-            'polaris.tasks.ocean.two_column',
+            'polaris.tasks.ocean.horiz_press_grad',
             f'{name}.cfg',
         )
 
@@ -66,17 +66,17 @@ class TwoColumnTask(Task):
         """
         setup steps given resolutions
         """
-        section = self.config['two_column']
+        section = self.config['horiz_press_grad']
         horiz_resolutions = section.getexpression('horiz_resolutions')
         vert_resolutions = section.getexpression('vert_resolutions')
 
         assert horiz_resolutions is not None, (
             'The "horiz_resolutions" configuration option must be set in the '
-            '"two_column" section.'
+            '"horiz_press_grad" section.'
         )
         assert vert_resolutions is not None, (
             'The "vert_resolutions" configuration option must be set in the '
-            '"two_column" section.'
+            '"horiz_press_grad" section.'
         )
         assert len(horiz_resolutions) == len(vert_resolutions), (
             'The "horiz_resolutions" and "vert_resolutions" configuration '

@@ -14,7 +14,7 @@ from polaris.ocean.vertical.ztilde import (
     pressure_from_z_tilde,
 )
 from polaris.resolution import resolution_to_string
-from polaris.tasks.ocean.two_column.column import (
+from polaris.tasks.ocean.horiz_press_grad.column import (
     get_array_from_mid_grad,
     get_pchip_interpolator,
 )
@@ -72,7 +72,7 @@ class Init(OceanIOStep):
         config = self.config
         if config.get('ocean', 'model') != 'omega':
             raise ValueError(
-                'The two_column test case is only supported for the '
+                'The horiz_press_grad test case is only supported for the '
                 'Omega ocean model.'
             )
 
@@ -84,11 +84,13 @@ class Init(OceanIOStep):
             '"vertical_grid" section.'
         )
 
-        z_tilde_bot_mid = config.getfloat('two_column', 'z_tilde_bot_mid')
+        z_tilde_bot_mid = config.getfloat(
+            'horiz_press_grad', 'z_tilde_bot_mid'
+        )
 
         assert z_tilde_bot_mid is not None, (
             'The "z_tilde_bot_mid" configuration option must be set in the '
-            '"two_column" section.'
+            '"horiz_press_grad" section.'
         )
 
         # it needs to be an error if the full water column can't be evenly
@@ -145,13 +147,13 @@ class Init(OceanIOStep):
         pseudo_bottom_depth = goal_geom_water_column_thickness
 
         water_col_adjust_iter_count = config.getint(
-            'two_column', 'water_col_adjust_iter_count'
+            'horiz_press_grad', 'water_col_adjust_iter_count'
         )
 
         if water_col_adjust_iter_count is None:
             raise ValueError(
                 'The "water_col_adjust_iter_count" configuration option '
-                'must be set in the "two_column" section.'
+                'must be set in the "horiz_press_grad" section.'
             )
 
         for iter in range(water_col_adjust_iter_count):
