@@ -70,6 +70,7 @@ class Init(OceanIOStep):
         logger = self.logger
         # logger.setLevel(logging.INFO)
         config = self.config
+        hpg_section = config['horiz_press_grad']
         if config.get('ocean', 'model') != 'omega':
             raise ValueError(
                 'The horiz_press_grad test case is only supported for the '
@@ -84,9 +85,7 @@ class Init(OceanIOStep):
             '"vertical_grid" section.'
         )
 
-        z_tilde_bot_mid = config.getfloat(
-            'horiz_press_grad', 'z_tilde_bot_mid'
-        )
+        z_tilde_bot_mid = hpg_section.getfloat('z_tilde_bot_mid')
 
         assert z_tilde_bot_mid is not None, (
             'The "z_tilde_bot_mid" configuration option must be set in the '
@@ -156,6 +155,22 @@ class Init(OceanIOStep):
                 'must be set in the "horiz_press_grad" section.'
             )
 
+        water_col_adjust_frac_change_threshold = hpg_section.getfloat(
+            'water_col_adjust_frac_change_threshold'
+        )
+        if water_col_adjust_frac_change_threshold is None:
+            raise ValueError(
+                'The "water_col_adjust_frac_change_threshold" configuration '
+                'option must be set in the "horiz_press_grad" section.'
+            )
+        if water_col_adjust_frac_change_threshold < 0.0:
+            raise ValueError(
+                'The "water_col_adjust_frac_change_threshold" configuration '
+                'option must be nonnegative.'
+            )
+
+        prev_geom_water_column_thickness: xr.DataArray | None = None
+
         for iter in range(water_col_adjust_iter_count):
             ds = self._init_z_tilde_vert_coord(ds_mesh, pseudo_bottom_depth, x)
 
@@ -222,6 +237,31 @@ class Init(OceanIOStep):
                 f'geom_water_column_thickness = {geom_water_column_thickness}'
             )
 
+            if prev_geom_water_column_thickness is not None:
+                frac_change = (
+                    np.abs(
+                        geom_water_column_thickness
+                        - prev_geom_water_column_thickness
+                    )
+                    / prev_geom_water_column_thickness
+                )
+                max_frac_change = frac_change.max().item()
+
+                logger.info(
+                    f'Iteration {iter}: max fractional change in '
+                    f'geometric water-column thickness = '
+                    f'{max_frac_change:.6e}'
+                )
+
+                if max_frac_change < water_col_adjust_frac_change_threshold:
+                    logger.info(
+                        f'Early stopping water-column adjustment after '
+                        f'iteration {iter} because max fractional change '
+                        f'({max_frac_change:.6e}) is below threshold '
+                        f'({water_col_adjust_frac_change_threshold:.6e}).'
+                    )
+                    break
+
             # scale the pseudo bottom depth proportional to how far off we are
             # in the geometric water column thickness from the goal
             scaling_factor = (
@@ -242,6 +282,8 @@ class Init(OceanIOStep):
                 f'Iteration {iter}: pseudo bottom depths = '
                 f'{pseudo_bottom_depth.values}'
             )
+
+            prev_geom_water_column_thickness = geom_water_column_thickness
 
         ds['temperature'] = ct
         ds['salinity'] = sa
