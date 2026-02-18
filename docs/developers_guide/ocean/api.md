@@ -555,6 +555,21 @@
    get_time_interval_string
 ```
 
+### Equations of state (EOS)
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.eos
+
+.. autosummary::
+   :toctree: generated/
+
+   compute_density
+   compute_specvol
+
+   linear.compute_linear_density
+   teos10.compute_specvol
+```
+
 
 ### Reference Potential Energy (RPE)
 
