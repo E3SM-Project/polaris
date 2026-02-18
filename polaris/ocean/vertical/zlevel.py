@@ -212,23 +212,21 @@ def compute_z_level_layer_thickness(
         The thickness of each layer (level)
     """
 
-    nVertLevels = refBottomDepth.sizes['nVertLevels']
-    layerThickness = []
-    for zIndex in range(nVertLevels):
-        mask = numpy.logical_and(
-            zIndex >= minLevelCell, zIndex <= maxLevelCell
-        )
-        zTop = numpy.minimum(ssh, -refTopDepth[zIndex])
-        zBot = numpy.maximum(-bottomDepth, -refBottomDepth[zIndex])
-        thickness = (zTop - zBot).where(mask, 0.0)
-        layerThickness.append(thickness)
-    layerThicknessArray = xarray.DataArray(
-        layerThickness, dims=['nVertLevels', 'nCells']
+    n_vert_levels = refBottomDepth.sizes['nVertLevels']
+    z_index = xarray.DataArray(
+        numpy.arange(n_vert_levels), dims=['nVertLevels']
     )
-    layerThicknessArray = layerThicknessArray.transpose(
-        'nCells', 'nVertLevels'
+    mask = numpy.logical_and(
+        z_index >= minLevelCell, z_index <= maxLevelCell
+    ).transpose('nCells', 'nVertLevels')
+
+    z_top = xarray.where(ssh < -refTopDepth, ssh, -refTopDepth)
+    z_bot = xarray.where(
+        -bottomDepth > -refBottomDepth, -bottomDepth, -refBottomDepth
     )
-    return layerThicknessArray
+    thickness = (z_top - z_bot).transpose('nCells', 'nVertLevels')
+
+    return thickness.where(mask, 0.0)
 
 
 def compute_z_level_resting_thickness(
@@ -261,21 +259,15 @@ def compute_z_level_resting_thickness(
         The thickness of z-star layers when ssh = 0
     """
 
-    nVertLevels = layerThickness.sizes['nVertLevels']
-    restingThickness = []
+    n_vert_levels = layerThickness.sizes['nVertLevels']
+    z_index = xarray.DataArray(
+        numpy.arange(n_vert_levels), dims=['nVertLevels']
+    )
+    mask = numpy.logical_and(
+        z_index >= minLevelCell, z_index <= maxLevelCell
+    ).transpose('nCells', 'nVertLevels')
 
-    layerStretch = bottomDepth / (ssh + bottomDepth)
-    for zIndex in range(nVertLevels):
-        mask = numpy.logical_and(
-            zIndex >= minLevelCell, zIndex <= maxLevelCell
-        )
-        thickness = layerStretch * layerThickness.isel(nVertLevels=zIndex)
-        thickness = thickness.where(mask, 0.0)
-        restingThickness.append(thickness)
-    restingThicknessArray = xarray.DataArray(
-        restingThickness, dims=['nVertLevels', 'nCells']
-    )
-    restingThicknessArray = restingThicknessArray.transpose(
-        'nCells', 'nVertLevels'
-    )
-    return restingThicknessArray
+    layer_stretch = bottomDepth / (ssh + bottomDepth)
+    resting_thickness = layer_stretch * layerThickness
+
+    return resting_thickness.where(mask, 0.0)
