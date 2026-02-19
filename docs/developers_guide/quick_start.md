@@ -460,15 +460,58 @@ be safe.
 There are 3 E3SM repositories that are submodules within the polaris
 repository, but the MALI-Dev submodule is not yet used.
 
+For MPAS-Ocean and Omega, the recommended workflow is to let Polaris build
+the component automatically during `polaris setup` or `polaris suite` with
+`--build`.  A manual build is still supported and can be useful for advanced
+workflows, but should generally be treated as an opt-in alternative.
+
+Common optional build flags for this automated workflow:
+
+- `--clean_build`: remove any previous build state and start fresh (implies
+  `--build`)
+- `--quiet_build`: write build output to log files instead of printing full
+  build output to the terminal (implies `--build`)
+- `--debug`: build a debug executable instead of a release executable
+
+For example:
+
+```bash
+polaris setup -t ocean/global_ocean/QU240/mesh \
+  -m $MACHINE -w $WORKDIR --model mpas-ocean --clean_build --debug
+```
+
+```bash
+polaris suite -c ocean -t nightly \
+  -m $MACHINE -w $WORKDIR --model omega --clean_build --quiet_build
+```
+
 (dev-mpas-build)=
 
 ### MPAS-Ocean or MPAS-Seaice
+
+#### Recommended default: automated build from `polaris setup`/`polaris suite`
+
+For MPAS-Ocean, use `--build` during setup and let Polaris place the build in
+`${WORKDIR}/build` by default:
+
+```bash
+source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
+polaris setup -t ocean/global_ocean/QU240/mesh \
+  -m $MACHINE -w $WORKDIR --model mpas-ocean --build
+```
+
+You can use the same build flags with `polaris suite`.
+
+If you already have a build in another location, use `-p` (or a config file)
+to point Polaris at it.
+
+#### Manual build (advanced/optional)
 
 For MPAS-Ocean and -Seaice both, see the last column of the table in
 {ref}`dev-mpas-supported-machines` for the right `<mpas_make_target>` command for
 each machine and compiler.
 
-To build MPAS-Ocean, you would typically run:
+To build MPAS-Ocean manually, you would typically run:
 
 ```bash
 source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
@@ -493,7 +536,25 @@ machines.
 If you simply wish to run the CTests from Omega, you likely want to use the
 [Omega CTest Utility](https://github.com/E3SM-Project/polaris/blob/main/utils/omega/ctest/README.md).
 
-Otherwise, to build Omega,
+#### Recommended default: automated build from `polaris setup`/`polaris suite`
+
+For Omega, use `--build` during setup and let Polaris place the build in
+`${WORKDIR}/build` by default:
+
+```bash
+source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
+polaris setup -t ocean/global_ocean/QU240/mesh \
+  -m $MACHINE -w $WORKDIR --model omega --build
+```
+
+You can use the same build flags with `polaris suite`.
+
+If you already have an Omega build in another location, use `-p` (or a config
+file) to point Polaris at it.
+
+#### Manual build (advanced/optional)
+
+To build Omega manually,
 ```bash
 source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
 git submodule update --init e3sm_submodules/Omega

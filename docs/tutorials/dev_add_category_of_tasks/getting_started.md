@@ -74,7 +74,12 @@ you plan to push to the E3SM repo, begin with your GitHub username (e.g.,
 separators, and a descriptive name.
 ```
 
-If your tasks require running MPAS-Ocean, build the executable:
+If your tasks require running MPAS-Ocean, the recommended workflow is to let
+Polaris build automatically when you run `polaris setup` or `polaris suite`
+with `--build`.
+
+If you have a strong reason to manage the build yourself, you can still build
+the executable manually:
 
 ```bash
 cd e3sm_submodules/E3SM-Project/components/mpas-ocean/
