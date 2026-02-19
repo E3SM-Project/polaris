@@ -276,13 +276,12 @@ class Analysis(OceanIOStep):
             'Omega-vs-reference fit uses resolutions (km): '
             f'{_format_resolution_list(resolution_array[fit_mask])}'
         )
+        res_error_pairs = _format_resolution_error_pairs(
+            resolution_array, ref_error_array
+        )
         logger.info(
             'Omega-vs-Polaris RMS differences by resolution: '
-            f'{
-                _format_resolution_error_pairs(
-                    resolution_array, py_error_array
-                )
-            }'
+            f'{res_error_pairs}'
         )
         failing_polaris = py_error_array > omega_vs_polaris_rms_threshold
         if np.any(failing_polaris):
