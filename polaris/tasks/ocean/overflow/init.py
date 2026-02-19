@@ -4,8 +4,8 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.eos import compute_density
 from polaris.ocean.model import OceanIOStep
-from polaris.ocean.model.eos import compute_density
 from polaris.ocean.vertical import init_vertical_coord
 
 
