@@ -118,10 +118,10 @@ def update_z_level_layer_thickness(config, ds):
 
 
 def compute_min_max_level_cell(
-    refTopDepth,
-    refBottomDepth,
+    ref_top_depth,
+    ref_bottom_depth,
     ssh,
-    bottomDepth,
+    bottom_depth,
     min_vert_levels=None,
     min_layer_thickness=None,
 ):
@@ -131,16 +131,16 @@ def compute_min_max_level_cell(
 
     Parameters
     ----------
-    refTopDepth : xarray.DataArray
+    ref_top_depth : xarray.DataArray
         A 1D array of positive-down depths of the top of each z level
 
-    refBottomDepth : xarray.DataArray
+    ref_bottom_depth : xarray.DataArray
         A 1D array of positive-down depths of the bottom of each z level
 
     ssh : xarray.DataArray
         The sea surface height
 
-    bottomDepth : xarray.DataArray
+    bottom_depth : xarray.DataArray
         The positive-down depth of the seafloor
 
 
@@ -156,12 +156,14 @@ def compute_min_max_level_cell(
         A boolean mask of where there are valid cells
     """
     if min_layer_thickness is not None:
-        valid = bottomDepth + min_layer_thickness * min_vert_levels >= -ssh
+        valid = bottom_depth + min_layer_thickness * min_vert_levels >= -ssh
     else:
-        valid = bottomDepth > -ssh
+        valid = bottom_depth > -ssh
 
-    aboveTopMask = (refBottomDepth <= -ssh).transpose('nCells', 'nVertLevels')
-    aboveBottomMask = (refTopDepth < bottomDepth).transpose(
+    aboveTopMask = (ref_bottom_depth <= -ssh).transpose(
+        'nCells', 'nVertLevels'
+    )
+    aboveBottomMask = (ref_top_depth < bottom_depth).transpose(
         'nCells', 'nVertLevels'
     )
     aboveBottomMask = numpy.logical_and(aboveBottomMask, valid)
@@ -181,29 +183,34 @@ def compute_min_max_level_cell(
 
 
 def compute_z_level_layer_thickness(
-    refTopDepth, refBottomDepth, ssh, bottomDepth, minLevelCell, maxLevelCell
+    ref_top_depth,
+    ref_bottom_depth,
+    ssh,
+    bottom_depth,
+    min_level_cell,
+    max_level_cell,
 ):
     """
     Compute z-level layer thickness from ssh and bottomDepth
 
     Parameters
     ----------
-    refTopDepth : xarray.DataArray
+    ref_top_depth : xarray.DataArray
         A 1D array of positive-down depths of the top of each z level
 
-    refBottomDepth : xarray.DataArray
+    ref_bottom_depth : xarray.DataArray
         A 1D array of positive-down depths of the bottom of each z level
 
     ssh : xarray.DataArray
         The sea surface height
 
-    bottomDepth : xarray.DataArray
+    bottom_depth : xarray.DataArray
         The positive-down depth of the seafloor
 
-    minLevelCell : xarray.DataArray
+    min_level_cell : xarray.DataArray
         The zero-based index of the top valid level
 
-    maxLevelCell : xarray.DataArray
+    max_level_cell : xarray.DataArray
         The zero-based index of the bottom valid level
 
     Returns
@@ -212,27 +219,31 @@ def compute_z_level_layer_thickness(
         The thickness of each layer (level)
     """
 
-    nVertLevels = refBottomDepth.sizes['nVertLevels']
-    layerThickness = []
-    for zIndex in range(nVertLevels):
-        mask = numpy.logical_and(
-            zIndex >= minLevelCell, zIndex <= maxLevelCell
-        )
-        zTop = numpy.minimum(ssh, -refTopDepth[zIndex])
-        zBot = numpy.maximum(-bottomDepth, -refBottomDepth[zIndex])
-        thickness = (zTop - zBot).where(mask, 0.0)
-        layerThickness.append(thickness)
-    layerThicknessArray = xarray.DataArray(
-        layerThickness, dims=['nVertLevels', 'nCells']
+    n_vert_levels = ref_bottom_depth.sizes['nVertLevels']
+    z_index = xarray.DataArray(
+        numpy.arange(n_vert_levels), dims=['nVertLevels']
     )
-    layerThicknessArray = layerThicknessArray.transpose(
-        'nCells', 'nVertLevels'
+    mask = numpy.logical_and(
+        z_index >= min_level_cell, z_index <= max_level_cell
+    ).transpose('nCells', 'nVertLevels')
+
+    z_top = xarray.where(ssh < -ref_top_depth, ssh, -ref_top_depth)
+    z_bot = xarray.where(
+        -bottom_depth > -ref_bottom_depth,
+        -bottom_depth,
+        -ref_bottom_depth,
     )
-    return layerThicknessArray
+    thickness = (z_top - z_bot).transpose('nCells', 'nVertLevels')
+
+    return thickness.where(mask, 0.0)
 
 
 def compute_z_level_resting_thickness(
-    layerThickness, ssh, bottomDepth, minLevelCell, maxLevelCell
+    layer_thickness,
+    ssh,
+    bottom_depth,
+    min_level_cell,
+    max_level_cell,
 ):
     """
     Compute z-level resting thickness by "unstretching" layerThickness
@@ -240,19 +251,19 @@ def compute_z_level_resting_thickness(
 
     Parameters
     ----------
-    layerThickness : xarray.DataArray
+    layer_thickness : xarray.DataArray
         The thickness of each layer (level)
 
     ssh : xarray.DataArray
         The sea surface height
 
-    bottomDepth : xarray.DataArray
+    bottom_depth : xarray.DataArray
         The positive-down depth of the seafloor
 
-    minLevelCell : xarray.DataArray
+    min_level_cell : xarray.DataArray
         The zero-based index of the top valid level
 
-    maxLevelCell : xarray.DataArray
+    max_level_cell : xarray.DataArray
         The zero-based index of the bottom valid level
 
     Returns
@@ -261,21 +272,15 @@ def compute_z_level_resting_thickness(
         The thickness of z-star layers when ssh = 0
     """
 
-    nVertLevels = layerThickness.sizes['nVertLevels']
-    restingThickness = []
+    n_vert_levels = layer_thickness.sizes['nVertLevels']
+    z_index = xarray.DataArray(
+        numpy.arange(n_vert_levels), dims=['nVertLevels']
+    )
+    mask = numpy.logical_and(
+        z_index >= min_level_cell, z_index <= max_level_cell
+    ).transpose('nCells', 'nVertLevels')
 
-    layerStretch = bottomDepth / (ssh + bottomDepth)
-    for zIndex in range(nVertLevels):
-        mask = numpy.logical_and(
-            zIndex >= minLevelCell, zIndex <= maxLevelCell
-        )
-        thickness = layerStretch * layerThickness.isel(nVertLevels=zIndex)
-        thickness = thickness.where(mask, 0.0)
-        restingThickness.append(thickness)
-    restingThicknessArray = xarray.DataArray(
-        restingThickness, dims=['nVertLevels', 'nCells']
-    )
-    restingThicknessArray = restingThicknessArray.transpose(
-        'nCells', 'nVertLevels'
-    )
-    return restingThicknessArray
+    layer_stretch = bottom_depth / (ssh + bottom_depth)
+    resting_thickness = layer_stretch * layer_thickness
+
+    return resting_thickness.where(mask, 0.0)

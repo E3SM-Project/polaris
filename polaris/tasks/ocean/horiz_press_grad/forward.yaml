@@ -1,0 +1,50 @@
+Omega:
+  TimeIntegration:
+    TimeStep: 0000_00:00:01
+    StartTime: 0001-01-01_00:00:00
+    StopTime: 0001-01-01_00:00:01
+  VertCoord:
+    Density0: {{ rho0 }}
+  Tendencies:
+    ThicknessFluxTendencyEnable: false
+    PVTendencyEnable: false
+    KETendencyEnable: false
+    SSHTendencyEnable: false
+    VelDiffTendencyEnable: false
+    VelHyperDiffTendencyEnable: false
+    WindForcingTendencyEnable: false
+    BottomDragTendencyEnable: false
+    TracerHorzAdvTendencyEnable: false
+    TracerDiffTendencyEnable: false
+    TracerHyperDiffTendencyEnable: false
+    UseCustomTendency: false
+    ManufacturedSolutionTendency: false
+    PressureGradTendencyEnable: true
+  IOStreams:
+    InitialVertCoord:
+      Filename: initial_state.nc
+    InitialState:
+      UsePointerFile: false
+      Filename: initial_state.nc
+    History:
+      Filename: output.nc
+      Freq: 1
+      FreqUnits: Seconds
+      IfExists: append
+      # effectively never
+      FileFreq: 9999
+      FileFreqUnits: years
+      Contents:
+      - ZMid
+      - ZInterface
+      - PressureMid
+      - PressureInterface
+      - LayerThickness
+      - Temperature
+      - Salinity
+      - SpecVol
+      - GeopotentialMid
+      - NormalVelocityTend
+      - BottomDepth
+      - MinLayerCell
+      - MaxLayerCell
