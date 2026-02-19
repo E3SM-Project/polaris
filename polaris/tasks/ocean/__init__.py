@@ -7,6 +7,7 @@ from mpas_tools.io import write_netcdf
 from ruamel.yaml import YAML
 
 from polaris import Component
+from polaris.ocean.vertical.diagnostics import pseudothickness_from_ds
 
 
 class Ocean(Component):
@@ -154,7 +155,7 @@ class Ocean(Component):
             ]
         return renamed_vars
 
-    def write_model_dataset(self, ds, filename):
+    def write_model_dataset(self, ds, filename, config=None):
         """
         Write out the given dataset, mapping dimension and variable names from
         MPAS-Ocean to Omega names if appropriate
@@ -167,6 +168,13 @@ class Ocean(Component):
         filename : str
             The path for the NetCDF file to write
         """
+        if (
+            self.model == 'omega'
+            and 'layerThickness' in ds.keys()
+            and 'PseudoThickness' not in ds.keys()
+            and config is not None
+        ):
+            ds['PseudoThickness'] = pseudothickness_from_ds(ds, config=config)
         ds = self.map_to_native_model_vars(ds)
         write_netcdf(ds=ds, fileName=filename)
 
