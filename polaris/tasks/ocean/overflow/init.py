@@ -4,8 +4,8 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.eos import compute_density
 from polaris.ocean.model import OceanIOStep
-from polaris.ocean.model.eos import compute_density
 from polaris.ocean.vertical import init_vertical_coord
 
 
@@ -112,15 +112,7 @@ class Init(OceanIOStep):
         salinity = section.getfloat('salinity') * np.ones_like(temperature)
         ds['salinity'] = salinity * xr.ones_like(ds.temperature)
 
-        density = compute_density(config, temperature, salinity)
-        ds['density'] = (
-            (
-                'Time',
-                'nCells',
-                'nVertLevels',
-            ),
-            np.expand_dims(density, axis=0),
-        )
+        ds['density'] = compute_density(config, ds.temperature, ds.salinity)
 
         # initial velocity on edges is stationary
         ds['normalVelocity'] = (

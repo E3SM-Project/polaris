@@ -85,7 +85,7 @@ def init_vertical_coord(config, ds):
 
     if coord_type == 'z-level':
         init_z_level_vertical_coord(config, ds)
-    elif coord_type == 'z-star':
+    elif coord_type == 'z-star' or coord_type == 'z-tilde':
         init_z_star_vertical_coord(config, ds)
     elif coord_type == 'sigma':
         init_sigma_vertical_coord(config, ds)
@@ -110,8 +110,11 @@ def init_vertical_coord(config, ds):
         dim='Time', axis=0
     )
 
-    ds['zMid'] = _compute_zmid_from_layer_thickness(
-        ds.layerThickness, ds.ssh, ds.cellMask
+    ds['zInterface'], ds['zMid'] = compute_zint_zmid_from_layer_thickness(
+        layer_thickness=ds.layerThickness,
+        bottom_depth=ds.bottomDepth,
+        min_level_cell=ds.minLevelCell,
+        max_level_cell=ds.maxLevelCell,
     )
 
     # fortran 1-based indexing
@@ -148,7 +151,7 @@ def update_layer_thickness(config, ds):
 
     if coord_type == 'z-level':
         update_z_level_layer_thickness(config, ds)
-    elif coord_type == 'z-star':
+    elif coord_type == 'z-star' or coord_type == 'z-tilde':
         update_z_star_layer_thickness(config, ds)
     elif coord_type == 'sigma':
         update_sigma_layer_thickness(config, ds)
@@ -162,47 +165,89 @@ def update_layer_thickness(config, ds):
     ds['layerThickness'] = ds.layerThickness.expand_dims(dim='Time', axis=0)
 
 
-def _compute_cell_mask(minLevelCell, maxLevelCell, nVertLevels):
-    cellMask = []
-    for zIndex in range(nVertLevels):
-        mask = np.logical_and(zIndex >= minLevelCell, zIndex <= maxLevelCell)
-        cellMask.append(mask)
-    cellMaskArray = xr.DataArray(cellMask, dims=['nVertLevels', 'nCells'])
-    cellMaskArray = cellMaskArray.transpose('nCells', 'nVertLevels')
-    return cellMaskArray
-
-
-def _compute_zmid_from_layer_thickness(layerThickness, ssh, cellMask):
+def compute_zint_zmid_from_layer_thickness(
+    layer_thickness: xr.DataArray,
+    bottom_depth: xr.DataArray,
+    min_level_cell: xr.DataArray,
+    max_level_cell: xr.DataArray,
+) -> tuple[xr.DataArray, xr.DataArray]:
     """
-    Compute zMid from ssh and layerThickness for any vertical coordinate
+    Compute height z at layer interfaces and midpoints given layer thicknesses
+    and bottom depth.
 
     Parameters
     ----------
-    layerThickness : xarray.DataArray
-        The thickness of each layer
+    layer_thickness : xarray.DataArray
+        The layer thickness of each layer.
 
-    ssh : xarray.DataArray
-        The sea surface height
+    bottom_depth : xarray.DataArray
+        The positive-down depth of the seafloor.
 
-    cellMask : xarray.DataArray
-        A boolean mask of where there are valid cells
+    min_level_cell : xarray.DataArray
+        The zero-based minimum vertical index from each column.
+
+    max_level_cell : xarray.DataArray
+        The zero-based maximum vertical index from each column.
 
     Returns
     -------
-    zMid : xarray.DataArray
-        The elevation of layer centers
+    z_interface : xarray.DataArray
+        The elevation of layer interfaces.
+
+    z_mid : xarray.DataArray
+        The elevation of layer midpoints.
     """
 
-    zTop = ssh.copy()
-    nVertLevels = layerThickness.sizes['nVertLevels']
-    zMid = []
-    for zIndex in range(nVertLevels):
-        mask = cellMask.isel(nVertLevels=zIndex)
-        thickness = layerThickness.isel(nVertLevels=zIndex).where(mask, 0.0)
-        z = (zTop - 0.5 * thickness).where(mask)
-        zMid.append(z)
-        zTop -= thickness
-    zMid = xr.concat(zMid, dim='nVertLevels').transpose(
-        'Time', 'nCells', 'nVertLevels'
+    n_vert_levels = layer_thickness.sizes['nVertLevels']
+
+    z_index = xr.DataArray(np.arange(n_vert_levels), dims=['nVertLevels'])
+    mask_mid = np.logical_and(
+        z_index >= min_level_cell, z_index <= max_level_cell
     )
-    return zMid
+
+    dz = layer_thickness.where(mask_mid, 0.0)
+    dz_rev = dz.isel(nVertLevels=slice(None, None, -1))
+    sum_from_level = dz_rev.cumsum(dim='nVertLevels').isel(
+        nVertLevels=slice(None, None, -1)
+    )
+
+    z_bot = (
+        xr.zeros_like(layer_thickness.isel(nVertLevels=0, drop=True))
+        - bottom_depth
+    )
+    z_interface_top = z_bot + sum_from_level
+    z_interface = z_interface_top.pad(nVertLevels=(0, 1), mode='constant')
+    z_interface[dict(nVertLevels=n_vert_levels)] = z_bot
+    z_interface = z_interface.rename({'nVertLevels': 'nVertLevelsP1'})
+
+    z_index_p1 = xr.DataArray(
+        np.arange(n_vert_levels + 1), dims=['nVertLevelsP1']
+    )
+    mask_interface = np.logical_and(
+        z_index_p1 >= min_level_cell,
+        z_index_p1 - 1 <= max_level_cell,
+    )
+    z_interface = z_interface.where(mask_interface)
+
+    z_interface_upper = z_interface.isel(nVertLevelsP1=slice(0, -1)).rename(
+        {'nVertLevelsP1': 'nVertLevels'}
+    )
+    z_interface_lower = z_interface.isel(nVertLevelsP1=slice(1, None)).rename(
+        {'nVertLevelsP1': 'nVertLevels'}
+    )
+    z_mid = (0.5 * (z_interface_upper + z_interface_lower)).where(mask_mid)
+
+    dims = list(layer_thickness.dims)
+    interface_dims = [dim for dim in dims if dim != 'nVertLevels']
+    interface_dims.append('nVertLevelsP1')
+    z_interface = z_interface.transpose(*interface_dims)
+    z_mid = z_mid.transpose(*dims)
+
+    return z_interface, z_mid
+
+
+def _compute_cell_mask(minLevelCell, maxLevelCell, nVertLevels):
+    z_index = xr.DataArray(np.arange(nVertLevels), dims=['nVertLevels'])
+    return np.logical_and(
+        z_index >= minLevelCell, z_index <= maxLevelCell
+    ).transpose('nCells', 'nVertLevels')
