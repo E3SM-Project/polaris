@@ -460,15 +460,95 @@ be safe.
 There are 3 E3SM repositories that are submodules within the polaris
 repository, but the MALI-Dev submodule is not yet used.
 
+For MPAS-Ocean and Omega, the recommended workflow is to let Polaris build
+the component automatically during `polaris setup` or `polaris suite`.
+By default, Polaris will reuse an existing build at the location specified by
+the `component_path` config option when one is already present, which avoids
+rebuilding when setting up the same tasks or suites again.  A manual build is
+still supported and can be useful for advanced workflows, but should generally
+be treated as an opt-in alternative.
+
+If you are not pointing to an existing build with `-p` or `-f`, Polaris cannot
+infer whether you want MPAS-Ocean or Omega, so you should always supply
+`--model`.
+
+Common optional build flags for this automated workflow:
+
+- `--build`: force a build during setup, even if a build already exists at
+  `component_path`
+- `--clean_build`: remove any previous build state and start fresh (implies
+  `--build`)
+- `--quiet_build`: write build output to log files instead of printing full
+  build output to the terminal (implies `--build`)
+- `--debug`: build a debug executable instead of a release executable
+
+For example:
+
+```bash
+polaris setup -t mesh/spherical/icos/base_mesh/240km/task \
+  -m $MACHINE -w $WORKDIR --model mpas-ocean --clean_build --debug
+```
+
+```bash
+polaris suite -c ocean -t nightly \
+  -m $MACHINE -w $WORKDIR --model omega --clean_build --quiet_build
+```
+
+#### Using an existing build (`-p` or `-f`)
+
+If you already have a component build in another location, you can either:
+
+1. provide it directly on the command line with `-p`, e.g.
+
+   ```bash
+   polaris setup -t mesh/spherical/icos/base_mesh/240km/task \
+     -m $MACHINE -w $WORKDIR --model <mpas-ocean|omega> \
+     -p /path/to/your/component/build
+   ```
+
+2. create a user config file and supply it with `-f`:
+
+   ```ini
+   [paths]
+   component_path = /path/to/your/component/build
+   ```
+
+   then run:
+
+   ```bash
+   polaris setup -t mesh/spherical/icos/base_mesh/240km/task \
+     -m $MACHINE -w $WORKDIR --model <mpas-ocean|omega> \
+     -f path/to/component_paths.cfg
+   ```
+
+Use `-f` when you want a reusable config for multiple commands, and `-p` for
+one-off setup commands.
+
 (dev-mpas-build)=
 
 ### MPAS-Ocean or MPAS-Seaice
+
+#### Recommended default: automated build from `polaris setup`/`polaris suite`
+
+For MPAS-Ocean, Polaris can build automatically during setup and places the
+build in `${WORKDIR}/build` by default:
+
+```bash
+source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
+polaris setup -t ocean/planar/baroclinic_channel/10km/default \
+  -m $MACHINE -w $WORKDIR --model mpas-ocean
+```
+
+Use the same approach with `polaris suite`; for repeated setup, add `--build`
+to force rebuilding.
+
+#### Manual build (advanced/optional)
 
 For MPAS-Ocean and -Seaice both, see the last column of the table in
 {ref}`dev-mpas-supported-machines` for the right `<mpas_make_target>` command for
 each machine and compiler.
 
-To build MPAS-Ocean, you would typically run:
+To build MPAS-Ocean manually, you would typically run:
 
 ```bash
 source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
@@ -478,10 +558,10 @@ make <mpas_make_target>
 
 The same applies to MPAS-Seaice except with `mpas-seaice` in the path above.
 
-To set up tasks and suites to use MPAS-Ocean, it should be sufficient to point
-to an MPAS-Ocean build with the `-p` flag to `polaris setup` or
-`polaris suite`.  MPAS-Ocean should automatically be detected.  You can use
-the flag `--model mpas-ocean` to be explicit, though.
+After a manual build, point `polaris setup` or `polaris suite` to the build
+location using `-p` or `-f` as shown above.  When an existing build path is
+provided, MPAS-Ocean is usually detected automatically; otherwise, provide
+`--model mpas-ocean`.
 
 (dev-omega-build)=
 
@@ -493,7 +573,23 @@ machines.
 If you simply wish to run the CTests from Omega, you likely want to use the
 [Omega CTest Utility](https://github.com/E3SM-Project/polaris/blob/main/utils/omega/ctest/README.md).
 
-Otherwise, to build Omega,
+#### Recommended default: automated build from `polaris setup`/`polaris suite`
+
+For Omega, Polaris can build automatically during setup and places the build
+in `${WORKDIR}/build` by default:
+
+```bash
+source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
+polaris setup -t ocean/planar/barotropic_gyre/munk/free-slip \
+  -m $MACHINE -w $WORKDIR --model omega
+```
+
+Use the same approach with `polaris suite`; for repeated setup, add `--build`
+to force rebuilding.
+
+#### Manual build (advanced/optional)
+
+To build Omega manually,
 ```bash
 source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
 git submodule update --init e3sm_submodules/Omega
@@ -526,16 +622,10 @@ You can remove `-DOMEGA_BUILD_TEST=ON` to skip building CTests.  You can change
 mode.
 
 You can alter the example above to build whichever Omega branch and in whatever
-location you like.  Regardless of where you build Omega, you should point
-`polaris setup` or `polaris suite` at the build directory with the `-p` flag
-or via a config file.  When Polaris manages the build for you with `--build`,
-the default `component_path` for the ocean component is the `build`
-subdirectory of the base work directory supplied with `-w`.
-
-As with MPAS-Ocean, to set up tasks and suites to use Omega, it should be
-sufficient to point to an Omega build with the `-p` flag to `polaris setup` or
-`polaris suite`, which should allow Omega to be detected automatically.
-But you can use the flag `--model omega` to indicate this explicitly.
+location you like.  After a manual build, point `polaris setup` or
+`polaris suite` at that build location with `-p` or `-f` as shown above.
+When an existing build path is provided, Omega is usually detected
+automatically; otherwise, provide `--model omega`.
 
 (dev-working-with-polaris)=
 
@@ -557,7 +647,7 @@ tasks will come from the local polaris directory.
 To set up a task, you will run something like:
 
 ```bash
-polaris setup -t ocean/global_ocean/QU240/mesh -m $MACHINE -w $WORKDIR -p $COMPONENT
+polaris setup -t mesh/spherical/icos/base_mesh/240km/task -m $MACHINE -w $WORKDIR -p $COMPONENT
 ```
 
 where `$MACHINE` is an ES3M machine, `$WORKDIR` is the location where polaris
