@@ -188,7 +188,11 @@ you plan to push to the E3SM repo, begin with your GitHub username (e.g.,
 <code class="docutils literal notranslate"><span class="pre">xylar/mpas-ocean/add-overflow</span></code>). Use all lowercase, hyphens as
 separators, and a descriptive name.</p>
 </div>
-<p>If your tasks require running MPAS-Ocean, build the executable:</p>
+<p>If your tasks require running MPAS-Ocean, the recommended workflow is to let
+Polaris build automatically when you run <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>
+with <code class="docutils literal notranslate"><span class="pre">--build</span></code>.</p>
+<p>If you have a strong reason to manage the build yourself, you can still build
+the executable manually:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>e3sm_submodules/E3SM-Project/components/mpas-ocean/
 make<span class="w"> </span>ifort
 <span class="nb">cd</span><span class="w"> </span>../../../..

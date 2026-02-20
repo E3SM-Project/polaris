@@ -74,8 +74,17 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#creating-updating-only-the-polaris-environment">Creating/updating only the polaris environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#building-e3sm-components">Building E3SM components</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#mpas-ocean-or-mpas-seaice">MPAS-Ocean or MPAS-Seaice</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#omega">Omega</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-an-existing-build-p-or-f">Using an existing build (<code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">-f</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mpas-ocean-or-mpas-seaice">MPAS-Ocean or MPAS-Seaice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#recommended-default-automated-build-from-polaris-setup-polaris-suite">Recommended default: automated build from <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>/<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#manual-build-advanced-optional">Manual build (advanced/optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#omega">Omega</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Recommended default: automated build from <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>/<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Manual build (advanced/optional)</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#running-polaris-from-the-repo">Running polaris from the repo</a></li>
@@ -533,22 +542,93 @@ be safe.</p>
 <span id="dev-build-components"></span><h2>Building E3SM components<a class="headerlink" href="#building-e3sm-components" title="Link to this heading"></a></h2>
 <p>There are 3 E3SM repositories that are submodules within the polaris
 repository, but the MALI-Dev submodule is not yet used.</p>
+<p>For MPAS-Ocean and Omega, the recommended workflow is to let Polaris build
+the component automatically during <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>.
+By default, Polaris will reuse an existing build at the location specified by
+the <code class="docutils literal notranslate"><span class="pre">component_path</span></code> config option when one is already present, which avoids
+rebuilding when setting up the same tasks or suites again.  A manual build is
+still supported and can be useful for advanced workflows, but should generally
+be treated as an opt-in alternative.</p>
+<p>If you are not pointing to an existing build with <code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">-f</span></code>, Polaris cannot
+infer whether you want MPAS-Ocean or Omega, so you should always supply
+<code class="docutils literal notranslate"><span class="pre">--model</span></code>.</p>
+<p>Common optional build flags for this automated workflow:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--build</span></code>: force a build during setup, even if a build already exists at
+<code class="docutils literal notranslate"><span class="pre">component_path</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--clean_build</span></code>: remove any previous build state and start fresh (implies
+<code class="docutils literal notranslate"><span class="pre">--build</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--quiet_build</span></code>: write build output to log files instead of printing full
+build output to the terminal (implies <code class="docutils literal notranslate"><span class="pre">--build</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--debug</span></code>: build a debug executable instead of a release executable</p></li>
+</ul>
+<p>For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>mesh/spherical/icos/base_mesh/240km/task<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span><span class="w"> </span>--model<span class="w"> </span>mpas-ocean<span class="w"> </span>--clean_build<span class="w"> </span>--debug
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>nightly<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span><span class="w"> </span>--model<span class="w"> </span>omega<span class="w"> </span>--clean_build<span class="w"> </span>--quiet_build
+</pre></div>
+</div>
+<section id="using-an-existing-build-p-or-f">
+<h3>Using an existing build (<code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">-f</span></code>)<a class="headerlink" href="#using-an-existing-build-p-or-f" title="Link to this heading"></a></h3>
+<p>If you already have a component build in another location, you can either:</p>
+<ol class="arabic">
+<li><p>provide it directly on the command line with <code class="docutils literal notranslate"><span class="pre">-p</span></code>, e.g.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>mesh/spherical/icos/base_mesh/240km/task<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span><span class="w"> </span>--model<span class="w"> </span>&lt;mpas-ocean<span class="p">|</span>omega&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>/path/to/your/component/build
+</pre></div>
+</div>
+</li>
+<li><p>create a user config file and supply it with <code class="docutils literal notranslate"><span class="pre">-f</span></code>:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[paths]</span>
+<span class="na">component_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/your/component/build</span>
+</pre></div>
+</div>
+<p>then run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>mesh/spherical/icos/base_mesh/240km/task<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span><span class="w"> </span>--model<span class="w"> </span>&lt;mpas-ocean<span class="p">|</span>omega&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span>path/to/component_paths.cfg
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Use <code class="docutils literal notranslate"><span class="pre">-f</span></code> when you want a reusable config for multiple commands, and <code class="docutils literal notranslate"><span class="pre">-p</span></code> for
+one-off setup commands.</p>
+</section>
 <section id="mpas-ocean-or-mpas-seaice">
 <span id="dev-mpas-build"></span><h3>MPAS-Ocean or MPAS-Seaice<a class="headerlink" href="#mpas-ocean-or-mpas-seaice" title="Link to this heading"></a></h3>
+<section id="recommended-default-automated-build-from-polaris-setup-polaris-suite">
+<h4>Recommended default: automated build from <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>/<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code><a class="headerlink" href="#recommended-default-automated-build-from-polaris-setup-polaris-suite" title="Link to this heading"></a></h4>
+<p>For MPAS-Ocean, Polaris can build automatically during setup and places the
+build in <code class="docutils literal notranslate"><span class="pre">${WORKDIR}/build</span></code> by default:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
+polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/planar/baroclinic_channel/10km/default<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span><span class="w"> </span>--model<span class="w"> </span>mpas-ocean
+</pre></div>
+</div>
+<p>Use the same approach with <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>; for repeated setup, add <code class="docutils literal notranslate"><span class="pre">--build</span></code>
+to force rebuilding.</p>
+</section>
+<section id="manual-build-advanced-optional">
+<h4>Manual build (advanced/optional)<a class="headerlink" href="#manual-build-advanced-optional" title="Link to this heading"></a></h4>
 <p>For MPAS-Ocean and -Seaice both, see the last column of the table in
 <a class="reference internal" href="machines/index.html#dev-mpas-supported-machines"><span class="std std-ref">MPAS-Ocean and -Seaice Supported Machines</span></a> for the right <code class="docutils literal notranslate"><span class="pre">&lt;mpas_make_target&gt;</span></code> command for
 each machine and compiler.</p>
-<p>To build MPAS-Ocean, you would typically run:</p>
+<p>To build MPAS-Ocean manually, you would typically run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
 <span class="nb">cd</span><span class="w"> </span>e3sm_submodules/E3SM-Project/components/mpas-ocean/
 make<span class="w"> </span>&lt;mpas_make_target&gt;
 </pre></div>
 </div>
 <p>The same applies to MPAS-Seaice except with <code class="docutils literal notranslate"><span class="pre">mpas-seaice</span></code> in the path above.</p>
-<p>To set up tasks and suites to use MPAS-Ocean, it should be sufficient to point
-to an MPAS-Ocean build with the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or
-<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>.  MPAS-Ocean should automatically be detected.  You can use
-the flag <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">mpas-ocean</span></code> to be explicit, though.</p>
+<p>After a manual build, point <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> to the build
+location using <code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">-f</span></code> as shown above.  When an existing build path is
+provided, MPAS-Ocean is usually detected automatically; otherwise, provide
+<code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">mpas-ocean</span></code>.</p>
+</section>
 </section>
 <section id="omega">
 <span id="dev-omega-build"></span><h3>Omega<a class="headerlink" href="#omega" title="Link to this heading"></a></h3>
@@ -556,7 +636,21 @@ the flag <code class="docutils literal notranslate"><span class="pre">--model</s
 machines.</p>
 <p>If you simply wish to run the CTests from Omega, you likely want to use the
 <a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/utils/omega/ctest/README.md">Omega CTest Utility</a>.</p>
-<p>Otherwise, to build Omega,</p>
+<section id="id1">
+<h4>Recommended default: automated build from <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>/<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code><a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
+<p>For Omega, Polaris can build automatically during setup and places the build
+in <code class="docutils literal notranslate"><span class="pre">${WORKDIR}/build</span></code> by default:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
+polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/planar/barotropic_gyre/munk/free-slip<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span><span class="w"> </span>--model<span class="w"> </span>omega
+</pre></div>
+</div>
+<p>Use the same approach with <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>; for repeated setup, add <code class="docutils literal notranslate"><span class="pre">--build</span></code>
+to force rebuilding.</p>
+</section>
+<section id="id2">
+<h4>Manual build (advanced/optional)<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
+<p>To build Omega manually,</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
 git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>e3sm_submodules/Omega
 <span class="nb">cd</span><span class="w"> </span>e3sm_submodules/Omega
@@ -588,15 +682,11 @@ cmake<span class="w"> </span><span class="se">\</span>
 <code class="docutils literal notranslate"><span class="pre">-DOMEGA_BUILD_TYPE=Release</span></code> to <code class="docutils literal notranslate"><span class="pre">-DOMEGA_BUILD_TYPE=Debug</span></code> to build in debug
 mode.</p>
 <p>You can alter the example above to build whichever Omega branch and in whatever
-location you like.  Regardless of where you build Omega, you should point
-<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> at the build directory with the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag
-or via a config file.  When Polaris manages the build for you with <code class="docutils literal notranslate"><span class="pre">--build</span></code>,
-the default <code class="docutils literal notranslate"><span class="pre">component_path</span></code> for the ocean component is the <code class="docutils literal notranslate"><span class="pre">build</span></code>
-subdirectory of the base work directory supplied with <code class="docutils literal notranslate"><span class="pre">-w</span></code>.</p>
-<p>As with MPAS-Ocean, to set up tasks and suites to use Omega, it should be
-sufficient to point to an Omega build with the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or
-<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>, which should allow Omega to be detected automatically.
-But you can use the flag <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">omega</span></code> to indicate this explicitly.</p>
+location you like.  After a manual build, point <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or
+<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> at that build location with <code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">-f</span></code> as shown above.
+When an existing build path is provided, Omega is usually detected
+automatically; otherwise, provide <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">omega</span></code>.</p>
+</section>
 </section>
 </section>
 <section id="running-polaris-from-the-repo">
@@ -611,7 +701,7 @@ and as detailed in <a class="reference internal" href="command_line.html#dev-com
 <p>The results will be the same as described in <a class="reference internal" href="../users_guide/invalid_quick_start.html#setup-overview"><span class="std std-ref">Setting up tasks</span></a>, but the
 tasks will come from the local polaris directory.</p>
 <p>To set up a task, you will run something like:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/global_ocean/QU240/mesh<span class="w"> </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span><span class="w"> </span>-p<span class="w"> </span><span class="nv">$COMPONENT</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>mesh/spherical/icos/base_mesh/240km/task<span class="w"> </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span><span class="w"> </span>-p<span class="w"> </span><span class="nv">$COMPONENT</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">$MACHINE</span></code> is an ES3M machine, <code class="docutils literal notranslate"><span class="pre">$WORKDIR</span></code> is the location where polaris
