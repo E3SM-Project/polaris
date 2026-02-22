@@ -94,5 +94,5 @@ def test_check_pcd_version_matches_branch_missing(tmp_path):
     branch_dir = tmp_path / 'branch'
     branch_dir.mkdir(parents=True)
 
-    with pytest.raises(FileNotFoundError, match='share/pcd.yaml'):
+    with pytest.warns(UserWarning, match='share/pcd.yaml'):
         check_pcd_version_matches_branch(str(branch_dir), model='omega')
