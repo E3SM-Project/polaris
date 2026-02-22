@@ -5,6 +5,26 @@ ocean:
   time_integration:
     config_dt: {{ dt }}
     config_time_integrator: {{ time_integrator }}
+  debug:
+    config_disable_vel_explicit_bottom_drag: true
+    config_disable_vel_vadv: true
+    config_disable_thick_vadv: true
+    config_disable_thick_hadv: true
+    config_disable_tr_vmix: true
+    config_disable_vel_vmix: true
+    config_disable_vel_pgrad: true
+  hmix_del2:
+    config_use_mom_del2: false
+    config_use_tracer_del2: false
+  hmix_del4:
+    config_use_mom_del4: false
+    config_use_tracer_del4: false
+  advection:
+    config_vert_tracer_adv_flux_order: 2
+  forcing:
+    config_use_bulk_wind_stress: false
+  eos:
+    config_eos_type: linear
 
 mpas-ocean:
   run_modes:
@@ -14,25 +34,19 @@ mpas-ocean:
   cvmix:
     config_use_cvmix: false
   ALE_vertical_grid:
-    config_vert_coord_movement : fixed
+    config_vert_coord_movement: fixed
   debug:
     config_disable_thick_all_tend: true
     config_disable_vel_all_tend: true
     config_disable_tr_hmix: true
-    config_disable_tr_vmix: true
     config_disable_tr_sflux: true
     config_disable_tr_nonlocalflux: true
     config_check_ssh_consistency: false
-    #config_disable_tr_all_tend: false
-  eos:
-    config_eos_type: linear
   forcing:
-    config_use_bulk_wind_stress: false
     config_use_bulk_thickness_flux: false
   advection:
-    config_vert_tracer_adv_flux_order: 2
-    config_horiz_tracer_adv_order: 2
     config_flux_limiter: none
+    config_horiz_tracer_adv_order: 2
   tracer_forcing_activeTracers:
     config_use_activeTracers_surface_bulk_forcing: false
   tracer_forcing_debugTracers:
@@ -63,3 +77,96 @@ mpas-ocean:
       - relativeVorticityCell
       - velocityX
       - vertVelocityTop
+
+Omega:
+  Advection:
+    VerticalTracerFluxLimiterEnable: false
+  Tendencies:
+    TracerHorzAdvTendencyEnable: true
+    TracerHorzAdvTendencyOrder: 1
+    PVTendencyEnable: false
+    KETendencyEnable: false
+    SSHTendencyEnable: false
+    PresForceTendencyEnable: false
+    GeoptGradTendencyEnable: false
+    ProjVelDiffTendencyEnable: false
+    ProjVelHyperDiffTendencyEnable: false
+  IOStreams:
+    InitialVertCoord:
+      UsePointerFile: false
+      Filename: OmegaMesh.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+        - InitVertCoord
+    # InitialState should only be used when starting from scratch.
+    # For restart runs, the frequency units should be changed from
+    # "OnStartup" to "never" so that the initial state file is not read.
+    InitialState:
+      UsePointerFile: false
+      Filename: OmegaMesh.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+        - State
+        - Base
+        - Tracers
+    # Restarts are used to initialize for all job submissions after the very
+    # first startup job. We use UseStartEnd with a start time just after the
+    # simulation start time so that omega does not attempt to use a restart
+    # for the first startup job.
+    RestartRead:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: true
+      StartTime: 0001-01-01_00:00:01
+      EndTime: 99999-12-31_00:00:00
+      Contents:
+        - Restart
+    RestartWrite:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: 6
+    History:
+      UsePointerFile: false
+      Filename: output.nc
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: 6
+      FreqUnits: hours
+      UseStartEnd: false
+      Contents:
+        - Tracers
+        - State
+        - VerticalVelocity
+        - TotalVerticalVelocity
+    Highfreq:
+      UsePointerFile: false
+      Filename: ocn.hifreq.$Y-$M
+      Mode: write
+      IfExists: append
+      Precision: single
+      Freq: 10
+      FreqUnits: days
+      FileFreq: 1
+      FileFreqUnits: months
+      UseStartEnd: true
+      StartTime: 0001-06-01_00:00:00
+      EndTime: 0001-07-31_00:00:00
+      Contents:
+        - Tracers
