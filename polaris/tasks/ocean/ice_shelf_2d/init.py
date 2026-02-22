@@ -1,11 +1,11 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.cime.constants import constants
 from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris import Step
+from polaris.constants import get_constant
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.vertical import init_vertical_coord
 
@@ -122,7 +122,7 @@ class Init(Step):
         landIceFloatingFraction = landIceFraction.copy()
         landIceFloatingMask = landIceMask.copy()
 
-        ref_density = constants['SHR_CONST_RHOSW']
+        ref_density = get_constant('seawater_density_reference')
         landIceDraft = ds.ssh
         landIcePressure = _compute_land_ice_pressure_from_draft(
             land_ice_draft=landIceDraft,
@@ -199,9 +199,9 @@ def _compute_land_ice_pressure_from_draft(
     land_ice_pressure : xarray.DataArray
         The pressure from the overlying land ice on the ocean
     """
-    gravity = constants['SHR_CONST_G']
+    gravity = get_constant('standard_acceleration_of_gravity')
     if ref_density is None:
-        ref_density = constants['SHR_CONST_RHOSW']
+        ref_density = get_constant('seawater_density_reference')
     land_ice_pressure = modify_mask * np.maximum(
         -ref_density * gravity * land_ice_draft, 0.0
     )

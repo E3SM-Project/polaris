@@ -1,9 +1,9 @@
-from mpas_tools.cime.constants import constants
+from polaris.constants import get_constant
 
 # Should match config_density0
 rho_sw = 1026.0
 
-cp_sw = constants['SHR_CONST_CPSW']
+cp_sw = get_constant('seawater_specific_heat_capacity_reference')
 
 
 def compute_total_mass(ds_mesh, ds):

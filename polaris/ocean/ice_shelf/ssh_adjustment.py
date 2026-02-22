@@ -1,9 +1,9 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.cime.constants import constants
 from mpas_tools.io import write_netcdf
 
 from polaris import Step
+from polaris.constants import get_constant
 from polaris.ocean.vertical import update_layer_thickness
 
 
@@ -120,7 +120,7 @@ class SshAdjustment(Step):
             # small and if deltaSSH is negative (moving down), it means
             # land-ice pressure is too large, the sign of the second term
             # makes sense.
-            gravity = constants['SHR_CONST_G']
+            gravity = get_constant('standard_acceleration_of_gravity')
             delta_land_ice_pressure = top_density * gravity * delta_ssh
 
             land_ice_pressure = np.maximum(

@@ -1,9 +1,9 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.cime.constants import constants
 from mpas_tools.io import write_netcdf
 
 from polaris import Step
+from polaris.constants import get_constant
 
 
 class TopoRemap(Step):
@@ -79,7 +79,7 @@ class TopoRemap(Step):
             ds_in.iceThickness.attrs['description'] = 'ice thickness'
             ds_in.iceThickness.attrs['units'] = 'm'
 
-            gravity = constants['SHR_CONST_G']
+            gravity = get_constant('standard_acceleration_of_gravity')
             ds_in['landIcePressure'] = (
                 ice_density * gravity * ds_in.iceThickness
             )

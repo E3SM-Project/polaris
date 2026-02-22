@@ -1,7 +1,6 @@
 from math import floor
 
-from mpas_tools.cime.constants import constants
-
+from polaris.constants import get_constant
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
@@ -146,7 +145,7 @@ class Forward(OceanModelStep):
         if self.tidal_forcing:
             section = config['ice_shelf_2d_default_tidal_forcing']
             run_duration = section.getfloat('forward_run_duration')
-            run_duration = run_duration * constants['SHR_CONST_CDAY']
+            run_duration = run_duration * get_constant('day_to_s')
         else:
             section = config['ice_shelf_2d_default']
             run_duration = section.getfloat('forward_run_duration')
