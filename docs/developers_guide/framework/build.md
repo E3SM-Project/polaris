@@ -138,3 +138,18 @@ Defaults and directories:
 - MPAS-Ocean copies files required by Polaris into this build directory so you
   can reuse the same source checkout to create builds for different machines,
   compilers, or MPI libraries without conflicts.
+
+## Physical constants version compatibility
+
+For ocean model builds (`mpas-ocean` and `omega`), setup includes a version
+check for the
+[Physical Constants Dictionary (PCD)](https://github.com/E3SM-Project/PhysicalConstantsDictionary):
+
+- Polaris reads its packaged PCD version from `polaris/constants/pcd.yaml`.
+- The target branch is expected to provide `share/pcd.yaml`.
+- If the two versions differ, setup raises an error and stops.
+- If `share/pcd.yaml` is missing, setup emits a warning and skips the check.
+
+When developing against an E3SM or Omega branch with a newer PCD version,
+update Polaris' `polaris/constants/pcd.yaml` to match. Avoid downgrading PCD in
+Polaris except for temporary testing.
