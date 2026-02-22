@@ -1,10 +1,10 @@
 import numpy as np
 from geometric_features import read_feature_collection
-from mpas_tools.cime.constants import constants
 from mpas_tools.mesh.creation.signed_distance import (
     signed_distance_from_geojson,
 )
 
+from polaris.constants import get_constant
 from polaris.mesh import QuasiUniformSphericalMeshStep
 
 
@@ -47,7 +47,7 @@ class SOBaseMesh(QuasiUniformSphericalMeshStep):
 
         dlon = 0.1
         dlat = dlon
-        earth_radius = constants['SHR_CONST_REARTH']
+        earth_radius = get_constant('mean_radius')
         nlon = int(360.0 / dlon) + 1
         nlat = int(180.0 / dlat) + 1
         lon = np.linspace(-180.0, 180.0, nlon)

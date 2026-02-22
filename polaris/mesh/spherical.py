@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 from jigsawpy.savejig import savejig
-from mpas_tools.cime.constants import constants
 from mpas_tools.io import write_netcdf
 from mpas_tools.logging import check_call
 from mpas_tools.mesh.creation.jigsaw_to_netcdf import jigsaw_to_netcdf
@@ -15,6 +14,7 @@ from mpas_tools.viz.colormaps import register_sci_viz_colormaps
 from mpas_tools.viz.paraview_extractor import extract_vtk
 
 from polaris import Step
+from polaris.constants import get_constant
 from polaris.model_step import make_graph_file
 
 
@@ -106,7 +106,7 @@ class SphericalBaseStep(Step):
         config = self.config
 
         section = config['spherical_mesh']
-        earth_radius = constants['SHR_CONST_REARTH']
+        earth_radius = get_constant('mean_radius')
         jigsaw_mesh_filename = section.get('jigsaw_mesh_filename')
         mpas_mesh_filename = section.get('mpas_mesh_filename')
 
@@ -369,7 +369,7 @@ class QuasiUniformSphericalMeshStep(SphericalBaseStep):
             m x n array of cell width in km
         """
         logger = self.logger
-        earth_radius = constants['SHR_CONST_REARTH']
+        earth_radius = get_constant('mean_radius')
         opts = self.opts
 
         # save HFUN data to file
@@ -488,7 +488,7 @@ class IcosahedralMeshStep(SphericalBaseStep):
         subdivisions : int
             The number of subdivisions of the icosahedron
         """
-        earth_radius = constants['SHR_CONST_REARTH']
+        earth_radius = get_constant('mean_radius')
         opts = self.opts
 
         geom = jigsawpy.jigsaw_msh_t()
@@ -567,7 +567,7 @@ class IcosahedralMeshStep(SphericalBaseStep):
         subdivisions : int
             The number of subdivisions of the icosahedron
         """
-        earth_radius = constants['SHR_CONST_REARTH']
+        earth_radius = get_constant('mean_radius')
         earth_area = 4 * np.pi * earth_radius**2
 
         # Using Euclidean, not spherical area, so not accurate for large cell
@@ -609,7 +609,7 @@ class IcosahedralMeshStep(SphericalBaseStep):
         cell_width : float
             The approximate size in km of each cell
         """
-        earth_radius = constants['SHR_CONST_REARTH']
+        earth_radius = get_constant('mean_radius')
         earth_area = 4 * np.pi * earth_radius**2
 
         # compute and save the cell widths for later use in computing mesh
