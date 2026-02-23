@@ -91,6 +91,8 @@ Omega:
     GeoptGradTendencyEnable: false
     ProjVelDiffTendencyEnable: false
     ProjVelHyperDiffTendencyEnable: false
+    ThicknessVertAdvTendencyEnable: false
+    VelocityVertAdvTendencyEnable: false
   IOStreams:
     InitialVertCoord:
       UsePointerFile: false
