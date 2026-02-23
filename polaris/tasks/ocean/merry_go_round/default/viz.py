@@ -122,7 +122,6 @@ class Viz(OceanIOStep):
             spherical=False,
         )
 
-        horz_velocity = ds.velocityX.isel(Time=tidx)
         vert_velocity = ds.vertVelocityTop.isel(Time=tidx)
 
         tracer_exact = ds_init.tracer1.isel(Time=0)
@@ -133,16 +132,18 @@ class Viz(OceanIOStep):
         data_max = np.max(np.abs(tracer_exact.values))
         error_range = np.max(np.abs(tracer_error.values))
 
-        plot_transect(
-            ds_transect=ds_transect,
-            mpas_field=horz_velocity,
-            ax=axes[0, 0],
-            vmin=-0.008,
-            vmax=0.008,
-            cmap='cmo.balance',
-            colorbar_label='horizontal velocity',
-            color_start_and_end=False,
-        )
+        if 'velocityX' in ds.keys():
+            horz_velocity = ds.velocityX.isel(Time=tidx)
+            plot_transect(
+                ds_transect=ds_transect,
+                mpas_field=horz_velocity,
+                ax=axes[0, 0],
+                vmin=-0.008,
+                vmax=0.008,
+                cmap='cmo.balance',
+                colorbar_label='horizontal velocity',
+                color_start_and_end=False,
+            )
 
         plot_transect(
             ds_transect=ds_transect,
