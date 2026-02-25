@@ -218,9 +218,10 @@ downloading files from the
 and creating symlinks; `polaris.validation` can be used to ensure that
 variables are bit-for-bit identical between steps or when compared with a
 baseline, and to compare timers with a baseline; and the
-`polaris.parallel` module contains a function
-{py:func}`polaris.parallel.get_available_cores_and_nodes()` that can find out
-the number of total cores and nodes available for running steps.
+parallel framework uses `mache.parallel` through component methods such as
+{py:meth}`polaris.Component.get_available_resources` and
+{py:meth}`polaris.Component.run_parallel_command` to determine available
+resources and launch parallel commands.
 
 ### ...within a component
 

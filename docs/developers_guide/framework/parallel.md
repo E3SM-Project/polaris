@@ -2,69 +2,69 @@
 
 # Parallel
 
-The `polaris.parallel` module provides a unified interface for querying and managing parallel resources across different computing environments. It abstracts the details of various parallel systems, allowing tasks and steps to request resources and construct parallel execution commands in a system-agnostic way.
+Polaris now uses `mache.parallel` for parallel-system selection, resource
+discovery and launcher command construction.
+
+Within Polaris, a component stores a `mache.parallel.ParallelSystem`
+instance with {py:meth}`polaris.Component.set_parallel_system`, then uses it
+for:
+
+- resource queries through {py:meth}`polaris.Component.get_available_resources`
+- command execution through
+  {py:meth}`polaris.Component.run_parallel_command`
+
+This change adds stronger GPU support, supports compiler-specific parallel
+sections (`[parallel.<compiler>]`) and avoids modifying config options during
+runtime.
 
 ## Public API
 
-The following functions are available in `polaris.parallel`:
+The key APIs are now:
 
-- **get_available_parallel_resources(config):**
-  Returns a dictionary describing the available parallel resources (cores, nodes, cores per node, etc.) for the current environment, as determined by the selected parallel system.
+- {py:func}`mache.parallel.get_parallel_system`
+- {py:class}`mache.parallel.ParallelSystem`
+- {py:meth}`polaris.Component.set_parallel_system`
+- {py:meth}`polaris.Component.get_available_resources`
+- {py:meth}`polaris.Component.run_parallel_command`
 
-- **set_cores_per_node(config, cores_per_node):**
-  Sets the number of cores per node in the configuration, updating any relevant settings for the current parallel system.
+`ParallelSystem.get_parallel_command()` supports both CPU and GPU resources
+through `cpus_per_task` and `gpus_per_task`.
 
-- **get_parallel_command(args, cpus_per_task, ntasks, config):**
-  Returns the command (as a list of strings) to launch a parallel job with the specified arguments, CPUs per task, and number of tasks, using the appropriate parallel launcher for the current system.
+## Compiler-specific parallel configs
 
-- **run_command(args, cpus_per_task, ntasks, openmp_threads, config, logger):**
-  Runs a parallel command with the specified resources and OpenMP thread count, using the appropriate launcher and logging output.
+`mache.parallel` combines options in `[parallel]` with
+`[parallel.<compiler>]` (if present), where `<compiler>` comes from
+`[build] compiler`.
 
-See also the API documentation for:
-- {py:func}`polaris.parallel.get_available_parallel_resources`
-- {py:func}`polaris.parallel.set_cores_per_node`
-- {py:func}`polaris.parallel.get_parallel_command`
-- {py:func}`polaris.parallel.run_command`
+This lets machine configs specify different launcher flags and resource options
+for different compiler toolchains without requiring a single machine-wide
+parallel configuration.
+
+## GPU resources
+
+Polaris step resources now include GPU requirements (`gpus_per_task` and
+`min_gpus_per_task`) in addition to CPU requirements. Resource constraints use
+both CPU and GPU availability when determining whether a step can run.
+
+For ocean model steps with dynamic sizing, Omega runs on GPU-capable compiler
+configs use:
+
+- `goal_cells_per_gpu` (target; default 8000)
+- `max_cells_per_gpu` (minimum required resources; default 80000)
 
 ## Supported Parallel Systems
 
-The module currently supports four parallel systems, each with its own resource manager class:
+The active system is still selected from `[parallel] system` and environment
+context (`slurm`, `pbs`, `single_node`, `login`) but implementation is in
+`mache.parallel`:
 
-- **single_node:**
-  For running on a single node, using all available local CPU cores.
-  Managed by {py:class}`polaris.parallel.SingleNodeSystem`.
+- {py:class}`mache.parallel.SingleNodeSystem`
+- {py:class}`mache.parallel.LoginSystem`
+- {py:class}`mache.parallel.SlurmSystem`
+- {py:class}`mache.parallel.PbsSystem`
 
-- **login:**
-  For running on a login node (no parallel execution, typically for setup or analysis).
-  Managed by {py:class}`polaris.parallel.LoginSystem`.
+## Notes
 
-- **slurm:**
-  For running under the SLURM workload manager, using environment variables and SLURM commands to determine resources.
-  Managed by {py:class}`polaris.parallel.SlurmSystem`.
-
-- **pbs:**
-  For running under the PBS workload manager, using environment variables and PBS node files to determine resources.
-  Managed by {py:class}`polaris.parallel.PbsSystem`.
-
-The appropriate system is selected automatically based on the configuration and environment variables.
-
-## Adding Support for a New Parallel System
-
-To add a new parallel system:
-
-1. **Create a new system class:**
-   Subclass `ParallelSystem` in `polaris/parallel/`, implementing the following methods:
-   - `get_available_resources(self)`
-   - `set_cores_per_node(self, cores_per_node)`
-   - `get_parallel_command(self, args, cpus_per_task, ntasks)`
-
-2. **Handle environment detection:**
-   In your new system class, use environment variables or other mechanisms to detect when your system should be active.
-
-3. **Register the new system:**
-   Update the logic in `polaris/parallel/__init__.py` (the `_get_system` function) to recognize your new system based on the config or environment, and return an instance of your new class.
-
-4. **(Optional) Add documentation:**
-   Update this documentation page to describe your new system and its usage.
-
-By following this structure, you can extend Polaris to support additional parallel resource managers or custom environments as needed.
+- Polaris no longer provides a `polaris.parallel` module.
+- Runtime no longer rewrites `cores_per_node` in config files.
+- Machine and compiler config should provide the desired parallel options.
