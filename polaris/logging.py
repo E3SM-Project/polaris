@@ -71,8 +71,8 @@ def log_function_call(function, logger):
     """
     Log the module path and file path of a call to a function, e.g.::
 
-      polaris calling: polaris.parallel.set_cores_per_node()
-        in /home/xylar/code/polaris/polaris/polaris/parallel.py
+            polaris calling: polaris.component.Component.run_parallel_command()
+                in /home/xylar/code/polaris/polaris/polaris/component.py
 
     Parameters
     ----------

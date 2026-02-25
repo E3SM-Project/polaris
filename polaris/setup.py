@@ -157,6 +157,7 @@ def setup_tasks(
     )
 
     component.configure(basic_config, list(tasks.values()))
+    component.set_parallel_system(basic_config)
 
     provenance.write(
         work_dir,
@@ -217,10 +218,15 @@ def setup_tasks(
 
     _symlink_load_script(work_dir)
 
-    max_cores, max_of_min_cores = _get_required_cores(tasks)
+    max_cores, max_of_min_cores, max_gpus, max_of_min_gpus = (
+        _get_required_resources(tasks)
+    )
 
     print(f'target cores: {max_cores}')
     print(f'minimum cores: {max_of_min_cores}')
+    if max_gpus > 0 or max_of_min_gpus > 0:
+        print(f'target gpus: {max_gpus}')
+        print(f'minimum gpus: {max_of_min_gpus}')
 
     if machine is not None:
         write_job_script(
@@ -228,6 +234,8 @@ def setup_tasks(
             machine=machine,
             target_cores=max_cores,
             min_cores=max_of_min_cores,
+            target_gpus=max_gpus,
+            min_gpus=max_of_min_gpus,
             work_dir=work_dir,
             suite=suite_name,
         )
@@ -301,11 +309,15 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
         if machine is not None:
             cores = step.cpus_per_task * step.ntasks
             min_cores = step.min_cpus_per_task * step.min_tasks
+            gpus = step.gpus_per_task * step.ntasks
+            min_gpus = step.min_gpus_per_task * step.min_tasks
             write_job_script(
                 config=step.config,
                 machine=machine,
                 target_cores=cores,
                 min_cores=min_cores,
+                target_gpus=gpus,
+                min_gpus=min_gpus,
                 work_dir=step.work_dir,
             )
         step.setup_complete = True
@@ -323,12 +335,16 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
     _symlink_load_script(task_dir)
 
     if machine is not None:
-        max_cores, max_of_min_cores = _get_required_cores({path: task})
+        max_cores, max_of_min_cores, max_gpus, max_of_min_gpus = (
+            _get_required_resources({path: task})
+        )
         write_job_script(
             config=task.config,
             machine=machine,
             target_cores=max_cores,
             min_cores=max_of_min_cores,
+            target_gpus=max_gpus,
+            min_gpus=max_of_min_gpus,
             work_dir=task_dir,
         )
 
@@ -704,11 +720,15 @@ def _clean_tasks_and_steps(tasks, base_work_dir):
                 pass
 
 
-def _get_required_cores(tasks):
-    """Get the maximum number of target cores and the max of min cores"""
+def _get_required_resources(tasks):
+    """
+    Get max target and minimum CPU and GPU resource counts across task steps
+    """
 
     max_cores = 0
     max_of_min_cores = 0
+    max_gpus = 0
+    max_of_min_gpus = 0
     for task in tasks.values():
         for step_name in task.steps_to_run:
             step = task.steps[step_name]
@@ -726,10 +746,14 @@ def _get_required_cores(tasks):
                 )
             cores = step.cpus_per_task * step.ntasks
             min_cores = step.min_cpus_per_task * step.min_tasks
+            gpus = step.gpus_per_task * step.ntasks
+            min_gpus = step.min_gpus_per_task * step.min_tasks
             max_cores = max(max_cores, cores)
             max_of_min_cores = max(max_of_min_cores, min_cores)
+            max_gpus = max(max_gpus, gpus)
+            max_of_min_gpus = max(max_of_min_gpus, min_gpus)
 
-    return max_cores, max_of_min_cores
+    return max_cores, max_of_min_cores, max_gpus, max_of_min_gpus
 
 
 def __get_machine_and_check_params(
