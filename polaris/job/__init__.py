@@ -3,6 +3,7 @@ import os as os
 
 import numpy as np
 from jinja2 import Template as Template
+from mache.parallel import get_parallel_system
 
 
 def write_job_script(
@@ -12,6 +13,8 @@ def write_job_script(
     nodes=None,
     target_cores=None,
     min_cores=None,
+    target_gpus=None,
+    min_gpus=None,
     suite='',
     script_filename=None,
     run_command=None,
@@ -42,6 +45,14 @@ def write_job_script(
         The minimum number of cores for the job to use if ``nodes`` not
         provided
 
+    target_gpus : int, optional
+        The target number of GPUs for the job to use if ``nodes`` not
+        provided
+
+    min_gpus : int, optional
+        The minimum number of GPUs for the job to use if ``nodes`` not
+        provided
+
     suite : str, optional
         The name of the suite
 
@@ -53,11 +64,18 @@ def write_job_script(
         The command(s) to run in the job script. If not provided, defaults to
         'polaris serial {{suite}}'.
     """
+    if config.combined is None:
+        config.combine()
+    assert config.combined is not None
+    parallel_system = get_parallel_system(config.combined)
 
     if config.has_option('parallel', 'account'):
         account = config.get('parallel', 'account')
     else:
         account = ''
+
+    cores_per_node = parallel_system.get_config_int('cores_per_node')
+    gpus_per_node = parallel_system.get_config_int('gpus_per_node', default=0)
 
     if nodes is None:
         if target_cores is None or min_cores is None:
@@ -65,9 +83,26 @@ def write_job_script(
                 'If nodes is not provided, both target_cores and min_cores '
                 'must be provided.'
             )
-        cores_per_node = config.getint('parallel', 'cores_per_node')
-        cores = np.sqrt(target_cores * min_cores)
-        nodes = int(np.ceil(cores / cores_per_node))
+
+        use_gpu_nodes = (
+            gpus_per_node > 0
+            and target_gpus is not None
+            and min_gpus is not None
+            and max(target_gpus, min_gpus) > 0
+        )
+        if use_gpu_nodes:
+            gpus = np.sqrt(target_gpus * min_gpus)
+            nodes = int(np.ceil(gpus / gpus_per_node))
+            nodes = max(nodes, 1)
+        else:
+            if cores_per_node is None:
+                raise ValueError(
+                    'cores_per_node must be set when computing nodes from '
+                    'CPU resources'
+                )
+            cores = np.sqrt(target_cores * min_cores)
+            nodes = int(np.ceil(cores / cores_per_node))
+            nodes = max(nodes, 1)
 
     # Determine parallel system type
     system = (
@@ -80,7 +115,7 @@ def write_job_script(
 
     if system == 'slurm':
         partition, qos, constraint, gpus_per_node, wall_time = (
-            get_slurm_options(config, machine, nodes)
+            get_slurm_options(config, machine, nodes, parallel_system)
         )
         template_name = 'job_script.slurm.template'
         render_kwargs.update(
@@ -92,7 +127,7 @@ def write_job_script(
         )
     elif system == 'pbs':
         queue, constraint, gpus_per_node, wall_time, filesystems = (
-            get_pbs_options(config, machine, nodes)
+            get_pbs_options(config, machine, nodes, parallel_system)
         )
         template_name = 'job_script.pbs.template'
         render_kwargs.update(
@@ -134,7 +169,7 @@ def write_job_script(
         handle.write(text)
 
 
-def get_slurm_options(config, machine, nodes):
+def get_slurm_options(config, machine, nodes, parallel_system):
     """
     Get Slurm options for job submission.
 
@@ -171,13 +206,14 @@ def get_slurm_options(config, machine, nodes):
         config,
         machine,
         nodes,
+        parallel_system,
         partition_or_queue_option='partition',
         partitions_or_queues='partitions',
     )
     return partition, qos, constraint, gpus_per_node, wall_time
 
 
-def get_pbs_options(config, machine, nodes):
+def get_pbs_options(config, machine, nodes, parallel_system):
     """
     Get PBS options for job submission.
 
@@ -212,6 +248,7 @@ def get_pbs_options(config, machine, nodes):
             config,
             machine,
             nodes,
+            parallel_system,
             partition_or_queue_option='queue',
             partitions_or_queues='queues',
         )
@@ -220,7 +257,12 @@ def get_pbs_options(config, machine, nodes):
 
 
 def _get_job_options(
-    config, machine, nodes, partition_or_queue_option, partitions_or_queues
+    config,
+    machine,
+    nodes,
+    parallel_system,
+    partition_or_queue_option,
+    partitions_or_queues,
 ):
     """
     Helper to get job options for slurm or pbs
@@ -244,32 +286,34 @@ def _get_job_options(
     wall_time : str
     filesystems : str
     """
-    par_section = config['parallel']
     job_section = config['job']
     partition_or_queue = job_section.get(partition_or_queue_option)
     if partition_or_queue == '<<<default>>>':
-        if par_section.has_option(partitions_or_queues):
-            # get the first, which is the default
-            partition_or_queue = par_section.getlist(partitions_or_queues)[0]
+        value = parallel_system.get_config(partitions_or_queues)
+        if value is not None and value != '':
+            partition_or_queue = _parse_list(value)[0]
         else:
             partition_or_queue = ''
 
     qos = job_section.get('qos')
     if qos == '<<<default>>>':
-        if par_section.has_option('qos'):
-            qos = par_section.getlist('qos')[0]
+        value = parallel_system.get_config('qos')
+        if value is not None and value != '':
+            qos = _parse_list(value)[0]
         else:
             qos = ''
 
     constraint = job_section.get('constraint')
     if constraint == '<<<default>>>':
-        if par_section.has_option('constraints'):
-            constraint = par_section.getlist('constraints')[0]
+        value = parallel_system.get_config('constraints')
+        if value is not None and value != '':
+            constraint = _parse_list(value)[0]
         else:
             constraint = ''
 
-    if par_section.has_option('gpus_per_node'):
-        gpus_per_node = par_section.get('gpus_per_node')
+    gpus_per_node_value = parallel_system.get_config('gpus_per_node')
+    if gpus_per_node_value is not None:
+        gpus_per_node = str(gpus_per_node_value)
     else:
         gpus_per_node = ''
 
@@ -288,3 +332,7 @@ def _get_job_options(
         wall_time,
         filesystems,
     )
+
+
+def _parse_list(value):
+    return [entry.strip() for entry in value.split(',') if entry.strip() != '']

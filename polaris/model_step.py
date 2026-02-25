@@ -82,6 +82,8 @@ class ModelStep(Step):
         ntasks=None,
         min_tasks=None,
         openmp_threads=None,
+        gpus_per_task=0,
+        min_gpus_per_task=0,
         max_memory=None,
         cached=False,
         namelist=None,
@@ -125,6 +127,12 @@ class ModelStep(Step):
 
         openmp_threads : int, optional
             the number of OpenMP threads to use
+
+        gpus_per_task : int, optional
+            the number of GPUs per task to use
+
+        min_gpus_per_task : int, optional
+            the minimum number of GPUs per task required
 
         max_memory : int, optional
             the amount of memory that the step is allowed to use in MB.
@@ -175,6 +183,8 @@ class ModelStep(Step):
             ntasks=ntasks,
             min_tasks=min_tasks,
             openmp_threads=openmp_threads,
+            gpus_per_task=gpus_per_task,
+            min_gpus_per_task=min_gpus_per_task,
             max_memory=max_memory,
             cached=cached,
         )
@@ -230,7 +240,13 @@ class ModelStep(Step):
             ]
 
     def set_model_resources(
-        self, ntasks=None, min_tasks=None, openmp_threads=None, max_memory=None
+        self,
+        ntasks=None,
+        min_tasks=None,
+        openmp_threads=None,
+        gpus_per_task=None,
+        min_gpus_per_task=None,
+        max_memory=None,
     ):
         """
         Update the resources for the step.  This can be done within init,
@@ -254,6 +270,12 @@ class ModelStep(Step):
         openmp_threads : int, optional
             the number of OpenMP threads to use
 
+        gpus_per_task : int, optional
+            the number of GPUs per task to use
+
+        min_gpus_per_task : int, optional
+            the minimum number of GPUs per task required
+
         max_memory : int, optional
             the amount of memory that the step is allowed to use in MB.
             This is currently just a placeholder for later use with task
@@ -265,6 +287,8 @@ class ModelStep(Step):
             ntasks=ntasks,
             min_tasks=min_tasks,
             openmp_threads=openmp_threads,
+            gpus_per_task=gpus_per_task,
+            min_gpus_per_task=min_gpus_per_task,
             max_memory=max_memory,
         )
 
@@ -573,11 +597,17 @@ class ModelStep(Step):
         them consistent with the number of nodes and cores (one PIO task per
         node).
         """
-        config = self.config
-
         cores = self.ntasks * self.cpus_per_task
 
-        cores_per_node = config.getint('parallel', 'cores_per_node')
+        parallel_system = self.component.parallel_system
+        if parallel_system is None:
+            raise ValueError(
+                f'Parallel system has not been set for component '
+                f'{self.component.name}'
+            )
+        cores_per_node = parallel_system.get_config_int('cores_per_node')
+        if cores_per_node is None:
+            raise ValueError('cores_per_node must be set in parallel config')
 
         # update PIO tasks based on the machine settings and the available
         # number or cores

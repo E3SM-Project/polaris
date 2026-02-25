@@ -60,6 +60,12 @@ class Step:
     openmp_threads : int
         the number of OpenMP threads to use
 
+    gpus_per_task : int
+        the number of GPUs per task the step would ideally use
+
+    min_gpus_per_task : int
+        the number of GPUs per task the step requires
+
     max_memory : int
         the amount of memory that the step is allowed to use in MB.
         This is currently just a placeholder for later use with task
@@ -165,6 +171,8 @@ class Step:
         max_memory=None,
         cached=False,
         run_as_subprocess=False,
+        gpus_per_task=0,
+        min_gpus_per_task=0,
     ):
         """
         Create a new task
@@ -213,6 +221,12 @@ class Step:
             This is currently just a placeholder for later use with task
             parallelism
 
+        gpus_per_task : int, optional
+            the number of GPUs per task the step would ideally use
+
+        min_gpus_per_task : int, optional
+            the number of GPUs per task the step requires
+
         cached : bool, optional
             Whether to get all of the outputs for the step from the database of
             cached outputs for this component
@@ -238,6 +252,8 @@ class Step:
         self.ntasks = ntasks
         self.min_tasks = min_tasks
         self.openmp_threads = openmp_threads
+        self.gpus_per_task = gpus_per_task
+        self.min_gpus_per_task = min_gpus_per_task
         self.max_memory = max_memory
 
         self.path = os.path.join(self.component.name, self.subdir)
@@ -283,6 +299,8 @@ class Step:
         min_tasks=None,
         openmp_threads=None,
         max_memory=None,
+        gpus_per_task=None,
+        min_gpus_per_task=None,
     ):
         """
         Update the resources for the subtask.  This can be done within init,
@@ -320,6 +338,12 @@ class Step:
             the amount of memory that the step is allowed to use in MB.
             This is currently just a placeholder for later use with task
             parallelism
+
+        gpus_per_task : int, optional
+            the number of GPUs per task the step would ideally use
+
+        min_gpus_per_task : int, optional
+            the number of GPUs per task the step requires
         """
         if cpus_per_task is not None:
             self.cpus_per_task = cpus_per_task
@@ -331,6 +355,10 @@ class Step:
             self.min_tasks = min_tasks
         if openmp_threads is not None:
             self.openmp_threads = openmp_threads
+        if gpus_per_task is not None:
+            self.gpus_per_task = gpus_per_task
+        if min_gpus_per_task is not None:
+            self.min_gpus_per_task = min_gpus_per_task
         if max_memory is not None:
             self.max_memory = max_memory
 
@@ -371,6 +399,31 @@ class Step:
                 f'Available number of MPI tasks ({self.ntasks}) is below the '
                 f'minimum of {self.min_tasks} for step {self.name}'
             )
+
+        available_gpus = available_resources.get('gpus')
+        if self.gpus_per_task > 0:
+            if available_gpus is None or available_gpus == 0:
+                raise ValueError(
+                    f'Step {self.name} requests {self.gpus_per_task} GPUs '
+                    'per task but no GPUs are available on this machine.'
+                )
+
+            available_gpu_tasks = available_gpus // self.gpus_per_task
+            self.ntasks = min(self.ntasks, available_gpu_tasks)
+
+            if self.gpus_per_task < self.min_gpus_per_task:
+                raise ValueError(
+                    f'Available gpus_per_task ({self.gpus_per_task}) is '
+                    f'below the minimum of {self.min_gpus_per_task} for '
+                    f'step {self.name}'
+                )
+
+            if self.ntasks < self.min_tasks:
+                raise ValueError(
+                    f'Available number of MPI tasks ({self.ntasks}) is '
+                    f'below the minimum of {self.min_tasks} for step '
+                    f'{self.name} after GPU constraints are applied'
+                )
 
     def setup(self):
         """
