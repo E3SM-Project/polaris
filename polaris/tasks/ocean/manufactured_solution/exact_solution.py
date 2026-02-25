@@ -1,5 +1,7 @@
 import numpy as np
 
+from polaris.constants import get_constant
+
 
 class ExactSolution:
     """
@@ -50,7 +52,7 @@ class ExactSolution:
         """
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
         section = config['manufactured_solution']
-        self.g = 9.80616
+        self.g = get_constant('standard_acceleration_of_gravity')
         self.eta0 = section.getfloat('ssh_amplitude')
         lx = section.getfloat('lx')
         ly = np.sqrt(3.0) / 2.0 * lx
