@@ -9,7 +9,6 @@ import xarray as xr
 from mpas_tools.logging import check_call
 from pyremap import ProjectionGridDescriptor, get_lat_lon_descriptor
 
-from polaris.parallel import run_command
 from polaris.step import Step
 
 
@@ -593,13 +592,13 @@ class CombineStep(Step):
             '--src_regional',
             '--ignore_unmapped',
         ]
-        run_command(
+        self.component.run_parallel_command(
             args=args,
             cpus_per_task=self.cpus_per_task,
             ntasks=self.ntasks,
             openmp_threads=self.openmp_threads,
-            config=config,
             logger=self.logger,
+            gpus_per_task=self.gpus_per_task,
         )
 
     def _remap_to_target_grid(
