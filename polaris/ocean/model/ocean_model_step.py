@@ -213,6 +213,22 @@ class OceanModelStep(ModelStep):
         super().dynamic_model_config(at_setup)
         if self.update_eos:
             self.update_namelist_eos()
+        if self.config.has_option('ocean', 'write_coeffs_reconstruct'):
+            self.write_coeffs_reconstruct = self.config.get(
+                'ocean', 'write_coeffs_reconstruct'
+            )
+        else:
+            self.write_coeffs_reconstruct = False
+        if self.write_coeffs_reconstruct:
+            model = self.config.get('ocean', 'model')
+            if not model == 'mpas-ocean':
+                raise ValueError(
+                    'Coefficients for vector reconstruction can only be '
+                    'written for ocean model MPAS-Ocean'
+                )
+            self.add_yaml_file(
+                'polaris.ocean.config', 'coeffs_reconstruct.yaml'
+            )
 
     def constrain_resources(self, available_cores: Dict[str, Any]) -> None:
         """
