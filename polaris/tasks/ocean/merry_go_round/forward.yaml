@@ -19,8 +19,6 @@ ocean:
   hmix_del4:
     config_use_mom_del4: false
     config_use_tracer_del4: false
-  advection:
-    config_vert_tracer_adv_flux_order: 2
   forcing:
     config_use_bulk_wind_stress: false
   eos:
@@ -29,6 +27,8 @@ ocean:
 mpas-ocean:
   run_modes:
     config_ocean_run_mode: forward
+  lateral_walls:
+    config_wall_slip_factor: 1.0
   decomposition:
     config_block_decomp_file_prefix: graph.info.part.
   cvmix:
@@ -82,7 +82,7 @@ Omega:
   Advection:
     VerticalTracerFluxLimiterEnable: false
   Tendencies:
-    TracerHorzAdvTendencyEnable: true
+    TracerHorzAdvTendencyEnable: false
     TracerHorzAdvTendencyOrder: 1
     PVTendencyEnable: false
     KETendencyEnable: false
