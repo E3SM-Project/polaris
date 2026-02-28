@@ -115,7 +115,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">jigsawpy.savejig</span><span class="w"> </span><span class="kn">import</span> <span class="n">savejig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.cime.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.creation.jigsaw_to_netcdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">jigsaw_to_netcdf</span>
@@ -125,6 +124,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.viz.paraview_extractor</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_vtk</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.model_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_graph_file</span>
 
 
@@ -229,7 +229,7 @@
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
 
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">]</span>
-        <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="s1">&#39;SHR_CONST_REARTH&#39;</span><span class="p">]</span>
+        <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;mean_radius&#39;</span><span class="p">)</span>
         <span class="n">jigsaw_mesh_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;jigsaw_mesh_filename&#39;</span><span class="p">)</span>
         <span class="n">mpas_mesh_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mpas_mesh_filename&#39;</span><span class="p">)</span>
 
@@ -510,7 +510,7 @@
 <span class="sd">            m x n array of cell width in km</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
-        <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="s1">&#39;SHR_CONST_REARTH&#39;</span><span class="p">]</span>
+        <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;mean_radius&#39;</span><span class="p">)</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opts</span>
 
         <span class="c1"># save HFUN data to file</span>
@@ -644,7 +644,7 @@
 <span class="sd">        subdivisions : int</span>
 <span class="sd">            The number of subdivisions of the icosahedron</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="s1">&#39;SHR_CONST_REARTH&#39;</span><span class="p">]</span>
+        <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;mean_radius&#39;</span><span class="p">)</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opts</span>
 
         <span class="n">geom</span> <span class="o">=</span> <span class="n">jigsawpy</span><span class="o">.</span><span class="n">jigsaw_msh_t</span><span class="p">()</span>
@@ -729,7 +729,7 @@
 <span class="sd">        subdivisions : int</span>
 <span class="sd">            The number of subdivisions of the icosahedron</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="s1">&#39;SHR_CONST_REARTH&#39;</span><span class="p">]</span>
+        <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;mean_radius&#39;</span><span class="p">)</span>
         <span class="n">earth_area</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">earth_radius</span><span class="o">**</span><span class="mi">2</span>
 
         <span class="c1"># Using Euclidean, not spherical area, so not accurate for large cell</span>
@@ -774,7 +774,7 @@
 <span class="sd">        cell_width : float</span>
 <span class="sd">            The approximate size in km of each cell</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="s1">&#39;SHR_CONST_REARTH&#39;</span><span class="p">]</span>
+        <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;mean_radius&#39;</span><span class="p">)</span>
         <span class="n">earth_area</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">earth_radius</span><span class="o">**</span><span class="mi">2</span>
 
         <span class="c1"># compute and save the cell widths for later use in computing mesh</span>

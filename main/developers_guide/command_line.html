@@ -63,6 +63,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#polaris-list">polaris list</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#polaris-setup">polaris setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#automatic-component-builds-mpas-ocean-and-omega">Automatic component builds (MPAS-Ocean and Omega)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#physical-constants-version-compatibility-check">Physical constants version compatibility check</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#polaris-suite">polaris suite</a><ul>
@@ -306,6 +307,23 @@ the build directory, so you can reuse the same MPAS-Ocean source tree to
 produce multiple builds with different machines, compilers, and/or MPI
 libraries.</p></li>
 </ul>
+</section>
+<section id="physical-constants-version-compatibility-check">
+<h3>Physical constants version compatibility check<a class="headerlink" href="#physical-constants-version-compatibility-check" title="Link to this heading"></a></h3>
+<p>For ocean components (<code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> and <code class="docutils literal notranslate"><span class="pre">omega</span></code>), <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and
+<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> check that Polaris’ packaged
+<a class="reference external" href="https://github.com/E3SM-Project/PhysicalConstantsDictionary">Physical Constants Dictionary (PCD)</a>
+version
+(<code class="docutils literal notranslate"><span class="pre">polaris/constants/pcd.yaml</span></code>) matches the target branch’s
+<code class="docutils literal notranslate"><span class="pre">share/pcd.yaml</span></code> version.</p>
+<ul class="simple">
+<li><p>If the versions differ, setup stops with an error.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">share/pcd.yaml</span></code> is not found in the branch, Polaris warns and skips the
+check.</p></li>
+</ul>
+<p>When working with a branch that has a newer PCD version, update
+<code class="docutils literal notranslate"><span class="pre">polaris/constants/pcd.yaml</span></code> to the matching version in Polaris. In general,
+avoid downgrading PCD in Polaris, except possibly for short-term testing.</p>
 <p>See <a class="reference internal" href="framework/build.html#dev-build"><span class="std std-ref">Build utilities</span></a> for details on the build helpers and script generation.</p>
 </section>
 </section>

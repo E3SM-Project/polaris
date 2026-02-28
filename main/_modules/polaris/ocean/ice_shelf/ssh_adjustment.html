@@ -111,10 +111,10 @@
   <h1>Source code for polaris.ocean.ice_shelf.ssh_adjustment</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.cime.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_layer_thickness</span>
 
 
@@ -238,7 +238,7 @@
             <span class="c1"># small and if deltaSSH is negative (moving down), it means</span>
             <span class="c1"># land-ice pressure is too large, the sign of the second term</span>
             <span class="c1"># makes sense.</span>
-            <span class="n">gravity</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="s1">&#39;SHR_CONST_G&#39;</span><span class="p">]</span>
+            <span class="n">gravity</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;standard_acceleration_of_gravity&#39;</span><span class="p">)</span>
             <span class="n">delta_land_ice_pressure</span> <span class="o">=</span> <span class="n">top_density</span> <span class="o">*</span> <span class="n">gravity</span> <span class="o">*</span> <span class="n">delta_ssh</span>
 
             <span class="n">land_ice_pressure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span>

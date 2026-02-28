@@ -79,6 +79,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#omega-builder">Omega builder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#usage-examples">Usage examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#integration-with-polaris-setup-and-polaris-suite">Integration with <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#physical-constants-version-compatibility">Physical constants version compatibility</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="parallel.html">Parallel</a></li>
@@ -280,6 +281,21 @@ both MPAS-Ocean and Omega).</p></li>
 can reuse the same source checkout to create builds for different machines,
 compilers, or MPI libraries without conflicts.</p></li>
 </ul>
+</section>
+<section id="physical-constants-version-compatibility">
+<h2>Physical constants version compatibility<a class="headerlink" href="#physical-constants-version-compatibility" title="Link to this heading"></a></h2>
+<p>For ocean model builds (<code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> and <code class="docutils literal notranslate"><span class="pre">omega</span></code>), setup includes a version
+check for the
+<a class="reference external" href="https://github.com/E3SM-Project/PhysicalConstantsDictionary">Physical Constants Dictionary (PCD)</a>:</p>
+<ul class="simple">
+<li><p>Polaris reads its packaged PCD version from <code class="docutils literal notranslate"><span class="pre">polaris/constants/pcd.yaml</span></code>.</p></li>
+<li><p>The target branch is expected to provide <code class="docutils literal notranslate"><span class="pre">share/pcd.yaml</span></code>.</p></li>
+<li><p>If the two versions differ, setup raises an error and stops.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">share/pcd.yaml</span></code> is missing, setup emits a warning and skips the check.</p></li>
+</ul>
+<p>When developing against an E3SM or Omega branch with a newer PCD version,
+update Polaris’ <code class="docutils literal notranslate"><span class="pre">polaris/constants/pcd.yaml</span></code> to match. Avoid downgrading PCD in
+Polaris except for temporary testing.</p>
 </section>
 </section>
 

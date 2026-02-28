@@ -214,6 +214,23 @@ MPAS-Ocean specifics:
    produce multiple builds with different machines, compilers, and/or MPI
    libraries.
 
+### Physical constants version compatibility check
+
+For ocean components (`mpas-ocean` and `omega`), `polaris setup` and
+`polaris suite` check that Polaris' packaged
+[Physical Constants Dictionary (PCD)](https://github.com/E3SM-Project/PhysicalConstantsDictionary)
+version
+(`polaris/constants/pcd.yaml`) matches the target branch's
+`share/pcd.yaml` version.
+
+- If the versions differ, setup stops with an error.
+- If `share/pcd.yaml` is not found in the branch, Polaris warns and skips the
+   check.
+
+When working with a branch that has a newer PCD version, update
+`polaris/constants/pcd.yaml` to the matching version in Polaris. In general,
+avoid downgrading PCD in Polaris, except possibly for short-term testing.
+
 See {ref}`dev-build` for details on the build helpers and script generation.
 
 (dev-polaris-suite)=

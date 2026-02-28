@@ -108,12 +108,12 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.conservation</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.cime.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 
 <span class="c1"># Should match config_density0</span>
 <span class="n">rho_sw</span> <span class="o">=</span> <span class="mf">1026.0</span>
 
-<span class="n">cp_sw</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="s1">&#39;SHR_CONST_CPSW&#39;</span><span class="p">]</span>
+<span class="n">cp_sw</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;seawater_specific_heat_capacity_reference&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="compute_total_mass">

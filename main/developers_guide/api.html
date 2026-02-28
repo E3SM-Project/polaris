@@ -121,6 +121,11 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.logging.log_method_call.html">polaris.logging.log_method_call</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#constants">constants</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.constants.get_constant.html">polaris.constants.get_constant</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#constants-pcd">constants.pcd</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#mesh">mesh</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html">polaris.mesh.planar.compute_planar_hex_nx_ny</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.html">polaris.mesh.spherical.SphericalBaseStep</a></li>
@@ -580,6 +585,35 @@ documentation.</p>
 </tr>
 </tbody>
 </table>
+</section>
+<section id="constants">
+<h3>constants<a class="headerlink" href="#constants" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.constants.get_constant.html#polaris.constants.get_constant" title="polaris.constants.get_constant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_constant</span></code></a>(name)</p></td>
+<td><p>Get constants from the Physical Constants Dictionary (PCD) if available, otherwise from the temporary dictionary of constants.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="constants-pcd">
+<h4>constants.pcd<a class="headerlink" href="#constants-pcd" title="Link to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.constants.pcd.get_constant.html#polaris.constants.pcd.get_constant" title="polaris.constants.pcd.get_constant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_constant</span></code></a>(name)</p></td>
+<td><p>Get a constant from the Physical Constants Dictionary (PCD).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.constants.pcd.get_pcd_version.html#polaris.constants.pcd.get_pcd_version" title="polaris.constants.pcd.get_pcd_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pcd_version</span></code></a>()</p></td>
+<td><p>Get the PCD version from Polaris' packaged <code class="docutils literal notranslate"><span class="pre">pcd.yaml</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.constants.pcd.get_pcd_version_from_file.html#polaris.constants.pcd.get_pcd_version_from_file" title="polaris.constants.pcd.get_pcd_version_from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pcd_version_from_file</span></code></a>(filename)</p></td>
+<td><p>Get the PCD version from a <code class="docutils literal notranslate"><span class="pre">pcd.yaml</span></code> file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.constants.pcd.check_pcd_version_matches_branch.html#polaris.constants.pcd.check_pcd_version_matches_branch" title="polaris.constants.pcd.check_pcd_version_matches_branch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_pcd_version_matches_branch</span></code></a>(branch, model)</p></td>
+<td><p>Check that the PCD version in Polaris matches the version in a branch.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 <section id="mesh">
 <h3>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h3>

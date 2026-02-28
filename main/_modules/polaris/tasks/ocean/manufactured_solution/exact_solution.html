@@ -112,6 +112,8 @@
   <h1>Source code for polaris.tasks.ocean.manufactured_solution.exact_solution</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
+
 
 <div class="viewcode-block" id="ExactSolution">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution.html#polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution">[docs]</a>
@@ -166,7 +168,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom_depth&#39;</span><span class="p">)</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;manufactured_solution&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="mf">9.80616</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;standard_acceleration_of_gravity&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ssh_amplitude&#39;</span><span class="p">)</span>
         <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
         <span class="n">ly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">lx</span>

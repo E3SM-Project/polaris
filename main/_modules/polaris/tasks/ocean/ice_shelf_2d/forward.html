@@ -112,8 +112,7 @@
   <h1>Source code for polaris.tasks.ocean.ice_shelf_2d.forward</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">floor</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.cime.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span>
-
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.planar</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span><span class="p">,</span> <span class="n">get_time_interval_string</span>
 
@@ -268,7 +267,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tidal_forcing</span><span class="p">:</span>
             <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ice_shelf_2d_default_tidal_forcing&#39;</span><span class="p">]</span>
             <span class="n">run_duration</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;forward_run_duration&#39;</span><span class="p">)</span>
-            <span class="n">run_duration</span> <span class="o">=</span> <span class="n">run_duration</span> <span class="o">*</span> <span class="n">constants</span><span class="p">[</span><span class="s1">&#39;SHR_CONST_CDAY&#39;</span><span class="p">]</span>
+            <span class="n">run_duration</span> <span class="o">=</span> <span class="n">run_duration</span> <span class="o">*</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;day_to_s&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ice_shelf_2d_default&#39;</span><span class="p">]</span>
             <span class="n">run_duration</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;forward_run_duration&#39;</span><span class="p">)</span>

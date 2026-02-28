@@ -112,10 +112,10 @@
   <h1>Source code for polaris.tasks.ocean.geostrophic.init</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.cime.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_vertical_coord</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.geostrophic.exact_solution</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">compute_exact_solution</span><span class="p">,</span>
@@ -193,7 +193,7 @@
             <span class="n">alpha</span><span class="p">,</span> <span class="n">vel_period</span><span class="p">,</span> <span class="n">gh_0</span><span class="p">,</span> <span class="n">mesh_filename</span>
         <span class="p">)</span>
 
-        <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">constants</span><span class="p">[</span><span class="s1">&#39;SHR_CONST_SDAY&#39;</span><span class="p">]</span>
+        <span class="n">omega</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;angular_velocity&#39;</span><span class="p">)</span>
 
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">]</span>
         <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;bottom_depth&#39;</span><span class="p">)</span>
