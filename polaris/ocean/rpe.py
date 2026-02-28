@@ -2,7 +2,8 @@ import csv
 
 import numpy as np
 import xarray as xr
-from mpas_tools.cime.constants import constants
+
+from polaris.constants import get_constant
 
 
 def compute_rpe(mesh_filename, initial_state_filename, output_filenames):
@@ -29,7 +30,7 @@ def compute_rpe(mesh_filename, initial_state_filename, output_filenames):
     if num_files == 0:
         raise ValueError('Must provide at least one output filename')
 
-    gravity = constants['SHR_CONST_G']
+    gravity = get_constant('standard_acceleration_of_gravity')
 
     ds_mesh = xr.open_dataset(mesh_filename)
     ds_init = xr.open_dataset(initial_state_filename)

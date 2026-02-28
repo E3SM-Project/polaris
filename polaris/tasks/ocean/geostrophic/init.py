@@ -1,9 +1,9 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.cime.constants import constants
 from mpas_tools.io import write_netcdf
 
 from polaris import Step
+from polaris.constants import get_constant
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.tasks.ocean.geostrophic.exact_solution import (
     compute_exact_solution,
@@ -74,7 +74,7 @@ class Init(Step):
             alpha, vel_period, gh_0, mesh_filename
         )
 
-        omega = 2 * np.pi / constants['SHR_CONST_SDAY']
+        omega = get_constant('angular_velocity')
 
         section = config['vertical_grid']
         bottom_depth = section.getfloat('bottom_depth')

@@ -1,16 +1,17 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.cime.constants import constants
+
+from polaris.constants import get_constant
 
 
 def compute_exact_solution(alpha, vel_period, gh_0, mesh_filename):
     """
     Run this step of the testcase
     """
-    a = constants['SHR_CONST_REARTH']
-    g = constants['SHR_CONST_G']
-    omega = 2 * np.pi / constants['SHR_CONST_SDAY']
-    sec_per_day = constants['SHR_CONST_CDAY']
+    a = get_constant('mean_radius')
+    g = get_constant('standard_acceleration_of_gravity')
+    omega = get_constant('angular_velocity')
+    sec_per_day = get_constant('day_to_s')
 
     u_0 = 2 * np.pi * a / (vel_period * sec_per_day)
     h_0 = gh_0 / g

@@ -10,6 +10,7 @@ from polaris import Task, provenance
 from polaris.build.mpas_ocean import build_mpas_ocean
 from polaris.build.omega import build_omega
 from polaris.config import PolarisConfigParser
+from polaris.constants.pcd import check_pcd_version_matches_branch
 from polaris.io import symlink
 from polaris.job import write_job_script
 from polaris.machines import discover_machine
@@ -173,6 +174,8 @@ def setup_tasks(
             component=component,
             machine=machine,
         )
+
+    _check_pcd_version(basic_config=basic_config, component=component)
 
     if clean_tasks:
         print('')
@@ -1003,3 +1006,16 @@ def _build_model(basic_config, component, machine):
         raise ValueError(
             f'Automated build is not implemented for model {model}'
         )
+
+
+def _check_pcd_version(basic_config, component):
+    """Check that Polaris and branch PCD versions match when applicable."""
+    if component.name != 'ocean':
+        return
+
+    model = basic_config.get('ocean', 'model')
+    if model not in ['mpas-ocean', 'omega']:
+        return
+
+    branch = basic_config.get('build', 'branch')
+    check_pcd_version_matches_branch(branch=branch, model=model)

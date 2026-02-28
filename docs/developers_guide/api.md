@@ -239,6 +239,31 @@ seaice/api
    log_method_call
 ```
 
+### constants
+
+```{eval-rst}
+.. currentmodule:: polaris.constants
+
+.. autosummary::
+   :toctree: generated/
+
+   get_constant
+```
+
+#### constants.pcd
+
+```{eval-rst}
+.. currentmodule:: polaris.constants.pcd
+
+.. autosummary::
+   :toctree: generated/
+
+   get_constant
+   get_pcd_version
+   get_pcd_version_from_file
+   check_pcd_version_matches_branch
+```
+
 ### mesh
 
 ```{eval-rst}
