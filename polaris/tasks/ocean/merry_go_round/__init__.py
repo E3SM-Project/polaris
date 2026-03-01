@@ -48,14 +48,16 @@ def add_merry_go_round_tasks(component):
     )
 
     for refinement in ['space', 'both']:
-        component.add_task(
-            MerryGoRound(
-                component=component,
-                config=config,
-                basedir=basedir,
-                refinement=refinement,
+        for order in [2, 3, 4]:
+            component.add_task(
+                MerryGoRound(
+                    component=component,
+                    config=config,
+                    basedir=basedir,
+                    refinement=refinement,
+                    vert_adv_order=order,
+                )
             )
-        )
 
 
 class MerryGoRound(Task):
@@ -63,7 +65,9 @@ class MerryGoRound(Task):
     A convergence task for tracer advection in a "merry-go-round" configuration
     """
 
-    def __init__(self, component, config, basedir, refinement='both'):
+    def __init__(
+        self, component, config, basedir, refinement='both', vert_adv_order=3
+    ):
         """
         Create the convergence test
 
@@ -82,9 +86,10 @@ class MerryGoRound(Task):
         refinement : str, optional
             Whether to refine in space, time or both space and time
         """
-        name = f'merry_go_round_convergence_{refinement}'
-        subdir = f'{basedir}/convergence_{refinement}'
-        config_filename = 'merry_go_round.cfg'
+        group_name = 'merry_go_round'
+        name = f'{group_name}_convergence_{refinement}_order{vert_adv_order}'
+        subdir = f'{basedir}/convergence_{refinement}_order{vert_adv_order}'
+        config_filename = f'{group_name}.cfg'
 
         super().__init__(component=component, name=name, subdir=subdir)
         self.set_shared_config(config, link=config_filename)
@@ -129,8 +134,9 @@ class MerryGoRound(Task):
             timestep = ceil(timestep)
             timesteps.append(timestep)
 
-            subdir = f'{basedir}/forward/{mesh_name}_{timestep}s'
-            symlink = f'forward/{mesh_name}_{timestep}s'
+            order = f'order{vert_adv_order}'
+            subdir = f'{basedir}/forward/{mesh_name}_{timestep}s_{order}'
+            symlink = f'forward/{mesh_name}_{timestep}s_{order}'
             if subdir in component.steps:
                 forward_step = component.steps[subdir]
             else:
@@ -141,6 +147,7 @@ class MerryGoRound(Task):
                     name=f'forward_{mesh_name}_{timestep}s',
                     subdir=subdir,
                     init=init_step,
+                    vert_adv_order=vert_adv_order,
                 )
                 forward_step.set_shared_config(config, link=config_filename)
             self.add_step(forward_step, symlink=symlink)
