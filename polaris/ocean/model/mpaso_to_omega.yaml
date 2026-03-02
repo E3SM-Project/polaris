@@ -22,6 +22,12 @@ variables:
   cellsOnVertex: CellsOnVertex
   edgesOnVertex: EdgesOnVertex
 
+  # vertical coordinate
+  minLevelCell: MinLayerCell
+  maxLevelCell: MaxLayerCell
+  # currently hard-coded in horizontal mesh
+  # bottomDepth: BottomDepth
+
   # tracers
   temperature: Temperature
   salinity: Salinity

@@ -127,7 +127,11 @@ def update_z_star_layer_thickness(config, ds):
 
 
 def _compute_z_star_layer_thickness(
-    restingThickness, ssh, bottomDepth, minLevelCell, maxLevelCell
+    resting_thickness,
+    ssh,
+    bottom_depth,
+    min_level_cell,
+    max_level_cell,
 ):
     """
     Compute z-star layer thickness by stretching restingThickness based on ssh
@@ -135,19 +139,19 @@ def _compute_z_star_layer_thickness(
 
     Parameters
     ----------
-    restingThickness : xarray.DataArray
+    resting_thickness : xarray.DataArray
         The thickness of z-star layers when ssh = 0
 
     ssh : xarray.DataArray
         The sea surface height
 
-    bottomDepth : xarray.DataArray
+    bottom_depth : xarray.DataArray
         The positive-down depth of the seafloor
 
-    minLevelCell : xarray.DataArray
+    min_level_cell : xarray.DataArray
         The zero-based index of the top valid level
 
-    maxLevelCell : xarray.DataArray
+    max_level_cell : xarray.DataArray
         The zero-based index of the bottom valid level
 
     Returns
@@ -156,23 +160,17 @@ def _compute_z_star_layer_thickness(
         The thickness of each layer (level)
     """
 
-    nVertLevels = restingThickness.sizes['nVertLevels']
-    layerThickness = []
+    n_vert_levels = resting_thickness.sizes['nVertLevels']
+    z_index = xarray.DataArray(
+        numpy.arange(n_vert_levels), dims=['nVertLevels']
+    )
+    mask = numpy.logical_and(
+        z_index >= min_level_cell, z_index <= max_level_cell
+    ).transpose('nCells', 'nVertLevels')
 
-    layerStretch = (ssh + bottomDepth) / restingThickness.sum(
+    layer_stretch = (ssh + bottom_depth) / resting_thickness.sum(
         dim='nVertLevels'
     )
-    for zIndex in range(nVertLevels):
-        mask = numpy.logical_and(
-            zIndex >= minLevelCell, zIndex <= maxLevelCell
-        )
-        thickness = layerStretch * restingThickness.isel(nVertLevels=zIndex)
-        thickness = thickness.where(mask, 0.0)
-        layerThickness.append(thickness)
-    layerThicknessArray = xarray.DataArray(
-        layerThickness, dims=['nVertLevels', 'nCells']
-    )
-    layerThicknessArray = layerThicknessArray.transpose(
-        'nCells', 'nVertLevels'
-    )
-    return layerThicknessArray
+    layer_thickness = layer_stretch * resting_thickness
+
+    return layer_thickness.where(mask, 0.0)
