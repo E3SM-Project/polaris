@@ -50,7 +50,7 @@ class Forward(SphericalConvergenceForward):
         """
         package = 'polaris.tasks.ocean.sphere_transport'
         flow_id = {
-            'rotation_2d': 1,
+            'rotation_2d': 0,
             'nondivergent_2d': 2,
             'divergent_2d': 3,
             'correlated_tracers_2d': 4,
