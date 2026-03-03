@@ -12,11 +12,6 @@ from mpas_tools.logging import LoggingContext, check_call
 
 from polaris import Task
 from polaris.logging import log_function_call, log_method_call
-from polaris.parallel import (
-    get_available_parallel_resources,
-    run_command,
-    set_cores_per_node,
-)
 from polaris.run import (
     complete_step_run,
     load_dependencies,
@@ -73,7 +68,8 @@ def run_tasks(
     task = next(iter(suite['tasks'].values()))
     component = task.component
     common_config = setup_config(task.base_work_dir, f'{component.name}.cfg')
-    available_resources = get_available_parallel_resources(common_config)
+    component.set_parallel_system(common_config)
+    available_resources = component.get_available_resources()
 
     # start logging to stdout/stderr
     with LoggingContext(suite_name) as stdout_logger:
@@ -178,8 +174,8 @@ def run_single_step(step_is_subprocess=False, quiet=False):
 
     config = setup_config(step.base_work_dir, step.config.filepath)
     task.config = config
-    available_resources = get_available_parallel_resources(config)
-    set_cores_per_node(task.config, available_resources['cores_per_node'])
+    step.component.set_parallel_system(config)
+    available_resources = step.component.get_available_resources()
 
     mpas_tools.io.default_format = config.get('io', 'format')
     mpas_tools.io.default_engine = config.get('io', 'engine')
@@ -377,7 +373,8 @@ def _log_and_run_task(
 
         config = setup_config(task.base_work_dir, task.config.filepath)
         task.config = config
-        set_cores_per_node(task.config, available_resources['cores_per_node'])
+        task.component.set_parallel_system(config)
+        available_resources = task.component.get_available_resources()
 
         mpas_tools.io.default_format = config.get('io', 'format')
         mpas_tools.io.default_engine = config.get('io', 'engine')
@@ -672,15 +669,18 @@ def _run_step(
                 'with command line args\n'
             )
             for args in step.args:
-                log_function_call(function=run_command, logger=step_logger)
+                log_method_call(
+                    method=step.component.run_parallel_command,
+                    logger=step_logger,
+                )
                 step_logger.info('')
-                run_command(
+                step.component.run_parallel_command(
                     args,
                     step.cpus_per_task,
                     step.ntasks,
                     step.openmp_threads,
-                    step.config,
                     step.logger,
+                    gpus_per_task=step.gpus_per_task,
                 )
         else:
             step_logger.info('')
