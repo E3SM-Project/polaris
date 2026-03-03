@@ -30,6 +30,7 @@ class Forward(ConvergenceForward):
         init,
         refinement='both',
         vert_adv_order=3,
+        limiter=False,
     ):
         """
         Create a new test case
@@ -73,6 +74,7 @@ class Forward(ConvergenceForward):
             validate_vars=validate_vars,
         )
         self.order = vert_adv_order
+        self.limiter = limiter
 
     def setup(self):
         """
@@ -103,6 +105,11 @@ class Forward(ConvergenceForward):
             options={'config_vert_tracer_adv_flux_order': self.order},
             config_model='ocean',
         )
+        if self.limiter:
+            self.add_model_config_options(
+                options={'VerticalTracerFluxLimiterEnable': True},
+                config_model='Omega',
+            )
 
     def compute_cell_count(self):
         """
