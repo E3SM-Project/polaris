@@ -2,6 +2,10 @@ import numpy as np
 from mpas_tools.transects import lon_lat_to_cartesian
 from numpy import cos, pi, sin
 
+from polaris.mesh.spherical import (
+    calc_vector_east_north,
+)
+
 
 def flow_nondivergent(t, lon, lat, u_0, tau):
     """
@@ -116,17 +120,7 @@ def flow_rotation(lon, lat, omega, tau, sphere_radius):
     x, y, z = lon_lat_to_cartesian(lon, lat, sphere_radius, degrees=False)
     xyz = np.stack((x, y, z), axis=1)
     vel = np.cross(omega, np.divide(np.transpose(xyz), sphere_radius), axis=0)
-    east, north = calc_local_east_north(x, y, z)
+    east, north = calc_vector_east_north(x, y, z)
     u = np.sum(vel * east, axis=0)
     v = np.sum(vel * north, axis=0)
     return u, v
-
-
-def calc_local_east_north(x, y, z):
-    axis = [0, 0, 1]
-    xyz = np.stack((x, y, z), axis=1)
-    east = np.cross(axis, np.transpose(xyz), axis=0)
-    north = np.cross(np.transpose(xyz), east, axis=0)
-    east = east / np.linalg.norm(east, axis=0)
-    north = north / np.linalg.norm(north, axis=0)
-    return east, north
