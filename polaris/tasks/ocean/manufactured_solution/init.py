@@ -109,5 +109,7 @@ class Init(OceanIOStep):
             'Time', 'nCells', 'nVertLevels'
         )
         ds['layerThickness'] = layer_thickness
+        ds['temperature'] = xr.zeros_like(layer_thickness)
+        ds['salinity'] = xr.ones_like(layer_thickness)
 
-        self.write_model_dataset(ds, 'initial_state.nc')
+        self.write_model_dataset(ds, 'initial_state.nc', config)
