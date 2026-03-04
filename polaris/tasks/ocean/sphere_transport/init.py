@@ -7,6 +7,7 @@ from polaris.tasks.ocean.sphere_transport.resources.flow_types import (
     flow_divergent,
     flow_nondivergent,
     flow_rotation,
+    normal_velocity_from_zonal_meridional,
 )
 from polaris.tasks.ocean.sphere_transport.resources.tracer_distributions import (  # noqa: E501
     correlation_fn,
@@ -67,13 +68,14 @@ class Init(OceanIOStep):
         section = config['sphere_transport']
         temperature = section.getfloat('temperature')
         salinity = section.getfloat('salinity')
+
+        # time (hours) for bell to transit equator once
         vel_pd = section.getfloat('vel_pd')
 
         section = config['vertical_grid']
         bottom_depth = section.getfloat('bottom_depth')
 
         ds_mesh = xr.open_dataset('mesh.nc')
-        angleEdge = ds_mesh.angleEdge
         latCell = ds_mesh.latCell
         latEdge = ds_mesh.latEdge
         lonCell = ds_mesh.lonCell
@@ -185,8 +187,8 @@ class Init(OceanIOStep):
         else:
             raise ValueError(f'Unexpected test case name {case_name}')
 
-        normalVelocity = sphere_radius * (
-            u * np.cos(angleEdge) + v * np.sin(angleEdge)
+        normalVelocity = normal_velocity_from_zonal_meridional(
+            ds, u, v, recompute_angle_edge=False
         )
         normalVelocity, _ = xr.broadcast(normalVelocity, ds.refZMid)
         ds['normalVelocity'] = normalVelocity.expand_dims(dim='Time', axis=0)
