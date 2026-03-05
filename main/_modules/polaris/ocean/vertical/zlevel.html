@@ -237,10 +237,10 @@
 <div class="viewcode-block" id="compute_min_max_level_cell">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.zlevel.compute_min_max_level_cell.html#polaris.ocean.vertical.zlevel.compute_min_max_level_cell">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_min_max_level_cell</span><span class="p">(</span>
-    <span class="n">refTopDepth</span><span class="p">,</span>
-    <span class="n">refBottomDepth</span><span class="p">,</span>
+    <span class="n">ref_top_depth</span><span class="p">,</span>
+    <span class="n">ref_bottom_depth</span><span class="p">,</span>
     <span class="n">ssh</span><span class="p">,</span>
-    <span class="n">bottomDepth</span><span class="p">,</span>
+    <span class="n">bottom_depth</span><span class="p">,</span>
     <span class="n">min_vert_levels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">min_layer_thickness</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
@@ -250,16 +250,16 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    refTopDepth : xarray.DataArray</span>
+<span class="sd">    ref_top_depth : xarray.DataArray</span>
 <span class="sd">        A 1D array of positive-down depths of the top of each z level</span>
 
-<span class="sd">    refBottomDepth : xarray.DataArray</span>
+<span class="sd">    ref_bottom_depth : xarray.DataArray</span>
 <span class="sd">        A 1D array of positive-down depths of the bottom of each z level</span>
 
 <span class="sd">    ssh : xarray.DataArray</span>
 <span class="sd">        The sea surface height</span>
 
-<span class="sd">    bottomDepth : xarray.DataArray</span>
+<span class="sd">    bottom_depth : xarray.DataArray</span>
 <span class="sd">        The positive-down depth of the seafloor</span>
 
 
@@ -275,12 +275,14 @@
 <span class="sd">        A boolean mask of where there are valid cells</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">min_layer_thickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">valid</span> <span class="o">=</span> <span class="n">bottomDepth</span> <span class="o">+</span> <span class="n">min_layer_thickness</span> <span class="o">*</span> <span class="n">min_vert_levels</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="n">ssh</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">bottom_depth</span> <span class="o">+</span> <span class="n">min_layer_thickness</span> <span class="o">*</span> <span class="n">min_vert_levels</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="n">ssh</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">valid</span> <span class="o">=</span> <span class="n">bottomDepth</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">ssh</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">bottom_depth</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">ssh</span>
 
-    <span class="n">aboveTopMask</span> <span class="o">=</span> <span class="p">(</span><span class="n">refBottomDepth</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="n">ssh</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
-    <span class="n">aboveBottomMask</span> <span class="o">=</span> <span class="p">(</span><span class="n">refTopDepth</span> <span class="o">&lt;</span> <span class="n">bottomDepth</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+    <span class="n">aboveTopMask</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref_bottom_depth</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="n">ssh</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+        <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span>
+    <span class="p">)</span>
+    <span class="n">aboveBottomMask</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref_top_depth</span> <span class="o">&lt;</span> <span class="n">bottom_depth</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
         <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span>
     <span class="p">)</span>
     <span class="n">aboveBottomMask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">aboveBottomMask</span><span class="p">,</span> <span class="n">valid</span><span class="p">)</span>
@@ -303,29 +305,34 @@
 <div class="viewcode-block" id="compute_z_level_layer_thickness">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.zlevel.compute_z_level_layer_thickness.html#polaris.ocean.vertical.zlevel.compute_z_level_layer_thickness">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_z_level_layer_thickness</span><span class="p">(</span>
-    <span class="n">refTopDepth</span><span class="p">,</span> <span class="n">refBottomDepth</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">bottomDepth</span><span class="p">,</span> <span class="n">minLevelCell</span><span class="p">,</span> <span class="n">maxLevelCell</span>
+    <span class="n">ref_top_depth</span><span class="p">,</span>
+    <span class="n">ref_bottom_depth</span><span class="p">,</span>
+    <span class="n">ssh</span><span class="p">,</span>
+    <span class="n">bottom_depth</span><span class="p">,</span>
+    <span class="n">min_level_cell</span><span class="p">,</span>
+    <span class="n">max_level_cell</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute z-level layer thickness from ssh and bottomDepth</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    refTopDepth : xarray.DataArray</span>
+<span class="sd">    ref_top_depth : xarray.DataArray</span>
 <span class="sd">        A 1D array of positive-down depths of the top of each z level</span>
 
-<span class="sd">    refBottomDepth : xarray.DataArray</span>
+<span class="sd">    ref_bottom_depth : xarray.DataArray</span>
 <span class="sd">        A 1D array of positive-down depths of the bottom of each z level</span>
 
 <span class="sd">    ssh : xarray.DataArray</span>
 <span class="sd">        The sea surface height</span>
 
-<span class="sd">    bottomDepth : xarray.DataArray</span>
+<span class="sd">    bottom_depth : xarray.DataArray</span>
 <span class="sd">        The positive-down depth of the seafloor</span>
 
-<span class="sd">    minLevelCell : xarray.DataArray</span>
+<span class="sd">    min_level_cell : xarray.DataArray</span>
 <span class="sd">        The zero-based index of the top valid level</span>
 
-<span class="sd">    maxLevelCell : xarray.DataArray</span>
+<span class="sd">    max_level_cell : xarray.DataArray</span>
 <span class="sd">        The zero-based index of the bottom valid level</span>
 
 <span class="sd">    Returns</span>
@@ -334,30 +341,34 @@
 <span class="sd">        The thickness of each layer (level)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">nVertLevels</span> <span class="o">=</span> <span class="n">refBottomDepth</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
-    <span class="n">layerThickness</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">zIndex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nVertLevels</span><span class="p">):</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
-            <span class="n">zIndex</span> <span class="o">&gt;=</span> <span class="n">minLevelCell</span><span class="p">,</span> <span class="n">zIndex</span> <span class="o">&lt;=</span> <span class="n">maxLevelCell</span>
-        <span class="p">)</span>
-        <span class="n">zTop</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">ssh</span><span class="p">,</span> <span class="o">-</span><span class="n">refTopDepth</span><span class="p">[</span><span class="n">zIndex</span><span class="p">])</span>
-        <span class="n">zBot</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="o">-</span><span class="n">bottomDepth</span><span class="p">,</span> <span class="o">-</span><span class="n">refBottomDepth</span><span class="p">[</span><span class="n">zIndex</span><span class="p">])</span>
-        <span class="n">thickness</span> <span class="o">=</span> <span class="p">(</span><span class="n">zTop</span> <span class="o">-</span> <span class="n">zBot</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">layerThickness</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thickness</span><span class="p">)</span>
-    <span class="n">layerThicknessArray</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-        <span class="n">layerThickness</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">]</span>
+    <span class="n">n_vert_levels</span> <span class="o">=</span> <span class="n">ref_bottom_depth</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
+    <span class="n">z_index</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_vert_levels</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">layerThicknessArray</span> <span class="o">=</span> <span class="n">layerThicknessArray</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
-        <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">z_index</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">z_index</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
+
+    <span class="n">z_top</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ssh</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">ref_top_depth</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="o">-</span><span class="n">ref_top_depth</span><span class="p">)</span>
+    <span class="n">z_bot</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="o">-</span><span class="n">bottom_depth</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">ref_bottom_depth</span><span class="p">,</span>
+        <span class="o">-</span><span class="n">bottom_depth</span><span class="p">,</span>
+        <span class="o">-</span><span class="n">ref_bottom_depth</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">layerThicknessArray</span></div>
+    <span class="n">thickness</span> <span class="o">=</span> <span class="p">(</span><span class="n">z_top</span> <span class="o">-</span> <span class="n">z_bot</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">thickness</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="compute_z_level_resting_thickness">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.zlevel.compute_z_level_resting_thickness.html#polaris.ocean.vertical.zlevel.compute_z_level_resting_thickness">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_z_level_resting_thickness</span><span class="p">(</span>
-    <span class="n">layerThickness</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">bottomDepth</span><span class="p">,</span> <span class="n">minLevelCell</span><span class="p">,</span> <span class="n">maxLevelCell</span>
+    <span class="n">layer_thickness</span><span class="p">,</span>
+    <span class="n">ssh</span><span class="p">,</span>
+    <span class="n">bottom_depth</span><span class="p">,</span>
+    <span class="n">min_level_cell</span><span class="p">,</span>
+    <span class="n">max_level_cell</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute z-level resting thickness by &quot;unstretching&quot; layerThickness</span>
@@ -365,19 +376,19 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    layerThickness : xarray.DataArray</span>
+<span class="sd">    layer_thickness : xarray.DataArray</span>
 <span class="sd">        The thickness of each layer (level)</span>
 
 <span class="sd">    ssh : xarray.DataArray</span>
 <span class="sd">        The sea surface height</span>
 
-<span class="sd">    bottomDepth : xarray.DataArray</span>
+<span class="sd">    bottom_depth : xarray.DataArray</span>
 <span class="sd">        The positive-down depth of the seafloor</span>
 
-<span class="sd">    minLevelCell : xarray.DataArray</span>
+<span class="sd">    min_level_cell : xarray.DataArray</span>
 <span class="sd">        The zero-based index of the top valid level</span>
 
-<span class="sd">    maxLevelCell : xarray.DataArray</span>
+<span class="sd">    max_level_cell : xarray.DataArray</span>
 <span class="sd">        The zero-based index of the bottom valid level</span>
 
 <span class="sd">    Returns</span>
@@ -386,24 +397,18 @@
 <span class="sd">        The thickness of z-star layers when ssh = 0</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">nVertLevels</span> <span class="o">=</span> <span class="n">layerThickness</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
-    <span class="n">restingThickness</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">n_vert_levels</span> <span class="o">=</span> <span class="n">layer_thickness</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
+    <span class="n">z_index</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_vert_levels</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">z_index</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">z_index</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
 
-    <span class="n">layerStretch</span> <span class="o">=</span> <span class="n">bottomDepth</span> <span class="o">/</span> <span class="p">(</span><span class="n">ssh</span> <span class="o">+</span> <span class="n">bottomDepth</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">zIndex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nVertLevels</span><span class="p">):</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
-            <span class="n">zIndex</span> <span class="o">&gt;=</span> <span class="n">minLevelCell</span><span class="p">,</span> <span class="n">zIndex</span> <span class="o">&lt;=</span> <span class="n">maxLevelCell</span>
-        <span class="p">)</span>
-        <span class="n">thickness</span> <span class="o">=</span> <span class="n">layerStretch</span> <span class="o">*</span> <span class="n">layerThickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">zIndex</span><span class="p">)</span>
-        <span class="n">thickness</span> <span class="o">=</span> <span class="n">thickness</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">restingThickness</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thickness</span><span class="p">)</span>
-    <span class="n">restingThicknessArray</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-        <span class="n">restingThickness</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">]</span>
-    <span class="p">)</span>
-    <span class="n">restingThicknessArray</span> <span class="o">=</span> <span class="n">restingThicknessArray</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
-        <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">restingThicknessArray</span></div>
+    <span class="n">layer_stretch</span> <span class="o">=</span> <span class="n">bottom_depth</span> <span class="o">/</span> <span class="p">(</span><span class="n">ssh</span> <span class="o">+</span> <span class="n">bottom_depth</span><span class="p">)</span>
+    <span class="n">resting_thickness</span> <span class="o">=</span> <span class="n">layer_stretch</span> <span class="o">*</span> <span class="n">layer_thickness</span>
+
+    <span class="k">return</span> <span class="n">resting_thickness</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span></div>
 
 </pre></div>
 

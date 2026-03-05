@@ -197,7 +197,7 @@
 
     <span class="k">if</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;z-level&#39;</span><span class="p">:</span>
         <span class="n">init_z_level_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;z-star&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;z-star&#39;</span> <span class="ow">or</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;z-tilde&#39;</span><span class="p">:</span>
         <span class="n">init_z_star_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;sigma&#39;</span><span class="p">:</span>
         <span class="n">init_sigma_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
@@ -222,8 +222,11 @@
         <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
     <span class="p">)</span>
 
-    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;zMid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_compute_zmid_from_layer_thickness</span><span class="p">(</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">cellMask</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;zInterface&#39;</span><span class="p">],</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;zMid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_zint_zmid_from_layer_thickness</span><span class="p">(</span>
+        <span class="n">layer_thickness</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="p">,</span>
+        <span class="n">bottom_depth</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span>
+        <span class="n">min_level_cell</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">minLevelCell</span><span class="p">,</span>
+        <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># fortran 1-based indexing</span>
@@ -263,7 +266,7 @@
 
     <span class="k">if</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;z-level&#39;</span><span class="p">:</span>
         <span class="n">update_z_level_layer_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;z-star&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;z-star&#39;</span> <span class="ow">or</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;z-tilde&#39;</span><span class="p">:</span>
         <span class="n">update_z_star_layer_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;sigma&#39;</span><span class="p">:</span>
         <span class="n">update_sigma_layer_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
@@ -278,50 +281,95 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_compute_cell_mask</span><span class="p">(</span><span class="n">minLevelCell</span><span class="p">,</span> <span class="n">maxLevelCell</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="p">):</span>
-    <span class="n">cellMask</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">zIndex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nVertLevels</span><span class="p">):</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">zIndex</span> <span class="o">&gt;=</span> <span class="n">minLevelCell</span><span class="p">,</span> <span class="n">zIndex</span> <span class="o">&lt;=</span> <span class="n">maxLevelCell</span><span class="p">)</span>
-        <span class="n">cellMask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
-    <span class="n">cellMaskArray</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">cellMask</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">])</span>
-    <span class="n">cellMaskArray</span> <span class="o">=</span> <span class="n">cellMaskArray</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">cellMaskArray</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_compute_zmid_from_layer_thickness</span><span class="p">(</span><span class="n">layerThickness</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">cellMask</span><span class="p">):</span>
+<div class="viewcode-block" id="compute_zint_zmid_from_layer_thickness">
+<a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness.html#polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_zint_zmid_from_layer_thickness</span><span class="p">(</span>
+    <span class="n">layer_thickness</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">bottom_depth</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">min_level_cell</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">max_level_cell</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute zMid from ssh and layerThickness for any vertical coordinate</span>
+<span class="sd">    Compute height z at layer interfaces and midpoints given layer thicknesses</span>
+<span class="sd">    and bottom depth.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    layerThickness : xarray.DataArray</span>
-<span class="sd">        The thickness of each layer</span>
+<span class="sd">    layer_thickness : xarray.DataArray</span>
+<span class="sd">        The layer thickness of each layer.</span>
 
-<span class="sd">    ssh : xarray.DataArray</span>
-<span class="sd">        The sea surface height</span>
+<span class="sd">    bottom_depth : xarray.DataArray</span>
+<span class="sd">        The positive-down depth of the seafloor.</span>
 
-<span class="sd">    cellMask : xarray.DataArray</span>
-<span class="sd">        A boolean mask of where there are valid cells</span>
+<span class="sd">    min_level_cell : xarray.DataArray</span>
+<span class="sd">        The zero-based minimum vertical index from each column.</span>
+
+<span class="sd">    max_level_cell : xarray.DataArray</span>
+<span class="sd">        The zero-based maximum vertical index from each column.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    zMid : xarray.DataArray</span>
-<span class="sd">        The elevation of layer centers</span>
+<span class="sd">    z_interface : xarray.DataArray</span>
+<span class="sd">        The elevation of layer interfaces.</span>
+
+<span class="sd">    z_mid : xarray.DataArray</span>
+<span class="sd">        The elevation of layer midpoints.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">zTop</span> <span class="o">=</span> <span class="n">ssh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">nVertLevels</span> <span class="o">=</span> <span class="n">layerThickness</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
-    <span class="n">zMid</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">zIndex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nVertLevels</span><span class="p">):</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">cellMask</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">zIndex</span><span class="p">)</span>
-        <span class="n">thickness</span> <span class="o">=</span> <span class="n">layerThickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">zIndex</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">zTop</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">thickness</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
-        <span class="n">zMid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
-        <span class="n">zTop</span> <span class="o">-=</span> <span class="n">thickness</span>
-    <span class="n">zMid</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">zMid</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
-        <span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span>
+    <span class="n">n_vert_levels</span> <span class="o">=</span> <span class="n">layer_thickness</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
+
+    <span class="n">z_index</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_vert_levels</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">])</span>
+    <span class="n">mask_mid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">z_index</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">z_index</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">zMid</span>
+
+    <span class="n">dz</span> <span class="o">=</span> <span class="n">layer_thickness</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask_mid</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">dz_rev</span> <span class="o">=</span> <span class="n">dz</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">sum_from_level</span> <span class="o">=</span> <span class="n">dz_rev</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+        <span class="n">nVertLevels</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">z_bot</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">layer_thickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="o">-</span> <span class="n">bottom_depth</span>
+    <span class="p">)</span>
+    <span class="n">z_interface_top</span> <span class="o">=</span> <span class="n">z_bot</span> <span class="o">+</span> <span class="n">sum_from_level</span>
+    <span class="n">z_interface</span> <span class="o">=</span> <span class="n">z_interface_top</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">)</span>
+    <span class="n">z_interface</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">n_vert_levels</span><span class="p">)]</span> <span class="o">=</span> <span class="n">z_bot</span>
+    <span class="n">z_interface</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">:</span> <span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">})</span>
+
+    <span class="n">z_index_p1</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_vert_levels</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">mask_interface</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">z_index_p1</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">,</span>
+        <span class="n">z_index_p1</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">z_interface</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask_interface</span><span class="p">)</span>
+
+    <span class="n">z_interface_upper</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="p">{</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">:</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">z_interface_lower</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="p">{</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">:</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">z_mid</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">z_interface_upper</span> <span class="o">+</span> <span class="n">z_interface_lower</span><span class="p">))</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask_mid</span><span class="p">)</span>
+
+    <span class="n">dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">layer_thickness</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+    <span class="n">interface_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">dim</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">dims</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">!=</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
+    <span class="n">interface_dims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">)</span>
+    <span class="n">z_interface</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">interface_dims</span><span class="p">)</span>
+    <span class="n">z_mid</span> <span class="o">=</span> <span class="n">z_mid</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">dims</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">z_interface</span><span class="p">,</span> <span class="n">z_mid</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_cell_mask</span><span class="p">(</span><span class="n">minLevelCell</span><span class="p">,</span> <span class="n">maxLevelCell</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="p">):</span>
+    <span class="n">z_index</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nVertLevels</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">z_index</span> <span class="o">&gt;=</span> <span class="n">minLevelCell</span><span class="p">,</span> <span class="n">z_index</span> <span class="o">&lt;=</span> <span class="n">maxLevelCell</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
 </pre></div>
 
            </div>

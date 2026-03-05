@@ -75,6 +75,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#model-config-options-and-streams">Model config options and streams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#equations-of-state-eos">Equations of state (EOS)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#quasi-uniform-and-icosahedral-spherical-meshes">Quasi-uniform and Icosahedral Spherical Meshes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#convergence-tests">Convergence Tests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ice-shelf-tasks">Ice Shelf Tasks</a></li>
@@ -312,6 +313,24 @@ file:</p>
 config options and configuring streams.  These include things like setting
 output to double precision, adjusting sea surface height in ice-shelf cavities,
 and outputting variables related to frazil ice and land-ice fluxes.</p>
+</section>
+<section id="equations-of-state-eos">
+<span id="dev-ocean-framework-eos"></span><h2>Equations of state (EOS)<a class="headerlink" href="#equations-of-state-eos" title="Link to this heading"></a></h2>
+<p>Polaris ocean tasks use EOS utilities from the <code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos</span></code> package.</p>
+<p>The high-level APIs are <a class="reference internal" href="generated/polaris.ocean.eos.compute_density.html#polaris.ocean.eos.compute_density" title="polaris.ocean.eos.compute_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.compute_density()</span></code></a> and
+<a class="reference internal" href="generated/polaris.ocean.eos.compute_specvol.html#polaris.ocean.eos.compute_specvol" title="polaris.ocean.eos.compute_specvol"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.compute_specvol()</span></code></a>.  These functions dispatch
+based on <code class="docutils literal notranslate"><span class="pre">eos_type</span></code> in the <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> config section.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">linear</span></code> uses the linear EOS and calls
+<a class="reference internal" href="generated/polaris.ocean.eos.linear.compute_linear_density.html#polaris.ocean.eos.linear.compute_linear_density" title="polaris.ocean.eos.linear.compute_linear_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.linear.compute_linear_density()</span></code></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">teos-10</span></code> uses TEOS-10 and calls
+<a class="reference internal" href="generated/polaris.ocean.eos.teos10.compute_specvol.html#polaris.ocean.eos.teos10.compute_specvol" title="polaris.ocean.eos.teos10.compute_specvol"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.teos10.compute_specvol()</span></code></a>, with density computed
+as the inverse of specific volume.</p></li>
+</ul>
+<p>The linear EOS coefficients and reference values are set with ocean config
+options such as <code class="docutils literal notranslate"><span class="pre">eos_linear_alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_linear_beta</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_linear_rhoref</span></code>,
+<code class="docutils literal notranslate"><span class="pre">eos_linear_Tref</span></code>, and <code class="docutils literal notranslate"><span class="pre">eos_linear_Sref</span></code>.  TEOS-10 requires pressure to be
+provided when calling the high-level EOS functions.</p>
 </section>
 <section id="quasi-uniform-and-icosahedral-spherical-meshes">
 <span id="dev-ocean-spherical-meshes"></span><h2>Quasi-uniform and Icosahedral Spherical Meshes<a class="headerlink" href="#quasi-uniform-and-icosahedral-spherical-meshes" title="Link to this heading"></a></h2>
@@ -624,11 +643,31 @@ this section of the config file. The function
 <a class="reference internal" href="generated/polaris.ocean.vertical.init_vertical_coord.html#polaris.ocean.vertical.init_vertical_coord" title="polaris.ocean.vertical.init_vertical_coord"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.init_vertical_coord()</span></code></a> can be used to compute
 <code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">cellMask</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">zMid</span></code>,
 and <code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> variables for <a class="reference internal" href="../../users_guide/ocean/framework/vertical.html#ocean-z-level"><span class="std std-ref">z-level</span></a> and
-<a class="reference internal" href="../../users_guide/ocean/framework/vertical.html#ocean-z-star"><span class="std std-ref">z-star</span></a> coordinates using the <code class="docutils literal notranslate"><span class="pre">ssh</span></code> and <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> as well
+<a class="reference internal" href="../../users_guide/ocean/framework/vertical.html#ocean-z-star"><span class="std std-ref">z-star</span></a> coordinates (including the <code class="docutils literal notranslate"><span class="pre">z-tilde</span></code> option handled
+through z-star infrastructure) using the <code class="docutils literal notranslate"><span class="pre">ssh</span></code> and <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> as well
 as config options from <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code>. The function
 <a class="reference internal" href="generated/polaris.ocean.vertical.update_layer_thickness.html#polaris.ocean.vertical.update_layer_thickness" title="polaris.ocean.vertical.update_layer_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.update_layer_thickness()</span></code></a> can be used to update
 <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> when either or both of <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> have been
-changed.</p>
+changed.  After thicknesses are updated, tasks can call
+<a class="reference internal" href="generated/polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness.html#polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness" title="polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness()</span></code></a> to
+recover <code class="docutils literal notranslate"><span class="pre">zInterface</span></code> and <code class="docutils literal notranslate"><span class="pre">zMid</span></code> from the resulting layer thickness.</p>
+<p>For workflows that need pseudo-height/pressure conversion, the
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical.ztilde</span></code> module provides utilities:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.z_tilde_from_pressure.html#polaris.ocean.vertical.ztilde.z_tilde_from_pressure" title="polaris.ocean.vertical.ztilde.z_tilde_from_pressure"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.ztilde.z_tilde_from_pressure()</span></code></a> and
+<a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.pressure_from_z_tilde.html#polaris.ocean.vertical.ztilde.pressure_from_z_tilde" title="polaris.ocean.vertical.ztilde.pressure_from_z_tilde"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.ztilde.pressure_from_z_tilde()</span></code></a> convert
+between pseudo-height and pressure.</p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.pressure_from_geom_thickness.html#polaris.ocean.vertical.ztilde.pressure_from_geom_thickness" title="polaris.ocean.vertical.ztilde.pressure_from_geom_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.ztilde.pressure_from_geom_thickness()</span></code></a> and
+<a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height.html#polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height" title="polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height()</span></code></a>
+compute hydrostatic pressure (and specific volume) from geometric layer
+thickness and state variables.</p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height.html#polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height" title="polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height()</span></code></a>
+reconstructs geometric layer-interface and midpoint heights from
+pseudo-thickness and specific volume.</p></li>
+</ul>
+<p>For sigma coordinates, shared functionality for direct thickness computation is
+available in
+<a class="reference internal" href="generated/polaris.ocean.vertical.sigma.compute_sigma_layer_thickness.html#polaris.ocean.vertical.sigma.compute_sigma_layer_thickness" title="polaris.ocean.vertical.sigma.compute_sigma_layer_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.sigma.compute_sigma_layer_thickness()</span></code></a>.</p>
 </section>
 <section id="reference-resting-potential-energy-rpe">
 <span id="dev-ocean-rpe"></span><h2>reference (resting) potential energy (RPE)<a class="headerlink" href="#reference-resting-potential-energy-rpe" title="Link to this heading"></a></h2>

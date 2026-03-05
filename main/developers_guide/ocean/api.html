@@ -1025,6 +1025,25 @@
 </tbody>
 </table>
 </section>
+<section id="equations-of-state-eos">
+<h3>Equations of state (EOS)<a class="headerlink" href="#equations-of-state-eos" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.compute_density.html#polaris.ocean.eos.compute_density" title="polaris.ocean.eos.compute_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_density</span></code></a>(config, temperature, salinity)</p></td>
+<td><p>Compute the density of seawater based on the equation of state specified in the configuration.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.compute_specvol.html#polaris.ocean.eos.compute_specvol" title="polaris.ocean.eos.compute_specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_specvol</span></code></a>(config, temperature, salinity)</p></td>
+<td><p>Compute the specific volume of seawater based on the equation of state specified in the configuration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.linear.compute_linear_density.html#polaris.ocean.eos.linear.compute_linear_density" title="polaris.ocean.eos.linear.compute_linear_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linear.compute_linear_density</span></code></a>(config, ...)</p></td>
+<td><p>Compute the density of seawater based on the the linear equation of state with coefficients specified in the configuration.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.teos10.compute_specvol.html#polaris.ocean.eos.teos10.compute_specvol" title="polaris.ocean.eos.teos10.compute_specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">teos10.compute_specvol</span></code></a>(sa, ct, p)</p></td>
+<td><p>Compute specific volume from co-located p, CT and SA.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="reference-potential-energy-rpe">
 <h3>Reference Potential Energy (RPE)<a class="headerlink" href="#reference-potential-energy-rpe" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -1042,26 +1061,32 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.init_vertical_coord.html#polaris.ocean.vertical.init_vertical_coord" title="polaris.ocean.vertical.init_vertical_coord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.init_vertical_coord</span></code></a>(config, ds)</p></td>
 <td><p>Create a vertical coordinate based on the config options in the <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> section and the <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> variables of the mesh data set.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.depth_from_thickness.html#polaris.ocean.vertical.diagnostics.depth_from_thickness" title="polaris.ocean.vertical.diagnostics.depth_from_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.diagnostics.depth_from_thickness</span></code></a>(ds)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness.html#polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness" title="polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.compute_zint_zmid_from_layer_thickness</span></code></a>(...)</p></td>
+<td><p>Compute height z at layer interfaces and midpoints given layer thicknesses and bottom depth.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.depth_from_thickness.html#polaris.ocean.vertical.diagnostics.depth_from_thickness" title="polaris.ocean.vertical.diagnostics.depth_from_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.diagnostics.depth_from_thickness</span></code></a>(ds)</p></td>
 <td><p>Compute the depth of the midpoint of each layer from <cite>layerThickness</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.grid_1d.generate_1d_grid.html#polaris.ocean.vertical.grid_1d.generate_1d_grid" title="polaris.ocean.vertical.grid_1d.generate_1d_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.grid_1d.generate_1d_grid</span></code></a>(config)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.grid_1d.generate_1d_grid.html#polaris.ocean.vertical.grid_1d.generate_1d_grid" title="polaris.ocean.vertical.grid_1d.generate_1d_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.grid_1d.generate_1d_grid</span></code></a>(config)</p></td>
 <td><p>Generate a vertical grid for a test case, using the config options in the <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> section</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.grid_1d.write_1d_grid.html#polaris.ocean.vertical.grid_1d.write_1d_grid" title="polaris.ocean.vertical.grid_1d.write_1d_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.grid_1d.write_1d_grid</span></code></a>(interfaces, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.grid_1d.write_1d_grid.html#polaris.ocean.vertical.grid_1d.write_1d_grid" title="polaris.ocean.vertical.grid_1d.write_1d_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.grid_1d.write_1d_grid</span></code></a>(interfaces, ...)</p></td>
 <td><p>write the vertical grid to a file</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.partial_cells.alter_bottom_depth.html#polaris.ocean.vertical.partial_cells.alter_bottom_depth" title="polaris.ocean.vertical.partial_cells.alter_bottom_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.partial_cells.alter_bottom_depth</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.partial_cells.alter_bottom_depth.html#polaris.ocean.vertical.partial_cells.alter_bottom_depth" title="polaris.ocean.vertical.partial_cells.alter_bottom_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.partial_cells.alter_bottom_depth</span></code></a>(...)</p></td>
 <td><p>Alter <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> for full or partial top cells, if requested</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.partial_cells.alter_ssh.html#polaris.ocean.vertical.partial_cells.alter_ssh" title="polaris.ocean.vertical.partial_cells.alter_ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.partial_cells.alter_ssh</span></code></a>(config, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.partial_cells.alter_ssh.html#polaris.ocean.vertical.partial_cells.alter_ssh" title="polaris.ocean.vertical.partial_cells.alter_ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.partial_cells.alter_ssh</span></code></a>(config, ...)</p></td>
 <td><p>Alter <code class="docutils literal notranslate"><span class="pre">ssh</span></code> and <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> for full or partial top cells, if requested</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.sigma.init_sigma_vertical_coord.html#polaris.ocean.vertical.sigma.init_sigma_vertical_coord" title="polaris.ocean.vertical.sigma.init_sigma_vertical_coord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.sigma.init_sigma_vertical_coord</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.sigma.init_sigma_vertical_coord.html#polaris.ocean.vertical.sigma.init_sigma_vertical_coord" title="polaris.ocean.vertical.sigma.init_sigma_vertical_coord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.sigma.init_sigma_vertical_coord</span></code></a>(...)</p></td>
 <td><p>Create a sigma (terrain-following) vertical coordinate based on the config options in the <cite>vertical_grid`</cite> section and the <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> variables of the mesh data set.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.sigma.update_sigma_layer_thickness.html#polaris.ocean.vertical.sigma.update_sigma_layer_thickness" title="polaris.ocean.vertical.sigma.update_sigma_layer_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.sigma.update_sigma_layer_thickness</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.sigma.update_sigma_layer_thickness.html#polaris.ocean.vertical.sigma.update_sigma_layer_thickness" title="polaris.ocean.vertical.sigma.update_sigma_layer_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.sigma.update_sigma_layer_thickness</span></code></a>(...)</p></td>
 <td><p>Update the sigma vertical coordinate layer thicknesses based on the <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> variables of the mesh data set.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.sigma.compute_sigma_layer_thickness.html#polaris.ocean.vertical.sigma.compute_sigma_layer_thickness" title="polaris.ocean.vertical.sigma.compute_sigma_layer_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.sigma.compute_sigma_layer_thickness</span></code></a>(...)</p></td>
+<td><p>Compute sigma layer thickness by stretching restingThickness based on ssh and bottom_depth</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.update_layer_thickness.html#polaris.ocean.vertical.update_layer_thickness" title="polaris.ocean.vertical.update_layer_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.update_layer_thickness</span></code></a>(config, ds)</p></td>
 <td><p>Update the layer thicknesses in ds after the vertical coordinate has already been initialized based on the <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> variables of the mesh data set.</p></td>
@@ -1086,6 +1111,21 @@
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.zstar.update_z_star_layer_thickness.html#polaris.ocean.vertical.zstar.update_z_star_layer_thickness" title="polaris.ocean.vertical.zstar.update_z_star_layer_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.zstar.update_z_star_layer_thickness</span></code></a>(...)</p></td>
 <td><p>Update the z-star vertical coordinate layer thicknesses based on the <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> variables of the mesh data set.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.z_tilde_from_pressure.html#polaris.ocean.vertical.ztilde.z_tilde_from_pressure" title="polaris.ocean.vertical.ztilde.z_tilde_from_pressure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.ztilde.z_tilde_from_pressure</span></code></a>(p, rho0)</p></td>
+<td><p>Convert sea pressure to pseudo-height.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.pressure_from_z_tilde.html#polaris.ocean.vertical.ztilde.pressure_from_z_tilde" title="polaris.ocean.vertical.ztilde.pressure_from_z_tilde"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.ztilde.pressure_from_z_tilde</span></code></a>(...)</p></td>
+<td><p>Convert pseudo-height to sea pressure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.pressure_from_geom_thickness.html#polaris.ocean.vertical.ztilde.pressure_from_geom_thickness" title="polaris.ocean.vertical.ztilde.pressure_from_geom_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.ztilde.pressure_from_geom_thickness</span></code></a>(...)</p></td>
+<td><p>Compute the pressure at layer interfaces and midpoints given surface pressure, geometric layer thicknesses, and specific volume.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height.html#polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height" title="polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height</span></code></a>(...)</p></td>
+<td><p>Compute the pressure at layer interfaces and midpoints, as well as the specific volume at midpoints given geometric layer thicknesses, temperature and salinity at layer midpoints (i.e. constant in geometric height, not pseudo-height), and surface pressure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height.html#polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height" title="polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.ztilde.geom_height_from_pseudo_height</span></code></a>(...)</p></td>
+<td><p>Sum geometric heights from pseudo-heights and specific volume.</p></td>
 </tr>
 </tbody>
 </table>

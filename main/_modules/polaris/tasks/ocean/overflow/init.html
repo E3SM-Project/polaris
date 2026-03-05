@@ -116,8 +116,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.planar_hex</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_planar_hex_mesh</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.planar</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_density</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_density</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_vertical_coord</span>
 
 
@@ -234,15 +234,7 @@
         <span class="n">salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;salinity&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
         <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
 
-        <span class="n">density</span> <span class="o">=</span> <span class="n">compute_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">(</span>
-                <span class="s1">&#39;Time&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;nCells&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
-        <span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="p">)</span>
 
         <span class="c1"># initial velocity on edges is stationary</span>
         <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
