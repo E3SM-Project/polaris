@@ -195,6 +195,28 @@ output to double precision, adjusting sea surface height in ice-shelf cavities,
 and outputting variables related to frazil ice and land-ice fluxes.
 
 
+(dev-ocean-framework-eos)=
+
+## Equations of state (EOS)
+
+Polaris ocean tasks use EOS utilities from the `polaris.ocean.eos` package.
+
+The high-level APIs are {py:func}`polaris.ocean.eos.compute_density()` and
+{py:func}`polaris.ocean.eos.compute_specvol()`.  These functions dispatch
+based on `eos_type` in the `[ocean]` config section.
+
+- `eos_type = linear` uses the linear EOS and calls
+  {py:func}`polaris.ocean.eos.linear.compute_linear_density()`.
+- `eos_type = teos-10` uses TEOS-10 and calls
+  {py:func}`polaris.ocean.eos.teos10.compute_specvol()`, with density computed
+  as the inverse of specific volume.
+
+The linear EOS coefficients and reference values are set with ocean config
+options such as `eos_linear_alpha`, `eos_linear_beta`, `eos_linear_rhoref`,
+`eos_linear_Tref`, and `eos_linear_Sref`.  TEOS-10 requires pressure to be
+provided when calling the high-level EOS functions.
+
+
 (dev-ocean-spherical-meshes)=
 
 ## Quasi-uniform and Icosahedral Spherical Meshes
@@ -534,11 +556,32 @@ this section of the config file. The function
 {py:func}`polaris.ocean.vertical.init_vertical_coord()` can be used to compute
 `minLevelCell`, `maxLevelCell`, `cellMask`, `layerThickness`, `zMid`,
 and `restingThickness` variables for {ref}`ocean-z-level` and
-{ref}`ocean-z-star` coordinates using the `ssh` and `bottomDepth` as well
+{ref}`ocean-z-star` coordinates (including the `z-tilde` option handled
+through z-star infrastructure) using the `ssh` and `bottomDepth` as well
 as config options from `vertical_grid`. The function
-{py:func}`polaris.ocean.vertical.update_layer_thickness` can be used to update
+{py:func}`polaris.ocean.vertical.update_layer_thickness()` can be used to update
 `layerThickness` when either or both of `bottomDepth` and `ssh` have been
-changed.
+changed.  After thicknesses are updated, tasks can call
+{py:func}`polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness()` to
+recover `zInterface` and `zMid` from the resulting layer thickness.
+
+For workflows that need pseudo-height/pressure conversion, the
+`polaris.ocean.vertical.ztilde` module provides utilities:
+
+- {py:func}`polaris.ocean.vertical.ztilde.z_tilde_from_pressure()` and
+  {py:func}`polaris.ocean.vertical.ztilde.pressure_from_z_tilde()` convert
+  between pseudo-height and pressure.
+- {py:func}`polaris.ocean.vertical.ztilde.pressure_from_geom_thickness()` and
+  {py:func}`polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height()`
+  compute hydrostatic pressure (and specific volume) from geometric layer
+  thickness and state variables.
+- {py:func}`polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height()`
+  reconstructs geometric layer-interface and midpoint heights from
+  pseudo-thickness and specific volume.
+
+For sigma coordinates, shared functionality for direct thickness computation is
+available in
+{py:func}`polaris.ocean.vertical.sigma.compute_sigma_layer_thickness()`.
 
 (dev-ocean-rpe)=
 
