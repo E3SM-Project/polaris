@@ -3,6 +3,9 @@ ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
 ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
 ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
+ocean/planar/merry_go_round/convergence_both_order2
+ocean/planar/merry_go_round/convergence_both_order3
+ocean/planar/merry_go_round/convergence_both_order4
 ocean/planar/inertial_gravity_wave/convergence_both
 # ocean/planar/manufactured_solution
 ocean/single_column/ekman
