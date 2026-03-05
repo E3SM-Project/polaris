@@ -15,6 +15,7 @@ import numpy as np
 import xarray as xr
 
 from polaris.config import PolarisConfigParser
+from polaris.constants import get_constant
 from polaris.ocean.eos import compute_specvol
 
 __all__ = [
@@ -24,9 +25,7 @@ __all__ = [
     'pressure_from_geom_thickness',
 ]
 
-# TODO: replace with value looked up in GCD YAML file when possible
-# Temporarily hard-coded with the GCD/Omega value
-Gravity = 9.80665
+Gravity = get_constant('standard_acceleration_of_gravity')
 
 
 def z_tilde_from_pressure(p: xr.DataArray, rho0: float) -> xr.DataArray:
