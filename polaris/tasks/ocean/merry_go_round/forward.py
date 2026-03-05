@@ -29,6 +29,8 @@ class Forward(ConvergenceForward):
         subdir,
         init,
         refinement='both',
+        vert_adv_order=3,
+        limiter=False,
     ):
         """
         Create a new test case
@@ -71,6 +73,43 @@ class Forward(ConvergenceForward):
             output_filename='output.nc',
             validate_vars=validate_vars,
         )
+        self.order = vert_adv_order
+        self.limiter = limiter
+
+    def setup(self):
+        """
+        TEMP: symlink initial condition to name hard-coded in Omega
+        """
+        super().setup()
+        config = self.config
+        model = config.get('ocean', 'model')
+        # TODO: remove as soon as Omega no longer hard-codes this file
+        if model == 'omega':
+            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
+
+    def dynamic_model_config(self, at_setup):
+        """
+        Add model config options, namelist, streams and yaml files using config
+        options or template replacements that need to be set both during step
+        setup and at runtime
+
+        Parameters
+        ----------
+        at_setup : bool
+            Whether this method is being run during setup of the step, as
+            opposed to at runtime
+        """
+        super().dynamic_model_config(at_setup)
+
+        self.add_model_config_options(
+            options={'config_vert_tracer_adv_flux_order': self.order},
+            config_model='ocean',
+        )
+        if self.limiter:
+            self.add_model_config_options(
+                options={'VerticalTracerFluxLimiterEnable': True},
+                config_model='Omega',
+            )
 
     def compute_cell_count(self):
         """

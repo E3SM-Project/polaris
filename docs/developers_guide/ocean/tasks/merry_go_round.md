@@ -3,7 +3,7 @@
 # merry-go-round
 
 The merry-go-round task group is currently comprised of one `default` task for
-quick testing and two convergence tests testing the convergence in space
+quick testing and several convergence tests testing the convergence in space
 and both space and time.
 
 ## framework
