@@ -12,7 +12,7 @@ domain in order to verify tracer advection.
 
 ## supported models
 
-These tasks only support MPAS-Ocean.
+These tasks support MPAS-Ocean and Omega.
 
 (ocean-merry-go-round-default)=
 
@@ -29,7 +29,7 @@ resolution.
 
 The forward step runs the model for the requested length of time. Tendencies
 for normal velocity and layer thickness are disabled, such that these fields
-remain fixed at their initial conditions throughout the simulation.
+remain fixed at their initial conditions throughout the simulation. This forward run enables monotonic (flux-corrected) tracer advection.
 
 The visualization step produces a plot illustrating the horizontal velocity,
 vertical velocity, simulated `tracer1` concentration, the error in simulated
@@ -37,6 +37,7 @@ tracer concentration at the end of the forward simulation.
 (See above for an example).
 
 ### mesh
+
 The mesh is planar and the resolution is specified by config option
 `merry_go_round_default:resolution`, which defaults to 5 m. The horizontal
 dimensions of the domain are set by config options `merry_go_round:lx` and
@@ -145,9 +146,11 @@ The number of cores is determined according to the config options
 
 There are two versions of the convergence test case: `convergence_space` and 
 `convergence_both` corresponding to space and both space and time convergence
-tests. All settings are the same as the
+tests. All settings, except monotonic tracer advection, are the same as the
 {ref}`ocean-merry-go-round-default` case, but now the resolution and/or time step
-are refined to asses the order of convergence for tracer advection. Tests
+are refined to asses the order of convergence for tracer advection. For the
+convergence tests, monotonic tracer advection is disabled; simulations with
+this option are not expected to show convergence. Tests
 involving spatial convergence have a horizontal resolution of
 `convergence:base_resolution` times `convergence:refinement_factors_space`.
 Tests invoking both spatial and temporal convergence refine the spatial
@@ -155,6 +158,9 @@ resolution as described above and use a time step set by
 `merry_go_round:dt_per_km` times the refined spatial resolution
 (see {ref}`dev-ocean-convergence` for more details on how to change resolutions
 or time steps tested).
+
+Different vertical advection orders may be tested by appending `_order2`,
+`_order3`, or `_order4` to `convergence_space` or `convergence_both`.
 
 The init and forward steps are analogous to what is described above for
 {ref}`ocean-merry-go-round-default`.
