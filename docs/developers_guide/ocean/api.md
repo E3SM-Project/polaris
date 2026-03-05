@@ -555,6 +555,21 @@
    get_time_interval_string
 ```
 
+### Equations of state (EOS)
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.eos
+
+.. autosummary::
+   :toctree: generated/
+
+   compute_density
+   compute_specvol
+
+   linear.compute_linear_density
+   teos10.compute_specvol
+```
+
 
 ### Reference Potential Energy (RPE)
 
@@ -577,6 +592,7 @@
    :toctree: generated/
 
    vertical.init_vertical_coord
+   vertical.compute_zint_zmid_from_layer_thickness
    vertical.diagnostics.depth_from_thickness
    vertical.grid_1d.generate_1d_grid
    vertical.grid_1d.write_1d_grid
@@ -584,6 +600,7 @@
    vertical.partial_cells.alter_ssh
    vertical.sigma.init_sigma_vertical_coord
    vertical.sigma.update_sigma_layer_thickness
+   vertical.sigma.compute_sigma_layer_thickness
    vertical.update_layer_thickness
    vertical.zlevel.init_z_level_vertical_coord
    vertical.zlevel.update_z_level_layer_thickness
@@ -592,5 +609,10 @@
    vertical.zlevel.compute_z_level_resting_thickness
    vertical.zstar.init_z_star_vertical_coord
    vertical.zstar.update_z_star_layer_thickness
+   vertical.ztilde.z_tilde_from_pressure
+   vertical.ztilde.pressure_from_z_tilde
+   vertical.ztilde.pressure_from_geom_thickness
+   vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height
+   vertical.ztilde.geom_height_from_pseudo_height
 ```
 
