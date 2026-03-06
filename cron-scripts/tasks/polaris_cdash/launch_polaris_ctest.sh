@@ -172,7 +172,7 @@ run_baseline_suite() {
         cd "$polaris_build"
         echo "Submitting baseline job in $(pwd)..."
         # Fire and forget / continue on error
-        sbatch --wait job_script.omega_pr.sh || true
+        sbatch --wait job_script.omega_nightly.sh || true
     else
         echo "Error: Baseline directory $polaris_build was not created."
     fi
