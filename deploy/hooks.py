@@ -107,7 +107,8 @@ def _get_pixi_mpi(machine, machine_config):
         compiler = section.get('compiler')
         if compiler is None:
             raise ValueError("Missing 'compiler' option in 'deploy' section")
-        mpi_option = f'mpi_{compiler}'
+        compiler_underscore = compiler.replace('-', '_')
+        mpi_option = f'mpi_{compiler_underscore}'
         mpi = section.get(mpi_option)
         if mpi is None:
             raise ValueError(
