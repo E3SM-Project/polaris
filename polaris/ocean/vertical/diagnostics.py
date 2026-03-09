@@ -7,6 +7,20 @@ from polaris.ocean.vertical.ztilde import (
 )
 
 
+def geom_thickness_from_ds(ds, config):
+    rho0 = config.getfloat('vertical_grid', 'rho0')
+    if 'layerThickness' in ds.keys():
+        return ds['layerThickness']
+    elif 'SpecVol' in ds.keys() and 'PseudoThickness' in ds.keys():
+        return rho0 * ds['SpecVol'] * ds['layerThickness']
+    else:
+        raise ValueError(
+            'Geometric layerThickness is not present in the '
+            'initial condition and SpecVol is not present '
+            'to compute it'
+        )
+
+
 def pseudothickness_from_ds(ds, config):
     if 'temperature' not in ds.keys() or 'salinity' not in ds.keys():
         print(
