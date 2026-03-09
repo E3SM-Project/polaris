@@ -8,7 +8,10 @@ from mpas_tools.vector.reconstruct import reconstruct_variable
 from ruamel.yaml import YAML
 
 from polaris import Component
-from polaris.ocean.vertical.diagnostics import pseudothickness_from_ds
+from polaris.ocean.vertical.diagnostics import (
+    geom_thickness_from_ds,
+    pseudothickness_from_ds,
+)
 
 
 class Ocean(Component):
@@ -245,6 +248,7 @@ class Ocean(Component):
     def open_model_dataset(
         self,
         filename,
+        config=None,
         mesh_filename=None,
         reconstruct_variables=None,
         coeffs_filename=None,
@@ -259,8 +263,8 @@ class Ocean(Component):
         filename : str
             The path for the NetCDF file to open
 
-        ds_mesh : xr.Dataset
-            The MPAS mesh dataset for the ocean model.
+        config : polaris.Config, optional
+            The configuration object for the simulation.
 
         mesh_filename : str, optional
             Path to the mesh NetCDF file.
@@ -284,6 +288,13 @@ class Ocean(Component):
         """
         ds = xr.open_dataset(filename, **kwargs)
         ds = self.map_from_native_model_vars(ds)
+        if (
+            self.model == 'omega'
+            and 'layerThickness' in ds.keys()
+            and config is not None
+        ):
+            ds['PseudoThickness'] = ds.layerThickness
+            ds['layerThickness'] = geom_thickness_from_ds(ds, config=config)
         ds = _add_reconstructed_variables_to_dataset(
             ds, reconstruct_variables, mesh_filename, coeffs_filename
         )
