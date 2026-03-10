@@ -52,7 +52,7 @@ for COMPILER in ${E3SM_COMPILERS}; do
     mkdir -p ${WORKDIR}/test
 
     ln -sf  ${TESTROOT}/OmegaMesh.nc ${WORKDIR}/test/OmegaMesh.nc
-    ln -sf  ${TESTROOT}/OmegaSphereMesh.nc ${WORKDIR}/test/OmegaSphereMesh.nc 
+    ln -sf  ${TESTROOT}/OmegaSphereMesh.nc ${WORKDIR}/test/OmegaSphereMesh.nc
     ln -sf  ${TESTROOT}/OmegaPlanarMesh.nc ${WORKDIR}/test/OmegaPlanarMesh.nc
 
     source ${WORKDIR}/omega_env.sh

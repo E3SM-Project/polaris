@@ -6,7 +6,7 @@
 #SBATCH  --output=/global/cfs/cdirs/e3sm/omega/cronjobs_pm-gpu/logs/OmegaSCronGPU_%j.out
 #SBATCH  --error=/global/cfs/cdirs/e3sm/omega/cronjobs_pm-gpu/logs/OmegaSCronGPU_%j.err
 #SBATCH  --constraint=gpu
-#SBATCH  --account=e3sm_g 
+#SBATCH  --account=e3sm_g
 #SBATCH  --qos regular
 #SBATCH  --exclusive
 #SBATCH  --time 01:00:00
@@ -62,7 +62,7 @@ for COMPILER in ${E3SM_COMPILERS}; do
     mkdir -p ${WORKDIR}/test
 
     ln -sf  ${TESTROOT}/OmegaMesh.nc ${WORKDIR}/test/OmegaMesh.nc
-    ln -sf  ${TESTROOT}/OmegaSphereMesh.nc ${WORKDIR}/test/OmegaSphereMesh.nc 
+    ln -sf  ${TESTROOT}/OmegaSphereMesh.nc ${WORKDIR}/test/OmegaSphereMesh.nc
     ln -sf  ${TESTROOT}/OmegaPlanarMesh.nc ${WORKDIR}/test/OmegaPlanarMesh.nc
 
     source ${WORKDIR}/omega_env.sh

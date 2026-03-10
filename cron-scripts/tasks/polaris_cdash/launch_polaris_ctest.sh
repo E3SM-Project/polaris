@@ -60,7 +60,7 @@ setup_polaris_repo() {
     echo "STEP 1: Setting up Polaris Repo (Baseline)"
     echo "================================================================================"
     cd "${POLARIS_CDASH_BASEDIR}"
-    
+
     # Check if we are inside the 'polaris' folder or need to enter it
     if [ ! -d "polaris" ]; then
         echo "Cloning Polaris repository..."
@@ -73,7 +73,7 @@ setup_polaris_repo() {
         git checkout main
         git reset --hard origin/main
     fi
-    
+
     echo "Updating specific submodules (jigsaw-python, Omega)..."
     git submodule update --init --recursive jigsaw-python
     git submodule update --init --recursive e3sm_submodules/Omega
@@ -85,7 +85,7 @@ configure_polaris() {
     echo "--------------------------------------------------------------------------------"
     echo "Configuring Polaris for $compiler"
     echo "--------------------------------------------------------------------------------"
-    
+
     cd "${POLARIS_CDASH_BASEDIR}/polaris"
 
     if [ ! -f "configure_polaris_envs.py" ]; then
@@ -148,7 +148,7 @@ run_baseline_suite() {
     echo "--------------------------------------------------------------------------------"
     echo "Running Polaris Baseline Suite for $compiler"
     echo "--------------------------------------------------------------------------------"
-    
+
     cd ""
 
     local env_file=$(ls ${POLARIS_CDASH_BASEDIR}/polaris/load_dev_polaris_*_${CRONJOB_MACHINE}_${compiler}_*.sh | head -n 1)
@@ -188,7 +188,7 @@ for COMPILER in ${E3SM_COMPILERS}; do
     echo "################################################################################"
     echo "Processing Baseline for COMPILER: $COMPILER"
     echo "################################################################################"
-    
+
     MAIN_LOG="${CRONJOB_LOGDIR}/polaris_cdash_main_${CRONJOB_DATE}.log"
 
     echo "Starting $COMPILER... logging to $MAIN_LOG"
@@ -207,13 +207,13 @@ for COMPILER in ${E3SM_COMPILERS}; do
 		fi
 
         build_omega_dev "$COMPILER" "$DEVELOP_BUILD" "$PARMETIS_HOME"
-        
+
         run_baseline_suite "$COMPILER" "$DEVELOP_BUILD"
     } 2>&1 | tee "$MAIN_LOG"
-    
+
     # CDash Submission Logic
     BUILD_ID=$(date +%s)
-    
+
     CASE_OUTPUTS_DIR="${POLARIS_CDASH_TESTDIR}/${COMPILER}/polaris_build/case_outputs"
 
     CDASH_DIR="${POLARIS_CDASH_TESTDIR}/${COMPILER}/cdash"
@@ -233,7 +233,7 @@ for COMPILER in ${E3SM_COMPILERS}; do
     else
         echo "Error: polaris_cdash.py not found at ${HERE}/polaris_cdash.py"
     fi
-    
+
     echo "Running CTest submission from $CDASH_DIR..."
     if [ -f "${HERE}/CTestScript.txt" ]; then
          cp "${HERE}/CTestScript.txt" "$CDASH_DIR/"
@@ -243,7 +243,7 @@ for COMPILER in ${E3SM_COMPILERS}; do
     else
          echo "Warning: CTestScript.txt not found in ${HERE}"
     fi
-    
+
     echo "Finished Baseline processing for $COMPILER"
 done
 
