@@ -7,10 +7,12 @@
 Steps that run a standalone build of an E3SM component should descend from the
 {py:class}`polaris.ModelStep` class.
 
-By default (if the attribute `update_pio = True`), at runtime, the namelist
-options associated with the [PIO library](https://ncar.github.io/ParallelIO/)
-will automatically be set.  If the `make_graph = True`, the mesh will be
-partitioned across MPI tasks at runtime.
+By default (if the attribute `update_io_tasks = True`), at runtime, model
+config options associated with [PIO](https://ncar.github.io/ParallelIO/) and
+other IO task settings are automatically set to one IO task per node.  For
+MPAS components, this updates namelist options; for Omega, this updates yaml
+config options.  If `make_graph = True`, the mesh is partitioned across MPI
+tasks at runtime.
 
 During construction or by setting attributes directly, you can can provide
 non-default names for the graph, namelist and streams files.  At construction
@@ -399,26 +401,30 @@ creating the same partition over and over.  For such cases, you can
 provide `partition_graph=False` and then call
 {py:meth}`polaris.ModelStep.partition()` manually where appropriate.
 
-## Updating PIO namelist options
+## Updating IO task options
 
-You can use {py:meth}`polaris.ModelStep.update_namelist_pio()` to
-automatically set  the MPAS namelist options `config_pio_num_iotasks` and
-`config_pio_stride` such that there is 1 PIO task per node of the MPAS run.
+You can use {py:meth}`polaris.ModelStep.update_io_tasks_config()` to
+automatically set the MPAS namelist options `config_pio_num_iotasks` and
+`config_pio_stride` such that there is 1 IO task per node of the run.
 This is particularly useful for PIO v1, which we have found performs much
 better in this  configuration than when there is 1 PIO task per core, the MPAS
 default.  When running with PIO v2, we have found little performance difference
 between the MPAS default and the polaris default of one task per node, so we
 feel this is a safe default.
 
+For Omega runs, these same MPAS options are mapped to `Omega/IO/IOTasks` and
+`Omega/IO/IOStride` in yaml config files.
+
 By default, this function is called in
 {py:meth}`polaris.ModelStep.runtime_setup()`.  If the same namelist
 file is used for multiple model runs, it may be useful to update the number of
-PIO tasks only once.  In this case, set the attribute `update_pio = False` and
-{py:meth}`polaris.ModelStep.update_namelist_pio()` yourself.
+IO tasks only once.  In this case, set the attribute
+`update_io_tasks = False` and call
+{py:meth}`polaris.ModelStep.update_io_tasks_config()` yourself.
 
 If you wish to use the MPAS default behavior of 1 PIO task per core, or wish to
 set `config_pio_num_iotasks` and `config_pio_stride` yourself, simply
-set `update_pio = False`.
+set `update_io_tasks = False`.
 
 ## Making a graph file
 
