@@ -10,6 +10,7 @@ from polaris.ocean.vertical import init_vertical_coord
 from polaris.ocean.vertical.ztilde import (
     # temporary until we can get this for GCD
     Gravity,
+    RhoSw,
     geom_height_from_pseudo_height,
     pressure_from_z_tilde,
 )
@@ -79,11 +80,6 @@ class Init(OceanIOStep):
 
         horiz_res = self.horiz_res
         vert_res = self.vert_res
-        rho0 = config.getfloat('vertical_grid', 'rho0')
-        assert rho0 is not None, (
-            'The "rho0" configuration option must be set in the '
-            '"vertical_grid" section.'
-        )
 
         z_tilde_bot_mid = hpg_section.getfloat('z_tilde_bot_mid')
 
@@ -184,11 +180,9 @@ class Init(OceanIOStep):
                 ds=ds,
                 z_tilde_mid=z_tilde_mid,
                 x=x,
-                rho0=rho0,
             )
             p_mid = pressure_from_z_tilde(
                 z_tilde=z_tilde_mid,
-                rho0=rho0,
             )
 
             logger.debug(f'ct = {ct}')
@@ -216,7 +210,6 @@ class Init(OceanIOStep):
                 spec_vol=spec_vol,
                 min_level_cell=min_level_cell,
                 max_level_cell=max_level_cell,
-                rho0=rho0,
             )
 
             logger.debug(f'geom_z_inter = {geom_z_inter}')
@@ -326,7 +319,7 @@ class Init(OceanIOStep):
         )
         ds.GeomZInter.attrs['units'] = 'm'
 
-        self._compute_montgomery_and_hpga(ds=ds, rho0=rho0, dx=dx, p_mid=p_mid)
+        self._compute_montgomery_and_hpga(ds=ds, dx=dx, p_mid=p_mid)
 
         ds.layerThickness.attrs['long_name'] = 'pseudo-layer thickness'
         ds.layerThickness.attrs['units'] = 'm'
@@ -357,7 +350,6 @@ class Init(OceanIOStep):
     def _compute_montgomery_and_hpga(
         self,
         ds: xr.Dataset,
-        rho0: float,
         dx: float,
         p_mid: xr.DataArray,
     ) -> None:
@@ -419,7 +411,7 @@ class Init(OceanIOStep):
         )
         # Montgomery: M = alpha * p + g * z, with p = -rho0 * g * z_tilde
         montgomery_inter = Gravity * (
-            z_bnds - rho0 * alpha_bnds * z_tilde_bnds
+            z_bnds - RhoSw * alpha_bnds * z_tilde_bnds
         )
         montgomery_inter = montgomery_inter.transpose(
             'Time', 'nCells', 'nVertLevels', 'nbnds'
@@ -599,7 +591,6 @@ class Init(OceanIOStep):
         ds: xr.Dataset,
         z_tilde_mid: xr.DataArray,
         x: np.ndarray,
-        rho0: float,
     ) -> tuple[xr.DataArray, xr.DataArray]:
         """
         Compute temperature, salinity, pressure and specific volume given
