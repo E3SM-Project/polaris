@@ -4,9 +4,9 @@ Conversions between Omega pseudo-height and pressure.
 Omega's vertical coordinate is pseudo-height
     z_tilde = -p / (rho0 * g)
 with z_tilde positive upward. Here, ``p`` is sea pressure in Pascals (Pa),
-``rho0`` is a reference density (kg m^-3) supplied by the caller, and
-``g`` is gravitational acceleration obtained from
-``mpas_tools.cime.constants``.
+``rho0`` is a reference density (kg m^-3), and ``g`` is gravitational
+acceleration as defined by ``polaris.constants`` via the Physical Constants
+Dictionary.
 """
 
 import logging
@@ -26,9 +26,10 @@ __all__ = [
 ]
 
 Gravity = get_constant('standard_acceleration_of_gravity')
+RhoSw = get_constant('seawater_density_reference')
 
 
-def z_tilde_from_pressure(p: xr.DataArray, rho0: float) -> xr.DataArray:
+def z_tilde_from_pressure(p: xr.DataArray) -> xr.DataArray:
     """
     Convert sea pressure to pseudo-height.
 
@@ -39,16 +40,13 @@ def z_tilde_from_pressure(p: xr.DataArray, rho0: float) -> xr.DataArray:
     p : xarray.DataArray
         Sea pressure in Pascals (Pa).
 
-    rho0 : float
-        Reference density in kg m^-3.
-
     Returns
     -------
     xarray.DataArray
         Pseudo-height with the same shape and coords as ``p`` (units: m).
     """
 
-    z = -(p) / (rho0 * Gravity)
+    z = -(p) / (RhoSw * Gravity)
     return z.assign_attrs(
         {
             'long_name': 'pseudo-height',
@@ -58,7 +56,7 @@ def z_tilde_from_pressure(p: xr.DataArray, rho0: float) -> xr.DataArray:
     )
 
 
-def pressure_from_z_tilde(z_tilde: xr.DataArray, rho0: float) -> xr.DataArray:
+def pressure_from_z_tilde(z_tilde: xr.DataArray) -> xr.DataArray:
     """
     Convert pseudo-height to sea pressure.
 
@@ -69,16 +67,13 @@ def pressure_from_z_tilde(z_tilde: xr.DataArray, rho0: float) -> xr.DataArray:
     z_tilde : xarray.DataArray
         Pseudo-height in meters (m), positive upward.
 
-    rho0 : float
-        Reference density in kg m^-3.
-
     Returns
     -------
     xarray.DataArray
         Sea pressure with the same shape and coords as ``z_tilde`` (Pa).
     """
 
-    p = -(z_tilde) * (rho0 * Gravity)
+    p = -(z_tilde) * (RhoSw * Gravity)
     return p.assign_attrs(
         {
             'long_name': 'sea pressure',
@@ -158,14 +153,13 @@ def pressure_and_spec_vol_from_state_at_geom_height(
     iteratively starting from a specific volume calculated from the reference
     density.
 
-    Requires config option ``[vertical_grid] rho0`` and those required
-    for {py:func}`polaris.ocean.eos.compute_specvol()`.
+    Requires config options needed by
+    {py:func}`polaris.ocean.eos.compute_specvol()`.
 
     Parameters
     ----------
     config : polaris.config.PolarisConfigParser
-        Configuration options with parameters defining the equation of state
-        and ``rho0`` for the pseudo-height.
+        Configuration options with parameters defining the equation of state.
 
     geom_layer_thickness : xarray.DataArray
         The geometric thickness of each layer.
@@ -197,14 +191,7 @@ def pressure_and_spec_vol_from_state_at_geom_height(
         The specific volume at layer midpoints.
     """
 
-    rho0 = config.getfloat('vertical_grid', 'rho0')
-    if rho0 is None:
-        raise ValueError(
-            'Config option [vertical_grid] rho0 must be set to use '
-            'pressure_and_spec_vol_from_state_at_geom_height().'
-        )
-
-    spec_vol = 1.0 / rho0 * xr.ones_like(geom_layer_thickness)
+    spec_vol = 1.0 / RhoSw * xr.ones_like(geom_layer_thickness)
 
     p_interface, p_mid = pressure_from_geom_thickness(
         surf_pressure=surf_pressure,
@@ -246,7 +233,6 @@ def geom_height_from_pseudo_height(
     spec_vol: xr.DataArray,
     min_level_cell: np.ndarray,
     max_level_cell: np.ndarray,
-    rho0: float,
 ) -> tuple[xr.DataArray, xr.DataArray]:
     """
     Sum geometric heights from pseudo-heights and specific volume.
@@ -268,9 +254,6 @@ def geom_height_from_pseudo_height(
     max_level_cell : xarray.DataArray
         Maximum valid zero-based level index for each cell.
 
-    rho0 : float
-        Reference density in kg m^-3.
-
     Returns
     -------
     geom_z_inter : xarray.DataArray
@@ -289,7 +272,7 @@ def geom_height_from_pseudo_height(
         z_index >= min_level_cell, z_index <= max_level_cell
     )
 
-    geom_thickness = (spec_vol * h_tilde * rho0).where(mid_mask, 0.0)
+    geom_thickness = (spec_vol * h_tilde * RhoSw).where(mid_mask, 0.0)
 
     dz_rev = geom_thickness.isel(nVertLevels=slice(None, None, -1))
     sum_from_level = dz_rev.cumsum(dim='nVertLevels').isel(
