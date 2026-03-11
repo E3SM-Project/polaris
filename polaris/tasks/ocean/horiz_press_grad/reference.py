@@ -11,7 +11,7 @@ import xarray as xr
 from polaris.ocean.model import OceanIOStep
 
 # temporary until we can get this for GCD
-from polaris.ocean.vertical.ztilde import Gravity
+from polaris.ocean.vertical.ztilde import Gravity, RhoSw
 from polaris.tasks.ocean.horiz_press_grad.column import (
     get_array_from_mid_grad,
     get_pchip_interpolator,
@@ -94,11 +94,6 @@ class Reference(OceanIOStep):
             'The "reference_horiz_res" configuration option must be set in '
             'the "horiz_press_grad" section.'
         )
-        rho0 = config.getfloat('vertical_grid', 'rho0')
-        assert rho0 is not None, (
-            'The "rho0" configuration option must be set in the '
-            '"vertical_grid" section.'
-        )
 
         x = resolution * np.array([-1.5, -0.5, 0.0, 0.5, 1.5], dtype=float)
 
@@ -163,7 +158,7 @@ class Reference(OceanIOStep):
 
         # compute Montgomery potential M = alpha * p + g * z
         # with p = -rho0 * g * z_tilde (p positive downward)
-        montgomery = Gravity * (z - rho0 * spec_vol * z_tilde)
+        montgomery = Gravity * (z - RhoSw * spec_vol * z_tilde)
 
         dx = resolution * 1.0e3  # m
 
@@ -189,7 +184,7 @@ class Reference(OceanIOStep):
         # the HPGF is grad(M) - p * grad(alpha)
         # Here we just compute the gradient at x=0 using a 4th-order
         # finite-difference stencil
-        p0 = -rho0 * Gravity * z_tilde[2, :]
+        p0 = -RhoSw * Gravity * z_tilde[2, :]
         # indices for -1.5dx, -0.5dx, 0.5dx, 1.5dx
         grad_indices = [0, 1, 3, 4]
         dM_dx = _compute_4th_order_gradient(montgomery[grad_indices, :], dx)
@@ -449,11 +444,6 @@ class Reference(OceanIOStep):
             'The "reference_quadrature_method" configuration option must be '
             'set in the "horiz_press_grad" section.'
         )
-        rho0 = config.getfloat('vertical_grid', 'rho0')
-        assert rho0 is not None, (
-            'The "rho0" configuration option must be set in the '
-            '"vertical_grid" section.'
-        )
         water_col_adjust_iter_count = section.getint(
             'water_col_adjust_iter_count'
         )
@@ -518,7 +508,6 @@ class Reference(OceanIOStep):
                 sa_nodes=salinity_node,
                 ct_nodes=temperature_node,
                 bottom_depth=-geom_z_bot,
-                rho0=rho0,
                 method=method,
             )
 
@@ -546,7 +535,6 @@ def _integrate_geometric_height(
     sa_nodes: Sequence[float] | np.ndarray,
     ct_nodes: Sequence[float] | np.ndarray,
     bottom_depth: float,
-    rho0: float,
     method: Literal[
         'midpoint', 'trapezoid', 'simpson', 'gauss2', 'gauss4', 'adaptive'
     ] = 'gauss4',
@@ -598,8 +586,6 @@ def _integrate_geometric_height(
         ``z_tilde_nodes``.
     bottom_depth : float
         Positive depth (m); geometric height at seafloor is ``-bottom_depth``.
-    rho0 : float
-        Reference density used in the pseudo-height definition.
     method : str, optional
         Quadrature method ('midpoint','trapezoid','simpson','gauss2',
         'gauss4','adaptive'). Default 'gauss4'.
@@ -664,14 +650,14 @@ def _integrate_geometric_height(
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         sa = sa_interp(z_tilde)
         ct = ct_interp(z_tilde)
-        p_pa = -rho0 * Gravity * z_tilde
+        p_pa = -RhoSw * Gravity * z_tilde
         # gsw expects pressure in dbar
         spec_vol = gsw.specvol(sa, ct, p_pa * 1.0e-4)
         return spec_vol, ct, sa
 
     def integrand(z_tilde: np.ndarray) -> np.ndarray:
         spec_vol, _, _ = spec_vol_ct_sa_at(z_tilde)
-        return rho0 * spec_vol
+        return RhoSw * spec_vol
 
     # fill interface heights: anchor bottom, integrate upward (reverse)
     n_interfaces = len(z_tilde_interfaces)

@@ -58,14 +58,7 @@ class Forward(OceanModelStep):
         """
         super().setup()
 
-        rho0 = self.config.get('vertical_grid', 'rho0')
-        if rho0 is None:
-            raise ValueError(
-                'rho0 must be specified in the config file under vertical_grid'
-            )
-
         self.add_yaml_file(
             'polaris.tasks.ocean.horiz_press_grad',
             'forward.yaml',
-            template_replacements={'rho0': rho0},
         )
