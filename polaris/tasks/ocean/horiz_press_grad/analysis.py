@@ -3,7 +3,7 @@ import numpy as np
 import xarray as xr
 
 from polaris.ocean.model import OceanIOStep
-from polaris.ocean.vertical.ztilde import Gravity
+from polaris.ocean.vertical.ztilde import Gravity, RhoSw
 from polaris.viz import use_mplstyle
 
 
@@ -90,12 +90,6 @@ class Analysis(OceanIOStep):
         logger = self.logger
         config = self.config
 
-        rho0 = config.getfloat('vertical_grid', 'rho0')
-        assert rho0 is not None, (
-            'The "rho0" configuration option must be set in the '
-            '"vertical_grid" section.'
-        )
-
         section = config['horiz_press_grad']
         horiz_resolutions = section.getexpression('horiz_resolutions')
         assert horiz_resolutions is not None, (
@@ -165,7 +159,6 @@ class Analysis(OceanIOStep):
 
             z_tilde_forward = _get_forward_z_tilde_edge_mid(
                 ds_out=ds_out,
-                rho0=rho0,
                 cell0=cell0,
                 cell1=cell1,
             )
@@ -358,7 +351,6 @@ def _get_internal_edge(ds_init: xr.Dataset) -> tuple[int, tuple[int, int]]:
 
 def _get_forward_z_tilde_edge_mid(
     ds_out: xr.Dataset,
-    rho0: float,
     cell0: int,
     cell1: int,
 ) -> np.ndarray:
@@ -370,7 +362,7 @@ def _get_forward_z_tilde_edge_mid(
     pressure_edge_mid = 0.5 * (
         pressure_mid.isel(nCells=cell0) + pressure_mid.isel(nCells=cell1)
     )
-    return (-pressure_edge_mid / (rho0 * Gravity)).values
+    return (-pressure_edge_mid / (RhoSw * Gravity)).values
 
 
 def _sample_reference_without_interpolation(
