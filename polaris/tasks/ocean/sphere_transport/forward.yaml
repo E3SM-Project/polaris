@@ -13,6 +13,8 @@ mpas-ocean:
     config_block_decomp_file_prefix: graph.info.part.
   advection:
     config_vert_coord_movement: impermeable_interfaces
+  transport_tests:
+    config_transport_tests_flow_id: {{ flow_id }}
   debug:
     config_disable_thick_sflux: true
     config_disable_vel_all_tend: true
@@ -61,6 +63,8 @@ mpas-ocean:
       - relativeVorticityCell
 
 Omega:
+  State:
+    PrescribeVelocityType: {{ flow_type }}
   Tendencies:
     ThicknessFluxTendencyEnable : true
     PVTendencyEnable : false
