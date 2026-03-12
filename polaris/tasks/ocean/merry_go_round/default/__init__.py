@@ -51,8 +51,8 @@ class Default(Task):
         init_step.set_shared_config(config, link=config_filename)
         self.add_step(init_step, symlink=symlink)
 
-        subdir = f'{indir}/forward/{mesh_name}_{timestep}s'
-        symlink = f'forward/{mesh_name}_{timestep}s'
+        subdir = f'{indir}/forward/{mesh_name}_{timestep}s_limiter'
+        symlink = f'forward/{mesh_name}_{timestep}s_limiter'
         forward_step = Forward(
             component=component,
             refinement='both',
@@ -60,6 +60,7 @@ class Default(Task):
             name=f'forward_{mesh_name}_{timestep}s',
             subdir=subdir,
             init=init_step,
+            limiter=True,
         )
         forward_step.set_shared_config(config, link=config_filename)
         self.add_step(forward_step, symlink=symlink)

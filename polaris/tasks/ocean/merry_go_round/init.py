@@ -1,6 +1,5 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
@@ -84,18 +83,22 @@ class Init(OceanIOStep):
             nonperiodic_x=True,
             nonperiodic_y=False,
         )
-        write_netcdf(ds_mesh, 'base_mesh.nc')
+        self.write_model_dataset(ds_mesh, 'base_mesh.nc')
 
         ds_mesh = cull(ds_mesh, logger=logger)
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        write_netcdf(ds_mesh, 'culled_mesh.nc')
+        self.write_model_dataset(ds_mesh, 'culled_mesh.nc')
 
         ds = ds_mesh.copy()
 
         ds['ssh'] = xr.zeros_like(ds.xCell)
         ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell)
+
+        ds['fCell'] = xr.zeros_like(ds.xCell)
+        ds['fEdge'] = xr.zeros_like(ds.xEdge)
+        ds['fVertex'] = xr.zeros_like(ds.xVertex)
 
         config.set('vertical_grid', 'vert_levels', str(nz))
         init_vertical_coord(config, ds)
@@ -168,4 +171,4 @@ class Init(OceanIOStep):
         ds['tracer2'] = tracer2_background * xr.ones_like(temperature)
         ds['tracer3'] = tracer3_background * xr.ones_like(temperature)
 
-        write_netcdf(ds, 'initial_state.nc')
+        self.write_model_dataset(ds, 'initial_state.nc')

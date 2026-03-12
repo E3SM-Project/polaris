@@ -329,6 +329,8 @@
 
    forward.Forward
    forward.Forward.compute_cell_count
+   forward.Forward.setup
+   forward.Forward.dynamic_model_config
 
    init.Init
    init.Init.setup
