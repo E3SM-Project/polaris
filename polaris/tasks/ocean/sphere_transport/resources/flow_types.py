@@ -1,6 +1,11 @@
 import numpy as np
+import xarray as xr
 from mpas_tools.transects import lon_lat_to_cartesian
 from numpy import cos, pi, sin
+
+from polaris.mesh.spherical import (
+    calc_vector_east_north,
+)
 
 
 def flow_nondivergent(t, lon, lat, u_0, tau):
@@ -115,18 +120,25 @@ def flow_rotation(lon, lat, omega, tau, sphere_radius):
     omega = (2.0 * pi / tau) * (omega / np.linalg.norm(omega))
     x, y, z = lon_lat_to_cartesian(lon, lat, sphere_radius, degrees=False)
     xyz = np.stack((x, y, z), axis=1)
-    vel = np.cross(omega, np.divide(np.transpose(xyz), sphere_radius), axis=0)
-    east, north = calc_local_east_north(x, y, z)
+    vel = np.cross(omega, np.transpose(xyz), axis=0)
+    east, north = calc_vector_east_north(x, y, z)
     u = np.sum(vel * east, axis=0)
     v = np.sum(vel * north, axis=0)
     return u, v
 
 
-def calc_local_east_north(x, y, z):
-    axis = [0, 0, 1]
-    xyz = np.stack((x, y, z), axis=1)
-    east = np.cross(axis, np.transpose(xyz), axis=0)
-    north = np.cross(np.transpose(xyz), east, axis=0)
-    east = east / np.linalg.norm(east, axis=0)
-    north = north / np.linalg.norm(north, axis=0)
-    return east, north
+def normal_velocity_from_zonal_meridional(
+    ds_mesh, u, v, recompute_angle_edge=False
+):
+    """
+    Compute normal velocity from zonal and meridional velocity components
+    defined on edges
+    """
+    if recompute_angle_edge:
+        angle_edge = recompute_angle_edge(ds_mesh)
+    else:
+        angle_edge = ds_mesh.angleEdge
+
+    normal_velocity = xr.zeros_like(angle_edge)
+    normal_velocity.values = u * np.cos(angle_edge) + v * np.sin(angle_edge)
+    return normal_velocity

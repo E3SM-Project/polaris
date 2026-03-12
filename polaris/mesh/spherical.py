@@ -10,6 +10,7 @@ from mpas_tools.logging import check_call
 from mpas_tools.mesh.creation.jigsaw_to_netcdf import jigsaw_to_netcdf
 from mpas_tools.mesh.interpolation import interp_bilin
 from mpas_tools.ocean.inject_meshDensity import inject_spherical_meshDensity
+from mpas_tools.transects import lon_lat_to_cartesian
 from mpas_tools.viz.colormaps import register_sci_viz_colormaps
 from mpas_tools.viz.paraview_extractor import extract_vtk
 
@@ -128,7 +129,8 @@ class SphericalBaseStep(Step):
         ds_mesh = xr.open_dataset(tmp_mesh_filename)
 
         self._add_cell_width_to_mesh(ds_mesh)
-
+        angle_edge = recompute_angle_edge(ds_mesh)
+        ds_mesh.angleEdge.values = angle_edge.values
         write_netcdf(ds_mesh, mpas_mesh_filename)
 
         if section.getboolean('add_mesh_density'):
@@ -618,3 +620,76 @@ class IcosahedralMeshStep(SphericalBaseStep):
         triangle_area = earth_area / triangle_count
         cell_width = 1e-3 * np.sqrt(triangle_area * 4.0 / np.sqrt(3))
         return cell_width
+
+
+def recompute_angle_edge(ds_mesh):
+    nml_en = np.zeros((ds_mesh.sizes['nEdges'], 2))
+    nml_en = calc_edge_normal_vector(ds_mesh)
+    angle_edge = xr.zeros_like(ds_mesh.angleEdge)
+    angle_edge.values = np.atan2(nml_en[:, 1], nml_en[:, 0])
+    return angle_edge
+
+
+def calc_edge_normal_vector(ds_mesh):
+    edge_cartesian = np.array(
+        lon_lat_to_cartesian(
+            ds_mesh.lonEdge, ds_mesh.latEdge, 1.0, degrees=False
+        )
+    )
+    vertex1 = ds_mesh.verticesOnEdge.isel(TWO=0).values - 1
+    vertex2 = ds_mesh.verticesOnEdge.isel(TWO=1).values - 1
+    lonVertex1 = ds_mesh.lonVertex.isel(nVertices=vertex1)
+    latVertex1 = ds_mesh.latVertex.isel(nVertices=vertex1)
+    lonVertex2 = ds_mesh.lonVertex.isel(nVertices=vertex2)
+    latVertex2 = ds_mesh.latVertex.isel(nVertices=vertex2)
+    vertex1_cartesian = np.array(
+        lon_lat_to_cartesian(lonVertex1, latVertex1, 1.0, degrees=False)
+    )
+    vertex2_cartesian = np.array(
+        lon_lat_to_cartesian(lonVertex2, latVertex2, 1.0, degrees=False)
+    )
+    dvertex_cartesian = vertex2_cartesian - vertex1_cartesian
+    normal_cartesian = np.cross(dvertex_cartesian, edge_cartesian, axis=0)
+    edge_east, edge_north = calc_vector_east_north(
+        edge_cartesian[0, :], edge_cartesian[1, :], edge_cartesian[2, :]
+    )
+    normal_eastnorth = np.zeros((ds_mesh.sizes['nEdges'], 2))
+    normal_eastnorth[:, 0] = np.sum(edge_east * normal_cartesian, axis=0)
+    normal_eastnorth[:, 1] = np.sum(edge_north * normal_cartesian, axis=0)
+    normal_eastnorth = normal_eastnorth / np.linalg.norm(normal_eastnorth)
+    return normal_eastnorth
+
+
+def calc_vector_east_north(x, y, z):
+    """
+    Compute the local east and north vectors at a given point on the sphere
+
+    Inputs
+    -------
+    x : np.ndarray of type float
+        x-coordinate in Cartesian coordinates, typically of length nCells or
+        nEdges for MPAS meshes
+
+    y : np.ndarray of type float
+        y-coordinate in Cartesian coordinates, typically of length nCells or
+        nEdges for MPAS meshes
+
+    z : np.ndarray of type float
+        z-coordinate in Cartesian coordinates, typically of length nCells or
+        nEdges for MPAS meshes
+
+    Returns
+    -------
+    east : np.ndarray
+        Local east vector in Cartesian coordinates, of same length as x,y,z
+
+    north : np.ndarray
+        Local north vector in Cartesian coordinates, of same length as x,y,z
+    """
+    axis = [0, 0, 1]
+    xyz = np.stack((x, y, z), axis=1)
+    east = np.cross(axis, np.transpose(xyz), axis=0)
+    north = np.cross(np.transpose(xyz), east, axis=0)
+    east = east / np.linalg.norm(east, axis=0)
+    north = north / np.linalg.norm(north, axis=0)
+    return east, north
