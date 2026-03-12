@@ -11,9 +11,8 @@ parameters, or both.  It is common for tasks with a subdirectory to share
 "framework" modules (but contents within a subdirectory of `tasks` should
 not be used outside of that subdirectory -- framework used more broadly should
 belong to the component or polaris as a whole).  Each component will typically 
-include a mix of "idealized" tasks (e.g. {ref}`dev-ocean-baroclinic-channel` 
-or {ref}`dev-landice-dome`) and "realistic"domains (e.g. 
-{ref}`dev-landice-greenland` and {ref}`dev-ocean-global-ocean`).
+include a mix of "idealized" tasks (e.g. {ref}`dev-ocean-baroclinic-channel`)
+and more realistic configurations as they are added.
 
 Categories of tasks can be grouped in a python package (subdirectory) within 
 the component's `tasks` package.  Often, this subdirectory will include a 

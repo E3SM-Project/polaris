@@ -2,17 +2,14 @@
 
 # Tasks
 
-Polaris supports tasks for three main components, {ref}`ocean`
-([MPAS-Ocean](https://mpas-dev.github.io/ocean/ocean.html)), {ref}`seaice`
-([MPAS-Seaice](https://mpas-dev.github.io/sea_ice/sea_ice.html)) and
-{ref}`landice` ([MALI](https://mpas-dev.github.io/land_ice/land_ice.html)).
+Polaris currently supports tasks for two main components, {ref}`ocean`
+([MPAS-Ocean](https://mpas-dev.github.io/ocean/ocean.html)) and {ref}`seaice`
+([MPAS-Seaice](https://mpas-dev.github.io/sea_ice/sea_ice.html)).
+Land-ice support is planned but has not yet been migrated.
 Tasks are grouped under these components and then into common categories for
 convenience and shared framework.  These groupings of tasks have some common 
-purpose or concept. Under `landice`, these include "idealized" setups like 
-{ref}`landice-dome` and {ref}`landice-hydro-radial` as well as "realistic" 
-domains as in {ref}`landice-greenland`.  The same is true for the ocean, with
-"idealized" tasks like {ref}`ocean-baroclinic-channel` and 
-{ref}`ocean-ziso`, and a "realistic" tasks in {ref}`ocean-global-ocean`.
+purpose or concept. For ocean, this includes "idealized" tasks like
+{ref}`ocean-baroclinic-channel` and {ref}`ocean-overflow`.
 
 Idealized tasks typically use analytic functions to define their
 topography, initial conditions and forcing data (i.e. boundary conditions),

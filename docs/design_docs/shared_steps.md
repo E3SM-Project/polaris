@@ -33,7 +33,7 @@ such as a task it belongs to.
 
 ### Requirement: Working directory structure is intuitive.
 
-Shared step directories should be located at the highest level in the working 
+Shared step directories should be located at the highest level in the working
 directory structure where all tasks that use that step are run at or below that
 level.
 
@@ -60,16 +60,16 @@ contain.
 ### Implementation: Shared steps are set up once.
 
 As before, setup of either a list of tasks or a suite proceeds by iterating
-through the tasks and then through the steps in each task. An attribute 
+through the tasks and then through the steps in each task. An attribute
 `setup_complete` has been added to `Step` and is initialized to `False`.
-In the `setup_task()` function, setup is skipped for any steps where 
+In the `setup_task()` function, setup is skipped for any steps where
 `step.setup_complete == True`, and this attribute is set to `True` when a step
 has been completed.
 
 ### Implementation: Shared steps are run before steps that depend on their output.
 
 Requirement is already satisfied as part of task parallelism design, which
-makes use of file dependencies.  When running in task-serial mode, the 
+makes use of file dependencies.  When running in task-serial mode, the
 implementation will be to make sure shared steps are added to the dictionary of
 steps before other steps that rely on them.
 
@@ -174,7 +174,7 @@ visualization steps that are not shared with any other tasks:
 
 This is implemented in two ways.
 
-First, `polaris list --verbose` now lists the work-directory relative path of 
+First, `polaris list --verbose` now lists the work-directory relative path of
 steps, rather than their path relative to the task's work directory:
 
 ```
@@ -290,7 +290,7 @@ links as before.
 
 There were not any polaris tasks that relied on outputs from other tasks even
 before the implementation of shared steps.  There are tasks in Compass, though,
-such as global ocean `mesh`, `init` and `dynamic_adjustment`, that do allow 
+such as global ocean `mesh`, `init` and `dynamic_adjustment`, that do allow
 outputs from one task to be inputs of another.  As these are ported to Polaris,
 we will make sure they use shared steps instead.
 
@@ -342,7 +342,7 @@ ocean/spherical/icos/cosine_bell/with_viz
 ### Testing And Validation: Shared steps are run before steps that depend on their output.
 
 As before, steps are added to tasks in the order they are to be run, ensuring
-that shared steps run before steps that require their output when running in 
+that shared steps run before steps that require their output when running in
 task serial (`polaris serial`).  Task parallelism already has mechanisms to
 prevent steps from running before their dependencies are available, and this
 is not expected to be affected by shared steps.  However, no testing with

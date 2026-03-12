@@ -279,7 +279,7 @@ computer.  You can set this to a smaller number if you want polaris to
 use fewer cores.
 
 In order to run regression testing that compares the output of the current run
-with that from a previous polaris run, use `-b <previous_workdir>` to specify
+with that from a previous polaris serial, use `-b <previous_workdir>` to specify
 a "baseline".
 
 When you set up one or more tasks, they will also be included in a custom

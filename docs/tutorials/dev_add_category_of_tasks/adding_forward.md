@@ -146,7 +146,7 @@ class Forward(OceanModelStep):
 ```
 
 By defining `validate_vars` as part of the output, we ensure that these
-variables will be compared with output from a baseline Polaris run if one
+variables will be compared with output from a baseline polaris serial if one
 is provided to ensure that the results are identical.
 
 ## Defining model config options and streams

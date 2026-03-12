@@ -64,7 +64,16 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    # Convenience docs not intended for rendering
+    "users_guide/invalid_quick_start.md",
+    # Authoring templates kept in repo but not included in the built docs
+    "users_guide/ocean/tasks/template.md",
+    "users_guide/seaice/tasks/template.md",
+]
 
 intersphinx_mapping = {
     'geometric_features':

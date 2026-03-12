@@ -9,8 +9,8 @@ control how {ref}`tasks` and {ref}`suites` get set up and run.
 
 If you're running on one of the supported {ref}`machines`, and you provide a
 path to where you build the MPAS model (with the `-p` flag to
-`polaris setup` and `polaris suite`, see {ref}`setup-overview` and
-{ref}`suite-overview`), you also won't need to create a config file to set up
+`polaris setup` and `polaris suite`, see {ref}`quick-start` and
+{ref}`suites`), you also won't need to create a config file to set up
 tasks or suites.
 
 If you're running on another machine like your own laptop, you will need to
@@ -86,14 +86,14 @@ sources:
   well as (for ocean initial conditions) the number of vertical levels.
 - any number of config files from the task.  There might be different
   config options depending on how the task is configured (e.g. only if a
-  certain feature is enabled.  For example, {ref}`ocean-global-ocean` loads
+  certain feature is enabled.  For example, {ref}`ocean-geostrophic` loads
   different sets of config options for different meshes.
 - a user's config file described above.
 
 You are free to add any sections and config options to your config file,
 in which case they will override the values specified in one of the other
-config files listed above. Here is an example of some customization for the
-{ref}`ocean-global-ocean` tasks:
+config files listed above. Here is an example of some customization for
+ocean tasks:
 
 ```cfg
 # options for global ocean testcases
