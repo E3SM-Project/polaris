@@ -67,7 +67,7 @@ class Viz(OceanIOStep):
         mesh_name = self.mesh_name
         run_duration = config.getfloat('convergence_forward', 'run_duration')
 
-        ds_init = self.open_model_dataset('initial_state.nc')
+        ds_init = self.open_model_dataset('initial_state.nc', config)
         da = ds_init['tracer1'].isel(Time=0, nVertLevels=0)
 
         plot_global_mpas_field(

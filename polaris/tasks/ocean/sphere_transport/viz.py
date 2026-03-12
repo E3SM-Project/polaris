@@ -82,10 +82,12 @@ class Viz(OceanIOStep):
         run_duration = config.getfloat('convergence_forward', 'run_duration')
 
         variables_to_plot = self.variables_to_plot
-        ds_init = self.open_model_dataset('initial_state.nc')
+        ds_init = self.open_model_dataset('initial_state.nc', config)
         ds_init = ds_init[variables_to_plot.keys()].isel(Time=0, nVertLevels=0)
 
-        ds_out = self.open_model_dataset('output.nc', decode_times=False)
+        ds_out = self.open_model_dataset(
+            'output.nc', config, decode_times=False
+        )
         s_per_hour = 3600.0
 
         # Visualization at halfway around the globe (provided run duration is
