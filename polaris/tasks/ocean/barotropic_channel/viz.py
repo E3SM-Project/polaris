@@ -40,8 +40,8 @@ class Viz(OceanIOStep):
         Run this step of the task
         """
         ds_mesh = self.open_model_dataset('mesh.nc')
-        ds_init = self.open_model_dataset('init.nc')
-        ds_out = self.open_model_dataset('output.nc')
+        ds_init = self.open_model_dataset('init.nc', self.config)
+        ds_out = self.open_model_dataset('output.nc', self.config)
 
         cell_mask = ds_init.maxLevelCell >= 1
         vertex_mask = ds_init.boundaryVertex == 0

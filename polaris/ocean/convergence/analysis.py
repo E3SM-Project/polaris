@@ -434,7 +434,9 @@ class ConvergenceAnalysis(OceanIOStep):
             The exact solution as derived from the initial condition
         """
 
-        ds_init = self.open_model_dataset(f'init_r{refinement_factor:02g}.nc')
+        ds_init = self.open_model_dataset(
+            f'init_r{refinement_factor:02g}.nc', self.config
+        )
         ds_init = ds_init.isel(Time=0)
         if zidx is not None:
             ds_init = ds_init.isel(nVertLevels=zidx)
@@ -466,7 +468,7 @@ class ConvergenceAnalysis(OceanIOStep):
         """
         config = self.config
         ds_out = self.open_model_dataset(
-            f'output_r{refinement_factor:02g}.nc', decode_times=False
+            f'output_r{refinement_factor:02g}.nc', config, decode_times=False
         )
 
         model = config.get('ocean', 'model')

@@ -67,7 +67,9 @@ class Analysis(ConvergenceAnalysis):
         solution : xarray.DataArray
             The exact solution as derived from the initial condition
         """
-        init = self.open_model_dataset(f'init_r{refinement_factor:02g}.nc')
+        init = self.open_model_dataset(
+            f'init_r{refinement_factor:02g}.nc', self.config
+        )
         exact = ExactSolution(self.config, init)
         if field_name != 'ssh':
             raise ValueError(f'{field_name} is not currently supported')

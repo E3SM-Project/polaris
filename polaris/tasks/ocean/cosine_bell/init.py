@@ -112,7 +112,7 @@ class Init(OceanIOStep):
         ds['fEdge'] = xr.zeros_like(ds_mesh.xEdge)
         ds['fVertex'] = xr.zeros_like(ds_mesh.xVertex)
 
-        self.write_model_dataset(ds, 'initial_state.nc')
+        self.write_model_dataset(ds, 'initial_state.nc', config)
 
 
 def cosine_bell(max_value, ri, r):
