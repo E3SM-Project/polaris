@@ -24,8 +24,8 @@ namelist and streams files will be downloaded, symlinked and/or generated
 in the setup process. A [pickle file](https://docs.python.org/3/library/pickle.html)
 called `task.pickle` will be written to each task directory
 containing the task object for later use in calls to `polaris serial`.
-Similarly, a file `step.pickle` containing both the step and task
-objects will be written to each step directory, allowing the step to be run
+Similarly, a file `step.pickle` containing the step object
+will be written to each step directory, allowing the step to be run
 on its own with `polaris serial`.  In contrast to {ref}`config-files`, these
 pickle files are not intended for users (or developers) to read or modify.
 Properties of the task and step objects are not intended to change between
@@ -71,7 +71,7 @@ If {py:func}`polaris.run.serial.run_tasks()` is used for a suite, it will
 run each task in the suite in the order that they are given in the
 text file defining the suite (`polaris/<component>/suites/<suite_name>.txt`).
 Output from tasks and their steps are stored in log files in the
-`case_output` subdirectory of the base work directory. If the function is
+`case_outputs` subdirectory of the base work directory. If the function is
 used for a single task, it will run the steps of that task, writing
 output for each step to a log file starting with the step's name. In either
 case (suite or individual test), it displays a `SUCCESS` or `ERROR` message for
