@@ -672,7 +672,7 @@ case), log onto a compute node (if on an HPC machine) and run:
 
 ```bash
 source load_polaris_env.sh
-polaris run
+polaris serial
 ```
 
 The first command will source the same activation script
