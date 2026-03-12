@@ -11,7 +11,7 @@ on:
 
 env:
   CANCEL_OTHERS: false
-  PATHS_IGNORE: '["**/README.md", "**/docs/**"]'
+  PATHS_IGNORE: '["**/README.md"]'
 
 jobs:
   pre-commit-hooks:
@@ -142,4 +142,4 @@ jobs:
           fi
           DOCS_VERSION=test
           cd docs
-          DOCS_VERSION=$DOCS_VERSION make versioned-html
+          DOCS_VERSION=$DOCS_VERSION make versioned-html-strict

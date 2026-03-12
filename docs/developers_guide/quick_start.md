@@ -494,7 +494,7 @@ polaris suite -c ocean -t nightly \
   -m $MACHINE -w $WORKDIR --model omega --clean_build --quiet_build
 ```
 
-#### Using an existing build (`-p` or `-f`)
+### Using an existing build (`-p` or `-f`)
 
 If you already have a component build in another location, you can either:
 
@@ -641,7 +641,7 @@ To list tasks you need to run:
 polaris list
 ```
 
-The results will be the same as described in {ref}`setup-overview`, but the
+The results will be the same as described in {ref}`dev-polaris-setup`, but the
 tasks will come from the local polaris directory.
 
 To set up a task, you will run something like:

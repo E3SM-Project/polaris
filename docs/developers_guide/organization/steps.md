@@ -740,17 +740,18 @@ file does not exist, there is no way to read the file with the dependency
 within {ref}`dev-step-setup` and determine the resulting input or output file
 name.
 
-Both of these issues have arisen for the
-{ref}`dev-ocean-global-ocean-files-for-e3sm` from
-{ref}`dev-ocean-global-ocean` tasks.  Output files are named using the
+Both of these issues can arise in tasks that derive output names from
+mesh metadata built in earlier steps.  For example, this pattern appears
+in {ref}`dev-e3sm-init` tasks.  Output files are named using the
 "short name" of the mesh in E3SM, which depends both on config options and on
 the number of vertical levels, which is read in from a mesh file created in a
 previous step.  For now, the outputs of this step are not used by any other
 steps so it is safe to simply omit them, but this could become problematic in
-the future if new steps are added that depend on
-{ref}`dev-ocean-global-ocean-files-for-e3sm`.  These steps would need to add
-the appropriate shared step from `files_for_e3sm` as a dependency using
-{py:meth}`polaris.Step.add_dependency()`.
+the future if new dependent steps are added.  In Polaris, these dependent
+steps should add the producer step as an explicit dependency with
+{py:meth}`polaris.Step.add_dependency()`, then determine any runtime-dependent
+filenames from that dependency rather than hard-coding output names during
+setup.
 
 {py:class}`polaris.Step` includes several methods for adding input, output,
 namelist and streams files:

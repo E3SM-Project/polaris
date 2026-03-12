@@ -18,6 +18,16 @@ versioned-html:
 	cp shared/version-switcher.js _build/html/shared/version-switcher.js
 	python generate_versions_json.py --local
 
+# Build into a versioned subdirectory and fail on warnings
+versioned-html-strict:
+	@echo "Building version (strict): $(DOCS_VERSION)"
+	$(SPHINXBUILD) -b html -W --keep-going "$(SOURCEDIR)" "$(BUILDDIR)/html/$(DOCS_VERSION)"
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html/$(DOCS_VERSION)."
+	@echo "Setting up shared version switcher for local preview..."
+	mkdir -p _build/html/shared
+	cp shared/version-switcher.js _build/html/shared/version-switcher.js
+	python generate_versions_json.py --local
+
 # Override html target to include local setup
 html:
 	$(SPHINXBUILD) -b html "$(SOURCEDIR)" "$(BUILDDIR)/html"
@@ -46,4 +56,4 @@ clean-versioned-html:
 
 # raise warnings to errors
 html-strict:
-	@$(SPHINXBUILD) -b html -nW --keep-going "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)
+	@$(SPHINXBUILD) -b html -W --keep-going "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)

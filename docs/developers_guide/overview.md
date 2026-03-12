@@ -239,9 +239,8 @@ the `init` and `forward` steps of each task.  Configurations
 also often include namelist and streams files with replacements to use across
 tasks.
 
-In addition to shared steps, the {ref}`dev-ocean-global-ocean` configuration
-includes some additional shared framework described in
-{ref}`dev-ocean-global-ocean-framework`.
+In addition to shared steps, some categories can include additional shared
+framework modules tailored to that category.
 
 The shared code in `global_ocean` has made it easy to define dozens different
 tasks using the QU240 or QUwISC240 meshes.  This is possible because

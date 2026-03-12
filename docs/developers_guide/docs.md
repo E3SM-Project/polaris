@@ -101,7 +101,7 @@ case, including:
 - A description of each suite, including which tasks are included
 
 A template is available for documenting groups of related tasks in the User's
-Guide: {ref}`ocean-category-of-task`
+Guide. See the structure used in {ref}`ocean-tasks`.
 
 The Developer's guide for each component should contain:
 

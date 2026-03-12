@@ -49,7 +49,7 @@ Suite
   suite to compare with.  Other types of suites are used to run
   a sequence of tasks that depend on one another (e.g. creating a mesh,
   setting up an initial condition, running the model, and processing the
-  output, as in {ref}`ocean-global-ocean`).
+  output).
 
 Work directory
 

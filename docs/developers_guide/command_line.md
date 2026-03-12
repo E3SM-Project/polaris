@@ -133,7 +133,7 @@ location, supply that directory explicitly with `-p` or via a config file.
 
 You can also supply a config file with config options pointing to the
 directories for cached data files, the location of the MPAS component, and much
-more (see {ref}`config-files` and {ref}`setup-overview`).  Point to your config
+more (see {ref}`config-files` and {ref}`dev-polaris-setup`).  Point to your config
 file using the `-f` or `--config_file` flag.
 
 The `-w` or `--work_dir` flags point to a relative or absolute path that
