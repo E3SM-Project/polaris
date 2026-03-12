@@ -115,9 +115,9 @@
 <span class="sd">Omega&#39;s vertical coordinate is pseudo-height</span>
 <span class="sd">    z_tilde = -p / (rho0 * g)</span>
 <span class="sd">with z_tilde positive upward. Here, ``p`` is sea pressure in Pascals (Pa),</span>
-<span class="sd">``rho0`` is a reference density (kg m^-3) supplied by the caller, and</span>
-<span class="sd">``g`` is gravitational acceleration obtained from</span>
-<span class="sd">``mpas_tools.cime.constants``.</span>
+<span class="sd">``rho0`` is a reference density (kg m^-3), and ``g`` is gravitational</span>
+<span class="sd">acceleration as defined by ``polaris.constants`` via the Physical Constants</span>
+<span class="sd">Dictionary.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
@@ -137,11 +137,12 @@
 <span class="p">]</span>
 
 <span class="n">Gravity</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;standard_acceleration_of_gravity&#39;</span><span class="p">)</span>
+<span class="n">RhoSw</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;seawater_density_reference&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="z_tilde_from_pressure">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.ztilde.z_tilde_from_pressure.html#polaris.ocean.vertical.ztilde.z_tilde_from_pressure">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">z_tilde_from_pressure</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">rho0</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">z_tilde_from_pressure</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert sea pressure to pseudo-height.</span>
 
@@ -152,16 +153,13 @@
 <span class="sd">    p : xarray.DataArray</span>
 <span class="sd">        Sea pressure in Pascals (Pa).</span>
 
-<span class="sd">    rho0 : float</span>
-<span class="sd">        Reference density in kg m^-3.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    xarray.DataArray</span>
 <span class="sd">        Pseudo-height with the same shape and coords as ``p`` (units: m).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">rho0</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
         <span class="p">{</span>
             <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;pseudo-height&#39;</span><span class="p">,</span>
@@ -174,7 +172,7 @@
 
 <div class="viewcode-block" id="pressure_from_z_tilde">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.ztilde.pressure_from_z_tilde.html#polaris.ocean.vertical.ztilde.pressure_from_z_tilde">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">pressure_from_z_tilde</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">rho0</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pressure_from_z_tilde</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert pseudo-height to sea pressure.</span>
 
@@ -185,16 +183,13 @@
 <span class="sd">    z_tilde : xarray.DataArray</span>
 <span class="sd">        Pseudo-height in meters (m), positive upward.</span>
 
-<span class="sd">    rho0 : float</span>
-<span class="sd">        Reference density in kg m^-3.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    xarray.DataArray</span>
 <span class="sd">        Sea pressure with the same shape and coords as ``z_tilde`` (Pa).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">p</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">rho0</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
         <span class="p">{</span>
             <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;sea pressure&#39;</span><span class="p">,</span>
@@ -280,14 +275,13 @@
 <span class="sd">    iteratively starting from a specific volume calculated from the reference</span>
 <span class="sd">    density.</span>
 
-<span class="sd">    Requires config option ``[vertical_grid] rho0`` and those required</span>
-<span class="sd">    for {py:func}`polaris.ocean.eos.compute_specvol()`.</span>
+<span class="sd">    Requires config options needed by</span>
+<span class="sd">    {py:func}`polaris.ocean.eos.compute_specvol()`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
-<span class="sd">        Configuration options with parameters defining the equation of state</span>
-<span class="sd">        and ``rho0`` for the pseudo-height.</span>
+<span class="sd">        Configuration options with parameters defining the equation of state.</span>
 
 <span class="sd">    geom_layer_thickness : xarray.DataArray</span>
 <span class="sd">        The geometric thickness of each layer.</span>
@@ -319,14 +313,7 @@
 <span class="sd">        The specific volume at layer midpoints.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">rho0</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;rho0&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">rho0</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;Config option [vertical_grid] rho0 must be set to use &#39;</span>
-            <span class="s1">&#39;pressure_and_spec_vol_from_state_at_geom_height().&#39;</span>
-        <span class="p">)</span>
-
-    <span class="n">spec_vol</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">rho0</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">geom_layer_thickness</span><span class="p">)</span>
+    <span class="n">spec_vol</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">RhoSw</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">geom_layer_thickness</span><span class="p">)</span>
 
     <span class="n">p_interface</span><span class="p">,</span> <span class="n">p_mid</span> <span class="o">=</span> <span class="n">pressure_from_geom_thickness</span><span class="p">(</span>
         <span class="n">surf_pressure</span><span class="o">=</span><span class="n">surf_pressure</span><span class="p">,</span>
@@ -371,7 +358,6 @@
     <span class="n">spec_vol</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">min_level_cell</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">max_level_cell</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">rho0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sum geometric heights from pseudo-heights and specific volume.</span>
@@ -393,9 +379,6 @@
 <span class="sd">    max_level_cell : xarray.DataArray</span>
 <span class="sd">        Maximum valid zero-based level index for each cell.</span>
 
-<span class="sd">    rho0 : float</span>
-<span class="sd">        Reference density in kg m^-3.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    geom_z_inter : xarray.DataArray</span>
@@ -414,7 +397,7 @@
         <span class="n">z_index</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">z_index</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span>
     <span class="p">)</span>
 
-    <span class="n">geom_thickness</span> <span class="o">=</span> <span class="p">(</span><span class="n">spec_vol</span> <span class="o">*</span> <span class="n">h_tilde</span> <span class="o">*</span> <span class="n">rho0</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mid_mask</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">geom_thickness</span> <span class="o">=</span> <span class="p">(</span><span class="n">spec_vol</span> <span class="o">*</span> <span class="n">h_tilde</span> <span class="o">*</span> <span class="n">RhoSw</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mid_mask</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 
     <span class="n">dz_rev</span> <span class="o">=</span> <span class="n">geom_thickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
     <span class="n">sum_from_level</span> <span class="o">=</span> <span class="n">dz_rev</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>

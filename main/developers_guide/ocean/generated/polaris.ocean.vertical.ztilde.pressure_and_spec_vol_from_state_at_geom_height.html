@@ -145,13 +145,12 @@ temperature and salinity at layer midpoints (i.e. constant in geometric
 height, not pseudo-height), and surface pressure. The solution is found
 iteratively starting from a specific volume calculated from the reference
 density.</p>
-<p>Requires config option <code class="docutils literal notranslate"><span class="pre">[vertical_grid]</span> <span class="pre">rho0</span></code> and those required
-for {py:func}`polaris.ocean.eos.compute_specvol()`.</p>
+<p>Requires config options needed by
+{py:func}`polaris.ocean.eos.compute_specvol()`.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="../../generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration options with parameters defining the equation of state
-and <code class="docutils literal notranslate"><span class="pre">rho0</span></code> for the pseudo-height.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration options with parameters defining the equation of state.</p></li>
 <li><p><strong>geom_layer_thickness</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><em>xarray.DataArray</em></a>) – The geometric thickness of each layer.</p></li>
 <li><p><strong>temperature</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><em>xarray.DataArray</em></a>) – The temperature at layer midpoints.</p></li>
 <li><p><strong>salinity</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><em>xarray.DataArray</em></a>) – The salinity at layer midpoints.</p></li>
