@@ -112,17 +112,14 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="tasks">
 <span id="id1"></span><h1>Tasks<a class="headerlink" href="#tasks" title="Link to this heading"></a></h1>
-<p>Polaris supports tasks for three main components, <a class="reference internal" href="ocean/index.html#ocean"><span class="std std-ref">Ocean component</span></a>
-(<a class="reference external" href="https://mpas-dev.github.io/ocean/ocean.html">MPAS-Ocean</a>), <a class="reference internal" href="seaice/index.html#seaice"><span class="std std-ref">Sea ice component</span></a>
-(<a class="reference external" href="https://mpas-dev.github.io/sea_ice/sea_ice.html">MPAS-Seaice</a>) and
-<span class="xref std std-ref">landice</span> (<a class="reference external" href="https://mpas-dev.github.io/land_ice/land_ice.html">MALI</a>).
+<p>Polaris currently supports tasks for two main components, <a class="reference internal" href="ocean/index.html#ocean"><span class="std std-ref">Ocean component</span></a>
+(<a class="reference external" href="https://mpas-dev.github.io/ocean/ocean.html">MPAS-Ocean</a>) and <a class="reference internal" href="seaice/index.html#seaice"><span class="std std-ref">Sea ice component</span></a>
+(<a class="reference external" href="https://mpas-dev.github.io/sea_ice/sea_ice.html">MPAS-Seaice</a>).
+Land-ice support is planned but has not yet been migrated.
 Tasks are grouped under these components and then into common categories for
 convenience and shared framework.  These groupings of tasks have some common
-purpose or concept. Under <code class="docutils literal notranslate"><span class="pre">landice</span></code>, these include “idealized” setups like
-<span class="xref std std-ref">landice-dome</span> and <span class="xref std std-ref">landice-hydro-radial</span> as well as “realistic”
-domains as in <span class="xref std std-ref">landice-greenland</span>.  The same is true for the ocean, with
-“idealized” tasks like <a class="reference internal" href="ocean/tasks/baroclinic_channel.html#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> and
-<span class="xref std std-ref">ocean-ziso</span>, and a “realistic” tasks in <span class="xref std std-ref">ocean-global-ocean</span>.</p>
+purpose or concept. For ocean, this includes “idealized” tasks like
+<a class="reference internal" href="ocean/tasks/baroclinic_channel.html#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> and <a class="reference internal" href="ocean/tasks/overflow.html#ocean-overflow"><span class="std std-ref">overflow</span></a>.</p>
 <p>Idealized tasks typically use analytic functions to define their
 topography, initial conditions and forcing data (i.e. boundary conditions),
 whereas realistic tasks most often use data files for all for these.</p>

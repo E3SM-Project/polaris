@@ -13,6 +13,9 @@ cd docs
 DOCS_VERSION=test make clean versioned-html
 ```
 
+The docs must build cleanly without errors or warnings.  Otherwise, CI will not
+pass on the PR bringing in the changes.
+
 # Previewing the Documentation
 
 To preview the documentation locally, open the `index.html` file in the

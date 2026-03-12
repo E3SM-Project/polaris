@@ -59,8 +59,8 @@ Similarly, you can list all the available suites for all
 that would be passed  to `polaris suite` as part of setting up this suite.
 
 The `-v` or `--verbose` flag lists more detail about each task,
-including its description, short name, core, configuration, subdirectory within
-the configuration and the names of its steps:
+including its path, short name, component, subdirectory and the names of
+its steps:
 
 ```none
 $ polaris list -n 0 -v
@@ -94,7 +94,9 @@ The command-line options are:
 $ polaris setup --help
 usage: polaris setup [-h] [-t PATH [PATH ...]] [-n NUM [NUM ...]] [-f FILE] [-m MACH] -w
                      PATH [-b PATH] [-p PATH] [--suite_name SUITE]
-                     [--cached STEP [STEP ...]] [--copy_executable] [--clean]
+                     [--cached STEP [STEP ...]] [--copy_executable] [--clean_tasks]
+                     [--model MODEL] [--build] [--branch BRANCH] [--clean_build]
+                     [--quiet_build] [--cmake_flags CMAKE_FLAGS] [--debug]
 
 ```
 
@@ -102,7 +104,7 @@ The `-h` or `--help` options will display the help message describing the
 command-line options.
 
 The tasks to set up can be specified either by relative path or by number.
-The `-t` or `--task` flag is used to pass the relative path of the task
+The `-t` or `--tasks` flag is used to pass the relative path of the task
 within the resulting work directory.  The is the path given by
 {ref}`dev-polaris-list`.  You can specify several tasks at once, separated by
 spaces, this way.
@@ -114,7 +116,7 @@ spaces.  These are the test numbers given by {ref}`dev-polaris-list`.
 `polaris setup` requires a few basic pieces of information to be able to set
 up a task.  These include places to download and cache some data files
 used in the tasks and the location where you built the MPAS model.  There
-are a few ways to to supply these.  The `-m` -r `--machine` option is used
+are a few ways to to supply these.  The `-m` or `--machine` option is used
 to tell `polaris setup` which supported machine you're running on (leave this
 off if you're working on an "unknown" machine).  See {ref}`dev-polaris-list`
 above for how to list the supported machines.
@@ -131,7 +133,7 @@ location, supply that directory explicitly with `-p` or via a config file.
 
 You can also supply a config file with config options pointing to the
 directories for cached data files, the location of the MPAS component, and much
-more (see {ref}`config-files` and {ref}`setup-overview`).  Point to your config
+more (see {ref}`config-files` and {ref}`dev-polaris-setup`).  Point to your config
 file using the `-f` or `--config_file` flag.
 
 The `-w` or `--work_dir` flags point to a relative or absolute path that
@@ -243,28 +245,30 @@ options are:
 ```none
 $ polaris suite --help
 usage: polaris suite [-h] -c COMPONENT -t SUITE [-f FILE] [-m MACH] [-b PATH]
-                     -w PATH [-p PATH] [--copy_executable] [--clean]
+                     -w PATH [-p PATH] [--copy_executable] [--clean_tasks]
+                     [--model MODEL] [--build] [--branch BRANCH] [--clean_build]
+                     [--quiet_build] [--cmake_flags CMAKE_FLAGS] [--debug]
 ```
 
 The `-h` or `--help` options will display the help message describing the
 command-line options.
 
 The required argument are `-c` or `--component`, one of the {ref}`dev-components`,
-where the suite and its tasks reside; and `-t` or `--test_suite`,
+where the suite and its tasks reside; and `-t` or `--task_suite`,
 the name of the suite.  These are the options listed when you run
 `polaris list --suites`. As with {ref}`dev-polaris-setup`, you must supply a
 work directory with `-w` or `--work_dir`.
 
 As in {ref}`dev-polaris-setup`, you can supply one or more of: a supported
 machine with `-m` or `--machine`; a path where you build MPAS model via
-`-p` or `--mpas_model`; and a config file containing config options to
+`-p` or `--component_path`; and a config file containing config options to
 override the defaults with `-f` or `--config_file`.  As with
 {ref}`dev-polaris-setup`, you may optionally supply a baseline directory for
 comparison with `-b` or `--baseline_dir`.  If supplied, each task in the
 suite that includes {ref}`dev-validation` will be validated against the
 previous run in the baseline.
 
-The flags `--copy_executable`and `--clean` are the same as in
+The flags `--copy_executable` and `--clean_tasks` are the same as in
 {ref}`dev-polaris-setup`.
 
 See {ref}`dev-suite` for more about the underlying framework.
@@ -274,7 +278,8 @@ See {ref}`dev-suite` for more about the underlying framework.
 `polaris suite` accepts the same build flags as `polaris setup` and will build
 the requested component before setting up the suite when `--build` is given:
 
-- `--build`, `--branch`, `--clean_build`, `--cmake_flags`, `--debug`
+- `--build`, `--branch`, `--clean_build`, `--quiet_build`, `--cmake_flags`,
+  `--debug`
 
 Defaults for the build output directory and generated script locations are the
 same as listed above for `polaris setup`.

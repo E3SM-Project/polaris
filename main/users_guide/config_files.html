@@ -122,8 +122,8 @@ control how <a class="reference internal" href="tasks.html#tasks"><span class="s
 <h2>A “user” config file<a class="headerlink" href="#a-user-config-file" title="Link to this heading"></a></h2>
 <p>If you’re running on one of the supported <a class="reference internal" href="machines/index.html#machines"><span class="std std-ref">Machines</span></a>, and you provide a
 path to where you build the MPAS model (with the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag to
-<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>, see <a class="reference internal" href="invalid_quick_start.html#setup-overview"><span class="std std-ref">Setting up tasks</span></a> and
-<a class="reference internal" href="invalid_quick_start.html#suite-overview"><span class="std std-ref">Suites</span></a>), you also won’t need to create a config file to set up
+<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>, see <a class="reference internal" href="quick_start.html#quick-start"><span class="std std-ref">Quick Start for Users</span></a> and
+<a class="reference internal" href="suites.html#suites"><span class="std std-ref">Suites</span></a>), you also won’t need to create a config file to set up
 tasks or suites.</p>
 <p>If you’re running on another machine like your own laptop, you will need to
 provide some basic information for polaris to work properly.  Even if
@@ -192,14 +192,14 @@ idealized tests, these often include the size and resolution of the mesh as
 well as (for ocean initial conditions) the number of vertical levels.</p></li>
 <li><p>any number of config files from the task.  There might be different
 config options depending on how the task is configured (e.g. only if a
-certain feature is enabled.  For example, <span class="xref std std-ref">ocean-global-ocean</span> loads
+certain feature is enabled.  For example, <a class="reference internal" href="ocean/tasks/geostrophic.html#ocean-geostrophic"><span class="std std-ref">geostrophic</span></a> loads
 different sets of config options for different meshes.</p></li>
 <li><p>a user’s config file described above.</p></li>
 </ul>
 <p>You are free to add any sections and config options to your config file,
 in which case they will override the values specified in one of the other
-config files listed above. Here is an example of some customization for the
-<span class="xref std std-ref">ocean-global-ocean</span> tasks:</p>
+config files listed above. Here is an example of some customization for
+ocean tasks:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for global ocean testcases</span>
 <span class="k">[global_ocean]</span>
 

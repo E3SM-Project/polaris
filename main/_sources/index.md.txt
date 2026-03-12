@@ -14,9 +14,8 @@ specific tags of the MPAS components.
 
 Many Polaris tasks are idealized, and are used for things like
 performing convergence tests or regression tests on particular parts of the
-model code.  Many other Polaris tasks, such as those under the
-{ref}`ocean-global-ocean` and {ref}`landice-greenland` test
-groups, are "realistic" in the sense that they use data sets from observations
+model code.  Other Polaris tasks are "realistic" in the sense that they use
+data sets from observations
 to create  create global and regional meshes,  initial conditions, and boundary
 conditions.
 
@@ -30,8 +29,8 @@ the E3SM development team.
 
 The ``polaris`` python package defines the tasks and analysis tasks along
 with the commands  to list and set up both tasks and suites (groups
-of tasks or analysis tasks).  Polaris currently supports ``landice``
-and ``ocean`` components.  Nearly all tasks include calls that launch one
+of tasks or analysis tasks).  Polaris currently supports ``ocean`` and
+``seaice`` components.  Nearly all tasks include calls that launch one
 of these E3SM components, built in "standalone" (uncoupled) mode.  These runs
 are configured with config files (e.g. YAML or namelist files) and one of the
 benefits of using Polaris over attempting to run one of the components directly

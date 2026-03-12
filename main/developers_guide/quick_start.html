@@ -698,7 +698,7 @@ and as detailed in <a class="reference internal" href="command_line.html#dev-com
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>list
 </pre></div>
 </div>
-<p>The results will be the same as described in <a class="reference internal" href="../users_guide/invalid_quick_start.html#setup-overview"><span class="std std-ref">Setting up tasks</span></a>, but the
+<p>The results will be the same as described in <a class="reference internal" href="command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>, but the
 tasks will come from the local polaris directory.</p>
 <p>To set up a task, you will run something like:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>mesh/spherical/icos/base_mesh/240km/task<span class="w"> </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span><span class="w"> </span>-p<span class="w"> </span><span class="nv">$COMPONENT</span>
@@ -719,7 +719,7 @@ details.</p>
 <p>When you want to run the code, go to the work directory (for the suite or test
 case), log onto a compute node (if on an HPC machine) and run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_env.sh
-polaris<span class="w"> </span>run
+polaris<span class="w"> </span>serial
 </pre></div>
 </div>
 <p>The first command will source the same activation script

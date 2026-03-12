@@ -140,14 +140,14 @@ depend on other tasks, this is discouraged in polaris.  Instead, shared steps
 should be used to support common functionality.</p>
 </dd>
 <dt>Suite</dt><dd><p>A collection of tasks that are from the same E3SM component that can be run
-together with a single command (<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">run</span> <span class="pre">&lt;suite&gt;</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;suite&gt;</span></code> is the
+together with a single command (<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span> <span class="pre">&lt;suite&gt;</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;suite&gt;</span></code> is the
 suite’s name). Sometimes, suites are used to perform regression testing to
 make sure new MPAS-model features do not add unexpected changes to simulation
 results.  Typically, this involves providing a “baseline” run of the same
 suite to compare with.  Other types of suites are used to run
 a sequence of tasks that depend on one another (e.g. creating a mesh,
 setting up an initial condition, running the model, and processing the
-output, as in <span class="xref std std-ref">ocean-global-ocean</span>).</p>
+output).</p>
 </dd>
 <dt>Work directory</dt><dd><p>The location where tasks will be set up and run.  The “base work
 directory” is the root for all E3SM components (and therefore tasks and

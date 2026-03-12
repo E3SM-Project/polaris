@@ -777,17 +777,18 @@ from an input file that does not exist during <a class="reference internal" href
 file does not exist, there is no way to read the file with the dependency
 within <a class="reference internal" href="#dev-step-setup"><span class="std std-ref">setup()</span></a> and determine the resulting input or output file
 name.</p>
-<p>Both of these issues have arisen for the
-<span class="xref std std-ref">dev-ocean-global-ocean-files-for-e3sm</span> from
-<span class="xref std std-ref">dev-ocean-global-ocean</span> tasks.  Output files are named using the
+<p>Both of these issues can arise in tasks that derive output names from
+mesh metadata built in earlier steps.  For example, this pattern appears
+in <a class="reference internal" href="../e3sm/init/index.html#dev-e3sm-init"><span class="std std-ref">E3SM initial condition (e3sm/init) component</span></a> tasks.  Output files are named using the
 “short name” of the mesh in E3SM, which depends both on config options and on
 the number of vertical levels, which is read in from a mesh file created in a
 previous step.  For now, the outputs of this step are not used by any other
 steps so it is safe to simply omit them, but this could become problematic in
-the future if new steps are added that depend on
-<span class="xref std std-ref">dev-ocean-global-ocean-files-for-e3sm</span>.  These steps would need to add
-the appropriate shared step from <code class="docutils literal notranslate"><span class="pre">files_for_e3sm</span></code> as a dependency using
-<a class="reference internal" href="../generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_dependency()</span></code></a>.</p>
+the future if new dependent steps are added.  In Polaris, these dependent
+steps should add the producer step as an explicit dependency with
+<a class="reference internal" href="../generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_dependency()</span></code></a>, then determine any runtime-dependent
+filenames from that dependency rather than hard-coding output names during
+setup.</p>
 <p><a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a> includes several methods for adding input, output,
 namelist and streams files:</p>
 <section id="input-files">

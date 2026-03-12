@@ -120,6 +120,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.creation.jigsaw_to_netcdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">jigsaw_to_netcdf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.interpolation</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp_bilin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.ocean.inject_meshDensity</span><span class="w"> </span><span class="kn">import</span> <span class="n">inject_spherical_meshDensity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.transects</span><span class="w"> </span><span class="kn">import</span> <span class="n">lon_lat_to_cartesian</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.viz.colormaps</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_sci_viz_colormaps</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.viz.paraview_extractor</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_vtk</span>
 
@@ -251,7 +252,8 @@
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">tmp_mesh_filename</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_cell_width_to_mesh</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
-
+        <span class="n">angle_edge</span> <span class="o">=</span> <span class="n">recompute_angle_edge</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
+        <span class="n">ds_mesh</span><span class="o">.</span><span class="n">angleEdge</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">angle_edge</span><span class="o">.</span><span class="n">values</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">mpas_mesh_filename</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;add_mesh_density&#39;</span><span class="p">):</span>
@@ -785,6 +787,79 @@
         <span class="k">return</span> <span class="n">cell_width</span></div>
 </div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">recompute_angle_edge</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">):</span>
+    <span class="n">nml_en</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nEdges&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">nml_en</span> <span class="o">=</span> <span class="n">calc_edge_normal_vector</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
+    <span class="n">angle_edge</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">angleEdge</span><span class="p">)</span>
+    <span class="n">angle_edge</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">nml_en</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">nml_en</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">angle_edge</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_edge_normal_vector</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">):</span>
+    <span class="n">edge_cartesian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="n">lon_lat_to_cartesian</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="o">.</span><span class="n">lonEdge</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latEdge</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">vertex1</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">verticesOnEdge</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">TWO</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">vertex2</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">verticesOnEdge</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">TWO</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">lonVertex1</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">lonVertex</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertices</span><span class="o">=</span><span class="n">vertex1</span><span class="p">)</span>
+    <span class="n">latVertex1</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latVertex</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertices</span><span class="o">=</span><span class="n">vertex1</span><span class="p">)</span>
+    <span class="n">lonVertex2</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">lonVertex</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertices</span><span class="o">=</span><span class="n">vertex2</span><span class="p">)</span>
+    <span class="n">latVertex2</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latVertex</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertices</span><span class="o">=</span><span class="n">vertex2</span><span class="p">)</span>
+    <span class="n">vertex1_cartesian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="n">lon_lat_to_cartesian</span><span class="p">(</span><span class="n">lonVertex1</span><span class="p">,</span> <span class="n">latVertex1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">vertex2_cartesian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="n">lon_lat_to_cartesian</span><span class="p">(</span><span class="n">lonVertex2</span><span class="p">,</span> <span class="n">latVertex2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">dvertex_cartesian</span> <span class="o">=</span> <span class="n">vertex2_cartesian</span> <span class="o">-</span> <span class="n">vertex1_cartesian</span>
+    <span class="n">normal_cartesian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">dvertex_cartesian</span><span class="p">,</span> <span class="n">edge_cartesian</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">edge_east</span><span class="p">,</span> <span class="n">edge_north</span> <span class="o">=</span> <span class="n">calc_vector_east_north</span><span class="p">(</span>
+        <span class="n">edge_cartesian</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">edge_cartesian</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">edge_cartesian</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="p">)</span>
+    <span class="n">normal_eastnorth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nEdges&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">normal_eastnorth</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">edge_east</span> <span class="o">*</span> <span class="n">normal_cartesian</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">normal_eastnorth</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">edge_north</span> <span class="o">*</span> <span class="n">normal_cartesian</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">normal_eastnorth</span> <span class="o">=</span> <span class="n">normal_eastnorth</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">normal_eastnorth</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">normal_eastnorth</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_vector_east_north</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the local east and north vectors at a given point on the sphere</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    x : np.ndarray of type float</span>
+<span class="sd">        x-coordinate in Cartesian coordinates, typically of length nCells or</span>
+<span class="sd">        nEdges for MPAS meshes</span>
+
+<span class="sd">    y : np.ndarray of type float</span>
+<span class="sd">        y-coordinate in Cartesian coordinates, typically of length nCells or</span>
+<span class="sd">        nEdges for MPAS meshes</span>
+
+<span class="sd">    z : np.ndarray of type float</span>
+<span class="sd">        z-coordinate in Cartesian coordinates, typically of length nCells or</span>
+<span class="sd">        nEdges for MPAS meshes</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    east : np.ndarray</span>
+<span class="sd">        Local east vector in Cartesian coordinates, of same length as x,y,z</span>
+
+<span class="sd">    north : np.ndarray</span>
+<span class="sd">        Local north vector in Cartesian coordinates, of same length as x,y,z</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">axis</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">east</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">xyz</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">north</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">xyz</span><span class="p">),</span> <span class="n">east</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">east</span> <span class="o">=</span> <span class="n">east</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">east</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">north</span> <span class="o">=</span> <span class="n">north</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">north</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">east</span><span class="p">,</span> <span class="n">north</span>
 </pre></div>
 
            </div>

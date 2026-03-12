@@ -232,7 +232,7 @@ grid_type = 100layerE3SMv1
 
 If the `bottom_depth` option is also defined, the depths will be renormalized
 so that bottom of the deepest layer is at `z = -bottom_depth`.  This is
-the default approach in the {ref}`ocean-ziso` tests:
+the default approach in several ocean tasks such as {ref}`ocean-overflow`:
 
 ```cfg
 # Options related to the vertical grid

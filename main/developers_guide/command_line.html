@@ -170,8 +170,8 @@ be passed to the <code class="docutils literal notranslate"><span class="pre">po
 <a class="reference internal" href="organization/components.html#dev-components"><span class="std std-ref">Components</span></a> by using the <code class="docutils literal notranslate"><span class="pre">--suites</span></code> flag.  The result are the flags
 that would be passed  to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> as part of setting up this suite.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">-v</span></code> or <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> flag lists more detail about each task,
-including its description, short name, core, configuration, subdirectory within
-the configuration and the names of its steps:</p>
+including its path, short name, component, subdirectory and the names of
+its steps:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ polaris list -n 0 -v
 path:          ocean/planar/baroclinic_channel/10km/default
 name:          default
@@ -198,14 +198,16 @@ build MPAS-Ocean or Omega automatically during <code class="docutils literal not
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ polaris setup --help
 usage: polaris setup [-h] [-t PATH [PATH ...]] [-n NUM [NUM ...]] [-f FILE] [-m MACH] -w
                      PATH [-b PATH] [-p PATH] [--suite_name SUITE]
-                     [--cached STEP [STEP ...]] [--copy_executable] [--clean]
+                     [--cached STEP [STEP ...]] [--copy_executable] [--clean_tasks]
+                     [--model MODEL] [--build] [--branch BRANCH] [--clean_build]
+                     [--quiet_build] [--cmake_flags CMAKE_FLAGS] [--debug]
 
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">-h</span></code> or <code class="docutils literal notranslate"><span class="pre">--help</span></code> options will display the help message describing the
 command-line options.</p>
 <p>The tasks to set up can be specified either by relative path or by number.
-The <code class="docutils literal notranslate"><span class="pre">-t</span></code> or <code class="docutils literal notranslate"><span class="pre">--task</span></code> flag is used to pass the relative path of the task
+The <code class="docutils literal notranslate"><span class="pre">-t</span></code> or <code class="docutils literal notranslate"><span class="pre">--tasks</span></code> flag is used to pass the relative path of the task
 within the resulting work directory.  The is the path given by
 <a class="reference internal" href="#dev-polaris-list"><span class="std std-ref">polaris list</span></a>.  You can specify several tasks at once, separated by
 spaces, this way.</p>
@@ -215,7 +217,7 @@ spaces.  These are the test numbers given by <a class="reference internal" href=
 <p><code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> requires a few basic pieces of information to be able to set
 up a task.  These include places to download and cache some data files
 used in the tasks and the location where you built the MPAS model.  There
-are a few ways to to supply these.  The <code class="docutils literal notranslate"><span class="pre">-m</span></code> -r <code class="docutils literal notranslate"><span class="pre">--machine</span></code> option is used
+are a few ways to to supply these.  The <code class="docutils literal notranslate"><span class="pre">-m</span></code> or <code class="docutils literal notranslate"><span class="pre">--machine</span></code> option is used
 to tell <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> which supported machine you’re running on (leave this
 off if you’re working on an “unknown” machine).  See <a class="reference internal" href="#dev-polaris-list"><span class="std std-ref">polaris list</span></a>
 above for how to list the supported machines.</p>
@@ -230,7 +232,7 @@ manages the build for you. If you build MPAS-Ocean or Omega in a different
 location, supply that directory explicitly with <code class="docutils literal notranslate"><span class="pre">-p</span></code> or via a config file.</p>
 <p>You can also supply a config file with config options pointing to the
 directories for cached data files, the location of the MPAS component, and much
-more (see <a class="reference internal" href="../users_guide/config_files.html#config-files"><span class="std std-ref">Config Files</span></a> and <a class="reference internal" href="../users_guide/invalid_quick_start.html#setup-overview"><span class="std std-ref">Setting up tasks</span></a>).  Point to your config
+more (see <a class="reference internal" href="../users_guide/config_files.html#config-files"><span class="std std-ref">Config Files</span></a> and <a class="reference internal" href="#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>).  Point to your config
 file using the <code class="docutils literal notranslate"><span class="pre">-f</span></code> or <code class="docutils literal notranslate"><span class="pre">--config_file</span></code> flag.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">-w</span></code> or <code class="docutils literal notranslate"><span class="pre">--work_dir</span></code> flags point to a relative or absolute path that
 is the base path where the task(s) should be set up.  It is required that
@@ -333,25 +335,27 @@ avoid downgrading PCD in Polaris, except possibly for short-term testing.</p>
 options are:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ polaris suite --help
 usage: polaris suite [-h] -c COMPONENT -t SUITE [-f FILE] [-m MACH] [-b PATH]
-                     -w PATH [-p PATH] [--copy_executable] [--clean]
+                     -w PATH [-p PATH] [--copy_executable] [--clean_tasks]
+                     [--model MODEL] [--build] [--branch BRANCH] [--clean_build]
+                     [--quiet_build] [--cmake_flags CMAKE_FLAGS] [--debug]
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">-h</span></code> or <code class="docutils literal notranslate"><span class="pre">--help</span></code> options will display the help message describing the
 command-line options.</p>
 <p>The required argument are <code class="docutils literal notranslate"><span class="pre">-c</span></code> or <code class="docutils literal notranslate"><span class="pre">--component</span></code>, one of the <a class="reference internal" href="organization/components.html#dev-components"><span class="std std-ref">Components</span></a>,
-where the suite and its tasks reside; and <code class="docutils literal notranslate"><span class="pre">-t</span></code> or <code class="docutils literal notranslate"><span class="pre">--test_suite</span></code>,
+where the suite and its tasks reside; and <code class="docutils literal notranslate"><span class="pre">-t</span></code> or <code class="docutils literal notranslate"><span class="pre">--task_suite</span></code>,
 the name of the suite.  These are the options listed when you run
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span> <span class="pre">--suites</span></code>. As with <a class="reference internal" href="#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>, you must supply a
 work directory with <code class="docutils literal notranslate"><span class="pre">-w</span></code> or <code class="docutils literal notranslate"><span class="pre">--work_dir</span></code>.</p>
 <p>As in <a class="reference internal" href="#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>, you can supply one or more of: a supported
 machine with <code class="docutils literal notranslate"><span class="pre">-m</span></code> or <code class="docutils literal notranslate"><span class="pre">--machine</span></code>; a path where you build MPAS model via
-<code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">--mpas_model</span></code>; and a config file containing config options to
+<code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">--component_path</span></code>; and a config file containing config options to
 override the defaults with <code class="docutils literal notranslate"><span class="pre">-f</span></code> or <code class="docutils literal notranslate"><span class="pre">--config_file</span></code>.  As with
 <a class="reference internal" href="#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>, you may optionally supply a baseline directory for
 comparison with <code class="docutils literal notranslate"><span class="pre">-b</span></code> or <code class="docutils literal notranslate"><span class="pre">--baseline_dir</span></code>.  If supplied, each task in the
 suite that includes <a class="reference internal" href="framework/validation.html#dev-validation"><span class="std std-ref">Validation</span></a> will be validated against the
 previous run in the baseline.</p>
-<p>The flags <code class="docutils literal notranslate"><span class="pre">--copy_executable</span></code>and <code class="docutils literal notranslate"><span class="pre">--clean</span></code> are the same as in
+<p>The flags <code class="docutils literal notranslate"><span class="pre">--copy_executable</span></code> and <code class="docutils literal notranslate"><span class="pre">--clean_tasks</span></code> are the same as in
 <a class="reference internal" href="#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
 <p>See <a class="reference internal" href="framework/commands.html#dev-suite"><span class="std std-ref">suite module</span></a> for more about the underlying framework.</p>
 <section id="automatic-component-builds-in-suites">
@@ -359,7 +363,8 @@ previous run in the baseline.</p>
 <p><code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> accepts the same build flags as <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and will build
 the requested component before setting up the suite when <code class="docutils literal notranslate"><span class="pre">--build</span></code> is given:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">--build</span></code>, <code class="docutils literal notranslate"><span class="pre">--branch</span></code>, <code class="docutils literal notranslate"><span class="pre">--clean_build</span></code>, <code class="docutils literal notranslate"><span class="pre">--cmake_flags</span></code>, <code class="docutils literal notranslate"><span class="pre">--debug</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--build</span></code>, <code class="docutils literal notranslate"><span class="pre">--branch</span></code>, <code class="docutils literal notranslate"><span class="pre">--clean_build</span></code>, <code class="docutils literal notranslate"><span class="pre">--quiet_build</span></code>, <code class="docutils literal notranslate"><span class="pre">--cmake_flags</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--debug</span></code></p></li>
 </ul>
 <p>Defaults for the build output directory and generated script locations are the
 same as listed above for <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>.</p>
