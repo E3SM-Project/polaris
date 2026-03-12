@@ -575,7 +575,7 @@ class ModelStep(Step):
 
         self._write_model_config()
 
-    def update_io_tasks_config(self):
+    def update_io_tasks_config(self, config_model=None):
         """
         Modify model config options so the number of IO tasks and the stride
         between them are consistent with the number of nodes and cores (one
@@ -584,6 +584,12 @@ class ModelStep(Step):
         This updates MPAS-Ocean namelist options directly.  For Omega runs,
         ``OceanModelStep`` maps these MPAS options to Omega yaml config
         options.
+
+        Parameters
+        ----------
+        config_model : str, optional
+            If config options are available for multiple models, the model
+            that the config options are from.
         """
         config = self.config
 
@@ -606,11 +612,13 @@ class ModelStep(Step):
             'config_pio_stride': pio_stride,
         }
 
-        self.add_model_config_options(options=replacements)
+        self.add_model_config_options(
+            options=replacements, config_model=config_model
+        )
 
-    def update_namelist_pio(self):
+    def update_namelist_pio(self, config_model=None):
         """Deprecated alias for :py:meth:`update_io_tasks_config`."""
-        self.update_io_tasks_config()
+        self.update_io_tasks_config(config_model=config_model)
 
     def partition(self, graph_file='graph.info'):
         """

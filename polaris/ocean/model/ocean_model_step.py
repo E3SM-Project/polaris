@@ -215,7 +215,9 @@ class OceanModelStep(ModelStep):
             Whether this method is being run during setup of the step, as
             opposed to at runtime
         """
-        super().dynamic_model_config(at_setup)
+        if self.update_io_tasks and not at_setup:
+            self.update_io_tasks_config(config_model='ocean')
+
         if self.update_eos:
             self.update_namelist_eos()
 
