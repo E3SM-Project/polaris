@@ -37,6 +37,7 @@ class ConvergenceForward(OceanModelStep):
         yaml_filename='forward.yaml',
         mesh_input_filename='mesh.nc',
         options=None,
+        replacements=None,
         graph_target=None,
         output_filename='output.nc',
         validate_vars=None,
@@ -100,6 +101,7 @@ class ConvergenceForward(OceanModelStep):
             graph_target=graph_target,
         )
 
+        self.replacements = replacements
         self.refinement = refinement
         self.refinement_factor = refinement_factor
         self.package = package
@@ -204,6 +206,8 @@ class ConvergenceForward(OceanModelStep):
             output_interval=output_interval_str,
             output_freq=f'{output_freq}',
         )
+        if self.replacements is not None:
+            replacements.update(self.replacements)
 
         self.add_yaml_file(
             self.package,
