@@ -1,12 +1,14 @@
 # Omega CTest utility
 
-This utility helps Omega developers build the model and run
-CTests for a given compiler.
+This utility helps Omega developers build the model (or reuse an existing
+build) and run CTests for a given compiler.
 
-The utility will check out submodules that Omega needs and build Omega with
-the requested compilers (see below). On a compute node, the utility will also
-run CTests directly.  On a login node, it will create a job script for running
-CTests and can optionally submit the job script.
+By default, the utility checks out submodules that Omega needs and builds Omega
+with the requested compiler (see below). You can also point to an existing
+Omega build with `-p/--component_path` (analogous to `polaris setup` and
+`polaris suite`). On a compute node, the utility will also run CTests directly.
+On a login node, it will create a job script for running CTests and can
+optionally submit the job script.
 
 ## Instructions
 
@@ -47,14 +49,19 @@ CTests and can optionally submit the job script.
 
    ```
    usage: omega_ctest.py [-h] [-o OMEGA_BRANCH] [-c] [-s] [-d]
-                      [--cmake_flags CMAKE_FLAGS]
+                      [-p COMPONENT_PATH] [--cmake_flags CMAKE_FLAGS]
    ```
 
    * `-o <path_to_omega_branch>`: point to a branch of Omega
      (`e3sm_submodules/Omega` by default)
 
+   * `-p <path_to_existing_omega_build>` or
+     `--component_path <path_to_existing_omega_build>`: point to an existing
+     Omega build directory (one that contains `src/omega.exe`,
+     `configs/Default.yml`, etc.) and skip rebuilding
+
    * `-c`: indicates that the build subdirectory should be removed first to
-     allow a clean build
+       allow a clean build (only when not using `-p/--component_path`)
 
    * `-s`: if running the utility on a login node, submit the job script that
      the utility generates (does nothing on a compute node)
@@ -65,6 +72,19 @@ CTests and can optionally submit the job script.
    * `-d`: build Omega in debug mode
 
    * `--cmake_flags="<flags>"`: Extra flags to pass to the `cmake` command
+
+   Example reusing an existing build created by `polaris setup` or
+   `polaris suite`:
+   ```
+   ./utils/omega/ctest/omega_ctest.py -p /path/to/work_dir/build
+   ```
+
+   For example, if your suite work directory is
+   `/lcrc/group/e3sm/acme/suites/ocean/nightly`, the build created by
+   `polaris suite` is typically:
+   ```
+   /lcrc/group/e3sm/acme/suites/ocean/nightly/build
+   ```
 
 5. If you are on a login node and didn't use the `-s` flag, you will need
    to submit the batch job to run CTests yourself (perhaps after editing the
