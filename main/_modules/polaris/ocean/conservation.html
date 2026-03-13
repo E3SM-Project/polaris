@@ -110,10 +110,8 @@
   <h1>Source code for polaris.ocean.conservation</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 
-<span class="c1"># Should match config_density0</span>
-<span class="n">rho_sw</span> <span class="o">=</span> <span class="mf">1026.0</span>
-
 <span class="n">cp_sw</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;seawater_specific_heat_capacity_reference&#39;</span><span class="p">)</span>
+<span class="n">rho_sw</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;seawater_density_reference&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="compute_total_mass">
@@ -156,7 +154,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_total_tracer</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">tracer_name</span><span class="o">=</span><span class="s1">&#39;tracer1&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the total salt in an ocean model output file</span>
+<span class="sd">    Compute the total tracer in an ocean model output file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">_reduce_dataset_time_dim</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="n">area_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">areaCell</span>
