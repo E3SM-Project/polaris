@@ -65,6 +65,12 @@ config:
     config_num_halos: HaloWidth
 
 - section:
+    io: IO
+  options:
+    config_pio_num_iotasks: IOTasks
+    config_pio_stride: IOStride
+
+- section:
     advection: Advection
   options:
     config_thickness_flux_type: FluxThicknessType

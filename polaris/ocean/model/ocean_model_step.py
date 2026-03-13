@@ -64,7 +64,8 @@ class OceanModelStep(ModelStep):
         max_memory: Optional[int] = None,
         cached: bool = False,
         yaml: Optional[str] = None,
-        update_pio: bool = True,
+        update_io_tasks: bool = True,
+        update_pio: Optional[bool] = None,
         update_eos: bool = False,
         make_graph: bool = False,
         mesh_filename: Optional[str] = None,
@@ -112,10 +113,13 @@ class OceanModelStep(ModelStep):
             Whether to get all of the outputs for the step from the database of
             cached outputs for this component
 
+        update_io_tasks : bool, optional
+            Whether to modify model config options controlling IO tasks so the
+            number of IO tasks and the stride between them are consistent with
+            the number of nodes and cores (one IO task per node).
+
         update_pio : bool, optional
-            Whether to modify the namelist so the number of PIO tasks and the
-            stride between them is consistent with the number of nodes and
-            cores (one PIO task per node).
+            Deprecated alias for ``update_io_tasks``.
 
         update_eos : bool, optional
             Whether to modify the namelist so the equation of state is
@@ -151,6 +155,7 @@ class OceanModelStep(ModelStep):
             max_memory=max_memory,
             cached=cached,
             yaml=yaml,
+            update_io_tasks=update_io_tasks,
             update_pio=update_pio,
             make_graph=make_graph,
             mesh_filename=mesh_filename,
@@ -210,7 +215,9 @@ class OceanModelStep(ModelStep):
             Whether this method is being run during setup of the step, as
             opposed to at runtime
         """
-        super().dynamic_model_config(at_setup)
+        if self.update_io_tasks and not at_setup:
+            self.update_io_tasks_config(config_model='ocean')
+
         if self.update_eos:
             self.update_namelist_eos()
 
