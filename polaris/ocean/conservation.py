@@ -1,9 +1,7 @@
 from polaris.constants import get_constant
 
-# Should match config_density0
-rho_sw = 1026.0
-
 cp_sw = get_constant('seawater_specific_heat_capacity_reference')
+rho_sw = get_constant('seawater_density_reference')
 
 
 def compute_total_mass(ds_mesh, ds):
@@ -40,7 +38,7 @@ def compute_total_energy(ds_mesh, ds):
 
 def compute_total_tracer(ds_mesh, ds, tracer_name='tracer1'):
     """
-    Compute the total salt in an ocean model output file
+    Compute the total tracer in an ocean model output file
     """
     ds = _reduce_dataset_time_dim(ds)
     area_cell = ds_mesh.areaCell
