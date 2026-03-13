@@ -58,9 +58,9 @@ class Forward(SphericalConvergenceForward):
         }
         flow_type = {
             'rotation_2d': 'Init',
-            'nondivergent_2d': 'None',
-            'divergent_2d': 'None',
-            'correlated_tracers_2d': 'None',
+            'nondivergent_2d': 'NonDivergent',
+            'divergent_2d': 'Divergent',
+            'correlated_tracers_2d': 'NonDivergent',
         }
         replacements = {
             'flow_id': flow_id[case_name],
