@@ -26,7 +26,7 @@ def add_cosine_bell_tasks(component):
         the ocean component that the tasks will be added to
     """
 
-    for prefix, single_refinement in [('icos', 8.0), ('qu', 2.0)]:
+    for prefix, single_refinement in [('icos', 8.0), ('qu', 1.5)]:
         filepath = (
             f'{component.name}/spherical/{prefix}/cosine_bell/cosine_bell.cfg'
         )

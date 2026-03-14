@@ -34,10 +34,10 @@ class ModelStep(Step):
         is ``['ocean', 'omega']``, since both models share the generic
         ``ocean`` config options.
 
-    update_pio : bool
-        Whether to modify the namelist so the number of PIO tasks and the
-        stride between them is consistent with the number of nodes and
-        cores (one PIO task per node).
+    update_io_tasks : bool
+        Whether to modify model config options controlling IO tasks so the
+        number of IO tasks and the stride between them are consistent with the
+        number of nodes and cores (one IO task per node).
 
     make_graph : bool
         Whether to make a graph file from the given MPAS mesh file.  If
@@ -87,7 +87,8 @@ class ModelStep(Step):
         namelist=None,
         streams=None,
         yaml=None,
-        update_pio=True,
+        update_io_tasks=True,
+        update_pio=None,
         make_graph=False,
         mesh_filename=None,
         partition_graph=True,
@@ -141,10 +142,13 @@ class ModelStep(Step):
         streams : str, optional
             The name of the streams file, default is ``streams.<component>``
 
+        update_io_tasks : bool, optional
+            Whether to modify model config options controlling IO tasks so the
+            number of IO tasks and the stride between them are consistent with
+            the number of nodes and cores (one IO task per node).
+
         update_pio : bool, optional
-            Whether to modify the namelist so the number of PIO tasks and the
-            stride between them is consistent with the number of nodes and
-            cores (one PIO task per node).
+            Deprecated alias for ``update_io_tasks``.
 
         make_graph : bool, optional
             Whether to make a graph file from the given MPAS mesh file.  If
@@ -192,7 +196,10 @@ class ModelStep(Step):
         self.streams = streams
         self.yaml = yaml
         self.config_models: Union[List[None], List[str]] = [None]
-        self.update_pio = update_pio
+        if update_pio is not None:
+            update_io_tasks = update_pio
+
+        self.update_io_tasks = update_io_tasks
         self.make_graph = make_graph
         self.mesh_filename = mesh_filename
         self.partition_graph = partition_graph
@@ -499,12 +506,13 @@ class ModelStep(Step):
             Whether this method is being run during setup of the step, as
             opposed to at runtime
         """
-        if self.update_pio and not at_setup:
-            self.update_namelist_pio()
+        if self.update_io_tasks and not at_setup:
+            self.update_io_tasks_config()
 
     def runtime_setup(self):
         """
-        Update PIO namelist options, make graph file, and partition graph file
+        Update IO task model config options, make graph file, and partition
+        graph file
         (if any of these are requested)
         """
         quiet = False
@@ -567,11 +575,21 @@ class ModelStep(Step):
 
         self._write_model_config()
 
-    def update_namelist_pio(self):
+    def update_io_tasks_config(self, config_model=None):
         """
-        Modify the namelist so the number of PIO tasks and the stride between
-        them consistent with the number of nodes and cores (one PIO task per
-        node).
+        Modify model config options so the number of IO tasks and the stride
+        between them are consistent with the number of nodes and cores (one
+        IO task per node).
+
+        This updates MPAS-Ocean namelist options directly.  For Omega runs,
+        ``OceanModelStep`` maps these MPAS options to Omega yaml config
+        options.
+
+        Parameters
+        ----------
+        config_model : str, optional
+            If config options are available for multiple models, the model
+            that the config options are from.
         """
         config = self.config
 
@@ -579,8 +597,7 @@ class ModelStep(Step):
 
         cores_per_node = config.getint('parallel', 'cores_per_node')
 
-        # update PIO tasks based on the machine settings and the available
-        # number or cores
+        # update IO tasks based on machine settings and the available cores
         pio_num_iotasks = int(np.ceil(cores / cores_per_node))
         pio_stride = self.ntasks // pio_num_iotasks
         if pio_stride > cores_per_node:
@@ -595,7 +612,13 @@ class ModelStep(Step):
             'config_pio_stride': pio_stride,
         }
 
-        self.add_model_config_options(options=replacements)
+        self.add_model_config_options(
+            options=replacements, config_model=config_model
+        )
+
+    def update_namelist_pio(self, config_model=None):
+        """Deprecated alias for :py:meth:`update_io_tasks_config`."""
+        self.update_io_tasks_config(config_model=config_model)
 
     def partition(self, graph_file='graph.info'):
         """

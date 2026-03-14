@@ -95,6 +95,8 @@ class Forward(OceanModelStep):
         self.task_name = task_name
 
     def dynamic_model_config(self, at_setup):
+        super().dynamic_model_config(at_setup=at_setup)
+
         if self.task_name == 'ekman':
             nu = self.config.getfloat(
                 'single_column_ekman', 'vertical_viscosity'
