@@ -1,8 +1,13 @@
 import importlib.resources as imp_res
 import json
+import os
 
 import xarray as xr
+from mache.parallel import ParallelSystem, get_parallel_system
 from mpas_tools.io import write_netcdf
+from mpas_tools.logging import check_call
+
+from polaris.config import PolarisConfigParser
 
 
 class Component:
@@ -48,7 +53,95 @@ class Component:
         self.configs = dict()
 
         self.cached_files = dict()
+        self.parallel_system: ParallelSystem | None = None
         self._read_cached_files()
+
+    def set_parallel_system(self, config: PolarisConfigParser) -> None:
+        """
+        Construct and store the active parallel system for this component
+
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            The config to use in constructing the parallel system
+        """
+        if config.combined is None:
+            config.combine()
+        assert config.combined is not None
+        self.parallel_system = get_parallel_system(config.combined)
+
+    def get_available_resources(self):
+        """
+        Get available resources from the active parallel system
+
+        Returns
+        -------
+        available_resources : dict
+            Available CPU and GPU resources and machine capabilities
+        """
+        if self.parallel_system is None:
+            raise ValueError(
+                f'Parallel system has not been set for component {self.name}'
+            )
+
+        return dict(
+            cores=self.parallel_system.cores,
+            nodes=self.parallel_system.nodes,
+            cores_per_node=self.parallel_system.cores_per_node,
+            gpus=self.parallel_system.gpus,
+            gpus_per_node=self.parallel_system.gpus_per_node,
+            mpi_allowed=self.parallel_system.mpi_allowed,
+        )
+
+    def run_parallel_command(
+        self,
+        args,
+        cpus_per_task,
+        ntasks,
+        openmp_threads,
+        logger,
+        gpus_per_task=0,
+    ):
+        """
+        Run a command using the active parallel system
+
+        Parameters
+        ----------
+        args : list of str
+            Command line arguments for the executable
+
+        cpus_per_task : int
+            Number of CPUs per task
+
+        ntasks : int
+            Number of parallel tasks
+
+        openmp_threads : int
+            Number of OpenMP threads
+
+        logger : logging.Logger
+            Logger to output command-line execution info
+
+        gpus_per_task : int, optional
+            Number of GPUs per task
+        """
+        if self.parallel_system is None:
+            raise ValueError(
+                f'Parallel system has not been set for component {self.name}'
+            )
+
+        env = dict(os.environ)
+        env['OMP_NUM_THREADS'] = f'{openmp_threads}'
+        if openmp_threads > 1:
+            logger.info(f'Running with {openmp_threads} OpenMP threads')
+
+        command_line_args = self.parallel_system.get_parallel_command(
+            args=args,
+            ntasks=ntasks,
+            cpus_per_task=cpus_per_task,
+            gpus_per_task=gpus_per_task,
+        )
+        check_call(command_line_args, logger, env=env)
 
     def add_task(self, task):
         """

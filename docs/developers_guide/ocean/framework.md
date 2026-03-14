@@ -124,15 +124,30 @@ The algorithm for determining the resources is:
 
 ```python
 # ideally, about 200 cells per core
-self.ntasks = max(1, round(cell_count / goal_cells_per_core + 0.5))
+cpu_ntasks = max(1, 4 * round(cell_count / (4 * goal_cells_per_core)))
 # In a pinch, about 2000 cells per core
-self.min_tasks = max(1, round(cell_count / max_cells_per_core + 0.5))
+cpu_min_tasks = max(1, 4 * round(cell_count / (4 * max_cells_per_core)))
 ```
 
 The config options `goal_cells_per_core` and `max_cells_per_core` in the
 `[ocean]` seciton can be used to control how resources scale with the size of
-the planar mesh.  By default,  the number of MPI tasks tries to apportion 200
+the planar mesh.  By default, the number of MPI tasks tries to apportion 200
 cells to each core, but it will allow as many as 2000.
+
+For Omega on GPU-capable parallel configs (`gpus_per_node > 0`), dynamic
+sizing switches to GPU-based targets and sets one GPU per MPI task:
+
+```python
+self.gpus_per_task = 1
+self.min_gpus_per_task = 1
+# ideally, about 8000 cells per GPU
+self.ntasks = max(1, 4 * round(cell_count / (4 * goal_cells_per_gpu)))
+# In a pinch, about 80000 cells per GPU
+self.min_tasks = max(1, 4 * round(cell_count / (4 * max_cells_per_gpu)))
+```
+
+The corresponding `[ocean]` config options are `goal_cells_per_gpu` and
+`max_cells_per_gpu`.
 
 ### Setting time intervals in model config options
 
