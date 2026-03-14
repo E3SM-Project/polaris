@@ -516,13 +516,13 @@ documentation.</p>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ModelStep.runtime_setup.html#polaris.ModelStep.runtime_setup" title="polaris.ModelStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.runtime_setup</span></code></a>()</p></td>
-<td><p>Update PIO namelist options, make graph file, and partition graph file (if any of these are requested)</p></td>
+<td><p>Update IO task model config options, make graph file, and partition graph file (if any of these are requested)</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.process_inputs_and_outputs.html#polaris.ModelStep.process_inputs_and_outputs" title="polaris.ModelStep.process_inputs_and_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.process_inputs_and_outputs</span></code></a>()</p></td>
 <td><p>Process the model as an input, then call the parent class' version</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ModelStep.update_namelist_pio.html#polaris.ModelStep.update_namelist_pio" title="polaris.ModelStep.update_namelist_pio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.update_namelist_pio</span></code></a>()</p></td>
-<td><p>Modify the namelist so the number of PIO tasks and the stride between them consistent with the number of nodes and cores (one PIO task per node).</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ModelStep.update_io_tasks_config.html#polaris.ModelStep.update_io_tasks_config" title="polaris.ModelStep.update_io_tasks_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.update_io_tasks_config</span></code></a>([config_model])</p></td>
+<td><p>Modify model config options so the number of IO tasks and the stride between them are consistent with the number of nodes and cores (one IO task per node).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ModelStep.partition.html#polaris.ModelStep.partition" title="polaris.ModelStep.partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelStep.partition</span></code></a>([graph_file])</p></td>
 <td><p>Partition the domain for the requested number of tasks</p></td>

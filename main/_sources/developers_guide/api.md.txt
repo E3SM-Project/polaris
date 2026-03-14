@@ -187,7 +187,7 @@ seaice/api
    ModelStep.dynamic_model_config
    ModelStep.runtime_setup
    ModelStep.process_inputs_and_outputs
-   ModelStep.update_namelist_pio
+   ModelStep.update_io_tasks_config
    ModelStep.partition
 ```
 

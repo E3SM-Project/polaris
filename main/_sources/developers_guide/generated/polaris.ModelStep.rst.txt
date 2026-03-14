@@ -36,6 +36,7 @@
       ~ModelStep.set_resources
       ~ModelStep.set_shared_config
       ~ModelStep.setup
+      ~ModelStep.update_io_tasks_config
       ~ModelStep.update_namelist_pio
       ~ModelStep.validate_baselines
    

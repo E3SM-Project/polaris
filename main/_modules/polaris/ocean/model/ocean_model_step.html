@@ -178,7 +178,8 @@
         <span class="n">max_memory</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cached</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">yaml</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">update_pio</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">update_io_tasks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">update_pio</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">update_eos</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">make_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mesh_filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -226,10 +227,13 @@
 <span class="sd">            Whether to get all of the outputs for the step from the database of</span>
 <span class="sd">            cached outputs for this component</span>
 
+<span class="sd">        update_io_tasks : bool, optional</span>
+<span class="sd">            Whether to modify model config options controlling IO tasks so the</span>
+<span class="sd">            number of IO tasks and the stride between them are consistent with</span>
+<span class="sd">            the number of nodes and cores (one IO task per node).</span>
+
 <span class="sd">        update_pio : bool, optional</span>
-<span class="sd">            Whether to modify the namelist so the number of PIO tasks and the</span>
-<span class="sd">            stride between them is consistent with the number of nodes and</span>
-<span class="sd">            cores (one PIO task per node).</span>
+<span class="sd">            Deprecated alias for ``update_io_tasks``.</span>
 
 <span class="sd">        update_eos : bool, optional</span>
 <span class="sd">            Whether to modify the namelist so the equation of state is</span>
@@ -265,6 +269,7 @@
             <span class="n">max_memory</span><span class="o">=</span><span class="n">max_memory</span><span class="p">,</span>
             <span class="n">cached</span><span class="o">=</span><span class="n">cached</span><span class="p">,</span>
             <span class="n">yaml</span><span class="o">=</span><span class="n">yaml</span><span class="p">,</span>
+            <span class="n">update_io_tasks</span><span class="o">=</span><span class="n">update_io_tasks</span><span class="p">,</span>
             <span class="n">update_pio</span><span class="o">=</span><span class="n">update_pio</span><span class="p">,</span>
             <span class="n">make_graph</span><span class="o">=</span><span class="n">make_graph</span><span class="p">,</span>
             <span class="n">mesh_filename</span><span class="o">=</span><span class="n">mesh_filename</span><span class="p">,</span>
@@ -328,7 +333,9 @@
 <span class="sd">            Whether this method is being run during setup of the step, as</span>
 <span class="sd">            opposed to at runtime</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_io_tasks</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">at_setup</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_io_tasks_config</span><span class="p">(</span><span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_eos</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_namelist_eos</span><span class="p">()</span>
 
