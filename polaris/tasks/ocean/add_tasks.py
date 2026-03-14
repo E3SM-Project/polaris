@@ -7,6 +7,7 @@ from polaris.tasks.ocean.external_gravity_wave import (
     add_external_gravity_wave_tasks as add_external_gravity_wave_tasks,
 )
 from polaris.tasks.ocean.geostrophic import add_geostrophic_tasks
+from polaris.tasks.ocean.horiz_press_grad import add_horiz_press_grad_tasks
 from polaris.tasks.ocean.ice_shelf_2d import add_ice_shelf_2d_tasks
 from polaris.tasks.ocean.inertial_gravity_wave import (
     add_inertial_gravity_wave_tasks as add_inertial_gravity_wave_tasks,
@@ -36,6 +37,7 @@ def add_ocean_tasks(component):
     add_baroclinic_channel_tasks(component=component)
     add_barotropic_channel_tasks(component=component)
     add_barotropic_gyre_tasks(component=component)
+    add_horiz_press_grad_tasks(component=component)
     add_ice_shelf_2d_tasks(component=component)
     add_inertial_gravity_wave_tasks(component=component)
     add_internal_wave_tasks(component=component)
