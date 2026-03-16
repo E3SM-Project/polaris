@@ -2,9 +2,9 @@
 Conversions between Omega pseudo-height and pressure.
 
 Omega's vertical coordinate is pseudo-height
-    z_tilde = -p / (rho0 * g)
+    z_tilde = -p / (RhoSw * g)
 with z_tilde positive upward. Here, ``p`` is sea pressure in Pascals (Pa),
-``rho0`` is a reference density (kg m^-3), and ``g`` is gravitational
+``RhoSw`` is a reference density (kg m^-3), and ``g`` is gravitational
 acceleration as defined by ``polaris.constants`` via the Physical Constants
 Dictionary.
 """
@@ -31,20 +31,17 @@ RhoSw = get_constant('seawater_density_reference')
 
 
 def pseudothickness_from_pressure(
-    p: xr.DataArray, rho0: float
+    p: xr.DataArray,
 ) -> xr.DataArray:
     """
     Convert sea pressure to pseudo-thickness.
 
-    z_tilde = -p / (rho0 * g)
+    z_tilde = -p / (RhoSw * g)
 
     Parameters
     ----------
     p : xarray.DataArray
         Sea pressure in Pascals (Pa) at layer interfaces.
-
-    rho0 : float
-        Reference density in kg m^-3.
 
     Returns
     -------
@@ -65,7 +62,7 @@ def pseudothickness_from_pressure(
         {
             'long_name': 'pseudo-thickness',
             'units': 'm',
-            'note': 'h_tilde = -dp / (rho0 * g)',
+            'note': 'h_tilde = -dp / (RhoSw * g)',
         }
     )
 
@@ -74,7 +71,7 @@ def z_tilde_from_pressure(p: xr.DataArray) -> xr.DataArray:
     """
     Convert sea pressure to pseudo-height.
 
-    z_tilde = -p / (rho0 * g)
+    z_tilde = -p / (RhoSw * g)
 
     Parameters
     ----------
@@ -92,7 +89,7 @@ def z_tilde_from_pressure(p: xr.DataArray) -> xr.DataArray:
         {
             'long_name': 'pseudo-height',
             'units': 'm',
-            'note': 'z_tilde = -p / (rho0 * g)',
+            'note': 'z_tilde = -p / (RhoSw * g)',
         }
     )
 
@@ -101,7 +98,7 @@ def pressure_from_z_tilde(z_tilde: xr.DataArray) -> xr.DataArray:
     """
     Convert pseudo-height to sea pressure.
 
-    p = -z_tilde * (rho0 * g)
+    p = -z_tilde * (RhoSw * g)
 
     Parameters
     ----------
@@ -119,7 +116,7 @@ def pressure_from_z_tilde(z_tilde: xr.DataArray) -> xr.DataArray:
         {
             'long_name': 'sea pressure',
             'units': 'Pa',
-            'note': 'p = -rho0 * g * z_tilde',
+            'note': 'p = -RhoSw * g * z_tilde',
         }
     )
 

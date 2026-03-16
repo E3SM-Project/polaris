@@ -1,18 +1,20 @@
 import numpy as np
 import xarray as xr
 
+from polaris.constants import get_constant
 from polaris.ocean.vertical.ztilde import (
     pressure_and_spec_vol_from_state_at_geom_height,
     pseudothickness_from_pressure,
 )
 
+RhoSw = get_constant('seawater_density_reference')
+
 
 def geom_thickness_from_ds(ds, config):
-    rho0 = config.getfloat('vertical_grid', 'rho0')
     if 'layerThickness' in ds.keys():
         return ds['layerThickness']
     elif 'SpecVol' in ds.keys() and 'PseudoThickness' in ds.keys():
-        return rho0 * ds['SpecVol'] * ds['layerThickness']
+        return RhoSw * ds['SpecVol'] * ds['layerThickness']
     else:
         raise ValueError(
             'Geometric layerThickness is not present in the '
@@ -31,7 +33,6 @@ def pseudothickness_from_ds(ds, config):
         return
 
     surface_pressure = config.getfloat('vertical_grid', 'surface_pressure')
-    rho0 = config.getfloat('vertical_grid', 'rho0')
     p_interface, _, _ = pressure_and_spec_vol_from_state_at_geom_height(
         config,
         ds.layerThickness,
@@ -41,7 +42,7 @@ def pseudothickness_from_ds(ds, config):
         iter_count=1,
     )
 
-    pseudothickness = pseudothickness_from_pressure(p_interface, rho0)
+    pseudothickness = pseudothickness_from_pressure(p_interface)
 
     return pseudothickness
 
