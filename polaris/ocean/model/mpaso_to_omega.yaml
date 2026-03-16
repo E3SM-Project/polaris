@@ -109,22 +109,7 @@ config:
 - section:
     debug: Tendencies
   options:
-    config_disable_vel_pgrad: not PresGradForceTendencyEnable
-
-- section:
-    debug: Tendencies
-  options:
     config_disable_vel_explicit_bottom_drag: not BottomDragTendencyEnable
-
-- section:
-    debug: Tendencies
-  options:
-    config_disable_vel_vmix: not VelVertMixTendencyEnable
-
-- section:
-    debug: Tendencies
-  options:
-    config_disable_tr_vmix: not TracerVertMixTendencyEnable
 
 - section:
     debug: Tendencies

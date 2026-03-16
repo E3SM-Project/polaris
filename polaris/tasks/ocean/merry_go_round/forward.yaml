@@ -10,9 +10,6 @@ ocean:
     config_disable_vel_vadv: true
     config_disable_thick_vadv: true
     config_disable_thick_hadv: true
-    config_disable_tr_vmix: true
-    config_disable_vel_vmix: true
-    config_disable_vel_pgrad: true
   hmix_del2:
     config_use_mom_del2: false
     config_use_tracer_del2: false
@@ -39,6 +36,8 @@ mpas-ocean:
     config_disable_thick_all_tend: true
     config_disable_vel_all_tend: true
     config_disable_tr_hmix: true
+    config_disable_vel_vmix: true
+    config_disable_vel_pgrad: true
     config_disable_tr_sflux: true
     config_disable_tr_nonlocalflux: true
     config_check_ssh_consistency: false
@@ -83,14 +82,9 @@ Omega:
     VerticalTracerFluxLimiterEnable: false
   Tendencies:
     TracerHorzAdvTendencyEnable: false
-    TracerHorzAdvTendencyOrder: 1
     PVTendencyEnable: false
     KETendencyEnable: false
     SSHTendencyEnable: false
-    PresForceTendencyEnable: false
-    GeoptGradTendencyEnable: false
-    ProjVelDiffTendencyEnable: false
-    ProjVelHyperDiffTendencyEnable: false
     ThicknessVertAdvTendencyEnable: false
     VelocityVertAdvTendencyEnable: false
   IOStreams:
