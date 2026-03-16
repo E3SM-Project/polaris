@@ -178,6 +178,7 @@ class Ocean(Component):
             and config is not None
         ):
             ds['PseudoThickness'] = pseudothickness_from_ds(ds, config=config)
+            ds['layerThickness'] = ds.PseudoThickness.copy()
         ds = self.map_to_native_model_vars(ds)
         write_netcdf(ds=ds, fileName=filename)
 
@@ -263,14 +264,14 @@ class Ocean(Component):
             The dataset with variables named as expected in MPAS-Ocean
         """
         ds = xr.open_dataset(filename, **kwargs)
-        ds = self.map_from_native_model_vars(ds)
         if (
             self.model == 'omega'
-            and 'layerThickness' in ds.keys()
+            and 'LayerThickness' in ds.keys()
             and config is not None
         ):
-            ds['PseudoThickness'] = ds.layerThickness
-            ds['layerThickness'] = geom_thickness_from_ds(ds, config=config)
+            ds['PseudoThickness'] = ds.LayerThickness
+            ds['LayerThickness'] = geom_thickness_from_ds(ds, config=config)
+        ds = self.map_from_native_model_vars(ds)
         return ds
 
     def _has_ocean_io_model_steps(self, tasks) -> Tuple[bool, bool]:
