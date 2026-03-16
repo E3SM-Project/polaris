@@ -148,7 +148,7 @@ There are two versions of the convergence test case: `convergence_space` and
 `convergence_both` corresponding to space and both space and time convergence
 tests. All settings, except monotonic tracer advection, are the same as the
 {ref}`ocean-merry-go-round-default` case, but now the resolution and/or time step
-are refined to asses the order of convergence for tracer advection. For the
+are refined to assess the order of convergence for tracer advection. For the
 convergence tests, monotonic tracer advection is disabled; simulations with
 this option are not expected to show convergence. Tests
 involving spatial convergence have a horizontal resolution of
