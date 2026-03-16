@@ -130,19 +130,22 @@ def write_job_script(
 
     render_kwargs: dict[str, str] = {}
 
+    desired_wall_time = config.get('job', 'wall_time')
+
     if system == 'slurm':
         (
             partition,
             qos,
             constraint,
             gpus_per_node,
-            wall_time,
+            max_wallclock,
             nodes,
         ) = SlurmSystem.get_slurm_options(
             config=config.combined,
             nodes=nodes,
             min_nodes_allowed=min_nodes_allowed,
         )
+        wall_time = _cap_wall_time(desired_wall_time, max_wallclock)
         template_name = 'job_script.slurm.template'
         render_kwargs.update(
             partition=partition,
@@ -156,7 +159,7 @@ def write_job_script(
             queue,
             constraint,
             gpus_per_node,
-            wall_time,
+            max_wallclock,
             filesystems,
             nodes,
         ) = PbsSystem.get_pbs_options(
@@ -164,6 +167,7 @@ def write_job_script(
             nodes=nodes,
             min_nodes_allowed=min_nodes_allowed,
         )
+        wall_time = _cap_wall_time(desired_wall_time, max_wallclock)
         template_name = 'job_script.pbs.template'
         render_kwargs.update(
             queue=queue,
@@ -236,3 +240,30 @@ def _get_min_nodes_allowed(
     if len(minima) == 0:
         return None
     return max(minima)
+
+
+def _wallclock_to_seconds(wallclock):
+    """Convert HH:MM:SS wall-clock string to total seconds, or None."""
+    parts = wallclock.split(':')
+    if len(parts) != 3:
+        return None
+    try:
+        return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
+    except ValueError:
+        return None
+
+
+def _cap_wall_time(desired, max_wallclock):
+    """Return desired wall time, capped at max_wallclock if it is smaller.
+
+    Defaults to desired if max_wallclock is empty or cannot be parsed.
+    """
+    if not max_wallclock:
+        return desired
+    desired_secs = _wallclock_to_seconds(desired)
+    max_secs = _wallclock_to_seconds(max_wallclock)
+    if desired_secs is None or max_secs is None:
+        return desired
+    if desired_secs <= max_secs:
+        return desired
+    return max_wallclock
