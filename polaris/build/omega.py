@@ -84,7 +84,8 @@ def build_omega(
         if quiet:
             command += f' > {log_filename} 2>&1 '
         else:
-            command += f' 2>&1 | tee {log_filename}'
+            # use pipefail so a build failure is not masked by tee's exit code
+            command = f'set -o pipefail; {command} 2>&1 | tee {log_filename}'
     subprocess.check_call(command, shell=True)
 
     print(f'Omega builds script written to:\n  {script_filename}\n')
