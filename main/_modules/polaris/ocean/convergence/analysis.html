@@ -517,10 +517,18 @@
             <span class="n">area</span> <span class="o">=</span> <span class="n">area_for_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span>
             <span class="n">field_exact</span> <span class="o">=</span> <span class="n">field_exact</span> <span class="o">*</span> <span class="n">area</span>
             <span class="n">diff</span> <span class="o">=</span> <span class="n">diff</span> <span class="o">*</span> <span class="n">area</span>
-        <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="nb">ord</span><span class="o">=</span><span class="n">norm_type</span><span class="p">[</span><span class="n">error_type</span><span class="p">])</span>
+        <span class="c1"># Ignore NaNs in the difference and exact fields</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">diff</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span>
+            <span class="n">field_exact</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+            <span class="n">diff</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="n">mask</span><span class="p">],</span> <span class="nb">ord</span><span class="o">=</span><span class="n">norm_type</span><span class="p">[</span><span class="n">error_type</span><span class="p">]</span>
+        <span class="p">)</span>
 
         <span class="c1"># Normalize the error norm by the vector norm of the exact solution</span>
-        <span class="n">den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">field_exact</span><span class="p">,</span> <span class="nb">ord</span><span class="o">=</span><span class="n">norm_type</span><span class="p">[</span><span class="n">error_type</span><span class="p">])</span>
+        <span class="n">den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+            <span class="n">field_exact</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="n">mask</span><span class="p">],</span> <span class="nb">ord</span><span class="o">=</span><span class="n">norm_type</span><span class="p">[</span><span class="n">error_type</span><span class="p">]</span>
+        <span class="p">)</span>
         <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">den</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">error</span></div>

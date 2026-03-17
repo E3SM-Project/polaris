@@ -153,7 +153,7 @@ domain in order to verify tracer advection.</p>
 </a>
 <section id="supported-models">
 <h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
-<p>These tasks only support MPAS-Ocean.</p>
+<p>These tasks support MPAS-Ocean and Omega.</p>
 </section>
 <section id="default">
 <span id="ocean-merry-go-round-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
@@ -166,7 +166,7 @@ scheme would result in no change in the tracer field in time.</p>
 resolution.</p>
 <p>The forward step runs the model for the requested length of time. Tendencies
 for normal velocity and layer thickness are disabled, such that these fields
-remain fixed at their initial conditions throughout the simulation.</p>
+remain fixed at their initial conditions throughout the simulation. This forward run enables monotonic (flux-corrected) tracer advection.</p>
 <p>The visualization step produces a plot illustrating the horizontal velocity,
 vertical velocity, simulated <code class="docutils literal notranslate"><span class="pre">tracer1</span></code> concentration, the error in simulated
 tracer concentration at the end of the forward simulation.
@@ -280,9 +280,11 @@ The run duration is determined by the config option
 <span id="ocean-merry-go-round-convergence"></span><h2>convergence tasks<a class="headerlink" href="#convergence-tasks" title="Link to this heading"></a></h2>
 <p>There are two versions of the convergence test case: <code class="docutils literal notranslate"><span class="pre">convergence_space</span></code> and
 <code class="docutils literal notranslate"><span class="pre">convergence_both</span></code> corresponding to space and both space and time convergence
-tests. All settings are the same as the
+tests. All settings, except monotonic tracer advection, are the same as the
 <a class="reference internal" href="#ocean-merry-go-round-default"><span class="std std-ref">default</span></a> case, but now the resolution and/or time step
-are refined to asses the order of convergence for tracer advection. Tests
+are refined to assess the order of convergence for tracer advection. For the
+convergence tests, monotonic tracer advection is disabled; simulations with
+this option are not expected to show convergence. Tests
 involving spatial convergence have a horizontal resolution of
 <code class="docutils literal notranslate"><span class="pre">convergence:base_resolution</span></code> times <code class="docutils literal notranslate"><span class="pre">convergence:refinement_factors_space</span></code>.
 Tests invoking both spatial and temporal convergence refine the spatial
@@ -290,6 +292,8 @@ resolution as described above and use a time step set by
 <code class="docutils literal notranslate"><span class="pre">merry_go_round:dt_per_km</span></code> times the refined spatial resolution
 (see <a class="reference internal" href="../../../developers_guide/ocean/framework.html#dev-ocean-convergence"><span class="std std-ref">Convergence Tests</span></a> for more details on how to change resolutions
 or time steps tested).</p>
+<p>Different vertical advection orders may be tested by appending <code class="docutils literal notranslate"><span class="pre">_order2</span></code>,
+<code class="docutils literal notranslate"><span class="pre">_order3</span></code>, or <code class="docutils literal notranslate"><span class="pre">_order4</span></code> to <code class="docutils literal notranslate"><span class="pre">convergence_space</span></code> or <code class="docutils literal notranslate"><span class="pre">convergence_both</span></code>.</p>
 <p>The init and forward steps are analogous to what is described above for
 <a class="reference internal" href="#ocean-merry-go-round-default"><span class="std std-ref">default</span></a>.</p>
 <p>The analysis step computes the <code class="docutils literal notranslate"><span class="pre">convergence:error_type</span></code> of your choosing,

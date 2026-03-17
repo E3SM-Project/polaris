@@ -245,7 +245,6 @@
             <span class="n">spherical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">horz_velocity</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">velocityX</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">tidx</span><span class="p">)</span>
         <span class="n">vert_velocity</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">vertVelocityTop</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">tidx</span><span class="p">)</span>
 
         <span class="n">tracer_exact</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">tracer1</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -256,16 +255,18 @@
         <span class="n">data_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">tracer_exact</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
         <span class="n">error_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">tracer_error</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
 
-        <span class="n">plot_transect</span><span class="p">(</span>
-            <span class="n">ds_transect</span><span class="o">=</span><span class="n">ds_transect</span><span class="p">,</span>
-            <span class="n">mpas_field</span><span class="o">=</span><span class="n">horz_velocity</span><span class="p">,</span>
-            <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-            <span class="n">vmin</span><span class="o">=-</span><span class="mf">0.008</span><span class="p">,</span>
-            <span class="n">vmax</span><span class="o">=</span><span class="mf">0.008</span><span class="p">,</span>
-            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
-            <span class="n">colorbar_label</span><span class="o">=</span><span class="s1">&#39;horizontal velocity&#39;</span><span class="p">,</span>
-            <span class="n">color_start_and_end</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;velocityX&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">horz_velocity</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">velocityX</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">tidx</span><span class="p">)</span>
+            <span class="n">plot_transect</span><span class="p">(</span>
+                <span class="n">ds_transect</span><span class="o">=</span><span class="n">ds_transect</span><span class="p">,</span>
+                <span class="n">mpas_field</span><span class="o">=</span><span class="n">horz_velocity</span><span class="p">,</span>
+                <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="n">vmin</span><span class="o">=-</span><span class="mf">0.008</span><span class="p">,</span>
+                <span class="n">vmax</span><span class="o">=</span><span class="mf">0.008</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+                <span class="n">colorbar_label</span><span class="o">=</span><span class="s1">&#39;horizontal velocity&#39;</span><span class="p">,</span>
+                <span class="n">color_start_and_end</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="n">plot_transect</span><span class="p">(</span>
             <span class="n">ds_transect</span><span class="o">=</span><span class="n">ds_transect</span><span class="p">,</span>
