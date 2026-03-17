@@ -109,6 +109,8 @@ class Init(OceanIOStep):
 
         # use polaris framework functions to initialize the vertical coordinate
         init_vertical_coord(config, ds)
+        ds['temperature'] = 20.0 * xr.ones_like(ds.zMid)
+        ds['salinity'] = 35.0 * xr.ones_like(ds.zMid)
 
         # set the coriolis values
         for loc in ['Cell', 'Edge', 'Vertex']:
