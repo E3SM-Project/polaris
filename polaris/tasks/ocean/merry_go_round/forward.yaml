@@ -81,12 +81,13 @@ Omega:
   Advection:
     VerticalTracerFluxLimiterEnable: false
   Tendencies:
-    TracerHorzAdvTendencyEnable: false
+    TracerHorzAdvTendencyEnable: true
     PVTendencyEnable: false
     KETendencyEnable: false
     SSHTendencyEnable: false
     ThicknessVertAdvTendencyEnable: false
     VelocityVertAdvTendencyEnable: false
+    TracerVertAdvTendencyEnable: true
   IOStreams:
     InitialVertCoord:
       UsePointerFile: false
