@@ -178,7 +178,7 @@ class Ocean(Component):
             and config is not None
         ):
             ds['PseudoThickness'] = pseudothickness_from_ds(ds, config=config)
-            ds['layerThickness'] = ds.PseudoThickness.copy()
+            ds['layerThickness'] = ds['PseudoThickness'].copy()
         ds = self.map_to_native_model_vars(ds)
         write_netcdf(ds=ds, fileName=filename)
 
