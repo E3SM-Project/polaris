@@ -1,7 +1,7 @@
 {
   "meta": {
     "software": "polaris",
-    "mache_version": "2.2.0",
+    "mache_version": "3.0.0",
     "description": "Deploy polaris environment"
   },
   "arguments": [
@@ -9,7 +9,7 @@
       "flags": ["--machine"],
       "dest": "machine",
       "help": "Name of the machine to deploy for (must be known to mache). If not provided, mache will attempt to detect the machine from the host.",
-      "route": ["deploy", "bootstrap", "run"]
+      "route": ["deploy", "run"]
     },
     {
       "flags": ["--pixi"],
@@ -45,6 +45,12 @@
       "route": ["deploy", "run"]
     },
     {
+      "flags": ["--spack-path"],
+      "dest": "spack_path",
+      "help": "Path to the Spack checkout to use (overrides spack.spack_path in deploy/config.yaml.j2).",
+      "route": ["deploy", "run"]
+    },
+    {
       "flags": ["--recreate"],
       "dest": "recreate",
       "action": "store_true",
@@ -55,7 +61,7 @@
       "flags": ["--mache-version"],
       "dest": "mache_version",
       "help": "The mache version to use if not using an org/fork/branch.",
-      "route": ["bootstrap", "run"]
+      "route": ["deploy", "bootstrap", "run"]
     },
     {
       "flags": ["--python"],

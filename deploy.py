@@ -98,7 +98,13 @@ def main():
             bootstrap_argv += ['--mache-version', pinned_mache_version]
 
     cmd = [sys.executable, BOOTSTRAP_PATH] + bootstrap_argv
-    subprocess.check_call(cmd)
+    try:
+        subprocess.check_call(cmd)
+    except subprocess.CalledProcessError as e:
+        raise SystemExit(
+            f'\nERROR: Bootstrap step failed (exit code {e.returncode}). '
+            f'See the error output above.'
+        ) from None
 
     if args.bootstrap_only:
         pixi_exe = _get_pixi_executable(getattr(args, 'pixi', None))
@@ -453,7 +459,13 @@ def _run_mache_deploy_run(pixi_exe, repo_root, mache_run_argv):
         f'{shlex.quote(pixi_exe)} run -m {shlex.quote(pixi_toml)} bash -lc '
         f'{shlex.quote("cd " + repo_root + " && " + mache_cmd)}'
     )
-    subprocess.check_call(['/bin/bash', '-lc', cmd])
+    try:
+        subprocess.check_call(['/bin/bash', '-lc', cmd])
+    except subprocess.CalledProcessError as e:
+        raise SystemExit(
+            f'\nERROR: Deployment step failed (exit code {e.returncode}). '
+            f'See the error output above.'
+        ) from None
 
 
 if __name__ == '__main__':
