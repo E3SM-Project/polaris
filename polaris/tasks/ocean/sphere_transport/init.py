@@ -173,7 +173,7 @@ class Init(OceanIOStep):
             section = config[case_name]
             vel_amp = section.getfloat('vel_amp')
             u, v = flow_divergent(
-                0.0, lonEdge, latEdge, vel_amp, vel_pd * s_per_hour
+                0.0, lonEdge, latEdge, vel_amp, vel_pd * s_per_hour, sphere_radius
             )
         elif (
             case_name == 'nondivergent_2d'
@@ -182,7 +182,7 @@ class Init(OceanIOStep):
             section = config[case_name]
             vel_amp = section.getfloat('vel_amp')
             u, v = flow_nondivergent(
-                0.0, lonEdge, latEdge, vel_amp, vel_pd * s_per_hour
+                0.0, lonEdge, latEdge, vel_amp, vel_pd * s_per_hour, sphere_radius
             )
         else:
             raise ValueError(f'Unexpected test case name {case_name}')
