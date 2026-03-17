@@ -76,6 +76,7 @@ config:
     advection: Advection
   options:
     config_thickness_flux_type: FluxThicknessType
+    config_horiz_tracer_adv_order: HorzTracerFluxOrder
 
 - section:
     advection: Tendencies

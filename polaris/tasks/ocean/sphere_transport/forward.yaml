@@ -5,6 +5,8 @@ ocean:
   time_integration:
     config_dt: {{ dt }}
     config_time_integrator: {{ time_integrator }}
+  advection:
+    config_horiz_tracer_adv_order: 3
 
 mpas-ocean:
   run_modes:
