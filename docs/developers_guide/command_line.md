@@ -7,10 +7,10 @@ scripts: `polaris list`, `polaris setup`, `polaris suite`, and
 `polaris serial`.  These are the primary user interface to the package, as
 described below.
 
-When the `polaris` package is installed into your conda environment, you can
+When the `polaris` package is installed into your deployment environment, you can
 run these commands as above.  If you are developing polaris from a local
 branch off of <https://github.com/E3SM-Project/polaris>, you will need to create a
-conda environment appropriate for development (see {ref}`dev-conda-env`).
+development environment appropriate for development (see {ref}`dev-conda-env`).
 If you do, polaris will be installed in the environment in "development"
 mode, meaning you can make changes to the branch and they will be reflected
 when you call the `polaris` command-line tool.

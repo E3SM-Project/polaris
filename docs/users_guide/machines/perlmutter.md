@@ -46,12 +46,12 @@ setting up test cases or a suite:
 # A shared root directory where polaris data can be found
 database_root = /global/cfs/cdirs/e3sm/polaris
 
-# the path to the base conda environment where polaris environments have
+# the path to deployed Polaris environments
 # been created
 polaris_envs = /global/common/software/e3sm/polaris/pm-cpu/conda/base
 
 
-# Options related to deploying a polaris conda and spack environments
+# Options related to deploying Polaris and Spack environments
 [deploy]
 
 # the compiler set to use for system libraries and MPAS builds
@@ -138,12 +138,12 @@ setting up test cases or a suite:
 # A shared root directory where polaris data can be found
 database_root = /global/cfs/cdirs/e3sm/polaris
 
-# the path to the base conda environment where polaris environments have
+# the path to deployed Polaris environments
 # been created
 polaris_envs = /global/common/software/e3sm/polaris/pm-gpu/conda/base
 
 
-# Options related to deploying a polaris conda and spack environments
+# Options related to deploying Polaris and Spack environments
 [deploy]
 
 # the compiler set to use for system libraries and MPAS builds

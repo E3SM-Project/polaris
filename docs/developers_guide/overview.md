@@ -35,7 +35,7 @@ reformatting your code (e.g. with [autopep8](https://github.com/hhatto/autopep8)
 because this can often produce undesirable and confusing results.
 
 The [flake8](https://flake8.pycqa.org/en/latest/) utility for linting python
-files to the PEP8 standard is included in the POLARIS conda environment. To use
+files to the PEP8 standard is included in the POLARIS deployment environment. To use
 flake8, just run `flake8` from any directory and it will return lint results
 for all files recursively through all subdirectories.  You can also run it for a
 single file or using wildcards (e.g., `flake8 *.py`).  There also is a

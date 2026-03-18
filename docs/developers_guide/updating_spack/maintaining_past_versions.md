@@ -45,7 +45,7 @@ used only during internal testing and should be removed when they are no longer
 needed to free up disk space.  They should be in the maintainers own scratch
 space in any case.
 
-You can also delete your own Polaris conda environments whenever you need to
+You can also delete your own Polaris deployment environments whenever you need to
 free up space for your own use.
 
 ### Intermediate Build Artifacts
@@ -67,14 +67,14 @@ If a past version breaks due to:
 
 1. Checkout the appropriate commit in the Polaris repo (perhaps the release
    tag, e.g. `0.7.0`)
-2. Use `configure_polaris_envs.py` as usual, since Polaris will notice the
+2. Use `deploy.py` as usual, since Polaris will notice the
    older version in `polaris/version.py`:
 
    ``` bash
-   ./configure_polaris_envs.py --conda ~/miniforge3 --recreate --update_spack ...
+   ./deploy.py --recreate --deploy-spack ...
    ```
 
-You may run into difficulty solving for older conda environments e.g. because
+You may run into difficulty solving for older deployment environments e.g. because
 of missing system modules.  At some point, it may simply not be possible to
 recreate older Polaris Spack environments because of this.
 

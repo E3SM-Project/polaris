@@ -235,7 +235,7 @@ init = /home/xylar/code/polaris/customize_config_parser/E3SM-Project/components/
 
 # The executables section defines paths to required executables. These
 # executables are provided for use by specific tasks.  Most tools that
-# polaris needs should be in the conda environment, so this is only the path
+# polaris needs should be in the deployment environment, so this is only the path
 # to the MPAS-Ocean executable by default.
 [executables]
 

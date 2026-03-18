@@ -37,7 +37,7 @@ After updating `mache`, you'll need to:
 
 1. **Reference your `mache` branch in Polaris Deployment**
 
-   * Use the `--mache_fork` and `--mache_branch` flags to deploy using the
+   * Use the `--mache-fork` and `--mache-branch` flags to deploy using the
      updated branch
    * Confirm the new machine is recognized and templates are applied correctly
 
@@ -55,13 +55,12 @@ Use the standard test deployment approach from
 [Deploying a new spack environment](testing/deploying_spack.md):
 
 ```bash
-./configure_polaris_envs.py --conda ~/miniforge3 \
-                            --mache_fork <your_fork> \
-                            --mache_branch <your_branch> \
-                            --compiler <compiler> \
-                            --mpi <mpi> \
-                            --verbose \
-                            --recreate
+./deploy.py --mache-fork <your_fork> \
+            --mache-branch <your_branch> \
+            --compiler <compiler> \
+            --mpi <mpi> \
+            --deploy-spack \
+            --recreate
 ```
 You can also supply the `--machine` flag:
 ```

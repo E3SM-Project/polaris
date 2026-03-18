@@ -14,7 +14,7 @@ test  cases are configured in a way that is appropriate for your machine.
 ## Supported Machines
 
 If you follow the procedure in {ref}`dev-conda-env`, you will have an
-activation script for activating the development conda environment, setting
+activation script for activating the development environment, setting
 loading system modules and setting environment variables so you can build
 Omega or an MPAS component and work with polaris.  Just source the script that
 should appear in the base of your polaris branch, e.g.:
@@ -27,7 +27,7 @@ After loading this environment, you can set up tasks or suites, and
 a link `load_polaris_env.sh` will be included in each suite or task
 work directory.  This is a link to the activation script that you sourced when
 you were setting things up.  You can can source this file on a compute node
-(e.g. in a job script) to get the right polaris conda environment, compilers,
+(e.g. in a job script) to get the right polaris deployment environment, compilers,
 MPI libraries and environment variables for running polaris tasks and
 the MPAS model.
 
@@ -113,26 +113,24 @@ E3SM default for the given machine an compiler.
 ## Other Machines
 
 If you are working on an "unknown" machine, the procedure is pretty similar
-to what was described in {ref}`dev-conda-env`.  The main difference is that
-we will use `mpich` or `openmpi` and the gnu compilers from conda-forge
-rather than system compilers.  To create a development conda environment and
-an activation script for it, on Linux, run:
+to what was described in {ref}`dev-conda-env`. In general, use `./deploy.py`
+to create a local pixi environment and load scripts. For example, on Linux run:
 
 ```bash
-./configure_polaris_envs.py --conda <conda_path> -c gnu -i mpich
+./deploy.py --compiler gnu --mpi mpich
 ```
 
 and on OSX run:
 
 ```bash
-./configure_polaris_envs.py --conda <conda_path> -c clang -i mpich
+./deploy.py --compiler clang --mpi mpich
 ```
 
 You may use `openmpi` instead of `mpich` but we have had better experiences
 with the latter.
 
 The result should be an activation script `load_dev_polaris_0.1.0-alpha.1_<mpi>.sh`.
-Source this script to get the appropriate conda environment and environment
+Source this script to get the appropriate deployment environment and environment
 variables.
 
 Under Linux, you can build the MPAS model with
@@ -194,12 +192,12 @@ modules_after = False
 # A shared root directory where MPAS standalone data can be found
 database_root = /home/xylar/data/polaris
 
-# the path to the base conda environment where polaris environments have
+# the path where deployed Polaris environments are located
 # been created
 polaris_envs = /home/xylar/data/polaris_envs
 
 
-# Options related to deploying a polaris conda environment on supported
+# Options related to deploying Polaris environments on supported
 # machines
 [deploy]
 
@@ -255,11 +253,11 @@ libraries aren't being found when you try to build an MPAS component.
 In the `[paths]` section, you will first give a path where you would like
 to store shared data files used in polaris tasks in `database_root`.
 Polaris will create this directory if it doesn't exist.  Then, you can specify
-`polaris_envs` as a path where shared conda environments will be installed
-for polaris releases.  If developers always create their own conda
+`polaris_envs` as a path where shared deployment environments will be installed
+for polaris releases.  If developers always create their own local
 environments, this path will never be used.
 
-In `[deploy]`, you will specify config options used in setting up conda
+In `[deploy]`, you will specify config options used in setting up deployment
 and Spack environments for developers.  The `compiler` is the default
 compiler to use for your system.  You must supply a corresponding
 `mpi_<compiler>` for each supported compiler (not just the default compiler)
@@ -355,7 +353,7 @@ You may need to load a system module to get the compilers and potentially other
 libraries such as MPI, HDF5, and NetCDF-C if you prefer to use system modules
 rather than having Spack build them.  If this is the case, the best way to do
 this is to add a file
-`conda/spack/<machine>_<compiler>_<mpi>.sh` along these lines:
+`deploy/spack/<machine>_<compiler>_<mpi>.sh` along these lines:
 
 ``` bash
 module purge
@@ -382,14 +380,16 @@ The next step is to try setting up polaris and asking it to build the Spack
 environment with a command something like:
 
 ``` bash
-  ./configure_polaris_envs.py --verbose --update_spack --conda <conda_path> -c gnu -i openmpi ...
+  ./deploy.py --deploy-spack --compiler gnu --mpi openmpi ...
 ```
 
-The `--update_spack` flag tells polaris to create (or update) a Spack
+The `--deploy-spack` flag tells polaris to create (or update) a Spack
 environment.  You can specify a directory for testing Spack with the
-`--spack` flag.  You can specify a temporary directory for building spack
-packages with `--tmpdir` (this directory must already exist).  This is useful
-if your `/tmp` space is small (Spack will use several GB of temporary space).
+`--spack-path` flag.  If needed, you can set a temporary directory for Spack
+builds through `spack.tmpdir` in `deploy/config.yaml.j2`.
+
+For additional deployment details, see the
+[mache deploy developer guide](https://docs.e3sm.org/mache/main/developers_guide/deploy.html).
 
 
 Creating the Spack environment may take anywhere from minutes to hours,

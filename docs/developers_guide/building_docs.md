@@ -3,8 +3,8 @@
 # Building the Documentation
 
 As long as you have followed the procedure in {ref}`dev-conda-env` for setting
-up your conda environment, you will already have the packages available that
-you need to build the documentation.
+up your local Polaris deployment environment (pixi-based), you will already
+have the packages available that you need to build the documentation.
 
 Then, run the following script to build the docs:
 
