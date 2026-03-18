@@ -11,6 +11,7 @@ on:
 
 env:
   PYTHON_VERSION: "3.14"
+  MPI: "nompi"
 
 jobs:
   publish-docs:
@@ -25,49 +26,50 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Cache Conda
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pixi packages
         uses: actions/cache@v5
         env:
-          # Increase this value to reset cache if deploy/conda-dev-spec.template has not changed in the workflow
+          # Increase this value to reset cache if deploy inputs have not changed in the workflow
           CACHE_NUMBER: 0
         with:
-          path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
-            hashFiles('configure_polaris_envs.py,deploy/*') }}
+          path: |
+            ~/.cache/rattler/cache
+            ~/.pixi/bin
+          key: ${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ env.MPI }}-pixi-${{ env.CACHE_NUMBER }}-${{ hashFiles('deploy.py', 'deploy/**', 'pyproject.toml') }}
 
-      - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
-        name: Set up Conda Environment
-        uses: mamba-org/setup-micromamba@v2
-        with:
-          environment-name: polaris_test
-          init-shell: bash
-          condarc: |
-            channel_priority: strict
-            channels:
-                - conda-forge
-                - e3sm/label/polaris
-          create-args: >-
-            python=${{ env.PYTHON_VERSION }}
-
-      - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
-        name: Install polaris
+      - name: Install polaris
         run: |
           git config --global url."https://github.com/".insteadOf "git@github.com:"
-          ./configure_polaris_envs.py \
-            --conda_env_only \
-            --env_name polaris_test \
-            --verbose \
-            --python=${{ env.PYTHON_VERSION }}
-          source load_polaris_test.sh
+          ./deploy.py \
+            --compiler gnu \
+            --mpi ${{ env.MPI }} \
+            --python ${{ env.PYTHON_VERSION }} \
+            --recreate
+          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' \
+            ! -name 'load_polaris_gnu_openmpi.sh' | sort | tail -n 1)
+          if [ -z "$load_script" ]; then
+            echo "ERROR: no generated Polaris load script found" >&2
+            exit 1
+          fi
+          source "$load_script"
 
       - name: Build Sphinx Docs
         run: |
-          source load_polaris_test.sh
+          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' \
+            ! -name 'load_polaris_gnu_openmpi.sh' | sort | tail -n 1)
+          source "$load_script"
           cd docs
           DOCS_VERSION=${{ github.ref_name }} make versioned-html
       - name: Copy Docs and Commit
         run: |
-          source load_polaris_test.sh
+          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' \
+            ! -name 'load_polaris_gnu_openmpi.sh' | sort | tail -n 1)
+          source "$load_script"
           cd docs
           # gh-pages branch must already exist
           git clone https://github.com/E3SM-Project/polaris.git --branch gh-pages --single-branch gh-pages
