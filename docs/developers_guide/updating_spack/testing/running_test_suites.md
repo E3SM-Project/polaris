@@ -19,7 +19,7 @@ with Intel and OpenMPI):
 2. **Source the Load Script**
 
    ```bash
-   source load_polaris_dev_0.3.0-alpha.1_chrysalis_intel_openmpi.sh
+   source load_polaris_chrysalis_intel_openmpi.sh
    ```
 
    *(Replace `chrysalis`, `intel`, and `openmpi` with your machine, compiler,
@@ -73,7 +73,7 @@ with Intel and OpenMPI):
 2. **Source the Load Script**
 
    ```bash
-   source load_polaris_dev_0.3.0-alpha.1_chrysalis_intel_openmpi.sh
+   source load_polaris_chrysalis_intel_openmpi.sh
    ```
 
    *(Replace as appropriate for your configuration.)*

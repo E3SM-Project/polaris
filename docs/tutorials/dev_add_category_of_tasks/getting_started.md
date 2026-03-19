@@ -38,7 +38,7 @@ depends on your Polaris version, machine, and compilers. For example, on
 Chrysalis, you might have `load_dev_polaris_0.1.0-alpha.3_chrysalis_intel_openmpi.sh`:
 
 ```bash
-source load_dev_polaris_0.1.0-alpha.3_chrysalis_intel_openmpi.sh
+source load_polaris_chrysalis_intel_openmpi.sh
 ```
 
 Now, get the E3SM source code (used by Polaris to build MPAS-Ocean) via the

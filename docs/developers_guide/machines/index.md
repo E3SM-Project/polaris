@@ -20,7 +20,7 @@ Omega or an MPAS component and work with polaris.  Just source the script that
 should appear in the base of your polaris branch, e.g.:
 
 ```bash
-source load_dev_polaris_0.10.0-alpha.1_chrysalis_intel_openmpi.sh
+source load_polaris_chrysalis_intel_openmpi.sh
 ```
 
 After loading this environment, you can set up tasks or suites, and

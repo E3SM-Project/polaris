@@ -187,7 +187,7 @@ current branch.  If the two don't match, an error like the following results
 and the environment is not activated:
 
 ```
-$ source load_polaris_test_morpheus_gnu_openmpi.sh
+$ source load_polaris_morpheus_gnu_openmpi.sh
 This load script is for a different version of polaris:
 __version__ = '0.2.0'
 
@@ -268,7 +268,7 @@ To update only the bootstrap environment used internally by deployment:
 Each time you want to work with polaris, you will need to run:
 
 ```bash
-source ./load_<env_name>.sh
+source load_polaris_<machine>_<compiler>_<mpi>.sh
 ```
 
 This will load the appropriate environment for polaris.  It will also
