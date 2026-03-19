@@ -300,6 +300,10 @@ def _bootstrap_url(
     mache_fork=None,
     mache_branch=None,
 ):
+    override_url = str(os.environ.get('MACHE_BOOTSTRAP_URL', '')).strip()
+    if override_url:
+        return override_url
+
     if mache_fork is not None and mache_branch is not None:
         # Raw file from a fork/branch
         return f'https://raw.githubusercontent.com/{mache_fork}/{mache_branch}/{BOOTSTRAP_RELPATH}'  # noqa: E501
@@ -456,6 +460,7 @@ def _run_mache_deploy_run(pixi_exe, repo_root, mache_run_argv):
 
     cmd = (
         f'env -u PIXI_PROJECT_MANIFEST -u PIXI_PROJECT_ROOT '
+        f'-u PIXI_ENVIRONMENT_NAME -u PIXI_IN_SHELL '
         f'{shlex.quote(pixi_exe)} run -m {shlex.quote(pixi_toml)} bash -lc '
         f'{shlex.quote("cd " + repo_root + " && " + mache_cmd)}'
     )
