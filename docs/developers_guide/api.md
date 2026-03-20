@@ -227,8 +227,6 @@ seaice/api
    :toctree: generated/
 
    write_job_script
-   get_slurm_options
-   get_pbs_options
 ```
 
 ### logging
