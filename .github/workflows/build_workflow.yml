@@ -51,7 +51,7 @@ jobs:
           extra_args: --files ${{ steps.file_changes.outputs.files}}
 
   build:
-    name: test polaris - py ${{ matrix.python-version }}${{ matrix.mpi == 'nompi' && ' (nompi)' || '' }}
+    name: test polaris - py ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -60,10 +60,6 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
-        mpi: ["mpich"]
-        include:
-          - python-version: "3.14"
-            mpi: "nompi"
       fail-fast: false
     steps:
       - id: skip_check
@@ -91,19 +87,17 @@ jobs:
           path: |
             ~/.cache/rattler/cache
             ~/.pixi/bin
-          key: ${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.mpi }}-pixi-${{ env.CACHE_NUMBER }}-${{ hashFiles('deploy.py', 'deploy/**', 'pyproject.toml') }}
+          key: ${{ runner.os }}-${{ matrix.python-version }}-pixi-${{ env.CACHE_NUMBER }}-${{ hashFiles('deploy.py', 'deploy/**', 'pyproject.toml') }}
 
       - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
         name: Install polaris
         run: |
           git config --global url."https://github.com/".insteadOf "git@github.com:"
           ./deploy.py \
-            --compiler gnu \
-            --mpi ${{ matrix.mpi }} \
+            --no-spack \
             --python ${{ matrix.python-version }} \
             --recreate
-          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' \
-            ! -name 'load_polaris_gnu_openmpi.sh' | sort | tail -n 1)
+          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' | sort | tail -n 1)
           if [ -z "$load_script" ]; then
             echo "ERROR: no generated Polaris load script found" >&2
             exit 1
@@ -117,16 +111,14 @@ jobs:
       - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
         name: Run unit tests
         run: |
-          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' \
-            ! -name 'load_polaris_gnu_openmpi.sh' | sort | tail -n 1)
+          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' | sort | tail -n 1)
           source "$load_script"
           pytest tests/
 
       - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
         name: Build Sphinx Docs
         run: |
-          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' \
-            ! -name 'load_polaris_gnu_openmpi.sh' | sort | tail -n 1)
+          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' | sort | tail -n 1)
           source "$load_script"
           DOCS_VERSION=test
           cd docs

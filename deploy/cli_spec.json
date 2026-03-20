@@ -45,6 +45,13 @@
       "route": ["deploy", "run"]
     },
     {
+      "flags": ["--no-spack"],
+      "dest": "no_spack",
+      "action": "store_true",
+      "help": "Disable all Spack use for this run, including reuse of existing Spack environments.",
+      "route": ["deploy", "run"]
+    },
+    {
       "flags": ["--spack-path"],
       "dest": "spack_path",
       "help": "Path to the Spack checkout to use (overrides spack.spack_path in deploy/config.yaml.j2).",

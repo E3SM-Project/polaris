@@ -11,7 +11,6 @@ on:
 
 env:
   PYTHON_VERSION: "3.14"
-  MPI: "nompi"
 
 jobs:
   publish-docs:
@@ -40,18 +39,16 @@ jobs:
           path: |
             ~/.cache/rattler/cache
             ~/.pixi/bin
-          key: ${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ env.MPI }}-pixi-${{ env.CACHE_NUMBER }}-${{ hashFiles('deploy.py', 'deploy/**', 'pyproject.toml') }}
+          key: ${{ runner.os }}-${{ env.PYTHON_VERSION }}-pixi-${{ env.CACHE_NUMBER }}-${{ hashFiles('deploy.py', 'deploy/**', 'pyproject.toml') }}
 
       - name: Install polaris
         run: |
           git config --global url."https://github.com/".insteadOf "git@github.com:"
           ./deploy.py \
-            --compiler gnu \
-            --mpi ${{ env.MPI }} \
+            --no-spack \
             --python ${{ env.PYTHON_VERSION }} \
             --recreate
-          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' \
-            ! -name 'load_polaris_gnu_openmpi.sh' | sort | tail -n 1)
+          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' | sort | tail -n 1)
           if [ -z "$load_script" ]; then
             echo "ERROR: no generated Polaris load script found" >&2
             exit 1
@@ -60,15 +57,13 @@ jobs:
 
       - name: Build Sphinx Docs
         run: |
-          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' \
-            ! -name 'load_polaris_gnu_openmpi.sh' | sort | tail -n 1)
+          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' | sort | tail -n 1)
           source "$load_script"
           cd docs
           DOCS_VERSION=${{ github.ref_name }} make versioned-html
       - name: Copy Docs and Commit
         run: |
-          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' \
-            ! -name 'load_polaris_gnu_openmpi.sh' | sort | tail -n 1)
+          load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' | sort | tail -n 1)
           source "$load_script"
           cd docs
           # gh-pages branch must already exist

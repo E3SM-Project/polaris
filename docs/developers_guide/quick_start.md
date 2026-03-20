@@ -58,14 +58,17 @@ If you are on one of the {ref}`dev-supported-machines`, run:
 
 ```bash
 ./deploy.py [--machine <machine>] [--compiler <compiler> ...] \
-    [--mpi <mpi> ...] [--deploy-spack] [--prefix <prefix>] [--recreate]
+    [--mpi <mpi> ...] [--deploy-spack] [--no-spack] \
+    [--prefix <prefix>] [--recreate]
 ```
 
 If you are on a login node, machine detection typically works automatically.
 You can pass `--machine <machine>` explicitly if needed.
 
-Use `--deploy-spack` when you want to deploy machine-specific Spack
-environments in addition to the local pixi environment.
+By default, Polaris will reuse existing machine-specific Spack environments
+when the current deployment needs them. Use `--deploy-spack` when you want to
+build or update those Spack environments. Use `--no-spack` for a Pixi-only
+deployment, such as CI or unsupported machines.
 
 ### Unknown machines
 
@@ -100,7 +103,11 @@ For workflows that need custom machine config files, see {ref}`config-files`.
 
 `--deploy-spack`
 
-: deploy supported Spack environments
+: deploy supported Spack environments instead of only reusing existing ones
+
+`--no-spack`
+
+: disable all Spack use for this run and rely on Pixi dependencies instead
 
 `--spack-path`
 
@@ -242,7 +249,7 @@ can run:
 
 ```bash
 ./deploy.py [--machine <machine>] [--compiler <compiler> ...] \
-  [--mpi <mpi> ...] [--deploy-spack] --recreate
+  [--mpi <mpi> ...] [--deploy-spack] [--no-spack] --recreate
 ```
 
 The `--recreate` flag will delete the environment and create it from
@@ -256,8 +263,14 @@ For some workflows (e.g. for MALI development with the Albany library when the
 MALI build environment has been created outside of `polaris`, for example,
 on an unsupported machine), you may only want to create the pixi environment
 and not build SCORPIO, ESMF or include any system modules or environment
-variables in your activation script. In such cases, run `./deploy.py`
-without `--deploy-spack`.
+variables in your activation script. In such cases, run:
+
+```bash
+./deploy.py --no-spack
+```
+
+When `--no-spack` is not used, omitting `--deploy-spack` still means Polaris
+will try to reuse any required pre-existing Spack environments.
 
 To update only the bootstrap environment used internally by deployment:
 
@@ -268,8 +281,11 @@ To update only the bootstrap environment used internally by deployment:
 Each time you want to work with polaris, you will need to run:
 
 ```bash
-source load_polaris_<machine>_<compiler>_<mpi>.sh
+source load_polaris.sh
 ```
+
+For machine-specific deployments that use Spack, the generated script is
+typically `load_polaris_<machine>_<compiler>_<mpi>.sh`.
 
 This will load the appropriate environment for polaris.  It will also
 set an environment variable `POLARIS_LOAD_SCRIPT` that points to the activation

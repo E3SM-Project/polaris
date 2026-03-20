@@ -65,13 +65,23 @@ def pre_spack(ctx: DeployContext) -> dict[str, Any] | None:
       Optional mapping merged into `ctx.runtime` by mache.
     """
 
-    updates: Dict[str, Any] = {}
-    spack_path = _get_spack_path(ctx.config, ctx.machine, ctx.machine_config)
+    spack_path = _get_spack_path(
+        ctx.config, ctx.machine, ctx.machine_config, ctx.args
+    )
 
-    if spack_path is not None:
-        updates['spack'] = {'spack_path': spack_path}
+    if spack_path is None:
+        ctx.logger.info(
+            'No supported shared Spack environment was detected for this '
+            'run; disabling Spack and relying on Pixi dependencies instead.'
+        )
+        return {
+            'spack': {
+                'supported': False,
+                'software': {'supported': False},
+            }
+        }
 
-    return updates
+    return {'spack': {'spack_path': spack_path}}
 
 
 def _get_version():
@@ -117,14 +127,21 @@ def _get_pixi_mpi(machine, machine_config):
     return mpi
 
 
-def _get_spack_path(config, machine, machine_config):
+def _get_spack_path(config, machine, machine_config, args):
     """
-    Get the Spack path from environment variable or machine config
+    Get the Spack path from CLI, config or machine config
     """
+    spack_path = getattr(args, 'spack_path', None)
+    if spack_path is not None and str(spack_path).strip():
+        return spack_path
+
     spack_path = config.get('spack', {}).get('spack_path')
-    if spack_path is not None:
-        # no need to update
-        return None
+    if spack_path is not None and str(spack_path).strip().lower() not in (
+        '',
+        'none',
+        'null',
+    ):
+        return spack_path
 
     if machine is None:
         return None
@@ -137,10 +154,10 @@ def _get_spack_path(config, machine, machine_config):
     spack_env = f'dev_polaris_{release_version}'
 
     if not machine_config.has_section('deploy'):
-        raise ValueError("Missing 'deploy' section in machine config")
+        return None
     section = machine_config['deploy']
     spack_base = section.get('spack')
+    if spack_base is None or not spack_base.strip():
+        return None
     spack_path = os.path.join(spack_base, spack_env)
-    if spack_path is None:
-        raise ValueError("Missing 'spack' option in 'deploy' section")
     return spack_path
