@@ -123,6 +123,8 @@ def main():
 
     if not args.bootstrap_only:
         pixi_exe = _get_pixi_executable(getattr(args, 'pixi', None))
+        if '--pixi' not in mache_run_argv:
+            mache_run_argv = ['--pixi', pixi_exe] + mache_run_argv
         _run_mache_deploy_run(
             pixi_exe=pixi_exe,
             repo_root='.',
