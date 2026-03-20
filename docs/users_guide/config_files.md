@@ -41,9 +41,15 @@ system = single_node
 # whether to use mpirun or srun to run the model
 parallel_executable = mpirun -host localhost
 
-# total cores on the machine (or cores on one node if it is a multinode
-# machine), detected automatically by default
+# total cores on one node
 cores_per_node = 8
+
+# GPUs per node (optional)
+gpus_per_node = 0
+
+# optional compiler-specific overrides
+[parallel.gnu]
+parallel_executable = mpirun
 
 ```
 
@@ -74,7 +80,9 @@ sources:
 - the [machine config file](https://github.com/E3SM-Project/polaris/blob/main/polaris/machines)
   (using [machines/default.cfg](https://github.com/E3SM-Project/polaris/blob/main/polaris/machines/default.cfg)
   if no machine was specified) with information on the parallel system and
-  the paths to cached data files
+  the paths to cached data files. Parallel options can also come from
+  compiler-specific sections such as `[parallel.gnu]` or `[parallel.intel]`
+  (from mache machine configs)
 - the component's config file.  For the {ref}`ocean` core, this sets default
   paths to the MPAS-Ocean model build (including the namelist templates).  It
   uses
