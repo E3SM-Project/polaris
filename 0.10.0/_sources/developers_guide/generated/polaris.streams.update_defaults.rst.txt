@@ -1,0 +1,6 @@
+﻿polaris.streams.update\_defaults
+================================
+
+.. currentmodule:: polaris.streams
+
+.. autofunction:: update_defaults

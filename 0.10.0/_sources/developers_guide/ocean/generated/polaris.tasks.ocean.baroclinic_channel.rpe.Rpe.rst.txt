@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.baroclinic\_channel.rpe.Rpe
+===============================================
+
+.. currentmodule:: polaris.tasks.ocean.baroclinic_channel.rpe
+
+.. autoclass:: Rpe
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Rpe.__init__
+      ~Rpe.add_step
+      ~Rpe.configure
+      ~Rpe.remove_step
+      ~Rpe.set_shared_config
+   
+   
+
+   
+   
+   

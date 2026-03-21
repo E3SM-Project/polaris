@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.manufactured\_solution.ManufacturedSolution
+===============================================================
+
+.. currentmodule:: polaris.tasks.ocean.manufactured_solution
+
+.. autoclass:: ManufacturedSolution
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ManufacturedSolution.__init__
+      ~ManufacturedSolution.add_step
+      ~ManufacturedSolution.configure
+      ~ManufacturedSolution.remove_step
+      ~ManufacturedSolution.set_shared_config
+   
+   
+
+   
+   
+   

@@ -1,0 +1,26 @@
+﻿polaris.tasks.e3sm.init.topo.cull.CullTopoTask
+==============================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.cull
+
+.. autoclass:: CullTopoTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CullTopoTask.__init__
+      ~CullTopoTask.add_step
+      ~CullTopoTask.configure
+      ~CullTopoTask.remove_step
+      ~CullTopoTask.set_shared_config
+   
+   
+
+   
+   
+   

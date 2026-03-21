@@ -1,0 +1,487 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.ocean.vertical.ztilde</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=82662543"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../vertical.html">polaris.ocean.vertical</a></li>
+      <li class="breadcrumb-item active">polaris.ocean.vertical.ztilde</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.ocean.vertical.ztilde</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Conversions between Omega pseudo-height and pressure.</span>
+
+<span class="sd">Omega&#39;s vertical coordinate is pseudo-height</span>
+<span class="sd">    z_tilde = -p / (rho0 * g)</span>
+<span class="sd">with z_tilde positive upward. Here, ``p`` is sea pressure in Pascals (Pa),</span>
+<span class="sd">``rho0`` is a reference density (kg m^-3), and ``g`` is gravitational</span>
+<span class="sd">acceleration as defined by ``polaris.constants`` via the Physical Constants</span>
+<span class="sd">Dictionary.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_specvol</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;z_tilde_from_pressure&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;pressure_from_z_tilde&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;pressure_and_spec_vol_from_state_at_geom_height&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;pressure_from_geom_thickness&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">Gravity</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;standard_acceleration_of_gravity&#39;</span><span class="p">)</span>
+<span class="n">RhoSw</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;seawater_density_reference&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="z_tilde_from_pressure">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.ztilde.z_tilde_from_pressure.html#polaris.ocean.vertical.ztilde.z_tilde_from_pressure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">z_tilde_from_pressure</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert sea pressure to pseudo-height.</span>
+
+<span class="sd">    z_tilde = -p / (rho0 * g)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    p : xarray.DataArray</span>
+<span class="sd">        Sea pressure in Pascals (Pa).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        Pseudo-height with the same shape and coords as ``p`` (units: m).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;pseudo-height&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;note&#39;</span><span class="p">:</span> <span class="s1">&#39;z_tilde = -p / (rho0 * g)&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="pressure_from_z_tilde">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.ztilde.pressure_from_z_tilde.html#polaris.ocean.vertical.ztilde.pressure_from_z_tilde">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pressure_from_z_tilde</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert pseudo-height to sea pressure.</span>
+
+<span class="sd">    p = -z_tilde * (rho0 * g)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    z_tilde : xarray.DataArray</span>
+<span class="sd">        Pseudo-height in meters (m), positive upward.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        Sea pressure with the same shape and coords as ``z_tilde`` (Pa).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;sea pressure&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;Pa&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;note&#39;</span><span class="p">:</span> <span class="s1">&#39;p = -rho0 * g * z_tilde&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="pressure_from_geom_thickness">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.ztilde.pressure_from_geom_thickness.html#polaris.ocean.vertical.ztilde.pressure_from_geom_thickness">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pressure_from_geom_thickness</span><span class="p">(</span>
+    <span class="n">surf_pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">geom_layer_thickness</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">spec_vol</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the pressure at layer interfaces and midpoints given surface</span>
+<span class="sd">    pressure, geometric layer thicknesses, and specific volume. This</span>
+<span class="sd">    calculation assumes a constant specific volume within each layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    surf_pressure : xarray.DataArray</span>
+<span class="sd">        The surface pressure at the top of the water column.</span>
+
+<span class="sd">    geom_layer_thickness : xarray.DataArray</span>
+<span class="sd">        The geometric thickness of each layer, set to zero for invalid layers.</span>
+
+<span class="sd">    spec_vol : xarray.DataArray</span>
+<span class="sd">        The specific volume at each layer.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    p_interface : xarray.DataArray</span>
+<span class="sd">        The pressure at layer interfaces.</span>
+
+<span class="sd">    p_mid : xarray.DataArray</span>
+<span class="sd">        The pressure at layer midpoints.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">dp</span> <span class="o">=</span> <span class="n">Gravity</span> <span class="o">/</span> <span class="n">spec_vol</span> <span class="o">*</span> <span class="n">geom_layer_thickness</span>
+
+    <span class="n">p_interface</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+        <span class="n">nVertLevels</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="mf">0.0</span>
+    <span class="p">)</span>
+    <span class="n">p_interface</span> <span class="o">=</span> <span class="n">surf_pressure</span> <span class="o">+</span> <span class="n">p_interface</span>
+    <span class="n">p_interface</span> <span class="o">=</span> <span class="n">p_interface</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">:</span> <span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">})</span>
+
+    <span class="n">p_interface_top</span> <span class="o">=</span> <span class="n">p_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="p">{</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">:</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">p_mid</span> <span class="o">=</span> <span class="n">p_interface_top</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">dp</span>
+
+    <span class="n">dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">geom_layer_thickness</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+    <span class="n">interface_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">dim</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">dims</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">!=</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
+    <span class="n">interface_dims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">)</span>
+
+    <span class="n">p_interface</span> <span class="o">=</span> <span class="n">p_interface</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">interface_dims</span><span class="p">)</span>
+    <span class="n">p_mid</span> <span class="o">=</span> <span class="n">p_mid</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">dims</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">p_interface</span><span class="p">,</span> <span class="n">p_mid</span></div>
+
+
+
+<div class="viewcode-block" id="pressure_and_spec_vol_from_state_at_geom_height">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height.html#polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pressure_and_spec_vol_from_state_at_geom_height</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">,</span>
+    <span class="n">geom_layer_thickness</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">salinity</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">surf_pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">iter_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the pressure at layer interfaces and midpoints, as well as the</span>
+<span class="sd">    specific volume at midpoints given geometric layer thicknesses,</span>
+<span class="sd">    temperature and salinity at layer midpoints (i.e. constant in geometric</span>
+<span class="sd">    height, not pseudo-height), and surface pressure. The solution is found</span>
+<span class="sd">    iteratively starting from a specific volume calculated from the reference</span>
+<span class="sd">    density.</span>
+
+<span class="sd">    Requires config options needed by</span>
+<span class="sd">    {py:func}`polaris.ocean.eos.compute_specvol()`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Configuration options with parameters defining the equation of state.</span>
+
+<span class="sd">    geom_layer_thickness : xarray.DataArray</span>
+<span class="sd">        The geometric thickness of each layer.</span>
+
+<span class="sd">    temperature : xarray.DataArray</span>
+<span class="sd">        The temperature at layer midpoints.</span>
+
+<span class="sd">    salinity : xarray.DataArray</span>
+<span class="sd">        The salinity at layer midpoints.</span>
+
+<span class="sd">    surf_pressure : xarray.DataArray</span>
+<span class="sd">        The surface pressure at the top of the water column.</span>
+
+<span class="sd">    iter_count : int</span>
+<span class="sd">        The number of iterations to perform.</span>
+
+<span class="sd">    logger : logging.Logger, optional</span>
+<span class="sd">        A logger for logging iteration information.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    p_interface : xarray.DataArray</span>
+<span class="sd">        The pressure at layer interfaces.</span>
+
+<span class="sd">    p_mid : xarray.DataArray</span>
+<span class="sd">        The pressure at layer midpoints.</span>
+
+<span class="sd">    spec_vol : xarray.DataArray</span>
+<span class="sd">        The specific volume at layer midpoints.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">spec_vol</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">RhoSw</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">geom_layer_thickness</span><span class="p">)</span>
+
+    <span class="n">p_interface</span><span class="p">,</span> <span class="n">p_mid</span> <span class="o">=</span> <span class="n">pressure_from_geom_thickness</span><span class="p">(</span>
+        <span class="n">surf_pressure</span><span class="o">=</span><span class="n">surf_pressure</span><span class="p">,</span>
+        <span class="n">geom_layer_thickness</span><span class="o">=</span><span class="n">geom_layer_thickness</span><span class="p">,</span>
+        <span class="n">spec_vol</span><span class="o">=</span><span class="n">spec_vol</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">prev_spec_vol</span> <span class="o">=</span> <span class="n">spec_vol</span>
+
+    <span class="k">for</span> <span class="nb">iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iter_count</span><span class="p">):</span>
+        <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">compute_specvol</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
+            <span class="n">salinity</span><span class="o">=</span><span class="n">salinity</span><span class="p">,</span>
+            <span class="n">pressure</span><span class="o">=</span><span class="n">p_mid</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">delta_spec_vol</span> <span class="o">=</span> <span class="n">spec_vol</span> <span class="o">-</span> <span class="n">prev_spec_vol</span>
+            <span class="n">max_delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">delta_spec_vol</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="n">prev_spec_vol</span> <span class="o">=</span> <span class="n">spec_vol</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Max change in specific volume during EOS iteration </span><span class="si">{</span><span class="nb">iter</span><span class="si">}</span><span class="s1">: &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">max_delta</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> m3 kg-1&#39;</span>
+            <span class="p">)</span>
+
+        <span class="n">p_interface</span><span class="p">,</span> <span class="n">p_mid</span> <span class="o">=</span> <span class="n">pressure_from_geom_thickness</span><span class="p">(</span>
+            <span class="n">surf_pressure</span><span class="o">=</span><span class="n">surf_pressure</span><span class="p">,</span>
+            <span class="n">geom_layer_thickness</span><span class="o">=</span><span class="n">geom_layer_thickness</span><span class="p">,</span>
+            <span class="n">spec_vol</span><span class="o">=</span><span class="n">spec_vol</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">p_interface</span><span class="p">,</span> <span class="n">p_mid</span><span class="p">,</span> <span class="n">spec_vol</span></div>
+
+
+
+<div class="viewcode-block" id="geom_height_from_pseudo_height">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height.html#polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">geom_height_from_pseudo_height</span><span class="p">(</span>
+    <span class="n">geom_z_bot</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">h_tilde</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">spec_vol</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">min_level_cell</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">max_level_cell</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sum geometric heights from pseudo-heights and specific volume.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    geom_z_bot : xarray.DataArray</span>
+<span class="sd">        Geometric height at the bathymetry for each water column.</span>
+
+<span class="sd">    h_tilde : xarray.DataArray</span>
+<span class="sd">        Pseudo-thickness of vertical layers, set to zero for invalid layers.</span>
+
+<span class="sd">    spec_vol : xarray.DataArray</span>
+<span class="sd">        Specific volume at midpoints of vertical layers.</span>
+
+<span class="sd">    min_level_cell : xarray.DataArray</span>
+<span class="sd">        Minimum valid zero-based level index for each cell.</span>
+
+<span class="sd">    max_level_cell : xarray.DataArray</span>
+<span class="sd">        Maximum valid zero-based level index for each cell.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    geom_z_inter : xarray.DataArray</span>
+<span class="sd">        Geometric height at layer interfaces.</span>
+
+<span class="sd">    geom_z_mid : xarray.DataArray</span>
+<span class="sd">        Geometric height at layer midpoints.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># geometric height starts with geom_z_bot at the bottom</span>
+    <span class="c1"># and adds up the contributions from each layer above</span>
+
+    <span class="n">n_vert_levels</span> <span class="o">=</span> <span class="n">spec_vol</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
+
+    <span class="n">z_index</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_vert_levels</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">])</span>
+    <span class="n">mid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">z_index</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">z_index</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span>
+    <span class="p">)</span>
+
+    <span class="n">geom_thickness</span> <span class="o">=</span> <span class="p">(</span><span class="n">spec_vol</span> <span class="o">*</span> <span class="n">h_tilde</span> <span class="o">*</span> <span class="n">RhoSw</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mid_mask</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="n">dz_rev</span> <span class="o">=</span> <span class="n">geom_thickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">sum_from_level</span> <span class="o">=</span> <span class="n">dz_rev</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+        <span class="n">nVertLevels</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">geom_z_inter_top</span> <span class="o">=</span> <span class="n">geom_z_bot</span> <span class="o">+</span> <span class="n">sum_from_level</span>
+    <span class="n">geom_z_inter</span> <span class="o">=</span> <span class="n">geom_z_inter_top</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+        <span class="n">nVertLevels</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="mf">0.0</span>
+    <span class="p">)</span>
+    <span class="n">geom_z_inter</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">n_vert_levels</span><span class="p">)]</span> <span class="o">=</span> <span class="n">geom_z_bot</span>
+    <span class="n">geom_z_inter</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">:</span> <span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">})</span>
+
+    <span class="n">z_index_p1</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_vert_levels</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">inter_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">z_index_p1</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">,</span>
+        <span class="n">z_index_p1</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">geom_z_inter</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">inter_mask</span><span class="p">)</span>
+
+    <span class="n">geom_z_inter_lower</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+        <span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">:</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">})</span>
+    <span class="n">geom_z_mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">geom_z_inter_lower</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">geom_thickness</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mid_mask</span><span class="p">)</span>
+
+    <span class="c1"># transpose to match h_tilde.  For geom_z_inter, replace nVertLevels with</span>
+    <span class="c1"># nVertLevelsP1 at the same index in the list of dimensions</span>
+    <span class="n">z_mid_dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">h_tilde</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+    <span class="n">z_inter_dims</span> <span class="o">=</span> <span class="n">z_mid_dims</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">z_inter_dims</span><span class="p">[</span><span class="n">z_mid_dims</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;nVertLevelsP1&#39;</span>
+    <span class="n">geom_z_inter</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">z_inter_dims</span><span class="p">)</span>
+    <span class="n">geom_z_mid</span> <span class="o">=</span> <span class="n">geom_z_mid</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">z_mid_dims</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">geom_z_inter</span><span class="p">,</span> <span class="n">geom_z_mid</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="0.10.0">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

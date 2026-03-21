@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.internal\_wave.default.Default
+==================================================
+
+.. currentmodule:: polaris.tasks.ocean.internal_wave.default
+
+.. autoclass:: Default
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Default.__init__
+      ~Default.add_step
+      ~Default.configure
+      ~Default.remove_step
+      ~Default.set_shared_config
+   
+   
+
+   
+   
+   

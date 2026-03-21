@@ -1,0 +1,6 @@
+﻿polaris.build.omega.build\_omega
+================================
+
+.. currentmodule:: polaris.build.omega
+
+.. autofunction:: build_omega

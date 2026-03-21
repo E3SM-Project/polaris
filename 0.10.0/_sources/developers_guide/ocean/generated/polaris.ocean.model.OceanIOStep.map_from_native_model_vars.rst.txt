@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanIOStep.map\_from\_native\_model\_vars
+==============================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanIOStep.map_from_native_model_vars

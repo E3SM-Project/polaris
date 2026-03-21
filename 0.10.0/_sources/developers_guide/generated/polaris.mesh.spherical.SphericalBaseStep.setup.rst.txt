@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.SphericalBaseStep.setup
+==============================================
+
+.. currentmodule:: polaris.mesh.spherical
+
+.. automethod:: SphericalBaseStep.setup

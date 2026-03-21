@@ -1,0 +1,6 @@
+﻿polaris.mesh.IcosahedralMeshStep.make\_jigsaw\_mesh
+===================================================
+
+.. currentmodule:: polaris.mesh
+
+.. automethod:: IcosahedralMeshStep.make_jigsaw_mesh

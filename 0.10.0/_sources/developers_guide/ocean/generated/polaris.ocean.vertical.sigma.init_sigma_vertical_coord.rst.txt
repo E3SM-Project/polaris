@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.sigma.init\_sigma\_vertical\_coord
+=========================================================
+
+.. currentmodule:: polaris.ocean.vertical.sigma
+
+.. autofunction:: init_sigma_vertical_coord

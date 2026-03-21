@@ -1,0 +1,6 @@
+﻿polaris.ocean.eos.linear.compute\_linear\_density
+=================================================
+
+.. currentmodule:: polaris.ocean.eos.linear
+
+.. autofunction:: compute_linear_density

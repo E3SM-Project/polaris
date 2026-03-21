@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.combine.CombineStep.get\_subdir
+============================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.combine
+
+.. automethod:: CombineStep.get_subdir

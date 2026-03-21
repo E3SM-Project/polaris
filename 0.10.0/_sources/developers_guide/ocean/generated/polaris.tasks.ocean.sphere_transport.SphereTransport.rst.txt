@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.sphere\_transport.SphereTransport
+=====================================================
+
+.. currentmodule:: polaris.tasks.ocean.sphere_transport
+
+.. autoclass:: SphereTransport
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SphereTransport.__init__
+      ~SphereTransport.add_step
+      ~SphereTransport.configure
+      ~SphereTransport.remove_step
+      ~SphereTransport.set_shared_config
+   
+   
+
+   
+   
+   

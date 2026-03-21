@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.Ocean.map\_var\_list\_from\_native\_model
+=============================================================
+
+.. currentmodule:: polaris.tasks.ocean
+
+.. automethod:: Ocean.map_var_list_from_native_model

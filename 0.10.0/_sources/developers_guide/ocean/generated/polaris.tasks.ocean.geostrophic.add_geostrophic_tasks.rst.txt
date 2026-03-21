@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.geostrophic.add\_geostrophic\_tasks
+=======================================================
+
+.. currentmodule:: polaris.tasks.ocean.geostrophic
+
+.. autofunction:: add_geostrophic_tasks

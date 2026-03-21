@@ -1,0 +1,6 @@
+﻿polaris.ocean.convergence.get\_resolution\_for\_task
+====================================================
+
+.. currentmodule:: polaris.ocean.convergence
+
+.. autofunction:: get_resolution_for_task

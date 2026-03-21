@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.merry\_go\_round.default.Default
+====================================================
+
+.. currentmodule:: polaris.tasks.ocean.merry_go_round.default
+
+.. autoclass:: Default
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Default.__init__
+      ~Default.add_step
+      ~Default.configure
+      ~Default.remove_step
+      ~Default.set_shared_config
+   
+   
+
+   
+   
+   

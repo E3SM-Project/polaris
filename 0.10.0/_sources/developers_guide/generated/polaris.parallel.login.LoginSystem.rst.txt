@@ -1,0 +1,25 @@
+﻿polaris.parallel.login.LoginSystem
+==================================
+
+.. currentmodule:: polaris.parallel.login
+
+.. autoclass:: LoginSystem
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LoginSystem.__init__
+      ~LoginSystem.get_available_resources
+      ~LoginSystem.get_parallel_command
+      ~LoginSystem.set_cores_per_node
+   
+   
+
+   
+   
+   

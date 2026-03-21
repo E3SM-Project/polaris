@@ -1,0 +1,6 @@
+﻿polaris.io.update\_permissions
+==============================
+
+.. currentmodule:: polaris.io
+
+.. autofunction:: update_permissions

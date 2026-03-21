@@ -1,0 +1,6 @@
+﻿polaris.ocean.eos.compute\_density
+==================================
+
+.. currentmodule:: polaris.ocean.eos
+
+.. autofunction:: compute_density

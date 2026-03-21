@@ -1,0 +1,6 @@
+﻿polaris.Task.add\_step
+======================
+
+.. currentmodule:: polaris
+
+.. automethod:: Task.add_step

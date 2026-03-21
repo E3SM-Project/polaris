@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.barotropic\_gyre.forward.Forward.compute\_cell\_count
+=========================================================================
+
+.. currentmodule:: polaris.tasks.ocean.barotropic_gyre.forward
+
+.. automethod:: Forward.compute_cell_count

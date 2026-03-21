@@ -1,0 +1,6 @@
+﻿polaris.mesh.IcosahedralMeshStep.run
+====================================
+
+.. currentmodule:: polaris.mesh
+
+.. automethod:: IcosahedralMeshStep.run

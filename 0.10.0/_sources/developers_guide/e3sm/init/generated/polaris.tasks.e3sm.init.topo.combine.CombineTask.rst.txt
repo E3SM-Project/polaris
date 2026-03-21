@@ -1,0 +1,26 @@
+﻿polaris.tasks.e3sm.init.topo.combine.CombineTask
+================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.combine
+
+.. autoclass:: CombineTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CombineTask.__init__
+      ~CombineTask.add_step
+      ~CombineTask.configure
+      ~CombineTask.remove_step
+      ~CombineTask.set_shared_config
+   
+   
+
+   
+   
+   

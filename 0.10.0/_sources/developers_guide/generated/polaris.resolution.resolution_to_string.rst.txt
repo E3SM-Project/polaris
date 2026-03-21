@@ -1,0 +1,6 @@
+﻿polaris.resolution.resolution\_to\_string
+=========================================
+
+.. currentmodule:: polaris.resolution
+
+.. autofunction:: resolution_to_string

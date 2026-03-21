@@ -1,0 +1,6 @@
+﻿polaris.Task.set\_shared\_config
+================================
+
+.. currentmodule:: polaris
+
+.. automethod:: Task.set_shared_config

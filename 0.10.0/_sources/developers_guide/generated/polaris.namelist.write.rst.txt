@@ -1,0 +1,6 @@
+﻿polaris.namelist.write
+======================
+
+.. currentmodule:: polaris.namelist
+
+.. autofunction:: write

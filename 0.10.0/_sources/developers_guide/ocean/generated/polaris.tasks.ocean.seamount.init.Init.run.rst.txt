@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.seamount.init.Init.run
+==========================================
+
+.. currentmodule:: polaris.tasks.ocean.seamount.init
+
+.. automethod:: Init.run

@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.sigma.compute\_sigma\_layer\_thickness
+=============================================================
+
+.. currentmodule:: polaris.ocean.vertical.sigma
+
+.. autofunction:: compute_sigma_layer_thickness
