@@ -52,9 +52,16 @@ def main():
     _validate_fork_branch_pair(args)
 
     using_fork = getattr(args, 'mache_fork', None) is not None
+    requested_mache_version = str(
+        getattr(args, 'mache_version', '') or ''
+    ).strip()
 
     if not using_fork:
         _validate_cli_spec_matches_pins(cli_spec, pinned_mache_version)
+
+    bootstrap_mache_version = pinned_mache_version
+    if not using_fork and requested_mache_version:
+        bootstrap_mache_version = requested_mache_version
 
     # remove tmp dir
     if os.path.exists(DEPLOY_TMP_DIR):
@@ -63,7 +70,7 @@ def main():
     os.makedirs(DEPLOY_TMP_DIR)
 
     bootstrap_url = _bootstrap_url(
-        mache_version=pinned_mache_version,
+        mache_version=bootstrap_mache_version,
         mache_fork=getattr(args, 'mache_fork', None),
         mache_branch=getattr(args, 'mache_branch', None),
     )
@@ -109,11 +116,19 @@ def main():
     if args.bootstrap_only:
         pixi_exe = _get_pixi_executable(getattr(args, 'pixi', None))
         bootstrap_dir = os.path.join(DEPLOY_TMP_DIR, 'bootstrap_pixi')
+        update_cmd = f'mache deploy update --software {software}'
+        if requested_mache_version:
+            update_cmd = (
+                f'{update_cmd} --mache-version '
+                f'{shlex.quote(requested_mache_version)}'
+            )
         print(
             '\nBootstrap environment is ready. To use it interactively:\n'
             f'  pixi shell -m {bootstrap_dir}/pixi.toml\n\n'
             'Then, you can run:\n'
-            f'  mache deploy update --software {software}\n'
+            f'  {update_cmd}\n'
+            'After update, edit deploy/pins.cfg to set [pixi] mache to the '
+            'new version.\n'
             f'  exit\n'
         )
 
