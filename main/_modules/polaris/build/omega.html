@@ -69,7 +69,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
@@ -187,16 +187,15 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  account: </span><span class="si">{</span><span class="n">account</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
-    <span class="c1"># remove and/or create build directory first so the log file can be created</span>
     <span class="c1"># clear environment variables and start fresh with those from login</span>
-    <span class="c1"># so spack doesn&#39;t get confused by conda</span>
     <span class="n">command</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;env -i HOME=&quot;$HOME&quot; bash -l </span><span class="si">{</span><span class="n">script_filename</span><span class="si">}</span><span class="s1">&#39;</span>
     <span class="k">if</span> <span class="n">log_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Logging build to: </span><span class="si">{</span><span class="n">log_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">quiet</span><span class="p">:</span>
             <span class="n">command</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39; &gt; </span><span class="si">{</span><span class="n">log_filename</span><span class="si">}</span><span class="s1"> 2&gt;&amp;1 &#39;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">command</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39; 2&gt;&amp;1 | tee </span><span class="si">{</span><span class="n">log_filename</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="c1"># use pipefail so a build failure is not masked by tee&#39;s exit code</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;set -o pipefail; </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1"> 2&gt;&amp;1 | tee </span><span class="si">{</span><span class="n">log_filename</span><span class="si">}</span><span class="s1">&#39;</span>
     <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Omega builds script written to:</span><span class="se">\n</span><span class="s1">  </span><span class="si">{</span><span class="n">script_filename</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>

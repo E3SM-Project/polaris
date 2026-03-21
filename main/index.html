@@ -71,7 +71,7 @@
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design_docs/index.html">Design Documents</a></li>
@@ -183,9 +183,6 @@ mesh generation capabilities would not be possible, are developed primarily by
 <li class="toctree-l2"><a class="reference internal" href="users_guide/machines/index.html#pbs-job-queueing">PBS job queueing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="users_guide/machines/index.html#supported-machines">Supported Machines</a></li>
 <li class="toctree-l2"><a class="reference internal" href="users_guide/machines/index.html#other-machines">Other Machines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="users_guide/machines/index.html#mpich">MPICH</a></li>
-<li class="toctree-l2"><a class="reference internal" href="users_guide/machines/index.html#openmpi">OpenMPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="users_guide/machines/index.html#no-mpi-from-conda-forge">No MPI from conda-forge</a></li>
 </ul>
 </li>
 </ul>
@@ -196,7 +193,7 @@ mesh generation capabilities would not be possible, are developed primarily by
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/quick_start.html">Quick Start for Developers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/quick_start.html#unix-shell">Unix Shell</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/quick_start.html#set-up-a-polaris-repository-for-beginners">Set up a polaris repository: for beginners</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developers_guide/quick_start.html#polaris-conda-environment-spack-environment-compilers-and-system-modules">polaris conda environment, spack environment, compilers and system modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers_guide/quick_start.html#polaris-pixi-and-spack-environments-compilers-and-system-modules">Polaris pixi and spack environments, compilers and system modules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/quick_start.html#creating-updating-only-the-polaris-environment">Creating/updating only the polaris environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/quick_start.html#building-e3sm-components">Building E3SM components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/quick_start.html#running-polaris-from-the-repo">Running polaris from the repo</a></li>
@@ -272,7 +269,7 @@ mesh generation capabilities would not be possible, are developed primarily by
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/troubleshooting.html">Troubleshooting</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="developers_guide/troubleshooting.html#solver-errors-when-configuring-conda-environment">Solver errors when configuring conda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers_guide/troubleshooting.html#solver-errors-when-configuring-deployment-environment">Solver errors when configuring deployment environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/troubleshooting.html#proxy-on-lanl-macs">Proxy on LANL Macs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/troubleshooting.html#gethostbyname-failed">gethostbyname failed</a></li>
 </ul>
@@ -292,11 +289,10 @@ mesh generation capabilities would not be possible, are developed primarily by
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/conda_vs_spack.html#id1">Summary</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="developers_guide/updating_conda.html">Updating Conda Dependencies</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="developers_guide/updating_conda.html#polaris-versioning-scheme">🏷️ Polaris Versioning Scheme</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developers_guide/updating_conda.html#workflow-for-dependency-changes">🔄 Workflow for Dependency Changes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developers_guide/updating_conda.html#bump-the-alpha-version">⬆️ Bump the <code class="docutils literal notranslate"><span class="pre">alpha</span></code> version</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developers_guide/updating_conda.html#updating-dependencies">✍️ Updating dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/updating_conda.html">Updating Deployment Dependencies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="developers_guide/updating_conda.html#where-to-update-dependencies">Where to Update Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers_guide/updating_conda.html#recommended-workflow">Recommended Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers_guide/updating_conda.html#notes">Notes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a><ul>

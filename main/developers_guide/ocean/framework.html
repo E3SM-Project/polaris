@@ -94,7 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -244,15 +244,27 @@ must override the
 to approximate the number of cells in the mesh, using a simple heuristic.</p>
 <p>The algorithm for determining the resources is:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ideally, about 200 cells per core</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="n">goal_cells_per_core</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span>
+<span class="n">cpu_ntasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">goal_cells_per_core</span><span class="p">)))</span>
 <span class="c1"># In a pinch, about 2000 cells per core</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="n">max_cells_per_core</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span>
+<span class="n">cpu_min_tasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">max_cells_per_core</span><span class="p">)))</span>
 </pre></div>
 </div>
 <p>The config options <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the
 <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> seciton can be used to control how resources scale with the size of
-the planar mesh.  By default,  the number of MPI tasks tries to apportion 200
+the planar mesh.  By default, the number of MPI tasks tries to apportion 200
 cells to each core, but it will allow as many as 2000.</p>
+<p>For Omega on GPU-capable parallel configs (<code class="docutils literal notranslate"><span class="pre">gpus_per_node</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>), dynamic
+sizing switches to GPU-based targets and sets one GPU per MPI task:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">min_gpus_per_task</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="c1"># ideally, about 8000 cells per GPU</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">goal_cells_per_gpu</span><span class="p">)))</span>
+<span class="c1"># In a pinch, about 80000 cells per GPU</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">max_cells_per_gpu</span><span class="p">)))</span>
+</pre></div>
+</div>
+<p>The corresponding <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> config options are <code class="docutils literal notranslate"><span class="pre">goal_cells_per_gpu</span></code> and
+<code class="docutils literal notranslate"><span class="pre">max_cells_per_gpu</span></code>.</p>
 </section>
 </section>
 <section id="setting-time-intervals-in-model-config-options">

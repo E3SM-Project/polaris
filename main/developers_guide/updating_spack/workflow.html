@@ -72,11 +72,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Updating Shared Spack Environments</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Overview of the Workflow</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#backgraound-how-conda-and-spack-work-together-in-polaris">Backgraound: How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#updating-conda-dependencies">1. Updating Conda Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#background-how-pixi-and-spack-work-together-in-polaris">Background: How Pixi and Spack Work Together in Polaris</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-deployment-dependencies">1. Updating Deployment Dependencies</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#updating-spack-dependencies">2. Updating Spack Dependencies</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#deploying-and-testing-on-hpcs">4. Deploying and Testing on HPCs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#adding-a-new-machine">5. Adding a New Machine</a></li>
@@ -133,36 +133,36 @@
 <p>The Polaris workflow for updating shared Spack environments typically follows
 this progression:</p>
 <ol class="arabic simple">
-<li><p><strong><a class="reference internal" href="../updating_conda.html"><span class="std std-doc">Updating Conda Dependencies</span></a></strong></p></li>
+<li><p><strong><a class="reference internal" href="../updating_conda.html"><span class="std std-doc">Updating Deployment Dependencies</span></a></strong></p></li>
 <li><p><strong><a class="reference internal" href="updating_packages.html"><span class="std std-doc">Updating Spack Dependencies</span></a></strong></p></li>
 <li><p><strong><a class="reference internal" href="testing/overview.html"><span class="std std-doc">Deployment and Testing</span></a></strong></p></li>
 <li><p><strong><a class="reference internal" href="adding_new_machines.html"><span class="std std-doc">Adding a New Machine</span></a></strong></p></li>
-<li><p><strong><a class="reference internal" href="deploying_shared_spack.html"><span class="std std-doc">Deploying the New Versione</span></a></strong></p></li>
+<li><p><strong><a class="reference internal" href="deploying_shared_spack.html"><span class="std std-doc">Deploying the New Version</span></a></strong></p></li>
 <li><p><strong><a class="reference internal" href="maintaining_past_versions.html"><span class="std std-doc">Maintaining Past Versions</span></a></strong></p></li>
 </ol>
 <p>We begin with some background information, then each of these steps is detailed
 in its own page. See below for a high-level summary.</p>
 <hr class="docutils" />
-<section id="backgraound-how-conda-and-spack-work-together-in-polaris">
-<h2>Backgraound: How Conda and Spack Work Together in Polaris<a class="headerlink" href="#backgraound-how-conda-and-spack-work-together-in-polaris" title="Link to this heading"></a></h2>
-<p>Why does Polaris use both Conda and Spack? What roles do they each serve?
+<section id="background-how-pixi-and-spack-work-together-in-polaris">
+<h2>Background: How Pixi and Spack Work Together in Polaris<a class="headerlink" href="#background-how-pixi-and-spack-work-together-in-polaris" title="Link to this heading"></a></h2>
+<p>Why does Polaris use both pixi and Spack? What roles do they each serve?
 Before you start, it’s critical to understand how these two systems work
 together.</p>
 <p>🔗 <a class="reference internal" href="../conda_vs_spack.html"><span class="std std-doc">Read more</span></a></p>
 </section>
 <hr class="docutils" />
-<section id="updating-conda-dependencies">
-<h2>1. Updating Conda Dependencies<a class="headerlink" href="#updating-conda-dependencies" title="Link to this heading"></a></h2>
-<p>Frequently, developers need to updating Conda dependencies at the same time
+<section id="updating-deployment-dependencies">
+<h2>1. Updating Deployment Dependencies<a class="headerlink" href="#updating-deployment-dependencies" title="Link to this heading"></a></h2>
+<p>Frequently, developers need to update deployment dependencies at the same time
 that they are updating shared Spack environments. In such cases, follow the
-same process you would if you were just updating Conda dependencies but there
+same process you would if you were just updating deployment dependencies but there
 is no need to bump the <code class="docutils literal notranslate"><span class="pre">alpha</span></code> version or make a separate PR for those changes.</p>
 <p>🔗 <a class="reference internal" href="../updating_conda.html"><span class="std std-doc">Read more</span></a></p>
 </section>
 <hr class="docutils" />
 <section id="updating-spack-dependencies">
 <h2>2. Updating Spack Dependencies<a class="headerlink" href="#updating-spack-dependencies" title="Link to this heading"></a></h2>
-<p>Updates to shared Spack environments typcially occur when Polaris needs to
+<p>Updates to shared Spack environments typically occur when Polaris needs to
 support new Spack dependencies (e.g. a new MPI-base library or tool) or when
 new  versions of existing Spack dependencies are required.  Sometimes, new
 shared Spack environments are required because system modules have changed
@@ -176,7 +176,7 @@ existing ones.</p>
 <h2>4. Deploying and Testing on HPCs<a class="headerlink" href="#deploying-and-testing-on-hpcs" title="Link to this heading"></a></h2>
 <p>Before full deployment, new versions of Polaris are installed on a subset of
 HPC platforms for iterative testing and validation. This stage often requires
-updating updating <code class="docutils literal notranslate"><span class="pre">mache</span></code> to support new systems or changes in machine
+updating <code class="docutils literal notranslate"><span class="pre">mache</span></code> to support new systems or changes in machine
 configurations, adding package versions to E3SM’s Spack fork, and
 troubleshooting deployment scripts.</p>
 <p>Testing includes everything from basic imports to full workflow runs.</p>
@@ -192,7 +192,7 @@ provide notes on adding new HPCs that are specific to Polaris.</p>
 <hr class="docutils" />
 <section id="deploying-the-shared-spack-environments">
 <h2>6. Deploying the Shared Spack Environments<a class="headerlink" href="#deploying-the-shared-spack-environments" title="Link to this heading"></a></h2>
-<p>Once test deployments have been made and the rquired test suites are passing:</p>
+<p>Once test deployments have been made and the required test suites are passing:</p>
 <ul class="simple">
 <li><p>Deploy across all supported HPC machines</p></li>
 <li><p>Merge the version-update PR</p></li>

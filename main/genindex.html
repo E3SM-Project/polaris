@@ -69,7 +69,7 @@
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design_docs/index.html">Design Documents</a></li>
@@ -170,16 +170,6 @@
         <li><a href="developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.html#polaris.ocean.model.OceanIOStep.__init__">(polaris.ocean.model.OceanIOStep method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep.__init__">(polaris.ocean.model.OceanModelStep method)</a>
-</li>
-        <li><a href="developers_guide/generated/polaris.parallel.login.LoginSystem.html#polaris.parallel.login.LoginSystem.__init__">(polaris.parallel.login.LoginSystem method)</a>
-</li>
-        <li><a href="developers_guide/generated/polaris.parallel.pbs.PbsSystem.html#polaris.parallel.pbs.PbsSystem.__init__">(polaris.parallel.pbs.PbsSystem method)</a>
-</li>
-        <li><a href="developers_guide/generated/polaris.parallel.single_node.SingleNodeSystem.html#polaris.parallel.single_node.SingleNodeSystem.__init__">(polaris.parallel.single_node.SingleNodeSystem method)</a>
-</li>
-        <li><a href="developers_guide/generated/polaris.parallel.slurm.SlurmSystem.html#polaris.parallel.slurm.SlurmSystem.__init__">(polaris.parallel.slurm.SlurmSystem method)</a>
-</li>
-        <li><a href="developers_guide/generated/polaris.parallel.system.ParallelSystem.html#polaris.parallel.system.ParallelSystem.__init__">(polaris.parallel.system.ParallelSystem method)</a>
 </li>
         <li><a href="developers_guide/generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep.__init__">(polaris.remap.MappingFileStep method)</a>
 </li>
@@ -852,7 +842,7 @@
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.geostrophic.Geostrophic.html#polaris.tasks.ocean.geostrophic.Geostrophic">Geostrophic (class in polaris.tasks.ocean.geostrophic)</a>
 </li>
-      <li><a href="developers_guide/generated/polaris.parallel.get_available_parallel_resources.html#polaris.parallel.get_available_parallel_resources">get_available_parallel_resources() (in module polaris.parallel)</a>
+      <li><a href="developers_guide/generated/polaris.Component.get_available_resources.html#polaris.Component.get_available_resources">get_available_resources() (polaris.Component method)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.mesh.base.get_base_mesh_steps.html#polaris.mesh.base.get_base_mesh_steps">get_base_mesh_steps() (in module polaris.mesh.base)</a>
 </li>
@@ -874,10 +864,6 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="developers_guide/generated/polaris.parallel.get_parallel_command.html#polaris.parallel.get_parallel_command">get_parallel_command() (in module polaris.parallel)</a>
-</li>
-      <li><a href="developers_guide/generated/polaris.job.get_pbs_options.html#polaris.job.get_pbs_options">get_pbs_options() (in module polaris.job)</a>
-</li>
       <li><a href="developers_guide/generated/polaris.constants.pcd.get_pcd_version.html#polaris.constants.pcd.get_pcd_version">get_pcd_version() (in module polaris.constants.pcd)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.constants.pcd.get_pcd_version_from_file.html#polaris.constants.pcd.get_pcd_version_from_file">get_pcd_version_from_file() (in module polaris.constants.pcd)</a>
@@ -885,8 +871,6 @@
       <li><a href="developers_guide/generated/polaris.viz.get_projection.html#polaris.viz.get_projection">get_projection() (in module polaris.viz)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.convergence.get_resolution_for_task.html#polaris.ocean.convergence.get_resolution_for_task">get_resolution_for_task() (in module polaris.ocean.convergence)</a>
-</li>
-      <li><a href="developers_guide/generated/polaris.job.get_slurm_options.html#polaris.job.get_slurm_options">get_slurm_options() (in module polaris.job)</a>
 </li>
       <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir">get_subdir() (polaris.tasks.e3sm.init.topo.combine.CombineStep static method)</a>
 </li>
@@ -966,15 +950,13 @@
 </li>
       <li><a href="developers_guide/generated/polaris.list.list_machines.html#polaris.list.list_machines">list_machines() (in module polaris.list)</a>
 </li>
-      <li><a href="developers_guide/generated/polaris.list.list_suites.html#polaris.list.list_suites">list_suites() (in module polaris.list)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="developers_guide/generated/polaris.list.list_suites.html#polaris.list.list_suites">list_suites() (in module polaris.list)</a>
+</li>
       <li><a href="developers_guide/generated/polaris.run.load_dependencies.html#polaris.run.load_dependencies">load_dependencies() (in module polaris.run)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.logging.log_method_call.html#polaris.logging.log_method_call">log_method_call() (in module polaris.logging)</a>
-</li>
-      <li><a href="developers_guide/generated/polaris.parallel.login.LoginSystem.html#polaris.parallel.login.LoginSystem">LoginSystem (class in polaris.parallel.login)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1082,13 +1064,9 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="developers_guide/generated/polaris.parallel.system.ParallelSystem.html#polaris.parallel.system.ParallelSystem">ParallelSystem (class in polaris.parallel.system)</a>
-</li>
       <li><a href="developers_guide/generated/polaris.namelist.parse_replacements.html#polaris.namelist.parse_replacements">parse_replacements() (in module polaris.namelist)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.ModelStep.partition.html#polaris.ModelStep.partition">partition() (polaris.ModelStep method)</a>
-</li>
-      <li><a href="developers_guide/generated/polaris.parallel.pbs.PbsSystem.html#polaris.parallel.pbs.PbsSystem">PbsSystem (class in polaris.parallel.pbs)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.plot_convergence.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.plot_convergence">plot_convergence() (polaris.ocean.convergence.analysis.ConvergenceAnalysis method)</a>
 </li>
@@ -1096,10 +1074,10 @@
 </li>
       <li><a href="developers_guide/generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field">plot_global_mpas_field() (in module polaris.viz)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field">plot_horiz_field() (in module polaris.viz)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser">PolarisConfigParser (class in polaris.config)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.yaml.PolarisYaml.html#polaris.yaml.PolarisYaml">PolarisYaml (class in polaris.yaml)</a>
@@ -1292,7 +1270,7 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="developers_guide/generated/polaris.parallel.run_command.html#polaris.parallel.run_command">run_command() (in module polaris.parallel)</a>
+      <li><a href="developers_guide/generated/polaris.Component.run_parallel_command.html#polaris.Component.run_parallel_command">run_parallel_command() (polaris.Component method)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step">run_single_step() (in module polaris.run.serial)</a>
 </li>
@@ -1316,9 +1294,9 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width.html#polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width">save_and_plot_cell_width() (polaris.mesh.spherical.SphericalBaseStep method)</a>
 </li>
-      <li><a href="developers_guide/generated/polaris.parallel.set_cores_per_node.html#polaris.parallel.set_cores_per_node">set_cores_per_node() (in module polaris.parallel)</a>
-</li>
       <li><a href="developers_guide/generated/polaris.ModelStep.set_model_resources.html#polaris.ModelStep.set_model_resources">set_model_resources() (polaris.ModelStep method)</a>
+</li>
+      <li><a href="developers_guide/generated/polaris.Component.set_parallel_system.html#polaris.Component.set_parallel_system">set_parallel_system() (polaris.Component method)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.Step.set_resources.html#polaris.Step.set_resources">set_resources() (polaris.Step method)</a>
 </li>
@@ -1395,10 +1373,6 @@
       <li><a href="developers_guide/generated/polaris.setup.setup_task.html#polaris.setup.setup_task">setup_task() (in module polaris.setup)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.setup.setup_tasks.html#polaris.setup.setup_tasks">setup_tasks() (in module polaris.setup)</a>
-</li>
-      <li><a href="developers_guide/generated/polaris.parallel.single_node.SingleNodeSystem.html#polaris.parallel.single_node.SingleNodeSystem">SingleNodeSystem (class in polaris.parallel.single_node)</a>
-</li>
-      <li><a href="developers_guide/generated/polaris.parallel.slurm.SlurmSystem.html#polaris.parallel.slurm.SlurmSystem">SlurmSystem (class in polaris.parallel.slurm)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.mesh.base.so.SOBaseMesh.html#polaris.mesh.base.so.SOBaseMesh">SOBaseMesh (class in polaris.mesh.base.so)</a>
 </li>

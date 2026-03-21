@@ -72,7 +72,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Updating Shared Spack Environments</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../workflow.html">Overview of the Workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../updating_packages.html">Updating Spack Dependencies</a></li>
@@ -85,7 +85,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Troubleshooting Deployment</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#spack-build-failures">1. 🛠️ Spack Build Failures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#activation-script-or-module-issues">2. 🔢 Activation Script or Module Issues</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#conda-environment-problems">3. 🚫 Conda Environment Problems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pixi-environment-problems">3. 🚫 Pixi Environment Problems</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#filesystem-and-permission-issues">4. 💾 Filesystem and Permission Issues</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mache-configuration-problems">5. 🧰 <code class="docutils literal notranslate"><span class="pre">mache</span></code> Configuration Problems</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spack-caching-and-environment-contamination">6. 🪖 Spack Caching and Environment Contamination</a></li>
@@ -195,12 +195,12 @@ etc.)</p></li>
 </section>
 </section>
 <hr class="docutils" />
-<section id="conda-environment-problems">
-<h2>3. 🚫 Conda Environment Problems<a class="headerlink" href="#conda-environment-problems" title="Link to this heading"></a></h2>
+<section id="pixi-environment-problems">
+<h2>3. 🚫 Pixi Environment Problems<a class="headerlink" href="#pixi-environment-problems" title="Link to this heading"></a></h2>
 <section id="id1">
 <h3>Symptoms<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p>Conda fails to resolve dependencies</p></li>
+<li><p>Pixi fails to resolve dependencies</p></li>
 <li><p>Environments install but are missing key packages</p></li>
 </ul>
 </section>
@@ -285,7 +285,7 @@ and in the logic for
 <h2>7. ⚠️ Common Fix: Full Clean + Re-run<a class="headerlink" href="#common-fix-full-clean-re-run" title="Link to this heading"></a></h2>
 <p>When in doubt, remove and rebuild everything:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-rf<span class="w"> </span>&lt;spack_env_dir&gt;
-./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>~/miniforge3<span class="w"> </span>--recreate
+./deploy.py<span class="w"> </span>--recreate
 </pre></div>
 </div>
 <p>This often resolves cases where previous state is interfering with a clean

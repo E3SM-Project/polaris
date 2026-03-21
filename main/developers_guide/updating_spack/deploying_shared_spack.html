@@ -72,7 +72,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Updating Shared Spack Environments</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="workflow.html">Overview of the Workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="updating_packages.html">Updating Spack Dependencies</a></li>
@@ -166,21 +166,18 @@ remove bot PRs for updating pre-commit dependencies).  Here is an
 <section id="deploy-shared-spack-environments-on-hpc-systems">
 <h3>2. Deploy Shared Spack Environments on HPC Systems<a class="headerlink" href="#deploy-shared-spack-environments-on-hpc-systems" title="Link to this heading"></a></h3>
 <p>Use the same process as during test deployment but you do <em>not</em> use the
-<code class="docutils literal notranslate"><span class="pre">--spack</span></code> flag to specify a test deployment location.  For example:</p>
+<code class="docutils literal notranslate"><span class="pre">--spack-path</span></code> flag to specify a test deployment location.  For example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">SCRATCH</span><span class="o">=</span>&lt;path_to_scratch&gt;
-<span class="nv">CONDA_BASE</span><span class="o">=</span>~/miniforge3
-mdkir<span class="w"> </span>-p<span class="w"> </span><span class="nv">$SCRATCH</span>/tmp_spack
-./configure_polaris_envs.py<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--conda<span class="w"> </span><span class="nv">$CONDA_BASE</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--update_spack<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--tmpdir<span class="w"> </span><span class="nv">$SCRATCH</span>/tmp_spack<span class="w"> </span><span class="se">\</span>
+./deploy.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deploy-spack<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--compiler<span class="w"> </span>intel<span class="w"> </span>intel<span class="w"> </span>gnu<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--mpi<span class="w"> </span>openmpi<span class="w"> </span>impi<span class="w"> </span>openmpi<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--recreate<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--verbose
+<span class="w">    </span>--recreate
 </pre></div>
 </div>
-<p>This creates a local activation scripts like:</p>
+<p>If you need to control Spack temporary build location, set <code class="docutils literal notranslate"><span class="pre">spack.tmpdir</span></code> in
+<code class="docutils literal notranslate"><span class="pre">deploy/config.yaml.j2</span></code>.</p>
+<p>This creates local activation scripts like:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">load_polaris_dev_&lt;version&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code></p></li>
 </ul>

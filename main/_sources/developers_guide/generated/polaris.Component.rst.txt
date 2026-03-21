@@ -18,9 +18,12 @@
       ~Component.add_step
       ~Component.add_task
       ~Component.configure
+      ~Component.get_available_resources
       ~Component.get_or_create_shared_step
       ~Component.open_model_dataset
       ~Component.remove_step
+      ~Component.run_parallel_command
+      ~Component.set_parallel_system
       ~Component.write_model_dataset
    
    

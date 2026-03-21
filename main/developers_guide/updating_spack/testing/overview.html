@@ -72,7 +72,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Updating Shared Spack Environments</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../workflow.html">Overview of the Workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../updating_packages.html">Updating Spack Dependencies</a></li>
@@ -179,7 +179,7 @@ stacks</p></li>
 <section id="deploying-spack-environments-on-hpcs">
 <h3>🚀 <a class="reference internal" href="deploying_spack.html"><span class="std std-doc">Deploying Spack Environments on HPCs</span></a><a class="headerlink" href="#deploying-spack-environments-on-hpcs" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p>Use the <code class="docutils literal notranslate"><span class="pre">configure_polaris_envs.py</span></code> script and template infrastructure</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> (<code class="docutils literal notranslate"><span class="pre">mache.deploy</span></code>) and template infrastructure</p></li>
 <li><p>Build environments and activation scripts tailored to each system</p></li>
 </ul>
 </section>
@@ -206,7 +206,7 @@ for each supported machine, compiler, and MPI variant</p></li>
 <section id="audience">
 <h2>Audience<a class="headerlink" href="#audience" title="Link to this heading"></a></h2>
 <p>This section is primarily intended for Polaris maintainers and release
-engineers. Familiarity with Spack, Conda, and HPC system environments is
+engineers. Familiarity with Spack, pixi, and HPC system environments is
 assumed.</p>
 <p>➡ Start with: <a class="reference internal" href="updating_spack_fork.html"><span class="std std-doc">Updating the E3SM Spack Fork</span></a></p>
 </section>

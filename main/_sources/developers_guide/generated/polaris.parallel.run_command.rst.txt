@@ -1,6 +1,0 @@
-﻿polaris.parallel.run\_command
-=============================
-
-.. currentmodule:: polaris.parallel
-
-.. autofunction:: run_command

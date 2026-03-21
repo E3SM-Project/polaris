@@ -18,6 +18,7 @@
       ~Ocean.add_step
       ~Ocean.add_task
       ~Ocean.configure
+      ~Ocean.get_available_resources
       ~Ocean.get_or_create_shared_step
       ~Ocean.map_from_native_model_vars
       ~Ocean.map_to_native_model_vars
@@ -25,6 +26,8 @@
       ~Ocean.map_var_list_to_native_model
       ~Ocean.open_model_dataset
       ~Ocean.remove_step
+      ~Ocean.run_parallel_command
+      ~Ocean.set_parallel_system
       ~Ocean.write_model_dataset
    
    

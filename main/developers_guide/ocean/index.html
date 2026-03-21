@@ -77,7 +77,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -168,7 +168,7 @@ default config options:</p>
 
 <span class="c1"># The executables section defines paths to required executables. These</span>
 <span class="c1"># executables are provided for use by specific tasks.  Most tools that</span>
-<span class="c1"># polaris needs should be in the conda environment, so this is only the path</span>
+<span class="c1"># polaris needs should be in the deployment environment, so this is only the path</span>
 <span class="c1"># to the MPAS-Ocean or Omega executable by default.</span>
 <span class="k">[executables]</span>
 <span class="na">component</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:component_path}/ocean_model</span>

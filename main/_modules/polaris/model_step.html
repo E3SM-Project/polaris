@@ -69,7 +69,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -196,6 +196,8 @@
         <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">gpus_per_task</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">min_gpus_per_task</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">cached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">namelist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -240,6 +242,12 @@
 
 <span class="sd">        openmp_threads : int, optional</span>
 <span class="sd">            the number of OpenMP threads to use</span>
+
+<span class="sd">        gpus_per_task : int, optional</span>
+<span class="sd">            the number of GPUs per task to use</span>
+
+<span class="sd">        min_gpus_per_task : int, optional</span>
+<span class="sd">            the minimum number of GPUs per task required</span>
 
 <span class="sd">        max_memory : int, optional</span>
 <span class="sd">            the amount of memory that the step is allowed to use in MB.</span>
@@ -293,6 +301,8 @@
             <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
             <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
             <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+            <span class="n">gpus_per_task</span><span class="o">=</span><span class="n">gpus_per_task</span><span class="p">,</span>
+            <span class="n">min_gpus_per_task</span><span class="o">=</span><span class="n">min_gpus_per_task</span><span class="p">,</span>
             <span class="n">max_memory</span><span class="o">=</span><span class="n">max_memory</span><span class="p">,</span>
             <span class="n">cached</span><span class="o">=</span><span class="n">cached</span><span class="p">,</span>
         <span class="p">)</span>
@@ -357,7 +367,13 @@
 <div class="viewcode-block" id="ModelStep.set_model_resources">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.set_model_resources.html#polaris.ModelStep.set_model_resources">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_model_resources</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">gpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_gpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the resources for the step.  This can be done within init,</span>
@@ -381,6 +397,12 @@
 <span class="sd">        openmp_threads : int, optional</span>
 <span class="sd">            the number of OpenMP threads to use</span>
 
+<span class="sd">        gpus_per_task : int, optional</span>
+<span class="sd">            the number of GPUs per task to use</span>
+
+<span class="sd">        min_gpus_per_task : int, optional</span>
+<span class="sd">            the minimum number of GPUs per task required</span>
+
 <span class="sd">        max_memory : int, optional</span>
 <span class="sd">            the amount of memory that the step is allowed to use in MB.</span>
 <span class="sd">            This is currently just a placeholder for later use with task</span>
@@ -392,6 +414,8 @@
             <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
             <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
             <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+            <span class="n">gpus_per_task</span><span class="o">=</span><span class="n">gpus_per_task</span><span class="p">,</span>
+            <span class="n">min_gpus_per_task</span><span class="o">=</span><span class="n">min_gpus_per_task</span><span class="p">,</span>
             <span class="n">max_memory</span><span class="o">=</span><span class="n">max_memory</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -744,11 +768,17 @@
 <span class="sd">            If config options are available for multiple models, the model</span>
 <span class="sd">            that the config options are from.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-
         <span class="n">cores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span>
 
-        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">)</span>
+        <span class="n">parallel_system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">parallel_system</span>
+        <span class="k">if</span> <span class="n">parallel_system</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Parallel system has not been set for component &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">get_config_int</span><span class="p">(</span><span class="s1">&#39;cores_per_node&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cores_per_node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cores_per_node must be set in parallel config&#39;</span><span class="p">)</span>
 
         <span class="c1"># update IO tasks based on machine settings and the available cores</span>
         <span class="n">pio_num_iotasks</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">cores</span> <span class="o">/</span> <span class="n">cores_per_node</span><span class="p">))</span>

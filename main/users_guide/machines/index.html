@@ -65,9 +65,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#other-machines">Other Machines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#mpich">MPICH</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#openmpi">OpenMPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#no-mpi-from-conda-forge">No MPI from conda-forge</a></li>
 </ul>
 </li>
 </ul>
@@ -88,7 +85,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -144,12 +141,12 @@ tasks are configured in a way that is appropriate for your machine.</p>
 <span class="c1"># A shared root directory where MPAS standalone data can be found</span>
 <span class="na">database_root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/lcrc/group/e3sm/public_html/mpas_standalonedata</span>
 
-<span class="c1"># the path to the base conda environment where polaris environments have</span>
+<span class="c1"># the path where deployed Polaris environments are located</span>
 <span class="c1"># been created</span>
 <span class="na">polaris_envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/lcrc/soft/climate/polaris/chrysalis/base</span>
 
 
-<span class="c1"># Options related to deploying a polaris conda environment on supported</span>
+<span class="c1"># Options related to deploying Polaris environments on supported</span>
 <span class="c1"># machines</span>
 <span class="k">[deploy]</span>
 
@@ -173,10 +170,10 @@ tasks are configured in a way that is appropriate for your machine.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">paths</span></code> section provides local paths to the root of the “databases”
 (local caches) of data files for each MPAS core.  These are generally in a
 shared location for the project to save space.  Similarly, <code class="docutils literal notranslate"><span class="pre">polaris_envs</span></code>
-is a location where shared conda environments will be created for polaris
+is a location where shared deployed environments will be created for polaris
 releases for users to share.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">deploy</span></code> section is used to help polaris create development and
-release conda environments and activation scripts.  It says which compiler set
+release environments and activation scripts.  It says which compiler set
 is the default, which MPI library is the default for each supported compiler,
 and where libraries built with system MPI will be placed.</p>
 <p>Some config options come from a package, <a class="reference external" href="https://github.com/E3SM-Project/mache/">mache</a>
@@ -288,43 +285,16 @@ If the path doesn’t exist, polaris will create it.</p>
 <p>If you’re not working on an HPC machine, you will probably not have multiple
 nodes or <a class="reference internal" href="#slurm"><span class="std std-ref">Slurm job queueing</span></a>.  You will probably install
 <a class="reference external" href="https://www.mpich.org/">MPICH</a> or <a class="reference external" href="https://www.open-mpi.org/">OpenMPI</a>,
-probably via a
-<a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/index.html">conda environment</a>.
-In this case, the <code class="docutils literal notranslate"><span class="pre">parallel_executable</span></code> is <code class="docutils literal notranslate"><span class="pre">mpirun</span></code>.</p>
-<p>To install the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package into a conda environment, you will first
-need to install <a class="reference external" href="https://github.com/conda-forge/miniforge#miniforge3">Miniforge3</a>
-(if it is not already installed).  Then, you will run one of the following
-three commands, depending on how you would like to handle MPI support in the
-conda packages.</p>
-</section>
-<section id="mpich">
-<h2>MPICH<a class="headerlink" href="#mpich" title="Link to this heading"></a></h2>
-<p>To create a conda environment called “polaris” with MPI from the <code class="docutils literal notranslate"><span class="pre">mpich</span></code>
-package, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>polaris<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>-c<span class="w"> </span>e3sm/label/polaris<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span><span class="s2">&quot;polaris=*=mpi_mpich*&quot;</span>
-</pre></div>
-</div>
-<p>This is the recommended default for single-node Linux and OSX machines.</p>
-</section>
-<section id="openmpi">
-<h2>OpenMPI<a class="headerlink" href="#openmpi" title="Link to this heading"></a></h2>
-<p>To create a conda environment called “polaris” with MPI from the <code class="docutils literal notranslate"><span class="pre">openmpi</span></code>
-package, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>polaris<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>-c<span class="w"> </span>e3sm/label/polaris<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span><span class="s2">&quot;polaris=*=mpi_openmpi*&quot;</span>
-</pre></div>
-</div>
-</section>
-<section id="no-mpi-from-conda-forge">
-<h2>No MPI from conda-forge<a class="headerlink" href="#no-mpi-from-conda-forge" title="Link to this heading"></a></h2>
-<p>To create a conda environment called “polaris” without any MPI package from
-conda-forge, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>polaris<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>-c<span class="w"> </span>e3sm/label/polaris<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span><span class="s2">&quot;polaris=*=nompi*&quot;</span>
-</pre></div>
-</div>
-<p>This would be the starting point for working with polaris on an unknown
-HPC machine.  From there, you would also need to load modules and set
-environment variables so that MPAS components can be built with system NetCDF,
-pNetCDF and SCORPIO. This will likely require working with an MPAS developer.</p>
+typically through your deployed pixi environment. In this case, the
+<code class="docutils literal notranslate"><span class="pre">parallel_executable</span></code> is usually <code class="docutils literal notranslate"><span class="pre">mpirun</span></code>.</p>
+<p>To deploy Polaris for your repo checkout, run <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> from the repo
+root. For deployment details and options, see:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.e3sm.org/mache/main/users_guide/deploy.html">mache deploy user guide</a></p></li>
+<li><p><a class="reference external" href="https://docs.e3sm.org/mache/main/users_guide/quick_start.html">mache deploy quick start</a></p></li>
+</ul>
+<p>For unsupported machines, you may need to add or customize machine
+configuration before deployment can fully configure compiler/MPI settings.</p>
 </section>
 </section>
 

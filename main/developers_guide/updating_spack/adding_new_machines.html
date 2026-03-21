@@ -72,7 +72,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Updating Shared Spack Environments</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="workflow.html">Overview of the Workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="updating_packages.html">Updating Spack Dependencies</a></li>
@@ -162,7 +162,7 @@ must first be added upstream before <code class="docutils literal notranslate"><
 <ol class="arabic simple">
 <li><p><strong>Reference your <code class="docutils literal notranslate"><span class="pre">mache</span></code> branch in Polaris Deployment</strong></p>
 <ul class="simple">
-<li><p>Use the <code class="docutils literal notranslate"><span class="pre">--mache_fork</span></code> and <code class="docutils literal notranslate"><span class="pre">--mache_branch</span></code> flags to deploy using the
+<li><p>Use the <code class="docutils literal notranslate"><span class="pre">--mache-fork</span></code> and <code class="docutils literal notranslate"><span class="pre">--mache-branch</span></code> flags to deploy using the
 updated branch</p></li>
 <li><p>Confirm the new machine is recognized and templates are applied correctly</p></li>
 </ul>
@@ -181,13 +181,12 @@ updated branch</p></li>
 <h2>✅ Testing Your Changes<a class="headerlink" href="#testing-your-changes" title="Link to this heading"></a></h2>
 <p>Use the standard test deployment approach from
 <a class="reference internal" href="testing/deploying_spack.html"><span class="std std-doc">Deploying a new spack environment</span></a>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>~/miniforge3<span class="w"> </span><span class="se">\</span>
-<span class="w">                            </span>--mache_fork<span class="w"> </span>&lt;your_fork&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">                            </span>--mache_branch<span class="w"> </span>&lt;your_branch&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">                            </span>--compiler<span class="w"> </span>&lt;compiler&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">                            </span>--mpi<span class="w"> </span>&lt;mpi&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">                            </span>--verbose<span class="w"> </span><span class="se">\</span>
-<span class="w">                            </span>--recreate
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>--mache-fork<span class="w"> </span>&lt;your_fork&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--mache-branch<span class="w"> </span>&lt;your_branch&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--compiler<span class="w"> </span>&lt;compiler&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--mpi<span class="w"> </span>&lt;mpi&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--deploy-spack<span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--recreate
 </pre></div>
 </div>
 <p>You can also supply the <code class="docutils literal notranslate"><span class="pre">--machine</span></code> flag:</p>

@@ -68,7 +68,7 @@
 <li class="toctree-l1"><a class="reference internal" href="framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Troubleshooting</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#solver-errors-when-configuring-conda-environment">Solver errors when configuring conda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#solver-errors-when-configuring-deployment-environment">Solver errors when configuring deployment environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#proxy-on-lanl-macs">Proxy on LANL Macs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gethostbyname-failed">gethostbyname failed</a></li>
 </ul>
@@ -77,7 +77,7 @@
 <li class="toctree-l1"><a class="reference internal" href="building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
@@ -119,10 +119,10 @@
 <span id="dev-troubleshooting"></span><h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h1>
 <p>This section describes some common problems developers have run into and some
 suggested solutions.</p>
-<section id="solver-errors-when-configuring-conda-environment">
-<span id="dev-troubleshooting-conda-solver"></span><h2>Solver errors when configuring conda environment<a class="headerlink" href="#solver-errors-when-configuring-conda-environment" title="Link to this heading"></a></h2>
-<p>When setting up <a class="reference internal" href="quick_start.html#dev-conda-env"><span class="std std-ref">polaris conda environment, spack environment, compilers and system modules</span></a>, by calling:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_env.sh<span class="w"> </span>...
+<section id="solver-errors-when-configuring-deployment-environment">
+<span id="dev-troubleshooting-conda-solver"></span><h2>Solver errors when configuring deployment environment<a class="headerlink" href="#solver-errors-when-configuring-deployment-environment" title="Link to this heading"></a></h2>
+<p>When setting up <a class="reference internal" href="quick_start.html#dev-conda-env"><span class="std std-ref">Polaris pixi and spack environments, compilers and system modules</span></a>, by calling:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>...
 </pre></div>
 </div>
 <p>you may run into an error like:</p>
@@ -144,11 +144,11 @@ set of development packages given in:</p>
 </div>
 <p>The solution should be to recreate the environment rather than trying to
 update it:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_env.sh<span class="w"> </span>--recreate<span class="w"> </span>...
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>--recreate<span class="w"> </span>...
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">--recreate</span></code> flag will first delete the existing <code class="docutils literal notranslate"><span class="pre">dev_polaris_*</span></code> conda
-environment before creating it again with the new set of packages required for
+<p>The <code class="docutils literal notranslate"><span class="pre">--recreate</span></code> flag will first delete existing deployment artifacts
+before creating them again with the new set of packages required for
 developing with the requested compiler and MPI type.</p>
 </section>
 <section id="proxy-on-lanl-macs">

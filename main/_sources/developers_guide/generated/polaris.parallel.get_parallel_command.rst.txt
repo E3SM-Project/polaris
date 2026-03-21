@@ -1,6 +1,0 @@
-﻿polaris.parallel.get\_parallel\_command
-=======================================
-
-.. currentmodule:: polaris.parallel
-
-.. autofunction:: get_parallel_command

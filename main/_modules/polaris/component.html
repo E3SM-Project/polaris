@@ -69,7 +69,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -110,9 +110,14 @@
   <h1>Source code for polaris.component</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParallelSystem</span><span class="p">,</span> <span class="n">get_parallel_system</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 
 
 <div class="viewcode-block" id="Component">
@@ -162,7 +167,104 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">cached_files</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="p">:</span> <span class="n">ParallelSystem</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_read_cached_files</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Component.set_parallel_system">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.set_parallel_system.html#polaris.Component.set_parallel_system">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_parallel_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct and store the active parallel system for this component</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            The config to use in constructing the parallel system</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">combined</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">combine</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">config</span><span class="o">.</span><span class="n">combined</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span> <span class="o">=</span> <span class="n">get_parallel_system</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">combined</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Component.get_available_resources">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.get_available_resources.html#polaris.Component.get_available_resources">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_available_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get available resources from the active parallel system</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        available_resources : dict</span>
+<span class="sd">            Available CPU and GPU resources and machine capabilities</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Parallel system has not been set for component </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">cores</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">cores</span><span class="p">,</span>
+            <span class="n">nodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span>
+            <span class="n">cores_per_node</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">cores_per_node</span><span class="p">,</span>
+            <span class="n">gpus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">gpus</span><span class="p">,</span>
+            <span class="n">gpus_per_node</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">gpus_per_node</span><span class="p">,</span>
+            <span class="n">mpi_allowed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">mpi_allowed</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Component.run_parallel_command">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.run_parallel_command.html#polaris.Component.run_parallel_command">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_parallel_command</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">args</span><span class="p">,</span>
+        <span class="n">cpus_per_task</span><span class="p">,</span>
+        <span class="n">ntasks</span><span class="p">,</span>
+        <span class="n">openmp_threads</span><span class="p">,</span>
+        <span class="n">logger</span><span class="p">,</span>
+        <span class="n">gpus_per_task</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run a command using the active parallel system</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args : list of str</span>
+<span class="sd">            Command line arguments for the executable</span>
+
+<span class="sd">        cpus_per_task : int</span>
+<span class="sd">            Number of CPUs per task</span>
+
+<span class="sd">        ntasks : int</span>
+<span class="sd">            Number of parallel tasks</span>
+
+<span class="sd">        openmp_threads : int</span>
+<span class="sd">            Number of OpenMP threads</span>
+
+<span class="sd">        logger : logging.Logger</span>
+<span class="sd">            Logger to output command-line execution info</span>
+
+<span class="sd">        gpus_per_task : int, optional</span>
+<span class="sd">            Number of GPUs per task</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Parallel system has not been set for component </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
+        <span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)</span>
+        <span class="n">env</span><span class="p">[</span><span class="s1">&#39;OMP_NUM_THREADS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">openmp_threads</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">if</span> <span class="n">openmp_threads</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Running with </span><span class="si">{</span><span class="n">openmp_threads</span><span class="si">}</span><span class="s1"> OpenMP threads&#39;</span><span class="p">)</span>
+
+        <span class="n">command_line_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">get_parallel_command</span><span class="p">(</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
+            <span class="n">cpus_per_task</span><span class="o">=</span><span class="n">cpus_per_task</span><span class="p">,</span>
+            <span class="n">gpus_per_task</span><span class="o">=</span><span class="n">gpus_per_task</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">check_call</span><span class="p">(</span><span class="n">command_line_args</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Component.add_task">

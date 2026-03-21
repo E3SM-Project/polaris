@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Updating Conda Dependencies</title>
+  <title>Updating Deployment Dependencies</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
@@ -72,15 +72,10 @@
 <li class="toctree-l1"><a class="reference internal" href="building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Updating Conda Dependencies</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#polaris-versioning-scheme">🏷️ Polaris Versioning Scheme</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#workflow-for-dependency-changes">🔄 Workflow for Dependency Changes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#bump-the-alpha-version">⬆️ Bump the <code class="docutils literal notranslate"><span class="pre">alpha</span></code> version</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#updating-dependencies">✍️ Updating dependencies</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#conda-dev-spec-template"><code class="docutils literal notranslate"><span class="pre">conda-dev-spec.template</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#default-cfg"><code class="docutils literal notranslate"><span class="pre">default.cfg</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Updating Deployment Dependencies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#where-to-update-dependencies">Where to Update Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#recommended-workflow">Recommended Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="updating_spack/index.html">Updating Shared Spack Environments</a></li>
@@ -110,7 +105,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Updating Conda Dependencies</li>
+      <li class="breadcrumb-item active">Updating Deployment Dependencies</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/developers_guide/updating_conda.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -120,115 +115,54 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="updating-conda-dependencies">
-<span id="dev-updating-conda"></span><h1>Updating Conda Dependencies<a class="headerlink" href="#updating-conda-dependencies" title="Link to this heading"></a></h1>
-<section id="polaris-versioning-scheme">
-<h2>🏷️ Polaris Versioning Scheme<a class="headerlink" href="#polaris-versioning-scheme" title="Link to this heading"></a></h2>
-<p>Polaris is primarily a developer-focused project and is in a perpetual “alpha”
-stage. Versions in the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch always end with <code class="docutils literal notranslate"><span class="pre">-alpha.&lt;N&gt;</span></code>.
-Occasionally, releases are tagged without the <code class="docutils literal notranslate"><span class="pre">-alpha.&lt;N&gt;</span></code> for documentation
-and provenance.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">alpha</span></code> version is incremented each time Polaris’ Conda dependencies
-change. This signals to developers and deployment infrastructure that
-environments created with an older alpha version may not be compatible with
-the new code.</p>
-</section>
-<section id="workflow-for-dependency-changes">
-<h2>🔄 Workflow for Dependency Changes<a class="headerlink" href="#workflow-for-dependency-changes" title="Link to this heading"></a></h2>
-<p>When Conda dependencies are updated (added or version-bumped), the <code class="docutils literal notranslate"><span class="pre">alpha</span></code>
-version must also be incremented. This ensures developers know when their
-Conda environments are out of date and need to be recreated or updated.</p>
-<p>Each time a developer sources a Polaris load script (see <a class="reference internal" href="quick_start.html#dev-conda-env"><span class="std std-ref">polaris conda environment, spack environment, compilers and system modules</span></a>),
-the script checks that the Polaris version (including <code class="docutils literal notranslate"><span class="pre">alpha</span></code>) matches the one
-used to create the Conda environment. If not, an error message prompts the
-developer to update or recreate the environment.</p>
-<p>Unless Spack dependencies are also changed (in which case you need to follow
-the workflow in <a class="reference internal" href="updating_spack/index.html#dev-updating-spack"><span class="std std-ref">Updating Shared Spack Environments</span></a>), there is no need to deploy shared
-Spack environments—just update Conda dependencies, bump the <code class="docutils literal notranslate"><span class="pre">alpha</span></code> version,
-make a pull request, and merge.</p>
-</section>
-<hr class="docutils" />
-<section id="bump-the-alpha-version">
-<h2>⬆️ Bump the <code class="docutils literal notranslate"><span class="pre">alpha</span></code> version<a class="headerlink" href="#bump-the-alpha-version" title="Link to this heading"></a></h2>
-<p>Unless you are updating share Spack environments, you need to start by
-updating the Polaris version to the next <code class="docutils literal notranslate"><span class="pre">alpha</span></code> number in <code class="docutils literal notranslate"><span class="pre">polaris/version.py</span></code>
-and committing the change.  For example, change:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;0.8.0-alpha.9&#39;</span>
-</pre></div>
-</div>
-<p>to</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;0.8.0-alpha.10&#39;</span>
-</pre></div>
-</div>
-<p>and commit this with a message like, “Update Polaris to v0.8.0-alpha.10”.</p>
-</section>
-<hr class="docutils" />
-<section id="updating-dependencies">
-<h2>✍️ Updating dependencies<a class="headerlink" href="#updating-dependencies" title="Link to this heading"></a></h2>
-<p>There are two places you might need to make the changes to the dependencies,
-depending on the package(s) involved.</p>
-<section id="conda-dev-spec-template">
-<h3><code class="docutils literal notranslate"><span class="pre">conda-dev-spec.template</span></code><a class="headerlink" href="#conda-dev-spec-template" title="Link to this heading"></a></h3>
-<p>The <a class="reference external" href="https://jinja.palletsprojects.com/en/stable/">Jinja template</a> that defines
-Polaris’ Conda environments is
-<a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/deploy/conda-dev-spec.template"><code class="docutils literal notranslate"><span class="pre">deploy/conda-dev-spec.template</span></code></a>.
-This file is the easiest place to add new Conda dependencies.  It is the right
-place to add dependencies that you do not plan to pin to a specific version
-and which will not also be installed in a shared Spack environment.</p>
-<p>Add your new dependency in the appropriate location:</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="updating-deployment-dependencies">
+<span id="dev-updating-conda"></span><h1>Updating Deployment Dependencies<a class="headerlink" href="#updating-deployment-dependencies" title="Link to this heading"></a></h1>
+<p>Polaris now deploys environments through <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> and <code class="docutils literal notranslate"><span class="pre">mache.deploy</span></code>.
+This means dependency updates are handled through deployment templates and
+configuration, not through the old standalone conda setup workflow.</p>
+<section id="where-to-update-dependencies">
+<h2>Where to Update Dependencies<a class="headerlink" href="#where-to-update-dependencies" title="Link to this heading"></a></h2>
+<p>Most dependency updates should be made in deployment templates under <code class="docutils literal notranslate"><span class="pre">deploy/</span></code>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">Base</span></code> - runtime Polaris dependencies not associated with development</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">Static</span> <span class="pre">typing</span></code> - dependencies for Python type checking</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">Linting</span> <span class="pre">and</span> <span class="pre">testing</span></code> - tools for linthing the code and running simple
-unit tests</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">Development</span></code> - other development requirements like MPI, CMake and
-compilers, typically only used on unsupported machines such as laptops</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">CF-compliance</span></code> - tools that are handy for checking
-<a class="reference external" href="https://cfconventions.org/">CF compliance</a>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">Documentation</span></code> - tools for building the documentation</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">Visualization</span></code> - tools for quick visualization, not directly required
-by any Polaris tasks or steps</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deploy/pixi.toml.j2</span></code> for pixi-managed packages</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deploy/spack.yaml.j2</span></code> for Spack package specs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deploy/config.yaml.j2</span></code> for deployment options and defaults</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deploy/pins.cfg</span></code> for pinned mache/python versions used by <code class="docutils literal notranslate"><span class="pre">deploy.py</span></code></p></li>
+</ul>
+<p>For background on how these files are rendered and used, see:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.e3sm.org/mache/main/users_guide/deploy.html">mache deploy user guide</a></p></li>
+<li><p><a class="reference external" href="https://docs.e3sm.org/mache/main/developers_guide/deploy.html">mache deploy developer guide</a></p></li>
 </ul>
 </section>
-<section id="default-cfg">
-<h3><code class="docutils literal notranslate"><span class="pre">default.cfg</span></code><a class="headerlink" href="#default-cfg" title="Link to this heading"></a></h3>
-<p>Several Conda packages have fixed versions defined in <code class="docutils literal notranslate"><span class="pre">deploy/default.cfg</span></code>.
-Currently, these are:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.13</span>
-
-<span class="c1"># versions of conda packages</span>
-<span class="na">geometric_features</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.6.1</span>
-<span class="na">mache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.31.0</span>
-<span class="na">conda_moab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5.5.1</span>
-<span class="na">mpas_tools</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.2.0</span>
-<span class="na">otps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2021.10</span>
-<span class="na">parallelio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.6.6</span>
+<section id="recommended-workflow">
+<h2>Recommended Workflow<a class="headerlink" href="#recommended-workflow" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Update the relevant template(s) in <code class="docutils literal notranslate"><span class="pre">deploy/</span></code>.</p></li>
+<li><p>If dependency behavior changes, bump <code class="docutils literal notranslate"><span class="pre">polaris/version.py</span></code> as appropriate.</p></li>
+<li><p>Re-run deployment locally to validate:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>--recreate
 </pre></div>
 </div>
-<p>We choose to define these “pinned” versions in the config file so that
-developers can override them with their own config file (which might be
-convenient for testing) and so that we can easily reference these versions in
-multiple places during the deployment workflow if needed.</p>
-<p><strong>Note:</strong> We treat the MOAB package as a special case with different versions
-from conda-forge (<code class="docutils literal notranslate"><span class="pre">conda_moab</span></code>) and Spack (<code class="docutils literal notranslate"><span class="pre">spack_moab</span></code>).  This is because
-MOAB has infrequent releases and, in the past, we have need features and bug
-fixes that are only available from the <code class="docutils literal notranslate"><span class="pre">master</span></code> branch. Since the <code class="docutils literal notranslate"><span class="pre">master</span></code>
-version is not available on conda-forge, when we need the latest MOAB features
-on machines with spack support, we still must fall back on the latest release
-for use on login nodes and unsupported machines.</p>
-<p>Some versions defined in <code class="docutils literal notranslate"><span class="pre">default.cfg</span></code> apply to both Conda and Spack package:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># versions of conda or spack packages (depending on machine type)</span>
-<span class="na">esmf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8.8.1</span>
-<span class="na">metis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5.1.0</span>
-<span class="na">netcdf_c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.9.2</span>
-<span class="na">netcdf_fortran</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.6.2</span>
-<span class="na">pnetcdf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.14.0</span>
+</li>
+<li><p>If Spack dependencies changed, test with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>--deploy-spack<span class="w"> </span>--recreate
 </pre></div>
 </div>
-<p>If those get updated, you will probably need to deploy new shared Spack
-environments, meaning you will need to follow the full
-<a class="reference internal" href="updating_spack/workflow.html"><span class="std std-doc">Spack Deployment Workflow</span></a>.</p>
+</li>
+<li><p>Run required suites/tests for your machine and component.</p></li>
+</ol>
+<p>If Spack dependencies changed in a way that affects shared machine deployments,
+follow the full workflow in <a class="reference internal" href="updating_spack/index.html#dev-updating-spack"><span class="std std-ref">Updating Shared Spack Environments</span></a>.</p>
 </section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Miniforge/Micromamba/Miniconda are no longer required for deployment.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> can install pixi when needed.</p></li>
+<li><p>For machine-specific Spack updates, coordinate with maintainers via the
+process described in <a class="reference internal" href="updating_spack/index.html#dev-updating-spack"><span class="std std-ref">Updating Shared Spack Environments</span></a>.</p></li>
+</ul>
 </section>
 </section>
 

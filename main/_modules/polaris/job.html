@@ -69,7 +69,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -113,6 +113,9 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">jinja2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span> <span class="k">as</span> <span class="n">Template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parallel_system</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel.pbs</span><span class="w"> </span><span class="kn">import</span> <span class="n">PbsSystem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel.slurm</span><span class="w"> </span><span class="kn">import</span> <span class="n">SlurmSystem</span>
 
 
 <div class="viewcode-block" id="write_job_script">
@@ -124,6 +127,8 @@
     <span class="n">nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">target_cores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">min_cores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">target_gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">min_gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">suite</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
     <span class="n">script_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">run_command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -154,6 +159,14 @@
 <span class="sd">        The minimum number of cores for the job to use if ``nodes`` not</span>
 <span class="sd">        provided</span>
 
+<span class="sd">    target_gpus : int, optional</span>
+<span class="sd">        The target number of GPUs for the job to use if ``nodes`` not</span>
+<span class="sd">        provided</span>
+
+<span class="sd">    min_gpus : int, optional</span>
+<span class="sd">        The minimum number of GPUs for the job to use if ``nodes`` not</span>
+<span class="sd">        provided</span>
+
 <span class="sd">    suite : str, optional</span>
 <span class="sd">        The name of the suite</span>
 
@@ -165,21 +178,60 @@
 <span class="sd">        The command(s) to run in the job script. If not provided, defaults to</span>
 <span class="sd">        &#39;polaris serial {{suite}}&#39;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">combined</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">combine</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">config</span><span class="o">.</span><span class="n">combined</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="n">parallel_system</span> <span class="o">=</span> <span class="n">get_parallel_system</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">combined</span><span class="p">)</span>
+
+    <span class="n">requested_nodes</span> <span class="o">=</span> <span class="n">nodes</span>
 
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;account&#39;</span><span class="p">):</span>
         <span class="n">account</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;account&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">account</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
+    <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">get_config_int</span><span class="p">(</span><span class="s1">&#39;cores_per_node&#39;</span><span class="p">)</span>
+    <span class="n">gpus_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">get_config_int</span><span class="p">(</span><span class="s1">&#39;gpus_per_node&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">use_gpu_nodes</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="n">nodes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">target_cores</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">min_cores</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s1">&#39;If nodes is not provided, both target_cores and min_cores &#39;</span>
                 <span class="s1">&#39;must be provided.&#39;</span>
             <span class="p">)</span>
-        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;cores_per_node&#39;</span><span class="p">)</span>
-        <span class="n">cores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">target_cores</span> <span class="o">*</span> <span class="n">min_cores</span><span class="p">)</span>
-        <span class="n">nodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">cores</span> <span class="o">/</span> <span class="n">cores_per_node</span><span class="p">))</span>
+
+        <span class="n">use_gpu_nodes</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">gpus_per_node</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="ow">and</span> <span class="n">target_gpus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">min_gpus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="nb">max</span><span class="p">(</span><span class="n">target_gpus</span><span class="p">,</span> <span class="n">min_gpus</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">use_gpu_nodes</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">target_gpus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">assert</span> <span class="n">min_gpus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">gpus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">target_gpus</span> <span class="o">*</span> <span class="n">min_gpus</span><span class="p">)</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">gpus</span> <span class="o">/</span> <span class="n">gpus_per_node</span><span class="p">))</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cores_per_node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;cores_per_node must be set when computing nodes from &#39;</span>
+                    <span class="s1">&#39;CPU resources&#39;</span>
+                <span class="p">)</span>
+            <span class="n">cores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">target_cores</span> <span class="o">*</span> <span class="n">min_cores</span><span class="p">)</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">cores</span> <span class="o">/</span> <span class="n">cores_per_node</span><span class="p">))</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">requested_nodes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">requested_nodes</span> <span class="o">=</span> <span class="n">nodes</span>
+
+    <span class="n">min_nodes_allowed</span> <span class="o">=</span> <span class="n">_get_min_nodes_allowed</span><span class="p">(</span>
+        <span class="n">cores_per_node</span><span class="o">=</span><span class="n">cores_per_node</span><span class="p">,</span>
+        <span class="n">gpus_per_node</span><span class="o">=</span><span class="n">gpus_per_node</span><span class="p">,</span>
+        <span class="n">min_cores</span><span class="o">=</span><span class="n">min_cores</span><span class="p">,</span>
+        <span class="n">min_gpus</span><span class="o">=</span><span class="n">min_gpus</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="c1"># Determine parallel system type</span>
     <span class="n">system</span> <span class="o">=</span> <span class="p">(</span>
@@ -190,10 +242,22 @@
 
     <span class="n">render_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
+    <span class="n">desired_wall_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;wall_time&#39;</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span><span class="p">:</span>
-        <span class="n">partition</span><span class="p">,</span> <span class="n">qos</span><span class="p">,</span> <span class="n">constraint</span><span class="p">,</span> <span class="n">gpus_per_node</span><span class="p">,</span> <span class="n">wall_time</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">get_slurm_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
+        <span class="p">(</span>
+            <span class="n">partition</span><span class="p">,</span>
+            <span class="n">qos</span><span class="p">,</span>
+            <span class="n">constraint</span><span class="p">,</span>
+            <span class="n">gpus_per_node</span><span class="p">,</span>
+            <span class="n">max_wallclock</span><span class="p">,</span>
+            <span class="n">nodes</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">SlurmSystem</span><span class="o">.</span><span class="n">get_slurm_options</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">combined</span><span class="p">,</span>
+            <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
+            <span class="n">min_nodes_allowed</span><span class="o">=</span><span class="n">min_nodes_allowed</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">wall_time</span> <span class="o">=</span> <span class="n">_cap_wall_time</span><span class="p">(</span><span class="n">desired_wall_time</span><span class="p">,</span> <span class="n">max_wallclock</span><span class="p">)</span>
         <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;job_script.slurm.template&#39;</span>
         <span class="n">render_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
             <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
@@ -203,9 +267,19 @@
             <span class="n">wall_time</span><span class="o">=</span><span class="n">wall_time</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;pbs&#39;</span><span class="p">:</span>
-        <span class="n">queue</span><span class="p">,</span> <span class="n">constraint</span><span class="p">,</span> <span class="n">gpus_per_node</span><span class="p">,</span> <span class="n">wall_time</span><span class="p">,</span> <span class="n">filesystems</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">get_pbs_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
+        <span class="p">(</span>
+            <span class="n">queue</span><span class="p">,</span>
+            <span class="n">constraint</span><span class="p">,</span>
+            <span class="n">gpus_per_node</span><span class="p">,</span>
+            <span class="n">max_wallclock</span><span class="p">,</span>
+            <span class="n">filesystems</span><span class="p">,</span>
+            <span class="n">nodes</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">PbsSystem</span><span class="o">.</span><span class="n">get_pbs_options</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">combined</span><span class="p">,</span>
+            <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
+            <span class="n">min_nodes_allowed</span><span class="o">=</span><span class="n">min_nodes_allowed</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">wall_time</span> <span class="o">=</span> <span class="n">_cap_wall_time</span><span class="p">(</span><span class="n">desired_wall_time</span><span class="p">,</span> <span class="n">max_wallclock</span><span class="p">)</span>
         <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;job_script.pbs.template&#39;</span>
         <span class="n">render_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
             <span class="n">queue</span><span class="o">=</span><span class="n">queue</span><span class="p">,</span>
@@ -221,6 +295,12 @@
     <span class="n">job_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;job_name&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">job_name</span> <span class="o">==</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
         <span class="n">job_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;polaris</span><span class="si">{</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">suite</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">suite</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="k">if</span> <span class="n">requested_nodes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">requested_nodes</span> <span class="o">!=</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Adjusted node count from </span><span class="si">{</span><span class="n">requested_nodes</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="n">nodes</span><span class="si">}</span><span class="s1"> for &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;machine </span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1"> based on scheduler node limits.&#39;</span>
+        <span class="p">)</span>
 
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span>
         <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;polaris.job&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">template_name</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
@@ -247,166 +327,59 @@
 
 
 
-<div class="viewcode-block" id="get_slurm_options">
-<a class="viewcode-back" href="../../developers_guide/generated/polaris.job.get_slurm_options.html#polaris.job.get_slurm_options">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_slurm_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get Slurm options for job submission.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    config : polaris.config.PolarisConfigParser</span>
-<span class="sd">        Configuration options for this test case, a combination of user configs</span>
-<span class="sd">        and the defaults for the machine and component.</span>
-
-<span class="sd">    machine : str</span>
-<span class="sd">        The name of the machine.</span>
-
-<span class="sd">    nodes : int</span>
-<span class="sd">        The number of nodes required for the job.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    partition : str</span>
-<span class="sd">        The partition to use for the job.</span>
-
-<span class="sd">    qos : str</span>
-<span class="sd">        The quality of service to use for the job.</span>
-
-<span class="sd">    constraint : str</span>
-<span class="sd">        Any constraints to use for the job.</span>
-
-<span class="sd">    gpus_per_node : str</span>
-<span class="sd">        The number of GPUs per node to request.</span>
-
-<span class="sd">    wall_time : str</span>
-<span class="sd">        The wall time to request for the job.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">partition</span><span class="p">,</span> <span class="n">qos</span><span class="p">,</span> <span class="n">constraint</span><span class="p">,</span> <span class="n">gpus_per_node</span><span class="p">,</span> <span class="n">wall_time</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_get_job_options</span><span class="p">(</span>
-        <span class="n">config</span><span class="p">,</span>
-        <span class="n">machine</span><span class="p">,</span>
-        <span class="n">nodes</span><span class="p">,</span>
-        <span class="n">partition_or_queue_option</span><span class="o">=</span><span class="s1">&#39;partition&#39;</span><span class="p">,</span>
-        <span class="n">partitions_or_queues</span><span class="o">=</span><span class="s1">&#39;partitions&#39;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">partition</span><span class="p">,</span> <span class="n">qos</span><span class="p">,</span> <span class="n">constraint</span><span class="p">,</span> <span class="n">gpus_per_node</span><span class="p">,</span> <span class="n">wall_time</span></div>
-
-
-
-<div class="viewcode-block" id="get_pbs_options">
-<a class="viewcode-back" href="../../developers_guide/generated/polaris.job.get_pbs_options.html#polaris.job.get_pbs_options">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_pbs_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get PBS options for job submission.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    config : polaris.config.PolarisConfigParser</span>
-<span class="sd">        Configuration options for this test case, a combination of user configs</span>
-<span class="sd">        and the defaults for the machine and component.</span>
-
-<span class="sd">    machine : str</span>
-<span class="sd">        The name of the machine.</span>
-
-<span class="sd">    nodes : int</span>
-<span class="sd">        The number of nodes required for the job.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    queue : str</span>
-<span class="sd">        The queue to use for the job.</span>
-
-<span class="sd">    constraint : str</span>
-<span class="sd">        Any constraints to use for the job.</span>
-
-<span class="sd">    gpus_per_node : str</span>
-<span class="sd">        The number of GPUs per node to request.</span>
-
-<span class="sd">    wall_time : str</span>
-<span class="sd">        The wall time to request for the job.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">queue</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">constraint</span><span class="p">,</span> <span class="n">gpus_per_node</span><span class="p">,</span> <span class="n">wall_time</span><span class="p">,</span> <span class="n">filesystems</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">_get_job_options</span><span class="p">(</span>
-            <span class="n">config</span><span class="p">,</span>
-            <span class="n">machine</span><span class="p">,</span>
-            <span class="n">nodes</span><span class="p">,</span>
-            <span class="n">partition_or_queue_option</span><span class="o">=</span><span class="s1">&#39;queue&#39;</span><span class="p">,</span>
-            <span class="n">partitions_or_queues</span><span class="o">=</span><span class="s1">&#39;queues&#39;</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">queue</span><span class="p">,</span> <span class="n">constraint</span><span class="p">,</span> <span class="n">gpus_per_node</span><span class="p">,</span> <span class="n">wall_time</span><span class="p">,</span> <span class="n">filesystems</span></div>
-
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_job_options</span><span class="p">(</span>
-    <span class="n">config</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">partition_or_queue_option</span><span class="p">,</span> <span class="n">partitions_or_queues</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_min_nodes_allowed</span><span class="p">(</span>
+    <span class="n">cores_per_node</span><span class="p">,</span>
+    <span class="n">gpus_per_node</span><span class="p">,</span>
+    <span class="n">min_cores</span><span class="p">,</span>
+    <span class="n">min_gpus</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Helper to get job options for slurm or pbs</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the minimum feasible nodes from minimum requested resources.&quot;&quot;&quot;</span>
+    <span class="n">minima</span> <span class="o">=</span> <span class="p">[]</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    config : polaris.config.PolarisConfigParser</span>
-<span class="sd">    machine : str</span>
-<span class="sd">    nodes : int</span>
-<span class="sd">    partition_or_queue_option : str</span>
-<span class="sd">        &#39;partition&#39; for slurm, &#39;queue&#39; for pbs</span>
-<span class="sd">    partitions_or_queues : str</span>
-<span class="sd">        &#39;partitions&#39; for slurm, &#39;queues&#39; for pbs</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">min_cores</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="n">cores_per_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="n">cores_per_node</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="p">):</span>
+        <span class="n">minima</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">min_cores</span> <span class="o">/</span> <span class="n">cores_per_node</span><span class="p">)),</span> <span class="mi">1</span><span class="p">))</span>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    partition_or_queue : str</span>
-<span class="sd">    qos : str</span>
-<span class="sd">    constraint : str</span>
-<span class="sd">    gpus_per_node : str</span>
-<span class="sd">    wall_time : str</span>
-<span class="sd">    filesystems : str</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">min_gpus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="n">gpus_per_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="n">gpus_per_node</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="p">):</span>
+        <span class="n">minima</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">min_gpus</span> <span class="o">/</span> <span class="n">gpus_per_node</span><span class="p">)),</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">minima</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">minima</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_wallclock_to_seconds</span><span class="p">(</span><span class="n">wallclock</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert HH:MM:SS wall-clock string to total seconds, or None.&quot;&quot;&quot;</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">wallclock</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">3600</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_cap_wall_time</span><span class="p">(</span><span class="n">desired</span><span class="p">,</span> <span class="n">max_wallclock</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return desired wall time, capped at max_wallclock if it is smaller.</span>
+
+<span class="sd">    Defaults to desired if max_wallclock is empty or cannot be parsed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">par_section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;parallel&#39;</span><span class="p">]</span>
-    <span class="n">job_section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;job&#39;</span><span class="p">]</span>
-    <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="n">job_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">partition_or_queue_option</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">partition_or_queue</span> <span class="o">==</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">par_section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">partitions_or_queues</span><span class="p">):</span>
-            <span class="c1"># get the first, which is the default</span>
-            <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="n">par_section</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="n">partitions_or_queues</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">partition_or_queue</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-
-    <span class="n">qos</span> <span class="o">=</span> <span class="n">job_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;qos&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">qos</span> <span class="o">==</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">par_section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;qos&#39;</span><span class="p">):</span>
-            <span class="n">qos</span> <span class="o">=</span> <span class="n">par_section</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;qos&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">qos</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-
-    <span class="n">constraint</span> <span class="o">=</span> <span class="n">job_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;constraint&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">constraint</span> <span class="o">==</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">par_section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;constraints&#39;</span><span class="p">):</span>
-            <span class="n">constraint</span> <span class="o">=</span> <span class="n">par_section</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;constraints&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">constraint</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-
-    <span class="k">if</span> <span class="n">par_section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;gpus_per_node&#39;</span><span class="p">):</span>
-        <span class="n">gpus_per_node</span> <span class="o">=</span> <span class="n">par_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gpus_per_node&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">gpus_per_node</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-
-    <span class="n">wall_time</span> <span class="o">=</span> <span class="n">job_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;wall_time&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">job_section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;filesystems&#39;</span><span class="p">):</span>
-        <span class="n">filesystems</span> <span class="o">=</span> <span class="n">job_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;filesystems&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">filesystems</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="n">partition_or_queue</span><span class="p">,</span>
-        <span class="n">qos</span><span class="p">,</span>
-        <span class="n">constraint</span><span class="p">,</span>
-        <span class="n">gpus_per_node</span><span class="p">,</span>
-        <span class="n">wall_time</span><span class="p">,</span>
-        <span class="n">filesystems</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">max_wallclock</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">desired</span>
+    <span class="n">desired_secs</span> <span class="o">=</span> <span class="n">_wallclock_to_seconds</span><span class="p">(</span><span class="n">desired</span><span class="p">)</span>
+    <span class="n">max_secs</span> <span class="o">=</span> <span class="n">_wallclock_to_seconds</span><span class="p">(</span><span class="n">max_wallclock</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">desired_secs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_secs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">desired</span>
+    <span class="k">if</span> <span class="n">desired_secs</span> <span class="o">&lt;=</span> <span class="n">max_secs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">desired</span>
+    <span class="k">return</span> <span class="n">max_wallclock</span>
 </pre></div>
 
            </div>

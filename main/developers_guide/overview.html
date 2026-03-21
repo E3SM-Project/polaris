@@ -88,7 +88,7 @@
 <li class="toctree-l1"><a class="reference internal" href="building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
@@ -155,7 +155,7 @@ automatically flags PEP8 violations during code development, such as
 reformatting your code (e.g. with <a class="reference external" href="https://github.com/hhatto/autopep8">autopep8</a>)
 because this can often produce undesirable and confusing results.</p>
 <p>The <a class="reference external" href="https://flake8.pycqa.org/en/latest/">flake8</a> utility for linting python
-files to the PEP8 standard is included in the POLARIS conda environment. To use
+files to the PEP8 standard is included in the POLARIS deployment environment. To use
 flake8, just run <code class="docutils literal notranslate"><span class="pre">flake8</span></code> from any directory and it will return lint results
 for all files recursively through all subdirectories.  You can also run it for a
 single file or using wildcards (e.g., <code class="docutils literal notranslate"><span class="pre">flake8</span> <span class="pre">*.py</span></code>).  There also is a
@@ -315,9 +315,10 @@ downloading files from the
 and creating symlinks; <code class="docutils literal notranslate"><span class="pre">polaris.validation</span></code> can be used to ensure that
 variables are bit-for-bit identical between steps or when compared with a
 baseline, and to compare timers with a baseline; and the
-<code class="docutils literal notranslate"><span class="pre">polaris.parallel</span></code> module contains a function
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.parallel.get_available_cores_and_nodes()</span></code> that can find out
-the number of total cores and nodes available for running steps.</p>
+parallel framework uses <code class="docutils literal notranslate"><span class="pre">mache.parallel</span></code> through component methods such as
+<a class="reference internal" href="generated/polaris.Component.get_available_resources.html#polaris.Component.get_available_resources" title="polaris.Component.get_available_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.get_available_resources()</span></code></a> and
+<a class="reference internal" href="generated/polaris.Component.run_parallel_command.html#polaris.Component.run_parallel_command" title="polaris.Component.run_parallel_command"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.run_parallel_command()</span></code></a> to determine available
+resources and launch parallel commands.</p>
 </section>
 <section id="within-a-component">
 <h3>…within a component<a class="headerlink" href="#within-a-component" title="Link to this heading"></a></h3>

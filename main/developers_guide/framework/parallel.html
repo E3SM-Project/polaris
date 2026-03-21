@@ -75,8 +75,10 @@
 <li class="toctree-l2"><a class="reference internal" href="build.html">Build utilities</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Parallel</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#public-api">Public API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compiler-specific-parallel-configs">Compiler-specific parallel configs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gpu-resources">GPU resources</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#supported-parallel-systems">Supported Parallel Systems</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#adding-support-for-a-new-parallel-system">Adding Support for a New Parallel System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#notes">Notes</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="provenance.html">Provenance</a></li>
@@ -92,7 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -133,67 +135,72 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="parallel">
 <span id="dev-parallel"></span><h1>Parallel<a class="headerlink" href="#parallel" title="Link to this heading"></a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">polaris.parallel</span></code> module provides a unified interface for querying and managing parallel resources across different computing environments. It abstracts the details of various parallel systems, allowing tasks and steps to request resources and construct parallel execution commands in a system-agnostic way.</p>
+<p>Polaris now uses <code class="docutils literal notranslate"><span class="pre">mache.parallel</span></code> for parallel-system selection, resource
+discovery and launcher command construction.</p>
+<p>Within Polaris, a component stores a <code class="docutils literal notranslate"><span class="pre">mache.parallel.ParallelSystem</span></code>
+instance with <a class="reference internal" href="../generated/polaris.Component.set_parallel_system.html#polaris.Component.set_parallel_system" title="polaris.Component.set_parallel_system"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.set_parallel_system()</span></code></a>, then uses it
+for:</p>
+<ul class="simple">
+<li><p>resource queries through <a class="reference internal" href="../generated/polaris.Component.get_available_resources.html#polaris.Component.get_available_resources" title="polaris.Component.get_available_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.get_available_resources()</span></code></a></p></li>
+<li><p>command execution through
+<a class="reference internal" href="../generated/polaris.Component.run_parallel_command.html#polaris.Component.run_parallel_command" title="polaris.Component.run_parallel_command"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.run_parallel_command()</span></code></a></p></li>
+</ul>
+<p>This change adds stronger GPU support, supports compiler-specific parallel
+sections (<code class="docutils literal notranslate"><span class="pre">[parallel.&lt;compiler&gt;]</span></code>) and avoids modifying config options during
+runtime.</p>
 <section id="public-api">
 <h2>Public API<a class="headerlink" href="#public-api" title="Link to this heading"></a></h2>
-<p>The following functions are available in <code class="docutils literal notranslate"><span class="pre">polaris.parallel</span></code>:</p>
+<p>The key APIs are now:</p>
 <ul class="simple">
-<li><p><strong>get_available_parallel_resources(config):</strong>
-Returns a dictionary describing the available parallel resources (cores, nodes, cores per node, etc.) for the current environment, as determined by the selected parallel system.</p></li>
-<li><p><strong>set_cores_per_node(config, cores_per_node):</strong>
-Sets the number of cores per node in the configuration, updating any relevant settings for the current parallel system.</p></li>
-<li><p><strong>get_parallel_command(args, cpus_per_task, ntasks, config):</strong>
-Returns the command (as a list of strings) to launch a parallel job with the specified arguments, CPUs per task, and number of tasks, using the appropriate parallel launcher for the current system.</p></li>
-<li><p><strong>run_command(args, cpus_per_task, ntasks, openmp_threads, config, logger):</strong>
-Runs a parallel command with the specified resources and OpenMP thread count, using the appropriate launcher and logging output.</p></li>
+<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">mache.parallel.get_parallel_system()</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">mache.parallel.ParallelSystem</span></code></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.Component.set_parallel_system.html#polaris.Component.set_parallel_system" title="polaris.Component.set_parallel_system"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.set_parallel_system()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.Component.get_available_resources.html#polaris.Component.get_available_resources" title="polaris.Component.get_available_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.get_available_resources()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.Component.run_parallel_command.html#polaris.Component.run_parallel_command" title="polaris.Component.run_parallel_command"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.run_parallel_command()</span></code></a></p></li>
 </ul>
-<p>See also the API documentation for:</p>
+<p><code class="docutils literal notranslate"><span class="pre">ParallelSystem.get_parallel_command()</span></code> supports both CPU and GPU resources
+through <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">gpus_per_task</span></code>.</p>
+</section>
+<section id="compiler-specific-parallel-configs">
+<h2>Compiler-specific parallel configs<a class="headerlink" href="#compiler-specific-parallel-configs" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">mache.parallel</span></code> combines options in <code class="docutils literal notranslate"><span class="pre">[parallel]</span></code> with
+<code class="docutils literal notranslate"><span class="pre">[parallel.&lt;compiler&gt;]</span></code> (if present), where <code class="docutils literal notranslate"><span class="pre">&lt;compiler&gt;</span></code> comes from
+<code class="docutils literal notranslate"><span class="pre">[build]</span> <span class="pre">compiler</span></code>.</p>
+<p>This lets machine configs specify different launcher flags and resource options
+for different compiler toolchains without requiring a single machine-wide
+parallel configuration.</p>
+</section>
+<section id="gpu-resources">
+<h2>GPU resources<a class="headerlink" href="#gpu-resources" title="Link to this heading"></a></h2>
+<p>Polaris step resources now include GPU requirements (<code class="docutils literal notranslate"><span class="pre">gpus_per_task</span></code> and
+<code class="docutils literal notranslate"><span class="pre">min_gpus_per_task</span></code>) in addition to CPU requirements. Resource constraints use
+both CPU and GPU availability when determining whether a step can run.</p>
+<p>For ocean model steps with dynamic sizing, Omega runs on GPU-capable compiler
+configs use:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="../generated/polaris.parallel.get_available_parallel_resources.html#polaris.parallel.get_available_parallel_resources" title="polaris.parallel.get_available_parallel_resources"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.parallel.get_available_parallel_resources()</span></code></a></p></li>
-<li><p><a class="reference internal" href="../generated/polaris.parallel.set_cores_per_node.html#polaris.parallel.set_cores_per_node" title="polaris.parallel.set_cores_per_node"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.parallel.set_cores_per_node()</span></code></a></p></li>
-<li><p><a class="reference internal" href="../generated/polaris.parallel.get_parallel_command.html#polaris.parallel.get_parallel_command" title="polaris.parallel.get_parallel_command"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.parallel.get_parallel_command()</span></code></a></p></li>
-<li><p><a class="reference internal" href="../generated/polaris.parallel.run_command.html#polaris.parallel.run_command" title="polaris.parallel.run_command"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.parallel.run_command()</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">goal_cells_per_gpu</span></code> (target; default 8000)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_cells_per_gpu</span></code> (minimum required resources; default 80000)</p></li>
 </ul>
 </section>
 <section id="supported-parallel-systems">
 <h2>Supported Parallel Systems<a class="headerlink" href="#supported-parallel-systems" title="Link to this heading"></a></h2>
-<p>The module currently supports four parallel systems, each with its own resource manager class:</p>
+<p>The active system is still selected from <code class="docutils literal notranslate"><span class="pre">[parallel]</span> <span class="pre">system</span></code> and environment
+context (<code class="docutils literal notranslate"><span class="pre">slurm</span></code>, <code class="docutils literal notranslate"><span class="pre">pbs</span></code>, <code class="docutils literal notranslate"><span class="pre">single_node</span></code>, <code class="docutils literal notranslate"><span class="pre">login</span></code>) but implementation is in
+<code class="docutils literal notranslate"><span class="pre">mache.parallel</span></code>:</p>
 <ul class="simple">
-<li><p><strong>single_node:</strong>
-For running on a single node, using all available local CPU cores.
-Managed by <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.parallel.SingleNodeSystem</span></code>.</p></li>
-<li><p><strong>login:</strong>
-For running on a login node (no parallel execution, typically for setup or analysis).
-Managed by <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.parallel.LoginSystem</span></code>.</p></li>
-<li><p><strong>slurm:</strong>
-For running under the SLURM workload manager, using environment variables and SLURM commands to determine resources.
-Managed by <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.parallel.SlurmSystem</span></code>.</p></li>
-<li><p><strong>pbs:</strong>
-For running under the PBS workload manager, using environment variables and PBS node files to determine resources.
-Managed by <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.parallel.PbsSystem</span></code>.</p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">mache.parallel.SingleNodeSystem</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">mache.parallel.LoginSystem</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">mache.parallel.SlurmSystem</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">mache.parallel.PbsSystem</span></code></p></li>
 </ul>
-<p>The appropriate system is selected automatically based on the configuration and environment variables.</p>
 </section>
-<section id="adding-support-for-a-new-parallel-system">
-<h2>Adding Support for a New Parallel System<a class="headerlink" href="#adding-support-for-a-new-parallel-system" title="Link to this heading"></a></h2>
-<p>To add a new parallel system:</p>
-<ol class="arabic simple">
-<li><p><strong>Create a new system class:</strong>
-Subclass <code class="docutils literal notranslate"><span class="pre">ParallelSystem</span></code> in <code class="docutils literal notranslate"><span class="pre">polaris/parallel/</span></code>, implementing the following methods:</p>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">get_available_resources(self)</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">set_cores_per_node(self,</span> <span class="pre">cores_per_node)</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">get_parallel_command(self,</span> <span class="pre">args,</span> <span class="pre">cpus_per_task,</span> <span class="pre">ntasks)</span></code></p></li>
+<li><p>Polaris no longer provides a <code class="docutils literal notranslate"><span class="pre">polaris.parallel</span></code> module.</p></li>
+<li><p>Runtime no longer rewrites <code class="docutils literal notranslate"><span class="pre">cores_per_node</span></code> in config files.</p></li>
+<li><p>Machine and compiler config should provide the desired parallel options.</p></li>
 </ul>
-</li>
-<li><p><strong>Handle environment detection:</strong>
-In your new system class, use environment variables or other mechanisms to detect when your system should be active.</p></li>
-<li><p><strong>Register the new system:</strong>
-Update the logic in <code class="docutils literal notranslate"><span class="pre">polaris/parallel/__init__.py</span></code> (the <code class="docutils literal notranslate"><span class="pre">_get_system</span></code> function) to recognize your new system based on the config or environment, and return an instance of your new class.</p></li>
-<li><p><strong>(Optional) Add documentation:</strong>
-Update this documentation page to describe your new system and its usage.</p></li>
-</ol>
-<p>By following this structure, you can extend Polaris to support additional parallel resource managers or custom environments as needed.</p>
 </section>
 </section>
 

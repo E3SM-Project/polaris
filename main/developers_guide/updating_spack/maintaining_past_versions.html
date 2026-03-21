@@ -72,7 +72,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Updating Shared Spack Environments</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="workflow.html">Overview of the Workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="updating_packages.html">Updating Spack Dependencies</a></li>
@@ -176,7 +176,7 @@ best judgment and document removals in issues on the Polaris repo.</p>
 used only during internal testing and should be removed when they are no longer
 needed to free up disk space.  They should be in the maintainers own scratch
 space in any case.</p>
-<p>You can also delete your own Polaris conda environments whenever you need to
+<p>You can also delete your own Polaris deployment environments whenever you need to
 free up space for your own use.</p>
 </section>
 <section id="intermediate-build-artifacts">
@@ -198,14 +198,14 @@ save space.</p>
 <ol class="arabic">
 <li><p>Checkout the appropriate commit in the Polaris repo (perhaps the release
 tag, e.g. <code class="docutils literal notranslate"><span class="pre">0.7.0</span></code>)</p></li>
-<li><p>Use <code class="docutils literal notranslate"><span class="pre">configure_polaris_envs.py</span></code> as usual, since Polaris will notice the
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">deploy.py</span></code> as usual, since Polaris will notice the
 older version in <code class="docutils literal notranslate"><span class="pre">polaris/version.py</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>~/miniforge3<span class="w"> </span>--recreate<span class="w"> </span>--update_spack<span class="w"> </span>...
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>--recreate<span class="w"> </span>--deploy-spack<span class="w"> </span>...
 </pre></div>
 </div>
 </li>
 </ol>
-<p>You may run into difficulty solving for older conda environments e.g. because
+<p>You may run into difficulty solving for older deployment environments e.g. because
 of missing system modules.  At some point, it may simply not be possible to
 recreate older Polaris Spack environments because of this.</p>
 </section>

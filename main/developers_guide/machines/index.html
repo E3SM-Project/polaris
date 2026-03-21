@@ -90,7 +90,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -138,19 +138,19 @@ file to  describe your machine.  Then, polaris can use this data to make sure
 test  cases are configured in a way that is appropriate for your machine.</p>
 <section id="supported-machines">
 <span id="dev-supported-machines"></span><h2>Supported Machines<a class="headerlink" href="#supported-machines" title="Link to this heading"></a></h2>
-<p>If you follow the procedure in <a class="reference internal" href="../quick_start.html#dev-conda-env"><span class="std std-ref">polaris conda environment, spack environment, compilers and system modules</span></a>, you will have an
-activation script for activating the development conda environment, setting
+<p>If you follow the procedure in <a class="reference internal" href="../quick_start.html#dev-conda-env"><span class="std std-ref">Polaris pixi and spack environments, compilers and system modules</span></a>, you will have an
+activation script for activating the development environment, setting
 loading system modules and setting environment variables so you can build
 Omega or an MPAS component and work with polaris.  Just source the script that
 should appear in the base of your polaris branch, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_dev_polaris_0.10.0-alpha.1_chrysalis_intel_openmpi.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_chrysalis_intel_openmpi.sh
 </pre></div>
 </div>
 <p>After loading this environment, you can set up tasks or suites, and
 a link <code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> will be included in each suite or task
 work directory.  This is a link to the activation script that you sourced when
 you were setting things up.  You can can source this file on a compute node
-(e.g. in a job script) to get the right polaris conda environment, compilers,
+(e.g. in a job script) to get the right polaris deployment environment, compilers,
 MPI libraries and environment variables for running polaris tasks and
 the MPAS model.</p>
 <p>Below are specifics for each supported machine</p>
@@ -269,21 +269,19 @@ E3SM default for the given machine an compiler.</p>
 <section id="other-machines">
 <span id="dev-other-machines"></span><h2>Other Machines<a class="headerlink" href="#other-machines" title="Link to this heading"></a></h2>
 <p>If you are working on an “unknown” machine, the procedure is pretty similar
-to what was described in <a class="reference internal" href="../quick_start.html#dev-conda-env"><span class="std std-ref">polaris conda environment, spack environment, compilers and system modules</span></a>.  The main difference is that
-we will use <code class="docutils literal notranslate"><span class="pre">mpich</span></code> or <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> and the gnu compilers from conda-forge
-rather than system compilers.  To create a development conda environment and
-an activation script for it, on Linux, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>-c<span class="w"> </span>gnu<span class="w"> </span>-i<span class="w"> </span>mpich
+to what was described in <a class="reference internal" href="../quick_start.html#dev-conda-env"><span class="std std-ref">Polaris pixi and spack environments, compilers and system modules</span></a>. In general, use <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code>
+to create a local pixi environment and load scripts. For example, on Linux run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>--compiler<span class="w"> </span>gnu<span class="w"> </span>--mpi<span class="w"> </span>mpich
 </pre></div>
 </div>
 <p>and on OSX run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>-c<span class="w"> </span>clang<span class="w"> </span>-i<span class="w"> </span>mpich
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>--compiler<span class="w"> </span>clang<span class="w"> </span>--mpi<span class="w"> </span>mpich
 </pre></div>
 </div>
 <p>You may use <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> instead of <code class="docutils literal notranslate"><span class="pre">mpich</span></code> but we have had better experiences
 with the latter.</p>
 <p>The result should be an activation script <code class="docutils literal notranslate"><span class="pre">load_dev_polaris_0.1.0-alpha.1_&lt;mpi&gt;.sh</span></code>.
-Source this script to get the appropriate conda environment and environment
+Source this script to get the appropriate deployment environment and environment
 variables.</p>
 <p>Under Linux, you can build the MPAS model with</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>gfortran
@@ -336,12 +334,12 @@ examples provided (machine <code class="docutils literal notranslate"><span clas
 <span class="c1"># A shared root directory where MPAS standalone data can be found</span>
 <span class="na">database_root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/home/xylar/data/polaris</span>
 
-<span class="c1"># the path to the base conda environment where polaris environments have</span>
+<span class="c1"># the path where deployed Polaris environments are located</span>
 <span class="c1"># been created</span>
 <span class="na">polaris_envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/home/xylar/data/polaris_envs</span>
 
 
-<span class="c1"># Options related to deploying a polaris conda environment on supported</span>
+<span class="c1"># Options related to deploying Polaris environments on supported</span>
 <span class="c1"># machines</span>
 <span class="k">[deploy]</span>
 
@@ -395,10 +393,10 @@ libraries aren’t being found when you try to build an MPAS component.</p>
 <p>In the <code class="docutils literal notranslate"><span class="pre">[paths]</span></code> section, you will first give a path where you would like
 to store shared data files used in polaris tasks in <code class="docutils literal notranslate"><span class="pre">database_root</span></code>.
 Polaris will create this directory if it doesn’t exist.  Then, you can specify
-<code class="docutils literal notranslate"><span class="pre">polaris_envs</span></code> as a path where shared conda environments will be installed
-for polaris releases.  If developers always create their own conda
+<code class="docutils literal notranslate"><span class="pre">polaris_envs</span></code> as a path where shared deployment environments will be installed
+for polaris releases.  If developers always create their own local
 environments, this path will never be used.</p>
-<p>In <code class="docutils literal notranslate"><span class="pre">[deploy]</span></code>, you will specify config options used in setting up conda
+<p>In <code class="docutils literal notranslate"><span class="pre">[deploy]</span></code>, you will specify config options used in setting up deployment
 and Spack environments for developers.  The <code class="docutils literal notranslate"><span class="pre">compiler</span></code> is the default
 compiler to use for your system.  You must supply a corresponding
 <code class="docutils literal notranslate"><span class="pre">mpi_&lt;compiler&gt;</span></code> for each supported compiler (not just the default compiler)
@@ -487,7 +485,7 @@ and correct it later if necessary.</p>
 libraries such as MPI, HDF5, and NetCDF-C if you prefer to use system modules
 rather than having Spack build them.  If this is the case, the best way to do
 this is to add a file
-<code class="docutils literal notranslate"><span class="pre">conda/spack/&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code> along these lines:</p>
+<code class="docutils literal notranslate"><span class="pre">deploy/spack/&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code> along these lines:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>purge
 module<span class="w"> </span>load<span class="w"> </span>perl/5.32.0-bsnc6lt
 module<span class="w"> </span>load<span class="w"> </span>gcc/9.2.0-ugetvbp
@@ -509,14 +507,15 @@ You can also add modules in your YAML file but this shouldn’t be necessary.</p
 <h3>Building the Spack Environment<a class="headerlink" href="#building-the-spack-environment" title="Link to this heading"></a></h3>
 <p>The next step is to try setting up polaris and asking it to build the Spack
 environment with a command something like:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">  </span>./configure_polaris_envs.py<span class="w"> </span>--verbose<span class="w"> </span>--update_spack<span class="w"> </span>--conda<span class="w"> </span>&lt;conda_path&gt;<span class="w"> </span>-c<span class="w"> </span>gnu<span class="w"> </span>-i<span class="w"> </span>openmpi<span class="w"> </span>...
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">  </span>./deploy.py<span class="w"> </span>--deploy-spack<span class="w"> </span>--compiler<span class="w"> </span>gnu<span class="w"> </span>--mpi<span class="w"> </span>openmpi<span class="w"> </span>...
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">--update_spack</span></code> flag tells polaris to create (or update) a Spack
+<p>The <code class="docutils literal notranslate"><span class="pre">--deploy-spack</span></code> flag tells polaris to create (or update) a Spack
 environment.  You can specify a directory for testing Spack with the
-<code class="docutils literal notranslate"><span class="pre">--spack</span></code> flag.  You can specify a temporary directory for building spack
-packages with <code class="docutils literal notranslate"><span class="pre">--tmpdir</span></code> (this directory must already exist).  This is useful
-if your <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> space is small (Spack will use several GB of temporary space).</p>
+<code class="docutils literal notranslate"><span class="pre">--spack-path</span></code> flag.  If needed, you can set a temporary directory for Spack
+builds through <code class="docutils literal notranslate"><span class="pre">spack.tmpdir</span></code> in <code class="docutils literal notranslate"><span class="pre">deploy/config.yaml.j2</span></code>.</p>
+<p>For additional deployment details, see the
+<a class="reference external" href="https://docs.e3sm.org/mache/main/developers_guide/deploy.html">mache deploy developer guide</a>.</p>
 <p>Creating the Spack environment may take anywhere from minutes to hours,
 depending on your system.</p>
 <p>If dependencies don’t build as expected, you may get an error message

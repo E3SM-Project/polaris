@@ -1,6 +1,0 @@
-﻿polaris.job.get\_slurm\_options
-===============================
-
-.. currentmodule:: polaris.job
-
-.. autofunction:: get_slurm_options

@@ -76,7 +76,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
@@ -150,9 +150,15 @@ running suites and task.</p>
 <span class="c1"># whether to use mpirun or srun to run the model</span>
 <span class="na">parallel_executable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpirun -host localhost</span>
 
-<span class="c1"># total cores on the machine (or cores on one node if it is a multinode</span>
-<span class="c1"># machine), detected automatically by default</span>
+<span class="c1"># total cores on one node</span>
 <span class="na">cores_per_node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8</span>
+
+<span class="c1"># GPUs per node (optional)</span>
+<span class="na">gpus_per_node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
+
+<span class="c1"># optional compiler-specific overrides</span>
+<span class="k">[parallel.gnu]</span>
+<span class="na">parallel_executable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpirun</span>
 </pre></div>
 </div>
 <p>The comments in this example are hopefully pretty self-explanatory.
@@ -180,7 +186,9 @@ to download and whether to check the size of files already downloaded)</p></li>
 <li><p>the <a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/machines">machine config file</a>
 (using <a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/machines/default.cfg">machines/default.cfg</a>
 if no machine was specified) with information on the parallel system and
-the paths to cached data files</p></li>
+the paths to cached data files. Parallel options can also come from
+compiler-specific sections such as <code class="docutils literal notranslate"><span class="pre">[parallel.gnu]</span></code> or <code class="docutils literal notranslate"><span class="pre">[parallel.intel]</span></code>
+(from mache machine configs)</p></li>
 <li><p>the component’s config file.  For the <a class="reference internal" href="ocean/index.html#ocean"><span class="std std-ref">Ocean component</span></a> core, this sets default
 paths to the MPAS-Ocean model build (including the namelist templates).  It
 uses
@@ -336,7 +344,7 @@ looks like:</p>
 
 <span class="c1"># The executables section defines paths to required executables. These</span>
 <span class="c1"># executables are provided for use by specific tasks.  Most tools that</span>
-<span class="c1"># polaris needs should be in the conda environment, so this is only the path</span>
+<span class="c1"># polaris needs should be in the deployment environment, so this is only the path</span>
 <span class="c1"># to the MPAS-Ocean executable by default.</span>
 <span class="k">[executables]</span>
 

@@ -87,7 +87,7 @@
 <li class="toctree-l1"><a class="reference internal" href="building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
@@ -131,10 +131,10 @@
 scripts: <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>, <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code>.  These are the primary user interface to the package, as
 described below.</p>
-<p>When the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package is installed into your conda environment, you can
+<p>When the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package is installed into your deployment environment, you can
 run these commands as above.  If you are developing polaris from a local
 branch off of <a class="reference external" href="https://github.com/E3SM-Project/polaris">https://github.com/E3SM-Project/polaris</a>, you will need to create a
-conda environment appropriate for development (see <a class="reference internal" href="quick_start.html#dev-conda-env"><span class="std std-ref">polaris conda environment, spack environment, compilers and system modules</span></a>).
+development environment appropriate for development (see <a class="reference internal" href="quick_start.html#dev-conda-env"><span class="std std-ref">Polaris pixi and spack environments, compilers and system modules</span></a>).
 If you do, polaris will be installed in the environment in “development”
 mode, meaning you can make changes to the branch and they will be reflected
 when you call the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> command-line tool.</p>

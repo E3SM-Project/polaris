@@ -69,9 +69,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#other-machines">Other Machines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#mpich">MPICH</a></li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#openmpi">OpenMPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#no-mpi-from-conda-forge">No MPI from conda-forge</a></li>
 </ul>
 </li>
 </ul>
@@ -92,7 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -147,19 +144,19 @@ salloc<span class="w"> </span>-A<span class="w"> </span>cli115<span class="w"> <
 <section id="config-options">
 <h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
 <p>Here are the default config options added when you have configured Polairs on
-a Frontier login node (or specified <code class="docutils literal notranslate"><span class="pre">./configure_polaris_envs.py</span> <span class="pre">-m</span> <span class="pre">frontier</span></code>):</p>
+a Frontier login node (or specified <code class="docutils literal notranslate"><span class="pre">./deploy.py</span> <span class="pre">--machine</span> <span class="pre">frontier</span></code>):</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># The paths section describes paths for data and environments</span>
 <span class="k">[paths]</span>
 
 <span class="c1"># A shared root directory where polaris data can be found</span>
 <span class="na">database_root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/lustre/orion/cli115/world-shared/polaris</span>
 
-<span class="c1"># the path to the base conda environment where polaris environments have</span>
+<span class="c1"># the path to deployed Polaris environments</span>
 <span class="c1"># been created</span>
 <span class="na">polaris_envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/ccs/proj/cli115/software/polaris/frontier/conda/base</span>
 
 
-<span class="c1"># Options related to deploying a polaris conda and spack environments</span>
+<span class="c1"># Options related to deploying Polaris and Spack environments</span>
 <span class="k">[deploy]</span>
 
 <span class="c1"># the compiler set to use for system libraries and MPAS builds</span>

@@ -1,6 +1,0 @@
-﻿polaris.parallel.get\_available\_parallel\_resources
-====================================================
-
-.. currentmodule:: polaris.parallel
-
-.. autofunction:: get_available_parallel_resources

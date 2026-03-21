@@ -72,7 +72,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
@@ -138,28 +138,26 @@ approach from <a class="reference internal" href="../../developers_guide/quick_s
 git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>add-my-overflow
 </pre></div>
 </div>
-<p>Next, create a conda environment for developing Polaris, as described in
-<a class="reference internal" href="../../developers_guide/quick_start.html#dev-conda-env"><span class="std std-ref">polaris conda environment, spack environment, compilers and system modules</span></a>. We’ll assume you’re working on a supported machine and
+<p>Next, create a local deployment environment for developing Polaris, as
+described in
+<a class="reference internal" href="../../developers_guide/quick_start.html#dev-conda-env"><span class="std std-ref">Polaris pixi and spack environments, compilers and system modules</span></a>. We’ll assume you’re working on a supported machine and
 using the default compilers and MPI libraries, but consult the documentation
 if you need a custom environment.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># This may take a while the first time</span>
-./configure_polaris_envs.py<span class="w"> </span>--conda<span class="w"> </span><span class="nv">$HOME</span>/miniforge3<span class="w"> </span>--verbose
+./deploy.py<span class="w"> </span>--deploy-spack
 </pre></div>
 </div>
-<p>If you don’t already have <a class="reference external" href="https://github.com/conda-forge/miniforge">miniforge3</a>
-installed at the location specified by <code class="docutils literal notranslate"><span class="pre">--conda</span></code>, it will be installed
-automatically.</p>
+<p>For deployment details and options, see the
+<a class="reference external" href="https://docs.e3sm.org/mache/main/users_guide/deploy.html">mache deploy user guide</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you already have <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">Miniconda</a>
-installed, you can use that as well. However, we recommend Miniforge3, as it
-comes with important tools and configuration options set up as needed for
-Polaris.</p>
+<p>Miniforge, Micromamba and Miniconda are no longer required for Polaris
+deployment. If pixi is not already available, <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> can install it.</p>
 </div>
 <p>After setup, you should have a file named <code class="docutils literal notranslate"><span class="pre">load_dev_polaris_*.sh</span></code>, where <code class="docutils literal notranslate"><span class="pre">*</span></code>
 depends on your Polaris version, machine, and compilers. For example, on
 Chrysalis, you might have <code class="docutils literal notranslate"><span class="pre">load_dev_polaris_0.1.0-alpha.3_chrysalis_intel_openmpi.sh</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_dev_polaris_0.1.0-alpha.3_chrysalis_intel_openmpi.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_chrysalis_intel_openmpi.sh
 </pre></div>
 </div>
 <p>Now, get the E3SM source code (used by Polaris to build MPAS-Ocean) via the

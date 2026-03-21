@@ -72,7 +72,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Building the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#previewing-the-documentation">Previewing the Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
-<li class="toctree-l1"><a class="reference internal" href="updating_conda.html">Updating Conda Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="updating_conda.html">Updating Deployment Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
@@ -112,9 +112,9 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="building-the-documentation">
 <span id="dev-building-docs"></span><h1>Building the Documentation<a class="headerlink" href="#building-the-documentation" title="Link to this heading"></a></h1>
-<p>As long as you have followed the procedure in <a class="reference internal" href="quick_start.html#dev-conda-env"><span class="std std-ref">polaris conda environment, spack environment, compilers and system modules</span></a> for setting
-up your conda environment, you will already have the packages available that
-you need to build the documentation.</p>
+<p>As long as you have followed the procedure in <a class="reference internal" href="quick_start.html#dev-conda-env"><span class="std std-ref">Polaris pixi and spack environments, compilers and system modules</span></a> for setting
+up your local Polaris deployment environment (pixi-based), you will already
+have the packages available that you need to build the documentation.</p>
 <p>Then, run the following script to build the docs:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
 <span class="nv">DOCS_VERSION</span><span class="o">=</span><span class="nb">test</span><span class="w"> </span>make<span class="w"> </span>clean<span class="w"> </span>versioned-html
