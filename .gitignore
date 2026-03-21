@@ -25,3 +25,20 @@ docs/_build/
 # build directories
 /build_mpas_ocean/
 /build_omega/
+
+# pixi
+.pixi/
+pixi.lock
+pixi-env/
+
+# vs code
+.vscode/
+
+# mypy
+.mypy_cache/
+
+# ruff
+.ruff_cache/
+
+# mache
+.mache_cache/

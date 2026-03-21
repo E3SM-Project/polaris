@@ -18,7 +18,7 @@ Here is a link to the
 ## config options
 
 Here are the default config options added when you have configured Polairs on
-a Frontier login node (or specified `./configure_polaris_envs.py -m frontier`):
+a Frontier login node (or specified `./deploy.py --machine frontier`):
 
 ```cfg
 # The paths section describes paths for data and environments
@@ -27,12 +27,12 @@ a Frontier login node (or specified `./configure_polaris_envs.py -m frontier`):
 # A shared root directory where polaris data can be found
 database_root = /lustre/orion/cli115/world-shared/polaris
 
-# the path to the base conda environment where polaris environments have
+# the path to deployed Polaris environments
 # been created
 polaris_envs = /ccs/proj/cli115/software/polaris/frontier/conda/base
 
 
-# Options related to deploying a polaris conda and spack environments
+# Options related to deploying Polaris and Spack environments
 [deploy]
 
 # the compiler set to use for system libraries and MPAS builds

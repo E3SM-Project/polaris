@@ -21,12 +21,12 @@ The config options typically defined for a machine are:
 # A shared root directory where MPAS standalone data can be found
 database_root = /lcrc/group/e3sm/public_html/mpas_standalonedata
 
-# the path to the base conda environment where polaris environments have
+# the path where deployed Polaris environments are located
 # been created
 polaris_envs = /lcrc/soft/climate/polaris/chrysalis/base
 
 
-# Options related to deploying a polaris conda environment on supported
+# Options related to deploying Polaris environments on supported
 # machines
 [deploy]
 
@@ -50,11 +50,11 @@ use_e3sm_hdf5_netcdf = True
 The `paths` section provides local paths to the root of the "databases"
 (local caches) of data files for each MPAS core.  These are generally in a
 shared location for the project to save space.  Similarly, `polaris_envs`
-is a location where shared conda environments will be created for polaris
+is a location where shared deployed environments will be created for polaris
 releases for users to share.
 
 The `deploy` section is used to help polaris create development and
-release conda environments and activation scripts.  It says which compiler set
+release environments and activation scripts.  It says which compiler set
 is the default, which MPI library is the default for each supported compiler,
 and where libraries built with system MPI will be placed.
 
@@ -184,46 +184,14 @@ If the path doesn't exist, polaris will create it.
 If you're not working on an HPC machine, you will probably not have multiple
 nodes or {ref}`slurm`.  You will probably install
 [MPICH](https://www.mpich.org/) or [OpenMPI](https://www.open-mpi.org/),
-probably via a
-[conda environment](https://docs.conda.io/projects/conda/en/latest/index.html).
-In this case, the `parallel_executable` is `mpirun`.
+typically through your deployed pixi environment. In this case, the
+`parallel_executable` is usually `mpirun`.
 
-To install the `polaris` package into a conda environment, you will first
-need to install [Miniforge3](https://github.com/conda-forge/miniforge#miniforge3)
-(if it is not already installed).  Then, you will run one of the following
-three commands, depending on how you would like to handle MPI support in the
-conda packages.
+To deploy Polaris for your repo checkout, run `./deploy.py` from the repo
+root. For deployment details and options, see:
 
-## MPICH
+- [mache deploy user guide](https://docs.e3sm.org/mache/main/users_guide/deploy.html)
+- [mache deploy quick start](https://docs.e3sm.org/mache/main/users_guide/quick_start.html)
 
-To create a conda environment called "polaris" with MPI from the `mpich`
-package, run:
-
-```bash
-conda create -n polaris -c conda-forge -c e3sm/label/polaris python=3.10 "polaris=*=mpi_mpich*"
-```
-
-This is the recommended default for single-node Linux and OSX machines.
-
-## OpenMPI
-
-To create a conda environment called "polaris" with MPI from the `openmpi`
-package, run:
-
-```bash
-conda create -n polaris -c conda-forge -c e3sm/label/polaris python=3.10 "polaris=*=mpi_openmpi*"
-```
-
-## No MPI from conda-forge
-
-To create a conda environment called "polaris" without any MPI package from
-conda-forge, run:
-
-```bash
-conda create -n polaris -c conda-forge -c e3sm/label/polaris python=3.10 "polaris=*=nompi*"
-```
-
-This would be the starting point for working with polaris on an unknown
-HPC machine.  From there, you would also need to load modules and set
-environment variables so that MPAS components can be built with system NetCDF,
-pNetCDF and SCORPIO. This will likely require working with an MPAS developer.
+For unsupported machines, you may need to add or customize machine
+configuration before deployment can fully configure compiler/MPI settings.

@@ -40,23 +40,21 @@ remove bot PRs for updating pre-commit dependencies).  Here is an
 ### 2. Deploy Shared Spack Environments on HPC Systems
 
 Use the same process as during test deployment but you do *not* use the
-`--spack` flag to specify a test deployment location.  For example:
+`--spack-path` flag to specify a test deployment location.  For example:
 
 ```bash
 SCRATCH=<path_to_scratch>
-CONDA_BASE=~/miniforge3
-mdkir -p $SCRATCH/tmp_spack
-./configure_polaris_envs.py \
-    --conda $CONDA_BASE \
-    --update_spack \
-    --tmpdir $SCRATCH/tmp_spack \
+./deploy.py \
+    --deploy-spack \
     --compiler intel intel gnu \
     --mpi openmpi impi openmpi \
-    --recreate \
-    --verbose
+    --recreate
 ```
 
-This creates a local activation scripts like:
+If you need to control Spack temporary build location, set `spack.tmpdir` in
+`deploy/config.yaml.j2`.
+
+This creates local activation scripts like:
 
 * `load_polaris_dev_<version>_<machine>_<compiler>_<mpi>.sh`
 

@@ -7,7 +7,7 @@ outline of the tutorial, with each step linked to its detailed instructions.
 1. [Getting Started](getting_started.md)
 
    Set up your development environment, clone the Polaris repository, create a
-   new branch, set up a conda environment, and obtain the necessary E3SM
+   new branch, set up a local deployment environment, and obtain the necessary E3SM
    submodules.
 
 2. [Making a New Category of Tasks](creating_category_of_tasks.md)

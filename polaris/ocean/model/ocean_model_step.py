@@ -522,15 +522,44 @@ class OceanModelStep(ModelStep):
 
         goal_cells_per_core = config.getfloat('ocean', 'goal_cells_per_core')
         max_cells_per_core = config.getfloat('ocean', 'max_cells_per_core')
+        model = config.get('ocean', 'model')
+
+        goal_cells_per_gpu = config.getfloat('ocean', 'goal_cells_per_gpu')
+        max_cells_per_gpu = config.getfloat('ocean', 'max_cells_per_gpu')
 
         # machines (e.g. Perlmutter) seem to be happier with ntasks that
         # are multiples of 4
         # ideally, about 200 cells per core
-        self.ntasks = max(1, 4 * round(cell_count / (4 * goal_cells_per_core)))
+        cpu_ntasks = max(1, 4 * round(cell_count / (4 * goal_cells_per_core)))
         # In a pinch, about 2000 cells per core
-        self.min_tasks = max(
+        cpu_min_tasks = max(
             1, 4 * round(cell_count / (4 * max_cells_per_core))
         )
+
+        gpus_per_node = 0
+        parallel_system = self.component.parallel_system
+        if parallel_system is not None:
+            gpus_per_node = parallel_system.get_config_int(
+                'gpus_per_node', default=0
+            )
+
+        use_gpu_resources = model == 'omega' and gpus_per_node > 0
+        if use_gpu_resources:
+            self.gpus_per_task = 1
+            self.min_gpus_per_task = 1
+            # Ideally, about 8000 cells per GPU
+            self.ntasks = max(
+                1, 4 * round(cell_count / (4 * goal_cells_per_gpu))
+            )
+            # In a pinch, about 80000 cells per GPU
+            self.min_tasks = max(
+                1, 4 * round(cell_count / (4 * max_cells_per_gpu))
+            )
+        else:
+            self.gpus_per_task = 0
+            self.min_gpus_per_task = 0
+            self.ntasks = cpu_ntasks
+            self.min_tasks = cpu_min_tasks
 
     def _read_config_map(self) -> None:
         """

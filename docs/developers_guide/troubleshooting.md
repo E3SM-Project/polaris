@@ -7,12 +7,12 @@ suggested solutions.
 
 (dev-troubleshooting-conda-solver)=
 
-## Solver errors when configuring conda environment
+## Solver errors when configuring deployment environment
 
 When setting up {ref}`dev-conda-env`, by calling:
 
 ```bash
-./configure_polaris_env.sh ...
+./deploy.py ...
 ```
 
 you may run into an error like:
@@ -40,11 +40,11 @@ The solution should be to recreate the environment rather than trying to
 update it:
 
 ```bash
-./configure_polaris_env.sh --recreate ...
+./deploy.py --recreate ...
 ```
 
-The `--recreate` flag will first delete the existing `dev_polaris_*` conda
-environment before creating it again with the new set of packages required for
+The `--recreate` flag will first delete existing deployment artifacts
+before creating them again with the new set of packages required for
 developing with the requested compiler and MPI type.
 
 (dev-troubleshooting-proxy)=

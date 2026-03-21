@@ -296,7 +296,6 @@ def main():
     )
 
     # clear environment variables and start fresh with those from login
-    # so spack doesn't get confused by conda
     subprocess.check_call(
         f'env -i HOME="$HOME" bash -l "{script_filename}"', shell=True
     )
