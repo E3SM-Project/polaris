@@ -135,7 +135,7 @@ forward = ${paths:component_path}/default_inputs/streams.landice
 
 # The executables section defines paths to required executables. These
 # executables are provided for use by specific tasks. Most tools that
-# polaris needs should be in the conda environment, so this is only the path
+# polaris needs should be in the deployment environment, so this is only the path
 # to the MALI executable by default.
 [executables]
 component = ${paths:component_path}/landice_model

@@ -10,14 +10,13 @@ documentation as soon as there is one.  Until then please refer to the
 
 (conda-env)=
 
-## Loading polaris conda and spack environments
+## Loading polaris deployment and spack environments
 
 ### E3SM supported machines
 
-For each polaris release, we maintain a
-[conda environment](https://docs.conda.io/en/latest/). that includes the
-`polaris` package as well as all of its dependencies and some libraries
-(currently [ESMF](https://earthsystemmodeling.org/),
+For each polaris release, we maintain deployment environments that include the
+`polaris` package and its dependencies, together with libraries
+(including [ESMF](https://earthsystemmodeling.org/),
 [MOAB](https://sigma.mcs.anl.gov/moab-library/) and
 [SCORPIO](https://e3sm.org/scorpio-parallel-io-library/)) built with system
 MPI using [spack](https://spack.io/) on our standard machines (Aurora,
@@ -48,46 +47,27 @@ source /lcrc/soft/climate/polaris/chrysalis/load_latest_polaris_gnu_openmpi.sh
 
 ### Other machines
 
-Once it is released, you will be able to install polaris from a conda package.
-To install your own polaris conda environment on non-E3SM-supported machines,
-first, install [Miniforge3](https://github.com/conda-forge/miniforge#miniforge3)
-if you don't already have it.  Then, create a new conda environment (called
-`polaris` in this example) as follows:
+On non-E3SM-supported machines, deploy Polaris from a source checkout with
+`./deploy.py` (rather than creating a separate conda environment manually):
 
 ```bash
-conda create -n polaris -c conda-forge -c e3sm/label/polaris python=3.13 \
-    "polaris=*=mpi_mpich*"
+./deploy.py --compiler gnu --mpi mpich
 ```
 
-This will install the version of the package with MPI from conda-forge's MPICH
-package.  If you want OpenMPI, use `"polaris=*=mpi_openmpi*"` instead.  If
-you do not want MPI from conda-forge (e.g. because you are working with a
-system with its own MPI), use `"polaris=*=nompi*"`
+For additional options and deployment behavior, see:
 
-To get a specific version of polaris, you can instead run:
+- [mache deploy user guide](https://docs.e3sm.org/mache/main/users_guide/deploy.html)
+- [mache deploy quick start](https://docs.e3sm.org/mache/main/users_guide/quick_start.html)
 
-```bash
-conda create -n polaris -c conda-forge -c e3sm/label/polaris python=3.13 \
-    "polaris=1.0.0=mpi_mpich*"
-```
+If pixi is not already installed, `./deploy.py` can install it.
 
-That is, you will replace `polaris=*` with `polaris=1.0.0`.
+Once deployment completes, use the generated load script (for example
+`load_*.sh`) to activate your environment.
 
-Then, you will need to create a load script to activate the conda environment
-and set some environment variables. In a directory where you want to store the
-script, run:
+To deploy against a specific mache branch for testing, use:
 
 ```bash
-conda activate polaris
-create_polaris_load_script
-```
-
-From then on, each time you want to set up tasks or suites with polaris
-or build MPAS components, you will need to source that load script, for
-example:
-
-```bash
-source load_polaris_1.0.0_mpich.sh
+./deploy.py --mache-fork <org_or_fork/repo> --mache-branch <branch>
 ```
 
 When you set up tasks, a link called `load_polaris_env.sh` will be added to

@@ -32,254 +32,115 @@ directory of the polaris repository.
 
 (dev-conda-env)=
 
-## polaris conda environment, spack environment, compilers and system modules
+## Polaris pixi and spack environments, compilers and system modules
 
-As a developer, you will need your own
-[conda](https://conda.io/projects/conda/en/latest/index.html) environment with
-the latest dependencies for polaris and a development installation of polaris
-from the  branch you're working on.  On supported machines, you will also need
-to point to a shared [spack](https://spack.io/) environment with some tools
-and libraries built for that system that polaris needs.
+Polaris now uses `mache.deploy` for deployment. In this repository, the
+deployment entry point is `./deploy.py`.
 
-In the root of the repository is a tool, `configure_polaris_envs.py`
-that can get you started.
+For background on this workflow, see:
 
-You will need to run `./configure_polaris_envs.py` each time you check
-out a new branch or create a new worktree with `git`.  Typically, you will
-*not* need to run this command when you make changes to files within the
-`polaris` python package.  These will automatically be recognized because
-`polaris` is installed into the conda environment in "editable" mode.  You
-*will* need to run the command if you add new code files or data files to the
-package because these don't get added automatically.
+- [Mache docs index](https://docs.e3sm.org/mache/main/index.html)
+- [Mache deploy user guide](https://docs.e3sm.org/mache/main/users_guide/deploy.html)
+- [Mache deploy developer guide](https://docs.e3sm.org/mache/main/developers_guide/deploy.html)
 
-Whether you are on one of the {ref}`dev-supported-machines` or an "unknown"
-machine, you will need to specify a path where
-[Miniforge3](https://github.com/conda-forge/miniforge#miniforge3) either has
-already been installed or an empty directory where the script can install it.
-You must have write permission in the base environment (if it exists).
+As a developer, rerun `./deploy.py` when you check out a new branch or use a
+new worktree. In most cases you do not need to rerun deployment while editing
+existing files in `polaris`, because the package is installed in editable mode.
 
 :::{note}
-We have found that an existing Miniconda3 installation **does not** always
-work well for polaris, so please start with Miniforge3 instead.
+Miniforge, Micromamba, and Miniconda are no longer required for Polaris
+deployment. If pixi is not already installed, `./deploy.py` can install it.
 :::
-
-:::{note}
-It is *very* important that you not use a shared installation of Miniforge3
-or Miniconda3 such as the base environment for E3SM-Unified for polaris
-development. Most developers will not have write access to shared
-environments, meaning that you will get write-permission errors when you
-try to update the base environment or create the polaris development
-environment.
-
-For anyone who does have write permission to a shared environment, you
-would be creating your polaris development environment in a shared space,
-which could cause confusion.
-
-Please use your own personal installation of Miniforge3 for development,
-letting `configure_polaris_envs.py` download and install Miniforge3 for
-you if you don't already have it installed.
-:::
-
 
 ### Supported machines
 
 If you are on one of the {ref}`dev-supported-machines`, run:
 
 ```bash
-./configure_polaris_envs.py --conda <base_path_to_install_or_update_conda> \
-    [-c <compiler>] [--mpi <mpi>] [-m <machine>] [--with_albany] \
-    [--with_netlib_lapack] [--with_petsc]
+./deploy.py [--machine <machine>] [--compiler <compiler> ...] \
+    [--mpi <mpi> ...] [--deploy-spack] [--no-spack] \
+    [--prefix <prefix>] [--recreate]
 ```
 
-The `<base_path_to_install_or_update_conda>` is typically `~/miniforge3`.
-This is the location where you would like to install Miniforge3 or where it is
-already installed. If you have limited space in your home directory, you may
-want to give another path.  If you already have it installed, that path will
-be used to add (or update) the polaris test environment.
+If you are on a login node, machine detection typically works automatically.
+You can pass `--machine <machine>` explicitly if needed.
 
-See the machine under {ref}`dev-supported-machines` for a list of available
-compilers to pass to `-c`.  If you don't supply a compiler, you will get
-the default one for that machine. Typically, you will want the  default MPI
-flavor that polaris has defined for each compiler, so you should
-not need to specify which MPI version to use but you may do so with `--mpi`
-if you need to.
-
-If you are on a login node, the script should automatically recognize what
-machine you are on.  You can supply the machine name with `-m <machine>` if
-you run into trouble with the automatic recognition (e.g. if you're setting
-up the environment on a compute node, which is not recommended).
-
-### Environments with Albany
-
-If you are working with MALI, you should specify `--with_albany`.  This will
-ensure that the Albany and Trilinos libraries are included among those built
-with system compilers and MPI libraries, a requirement for many MAlI test
-cases.  Currently, only Albany is only supported with `gnu` compilers.
-
-It is safe to add the `--with_albany` flag for MPAS-Ocean but it is not
-recommended unless a user wants to be able to run both models with the same
-conda/spack environment.  The main downside is simply that unneeded libraries
-will be linked in to MPAS-Ocean.
-
-### Environments with PETSc and Netlib-LAPACK
-
-If you are working with MPAS-Ocean tasks that need PETSC and
-Netlib-LAPACK, you should specify `--with_petsc --with_netlib_lapack` to
-point to Spack environments where these libraries are included.  Appropriate
-environment variables for pointing to these libraries will be build into the
-resulting load script (see below).
+By default, Polaris will reuse existing machine-specific Spack environments
+when the current deployment needs them. Use `--deploy-spack` when you want to
+build or update those Spack environments. Use `--no-spack` for a Pixi-only
+deployment, such as CI or unsupported machines.
 
 ### Unknown machines
 
-If you are on an "unknown" machine, typically a Mac or Linux laptop or
-workstation, you will need to specify which flavor of MPI you want to use
-(`mpich` or `openmpi`):
+If a machine is not known to mache, add machine support first
+(see {ref}`dev-add-supported-machine`).
 
-```bash
-./configure_polaris_envs.py --conda <conda_path> --mpi <mpi>
-```
-
-Again, the `<conda_path>` is typically `~/miniforge3`, and is the location
-where you would like to install Miniforge3 or where it is already installed.
-If you already have it installed, that path will be used to add (or update) the
-polaris test environment.
-
-We only support one set of compilers for Mac and Linux (`gnu` for Linux and
-`clang` with `gfortran` for Mac), so there is no need to specify them.
-See {ref}`dev-other-machines` for more details.
-
-In addition, unknown machines require a config file to be specified when setting
-up the polaris test environment.  A config file can be specified using
-`-f <filename>`, where `<filename>` is an absolute or relative path to the
-file. More information, including example config files, can be found
-in {ref}`config-files`.
-
-:::{note}
-Currently, there is not a good way to build Albany for an unknown machine as
-part of the polaris deployment process, meaning MALI will be limited to the
-shallow-ice approximation (SIA) solver.
-
-To get started on HPC systems that aren't supported by Polaris, get in touch
-with the developers.
-:::
+For workflows that need custom machine config files, see {ref}`config-files`.
 
 ### What the script does
 
-In addition to installing Miniforge3 and creating the conda environment for you,
-this script will also:
+`./deploy.py` can:
 
-- install [Jigsaw](https://github.com/dengwirda/jigsaw) and
-  [Jigsaw-Python](https://github.com/dengwirda/jigsaw-python) from source
-  from the `jigsaw-python` submodule. These tools are used to create many of
-  the meshes used in Polaris.
-- install the `polaris` package from the local branch in "development" mode
-  so changes you make to the repo are immediately reflected in the conda
-  environment.
-- with the `--update_spack` flag on supported machines, installs or
-  reinstalls a spack environment with various system libraries.  The
-  `--spack` flag can be used to point to a location for the spack repo to be
-  checked out.  Without this flag, a default location is used. Spack is used to
-  build several libraries with system compilers and MPI library, including:
-  [SCORPIO](https://github.com/E3SM-Project/scorpio) (parallel i/o for E3SM
-  components) [ESMF](https://earthsystemmodeling.org/) (making mapping files
-  in parallel), [MOAB](https://sigma.mcs.anl.gov/moab-library/),
-  [Trilinos](https://trilinos.github.io/),
-  [Albany](https://github.com/sandialabs/Albany),
-  [Netlib-LAPACK](http://www.netlib.org/lapack/) and
-  [PETSc](https://petsc.org/). **Please uses these flags with caution, as
-  they can affect shared environments!**  See {ref}`dev-updating-spack`.
-- with the `--with_albany` flag, creates or uses an existing Spack
-  environment that includes Albany and Trilinos.
-- with the `--with_petsc --with_netlib_lapack` flags, creates or uses an
-  existing Spack environment that includes PETSc and Netlib-LAPACK.
-- make an activation script called `load_*.sh`, where the details of the
-  name encode the conda environment name, the machine, compilers, MPI
-  libraries, and optional libraries,  e.g.
-  `load_dev_polaris_<version>_<machine>_<compiler>_<mpi>.sh` (`<version>`
-  is the polaris version, `<machine>` is the name of the
-  machine, `<compiler>` is the compiler name, and `mpi` is the MPI flavor).
-- optionally (with the `--check` flag), run some tests to make sure some of
-  the expected packages are available.
+- install pixi if needed
+- create/update a local pixi deployment prefix (default: `pixi-env`)
+- install `polaris` from your local branch in editable/development mode
+- optionally deploy Spack environments for selected compiler/MPI toolchains
+- generate activation scripts (`load_*.sh`)
 
-### Optional flags
+### Useful flags
 
-`--check`
+`--machine`
 
-: Check to make sure expected commands are present
+: set machine explicitly instead of automatic detection
 
-`--python`
+`--prefix`
 
-: Select a particular python version (the default is currently 3.8)
+: choose deployment prefix for the pixi environment
 
-`--env_name`
+`--compiler`, `--mpi`
 
-: Set the name of the environment (and the prefix for the activation script)
-  to something other than the default (`dev_polaris_<version>` or
-  `dev_polaris_<version>_<mpi>`).
+: compiler/MPI choices (primarily for Spack deployment)
 
-`--update_jigsaw`
+`--deploy-spack`
 
-: Used to reinstall Jigsaw and Jigsaw-Python into the conda environment if
-  you have made changes to the Jigsaw (c++) code in the `jigsaw-python`
-  submodule. You should not need to reinstall Jigsaw-Python if you have made
-  changes only to the python code in `jigsaw-python`, as the python package
-  is installed in
-  [edit mode](https://setuptools.pypa.io/en/latest/userguide/development_mode.html).
+: deploy supported Spack environments instead of only reusing existing ones
+
+`--no-spack`
+
+: disable all Spack use for this run and rely on Pixi dependencies instead
+
+`--spack-path`
+
+: path to the Spack checkout used for deployment
+
+`--recreate`
+
+: recreate deployment artifacts if they already exist
+
+`--bootstrap-only`
+
+: update only the bootstrap pixi environment used by deployment
+
+`--mache-fork`, `--mache-branch`, `--mache-version`
+
+: test deployment against a specific mache fork/branch/version
+
+See `./deploy.py --help` for the full list.
 
 ### Activating the environment
 
-Each time you want to work with polaris, you will need to run:
+Each time you want to work with Polaris, source one of the generated scripts:
 
 ```bash
-source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
+source ./load_*.sh
 ```
 
-This will load the appropriate conda environment, load system modules for
-compilers, MPI and libraries needed to build and run E3SM components, and
-set environment variables needed for E3SM components or polaris.  It will also
-set an  environment variable `LOAD_POLARIS_ENV` that points to the activation
-script. Polaris uses this to make an symlink to the activation script called
-`load_polaris_env.sh` in the work directory.  When the load script is
-executed from the base of the polaris repository (i.e., as
-`source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh`),
-it will install the version of the `polaris` package from that location into
-the associated conda environment.  When the load script is executed from the
-work directory through the symlink, it will activate the associated conda
-environment, but does *not* install the `polaris` package into the conda
-environment; it is assumed that is already up to date from when the conda
-environment was created or last updated.
+This activates the deployment environment, loads machine modules when
+appropriate, and sets environment variables needed by Polaris and MPAS
+components.
 
-It is generally recommended to activate the `polaris` environment (from
-either the polaris repo or via the workdir symlink) from a
-clean environment.  Unexpected behavior may occur if activating a different
-`polaris` environment after having one already activated.
-
-If you switch between different polaris branches, it is safest to rerun
-`./configure_polaris_envs.py` with the same arguments as above to make
-sure dependencies are up to date and the `polaris` package points to the
-current directory.  If you are certain that no polaris dependencies are
-different between branches, you can also simply source the activation script
-(`load_*.sh`) in the branch.
-
-Once you have sourced the activation script, you can run `polaris` commands
-anywhere, and it always refers to that branch.  To find out which branch you
-are actually running `polaris` from, you should run:
-
-```bash
-echo $LOAD_POLARIS_ENV
-```
-
-This will give you the path to the load script, which will also tell you where
-the branch is.  If you do not use the worktree approach, you will also need to
-check what branch you are currently on with `git log`, `git branch` or
-a similar command.
-
-If you wish to work with another compiler, simply rerun the script with a new
-compiler name and an activation script will be produced.  You can then source
-either activation script to get the same conda environment but with different
-compilers and related modules.  Make sure you are careful to set up polaris by
-pointing to a version of the MPAS model that was compiled with the correct
-compiler.
+When working inside a task or suite work directory, source
+`load_polaris_env.sh` (a symlink to the selected load script).
 
 ### Switching between different polaris environments
 
@@ -287,50 +148,45 @@ Many developers are switching between different `polaris` branches.
 We have 2 main workflows for doing this: checking out different branches
 in the same directory (with `git checkout`) or creating new directories for
 each branch (with `git worktree`).  Either way, you need to be careful that
-the version of the `polaris` package that is installed in the conda
+the version of the `polaris` package that is installed in the active
 environment you are using is the one you want.  But how to handle it
 differs slightly between these workflows.
 
 If you are developing or using multiple `polaris` branches in the same
 directory (switching between them using `git checkout`), you will need
 to make sure you update your `polaris` environment after changing
-branches.  Often the branches you're developing will make use of the
-same conda environment, because they are using the same
-`polaris` version (so the dependencies aren't changing).  The same
-conda environment (e.g. `dev_polaris_<version>`) can safely be used
-with multiple branches if you explicitly reinstall the `polaris` package
-you want to use into the conda environment *after* moving to a new branch.
-You can do this by simply re-executing
-`source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh`
+branches. If dependencies are unchanged, you can usually just re-source a
+load script in the branch root.
+
+You can do this by re-executing
+`source ./load_*.sh`
 from the *root of the repo* before proceeding.
 
 Similarly, if you are developing or using multiple `polaris` branches
 but you use a different directory for each
 (creating the directories with `git worktree`),
 you will need to make sure the version of the `polaris` package
-in your conda environment is the one you want.
+in your active environment is the one you want.
 If your branches use the same `polaris` version (so the dependencies
-are the same), you can use the same conda environment
-(e.g. `dev_polaris_<version>`) for all of them.  But you will only
-be able to test one of them at a time.  You will tell the conda environment
-which branch to use by running
-`source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh`
+are the same), you can use the same deployment prefix for all of them.
+You will tell the environment which branch to use by running
+`source ./load_*.sh`
 from the *root of the directory (worktree) you want to work with* before
 proceeding.
 
-In both of these workflows, you can modify the `polaris` code and the conda
+In both of these workflows, you can modify the `polaris` code and the
 environment will notice the changes as you make them.  However, if you have
 added or removed any files during your development, you need to source the
 load script again:
-`source ./load_<conda_env>_<machine>_<compiler>_<mpi>.sh`
+`source ./load_*.sh`
 in the root of the repo or worktree so that the added or removed files will be
-accounted for in the conda environment.
+accounted for in the environment.
 
 If you know that `polaris` has different dependencies
 in a branch or worktree you are working on compared to a previous branch
 you have worked with (or if you aren't sure), it is safest to not just reinstall
 the `polaris` package but also to check the dependencies by re-running:
-`./configure_polaris_envs.py`  with the same arguments as above.
+`./deploy.py` with the same arguments as above.
 This will also reinstall the `polaris` package from the current directory.
 The activation script includes a check to see if the version of polaris used
 to produce the load script is the same as the version of polaris in the
@@ -338,31 +194,25 @@ current branch.  If the two don't match, an error like the following results
 and the environment is not activated:
 
 ```
-$ source load_polaris_test_morpheus_gnu_openmpi.sh
+$ source load_polaris_morpheus_gnu_openmpi.sh
 This load script is for a different version of polaris:
 __version__ = '0.2.0'
 
 Your code is version:
 __version__ = '0.3.0-alpha.1'
 
-You need to run ./configure_polaris_envs.py to update your conda
-environment and load script.
+You need to run ./deploy.py to update your environment and load script.
 ```
 
-If you need more than one conda environment (e.g. because you are testing
-multiple branches at the same time), you can choose your own name
-for the conda environment.  Typically, this might be something related to the
-name of the branch you are developing.  This can be done with the
-`--env_name` argument to `./configure_polaris_envs.py`.  You
-can reuse the same custom-named environment across multiple branches
-if that is useful.  Just remember to reinstall `polaris` each time you
-switch branches.
+If you need more than one environment (e.g. because you are testing
+multiple branches at the same time), use different deployment prefixes with
+`./deploy.py --prefix <path>`.
 
 :::{note}
-If you switch branches and *do not* remember to recreate the conda
-environment (`./configure_polaris_envs.py`) or at least source the
+If you switch branches and *do not* remember to recreate the environment
+(`./deploy.py`) or at least source the
 activation script (`load_*.sh`), you are likely to end up with
-an incorrect and possibly unusable `polaris` package in your conda
+an incorrect and possibly unusable `polaris` package in your
 environment.
 
 In general, if one wishes to switch between environments created for
@@ -375,7 +225,7 @@ all.
 :::
 
 :::{note}
-With the conda environment activated, you can switch branches and update
+With the environment activated, you can switch branches and update
 just the `polaris` package with:
 
 ```bash
@@ -398,10 +248,11 @@ If you run into trouble with the environment or just want a clean start, you
 can run:
 
 ```bash
-./configure_polaris_envs.py --conda <conda_path> -c <compiler> --recreate
+./deploy.py [--machine <machine>] [--compiler <compiler> ...] \
+  [--mpi <mpi> ...] [--deploy-spack] [--no-spack] --recreate
 ```
 
-The `--recreate` flag will delete the conda environment and create it from
+The `--recreate` flag will delete the environment and create it from
 scratch.  This takes just a little extra time.
 
 (dev-creating-only-env)=
@@ -410,37 +261,48 @@ scratch.  This takes just a little extra time.
 
 For some workflows (e.g. for MALI development with the Albany library when the
 MALI build environment has been created outside of `polaris`, for example,
-on an unsupported machine), you may only want to create the conda environment
+on an unsupported machine), you may only want to create the pixi environment
 and not build SCORPIO, ESMF or include any system modules or environment
-variables in your activation script. In such cases, run with the
-`--env_only` flag:
+variables in your activation script. In such cases, run:
 
 ```bash
-./configure_polaris_envs.py --conda <conda_path> --env_only ...
+./deploy.py --no-spack
+```
+
+When `--no-spack` is not used, omitting `--deploy-spack` still means Polaris
+will try to reuse any required pre-existing Spack environments.
+
+To update only the bootstrap environment used internally by deployment:
+
+```bash
+./deploy.py --bootstrap-only
 ```
 
 Each time you want to work with polaris, you will need to run:
 
 ```bash
-source ./load_<env_name>.sh
+source load_polaris.sh
 ```
 
-This will load the appropriate conda environment for polaris.  It will also
-set an environment variable `LOAD_POLARIS_ENV` that points to the activation
+For machine-specific deployments that use Spack, the generated script is
+typically `load_polaris_<machine>_<compiler>_<mpi>.sh`.
+
+This will load the appropriate environment for polaris.  It will also
+set an environment variable `POLARIS_LOAD_SCRIPT` that points to the activation
 script. Polaris uses this to make a symlink to the activation script
 called `load_polaris_env.sh` in the work directory.
 
 If you switch to another branch, you will need to rerun:
 
 ```bash
-./configure_polaris_envs.py --conda <conda_path> --env_only
+./deploy.py
 ```
 
 to make sure dependencies are up to date and the `polaris` package points
 to the current directory.
 
 :::{note}
-With the conda environment activated, you can switch branches and update
+With the environment activated, you can switch branches and update
 just the `polaris` package with:
 
 ```bash
@@ -448,7 +310,7 @@ python -m pip install --no-deps --no-build-isolation -e .
 ```
 
 This will be substantially faster than rerunning
-`./configure_polaris_envs.py ...` but at the risk that dependencies are
+`./deploy.py ...` but at the risk that dependencies are
 not up-to-date.  Since dependencies change fairly rarely, this will usually
 be safe.
 :::

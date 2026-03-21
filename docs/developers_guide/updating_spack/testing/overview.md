@@ -43,7 +43,7 @@ new release:
 
 ### 🚀 [Deploying Spack Environments on HPCs](deploying_spack.md)
 
-* Use the `configure_polaris_envs.py` script and template infrastructure
+* Use `./deploy.py` (`mache.deploy`) and template infrastructure
 * Build environments and activation scripts tailored to each system
 
 ### ✅ [Running Required Test Suites](running_test_suites.md)
@@ -65,7 +65,7 @@ new release:
 ## Audience
 
 This section is primarily intended for Polaris maintainers and release
-engineers. Familiarity with Spack, Conda, and HPC system environments is
+engineers. Familiarity with Spack, pixi, and HPC system environments is
 assumed.
 
 ➡ Start with: [Updating the E3SM Spack Fork](updating_spack_fork.md)

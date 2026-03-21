@@ -75,9 +75,7 @@ def build_omega(
         print(f'  account: {account}')
     print('\n')
 
-    # remove and/or create build directory first so the log file can be created
     # clear environment variables and start fresh with those from login
-    # so spack doesn't get confused by conda
     command = f'env -i HOME="$HOME" bash -l {script_filename}'
     if log_filename is not None:
         print(f'Logging build to: {log_filename}')

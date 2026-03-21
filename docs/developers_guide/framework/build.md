@@ -37,7 +37,7 @@ MPAS-Ocean:
 - `POLARIS_MACHINE` — machine ID used by the template (e.g., chrysalis, frontier)
 - `POLARIS_COMPILER` — compiler toolchain ID (e.g., intel, gnu)
 - `POLARIS_MPI` — MPI library ID (e.g., openmpi, mpich)
-- `LOAD_POLARIS_ENV` — path to the shell snippet used to load the Polaris build
+- `POLARIS_LOAD_SCRIPT` — path to the shell snippet used to load the Polaris build
   env on the target machine
 
 Omega:

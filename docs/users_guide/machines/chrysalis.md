@@ -15,12 +15,12 @@ suite:
 # A shared root directory where polaris data can be found
 database_root = /lcrc/group/e3sm/public_html/polaris
 
-# the path to the base conda environment where polars environments have
+# the path to deployed Polaris environments
 # been created
 polaris_envs = /lcrc/soft/climate/polaris/chrysalis/base
 
 
-# Options related to deploying a polaris conda and spack environments
+# Options related to deploying Polaris and Spack environments
 [deploy]
 
 # the compiler set to use for system libraries and MPAS builds

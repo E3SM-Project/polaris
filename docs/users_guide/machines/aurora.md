@@ -14,7 +14,7 @@ Here is a link to the
 ## config options
 
 Here are the default config options added when you have configured Polairs on
-a Aurora login node (or specified `./configure_polaris_envs.py -m aurora`):
+a Aurora login node (or specified `./deploy.py --machine aurora`):
 
 ```cfg
 # The paths section describes paths for data and environments
@@ -23,12 +23,12 @@ a Aurora login node (or specified `./configure_polaris_envs.py -m aurora`):
 # A shared root directory where polaris data can be found
 database_root = /lus/flare/projects/E3SM_Dec/polaris
 
-# the path to the base conda environment where polars environments have
+# the path to deployed Polaris environments
 # been created
 polaris_envs = /lus/flare/projects/E3SM_Dec/soft/polaris/aurora/base
 
 
-# Options related to deploying a polaris conda and spack environments
+# Options related to deploying Polaris and Spack environments
 [deploy]
 
 # the compiler set to use for system libraries and MPAS builds

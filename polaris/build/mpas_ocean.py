@@ -79,7 +79,6 @@ def build_mpas_ocean(
     print('\n')
 
     # clear environment variables and start fresh with those from login
-    # so spack doesn't get confused by conda
     command = f'env -i HOME="$HOME" bash -l {script_filename}'
     if log_filename is not None:
         print(f'Logging build to: {log_filename}')
@@ -165,7 +164,7 @@ def make_build_script(
     if debug:
         make_flags += ' debug=TRUE'
 
-    load_script = os.environ['LOAD_POLARIS_ENV']
+    load_script = os.environ['POLARIS_LOAD_SCRIPT']
 
     script = template.render(
         load_script=load_script,

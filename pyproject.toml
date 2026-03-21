@@ -47,6 +47,7 @@ dependencies = [
     "requests",
     "scipy>=1.8.0",
     "shapely>=2.0,<3.0",
+    "termcolor",
     "tranche>=0.3.0",
     "xarray",
 ]
@@ -80,7 +81,7 @@ warn_unused_configs = true
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
-exclude = ["docs*", "conda*"]
+exclude = ["docs*"]
 line-length = 79
 
 [tool.ruff.lint]

@@ -1,7 +1,0 @@
-# a list of supported machine, compiler and mpi combinations for Netlib LAPACK
-# and PETSc
-
-chrysalis, intel, openmpi
-chrysalis, gnu, openmpi
-frontier, craygnu, mpich
-pm-cpu, gnu, mpich
