@@ -1,18 +1,14 @@
 from polaris.constants import pcd
 
-# Temporary dictionary of constants not yet available via PCD, only the ones
-# we actually use for now.
-CONSTANTS = {
-    'seawater_specific_heat_capacity_reference': 3.996e3,  # J kg-1 K-1
-    'seawater_density_reference': 1.026e3,  # kg m-3
-}
+# Dictionary of any constants not covered by PCD
+CONSTANTS: dict[str, float] = {}
 
-CONVERSION_FACTORS = {
+CONVERSION_FACTORS: dict[str, float] = {
     'day_to_s': 86400.0,
 }
 
 
-def get_constant(name):
+def get_constant(name: str) -> float:
     """
     Get constants from the Physical Constants Dictionary (PCD) if available,
     otherwise from the temporary dictionary of constants.
