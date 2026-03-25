@@ -124,6 +124,17 @@ jigsaw:
   # Relative path in the target repo where JIGSAW-Python lives.
   jigsaw_python_path: jigsaw-python
 
+permissions:
+  # Optional overrides for post-deploy permission updates.
+  # If unset here, `mache deploy run` falls back to:
+  #   1. hook-provided runtime permissions
+  #   2. machine config [deploy] group/world_readable
+  #   3. legacy machine config [e3sm_unified] group
+  group: null
+
+  # Whether deployed files should be readable outside the shared group.
+  world_readable: true
+
 # Deployment hooks
 hooks:
   file: "deploy/hooks.py"
