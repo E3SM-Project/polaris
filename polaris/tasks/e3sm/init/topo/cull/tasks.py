@@ -1,5 +1,7 @@
 from polaris.mesh.base import get_base_mesh_steps
-from polaris.tasks.e3sm.init.topo.combine.steps import get_combine_topo_steps
+from polaris.tasks.e3sm.init.topo.combine.steps import (
+    get_cubed_sphere_topo_steps,
+)
 from polaris.tasks.e3sm.init.topo.cull.task import CullTopoTask
 from polaris.tasks.e3sm.init.topo.remap.steps import (
     get_default_remap_topo_steps,
@@ -16,8 +18,9 @@ def add_cull_topo_tasks(component):
 
     combine_steps = {}
     for low_res in [False, True]:
-        combine_topo_steps, _ = get_combine_topo_steps(
-            component=component, low_res=low_res
+        resolution = 120 if low_res else 3000
+        combine_topo_steps, _ = get_cubed_sphere_topo_steps(
+            component=component, resolution=resolution
         )
         combine_steps[low_res] = combine_topo_steps[0]
 
