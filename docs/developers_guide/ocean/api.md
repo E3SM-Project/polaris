@@ -198,6 +198,38 @@
    viz.Viz.run
 ```
 
+### global_ocean
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.global_ocean
+
+.. autosummary::
+   :toctree: generated/
+
+   add_global_ocean_tasks
+```
+
+### global_ocean.hydrography.woa23
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.global_ocean.hydrography.woa23
+
+.. autosummary::
+   :toctree: generated/
+
+   Woa23
+   get_woa23_topography_step
+   get_woa23_steps
+
+   CombineStep
+   CombineStep.setup
+   CombineStep.run
+
+   ExtrapolateStep
+   ExtrapolateStep.setup
+   ExtrapolateStep.run
+```
+
 ### horiz_press_grad
 
 ```{eval-rst}
@@ -644,4 +676,3 @@
    vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height
    vertical.ztilde.geom_height_from_pseudo_height
 ```
-
