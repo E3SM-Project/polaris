@@ -42,7 +42,7 @@ def pre_pixi(ctx: DeployContext) -> dict[str, Any] | None:
     """
 
     polaris_version = _get_version()
-    mpi = _get_pixi_mpi(ctx.machine, ctx.machine_config)
+    mpi = _get_pixi_mpi(ctx.machine, ctx.machine_config, ctx.args)
 
     updates: Dict[str, Any] = {
         'project': {'version': polaris_version},
@@ -102,15 +102,17 @@ def _get_version():
     return polaris_version
 
 
-def _get_pixi_mpi(machine, machine_config):
+def _get_pixi_mpi(machine, machine_config, args):
     """
     Get the MPI implementation for pixi from environment variable
     """
-    if machine is not None:
-        # we will use system compilers and mpi, not pixi mpi
+    if machine is not None and not getattr(args, 'no_spack', False):
+        # On supported machines with spack enabled, we use the system MPI
+        # through spack rather than installing an MPI stack in pixi.
         mpi = 'nompi'
     else:
-        # we will have the default-<system>.cfg config options
+        # For unknown machines, and for explicit --no-spack deployments on
+        # known machines, pixi must provide the MPI-aware dependency stack.
         if not machine_config.has_section('deploy'):
             raise ValueError("Missing 'deploy' section in machine config")
         section = machine_config['deploy']
