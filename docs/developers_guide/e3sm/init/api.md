@@ -26,7 +26,10 @@
    CombineStep.setup
    CombineStep.constrain_resources
    CombineStep.run
-   CombineTask
+   get_cubed_sphere_topo_steps
+   get_lat_lon_topo_steps
+   CubedSphereCombineTask
+   LatLonCombineTask
    VizCombinedStep
    VizCombinedStep.setup
    VizCombinedStep.run

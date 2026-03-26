@@ -56,21 +56,14 @@ class CombineStep(Step):
     }
 
     @staticmethod
-    def get_subdir(low_res):
+    def get_subdir():
         """
-        Get the subdirectory for the step based on the datasets
-        Parameters
-        ----------
-        low_res : bool, optional
-            Whether to use the low resolution configuration options
+        Get the base subdirectory for the step based on the datasets.
         """
-        suffix = '_low_res' if low_res else ''
-        subdir = (
-            f'combine_{CombineStep.ANTARCTIC}_{CombineStep.GLOBAL}{suffix}'
-        )
+        subdir = f'combine_{CombineStep.ANTARCTIC}_{CombineStep.GLOBAL}'
         return os.path.join('topo', subdir)
 
-    def __init__(self, component, subdir, low_res=False):
+    def __init__(self, component, subdir):
         """
         Create a new step
 
@@ -82,13 +75,10 @@ class CombineStep(Step):
         subdir : str
             The subdirectory within the component's work directory
 
-        low_res : bool, optional
-            Whether to use the low resolution configuration options
         """
         antarctic_dataset = self.ANTARCTIC
         global_dataset = self.GLOBAL
-        suffix = '_low_res' if low_res else ''
-        name = f'combine_topo_{antarctic_dataset}_{global_dataset}{suffix}'
+        name = f'combine_topo_{antarctic_dataset}_{global_dataset}'
         super().__init__(
             component=component,
             name=name,

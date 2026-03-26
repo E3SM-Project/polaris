@@ -18,32 +18,37 @@ and Antarctic topography datasets into a single dataset suitable for use in
 E3SM simulations. The step supports blending datasets across specified latitude
 ranges and remapping them to a target grid.
 
-The {py:class}`polaris.tasks.e3sm.init.topo.combine.CombineTask` wraps the
-`CombineStep` into a task that can be used to generate and cache combined
-topography datasets for reuse in other contexts.
+The
+{py:class}`polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask`
+and
+{py:class}`polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask`
+wrap the `CombineStep` into tasks that can be used to generate and cache
+combined topography datasets for reuse in other contexts.
 
 The {py:class}`polaris.tasks.e3sm.init.topo.combine.VizCombinedStep` step is
 an optional visualization step that can be added to the workflow to create
 plots of the combined topography dataset. This step is particularly useful for
 debugging or analyzing the combined dataset.
 
-## High-Resolution and Low-Resolution Versions
+## Target Grids and Resolutions
 
-There are two versions of the combine steps and task:
+The combine framework is now organized explicitly around the target grid and
+resolution rather than around a special “low-resolution” mode. Current tasks
+include:
 
-1. **Standard (High-Resolution) Version**: This version maps to a
-   high-resolution (ne3000, ~1 km) cubed-sphere grid by default, producing
-   topogrpahy that is suitable for remapping to standard and high-resolution
-   MPAS meshes (~60 km and finer).
+1. Cubed-sphere topography on `ne3000`
+2. Cubed-sphere topography on `ne120`
+3. Latitude-longitude topography on `0.2500_degree`
 
-2. **Low-Resolution Version**: This version uses a coarser ne120 (~25 km) grid
-   for faster remapping to coarse-resolution MPAS meshes (e.g., Icos240). It is
-   designed to reduce computational cost while still providing adequate accuracy
-   for low-resolution simulations used for regression testing rather than
-   science.
+These appear in task paths such as:
 
-The low-resolution version can be selected by setting the `low_res` parameter
-to `True` when creating the `CombineStep` or `CombineTask`.
+- `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne3000/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne120/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.2500_degree/task`
+
+This structure makes it easier for downstream consumers such as ocean
+hydrography preprocessing to reuse combined topography products without
+embedding product-specific names into `e3sm/init`.
 
 ## Key Features
 
@@ -73,9 +78,6 @@ the configuration file. Key options include:
 - `lat_tiles` and `lon_tiles`: Number of tiles to split the global dataset for parallel remapping.
 - `renorm_thresh`: Threshold for renormalizing Antarctic variables during blending.
 
-For the low-resolution version, additional configuration options are provided
-in the `combine_low_res.cfg` file.
-
 ## Workflow
 
 1. **Setup**: The step downloads required datasets and sets up input/output
@@ -98,21 +100,30 @@ task:
 from polaris.tasks.e3sm.init.topo.combine import CombineStep
 
 component = task.component
-subdir = CombineStep.get_subdir(low_res=False)
+subdir = CombineStep.get_subdir()
 if subdir in component.steps:
     step = component.steps[subdir]
 else:
-    step = CombineStep(component=component, low_res=False)
+    step = CombineStep(component=component, subdir=subdir)
     component.add_step(step)
 task.add_step(step)
 ```
 
-To create a `CombineTask` for caching combined datasets:
+To create a cubed-sphere combine task for caching combined datasets:
 
 ```python
-from polaris.tasks.e3sm.init.topo.combine import CombineTask
+from polaris.tasks.e3sm.init.topo.combine import CubedSphereCombineTask
 
-combine_task = CombineTask(component=my_component, low_res=False)
+combine_task = CubedSphereCombineTask(component=my_component, resolution=3000)
+my_component.add_task(combine_task)
+```
+
+To create a latitude-longitude combine task:
+
+```python
+from polaris.tasks.e3sm.init.topo.combine import LatLonCombineTask
+
+combine_task = LatLonCombineTask(component=my_component, resolution=0.25)
 my_component.add_task(combine_task)
 ```
 
@@ -133,7 +144,8 @@ The `VizCombinedStep` is typically added only when visualization is explicitly r
 
 For more details, refer to the source code of the
 {py:class}`polaris.tasks.e3sm.init.topo.combine.CombineStep` and
-{py:class}`polaris.tasks.e3sm.init.topo.combine.CombineTask` classes.
+{py:class}`polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask` and
+{py:class}`polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask` classes.
 
 ```{note}
 Since this step is expensive and time-consuming to run, most tasks will
