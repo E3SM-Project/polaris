@@ -197,9 +197,14 @@ assessment. A likely initial strategy is:
 
 1. Confirm that each stage completed and wrote the expected restart.
 2. Confirm that the final stage produced the expected output file.
-3. Check simple global diagnostics or summary statistics against loose
+3. Record a small set of end-of-stage summary diagnostics so the last several
+   stages can be inspected automatically rather than only by manual plotting.
+4. Check simple global diagnostics or summary statistics against loose
    thresholds to detect numerical blow-up.
-4. Optionally compare a small set of final-state variables against a baseline
+5. For at least the last three stages, verify that selected adjustment metrics
+   are flattening or decreasing, for example maximum cell kinetic energy,
+   domain-integrated kinetic energy, or sea-surface-height tendency.
+6. Optionally compare a small set of final-state variables against a baseline
    for regression testing.
 
 This is similar in spirit to the existing Compass validation, which checks
@@ -308,6 +313,19 @@ verifying expected restart files, confirming the final output exists, and
 checking a small set of variables or summary statistics against baseline or
 threshold values.
 
+The workflow should also produce a compact machine-readable summary of
+stage-end diagnostics, for example one row per stage with metrics such as
+maximum cell kinetic energy, domain-integrated kinetic energy, and one or more
+simple sea-surface-height or tracer tendencies if available from both models.
+This summary would support both automated checks and quick visual inspection at
+the end of the run.
+
+An initial heuristic check could require that the maximum cell kinetic energy
+at the end of each of the last three stages decreases monotonically, or at
+least does not increase by more than a small tolerance. Similar checks could
+be applied to one or two other globally aggregated measures once experience
+shows which diagnostics are the most robust indicators of a settling state.
+
 Where MPAS-Ocean and Omega diagnostics differ, the validation API should still
 present a common concept of "stage completed successfully and final adjusted
 state looks reasonable," with model-specific implementations underneath.
@@ -366,3 +384,8 @@ Regression testing should include loose threshold checks or baseline
 comparisons on a few key fields or diagnostics to catch obvious failures such
 as numerical instability, missing restart chaining, or grossly unphysical
 state variables.
+
+Where practical, these tests should also confirm that the end-of-stage summary
+for the last few stages shows tapering behavior in at least one kinetic-energy
+metric, so that a schedule that is technically stable but clearly not settling
+down is easier to catch.

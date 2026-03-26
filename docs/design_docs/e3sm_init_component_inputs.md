@@ -12,8 +12,8 @@ This design document describes a new Polaris capability for porting Compass'
 new framework and incorrectly suggests that the capability belongs in the
 ocean component. In Polaris, the capability should instead be represented as
 an `e3sm/init` task family called `component_inputs`, because its purpose is
-to prepare component-specific input and diagnostics assets for coupled E3SM
-workflows rather than to initialize the ocean model itself.
+to prepare component-specific input and mesh-derived support assets for
+coupled E3SM workflows rather than to initialize the ocean model itself.
 
 The new design should consume outputs from several upstream workflows. At
 minimum, it will need the culled mesh and topography products from
@@ -26,9 +26,10 @@ workflow, while sea-ice products should be designed to come entirely from
 datasets.
 
 Unlike the Compass workflow, the Polaris design should not bundle ocean,
-sea-ice, diagnostics, and model-specific packaging steps into a single opaque
-task. It should separate ocean products, sea-ice products, and diagnostics or
-mapping products into clearer subtasks or step groups. It should also make the
+sea-ice, mapping-and-mask support, and model-specific packaging steps into a
+single opaque task. It should separate ocean products, sea-ice products, and
+mapping, mask, and other analysis-support products into clearer subtasks or
+step groups. It should also make the
 selected ocean and sea-ice models explicit so MPAS-specific steps such as
 graph partitioning and reconstruction-coefficient generation are included only
 when those models are actually part of the target coupled configuration. In
@@ -37,7 +38,7 @@ MPAS-Ocean-specific packaging steps.
 
 This design is successful if Polaris provides a cleanly named and inspectable
 `e3sm/init` capability that can stage E3SM-compatible inputs for ocean,
-sea-ice, and diagnostics; clearly separates shared products from
+sea-ice, and mesh-derived support assets; clearly separates shared products from
 model-specific ones; uses outputs from ocean initialization and dynamic
 adjustment through explicit dependencies; and leaves a straightforward path for
 supporting both MPAS-Ocean-based and Omega-based coupled workflows.
@@ -63,16 +64,20 @@ The design shall consume the global-ocean initial condition and
 dynamic-adjustment outputs as explicit sources for ocean packaging only.
 Sea-ice packaging shall instead rely on `e3sm/init` products and quantities
 that can be computed directly from them.
+Mesh-derived support assets such as SCRIP files, mapping files, and masks
+shall also remain in `e3sm/init` because they are generated from mesh and
+topography products before any simulation is run, even when they are later
+consumed by post-processing tools.
 
-### Requirement: Ocean, sea-ice, and diagnostics products can be generated independently
+### Requirement: Ocean, sea-ice, and mesh-derived support products can be generated independently
 
 Date last modified: 2026/03/22
 
 Contributors: Xylar Asay-Davis, Codex
 
 Polaris shall separate the current mixed workflow into logically distinct
-products for ocean, sea-ice, freshwater-forcing, and diagnostics or mapping
-support.
+products for ocean, sea-ice, freshwater-forcing, and mapping/mask support
+assets.
 
 Users and developers shall be able to generate only the needed subset of
 products for a given coupled configuration without having to run unrelated
@@ -90,7 +95,7 @@ Contributors: Xylar Asay-Davis, Codex
 
 Polaris shall distinguish between shared products, MPAS-Ocean-specific
 products, Omega-specific products, MPAS-Seaice-specific products, and
-diagnostics products.
+mesh-derived support products.
 
 Steps that are specific to MPAS-Ocean, such as ocean graph partitioning or
 `coeffs_reconstruct` generation, shall not be included when the selected ocean
@@ -107,7 +112,7 @@ Date last modified: 2026/03/22
 Contributors: Xylar Asay-Davis, Codex
 
 Polaris shall produce outputs that can be staged into an E3SM-compatible
-directory structure for inputdata and diagnostics products.
+directory structure for inputdata and related support products.
 
 At the same time, the workflow shall preserve inspectable step-local products
 so developers can examine intermediate files before they are staged into the
@@ -116,19 +121,19 @@ assembled directory tree.
 The design shall favor clear, named products over a monolithic staging step
 that hides where each file came from.
 
-### Requirement: Required remapped forcing and diagnostics assets are supported
+### Requirement: Required remapped forcing and mesh-derived support assets are supported
 
 Date last modified: 2026/03/22
 
 Contributors: Xylar Asay-Davis, Codex
 
-The port shall support the freshwater-forcing and diagnostics assets currently
-produced by the Compass workflow, to the extent that they remain relevant to
-the selected component models.
+The port shall support the freshwater-forcing and mesh-derived support assets
+currently produced by the Compass workflow, to the extent that they remain
+relevant to the selected component models.
 
 This includes ocean and sea-ice inputs derived from remapped observational or
-climatological datasets, SCRIP files, mapping files for diagnostics, and mask
-products used by MPAS-Analysis or related diagnostics workflows.
+climatological datasets, SCRIP files, mapping files, and mask products used by
+MPAS-Analysis, `e3sm_to_cmip`, runtime analysis members, or related workflows.
 
 Features that depend on ice-shelf cavities or land-ice forcing shall remain
 conditional on the mesh and workflow configuration rather than being treated as
@@ -144,7 +149,7 @@ The design shall avoid hard-coding assumptions that coupled E3SM always uses
 MPAS-Ocean plus MPAS-Seaice.
 
 It shall remain possible to support future combinations of ocean and sea-ice
-models, new diagnostics products, or revised staging conventions without
+models, new support assets, or revised staging conventions without
 rewriting the full workflow.
 
 ## Algorithm Design
@@ -174,7 +179,7 @@ This explicit source mapping is important because the current Compass workflow
 mixes `base_mesh.nc`, `initial_state.nc`, and `restart.nc` in ways that are
 convenient but not obvious when viewed from outside the code.
 
-### Algorithm Design: Ocean, sea-ice, and diagnostics products can be generated independently
+### Algorithm Design: Ocean, sea-ice, and mesh-derived support products can be generated independently
 
 Date last modified: 2026/03/22
 
@@ -186,9 +191,10 @@ task modes under `e3sm/init/component_inputs`. A practical decomposition is:
 1. `ocean`: produce ocean-model input assets and ocean-specific forcing
    datasets.
 2. `seaice`: produce sea-ice-model input assets.
-3. `freshwater_forcing`: produce remapped iceberg and ice-shelf freshwater
+3. `forcing_from_dataset/freshwater`: produce remapped iceberg and ice-shelf freshwater
    products that may later be staged for ocean or sea-ice components.
-4. `diagnostics`: produce SCRIP files, diagnostics masks, and mapping files.
+4. `mapping_and_masks`: produce SCRIP files, mapping files, masks, and other
+   mesh-derived support assets used by analysis workflows or runtime features.
 5. `all`: an optional aggregate task that instantiates the needed subset of the
    above for a standard coupled configuration.
 
@@ -208,7 +214,7 @@ This separation will make it much easier to support configurations such as:
 2. Omega only.
 3. MPAS-Ocean plus MPAS-Seaice.
 4. Omega plus MPAS-Seaice.
-5. Diagnostics-only regeneration after a mesh or metadata change.
+5. Mapping-and-mask-only regeneration after a mesh or metadata change.
 
 ### Algorithm Design: Model-specific packaging is gated by the selected component models
 
@@ -220,8 +226,8 @@ The workflow should first classify each product as shared or model-specific.
 A useful starting point is:
 
 1. Shared or nearly shared products:
-   SCRIP files, freshwater-forcing products, and diagnostic mapping inputs
-   that depend primarily on the horizontal mesh.
+   SCRIP files, freshwater-forcing products, and mapping or mask inputs that
+   depend primarily on the horizontal mesh.
 2. MPAS-Ocean-specific products:
    `mpaso.*.nc`, ocean graph partitions, and `coeffs_reconstruct`.
 3. Omega-specific products:
@@ -239,6 +245,12 @@ sea-ice models and then instantiate only the relevant steps. This design is
 preferable to scattering `if ocean_model == ...` logic throughout unrelated
 steps.
 
+From a framework point of view, this should be treated as another case of
+task structure depending on setup-time choices, similar in spirit to Polaris
+tasks that rebuild step lists from config-driven resolution choices. The main
+requirement is simply that model selection be resolved before task setup is
+finalized.
+
 To support Omega cleanly, shared steps should consume a model-neutral mesh or
 state representation wherever possible rather than assuming that every product
 must be derived from an MPAS restart file.
@@ -253,8 +265,14 @@ The design should separate product generation from final staging. A likely
 pattern is:
 
 1. Each generation step writes one or more well-named local products.
-2. A small staging step or helper links or copies those products into an
-   `assembled_files` tree with E3SM-compatible paths and filenames.
+2. A staging step or shared helper assembles those products into an
+   `assembled_files` tree with E3SM-compatible paths and filenames by mapping
+   each declared product to its final relative path under `inputdata/` or the
+   diagnostics tree.
+3. That assembly should usually be implemented by registering the upstream
+   products as inputs to the staging step and materializing symlinks in
+   `assembled_files`, using copies only for products that genuinely need to be
+   rewritten or duplicated.
 
 This keeps the provenance of each generated file clear while still preserving
 compatibility with the inputdata and diagnostics layouts expected by E3SM
@@ -263,13 +281,13 @@ developers.
 It also provides a better foundation for future changes such as alternate
 staging locations, publication workflows, or checksum manifests.
 
-### Algorithm Design: Required remapped forcing and diagnostics assets are supported
+### Algorithm Design: Required remapped forcing and mesh-derived support assets are supported
 
 Date last modified: 2026/03/22
 
 Contributors: Xylar Asay-Davis, Codex
 
-The remapping and diagnostics portion of the port should be divided by product
+The remapping and support-asset portion of the port should be divided by product
 type rather than forcing all remapped fields into ocean or sea-ice ownership.
 A likely grouping is:
 
@@ -278,9 +296,9 @@ A likely grouping is:
 2. Freshwater-forcing assets:
    remapped iceberg climatology, remapped ice-shelf melt, and combined
    freshwater products derived from those fields.
-3. Diagnostics assets:
+3. Mapping and mask support assets:
    SCRIP files, E3SM-to-CMIP maps, region masks, transect masks, and other
-   files consumed by MPAS-Analysis or comparable diagnostics.
+   files consumed by MPAS-Analysis, `e3sm_to_cmip`, or comparable workflows.
 
 This grouping should make it easier to determine which products remain relevant
 for Omega-based workflows and which are tied specifically to MPAS analysis or
@@ -329,7 +347,7 @@ should not use that restart as an input. Instead, they should consume the
 culled mesh, `landIceMask` and related masks from `e3sm/init`, and any
 topography-derived metadata needed for sea-ice packaging.
 
-### Implementation: Ocean, sea-ice, and diagnostics products can be generated independently
+### Implementation: Ocean, sea-ice, and mesh-derived support products can be generated independently
 
 Date last modified: 2026/03/22
 
@@ -340,8 +358,8 @@ optional aggregate task:
 
 1. `component_inputs/ocean`
 2. `component_inputs/seaice`
-3. `component_inputs/freshwater_forcing`
-4. `component_inputs/diagnostics`
+3. `component_inputs/forcing_from_dataset/freshwater`
+4. `component_inputs/mapping_and_masks`
 5. `component_inputs/all`
 
 Each task should consist of inspectable steps with narrow responsibilities.
@@ -357,7 +375,7 @@ One reasonable first-pass mapping from Compass is:
 3. Freshwater-forcing steps:
    `remap_iceberg_climatology`, `remap_ice_shelf_melt`, and
    `add_total_iceberg_ice_shelf_melt`.
-4. Diagnostics steps:
+4. Mapping-and-mask support steps:
    `scrip`, `e3sm_to_cmip_maps`, `diagnostic_maps`,
    `diagnostic_masks`, and `write_coeffs_reconstruct` when relevant.
 
@@ -392,9 +410,18 @@ matrix. For example:
    `seaice_initial_condition`, and `seaice_graph_partition`, all driven from
    `e3sm/init` mesh and mask products.
 4. If freshwater-forcing products are requested, include
-   `component_inputs/freshwater_forcing`, independent of whether the final
+   `component_inputs/forcing_from_dataset/freshwater`, independent of whether the final
    staged files are destined for ocean or sea-ice inputdata locations.
 5. If `seaice_model = none`, exclude the sea-ice task entirely.
+
+If the selected models come from config options that users may override at
+setup time, the task should follow the same Polaris pattern used for other
+dynamic task layouts: define the initial task structure in `__init__()` where
+possible, then remove and re-add only the model-dependent steps in
+`configure()` after config overrides have been applied. Shared steps whose
+inputs and outputs do not depend on the selected models should remain stable so
+that `configure()` is only responsible for the parts of the step graph that
+actually vary.
 
 This implementation should make the "Omega should not inherit MPAS-only
 steps" rule a first-class part of the design rather than an afterthought.
@@ -413,12 +440,21 @@ A better pattern is:
 
 1. Shared helpers for metadata and filename conventions.
 2. Product-generation steps that only create their own outputs.
-3. A small staging helper or final step that populates `assembled_files`.
+3. A final assembly step that takes those declared outputs as inputs and
+   populates `assembled_files` with the expected directory structure, usually
+   by issuing `add_input_file()` calls for each staged product and giving each
+   one its E3SM-facing filename and location.
+
+In other words, the final step should mostly be bookkeeping and staging rather
+than scientific processing: it should create the `inputdata/ocn/...`,
+`inputdata/ice/...`, and support-asset subdirectories, link in outputs from
+the relevant upstream steps, and keep the generated files in those upstream
+step directories so they remain easy to inspect.
 
 This pattern would make product provenance clearer and would also reduce the
 amount of duplicated setup logic across steps.
 
-### Implementation: Required remapped forcing and diagnostics assets are supported
+### Implementation: Required remapped forcing and mesh-derived support assets are supported
 
 Date last modified: 2026/03/22
 
@@ -434,14 +470,15 @@ In particular:
    should not run for open-ocean meshes without cavities.
 2. `remap_iceberg_climatology`, `remap_ice_shelf_melt`, and
    `add_total_iceberg_ice_shelf_melt` should live in a neutral
-   `freshwater_forcing` subtask because they conceptually describe a shared
+   `forcing_from_dataset/freshwater` subtask because they conceptually describe a shared
    freshwater source rather than belonging cleanly to ocean or sea-ice.
-3. `diagnostic_masks` and `diagnostic_maps` should be treated as diagnostics
-   assets, even if they continue to rely on MPAS-oriented tooling initially.
+3. `diagnostic_masks` and `diagnostic_maps` should be treated as mesh-derived
+   support assets, even if they continue to rely on MPAS-oriented tooling
+   initially.
 4. `scrip` and E3SM-to-CMIP mapping support should be implemented so they can
    remain shared across MPAS-Ocean and Omega when they depend only on the
    horizontal mesh description.
-5. The `freshwater_forcing` subtask should use `landIceMask` and other
+5. The `forcing_from_dataset/freshwater` subtask should use `landIceMask` and other
    cull-mask products from `e3sm/init` rather than reading them from ocean
    initial-condition or restart files.
 
@@ -487,7 +524,7 @@ They should also verify that the sea-ice task can run without requiring the
 ocean task, as long as the necessary `e3sm/init` mesh and mask products are
 available.
 
-### Testing and Validation: Ocean, sea-ice, and diagnostics products can be generated independently
+### Testing and Validation: Ocean, sea-ice, and mesh-derived support products can be generated independently
 
 Date last modified: 2026/03/22
 
@@ -498,7 +535,7 @@ Regression tests should exercise at least:
 1. An ocean-only configuration.
 2. A sea-ice-only configuration.
 3. A freshwater-forcing-only configuration.
-4. A diagnostics-only configuration.
+4. A mapping-and-mask-only configuration.
 5. A full aggregate configuration.
 
 This testing will help ensure the decomposition remains real rather than
@@ -519,6 +556,9 @@ several model combinations, especially:
 
 These tests should confirm that MPAS-Ocean-only steps such as graph partition
 and `coeffs_reconstruct` are absent from Omega configurations.
+They should also confirm that changing the configured models at setup time
+causes the task to rebuild the model-dependent portion of its step list
+correctly, without perturbing shared steps unnecessarily.
 
 ### Testing and Validation: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files
 
@@ -531,16 +571,16 @@ assembled directory tree and that the step-local source products are present
 with predictable names.
 
 This validation should include at least a few representative filenames from
-the ocean, sea-ice, and diagnostics categories.
+the ocean, sea-ice, and support-asset categories.
 
-### Testing and Validation: Required remapped forcing and diagnostics assets are supported
+### Testing and Validation: Required remapped forcing and mesh-derived support assets are supported
 
 Date last modified: 2026/03/22
 
 Contributors: Xylar Asay-Davis, Codex
 
-Tests should verify that each supported remapped dataset and diagnostics asset
-is either produced when relevant or cleanly omitted when its prerequisites are
+Tests should verify that each supported remapped dataset and support asset is
+either produced when relevant or cleanly omitted when its prerequisites are
 not part of the selected workflow.
 
 Cavity-dependent products should be tested separately from open-ocean meshes so
