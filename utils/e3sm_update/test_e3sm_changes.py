@@ -3,6 +3,7 @@
 import argparse
 import configparser
 import os
+import shlex
 import subprocess
 from typing import Dict, List
 
@@ -182,29 +183,45 @@ def setup_worktree(submodule, worktree, hash):
 def setup_and_submit(
     load_script, setup_command, worktree, workdir, baseline=None
 ):
-    if ' -t ' in setup_command:
-        split = setup_command.split()
-        index = split.index('-t')
-        suite = split[index + 1]
-    elif '--test_suite' in setup_command:
-        split = setup_command.split()
-        index = split.index('--test_suite')
-        suite = split[index + 1]
-    else:
-        suite = 'custom'
+    suite = _get_suite_name(setup_command)
 
     full_setup = (
-        f'{setup_command} --clean_build --quiet_build --branch {worktree} '
-        f'-w {workdir}'
+        f'{setup_command} --clean_build --quiet_build '
+        f'--branch {shlex.quote(worktree)} -w {shlex.quote(workdir)}'
     )
     if baseline is not None:
-        full_setup = f'{full_setup} -b {baseline}'
+        full_setup = f'{full_setup} -b {shlex.quote(baseline)}'
 
-    commands = f'source {load_script} && {full_setup}'
+    commands = f'source {shlex.quote(load_script)} && {full_setup}'
     print_and_run(commands)
 
-    commands = f'cd {workdir} && sbatch job_script.{suite}.sh'
+    commands = (
+        f'cd {shlex.quote(workdir)} && '
+        f'sbatch {shlex.quote(f"job_script.{suite}.sh")}'
+    )
     print_and_run(commands)
+
+
+def _get_suite_name(setup_command):
+    split = shlex.split(setup_command)
+
+    subcommand = split[1] if len(split) > 1 else None
+
+    if subcommand == 'suite':
+        if '-t' in split:
+            index = split.index('-t')
+            return split[index + 1]
+
+        for flag in ('--task_suite', '--test_suite'):
+            if flag in split:
+                index = split.index(flag)
+                return split[index + 1]
+
+    if '--suite_name' in split:
+        index = split.index('--suite_name')
+        return split[index + 1]
+
+    return 'custom'
 
 
 def print_and_run(commands, get_output=False):
