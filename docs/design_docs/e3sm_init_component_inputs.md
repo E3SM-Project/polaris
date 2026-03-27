@@ -388,14 +388,14 @@ than outputs from the ocean subtask.
 
 ### Implementation: Model-specific packaging is gated by the selected component models
 
-Date last modified: 2026/03/22
+Date last modified: 2026/03/27
 
 Contributors: Xylar Asay-Davis, Codex
 
 The new task family should include explicit model selection in config or task
 construction, for example through values conceptually like:
 
-1. `ocean_model = mpas-ocean` or `omega`
+1. `ocean_model = mpas-ocean`, `omega` or `none`
 2. `seaice_model = mpas-seaice` or `none`
 
 The implementation should then construct the needed steps from a product
