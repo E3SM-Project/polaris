@@ -110,21 +110,17 @@
   <h1>Source code for polaris.constants</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">pcd</span>
 
-<span class="c1"># Temporary dictionary of constants not yet available via PCD, only the ones</span>
-<span class="c1"># we actually use for now.</span>
-<span class="n">CONSTANTS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;seawater_specific_heat_capacity_reference&#39;</span><span class="p">:</span> <span class="mf">3.996e3</span><span class="p">,</span>  <span class="c1"># J kg-1 K-1</span>
-    <span class="s1">&#39;seawater_density_reference&#39;</span><span class="p">:</span> <span class="mf">1.026e3</span><span class="p">,</span>  <span class="c1"># kg m-3</span>
-<span class="p">}</span>
+<span class="c1"># Dictionary of any constants not covered by PCD</span>
+<span class="n">CONSTANTS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-<span class="n">CONVERSION_FACTORS</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">CONVERSION_FACTORS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;day_to_s&#39;</span><span class="p">:</span> <span class="mf">86400.0</span><span class="p">,</span>
 <span class="p">}</span>
 
 
 <div class="viewcode-block" id="get_constant">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.constants.get_constant.html#polaris.constants.get_constant">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_constant</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_constant</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get constants from the Physical Constants Dictionary (PCD) if available,</span>
 <span class="sd">    otherwise from the temporary dictionary of constants.</span>
