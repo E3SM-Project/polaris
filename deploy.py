@@ -3,7 +3,8 @@
 Target software deployment entrypoint.
 
 - Reads pinned mache version from deploy/pins.cfg
-- Reads CLI spec from deploy/cli_spec.json and builds argparse CLI
+- Reads CLI spec from deploy/cli_spec.json plus optional
+  deploy/custom_cli_spec.json and builds argparse CLI
 - Downloads mache/deploy/bootstrap.py for either:
     * a given mache fork/branch, or
     * the pinned mache version
@@ -25,6 +26,7 @@ from urllib.request import Request, urlopen
 
 PINS_CFG = os.path.join('deploy', 'pins.cfg')
 CLI_SPEC_JSON = os.path.join('deploy', 'cli_spec.json')
+CUSTOM_CLI_SPEC_JSON = os.path.join('deploy', 'custom_cli_spec.json')
 DEPLOY_TMP_DIR = 'deploy_tmp'
 BOOTSTRAP_PATH = os.path.join(DEPLOY_TMP_DIR, 'bootstrap.py')
 
@@ -40,6 +42,10 @@ def main():
 
     pinned_mache_version, pinned_python_version = _read_pins(PINS_CFG)
     cli_spec = _read_cli_spec(CLI_SPEC_JSON)
+    cli_spec = _merge_optional_cli_spec(
+        cli_spec,
+        _read_optional_cli_spec(CUSTOM_CLI_SPEC_JSON),
+    )
 
     parser = _build_parser_from_cli_spec(cli_spec)
     args = parser.parse_args(sys.argv[1:])
@@ -223,6 +229,74 @@ def _read_cli_spec(spec_path):
         raise SystemExit(f"ERROR: {spec_path} 'arguments' must be a list")
 
     return spec
+
+
+def _read_optional_cli_spec(spec_path):
+    if not os.path.exists(spec_path):
+        return None
+
+    try:
+        with open(spec_path, 'r', encoding='utf-8') as f:
+            spec = json.load(f)
+    except (OSError, json.JSONDecodeError) as e:
+        raise SystemExit(f'ERROR: Failed to parse {spec_path}: {e!r}') from e
+
+    if not isinstance(spec, dict):
+        raise SystemExit(f'ERROR: {spec_path} must contain a JSON object')
+    if 'arguments' not in spec:
+        raise SystemExit(
+            f"ERROR: {spec_path} must contain top-level key 'arguments'"
+        )
+    if not isinstance(spec['arguments'], list):
+        raise SystemExit(f"ERROR: {spec_path} 'arguments' must be a list")
+    meta = spec.get('meta')
+    if meta is not None and not isinstance(meta, dict):
+        raise SystemExit(f"ERROR: {spec_path} 'meta' must be an object")
+
+    return spec
+
+
+def _merge_optional_cli_spec(cli_spec, custom_cli_spec):
+    if custom_cli_spec is None:
+        return cli_spec
+
+    merged_meta = dict(cli_spec.get('meta', {}))  # type: dict
+    merged_arguments = list(cli_spec.get('arguments', []))  # type: list
+    merged = {
+        'meta': merged_meta,
+        'arguments': merged_arguments,
+    }
+
+    seen_dests = set()
+    seen_flags = set()
+    for entry in merged_arguments:
+        dest = entry.get('dest')
+        if dest:
+            seen_dests.add(dest)
+        for flag in entry.get('flags', []):
+            seen_flags.add(flag)
+
+    for entry in custom_cli_spec['arguments']:
+        dest = entry.get('dest')
+        if dest in seen_dests:
+            raise SystemExit(
+                'ERROR: deploy/custom_cli_spec.json duplicates generated '
+                f"dest '{dest}'"
+            )
+        flags = entry.get('flags', [])
+        duplicate_flags = [flag for flag in flags if flag in seen_flags]
+        if duplicate_flags:
+            dup_str = ', '.join(duplicate_flags)
+            raise SystemExit(
+                'ERROR: deploy/custom_cli_spec.json duplicates generated '
+                f'flags: {dup_str}'
+            )
+        merged_arguments.append(entry)
+        if dest:
+            seen_dests.add(dest)
+        seen_flags.update(flags)
+
+    return merged
 
 
 def _build_parser_from_cli_spec(cli_spec):
@@ -468,21 +542,30 @@ def _run_mache_deploy_run(pixi_exe, repo_root, mache_run_argv):
             f'ERROR: bootstrap pixi project not found. Expected: {pixi_toml}'
         )
 
-    # Build a bash command that runs mache inside pixi, then cd's to repo.
-    mache_cmd = 'mache deploy run'
-    if mache_run_argv:
-        mache_cmd = f'{mache_cmd} ' + ' '.join(
-            shlex.quote(a) for a in mache_run_argv
-        )
+    env = os.environ.copy()
+    for var in (
+        'PIXI_PROJECT_MANIFEST',
+        'PIXI_PROJECT_ROOT',
+        'PIXI_ENVIRONMENT_NAME',
+        'PIXI_IN_SHELL',
+    ):
+        env.pop(var, None)
 
-    cmd = (
-        f'env -u PIXI_PROJECT_MANIFEST -u PIXI_PROJECT_ROOT '
-        f'-u PIXI_ENVIRONMENT_NAME -u PIXI_IN_SHELL '
-        f'{shlex.quote(pixi_exe)} run -m {shlex.quote(pixi_toml)} bash -lc '
-        f'{shlex.quote("cd " + repo_root + " && " + mache_cmd)}'
-    )
+    cmd = [
+        pixi_exe,
+        'run',
+        '-m',
+        pixi_toml,
+        '--',
+        'mache',
+        'deploy',
+        'run',
+    ]
+    if mache_run_argv:
+        cmd.extend(mache_run_argv)
+
     try:
-        subprocess.check_call(['/bin/bash', '-lc', cmd])
+        subprocess.run(cmd, cwd=repo_root, env=env, check=True)
     except subprocess.CalledProcessError as e:
         raise SystemExit(
             f'\nERROR: Deployment step failed (exit code {e.returncode}). '
