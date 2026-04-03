@@ -41,3 +41,10 @@ def get_base_mesh_steps():
             base_mesh_steps.append(base_mesh_step)
 
     return base_mesh_steps
+
+
+def parse_mesh_filepath(mesh_path):
+    component = mesh_path.split('/')[0]
+    database = '/'.join(mesh_path.split('/')[1:-1])
+    mesh_name = mesh_path.split('/')[-1]
+    return component, database, mesh_name

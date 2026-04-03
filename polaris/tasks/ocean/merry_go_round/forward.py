@@ -75,6 +75,7 @@ class Forward(ConvergenceForward):
         )
         self.order = vert_adv_order
         self.limiter = limiter
+        self.mesh_name = init.path.split('/')[-1]
 
     def setup(self):
         """
@@ -86,6 +87,11 @@ class Forward(ConvergenceForward):
         # TODO: remove as soon as Omega no longer hard-codes this file
         if model == 'omega':
             self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
+            self.add_input_file(
+                target=f'{self.mesh_name}_coeffs.nc',
+                filename='coeffs.nc',
+                database='merry_go_round',
+            )
 
     def dynamic_model_config(self, at_setup):
         """
