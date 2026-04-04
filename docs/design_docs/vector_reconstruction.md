@@ -664,3 +664,9 @@ unit and convergence tests, but if the functionality becomes part of standard
 analysis or initialization workflows, a lightweight analysis regression test
 should be added later to guard against changes in reconstruction coefficients or
 basis transforms.
+
+## References
+
+Peixoto, P. S., and S. R. M. Barros (2014), On vector field reconstructions for
+semi-Lagrangian transport methods on geodesic staggered grids, *Journal of
+Computational Physics*, 273, 185-211, DOI:[10.1016/j.jcp.2014.04.043](https://doi.org/10.1016/j.jcp.2014.04.043).
