@@ -1,6 +1,5 @@
 import cmocean  # noqa: F401
 import numpy as np
-import xarray as xr
 
 from polaris.mpas import time_since_start
 from polaris.ocean.model import OceanIOStep
@@ -58,9 +57,7 @@ class Viz(OceanIOStep):
         self.add_input_file(
             filename='output.nc', work_dir_target=f'{forward.path}/output.nc'
         )
-        self.add_input_file(
-            filename='coeffs.nc', work_dir_target=f'{forward.path}/coeffs.nc'
-        )
+        self.forward = forward
         self.mesh_name = mesh_name
         variables_to_plot = dict(
             {
@@ -78,6 +75,15 @@ class Viz(OceanIOStep):
             self.add_output_file(f'{var}_final.png')
             self.add_output_file(f'{var}_diff.png')
 
+    def setup(self):
+        model = self.config.get('ocean', 'model')
+        # TODO: remove as soon as Omega no longer needs this file
+        if model == 'omega':
+            self.add_input_file(
+                filename='coeffs.nc',
+                work_dir_target=f'{self.forward.path}/coeffs.nc',
+            )
+
     def run(self):
         """
         Run this step of the test case
@@ -88,24 +94,21 @@ class Viz(OceanIOStep):
         run_duration = config.getfloat('convergence_forward', 'run_duration')
 
         variables_to_plot = self.variables_to_plot
-        ds_mesh = xr.open_dataset('mesh.nc')
-        ds_coeff = xr.open_dataset('coeffs.nc')
-        coeffs_reconstruct = ds_coeff.coeffs_reconstruct
         ds_init = self.open_model_dataset(
             'initial_state.nc',
             decode_times=False,
-            ds_mesh=ds_mesh,
+            mesh_filename='mesh.nc',
             reconstruct_variables=['normalVelocity'],
-            coeffs_reconstruct=coeffs_reconstruct,
+            coeffs_filename='coeffs.nc',
         )
         ds_init = ds_init[variables_to_plot.keys()].isel(Time=0, nVertLevels=0)
 
         ds_out = self.open_model_dataset(
             'output.nc',
             decode_times=False,
-            ds_mesh=ds_mesh,
+            mesh_filename='mesh.nc',
             reconstruct_variables=['normalVelocity'],
-            coeffs_reconstruct=coeffs_reconstruct,
+            coeffs_filename='coeffs.nc',
         )
         s_per_hour = 3600.0
 

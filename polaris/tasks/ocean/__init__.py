@@ -237,9 +237,9 @@ class Ocean(Component):
     def open_model_dataset(
         self,
         filename,
-        ds_mesh=None,
+        mesh_filename=None,
         reconstruct_variables=None,
-        coeffs_reconstruct=None,
+        coeffs_filename=None,
         **kwargs,
     ):
         """
@@ -270,18 +270,32 @@ class Ocean(Component):
         """
         ds = xr.open_dataset(filename, **kwargs)
         ds = self.map_from_native_model_vars(ds)
-        if ds_mesh is None:
-            ds_mesh = xr.Dataset()
         if reconstruct_variables is None:
             reconstruct_variables = []
-        if coeffs_reconstruct is None:
-            coeffs_reconstruct = xr.DataArray()
         for variable in reconstruct_variables:
             if variable in ds.keys():
                 if 'normal' in variable:
                     out_var_name = variable.replace('normal', '').lower()
                 else:
                     out_var_name = variable
+                if (
+                    f'{out_var_name}Zonal' in ds.keys()
+                    and f'{out_var_name}Meridional' in ds.keys()
+                ):
+                    return ds
+                if mesh_filename is None:
+                    raise ValueError(
+                        'mesh_filename must be provided to '
+                        f'open_model_dataset for reconstruction of {variable}'
+                    )
+                ds_mesh = xr.open_dataset(mesh_filename)
+                if coeffs_filename is None:
+                    raise ValueError(
+                        'coeffs_filename must be provided to '
+                        f'open_model_dataset for reconstruction of {variable}'
+                    )
+                ds_coeff = xr.open_dataset(coeffs_filename)
+                coeffs_reconstruct = ds_coeff.coeffs_reconstruct
                 reconstruct_variable(
                     out_var_name,
                     ds[variable],
