@@ -14,6 +14,7 @@ from polaris.constants.pcd import check_pcd_version_matches_branch
 from polaris.io import symlink
 from polaris.job import write_job_script
 from polaris.machines import discover_machine
+from polaris.parallel import set_parallel_systems
 from polaris.tasks import get_components
 
 
@@ -157,7 +158,7 @@ def setup_tasks(
     )
 
     component.configure(basic_config, list(tasks.values()))
-    component.set_parallel_system(basic_config)
+    set_parallel_systems(tasks, basic_config)
 
     provenance.write(
         work_dir,
