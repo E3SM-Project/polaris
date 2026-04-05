@@ -256,11 +256,15 @@ class CombineStep(Step):
                 f'{res_name}.nc',
             ]
         )
-        self.exodus_filename = f'{self.resolution_name}.g'
+        if target_grid == 'cubed_sphere':
+            self.exodus_filename = f'{self.resolution_name}.g'
+        else:
+            self.exodus_filename = None
 
         self.add_output_file(filename=self.dst_scrip_filename)
         self.add_output_file(filename=self.combined_filename)
-        self.add_output_file(filename=self.exodus_filename)
+        if self.exodus_filename is not None:
+            self.add_output_file(filename=self.exodus_filename)
 
         if update:
             # We need to set absolute paths
