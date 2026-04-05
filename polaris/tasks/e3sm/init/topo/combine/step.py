@@ -276,10 +276,10 @@ class CombineStep(Step):
 
     def _modify_gebco(self, in_filename, out_filename):
         """
-        Modify GEBCO to include lon/lat bounds located at grid edges
+        Modify GEBCO to include lon/lat bounds and an ocean mask
         """
         logger = self.logger
-        logger.info('Adding bounds to GEBCO lat/lon')
+        logger.info('Adding bounds and an ocean mask to GEBCO')
 
         # Modify GEBCO
         gebco = xr.open_dataset(in_filename)
@@ -293,6 +293,7 @@ class CombineStep(Step):
         gebco['lon_bnds'] = lon_bnds.transpose('lon', 'bnds')
         gebco.lat.attrs['bounds'] = 'lat_bnds'
         gebco.lon.attrs['bounds'] = 'lon_bnds'
+        gebco['ocean_mask'] = (gebco.elevation < 0.0).astype(float)
 
         # Write modified GEBCO to netCDF
         _write_netcdf_with_fill_values(gebco, out_filename)
@@ -704,14 +705,14 @@ class CombineStep(Step):
 
                 # Add tile to remapped global topography
                 logger.info(f'    adding {remapped_filename}')
-                elevation = xr.open_dataset(remapped_filename).elevation
-                elevation = elevation.where(elevation.notnull(), 0.0)
-                if 'elevation' in global_remapped:
-                    global_remapped['elevation'] = (
-                        global_remapped.elevation + elevation
-                    )
-                else:
-                    global_remapped['elevation'] = elevation
+                ds_tile = xr.open_dataset(remapped_filename)
+                for field in ['elevation', 'ocean_mask']:
+                    da = ds_tile[field]
+                    da = da.where(da.notnull(), 0.0)
+                    if field in global_remapped:
+                        global_remapped[field] = global_remapped[field] + da
+                    else:
+                        global_remapped[field] = da
 
         # Write tile to netCDF
         logger.info(f'    writing {out_filename}')
@@ -783,6 +784,10 @@ class CombineStep(Step):
         global_elevation = global_elevation.where(
             global_elevation.notnull(), 0.0
         )
+        global_ocean_mask = ds_global.ocean_mask
+        global_ocean_mask = global_ocean_mask.where(
+            global_ocean_mask.notnull(), 0.0
+        )
 
         # Load and mask Antarctic dataset
         ds_antarctic = xr.open_dataset(antarctic_filename)
@@ -797,6 +802,7 @@ class CombineStep(Step):
             'ice_draft',
             'ice_mask',
             'grounded_mask',
+            'ocean_mask',
         ]
 
         for var in vars:
@@ -824,6 +830,12 @@ class CombineStep(Step):
         # Add masks
         for field in ['ice_mask', 'grounded_mask']:
             combined[field] = ds_antarctic[field]
+        antarctic_ocean_mask = ds_antarctic.ocean_mask.where(
+            ds_antarctic.ocean_mask.notnull(), global_ocean_mask
+        )
+        combined['ocean_mask'] = (
+            alpha * global_ocean_mask + (1.0 - alpha) * antarctic_ocean_mask
+        )
 
         # Add fill values
         fill_vals = {
@@ -831,6 +843,7 @@ class CombineStep(Step):
             'ice_thickness': 0.0,
             'ice_mask': 0.0,
             'grounded_mask': 0.0,
+            'ocean_mask': 0.0,
         }
         for field, fill_val in fill_vals.items():
             valid = combined[field].notnull()
