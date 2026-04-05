@@ -441,10 +441,18 @@ class CombineStep(Step):
 
         # Select tile from dataset
         tile = ds.isel(lat=lat_indices, lon=lon_indices)
+        lat = tile.lat.values.copy()
+        lat_attrs = tile.lat.attrs.copy()
+        # xarray may expose coordinate views from ``isel()`` as read-only.
+        # Reassign corrected pole coordinates instead of mutating in place,
+        # while preserving CF metadata that ESMF uses to detect CFGRID files.
         if lat_tile == 0:
-            tile.lat.values[0] = -90.0  # Correct south pole
+            lat[0] = -90.0  # Correct south pole
         if lat_tile == lat_tiles - 1:
-            tile.lat.values[-1] = 90.0  # Correct north pole
+            lat[-1] = 90.0  # Correct north pole
+        tile = tile.assign_coords(
+            lat=xr.DataArray(lat, dims=tile.lat.dims, attrs=lat_attrs)
+        )
 
         # Write tile to netCDF
         _write_netcdf_with_fill_values(tile, out_filename)
