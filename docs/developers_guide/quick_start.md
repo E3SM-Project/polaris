@@ -575,6 +575,44 @@ for some tips on checking code style in VS Code.
 Once you open a pull request for your feature, there is an additional PEP8
 style check at this stage (again using pre-commit).
 
+(dev-polaris-ai-instructions)=
+
+## AI coding assistant instructions
+
+Polaris also includes repository-level instructions for AI coding assistants:
+
+- `AGENTS.md` provides instructions for Codex and other agent-style tools that
+  support repository guidance.
+- `.github/copilot-instructions.md` provides repository-wide instructions for
+  GitHub Copilot.
+- `.github/instructions/python.instructions.md` provides Python-specific
+  Copilot instructions.
+
+These files are intended to capture style preferences that are useful for
+human contributors and AI tools but are not always enforceable automatically.
+Examples include preferring module-level helper functions over nested
+functions, putting public functions before private helpers when practical, and
+avoiding local imports unless they are needed.
+
+To keep maintenance manageable:
+
+- Put anything that can be enforced automatically in `pyproject.toml` and
+  `.pre-commit-config.yaml` first, then keep the AI instruction files focused
+  on higher-level preferences.
+- Keep the shared guidance short and stable so it is practical to mirror in
+  both Codex and Copilot instruction files.
+- Treat `AGENTS.md` as the easiest place to edit shared prose first, then
+  update the two Copilot instruction files to match when shared guidance
+  changes.
+- Use `.github/instructions/*.instructions.md` only for path-specific guidance
+  such as Python conventions, rather than repeating general repository advice
+  in many places.
+- If an AI instruction conflicts with automated tooling, the automated tooling
+  should win.
+
+When you add or change a style preference, update these three files in the same
+pull request so they stay aligned.
+
 (dev-polaris-repo-advanced)=
 
 ## Set up a polaris repository with worktrees: for advanced users
