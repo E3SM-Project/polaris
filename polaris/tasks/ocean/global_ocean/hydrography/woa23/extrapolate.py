@@ -110,13 +110,20 @@ class ExtrapolateStep(Step):
                     ds_out[f'{var}_bnds'] = ds_woa[f'{var}_bnds']
 
                 z_top = -ds_woa.depth_bnds.isel(nbounds=0)
+                ocean_mask = ExtrapolateStep._get_ocean_mask(ds_topo)
                 ocean_mask_3d = (
-                    (ds_topo.base_elevation <= z_top)
-                    & (ds_topo.ocean_mask >= 0.5)
+                    (ds_topo.base_elevation <= z_top) & (ocean_mask >= 0.5)
                 ).transpose('depth', 'lat', 'lon')
                 ds_out['ocean_mask'] = ocean_mask_3d.astype(np.int8)
 
         write_netcdf(ds_out, 'ocean_mask.nc')
+
+    @staticmethod
+    def _get_ocean_mask(ds_topo):
+        """
+        Return the 2D ocean mask from combined topography.
+        """
+        return ds_topo.ocean_mask
 
     def _extrap_horiz(self, in_filename, out_filename, use_ocean_mask):
         """
