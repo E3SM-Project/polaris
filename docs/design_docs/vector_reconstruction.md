@@ -1,10 +1,11 @@
 # Vector Reconstruction at MPAS Cell Centers
 
-date: 2026/04/04
+date: 2026/04/05
 
 Contributors:
 
 - Xylar Asay-Davis
+- Carolyn Begeman
 - Codex
 
 ## Summary
@@ -12,11 +13,14 @@ Contributors:
 This design proposes a new workflow for generating cell-center vector
 reconstruction coefficients for MPAS meshes in Python within `polaris`. The
 primary goal is for `polaris` to compute mesh-based reconstruction metadata and
-coefficients, store them on an MPAS mesh, and enable Omega or MPAS-Ocean to
-reconstruct vector fields at runtime in 3D Cartesian or zonal/meridional form.
-Python is the intended home for coefficient generation because it provides the
-most flexibility for experimenting with reconstruction methods, stencil choices,
-and mesh-field layouts.
+coefficients and write them to an MPAS mesh. A later MPAS-Ocean or Omega
+implementation could read those mesh fields, but changes in those codes are out
+of scope for this PR. Python is the intended home for coefficient generation
+because it provides the most flexibility for experimenting with reconstruction
+methods, stencil choices, and mesh-field layouts. The intent is that this
+Python workflow will eventually become the authoritative way to generate these
+coefficients, with follow-on PRs adding or updating support in MPAS-Ocean and
+Omega to consume the stored mesh fields.
 
 The initial target field is `normalVelocity`, but the coefficient-generation
 workflow should be general enough to apply to any field represented as a scalar
@@ -51,16 +55,16 @@ field-agnostic. The implementation will therefore separate:
   interface-centered radial component.
 
 Success means that `polaris` gains a reusable, documented, and testable
-coefficient-generation workflow in `polaris/mpas` that:
+coefficient-generation workflow in `polaris/mesh` that:
 
 - computes least-squares reconstruction coefficients and stencil metadata that
   can be stored on an MPAS mesh and consumed at runtime by Omega or MPAS-Ocean,
-- treats Python in `polaris` as the authoritative implementation for generating
-  these coefficients,
+- establishes Python in `polaris` as the implementation that is expected to
+  become the authoritative source for generating these coefficients,
 - reconstructs tangential vectors at MPAS cell centers with second-order
   behavior on spherical MPAS meshes,
-- supports outputs in 3D Cartesian and zonal/meridional form at cell centers
-  and layer midpoints, and
+- supports 3D Cartesian outputs and tangential zonal/meridional outputs at
+  cell centers and layer midpoints, and
 - is structured so later extension to arbitrary-point reconstruction can reuse
   the same geometry and reconstruction cache.
 
@@ -91,18 +95,19 @@ that can be added to an MPAS mesh and used by Omega or MPAS-Ocean at runtime.
 
 ### Requirement: 3D Vector Outputs at Layer Midpoints
 
-Date last modified: 2026/04/04
+Date last modified: 2026/04/05
 
 Contributors:
 
 - Xylar Asay-Davis
+- Carolyn Begeman
 - Codex
 
 `polaris` shall support a generic interface that returns reconstructed vector
-fields at cell centers and layer midpoints in:
+fields at cell centers and layer midpoints as:
 
 - 3D Cartesian components, and
-- zonal and meridional components.
+- zonal and meridional components of the tangential part of the vector.
 
 If a radial interface field is supplied on `nVertLevelsP1`, the reconstructed
 vector shall include a radial contribution consistent with the MPAS local
@@ -113,11 +118,12 @@ For velocity, the corresponding radial interface field is `vertVelocityTop`.
 
 ### Requirement: Reusable Precomputation and Extensibility
 
-Date last modified: 2026/04/04
+Date last modified: 2026/04/05
 
 Contributors:
 
 - Xylar Asay-Davis
+- Carolyn Begeman
 - Codex
 
 The implementation shall support precomputation of mesh-dependent reconstruction
@@ -132,8 +138,10 @@ MPAS-Ocean.
 
 The implementation shall not rely on online coefficient generation in
 MPAS-Ocean or Omega. New reconstruction coefficients shall be generated in
-Python in
-`polaris` and then stored on the mesh for runtime use.
+Python in `polaris` and then stored on the mesh for runtime use. Defining those
+mesh fields is in scope for this design. Implementing MPAS-Ocean or Omega code
+changes to read them is not, but follow-on PRs are expected to add that
+support.
 
 ## Algorithm Design
 
@@ -221,11 +229,12 @@ of the performance study rather than being fixed in the first implementation.
 
 ### Algorithm Design: 3D Vector Outputs at Layer Midpoints
 
-Date last modified: 2026/04/04
+Date last modified: 2026/04/05
 
 Contributors:
 
 - Xylar Asay-Davis
+- Carolyn Begeman
 - Codex
 
 The generic reconstruction produces only the tangential part of the vector. A
@@ -256,10 +265,15 @@ $$
 w_{c,k} = 0.
 $$
 
-The output should be available in both Cartesian and local geographic bases.
-Using longitude $\lambda$ and latitude $\theta$ at the cell center, the
-zonal-meridional decomposition should follow the same relationships used in the
-MPAS framework:
+The tangential reconstruction is first returned in 3D Cartesian components
+$(u_x, u_y, u_z)$ even when the vector lies entirely in the tangent plane. If a
+radial component is supplied, it is added in Cartesian form before any basis
+change is applied.
+
+The output should also be available in the local geographic basis. Using
+longitude $\lambda$ and latitude $\theta$ at the cell center, the zonal and
+meridional components should be computed by projecting the Cartesian vector onto
+the local eastward and northward directions used in the MPAS framework:
 
 $$
 u_\mathrm{zonal} = -u_x \sin\lambda + u_y \cos\lambda,
@@ -271,36 +285,39 @@ u_\mathrm{meridional} =
 $$
 
 These formulas are appropriate both for tangential-only reconstruction and for
-the full vector after radial composition.
+the full vector after radial composition. Because the zonal and meridional
+directions are tangent to the sphere, the radial contribution does not appear in
+the zonal or meridional results.
 
 ### Algorithm Design: Reusable Precomputation and Extensibility
 
-Date last modified: 2026/04/04
+Date last modified: 2026/04/05
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The reconstruction should be divided into a mesh-dependent setup phase and a
-field-dependent apply phase. The setup phase is the primary deliverable for
-`polaris`, because it produces the coefficients and stencil metadata to be
-stored on the mesh. The setup phase should be implemented in Python and should
-be considered the authoritative implementation for the new reconstruction
-method. The apply phase is still useful in Python for testing, analysis, and workflow
-development, while Omega or MPAS-Ocean will consume the stored coefficients at
-runtime rather than recomputing them.
+The reconstruction should be divided into a mesh-dependent
+coefficient-generation step and a field-dependent reconstruction step that uses
+those precomputed coefficients. The coefficient-generation step is the primary
+deliverable for `polaris` because it produces the coefficients and stencil
+metadata to be stored on the mesh. This step should be implemented in Python
+and is intended to become the authoritative implementation for the new
+reconstruction method. The reconstruction step is also useful in Python for
+testing and analysis. Changes to MPAS-Ocean or Omega to read the stored fields
+would be follow-on work, not part of this PR.
 
-The setup phase should precompute, for each cell:
+The coefficient-generation step should precompute, for each cell:
 
 - the edge stencil,
 - projected edge geometry in the local tangent plane,
 - a weighted least-squares pseudo-inverse or equivalent coefficient matrix for
   the cell-center value.
 
-The apply phase should then reduce to sparse local linear algebra. For a given
-edge-normal field and vertical level, the tangential reconstruction at each cell
-should be a weighted sum over the local stencil.
+The reconstruction step should then reduce to weighted sums over each cell's
+local stencil. For a given edge-normal field and vertical level, the tangential
+reconstruction at each cell should be a weighted sum over the local stencil.
 
 This separation is important because:
 
@@ -318,30 +335,32 @@ the field at vertices or other fixed locations and then interpolates.
 
 ### Implementation: Generic Tangential Reconstruction at Cell Centers
 
-Date last modified: 2026/04/04
+Date last modified: 2026/04/05
 
 Contributors:
 
 - Xylar Asay-Davis
+- Carolyn Begeman
 - Codex
 
 The proposed implementation adds a new coefficient-generation module to
-`polaris/mpas`:
+`polaris/mesh`:
 
-- `polaris/mpas/reconstruct.py`
+- `polaris/mesh/reconstruct.py`
 
 and a companion module for basis transforms and 3D composition:
 
-- `polaris/mpas/vector.py`
+- `polaris/mesh/vector.py`
 
-The public API should be field-agnostic at its core. A likely structure is:
+The public API should be generic enough to support velocity and other
+edge-normal quantities. A likely structure is:
 
 ```python
 def build_reconstruction_cache(ds_mesh, method="lsq"):
     ...
 
 
-def build_reconstruction_mesh_fields(ds_mesh, method="lsq"):
+def build_reconstruction_mesh_fields(cache):
     ...
 
 
@@ -364,27 +383,33 @@ def reconstruct_3d_cell_center(edge_normal_field, ds_mesh,
 - validate that the mesh is spherical,
 - determine the local tangent basis and local vertical direction at each cell,
 - build the local stencil and coefficient arrays, and
-- return a lightweight cache object, likely as an `xarray.Dataset` or a small
-  dataclass containing `xarray.DataArray` members.
+- return a compact collection of precomputed arrays, likely as an
+  `xarray.Dataset` or a small dataclass containing `xarray.DataArray` members.
 
 The default method should be all-cell least-squares. An optional `method`
 argument may later support `hybrid`, but that should not be the baseline path.
 
-`build_reconstruction_mesh_fields()` should convert this cache into the mesh
-variables needed by MPAS-Ocean or Omega at runtime.
+`build_reconstruction_mesh_fields()` should convert that full in-memory cache
+into the smaller set of MPAS mesh variables that belong in a mesh file. Keeping
+these steps separate is useful because the cache may include projected
+coordinates, basis vectors, and other helper arrays that are convenient in
+Python but do not need to be written to the mesh.
 
 `reconstruct_tangential_cell_center()` should accept any edge-normal field with
 an `nEdges` dimension, preserving all non-horizontal dimensions. This makes the
 core implementation usable for velocity, pressure-gradient-like fields, or any
-other tangential vector quantity represented through edge-normal components.
+other tangential vector quantity represented through edge-normal components. It
+should return a 3-component Cartesian vector that is tangent to the sphere at
+each cell center, so `tangential_cartesian_to_zonal_meridional()` can be
+applied directly to its output.
 
 `reconstruct_3d_cell_center()` should build on the tangential reconstruction by
 adding an optional radial interface field and returning Cartesian and
-zonal/meridional components. This function should be field-agnostic.
+zonal/meridional components. This function should remain usable for velocity and
+other edge-normal quantities.
 
-For xarray compatibility, the Python reconstruction implementation should
-vectorize over all
-non-horizontal dimensions and apply the precomputed weights only along `nEdges`.
+For xarray compatibility, the Python reconstruction implementation should work
+with extra dimensions and apply the precomputed weights only along `nEdges`.
 This will make the same code work naturally for:
 
 - `nEdges`,
@@ -393,11 +418,12 @@ This will make the same code work naturally for:
 
 and similar combinations.
 
-The least-squares path should avoid repeated dense solves at runtime. Instead,
-the setup phase should precompute the operator that maps the stencil's edge
-samples directly to the reconstructed Cartesian vector at the cell center.
+The least-squares path should avoid repeated dense solves when reconstructing a
+field. Instead, the coefficient-generation step should precompute the matrix
+that maps the stencil's edge-normal values directly to the reconstructed
+Cartesian vector at the cell center.
 
-Pseudo code for setup:
+Pseudo code for generating coeffs:
 
 ```python
 for cell in cells:
@@ -406,7 +432,7 @@ for cell in cells:
     coeffs[cell] = build_lsq_center_coeffs(cell, stencil, basis)
 ```
 
-Pseudo code for apply:
+Pseudo code for applying coeffs:
 
 ```python
 for cell in cells:
@@ -416,15 +442,20 @@ for cell in cells:
     )
 ```
 
-Because existing `polaris/mpas` modules are lightweight utilities, this design
-fits the package style well. `polaris/mpas/__init__.py` should export the main
-public functions.
+`polaris/mesh/__init__.py` should export the main public functions.
 
 This design does not propose porting the new coefficient-generation
 algorithm to Fortran for online execution in MPAS-Ocean, and it does not
 propose computing these coefficients directly in Omega. Instead, the Python
 implementation in `polaris` should generate the coefficients once for a given
 mesh, after which runtime codes should only consume the stored mesh fields.
+Follow-on PRs should update MPAS-Ocean and Omega to use those fields.
+
+#### Mesh Fields Written by Polaris
+
+This subsection defines the mesh fields that `polaris` will write. It includes
+these details so the mesh-file interface is clear, but it does not propose
+changes to MPAS-Ocean or Omega in this PR.
 
 The mesh-storage design needs special attention. Existing MPAS meshes already
 contain:
@@ -461,14 +492,15 @@ current one-ring case and the new two-ring least-squares case.
 
 ### Implementation: 3D Vector Outputs at Layer Midpoints
 
-Date last modified: 2026/04/04
+Date last modified: 2026/04/05
 
 Contributors:
 
 - Xylar Asay-Davis
+- Carolyn Begeman
 - Codex
 
-`polaris/mpas/vector.py` should contain the generic 3D-composition logic that
+`polaris/mesh/vector.py` should contain the generic 3D-composition logic that
 sits on top of the tangential reconstruction and the coefficient-generation
 workflow.
 
@@ -499,8 +531,8 @@ fields. A likely default is:
 - `vectorZonal`,
 - `vectorMeridional`.
 
-To align with MPAS naming and user expectations, the design should also discuss
-how this generic output maps onto velocity-oriented runtime fields such as:
+If later work wants velocity-oriented names, the design should also note how
+this generic output could map onto fields such as:
 
 - `uReconstructX`,
 - `uReconstructY`,
@@ -508,28 +540,19 @@ how this generic output maps onto velocity-oriented runtime fields such as:
 - `uReconstructZonal`,
 - `uReconstructMeridional`.
 
-The core implementation should remain field-agnostic even if some downstream
-uses map the outputs onto velocity-specific names.
-
-At runtime, Omega or MPAS-Ocean should reconstruct:
-
-1. the tangential Cartesian vector from the stored stencil and coefficients,
-2. the zonal and meridional components from the reconstructed Cartesian vector,
-3. the full 3D vector by adding the radial contribution derived from an
-   optional radial interface field when needed.
-
-This keeps the coefficient storage generic while allowing field-specific
-post-processing in the runtime model. Runtime codes should consume the stored
-coefficients only; they should not be responsible for recomputing reconstruction
-coefficients.
+The core implementation should remain usable for velocity and for other
+edge-normal quantities even if some later workflow maps the outputs onto
+velocity-specific names. Choosing and implementing those downstream names is out
+of scope for this PR.
 
 ### Implementation: Reusable Precomputation and Extensibility
 
-Date last modified: 2026/04/04
+Date last modified: 2026/04/05
 
 Contributors:
 
 - Xylar Asay-Davis
+- Carolyn Begeman
 - Codex
 
 The reconstruction cache should be serializable or at least representable as an
@@ -551,16 +574,20 @@ need. A later arbitrary-point design can either:
 - add target-specific coefficient builders that reuse the same tangent-plane and
   stencil code.
 
-Project-management-wise, the work can proceed in four steps:
+The Polaris work described here can proceed in four steps:
 
 1. implement the offline least-squares coefficient and stencil generator in
    `polaris`,
-2. define the MPAS/Omega mesh-field representation for those coefficients and
-   write them to mesh files,
+2. define the mesh-field representation written by `polaris` and write those
+   fields to mesh files,
 3. implement basis transforms and the Python 3D reconstruction wrapper with an
    optional radial interface field,
 4. document the API and add examples for coefficient generation and
    reconstruction from stored coefficients.
+
+Any MPAS-Ocean or Omega code changes to read the new mesh fields would be
+separate follow-on work after this Polaris design and implementation are in
+place.
 
 If performance studies later indicate that runtime application is too costly, a
 follow-on effort can evaluate the hybrid Perot/least-squares optimization.
@@ -569,11 +596,12 @@ follow-on effort can evaluate the hybrid Perot/least-squares optimization.
 
 ### Testing and Validation: Generic Tangential Reconstruction at Cell Centers
 
-Date last modified: 2026/04/04
+Date last modified: 2026/04/05
 
 Contributors:
 
 - Xylar Asay-Davis
+- Carolyn Begeman
 - Codex
 
 Testing should include unit tests and convergence tests.
@@ -583,7 +611,6 @@ Unit tests should verify:
 - constant tangential vector fields reconstruct with small error,
 - the reconstructed vector is tangent to the sphere when no radial component is
   supplied,
-- the cache and direct-setup paths give identical results,
 - mesh-output fields contain the expected stencil width and coefficient layout.
 
 Convergence tests should use analytic spherical flows already available in
@@ -603,6 +630,10 @@ For the coefficient-generation path, tests should also confirm that applying the
 stored mesh coefficients reproduces the same result as the direct Python
 reconstruction.
 
+At least one test case should use a culled ocean mesh to confirm that stencil
+construction and reconstruction behave sensibly near topography and other
+non-global boundaries.
+
 Performance tests should compare:
 
 - coefficient-generation cost in Python for representative mesh sizes,
@@ -614,11 +645,12 @@ evaluation of the hybrid optimization path.
 
 ### Testing and Validation: 3D Vector Outputs at Layer Midpoints
 
-Date last modified: 2026/04/04
+Date last modified: 2026/04/05
 
 Contributors:
 
 - Xylar Asay-Davis
+- Carolyn Begeman
 - Codex
 
 3D-vector tests should verify:
@@ -626,6 +658,10 @@ Contributors:
 - Cartesian and zonal/meridional outputs are mutually consistent,
 - omission of the radial interface field yields zero radial contribution,
 - midpoint radial velocity is computed correctly from interface values,
+- a case with nonzero radial contribution is reconstructed correctly in
+  Cartesian form, and
+- the zonal and meridional outputs are unchanged by the added radial
+  contribution,
 - shape and dimension handling are correct for `nVertLevels`,
   `nVertLevelsP1`, and optional `Time`.
 
@@ -642,7 +678,7 @@ the motivating example.
 
 ### Testing and Validation: Reusable Precomputation and Extensibility
 
-Date last modified: 2026/04/04
+Date last modified: 2026/04/05
 
 Contributors:
 
@@ -650,8 +686,13 @@ Contributors:
 - Codex
 
 For the primary workflow, tests should also verify that mesh-writing preserves
-the coefficient fields exactly and that a runtime-style application of those
-fields gives identical answers before and after I/O.
+the coefficient fields exactly and that applying those stored fields gives
+identical answers before and after I/O.
+
+Tests in this section should also verify that converting the in-memory cache to
+mesh fields preserves the coefficients needed for reconstruction, and that
+applying those stored fields reproduces the same result as applying the
+in-memory cache directly.
 
 Documentation tests or example scripts should also be added to demonstrate:
 
