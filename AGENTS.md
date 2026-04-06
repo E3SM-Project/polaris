@@ -25,6 +25,14 @@ These instructions apply to the whole repository unless a deeper
 - Name private helper functions with a leading underscore when that fits
   existing repo conventions.
 
+## Documentation
+
+- When writing documentation for component tasks, follow the relevant
+  `template.md` format and its inline instructions whenever a component
+  task template is available.
+- Prefer starting from the existing template instead of creating task
+  documentation pages from scratch.
+
 ## Validation
 
 - Run relevant pre-commit hooks on changed files before finishing when

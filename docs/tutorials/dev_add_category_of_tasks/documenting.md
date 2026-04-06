@@ -16,8 +16,9 @@ describing the category of tasks and its tasks and steps.
 For the user's guide, make a copy of
 `docs/users_guide/<component>/tasks/template.md` called
 `docs/users_guide/<component>/tasks/<category>.md`.  In that file, you
-should describe the category of tasks and its tasks in a way that would be
-relevant for a user wanting to run the task and look at the output.
+should follow the template's format and inline instructions, then describe the
+category of tasks and its tasks in a way that would be relevant for a user
+wanting to run the task and look at the output.
 This file should describe all of the config options relevant the tasks
 collectively and each task (if it has its own config options), including what
 they are used for and whether it is a good idea to modify them.  Add
