@@ -1,0 +1,873 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vector Reconstruction at MPAS Cell Centers</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Template" href="template.html" />
+    <link rel="prev" title="Shared steps" href="shared_steps.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Vector Reconstruction at MPAS Cell Centers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-generic-tangential-reconstruction-at-cell-centers">Requirement: Generic Tangential Reconstruction at Cell Centers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-3d-vector-outputs-at-layer-midpoints">Requirement: 3D Vector Outputs at Layer Midpoints</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-reusable-precomputation-and-extensibility">Requirement: Reusable Precomputation and Extensibility</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-generic-tangential-reconstruction-at-cell-centers">Algorithm Design: Generic Tangential Reconstruction at Cell Centers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-3d-vector-outputs-at-layer-midpoints">Algorithm Design: 3D Vector Outputs at Layer Midpoints</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-reusable-precomputation-and-extensibility">Algorithm Design: Reusable Precomputation and Extensibility</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-generic-tangential-reconstruction-at-cell-centers">Implementation: Generic Tangential Reconstruction at Cell Centers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-3d-vector-outputs-at-layer-midpoints">Implementation: 3D Vector Outputs at Layer Midpoints</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-reusable-precomputation-and-extensibility">Implementation: Reusable Precomputation and Extensibility</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-generic-tangential-reconstruction-at-cell-centers">Testing and Validation: Generic Tangential Reconstruction at Cell Centers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-3d-vector-outputs-at-layer-midpoints">Testing and Validation: 3D Vector Outputs at Layer Midpoints</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-reusable-precomputation-and-extensibility">Testing and Validation: Reusable Precomputation and Extensibility</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Vector Reconstruction at MPAS Cell Centers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/vector_reconstruction.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="vector-reconstruction-at-mpas-cell-centers">
+<h1>Vector Reconstruction at MPAS Cell Centers<a class="headerlink" href="#vector-reconstruction-at-mpas-cell-centers" title="Link to this heading"></a></h1>
+<p>date: 2026/04/06</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Carolyn Begeman</p></li>
+<li><p>Codex</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>This design proposes a new workflow for generating cell-center vector
+reconstruction coefficients for MPAS meshes in Python within <code class="docutils literal notranslate"><span class="pre">polaris</span></code>. The
+primary goal is for <code class="docutils literal notranslate"><span class="pre">polaris</span></code> to compute mesh-based reconstruction metadata and
+coefficients and write them to an MPAS mesh. A later MPAS-Ocean or Omega
+implementation could read those mesh fields, but changes in those codes are out
+of scope for this PR. Python is the intended home for coefficient generation
+because it provides the most flexibility for experimenting with reconstruction
+methods, stencil choices, and mesh-field layouts. The intent is that this
+Python workflow will eventually become the authoritative way to generate these
+coefficients, with follow-on PRs adding or updating support in MPAS-Ocean and
+Omega to consume the stored mesh fields.</p>
+<p>The initial target field is <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code>, but the coefficient-generation
+workflow should be general enough to apply to any field represented as a scalar
+component normal to MPAS edges. The design follows the best-performing
+practical methods identified in Peixoto and Barros (2014). The first
+implementation should use linear least-squares (LSQ) reconstruction on all cells,
+because offline coefficient generation in Python makes the setup cost less
+important than simplicity, uniformity, and maintainability. A hybrid method
+that combines Perot’s inexpensive cell-centered reconstruction on well-aligned
+cells with a linear least-squares reconstruction on poorly aligned cells should
+be retained as a backup optimization path if runtime performance of the all-LSQ
+approach proves insufficient.</p>
+<p>The design treats the reconstructed field as the sum of:</p>
+<div class="math notranslate nohighlight">
+\[
+\mathbf{u} = \mathbf{u}_t + w \hat{\mathbf{r}},
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{u}_t\)</span> is tangent to the sphere and reconstructed from edge-normal
+components, and <span class="math notranslate nohighlight">\(w \hat{\mathbf{r}}\)</span> is an optional radial contribution aligned
+with the local vertical unit vector. For velocity reconstruction,
+<code class="docutils literal notranslate"><span class="pre">vertVelocityTop</span></code> may be supplied on cell interfaces and converted to layer
+midpoints; if it is omitted, the radial contribution is assumed to be zero.</p>
+<p>Although velocity is the motivating use case, the core reconstruction should be
+field-agnostic. The implementation will therefore separate:</p>
+<ul class="simple">
+<li><p>a generic reconstruction of tangential vectors from edge-normal components,</p></li>
+<li><p>basis transformations between Cartesian and local geographic coordinates, and</p></li>
+<li><p>generic 3D composition from a tangential component and an optional
+interface-centered radial component.</p></li>
+</ul>
+<p>Success means that <code class="docutils literal notranslate"><span class="pre">polaris</span></code> gains a reusable, documented, and testable
+coefficient-generation workflow in <code class="docutils literal notranslate"><span class="pre">polaris/mesh</span></code> that:</p>
+<ul class="simple">
+<li><p>computes least-squares reconstruction coefficients and stencil metadata that
+can be stored on an MPAS mesh and consumed at runtime by Omega or MPAS-Ocean,</p></li>
+<li><p>establishes Python in <code class="docutils literal notranslate"><span class="pre">polaris</span></code> as the implementation that is expected to
+become the authoritative source for generating these coefficients,</p></li>
+<li><p>reconstructs tangential vectors at MPAS cell centers with second-order
+behavior on spherical MPAS meshes,</p></li>
+<li><p>supports 3D Cartesian outputs and local zonal/meridional/radial outputs at
+cell centers and layer midpoints, and</p></li>
+<li><p>is structured so later extension to arbitrary-point reconstruction can reuse
+the same geometry and reconstruction cache.</p></li>
+</ul>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-generic-tangential-reconstruction-at-cell-centers">
+<h3>Requirement: Generic Tangential Reconstruction at Cell Centers<a class="headerlink" href="#requirement-generic-tangential-reconstruction-at-cell-centers" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/04</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">polaris</span></code> shall support offline generation of reconstruction coefficients for a
+tangential vector field at MPAS cell centers from scalar components given
+normal to MPAS edges on spherical meshes. The capability must be general enough
+to apply to fields other than velocity.</p>
+<p>The initial implementation shall focus on reconstruction at cell centers rather
+than arbitrary points. The generated coefficients shall use only local mesh
+geometry and local edge data, and they shall avoid methods that are known to be
+less robust or more expensive than needed for second-order accuracy on MPAS
+Voronoi meshes.</p>
+<p>The primary output of the implementation shall be coefficient and stencil data
+that can be added to an MPAS mesh and used by Omega or MPAS-Ocean at runtime.</p>
+</section>
+<section id="requirement-3d-vector-outputs-at-layer-midpoints">
+<h3>Requirement: 3D Vector Outputs at Layer Midpoints<a class="headerlink" href="#requirement-3d-vector-outputs-at-layer-midpoints" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/06</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Carolyn Begeman</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">polaris</span></code> shall support a generic interface that returns reconstructed vector
+fields at cell centers and layer midpoints as:</p>
+<ul class="simple">
+<li><p>3D Cartesian components, and</p></li>
+<li><p>zonal, meridional, and radial components in the local geographic basis.</p></li>
+</ul>
+<p>If a radial interface field is supplied on <code class="docutils literal notranslate"><span class="pre">nVertLevelsP1</span></code>, the reconstructed
+vector shall include a radial contribution consistent with the MPAS local
+vertical direction. If no radial interface field is supplied, the radial
+contribution shall default to zero.</p>
+<p>For a horizontal-only reconstruction, the local geographic radial output shall
+therefore be zero and may be ignored by downstream users.</p>
+<p>For velocity, the corresponding radial interface field is <code class="docutils literal notranslate"><span class="pre">vertVelocityTop</span></code>.</p>
+</section>
+<section id="requirement-reusable-precomputation-and-extensibility">
+<h3>Requirement: Reusable Precomputation and Extensibility<a class="headerlink" href="#requirement-reusable-precomputation-and-extensibility" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/05</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Carolyn Begeman</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The implementation shall support precomputation of mesh-dependent reconstruction
+metadata and weights so repeated application to many time slices or vertical
+levels is efficient. The implementation shall be organized so later support for
+reconstruction to arbitrary points can reuse the same geometry utilities,
+stencil selection, and basis transforms without redesigning the core interface.</p>
+<p>The implementation shall define a mesh-storage format for reconstruction
+coefficients and stencils that can be read directly at runtime by Omega or
+MPAS-Ocean.</p>
+<p>The implementation shall not rely on online coefficient generation in
+MPAS-Ocean or Omega. New reconstruction coefficients shall be generated in
+Python in <code class="docutils literal notranslate"><span class="pre">polaris</span></code> and then stored on the mesh for runtime use. Defining those
+mesh fields is in scope for this design. Implementing MPAS-Ocean or Omega code
+changes to read them is not, but follow-on PRs are expected to add that
+support.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-generic-tangential-reconstruction-at-cell-centers">
+<h3>Algorithm Design: Generic Tangential Reconstruction at Cell Centers<a class="headerlink" href="#algorithm-design-generic-tangential-reconstruction-at-cell-centers" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/04</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>Let <span class="math notranslate nohighlight">\(u_e\)</span> be the scalar component of a tangential vector field normal to edge
+<span class="math notranslate nohighlight">\(e\)</span>, evaluated at the edge midpoint. The goal is to reconstruct a tangential
+vector <span class="math notranslate nohighlight">\(\mathbf{u}_t\)</span> at a cell center <span class="math notranslate nohighlight">\(\mathbf{x}_c\)</span>.</p>
+<p>Following Peixoto and Barros (2014), the baseline method for the first
+implementation should be linear least-squares reconstruction on all cells using
+a Voronoi-centered two-ring stencil. This choice is motivated by the paper’s
+results for cell-centered and Voronoi-centered reconstruction:</p>
+<ul class="simple">
+<li><p>least-squares reconstruction with a two-ring stencil is second-order and far
+less sensitive to grid imprinting,</p></li>
+<li><p>it avoids cell-by-cell method switching and alignment-threshold tuning in the
+primary implementation, and</p></li>
+<li><p>because coefficients are generated offline in Python, setup cost is less
+important than a simple and uniform formulation.</p></li>
+</ul>
+<p>The same paper also supports a hybrid Perot/least-squares method as an
+effective optimization. That hybrid should be retained as a fallback option if
+runtime application of the all-LSQ coefficients proves too expensive.</p>
+<p>For MPAS cells, the reconstructed point is the cell center, interpreted as the
+local reconstruction point. The implementation should use the local tangent
+plane at the cell center, because the source data are tangent to the sphere and
+the paper’s spherical extensions are based on local projection to the tangent
+plane.</p>
+<p>For a cell with local tangent coordinates <span class="math notranslate nohighlight">\(\boldsymbol{\xi}\)</span> centered at the
+cell center:</p>
+<ol class="arabic simple">
+<li><p>Project nearby edge midpoints and edge-normal vectors into the tangent plane.</p></li>
+<li><p>Apply least-squares reconstruction in that plane.</p></li>
+<li><p>Map the reconstructed tangent vector back to 3D Cartesian coordinates.</p></li>
+</ol>
+<p>In the least-squares approach, a linear tangential vector field is fit in
+tangent coordinates:</p>
+<div class="math notranslate nohighlight">
+\[
+\mathbf{u}_t(\boldsymbol{\xi}) = \mathbf{a}_0 + A \boldsymbol{\xi},
+\]</div>
+<p>subject to the observed edge-normal constraints over a two-ring stencil. The
+value at the cell center is then <span class="math notranslate nohighlight">\(\mathbf{a}_0\)</span>. As in the paper, the least
+squares system should be solved in a weighted form to improve conditioning.</p>
+<p>The least-squares stencil should be Voronoi-centered and use two levels of
+neighbors. In MPAS connectivity terms, this should be interpreted as the union
+of <code class="docutils literal notranslate"><span class="pre">edgesOnVertex</span></code> over the <code class="docutils literal notranslate"><span class="pre">verticesOnCell</span></code> of the target cell, with duplicate
+edges removed. Equivalently, this is the set of edges incident on the vertices
+of the target Voronoi cell, not the much larger set obtained from
+<code class="docutils literal notranslate"><span class="pre">edgesOnCell</span></code> of <code class="docutils literal notranslate"><span class="pre">cellsOnCell</span></code>.</p>
+<p>For a hexagon, each of the 6 vertices contributes one edge on the cell boundary
+and one additional outer edge after duplicates are removed, giving 12 unique
+edges. For a pentagon, the same construction gives 10 unique edges. This
+matches the LS12 method described in the paper for cell-centered or
+Voronoi-centered reconstruction.</p>
+<p>If runtime benchmarks later show that the all-LSQ approach is too expensive, a
+secondary implementation path can adopt the paper’s hybrid strategy. In that
+case, Perot’s method would be applied on well-aligned cells and least-squares
+would be retained on the remaining cells. The Perot formula is:</p>
+<div class="math notranslate nohighlight">
+\[
+\mathbf{u}_{t,c}^{P} \approx
+\frac{1}{A_c}\sum_{e \in c} l_e \, \mathbf{r}_e \, u_e,
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(A_c\)</span> is the cell area in the local projected plane, <span class="math notranslate nohighlight">\(l_e\)</span> is edge
+length, and <span class="math notranslate nohighlight">\(\mathbf{r}_e\)</span> is the projected vector from the reconstruction
+point to the midpoint of edge <span class="math notranslate nohighlight">\(e\)</span>. If this optimization path is pursued, the
+alignment-index criterion from Peixoto and Barros should be revisited as part
+of the performance study rather than being fixed in the first implementation.</p>
+</section>
+<section id="algorithm-design-3d-vector-outputs-at-layer-midpoints">
+<h3>Algorithm Design: 3D Vector Outputs at Layer Midpoints<a class="headerlink" href="#algorithm-design-3d-vector-outputs-at-layer-midpoints" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/06</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Carolyn Begeman</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The generic reconstruction produces only the tangential part of the vector. A
+full 3D vector at layer midpoint <span class="math notranslate nohighlight">\(k\)</span> should be constructed as:</p>
+<div class="math notranslate nohighlight">
+\[
+\mathbf{u}_{c,k} =
+\mathbf{u}_{t,c,k} + w_{c,k} \hat{\mathbf{r}}_c,
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(\hat{\mathbf{r}}_c\)</span> is the local vertical unit vector at the cell center.</p>
+<p>If a radial interface field is provided on <code class="docutils literal notranslate"><span class="pre">nVertLevelsP1</span></code>, the midpoint radial
+component should be formed by averaging adjacent interface values:</p>
+<div class="math notranslate nohighlight">
+\[
+w_{c,k} = \frac{1}{2}\left(w^\mathrm{top}_{c,k} +
+w^\mathrm{top}_{c,k+1}\right).
+\]</div>
+<p>This yields a 3D vector defined at cell centers and layer midpoints. For
+velocity, this is the expected target location for reconstructed 3D velocity in
+MPAS-O analysis workflows.</p>
+<p>If no radial interface field is supplied, then:</p>
+<div class="math notranslate nohighlight">
+\[
+w_{c,k} = 0.
+\]</div>
+<p>The tangential reconstruction is first returned in 3D Cartesian components
+<span class="math notranslate nohighlight">\((u_x, u_y, u_z)\)</span> even when the vector lies entirely in the tangent plane. If a
+radial component is supplied, it is added in Cartesian form before any basis
+change is applied.</p>
+<p>The output should also be available in the local geographic basis as zonal,
+meridional, and radial components. Using longitude <span class="math notranslate nohighlight">\(\lambda\)</span> and latitude
+<span class="math notranslate nohighlight">\(\theta\)</span> at the cell center, these components should be computed by projecting
+the Cartesian vector onto the local eastward, northward, and vertical
+directions used in the MPAS framework:</p>
+<div class="math notranslate nohighlight">
+\[
+u_\mathrm{zonal} = -u_x \sin\lambda + u_y \cos\lambda,
+\]</div>
+<div class="math notranslate nohighlight">
+\[
+u_\mathrm{meridional} =
+-(u_x \cos\lambda + u_y \sin\lambda)\sin\theta + u_z \cos\theta.
+\]</div>
+<div class="math notranslate nohighlight">
+\[
+u_\mathrm{radial} =
+(u_x \cos\lambda + u_y \sin\lambda)\cos\theta + u_z \sin\theta.
+\]</div>
+<p>These formulas are appropriate both for tangential-only reconstruction and for
+the full vector after radial composition. For a tangential-only reconstruction,
+<span class="math notranslate nohighlight">\(u_\mathrm{radial}\)</span> should be zero up to truncation error. When a radial
+contribution is included, it should appear explicitly in
+<span class="math notranslate nohighlight">\(u_\mathrm{radial}\)</span>.</p>
+</section>
+<section id="algorithm-design-reusable-precomputation-and-extensibility">
+<h3>Algorithm Design: Reusable Precomputation and Extensibility<a class="headerlink" href="#algorithm-design-reusable-precomputation-and-extensibility" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/05</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The reconstruction should be divided into a mesh-dependent
+coefficient-generation step and a field-dependent reconstruction step that uses
+those precomputed coefficients. The coefficient-generation step is the primary
+deliverable for <code class="docutils literal notranslate"><span class="pre">polaris</span></code> because it produces the coefficients and stencil
+metadata to be stored on the mesh. This step should be implemented in Python
+and is intended to become the authoritative implementation for the new
+reconstruction method. The reconstruction step is also useful in Python for
+testing and analysis. Changes to MPAS-Ocean or Omega to read the stored fields
+would be follow-on work, not part of this PR.</p>
+<p>The coefficient-generation step should precompute, for each cell:</p>
+<ul class="simple">
+<li><p>the edge stencil,</p></li>
+<li><p>projected edge geometry in the local tangent plane,</p></li>
+<li><p>a weighted least-squares pseudo-inverse or equivalent coefficient matrix for
+the cell-center value.</p></li>
+</ul>
+<p>The reconstruction step should then reduce to weighted sums over each cell’s
+local stencil. For a given edge-normal field and vertical level, the tangential
+reconstruction at each cell should be a weighted sum over the local stencil.</p>
+<p>This separation is important because:</p>
+<ul class="simple">
+<li><p>the mesh geometry does not change between time slices,</p></li>
+<li><p>the same reconstruction is often applied over many vertical levels, and</p></li>
+<li><p>later arbitrary-point reconstruction can reuse the same tangent-plane
+machinery, stencil construction, and basis transforms.</p></li>
+</ul>
+<p>The initial design intentionally excludes arbitrary-point interpolation with
+spherical Wachspress coordinates. However, the reconstruction cache should be
+built so this can be added later by introducing a second stage that evaluates
+the field at vertices or other fixed locations and then interpolates.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-generic-tangential-reconstruction-at-cell-centers">
+<h3>Implementation: Generic Tangential Reconstruction at Cell Centers<a class="headerlink" href="#implementation-generic-tangential-reconstruction-at-cell-centers" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/06</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Carolyn Begeman</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The proposed implementation adds a new coefficient-generation module to
+<code class="docutils literal notranslate"><span class="pre">polaris/mesh</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">polaris/mesh/reconstruct.py</span></code></p></li>
+</ul>
+<p>and a companion module for basis transforms and 3D composition:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">polaris/mesh/vector.py</span></code></p></li>
+</ul>
+<p>The public API should be generic enough to support velocity and other
+edge-normal quantities. A likely structure is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">build_reconstruction_cache</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;lsq&quot;</span><span class="p">):</span>
+    <span class="o">...</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_reconstruction_mesh_fields</span><span class="p">(</span><span class="n">cache</span><span class="p">):</span>
+    <span class="o">...</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">reconstruct_tangential_cell_center</span><span class="p">(</span><span class="n">edge_normal_field</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span>
+                                       <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="o">...</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">cartesian_to_local_geographic</span><span class="p">(</span><span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">,</span> <span class="n">u_z</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">):</span>
+    <span class="o">...</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">reconstruct_3d_cell_center</span><span class="p">(</span><span class="n">edge_normal_field</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span>
+                               <span class="n">radial_interface_field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">build_reconstruction_cache()</span></code> should:</p>
+<ul class="simple">
+<li><p>validate that the mesh is spherical,</p></li>
+<li><p>determine the local tangent basis and local vertical direction at each cell,</p></li>
+<li><p>build the local stencil and coefficient arrays, and</p></li>
+<li><p>return a compact collection of precomputed arrays, likely as an
+<code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> or a small dataclass containing <code class="docutils literal notranslate"><span class="pre">xarray.DataArray</span></code> members.</p></li>
+</ul>
+<p>The default method should be all-cell least-squares. An optional <code class="docutils literal notranslate"><span class="pre">method</span></code>
+argument may later support <code class="docutils literal notranslate"><span class="pre">hybrid</span></code>, but that should not be the baseline path.</p>
+<p><code class="docutils literal notranslate"><span class="pre">build_reconstruction_mesh_fields()</span></code> should convert that full in-memory cache
+into the smaller set of MPAS mesh variables that belong in a mesh file. Keeping
+these steps separate is useful because the cache may include projected
+coordinates, basis vectors, and other helper arrays that are convenient in
+Python but do not need to be written to the mesh.</p>
+<p><code class="docutils literal notranslate"><span class="pre">reconstruct_tangential_cell_center()</span></code> should accept any edge-normal field with
+an <code class="docutils literal notranslate"><span class="pre">nEdges</span></code> dimension, preserving all non-horizontal dimensions. This makes the
+core implementation usable for velocity, pressure-gradient-like fields, or any
+other tangential vector quantity represented through edge-normal components. It
+should return a 3-component Cartesian vector that is tangent to the sphere at
+each cell center, so <code class="docutils literal notranslate"><span class="pre">cartesian_to_local_geographic()</span></code> can be applied directly
+to its output.</p>
+<p><code class="docutils literal notranslate"><span class="pre">reconstruct_3d_cell_center()</span></code> should build on the tangential reconstruction by
+adding an optional radial interface field and returning Cartesian and
+local geographic components. This function should remain usable for velocity and
+other edge-normal quantities.</p>
+<p>For xarray compatibility, the Python reconstruction implementation should work
+with extra dimensions and apply the precomputed weights only along <code class="docutils literal notranslate"><span class="pre">nEdges</span></code>.
+This will make the same code work naturally for:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nEdges</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nEdges,</span> <span class="pre">nVertLevels</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Time,</span> <span class="pre">nEdges,</span> <span class="pre">nVertLevels</span></code>,</p></li>
+</ul>
+<p>and similar combinations.</p>
+<p>The least-squares path should avoid repeated dense solves when reconstructing a
+field. Instead, the coefficient-generation step should precompute the matrix
+that maps the stencil’s edge-normal values directly to the reconstructed
+Cartesian vector at the cell center.</p>
+<p>Pseudo code for generating coeffs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">cells</span><span class="p">:</span>
+    <span class="n">basis</span> <span class="o">=</span> <span class="n">build_local_tangent_basis</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+    <span class="n">stencil</span> <span class="o">=</span> <span class="n">build_two_ring_edge_stencil</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+    <span class="n">coeffs</span><span class="p">[</span><span class="n">cell</span><span class="p">]</span> <span class="o">=</span> <span class="n">build_lsq_center_coeffs</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">stencil</span><span class="p">,</span> <span class="n">basis</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Pseudo code for applying coeffs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">cells</span><span class="p">:</span>
+    <span class="n">tangential_xyz</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">cell</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="n">coeffs</span><span class="p">[</span><span class="n">cell</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">edge_normal</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">stencil</span><span class="p">[</span><span class="n">cell</span><span class="p">,</span> <span class="n">i</span><span class="p">]]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_stencil</span><span class="p">[</span><span class="n">cell</span><span class="p">])</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">polaris/mesh/__init__.py</span></code> should export the main public functions.</p>
+<p>This design does not propose porting the new coefficient-generation
+algorithm to Fortran for online execution in MPAS-Ocean, and it does not
+propose computing these coefficients directly in Omega. Instead, the Python
+implementation in <code class="docutils literal notranslate"><span class="pre">polaris</span></code> should generate the coefficients once for a given
+mesh, after which runtime codes should only consume the stored mesh fields.
+Follow-on PRs should update MPAS-Ocean and Omega to use those fields.</p>
+<section id="mesh-fields-written-by-polaris">
+<h4>Mesh Fields Written by Polaris<a class="headerlink" href="#mesh-fields-written-by-polaris" title="Link to this heading"></a></h4>
+<p>This subsection defines the mesh fields that <code class="docutils literal notranslate"><span class="pre">polaris</span></code> will write. It includes
+these details so the mesh-file interface is clear, but it does not propose
+changes to MPAS-Ocean or Omega in this PR.</p>
+<p>The mesh-storage design needs special attention. Existing MPAS meshes already
+contain:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">coeffs_reconstruct(R3,</span> <span class="pre">maxEdges,</span> <span class="pre">nCells)</span></code>,</p></li>
+</ul>
+<p>and the current MPAS runtime reconstruction uses <code class="docutils literal notranslate"><span class="pre">edgesOnCell</span></code> as the implicit
+stencil. This is sufficient for the existing one-ring reconstruction but not
+for the all-cell least-squares design described here, which requires a two-ring
+stencil with up to 12 edges on hexagons and 10 on pentagons.</p>
+<p>Therefore, the least-squares design requires runtime-readable mesh fields
+that explicitly encode both:</p>
+<ul class="simple">
+<li><p>the reconstruction stencil for each cell, and</p></li>
+<li><p>the coefficients associated with that stencil.</p></li>
+</ul>
+<p>The recommended target representation is:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">reconstructEdgeStencil(maxEdges2,</span> <span class="pre">nCells)</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nReconstructEdges(nCells)</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coeffs_reconstruct(R3,</span> <span class="pre">maxEdges2,</span> <span class="pre">nCells)</span></code>.</p></li>
+</ul>
+<p>Here, <code class="docutils literal notranslate"><span class="pre">maxEdges2</span></code> is already an MPAS mesh dimension and is 12 on standard
+hexagon-pentagon meshes, which matches the LS12 stencil width described in the
+paper. This makes <code class="docutils literal notranslate"><span class="pre">maxEdges2</span></code> a natural candidate for storing the two-ring
+least-squares stencil.</p>
+<p>This design explicitly recommends enlarging <code class="docutils literal notranslate"><span class="pre">coeffs_reconstruct</span></code> from
+<code class="docutils literal notranslate"><span class="pre">maxEdges</span></code> to <code class="docutils literal notranslate"><span class="pre">maxEdges2</span></code> rather than introducing a second coefficient
+variable. This keeps the runtime interface clearer by preserving the existing
+coefficient name while expanding its stencil capacity to support both the
+current one-ring case and the new two-ring least-squares case.</p>
+</section>
+</section>
+<section id="implementation-3d-vector-outputs-at-layer-midpoints">
+<h3>Implementation: 3D Vector Outputs at Layer Midpoints<a class="headerlink" href="#implementation-3d-vector-outputs-at-layer-midpoints" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/06</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Carolyn Begeman</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">polaris/mesh/vector.py</span></code> should contain the generic 3D-composition logic that
+sits on top of the tangential reconstruction and the coefficient-generation
+workflow.</p>
+<p>The generic 3D wrapper should:</p>
+<ol class="arabic simple">
+<li><p>reconstruct the tangential Cartesian vector from an edge-normal field,</p></li>
+<li><p>broadcast the tangential result to all non-horizontal dimensions,</p></li>
+<li><p>derive midpoint radial values from an optional radial interface field,</p></li>
+<li><p>add the radial contribution in the local vertical direction, and</p></li>
+<li><p>derive zonal, meridional, and radial components from the resulting Cartesian
+vector.</p></li>
+</ol>
+<p>For the optional radial interface field, the implementation should:</p>
+<ul class="simple">
+<li><p>require an <code class="docutils literal notranslate"><span class="pre">nCells</span></code> dimension,</p></li>
+<li><p>require <code class="docutils literal notranslate"><span class="pre">nVertLevelsP1</span></code> if present,</p></li>
+<li><p>form midpoint values on <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code>,</p></li>
+<li><p>preserve any leading dimensions such as <code class="docutils literal notranslate"><span class="pre">Time</span></code>.</p></li>
+</ul>
+<p>If the radial interface field is omitted, the wrapper should behave exactly
+like a horizontal-only reconstruction, with zero radial contribution.</p>
+<p>The generic wrapper should return an <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> with clearly named output
+fields. A likely default is:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">vectorX</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vectorY</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vectorZ</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vectorZonal</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vectorMeridional</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vectorRadial</span></code>.</p></li>
+</ul>
+<p>If later work wants velocity-oriented names, the design should also note how
+this generic output could map onto fields such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">uReconstructX</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">uReconstructY</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">uReconstructZ</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">uReconstructZonal</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">uReconstructMeridional</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">uReconstructRadial</span></code>.</p></li>
+</ul>
+<p>The core implementation should remain usable for velocity and for other
+edge-normal quantities even if some later workflow maps the outputs onto
+velocity-specific names. Choosing and implementing those downstream names is out
+of scope for this PR.</p>
+</section>
+<section id="implementation-reusable-precomputation-and-extensibility">
+<h3>Implementation: Reusable Precomputation and Extensibility<a class="headerlink" href="#implementation-reusable-precomputation-and-extensibility" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/05</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Carolyn Begeman</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The reconstruction cache should be serializable or at least representable as an
+<code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code>, so it can be inspected during debugging and written to a mesh
+file.</p>
+<p>Recommended cache contents include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nStencilEdges</span></code> on <code class="docutils literal notranslate"><span class="pre">nCells</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stencilEdges</span></code> on <code class="docutils literal notranslate"><span class="pre">nCells,</span> <span class="pre">maxStencilEdges</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reconstructCoeffs</span></code> on <code class="docutils literal notranslate"><span class="pre">nCells,</span> <span class="pre">maxStencilEdges,</span> <span class="pre">R3</span></code>,</p></li>
+<li><p>local basis vectors on <code class="docutils literal notranslate"><span class="pre">nCells,</span> <span class="pre">R3</span></code>.</p></li>
+</ul>
+<p>This design intentionally precomputes coefficients for cell-center values only.
+That keeps the initial implementation compact and directly aligned with the user
+need. A later arbitrary-point design can either:</p>
+<ul class="simple">
+<li><p>add a second cache for fixed target points such as vertices, or</p></li>
+<li><p>add target-specific coefficient builders that reuse the same tangent-plane and
+stencil code.</p></li>
+</ul>
+<p>The Polaris work described here can proceed in four steps:</p>
+<ol class="arabic simple">
+<li><p>implement the offline least-squares coefficient and stencil generator in
+<code class="docutils literal notranslate"><span class="pre">polaris</span></code>,</p></li>
+<li><p>define the mesh-field representation written by <code class="docutils literal notranslate"><span class="pre">polaris</span></code> and write those
+fields to mesh files,</p></li>
+<li><p>implement basis transforms and the Python 3D reconstruction wrapper with an
+optional radial interface field,</p></li>
+<li><p>document the API and add examples for coefficient generation and
+reconstruction from stored coefficients.</p></li>
+</ol>
+<p>Any MPAS-Ocean or Omega code changes to read the new mesh fields would be
+separate follow-on work after this Polaris design and implementation are in
+place.</p>
+<p>If performance studies later indicate that runtime application is too costly, a
+follow-on effort can evaluate the hybrid Perot/least-squares optimization.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-generic-tangential-reconstruction-at-cell-centers">
+<h3>Testing and Validation: Generic Tangential Reconstruction at Cell Centers<a class="headerlink" href="#testing-and-validation-generic-tangential-reconstruction-at-cell-centers" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/05</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Carolyn Begeman</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>Testing should include unit tests and convergence tests.</p>
+<p>Unit tests should verify:</p>
+<ul class="simple">
+<li><p>constant tangential vector fields reconstruct with small error,</p></li>
+<li><p>the reconstructed vector is tangent to the sphere when no radial component is
+supplied,</p></li>
+<li><p>mesh-output fields contain the expected stencil width and coefficient layout.</p></li>
+</ul>
+<p>Convergence tests should use analytic spherical flows already available in
+Polaris test cases, such as the sphere transport or cosine-bell style flows.
+The test procedure should:</p>
+<ol class="arabic simple">
+<li><p>evaluate analytic zonal/meridional velocity on edges,</p></li>
+<li><p>convert to edge-normal components,</p></li>
+<li><p>reconstruct at cell centers,</p></li>
+<li><p>compare with the analytic vector at cell centers.</p></li>
+</ol>
+<p>The expected result is second-order convergence in RMS error for the
+least-squares scheme on spherical MPAS meshes, with substantially reduced grid
+imprinting relative to Perot alone.</p>
+<p>For the coefficient-generation path, tests should also confirm that applying the
+stored mesh coefficients reproduces the same result as the direct Python
+reconstruction.</p>
+<p>At least one test case should use a culled ocean mesh to confirm that stencil
+construction and reconstruction behave sensibly near topography and other
+non-global boundaries.</p>
+<p>Performance tests should compare:</p>
+<ul class="simple">
+<li><p>coefficient-generation cost in Python for representative mesh sizes,</p></li>
+<li><p>runtime application cost of the stored least-squares coefficients,</p></li>
+<li><p>mesh storage footprint for the widened stencil representation.</p></li>
+</ul>
+<p>If these tests show that runtime cost is too high, they should motivate
+evaluation of the hybrid optimization path.</p>
+</section>
+<section id="testing-and-validation-3d-vector-outputs-at-layer-midpoints">
+<h3>Testing and Validation: 3D Vector Outputs at Layer Midpoints<a class="headerlink" href="#testing-and-validation-3d-vector-outputs-at-layer-midpoints" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/06</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Carolyn Begeman</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>3D-vector tests should verify:</p>
+<ul class="simple">
+<li><p>Cartesian and local geographic outputs are mutually consistent,</p></li>
+<li><p>omission of the radial interface field yields zero radial contribution,</p></li>
+<li><p>midpoint radial velocity is computed correctly from interface values,</p></li>
+<li><p>the reconstructed local geographic radial component equals the simple mean of
+the adjacent top and bottom interface values,</p></li>
+<li><p>a case with nonzero radial contribution is reconstructed correctly in
+Cartesian form, and</p></li>
+<li><p>the local geographic radial output matches the expected midpoint radial
+velocity, and</p></li>
+<li><p>the zonal and meridional outputs remain consistent with the horizontal part
+of the reconstructed vector,</p></li>
+<li><p>shape and dimension handling are correct for <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code>,
+<code class="docutils literal notranslate"><span class="pre">nVertLevelsP1</span></code>, and optional <code class="docutils literal notranslate"><span class="pre">Time</span></code>.</p></li>
+</ul>
+<p>A simple analytic test can define:</p>
+<ul class="simple">
+<li><p>a known tangential horizontal velocity,</p></li>
+<li><p>a known radial profile on interfaces,</p></li>
+<li><p>an expected full Cartesian vector at layer midpoints.</p></li>
+</ul>
+<p>The generic wrapper should reproduce the known Cartesian and zonal/meridional
+fields, together with the expected radial field, to within expected truncation
+error. A velocity-specific test case using <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> and
+<code class="docutils literal notranslate"><span class="pre">vertVelocityTop</span></code> should remain part of the test suite as the motivating
+example.</p>
+</section>
+<section id="testing-and-validation-reusable-precomputation-and-extensibility">
+<h3>Testing and Validation: Reusable Precomputation and Extensibility<a class="headerlink" href="#testing-and-validation-reusable-precomputation-and-extensibility" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/05</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>For the primary workflow, tests should also verify that mesh-writing preserves
+the coefficient fields exactly and that applying those stored fields gives
+identical answers before and after I/O.</p>
+<p>Tests in this section should also verify that converting the in-memory cache to
+mesh fields preserves the coefficients needed for reconstruction, and that
+applying those stored fields reproduces the same result as applying the
+in-memory cache directly.</p>
+<p>Documentation tests or example scripts should also be added to demonstrate:</p>
+<ul class="simple">
+<li><p>generic tangential reconstruction from an arbitrary edge-normal field,</p></li>
+<li><p>velocity reconstruction from <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code>,</p></li>
+<li><p>velocity reconstruction from <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> and <code class="docutils literal notranslate"><span class="pre">vertVelocityTop</span></code>.</p></li>
+</ul>
+<p>The initial implementation does not need regression-suite integration beyond
+unit and convergence tests, but if the functionality becomes part of standard
+analysis or initialization workflows, a lightweight analysis regression test
+should be added later to guard against changes in reconstruction coefficients or
+basis transforms.</p>
+</section>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<p>Peixoto, P. S., and S. R. M. Barros (2014), On vector field reconstructions for
+semi-Lagrangian transport methods on geodesic staggered grids, <em>Journal of
+Computational Physics</em>, 273, 185-211, DOI:<a class="reference external" href="https://doi.org/10.1016/j.jcp.2014.04.043">10.1016/j.jcp.2014.04.043</a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="shared_steps.html" class="btn btn-neutral float-left" title="Shared steps" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="template.html" class="btn btn-neutral float-right" title="Template" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

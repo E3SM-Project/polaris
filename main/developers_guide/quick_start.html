@@ -87,6 +87,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#running-polaris-from-the-repo">Running polaris from the repo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#code-style-for-polaris">Code style for polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ai-coding-assistant-instructions">AI coding assistant instructions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#set-up-a-polaris-repository-with-worktrees-for-advanced-users">Set up a polaris repository with worktrees: for advanced users</a></li>
 </ul>
 </li>
@@ -613,6 +614,41 @@ such as <a class="reference external" href="https://code.visualstudio.com/">VS C
 for some tips on checking code style in VS Code.</p>
 <p>Once you open a pull request for your feature, there is an additional PEP8
 style check at this stage (again using pre-commit).</p>
+</section>
+<section id="ai-coding-assistant-instructions">
+<span id="dev-polaris-ai-instructions"></span><h2>AI coding assistant instructions<a class="headerlink" href="#ai-coding-assistant-instructions" title="Link to this heading"></a></h2>
+<p>Polaris also includes repository-level instructions for AI coding assistants:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> provides instructions for Codex and other agent-style tools that
+support repository guidance.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.github/copilot-instructions.md</span></code> provides repository-wide instructions for
+GitHub Copilot.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.github/instructions/python.instructions.md</span></code> provides Python-specific
+Copilot instructions.</p></li>
+</ul>
+<p>These files are intended to capture style preferences that are useful for
+human contributors and AI tools but are not always enforceable automatically.
+Examples include preferring module-level helper functions over nested
+functions, putting public functions before private helpers when practical, and
+avoiding local imports unless they are needed.</p>
+<p>To keep maintenance manageable:</p>
+<ul class="simple">
+<li><p>Put anything that can be enforced automatically in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> and
+<code class="docutils literal notranslate"><span class="pre">.pre-commit-config.yaml</span></code> first, then keep the AI instruction files focused
+on higher-level preferences.</p></li>
+<li><p>Keep the shared guidance short and stable so it is practical to mirror in
+both Codex and Copilot instruction files.</p></li>
+<li><p>Treat <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> as the easiest place to edit shared prose first, then
+update the two Copilot instruction files to match when shared guidance
+changes.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">.github/instructions/*.instructions.md</span></code> only for path-specific guidance
+such as Python conventions, rather than repeating general repository advice
+in many places.</p></li>
+<li><p>If an AI instruction conflicts with automated tooling, the automated tooling
+should win.</p></li>
+</ul>
+<p>When you add or change a style preference, update these three files in the same
+pull request so they stay aligned.</p>
 </section>
 <section id="set-up-a-polaris-repository-with-worktrees-for-advanced-users">
 <span id="dev-polaris-repo-advanced"></span><h2>Set up a polaris repository with worktrees: for advanced users<a class="headerlink" href="#set-up-a-polaris-repository-with-worktrees-for-advanced-users" title="Link to this heading"></a></h2>
