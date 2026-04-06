@@ -1,6 +1,6 @@
 # Vector Reconstruction at MPAS Cell Centers
 
-date: 2026/04/05
+date: 2026/04/06
 
 Contributors:
 
@@ -50,7 +50,7 @@ Although velocity is the motivating use case, the core reconstruction should be
 field-agnostic. The implementation will therefore separate:
 
 - a generic reconstruction of tangential vectors from edge-normal components,
-- basis transformations between Cartesian and zonal/meridional coordinates, and
+- basis transformations between Cartesian and local geographic coordinates, and
 - generic 3D composition from a tangential component and an optional
   interface-centered radial component.
 
@@ -63,7 +63,7 @@ coefficient-generation workflow in `polaris/mesh` that:
   become the authoritative source for generating these coefficients,
 - reconstructs tangential vectors at MPAS cell centers with second-order
   behavior on spherical MPAS meshes,
-- supports 3D Cartesian outputs and tangential zonal/meridional outputs at
+- supports 3D Cartesian outputs and local zonal/meridional/radial outputs at
   cell centers and layer midpoints, and
 - is structured so later extension to arbitrary-point reconstruction can reuse
   the same geometry and reconstruction cache.
@@ -95,7 +95,7 @@ that can be added to an MPAS mesh and used by Omega or MPAS-Ocean at runtime.
 
 ### Requirement: 3D Vector Outputs at Layer Midpoints
 
-Date last modified: 2026/04/05
+Date last modified: 2026/04/06
 
 Contributors:
 
@@ -107,12 +107,15 @@ Contributors:
 fields at cell centers and layer midpoints as:
 
 - 3D Cartesian components, and
-- zonal and meridional components of the tangential part of the vector.
+- zonal, meridional, and radial components in the local geographic basis.
 
 If a radial interface field is supplied on `nVertLevelsP1`, the reconstructed
 vector shall include a radial contribution consistent with the MPAS local
 vertical direction. If no radial interface field is supplied, the radial
 contribution shall default to zero.
+
+For a horizontal-only reconstruction, the local geographic radial output shall
+therefore be zero and may be ignored by downstream users.
 
 For velocity, the corresponding radial interface field is `vertVelocityTop`.
 
@@ -229,7 +232,7 @@ of the performance study rather than being fixed in the first implementation.
 
 ### Algorithm Design: 3D Vector Outputs at Layer Midpoints
 
-Date last modified: 2026/04/05
+Date last modified: 2026/04/06
 
 Contributors:
 
@@ -270,10 +273,11 @@ $(u_x, u_y, u_z)$ even when the vector lies entirely in the tangent plane. If a
 radial component is supplied, it is added in Cartesian form before any basis
 change is applied.
 
-The output should also be available in the local geographic basis. Using
-longitude $\lambda$ and latitude $\theta$ at the cell center, the zonal and
-meridional components should be computed by projecting the Cartesian vector onto
-the local eastward and northward directions used in the MPAS framework:
+The output should also be available in the local geographic basis as zonal,
+meridional, and radial components. Using longitude $\lambda$ and latitude
+$\theta$ at the cell center, these components should be computed by projecting
+the Cartesian vector onto the local eastward, northward, and vertical
+directions used in the MPAS framework:
 
 $$
 u_\mathrm{zonal} = -u_x \sin\lambda + u_y \cos\lambda,
@@ -284,10 +288,16 @@ u_\mathrm{meridional} =
 -(u_x \cos\lambda + u_y \sin\lambda)\sin\theta + u_z \cos\theta.
 $$
 
+$$
+u_\mathrm{radial} =
+(u_x \cos\lambda + u_y \sin\lambda)\cos\theta + u_z \sin\theta.
+$$
+
 These formulas are appropriate both for tangential-only reconstruction and for
-the full vector after radial composition. Because the zonal and meridional
-directions are tangent to the sphere, the radial contribution does not appear in
-the zonal or meridional results.
+the full vector after radial composition. For a tangential-only reconstruction,
+$u_\mathrm{radial}$ should be zero up to truncation error. When a radial
+contribution is included, it should appear explicitly in
+$u_\mathrm{radial}$.
 
 ### Algorithm Design: Reusable Precomputation and Extensibility
 
@@ -335,7 +345,7 @@ the field at vertices or other fixed locations and then interpolates.
 
 ### Implementation: Generic Tangential Reconstruction at Cell Centers
 
-Date last modified: 2026/04/05
+Date last modified: 2026/04/06
 
 Contributors:
 
@@ -369,7 +379,7 @@ def reconstruct_tangential_cell_center(edge_normal_field, ds_mesh,
     ...
 
 
-def tangential_cartesian_to_zonal_meridional(u_x, u_y, u_z, ds_mesh):
+def cartesian_to_local_geographic(u_x, u_y, u_z, ds_mesh):
     ...
 
 
@@ -400,12 +410,12 @@ an `nEdges` dimension, preserving all non-horizontal dimensions. This makes the
 core implementation usable for velocity, pressure-gradient-like fields, or any
 other tangential vector quantity represented through edge-normal components. It
 should return a 3-component Cartesian vector that is tangent to the sphere at
-each cell center, so `tangential_cartesian_to_zonal_meridional()` can be
-applied directly to its output.
+each cell center, so `cartesian_to_local_geographic()` can be applied directly
+to its output.
 
 `reconstruct_3d_cell_center()` should build on the tangential reconstruction by
 adding an optional radial interface field and returning Cartesian and
-zonal/meridional components. This function should remain usable for velocity and
+local geographic components. This function should remain usable for velocity and
 other edge-normal quantities.
 
 For xarray compatibility, the Python reconstruction implementation should work
@@ -492,7 +502,7 @@ current one-ring case and the new two-ring least-squares case.
 
 ### Implementation: 3D Vector Outputs at Layer Midpoints
 
-Date last modified: 2026/04/05
+Date last modified: 2026/04/06
 
 Contributors:
 
@@ -510,7 +520,8 @@ The generic 3D wrapper should:
 2. broadcast the tangential result to all non-horizontal dimensions,
 3. derive midpoint radial values from an optional radial interface field,
 4. add the radial contribution in the local vertical direction, and
-5. derive zonal and meridional components from the resulting Cartesian vector.
+5. derive zonal, meridional, and radial components from the resulting Cartesian
+   vector.
 
 For the optional radial interface field, the implementation should:
 
@@ -529,7 +540,8 @@ fields. A likely default is:
 - `vectorY`,
 - `vectorZ`,
 - `vectorZonal`,
-- `vectorMeridional`.
+- `vectorMeridional`,
+- `vectorRadial`.
 
 If later work wants velocity-oriented names, the design should also note how
 this generic output could map onto fields such as:
@@ -538,7 +550,8 @@ this generic output could map onto fields such as:
 - `uReconstructY`,
 - `uReconstructZ`,
 - `uReconstructZonal`,
-- `uReconstructMeridional`.
+- `uReconstructMeridional`,
+- `uReconstructRadial`.
 
 The core implementation should remain usable for velocity and for other
 edge-normal quantities even if some later workflow maps the outputs onto
@@ -645,7 +658,7 @@ evaluation of the hybrid optimization path.
 
 ### Testing and Validation: 3D Vector Outputs at Layer Midpoints
 
-Date last modified: 2026/04/05
+Date last modified: 2026/04/06
 
 Contributors:
 
@@ -655,13 +668,17 @@ Contributors:
 
 3D-vector tests should verify:
 
-- Cartesian and zonal/meridional outputs are mutually consistent,
+- Cartesian and local geographic outputs are mutually consistent,
 - omission of the radial interface field yields zero radial contribution,
 - midpoint radial velocity is computed correctly from interface values,
+- the reconstructed local geographic radial component equals the simple mean of
+  the adjacent top and bottom interface values,
 - a case with nonzero radial contribution is reconstructed correctly in
   Cartesian form, and
-- the zonal and meridional outputs are unchanged by the added radial
-  contribution,
+- the local geographic radial output matches the expected midpoint radial
+  velocity, and
+- the zonal and meridional outputs remain consistent with the horizontal part
+  of the reconstructed vector,
 - shape and dimension handling are correct for `nVertLevels`,
   `nVertLevelsP1`, and optional `Time`.
 
@@ -672,9 +689,10 @@ A simple analytic test can define:
 - an expected full Cartesian vector at layer midpoints.
 
 The generic wrapper should reproduce the known Cartesian and zonal/meridional
-fields to within expected truncation error. A velocity-specific test case using
-`normalVelocity` and `vertVelocityTop` should remain part of the test suite as
-the motivating example.
+fields, together with the expected radial field, to within expected truncation
+error. A velocity-specific test case using `normalVelocity` and
+`vertVelocityTop` should remain part of the test suite as the motivating
+example.
 
 ### Testing and Validation: Reusable Precomputation and Extensibility
 
