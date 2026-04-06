@@ -8,6 +8,7 @@ from polaris.tasks.e3sm.init.topo.combine import (
 
 from .combine import CombineStep
 from .extrapolate import ExtrapolateStep
+from .viz import Woa23VizStep
 
 
 def get_woa23_topography_step():
@@ -75,4 +76,14 @@ def get_woa23_steps(component, combine_topo_step):
         combine_topo_step=combine_topo_step,
     )
 
-    return [combine_step, extrapolate_step], config
+    viz_subdir = os.path.join(subdir, 'viz')
+    viz_step = component.get_or_create_shared_step(
+        step_cls=Woa23VizStep,
+        subdir=viz_subdir,
+        config=config,
+        config_filename=config_filename,
+        extrapolate_step=extrapolate_step,
+        combine_topo_step=combine_topo_step,
+    )
+
+    return [combine_step, extrapolate_step, viz_step], config

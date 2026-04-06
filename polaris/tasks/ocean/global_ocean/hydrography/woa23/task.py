@@ -33,7 +33,7 @@ class Woa23(Task):
 
         self.add_step(self.combine_topo_step, symlink='combine_topo')
         for step in steps:
-            self.add_step(step)
+            self.add_step(step, run_by_default=step.name != 'viz')
 
     def configure(self):
         """
