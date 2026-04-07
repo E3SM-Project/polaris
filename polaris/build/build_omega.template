@@ -23,7 +23,6 @@ fi
 cd {{ omega_base_dir }}
 
 git submodule update --init --recursive \
-    externals/YAKL \
     externals/ekat \
     externals/scorpio \
     externals/cpptrace \
