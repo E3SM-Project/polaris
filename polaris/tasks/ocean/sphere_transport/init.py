@@ -169,11 +169,15 @@ class Init(OceanIOStep):
             )
             vector = np.array(rotation_vector)
             u, v = flow_rotation(lonEdge, latEdge, vector, vel_pd * s_per_hour)
+            u_cell, v_cell = flow_rotation(lonCell, latCell, vector, vel_pd * s_per_hour)
         elif case_name == 'divergent_2d':
             section = config[case_name]
             vel_amp = section.getfloat('vel_amp')
             u, v = flow_divergent(
                 0.0, lonEdge, latEdge, vel_amp, vel_pd * s_per_hour
+            )
+            u_cell, v_cell = flow_divergent(
+                0.0, lonCell, latCell, vel_amp, vel_pd * s_per_hour
             )
         elif (
             case_name == 'nondivergent_2d'
@@ -184,6 +188,9 @@ class Init(OceanIOStep):
             u, v = flow_nondivergent(
                 0.0, lonEdge, latEdge, vel_amp, vel_pd * s_per_hour
             )
+            u_cell, v_cell = flow_nondivergent(
+                0.0, lonCell, latCell, vel_amp, vel_pd * s_per_hour
+            )
         else:
             raise ValueError(f'Unexpected test case name {case_name}')
 
@@ -192,8 +199,10 @@ class Init(OceanIOStep):
         )
         normalVelocity, _ = xr.broadcast(normalVelocity, ds.refZMid)
         ds['normalVelocity'] = normalVelocity.expand_dims(dim='Time', axis=0)
-        ds['velocityZonal'] = np.nan * xr.zeros_like(ds.temperature)
-        ds['velocityMeridional'] = np.nan * xr.zeros_like(ds.temperature)
+        u_cell_broadcast, _ = xr.broadcast(xr.DataArray(u_cell, dims='nCells'), ds.refZMid)
+        v_cell_broadcast, _ = xr.broadcast(xr.DataArray(v_cell, dims='nCells'), ds.refZMid)
+        ds['velocityZonal'] = u_cell_broadcast.expand_dims(dim='Time', axis=0)
+        ds['velocityMeridional'] = v_cell_broadcast.expand_dims(dim='Time', axis=0)
 
         ds['fCell'] = xr.zeros_like(ds_mesh.xCell)
         ds['fEdge'] = xr.zeros_like(ds_mesh.xEdge)
