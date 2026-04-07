@@ -126,6 +126,9 @@ seaice/api
    Component.remove_step
    Component.add_config
    Component.get_or_create_shared_step
+   Component.set_parallel_system
+   Component.get_available_resources
+   Component.run_parallel_command
 ```
 
 #### Task
@@ -224,8 +227,6 @@ seaice/api
    :toctree: generated/
 
    write_job_script
-   get_slurm_options
-   get_pbs_options
 ```
 
 ### logging
@@ -362,25 +363,6 @@ seaice/api
    write
 ```
 
-### parallel
-
-```{eval-rst}
-.. currentmodule:: polaris.parallel
-
-.. autosummary::
-   :toctree: generated/
-
-   get_available_parallel_resources
-   set_cores_per_node
-   run_command
-   get_parallel_command
-
-   system.ParallelSystem
-   single_node.SingleNodeSystem
-   login.LoginSystem
-   slurm.SlurmSystem
-   pbs.PbsSystem
-```
 
 ### provenance
 

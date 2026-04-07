@@ -200,6 +200,7 @@ class OceanModelStep(ModelStep):
 
         if self.dynamic_ntasks:
             self._update_ntasks()
+        self._set_gpus_per_task()
 
         super().setup()
 
@@ -227,6 +228,7 @@ class OceanModelStep(ModelStep):
         """
         if self.dynamic_ntasks:
             self._update_ntasks()
+        self._set_gpus_per_task()
         super().constrain_resources(available_cores)
 
     def compute_cell_count(self) -> Optional[int]:
@@ -520,17 +522,54 @@ class OceanModelStep(ModelStep):
                 'been overridden.'
             )
 
-        goal_cells_per_core = config.getfloat('ocean', 'goal_cells_per_core')
-        max_cells_per_core = config.getfloat('ocean', 'max_cells_per_core')
-
+        if self._use_gpu_resources():
+            goal_cells_per_core = config.getfloat(
+                'ocean', 'goal_cells_per_gpu'
+            )
+            max_cells_per_core = config.getfloat('ocean', 'max_cells_per_gpu')
+        else:
+            goal_cells_per_core = config.getfloat(
+                'ocean', 'goal_cells_per_core'
+            )
+            max_cells_per_core = config.getfloat('ocean', 'max_cells_per_core')
         # machines (e.g. Perlmutter) seem to be happier with ntasks that
         # are multiples of 4
-        # ideally, about 200 cells per core
+        # ideally, about 200 cells per cpu or 8000 cells per gpu
         self.ntasks = max(1, 4 * round(cell_count / (4 * goal_cells_per_core)))
-        # In a pinch, about 2000 cells per core
+        # In a pinch, about 2000 cells per cpu or 80000 cells per gpu
         self.min_tasks = max(
             1, 4 * round(cell_count / (4 * max_cells_per_core))
         )
+
+    def _set_gpus_per_task(self) -> None:
+        """
+        Set ``gpus_per_task`` and ``min_gpus_per_task`` for the step based
+        on whether gpus are available and the model is Omega
+        """
+        if self._use_gpu_resources():
+            self.gpus_per_task = 1
+            self.min_gpus_per_task = 1
+        else:
+            self.gpus_per_task = 0
+            self.min_gpus_per_task = 0
+
+    def _use_gpu_resources(self) -> bool:
+        """
+        Whether to use GPU resources based on whether gpus are available and
+        the model is Omega
+        """
+        config = self.config
+
+        model = config.get('ocean', 'model')
+
+        gpus_per_node = 0
+        parallel_system = self.component.parallel_system
+        if parallel_system is not None:
+            gpus_per_node = parallel_system.get_config_int(
+                'gpus_per_node', default=0
+            )
+
+        return model == 'omega' and gpus_per_node > 0
 
     def _read_config_map(self) -> None:
         """

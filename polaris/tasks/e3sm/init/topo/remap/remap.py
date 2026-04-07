@@ -8,7 +8,6 @@ from pyremap import MpasCellMeshDescriptor
 
 from polaris import Step
 from polaris.io import symlink
-from polaris.parallel import run_command
 
 
 class RemapTopoStep(Step):
@@ -286,13 +285,13 @@ class RemapTopoStep(Step):
             '1e-9',
         ]
 
-        run_command(
-            args,
-            self.cpus_per_task,
-            self.ntasks,
-            self.openmp_threads,
-            self.config,
-            self.logger,
+        self.component.run_parallel_command(
+            args=args,
+            cpus_per_task=self.cpus_per_task,
+            ntasks=self.ntasks,
+            openmp_threads=self.openmp_threads,
+            logger=self.logger,
+            gpus_per_task=self.gpus_per_task,
         )
 
         logger.info('  Done.')

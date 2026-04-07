@@ -390,10 +390,18 @@ class ConvergenceAnalysis(OceanIOStep):
             area = area_for_field(ds_mesh, diff)
             field_exact = field_exact * area
             diff = diff * area
-        error = np.linalg.norm(diff, ord=norm_type[error_type])
+        # Ignore NaNs in the difference and exact fields
+        mask = ~np.isnan(diff.values.flatten()) & ~np.isnan(
+            field_exact.values.flatten()
+        )
+        error = np.linalg.norm(
+            diff.values.flatten()[mask], ord=norm_type[error_type]
+        )
 
         # Normalize the error norm by the vector norm of the exact solution
-        den = np.linalg.norm(field_exact, ord=norm_type[error_type])
+        den = np.linalg.norm(
+            field_exact.values.flatten()[mask], ord=norm_type[error_type]
+        )
         error = np.divide(error, den)
 
         return error

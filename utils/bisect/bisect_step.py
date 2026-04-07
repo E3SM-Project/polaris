@@ -33,7 +33,7 @@ def run(
         E3SM commit hash that is tested.
     load_script : str
         The relative or absolute path to the load script used to activate
-        the polaris conda environment and set environment variables used to
+        the polaris environment and set environment variables used to
         build the MPAS component to test.
     setup_command : str
         The command to use to set up the polaris test case(s)

@@ -3,7 +3,7 @@
 {%- if account != '' %}
 #PBS -A {{ account }}
 {%- endif %}
-#PBS -l select={{ nodes }}{% if gpus_per_node != '' %}:ngpus={{ gpus_per_node }}{% endif %}
+#PBS -l select={{ nodes }}
 #PBS -l walltime={{ wall_time }}
 #PBS -V
 {%- if queue != '' %}

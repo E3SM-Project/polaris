@@ -14,25 +14,23 @@ cd add-my-overflow
 git checkout -b add-my-overflow
 ```
 
-Next, create a conda environment for developing Polaris, as described in
+Next, create a local deployment environment for developing Polaris, as
+described in
 {ref}`dev-conda-env`. We'll assume you're working on a supported machine and
 using the default compilers and MPI libraries, but consult the documentation
 if you need a custom environment.
 
 ```bash
 # This may take a while the first time
-./configure_polaris_envs.py --conda $HOME/miniforge3 --verbose
+./deploy.py --deploy-spack
 ```
 
-If you don't already have [miniforge3](https://github.com/conda-forge/miniforge)
-installed at the location specified by `--conda`, it will be installed
-automatically.
+For deployment details and options, see the
+[mache deploy user guide](https://docs.e3sm.org/mache/main/users_guide/deploy.html).
 
 ```{note}
-If you already have [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
-installed, you can use that as well. However, we recommend Miniforge3, as it
-comes with important tools and configuration options set up as needed for
-Polaris.
+Miniforge, Micromamba and Miniconda are no longer required for Polaris
+deployment. If pixi is not already available, `./deploy.py` can install it.
 ```
 
 After setup, you should have a file named `load_dev_polaris_*.sh`, where `*`
@@ -40,7 +38,7 @@ depends on your Polaris version, machine, and compilers. For example, on
 Chrysalis, you might have `load_dev_polaris_0.1.0-alpha.3_chrysalis_intel_openmpi.sh`:
 
 ```bash
-source load_dev_polaris_0.1.0-alpha.3_chrysalis_intel_openmpi.sh
+source load_polaris_chrysalis_intel_openmpi.sh
 ```
 
 Now, get the E3SM source code (used by Polaris to build MPAS-Ocean) via the

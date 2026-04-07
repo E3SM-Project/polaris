@@ -134,7 +134,7 @@ class VizCombinedStep(Step):
         except ImportError as err:
             raise ImportError(
                 'the datashader package is not installed. '
-                'Please install in your conda environment so you can run '
+                'Please install in your pixi environment so you can run '
                 'the topography visualization step.'
             ) from err
 

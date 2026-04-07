@@ -6,5 +6,6 @@
 :titlesonly: true
 
 shared_steps
+vector_reconstruction
 template
 ```

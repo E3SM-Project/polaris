@@ -33,6 +33,8 @@ variables:
   layerThickness: LayerThickness
   normalVelocity: NormalVelocity
 
+  vertVelocityTop: VerticalVelocity
+
   # auxiliary state
   ssh: SshCell
   windStressZonal: WindStressZonal
@@ -76,16 +78,28 @@ config:
     config_thickness_flux_type: FluxThicknessType
 
 - section:
+    advection: Tendencies
+  options:
+    config_horiz_tracer_adv_order: TracerHorzAdvTendencyOrder
+
+- section:
+    advection: Advection
+  options:
+    config_vert_tracer_adv_flux_order: VerticalTracerFluxOrder
+
+- section:
     hmix_del2: Tendencies
   options:
     config_use_mom_del2: VelDiffTendencyEnable
     config_mom_del2: ViscDel2
+    config_use_tracer_del2: TracerDiffTendencyEnable
 
 - section:
     hmix_del4: Tendencies
   options:
     config_use_mom_del4: VelHyperDiffTendencyEnable
     config_mom_del4: ViscDel4
+    config_use_tracer_del4: TracerHyperDiffTendencyEnable
 
 - section:
     forcing: Tendencies
@@ -96,6 +110,26 @@ config:
     debug: Tendencies
   options:
     config_disable_vel_explicit_bottom_drag: not BottomDragTendencyEnable
+
+- section:
+    debug: Tendencies
+  options:
+    config_disable_tr_adv: not TracerHorzAdvTendencyEnable
+
+- section:
+    debug: Tendencies
+  options:
+    config_disable_vel_vadv: not VelocityVertAdvTendencyEnable
+
+- section:
+    debug: Tendencies
+  options:
+    config_disable_thick_hadv: not ThicknessFluxTendencyEnable
+
+- section:
+    debug: Tendencies
+  options:
+    config_disable_thick_vadv: not ThicknessVertAdvTendencyEnable
 
 - section:
     bottom_drag: Tendencies

@@ -50,11 +50,11 @@ you have encountered and solutions you have found.
 
 ---
 
-## 3. 🚫 Conda Environment Problems
+## 3. 🚫 Pixi Environment Problems
 
 ### Symptoms
 
-* Conda fails to resolve dependencies
+* Pixi fails to resolve dependencies
 * Environments install but are missing key packages
 
 ### Fixes
@@ -126,7 +126,7 @@ When in doubt, remove and rebuild everything:
 
 ```bash
 rm -rf <spack_env_dir>
-./configure_polaris_envs.py --conda ~/miniforge3 --recreate
+./deploy.py --recreate
 ```
 
 This often resolves cases where previous state is interfering with a clean

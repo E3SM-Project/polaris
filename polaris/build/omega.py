@@ -75,16 +75,15 @@ def build_omega(
         print(f'  account: {account}')
     print('\n')
 
-    # remove and/or create build directory first so the log file can be created
     # clear environment variables and start fresh with those from login
-    # so spack doesn't get confused by conda
     command = f'env -i HOME="$HOME" bash -l {script_filename}'
     if log_filename is not None:
         print(f'Logging build to: {log_filename}')
         if quiet:
             command += f' > {log_filename} 2>&1 '
         else:
-            command += f' 2>&1 | tee {log_filename}'
+            # use pipefail so a build failure is not masked by tee's exit code
+            command = f'set -o pipefail; {command} 2>&1 | tee {log_filename}'
     subprocess.check_call(command, shell=True)
 
     print(f'Omega builds script written to:\n  {script_filename}\n')

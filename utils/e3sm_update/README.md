@@ -9,11 +9,15 @@ help of a config file similar to `example.cfg`.
 
 ## Instructions
 
-1. Configure the polaris environment and create load scripts with the desiredof
-   compiler and mpi library, e.g.:
+1. Deploy polaris and create the load script for the desired compiler and MPI
+   library, e.g.:
    ```shell
-   ./conda/configure_polaris_env.py --env_name polaris_e3sm_update \
-       --compiler intel --mpi impi --conda ~/miniforge3/
+   ./deploy.py --machine chrysalis --compiler intel --mpi openmpi
+   ```
+   Then source the generated load script once to confirm the environment is
+   working, for example:
+   ```shell
+   source load_polaris_chrysalis_intel_openmpi.sh
    ```
 
 2. Copy `example.cfg` to the base of the branch:
@@ -26,10 +30,10 @@ help of a config file similar to `example.cfg`.
 
 4. On a login node, run:
    ```shell
-   ./utils/e3sm_update/test_e3sm_update.py -f e3sm_update.cfg
+   ./utils/e3sm_update/test_e3sm_changes.py -f e3sm_update.cfg
    ```
-   Optionally use the `--submit` flag to submit jobs once each configuration
-   has been built and set up.
+   The utility sources the configured load script, sets up each comparison run
+   and submits the resulting job script automatically.
 
 5. Worktrees will be created for the current and new submodules as well as
    each relevant E3SM pull request inbetween.  A job will be submitted
