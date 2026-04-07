@@ -43,10 +43,10 @@ def flow_nondivergent(t, lon, lat, u_0, tau):
     lon_p = lon - 2.0 * pi * t / tau
     coslat = cos(lat)
     cost = cos(pi * t / tau)
-    u = (u_0 * earth_radius / tau) * (
-        (sin(lon_p) ** 2) * sin(2 * lat) * cost + 2.0 * pi * coslat
+    u = (earth_radius / tau) * (
+        u_0 * (sin(lon_p) ** 2) * sin(2 * -lat) * cost + 2.0 * pi * coslat
     )
-    v = (u_0 * earth_radius / tau) * sin(2 * lon_p) * coslat * cost
+    v = (u_0 * earth_radius / tau) * sin(2 * lon_p + pi) * coslat * cost
     return u, v
 
 
@@ -82,8 +82,8 @@ def flow_divergent(t, lon, lat, u_0, tau):
     lon_p = lon - 2.0 * pi * t / tau
     coslat = cos(lat)
     cost = cos(pi * t / tau)
-    u = (u_0 * earth_radius / tau) * (
-        -(sin(lon_p / 2) ** 2) * sin(2 * lat) * (coslat**2) * cost
+    u = (earth_radius / tau) * (
+        -u_0 * (sin(lon_p / 2) ** 2) * sin(2 * lat) * (coslat**2) * cost
         + 2.0 * pi * coslat
     )
     v = (u_0 * earth_radius / (2 * tau)) * (sin(lon_p) * (coslat**3) * cost)
