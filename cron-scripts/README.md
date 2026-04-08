@@ -4,10 +4,10 @@ Automated cron job scripts for continuous testing and CDash reporting of OMEGA o
 
 ## Overview
 
-This repository orchestrates the compilation, testing, and result submission to [CDash](https://my.cdash.org) for two major OMEGA ocean model components:
+This repository orchestrates the compilation, testing, and result submission to [CDash](https://my.cdash.org) for two types of OMEGA tests: 
 
-- **Omega** - Next-generation ocean model
-- **Polaris** - MPAS-Ocean model with Omega integration
+- **Omega CTests**
+- **Polaris** - Omega tests on MPAS meshes
 
 ## Supported Systems
 
