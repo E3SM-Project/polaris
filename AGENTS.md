@@ -33,6 +33,16 @@ These instructions apply to the whole repository unless a deeper
 - Prefer starting from the existing template instead of creating task
   documentation pages from scratch.
 
+## Contracts
+
+- Treat `deploy.py` and `deploy/cli_spec.json` as contract files shared
+  with the `mache` package.
+- Do not modify `deploy.py` or `deploy/cli_spec.json` directly in
+  Polaris.
+- If a change appears necessary, stop and note that the change must be
+  made in `mache` first, then synced back into Polaris using the normal
+  upstream update process.
+
 ## Validation
 
 - Run relevant pre-commit hooks on changed files before finishing when
