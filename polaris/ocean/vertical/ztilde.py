@@ -2,9 +2,9 @@
 Conversions between Omega pseudo-height and pressure.
 
 Omega's vertical coordinate is pseudo-height
-    z_tilde = -p / (rho0 * g)
+    z_tilde = -p / (RhoSw * g)
 with z_tilde positive upward. Here, ``p`` is sea pressure in Pascals (Pa),
-``rho0`` is a reference density (kg m^-3), and ``g`` is gravitational
+``RhoSw`` is a reference density (kg m^-3), and ``g`` is gravitational
 acceleration as defined by ``polaris.constants`` via the Physical Constants
 Dictionary.
 """
@@ -20,6 +20,7 @@ from polaris.ocean.eos import compute_specvol
 
 __all__ = [
     'z_tilde_from_pressure',
+    'pseudothickness_from_pressure',
     'pressure_from_z_tilde',
     'pressure_and_spec_vol_from_state_at_geom_height',
     'pressure_from_geom_thickness',
@@ -29,11 +30,48 @@ Gravity = get_constant('standard_acceleration_of_gravity')
 RhoSw = get_constant('seawater_density_reference')
 
 
+def pseudothickness_from_pressure(
+    p: xr.DataArray,
+) -> xr.DataArray:
+    """
+    Convert sea pressure to pseudo-thickness.
+
+    z_tilde = -p / (RhoSw * g)
+
+    Parameters
+    ----------
+    p : xarray.DataArray
+        Sea pressure in Pascals (Pa) at layer interfaces.
+
+    Returns
+    -------
+    xarray.DataArray
+        Pseudo-thickness at layer mid-points with dimensions NCells by
+        NVertLayers (one less layer than ``p``) (units: m).
+    """
+
+    p_top = p.isel(nVertLevelsP1=slice(0, -1))
+    p_bot = p.isel(nVertLevelsP1=slice(1, None))
+    dims = list(p.dims)
+    dims = [item.replace('nVertLevelsP1', 'nVertLevels') for item in dims]
+    h = xr.DataArray(
+        (p_bot - p_top) / (RhoSw * Gravity),
+        dims=tuple(dims),
+    )
+    return h.assign_attrs(
+        {
+            'long_name': 'pseudo-thickness',
+            'units': 'm',
+            'note': 'h_tilde = -dp / (RhoSw * g)',
+        }
+    )
+
+
 def z_tilde_from_pressure(p: xr.DataArray) -> xr.DataArray:
     """
     Convert sea pressure to pseudo-height.
 
-    z_tilde = -p / (rho0 * g)
+    z_tilde = -p / (RhoSw * g)
 
     Parameters
     ----------
@@ -51,7 +89,7 @@ def z_tilde_from_pressure(p: xr.DataArray) -> xr.DataArray:
         {
             'long_name': 'pseudo-height',
             'units': 'm',
-            'note': 'z_tilde = -p / (rho0 * g)',
+            'note': 'z_tilde = -p / (RhoSw * g)',
         }
     )
 
@@ -60,7 +98,7 @@ def pressure_from_z_tilde(z_tilde: xr.DataArray) -> xr.DataArray:
     """
     Convert pseudo-height to sea pressure.
 
-    p = -z_tilde * (rho0 * g)
+    p = -z_tilde * (RhoSw * g)
 
     Parameters
     ----------
@@ -78,7 +116,7 @@ def pressure_from_z_tilde(z_tilde: xr.DataArray) -> xr.DataArray:
         {
             'long_name': 'sea pressure',
             'units': 'Pa',
-            'note': 'p = -rho0 * g * z_tilde',
+            'note': 'p = -RhoSw * g * z_tilde',
         }
     )
 

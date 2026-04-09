@@ -149,13 +149,15 @@ class Viz(OceanIOStep):
 
         for i, refinement_factor in enumerate(refinement_factors):
             ds_mesh = self.open_model_dataset(
-                f'mesh_r{refinement_factor:02g}.nc'
+                f'mesh_r{refinement_factor:02g}.nc', config
             )
             ds_init = self.open_model_dataset(
-                f'init_r{refinement_factor:02g}.nc'
+                f'init_r{refinement_factor:02g}.nc', config
             )
             ds = self.open_model_dataset(
-                f'output_r{refinement_factor:02g}.nc', decode_times=False
+                f'output_r{refinement_factor:02g}.nc',
+                config,
+                decode_times=False,
             )
 
             exact = ExactSolution(config, ds_init)

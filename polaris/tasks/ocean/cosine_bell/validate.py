@@ -58,8 +58,8 @@ class Validate(OceanIOStep):
                 all_pass = False
 
         if all_pass:
-            ds1 = self.open_model_dataset(filename1)
-            ds2 = self.open_model_dataset(filename2)
+            ds1 = self.open_model_dataset(filename1, self.config)
+            ds2 = self.open_model_dataset(filename2, self.config)
 
             all_pass = compare_variables(
                 component=self.component,

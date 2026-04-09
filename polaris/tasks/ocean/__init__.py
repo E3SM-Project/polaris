@@ -7,6 +7,10 @@ from mpas_tools.io import write_netcdf
 from ruamel.yaml import YAML
 
 from polaris import Component
+from polaris.ocean.vertical.diagnostics import (
+    geom_thickness_from_ds,
+    pseudothickness_from_ds,
+)
 
 
 class Ocean(Component):
@@ -154,7 +158,7 @@ class Ocean(Component):
             ]
         return renamed_vars
 
-    def write_model_dataset(self, ds, filename):
+    def write_model_dataset(self, ds, filename, config=None):
         """
         Write out the given dataset, mapping dimension and variable names from
         MPAS-Ocean to Omega names if appropriate
@@ -167,6 +171,14 @@ class Ocean(Component):
         filename : str
             The path for the NetCDF file to write
         """
+        if (
+            self.model == 'omega'
+            and 'layerThickness' in ds.keys()
+            and 'PseudoThickness' not in ds.keys()
+            and config is not None
+        ):
+            ds['PseudoThickness'] = pseudothickness_from_ds(ds, config=config)
+            ds['layerThickness'] = ds['PseudoThickness'].copy()
         ds = self.map_to_native_model_vars(ds)
         write_netcdf(ds=ds, fileName=filename)
 
@@ -233,7 +245,7 @@ class Ocean(Component):
             ]
         return renamed_vars
 
-    def open_model_dataset(self, filename, **kwargs):
+    def open_model_dataset(self, filename, config=None, **kwargs):
         """
         Open the given dataset, mapping variable and dimension names from Omega
         to MPAS-Ocean names if appropriate
@@ -252,6 +264,13 @@ class Ocean(Component):
             The dataset with variables named as expected in MPAS-Ocean
         """
         ds = xr.open_dataset(filename, **kwargs)
+        if (
+            self.model == 'omega'
+            and 'LayerThickness' in ds.keys()
+            and config is not None
+        ):
+            ds['PseudoThickness'] = ds.LayerThickness
+            ds['LayerThickness'] = geom_thickness_from_ds(ds, config=config)
         ds = self.map_from_native_model_vars(ds)
         return ds
 
