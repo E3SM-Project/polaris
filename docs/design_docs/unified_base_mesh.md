@@ -421,6 +421,16 @@ These names are intentionally provisional. They are useful labels for the
 current design discussion but should not yet be interpreted as final public
 interfaces or directory names in Polaris.
 
+Even if the final implementation uses several shared steps, Polaris should
+present them as one coherent workflow rather than as unrelated utilities. The
+cleanest first implementation is to keep the shared steps together under the
+`mesh` component in one common subtree such as
+`mesh/spherical/unified/...`. That mirrors existing Polaris practice where a
+shared base-mesh step lives in the `mesh` component and tasks provide a thin
+wrapper around it. A separate `river` component would make more sense only if
+Polaris later grows river-focused workflows that stand on their own apart from
+base-mesh generation.
+
 As this workflow matures, more targeted design documents should be added for
 the stage-level algorithms and interfaces, especially `prepare_coastline`,
 `prepare_river_network`, and `build_sizing_field`. A separate design for
@@ -431,6 +441,28 @@ The preprocessing steps should write clear intermediate products that are
 useful for debugging and caching, such as cleaned GeoJSON or raster files.
 However, those products should be internal workflow artifacts, not new required
 external interfaces for downstream users.
+
+`build_sizing_field` needs a tighter contract than its working name suggests.
+It should be defined as the step that takes:
+
+- the selected target-grid tier;
+- the background land and ocean resolution choices for the mesh;
+- the outputs of `prepare_coastline`, such as coastline geometry, masks or
+  signed-distance fields;
+- the outputs of `prepare_river_network`, such as simplified flowlines,
+  drainage-area filters or rasterized distance products; and
+- configuration controlling how these refinement signals are blended,
+  including minimum and maximum cell widths, transition distances and optional
+  feature toggles.
+
+Its output should be a single regular lon/lat `cellWidth` field in the format
+already expected by the spherical JIGSAW workflow. Framing it this way makes
+clear that `build_sizing_field` is not another ad hoc resolution option like
+the current quasi-uniform mesh choices. Instead, it is the integration point
+between shared feature preprocessing and the existing `SphericalBaseStep`
+machinery. The downstream mesh-generation step should consume the resulting
+`cellWidth` field without needing to know whether refinement came from
+coastlines, rivers or later feature classes.
 
 For coastline processing, the first implementation should attempt to derive the
 coastline from the same topography inputs used in `e3sm/init/topo`, because
@@ -479,12 +511,22 @@ The workflow should rely on Polaris work directories and machine support rather
 than carrying forward `jigsawcase`, `change_json_key_value()` or generated
 standalone job scripts.
 
-Generic mesh-generation logic belongs naturally in the existing `mesh`
-component. Dataset-specific preprocessing for river and coastline products may
-fit better in a new component such as `land` or `river`. This first draft does
-not force that final naming decision, but it recommends keeping the interface
-between feature preprocessing and generic mesh creation clean enough that the
-component split can be adjusted later with limited churn.
+For the first implementation, the full shared-step chain should live in the
+existing `mesh` component, because the workflow's primary public product is a
+base mesh and because Polaris shared steps are organized most clearly when
+their directories live at the highest common level where all consuming tasks
+can find them. In practice, the task that exposes the workflow should be a
+thin wrapper that links together shared steps such as `prepare_coastline`,
+`prepare_river_network`, `build_sizing_field`, and the final
+`unified_base_mesh` step, all under one mesh-oriented subtree.
+
+This recommendation does not rule out a later `river` or `land` component.
+If Polaris eventually adds reusable river preprocessing, diagnostics or
+standalone river-data products outside this mesh workflow, those could justify
+a separate component. Even in that case, the interface should still make the
+unified base-mesh workflow look like one pipeline, with `build_sizing_field`
+remaining the explicit handoff from feature products to the generic spherical
+mesh generator.
 
 ### Implementation: Shared Target-Grid Tiers and Cacheable Preprocessing
 
