@@ -4,6 +4,7 @@ from typing import Dict, Tuple, Union
 
 import xarray as xr
 from mpas_tools.io import write_netcdf
+from mpas_tools.vector.reconstruct import reconstruct_variable
 from ruamel.yaml import YAML
 
 from polaris import Component
@@ -233,7 +234,14 @@ class Ocean(Component):
             ]
         return renamed_vars
 
-    def open_model_dataset(self, filename, **kwargs):
+    def open_model_dataset(
+        self,
+        filename,
+        mesh_filename=None,
+        reconstruct_variables=None,
+        coeffs_filename=None,
+        **kwargs,
+    ):
         """
         Open the given dataset, mapping variable and dimension names from Omega
         to MPAS-Ocean names if appropriate
@@ -242,6 +250,15 @@ class Ocean(Component):
         ----------
         filename : str
             The path for the NetCDF file to open
+
+        ds_mesh : xr.Dataset
+            The MPAS mesh dataset for the ocean model.
+
+        reconstruct_variables : list of str
+            List of variable names to reconstruct in the dataset.
+
+        coeffs_reconstruct : xarray.DataArray, optional
+            Coefficients used for reconstructing variables.
 
         kwargs
             keyword arguments passed to `xarray.open_dataset()`
@@ -253,6 +270,45 @@ class Ocean(Component):
         """
         ds = xr.open_dataset(filename, **kwargs)
         ds = self.map_from_native_model_vars(ds)
+        if reconstruct_variables is None:
+            reconstruct_variables = []
+        for variable in reconstruct_variables:
+            if variable in ds.keys():
+                if 'normal' in variable:
+                    out_var_name = variable.replace('normal', '').lower()
+                else:
+                    out_var_name = variable
+                if (
+                    f'{out_var_name}Zonal' in ds.keys()
+                    and f'{out_var_name}Meridional' in ds.keys()
+                ):
+                    return ds
+                if mesh_filename is None:
+                    raise ValueError(
+                        'mesh_filename must be provided to '
+                        f'open_model_dataset for reconstruction of {variable}'
+                    )
+                ds_mesh = xr.open_dataset(mesh_filename)
+                if coeffs_filename is None:
+                    raise ValueError(
+                        'coeffs_filename must be provided to '
+                        f'open_model_dataset for reconstruction of {variable}'
+                    )
+                ds_coeff = xr.open_dataset(coeffs_filename)
+                coeffs_reconstruct = ds_coeff.coeffs_reconstruct
+                reconstruct_variable(
+                    out_var_name,
+                    ds[variable],
+                    ds_mesh,
+                    coeffs_reconstruct,
+                    ds,
+                    quiet=True,
+                )
+            else:
+                raise ValueError(
+                    f'User requested vector reconstruction for {variable} but '
+                    f"it isn't present in the dataset."
+                )
         return ds
 
     def _has_ocean_io_model_steps(self, tasks) -> Tuple[bool, bool]:

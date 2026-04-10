@@ -192,6 +192,8 @@ class Init(OceanIOStep):
         )
         normalVelocity, _ = xr.broadcast(normalVelocity, ds.refZMid)
         ds['normalVelocity'] = normalVelocity.expand_dims(dim='Time', axis=0)
+        ds['velocityZonal'] = np.nan * xr.zeros_like(ds.temperature)
+        ds['velocityMeridional'] = np.nan * xr.zeros_like(ds.temperature)
 
         ds['fCell'] = xr.zeros_like(ds_mesh.xCell)
         ds['fEdge'] = xr.zeros_like(ds_mesh.xEdge)

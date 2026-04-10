@@ -1,3 +1,4 @@
+from polaris.mesh.base import parse_mesh_filepath
 from polaris.ocean.convergence.spherical import SphericalConvergenceForward
 
 
@@ -78,6 +79,7 @@ class Forward(SphericalConvergenceForward):
             refinement_factor=refinement_factor,
             refinement=refinement,
         )
+        self.mesh_path = base_mesh.path
 
     def setup(self):
         """
@@ -88,3 +90,12 @@ class Forward(SphericalConvergenceForward):
         # TODO: remove as soon as Omega no longer hard-codes this file
         if model == 'omega':
             self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
+            component, database, mesh_name = parse_mesh_filepath(
+                self.mesh_path
+            )
+            self.add_input_file(
+                filename='coeffs.nc',
+                target=f'{mesh_name}_coeffs.nc',
+                database_component=component,
+                database=database,
+            )
