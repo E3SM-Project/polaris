@@ -41,6 +41,12 @@ complex enough to warrant its own design. These stage names are only working
 names for now and should not be treated as final task, step, class or
 component names.
 
+The stage-level shared products should be built on a small set of supported
+regular lon/lat target grids rather than on arbitrary default resolutions. A
+short list of supported target-grid tiers is likely important for caching and
+reuse of expensive shared steps such as coastline preparation,
+river-network preparation, and topography remapping.
+
 Success means that Polaris gains a documented path to build a global MPAS base
 mesh with feature-aware resolution controls, using Polaris-native setup and run
 machinery, and that the resulting mesh can be consumed by existing downstream
@@ -96,6 +102,26 @@ implementation shall support coastline and river-network information.
 The design shall allow additional feature classes such as watershed
 boundaries, lakes or dams to be added later without redesigning the full
 workflow.
+
+### Requirement: Shared Target-Grid Tiers and Cacheable Preprocessing
+
+Date last modified: 2026/04/10
+
+Contributors:
+
+- Xylar Asay-Davis
+- Codex
+
+The shared preprocessing stages of the workflow shall operate on a small
+discrete set of supported regular lon/lat target grids rather than on an
+arbitrary default resolution.
+
+Within a given workflow instance, the same selected target-grid tier shall be
+used consistently by `prepare_coastline`, `prepare_river_network`, and
+`build_sizing_field`.
+
+The first design should favor a short supported list, likely two or three
+tiers, so shared-step outputs can be cached and reused effectively.
 
 ### Requirement: Polaris-Native Configuration and Execution
 
@@ -226,6 +252,39 @@ to the sizing-field builder. Additional controls for watersheds, lakes or dams
 should enter through the same interface rather than through new one-off mesh
 builders.
 
+### Algorithm Design: Shared Target-Grid Tiers and Cacheable Preprocessing
+
+Date last modified: 2026/04/10
+
+Contributors:
+
+- Xylar Asay-Davis
+- Codex
+
+The workflow should standardize on a small set of named target-grid tiers for
+all shared preprocessing products. A reasonable first set is:
+
+- `coarse`: 1.0 degree;
+- `medium`: 0.25 degree; and
+- `fine`: 1/16 degree, or 0.0625 degree.
+
+These choices balance several competing needs. A 1-degree grid is inexpensive
+and suitable for exploratory or coarse products. A 0.25-degree grid is already
+useful for other E3SM preprocessing such as WOA 2023 extrapolation work. A
+1/16-degree grid is fine enough to support mesh-resolution choices down to
+roughly 5 km or so without making every workflow pay that cost by default.
+
+The selected target-grid tier should be a cross-cutting workflow choice. It
+should control the resolution used for shared `e3sm/init/topo/combine`
+lat/lon products, coastline preprocessing, river-network preprocessing, and
+the final sizing field. This avoids mismatched products between stages and
+makes cache reuse straightforward.
+
+The design should not prevent future support for custom target-grid
+resolutions. However, arbitrary resolutions should not be the default
+workflow path until there is a clear need, because they weaken cache reuse and
+make the shared-step product space harder to manage.
+
 ### Algorithm Design: Polaris-Native Configuration and Execution
 
 Date last modified: 2026/04/10
@@ -278,6 +337,12 @@ Instead, new shared helpers should be introduced only when a focused algorithm
 cannot be expressed clearly with existing package APIs or current Polaris
 utilities. This keeps the eventual Polaris implementation smaller, easier to
 review and more adaptable as `mpas_land_mesh` continues to change.
+
+River-network simplification and river-driven meshing deserve special caution
+in this migration strategy. Because that part of the workflow is the least
+well-understood, the first Polaris design should preserve the corresponding
+`mpas_land_mesh` algorithms more closely than the coastline path whenever
+practical.
 
 ## Implementation
 
@@ -383,6 +448,10 @@ configuration and internal APIs should nonetheless leave room for later steps
 that prepare watershed boundaries, lake boundaries or dam data if those prove
 necessary.
 
+The selected target-grid tier should be treated as part of this interface. The
+preprocessing and sizing-field steps should exchange products on one shared
+grid, not on independently chosen grids.
+
 ### Implementation: Polaris-Native Configuration and Execution
 
 Date last modified: 2026/04/10
@@ -395,11 +464,14 @@ Contributors:
 The standalone JSON configuration files should be translated into Polaris
 config sections, for example:
 
-- `[unified_mesh]` for overall workflow choices and supported feature toggles;
+- `[unified_mesh]` for overall workflow choices, target-grid-tier selection,
+  and supported feature toggles;
 - `[coastline]` for coastline-source selection, fallback behavior and any
   thresholds related to coastline cleaning or simplification, as well as
   signed-distance transition and buffer parameters;
 - `[river_network]` for river simplification and filtering controls; and
+- `[sizing_field]` for background resolutions and feature-composition
+  parameters; and
 - `[spherical_mesh]` for the final JIGSAW and MPAS mesh settings already used
   by Polaris.
 
@@ -413,6 +485,23 @@ fit better in a new component such as `land` or `river`. This first draft does
 not force that final naming decision, but it recommends keeping the interface
 between feature preprocessing and generic mesh creation clean enough that the
 component split can be adjusted later with limited churn.
+
+### Implementation: Shared Target-Grid Tiers and Cacheable Preprocessing
+
+Date last modified: 2026/04/10
+
+Contributors:
+
+- Xylar Asay-Davis
+- Codex
+
+The first implementation should expose target-grid choice through a small
+enumerated option such as `target_grid_tier = coarse`, `medium`, or `fine`
+rather than by encouraging arbitrary floating-point defaults in every task.
+
+Each tier should map to a specific regular lon/lat resolution and should be
+used consistently in work-directory layout, shared-step cache keys, and output
+file naming so it is obvious which products can be reused together.
 
 ### Implementation: Selective Migration and Maintainability
 
@@ -444,6 +533,10 @@ network simplification logic if those capabilities are not already available in
 the chosen package stack. If helper code is brought over, it should remain
 small, step-focused and colocated with the consuming workflow unless it quickly
 proves reusable.
+
+For the river-network path in particular, targeted extraction or close
+reimplementation is likely preferable to an early redesign of the underlying
+algorithm.
 
 ## Testing
 
@@ -507,6 +600,22 @@ topography-derived coastline path and the Natural Earth fallback path.
 If a signed-distance coastline path is adopted, tests should verify that the
 distance field and resulting coastal buffers behave as expected on both sides
 of the coastline and across the antimeridian.
+
+### Testing and Validation: Shared Target-Grid Tiers and Cacheable Preprocessing
+
+Date last modified: 2026/04/10
+
+Contributors:
+
+- Xylar Asay-Davis
+- Codex
+
+Tests should verify that the supported target-grid tiers produce the expected
+lon/lat dimensions and that dependent shared steps reuse cached outputs when
+the same tier is selected.
+
+They should also verify that switching tiers produces separate products rather
+than silently reusing incompatible cached artifacts.
 
 ### Testing and Validation: Polaris-Native Configuration and Execution
 
