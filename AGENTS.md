@@ -45,6 +45,7 @@ These instructions apply to the whole repository unless a deeper
 
 ## Validation
 
-- Run relevant pre-commit hooks on changed files before finishing when
-  practical.
+- Run pre-commit on changed files is required before finishing; if sandboxed
+  execution fails, request escalation and do not close the task until it has
+  run or the user declines.
 - Prefer fixing lint and formatting issues rather than suppressing them.
