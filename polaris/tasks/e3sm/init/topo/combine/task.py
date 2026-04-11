@@ -84,7 +84,7 @@ class LatLonCombineTask(Task):
         steps, config = get_lat_lon_topo_steps(
             component=component,
             resolution=resolution,
-            include_viz=False,
+            include_viz=True,
         )
         self.set_shared_config(config, link='combine_topo.cfg')
         for step in steps:

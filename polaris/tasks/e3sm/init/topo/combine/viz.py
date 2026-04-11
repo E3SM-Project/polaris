@@ -1,5 +1,6 @@
 import os
 
+import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -8,6 +9,7 @@ from matplotlib.colors import Normalize
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from polaris.step import Step
+from polaris.viz import plot_global_lat_lon_field
 
 
 class VizCombinedStep(Step):
@@ -60,15 +62,45 @@ class VizCombinedStep(Step):
             work_dir_target=os.path.join(combine_step.path, topo_filename),
         )
 
-        self.add_input_file(
-            filename='cubed_sphere.g',
-            work_dir_target=os.path.join(combine_step.path, exodus_filename),
-        )
+        if exodus_filename is not None:
+            self.add_input_file(
+                filename='cubed_sphere.g',
+                work_dir_target=os.path.join(
+                    combine_step.path, exodus_filename
+                ),
+            )
 
     def run(self):
         """
         Run this step
         """
+
+        colormap_sections = {
+            'base_elevation': 'viz_combine_topo_base_elevation',
+            'ice_thickness': 'viz_combine_topo_ice_thickness',
+            'ice_draft': 'viz_combine_topo_ice_draft',
+            'ice_mask': 'viz_combine_topo_ice_mask',
+            'grounded_mask': 'viz_combine_topo_grounded_mask',
+        }
+
+        ds_data = xr.open_dataset('topography.nc')
+        target_grid = self.config.get('combine_topo', 'target_grid')
+
+        if target_grid == 'cubed_sphere':
+            self._plot_cubed_sphere_fields(ds_data)
+        elif target_grid == 'lat_lon':
+            self._plot_lat_lon_fields(ds_data, colormap_sections)
+        else:
+            raise ValueError(f'Unexpected target grid: {target_grid}')
+
+    def _plot_cubed_sphere_fields(self, ds_data):
+        """
+        Plot fields on the cubed-sphere target grid.
+        """
+        valid_mask = np.isfinite(ds_data['base_elevation'].values)
+        vertices, tris = self._load_trimesh_geometry(
+            'cubed_sphere.g', valid_mask
+        )
 
         colormaps = {
             'base_elevation': 'cmo.deep_r',
@@ -78,21 +110,34 @@ class VizCombinedStep(Step):
             'grounded_mask': 'cmo.amp_r',
         }
 
-        ds_data = xr.open_dataset('topography.nc')
-
-        # Use one field to define the valid mask (they all share indexing)
-        valid_mask = np.isfinite(ds_data['base_elevation'].values)
-
-        # Build mesh only once
-        vertices, tris = self._load_trimesh_geometry(
-            'cubed_sphere.g', valid_mask
-        )
-
-        # Plot each field
         for field, colormap in colormaps.items():
             self.logger.info(f'Plotting field: {field}')
             data = ds_data[field].values[valid_mask]
-            self._plot_field(vertices, tris, data, field, colormap)
+            self._plot_cubed_sphere_field(
+                vertices, tris, data, field, colormap
+            )
+
+    def _plot_lat_lon_fields(self, ds_data, colormap_sections):
+        """
+        Plot fields on the latitude-longitude target grid.
+        """
+        lon = ds_data.lon.values
+        lat = ds_data.lat.values
+
+        for field, section in colormap_sections.items():
+            self.logger.info(f'Plotting field: {field}')
+            data_array = ds_data[field].transpose('lat', 'lon').values
+            plot_global_lat_lon_field(
+                lon=lon,
+                lat=lat,
+                data_array=data_array,
+                out_filename=f'{field}.png',
+                config=self.config,
+                colormap_section=section,
+                title=f'{self.combine_step.resolution_name} {field}',
+                plot_land=False,
+                colorbar_label=field,
+            )
 
     @staticmethod
     def _load_trimesh_geometry(exodus_path, valid_mask):
@@ -125,7 +170,9 @@ class VizCombinedStep(Step):
 
         return vertices, tris
 
-    def _plot_field(self, vertices, tris, field_data, field_name, cmap):
+    def _plot_cubed_sphere_field(
+        self, vertices, tris, field_data, field_name, cmap
+    ):
         """
         Rasterize and save a trisurf-style field image using Datashader.
         """
