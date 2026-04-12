@@ -26,8 +26,10 @@ and writing easier, we also provide
 {py:meth}`polaris.ocean.model.OceanIOStep.open_model_dataset()`, which take
 care of of the mapping in addition to writing and opening a dataset,
 respectively. As new variables are added to Omega, they should be added to the
-`variables` section in the
+`dimensions` and `variables` sections in the
 [mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
+file. This includes horizontal mesh variables such as coordinates, geometric
+factors and Coriolis fields when Omega reads the mesh from a separate NetCDF
 file.
 
 ### Running an E3SM component
@@ -40,6 +42,11 @@ discussion in {ref}`dev-model`.
 If the graph partition file has been constructed prior to the ocean model step,
 the path to the graph file should be provided in the `graph_target` argument
 to the constructor {py:class}`polaris.ocean.model.OceanModelStep()`.
+If a task reads its horizontal mesh from a local file such as `mesh.nc`, set
+`self.horiz_mesh_filename` in the step's constructor. Polaris will then update
+the model mesh stream for both MPAS-Ocean and Omega, including
+`Omega/IOStreams/HorzMeshIn/Filename`, without any `OmegaMesh.nc` symlink
+workaround.
 
 #### YAML files vs. namelists and streams
 
@@ -443,7 +450,9 @@ not be performed.
 
 The `mesh` step should be created with the function described in
 {ref}`dev-ocean-spherical-meshes`, and the `init` step should produce a file
-`init.nc` that will be the initial condition for the forward run.
+`init.nc` that will be the initial condition for the forward run. The forward
+step should use the mesh file from the mesh step directly for the model mesh
+stream.
 
 The `forward.yaml` file should be a YAML file with Jinja templating for the
 time integrator, time step, run duration and output interval, e.g.:
@@ -458,8 +467,6 @@ ocean:
     config_btr_dt: {{ btr_dt }}
 mpas-ocean:
   streams:
-    mesh:
-      filename_template: init.nc
     input:
       filename_template: init.nc
     restart: {}
@@ -474,6 +481,10 @@ mpas-ocean:
       - normalVelocity
       - layerThickness
 ```
+The horizontal mesh filename does not need to appear in `forward.yaml` if the
+step sets `self.horiz_mesh_filename`; `OceanModelStep` will inject the
+appropriate MPAS-Ocean and Omega stream overrides.
+
 `ConvergenceForward` takes care of filling in the template based
 on the associated config options (first at setup and again at runtime in case
 the config options have changed).

@@ -74,8 +74,6 @@ ocean:
     config_time_integrator: RK4
 
   streams:
-    mesh:
-      filename_template: init.nc
     input:
       filename_template: init.nc
     restart:
