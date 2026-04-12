@@ -35,8 +35,6 @@ mpas-ocean:
   tracer_forcing_debugTracers:
     config_use_debugTracers: true
   streams:
-    mesh:
-      filename_template: init.nc
     input:
       filename_template: init.nc
     restart:
