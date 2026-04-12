@@ -112,12 +112,17 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">cull</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.creation.sort_mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">sort_mesh</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.cull</span><span class="w"> </span><span class="kn">import</span> <span class="n">map_culled_to_base</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyremap</span><span class="w"> </span><span class="kn">import</span> <span class="n">MpasCellMeshDescriptor</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.model_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_graph_file</span>
+
+<span class="n">CULL_PREFIXES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;ocean_no_cavities&#39;</span><span class="p">,</span> <span class="s1">&#39;land&#39;</span><span class="p">]</span>
+<span class="n">SCRIP_PREFIXES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;ocean_no_cavities&#39;</span><span class="p">,</span> <span class="s1">&#39;land&#39;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="CullMeshStep">
@@ -176,9 +181,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">base_mesh_step</span> <span class="o">=</span> <span class="n">base_mesh_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cull_mask_step</span> <span class="o">=</span> <span class="n">cull_mask_step</span>
 
-        <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;ocean_no_cavities&#39;</span><span class="p">,</span> <span class="s1">&#39;land&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">CULL_PREFIXES</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;culled_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_mesh.nc&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_map_culled_to_base.nc&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">SCRIP_PREFIXES</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;culled_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_mesh.scrip.nc&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">prefix</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;culled_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_graph.info&#39;</span><span class="p">)</span></div>
 
@@ -238,7 +245,7 @@
 <span class="sd">        Run this step of the test case</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;ocean_no_cavities&#39;</span><span class="p">,</span> <span class="s1">&#39;land&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">CULL_PREFIXES</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cull_mesh</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span></div>
 
 
@@ -276,6 +283,8 @@
 
         <span class="n">out_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;culled_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_mesh.nc&#39;</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_culled_mesh</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">SCRIP_PREFIXES</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_scrip_file</span><span class="p">(</span><span class="n">mesh_filename</span><span class="o">=</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span>
 
         <span class="n">ds_map_culled_to_base</span> <span class="o">=</span> <span class="n">map_culled_to_base</span><span class="p">(</span>
             <span class="n">ds_base</span><span class="o">=</span><span class="n">ds_base_mesh</span><span class="p">,</span>
@@ -289,7 +298,37 @@
             <span class="n">make_graph_file</span><span class="p">(</span>
                 <span class="n">mesh_filename</span><span class="o">=</span><span class="n">out_filename</span><span class="p">,</span>
                 <span class="n">graph_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;culled_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_graph.info&#39;</span><span class="p">,</span>
-            <span class="p">)</span></div>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_scrip_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a SCRIP file from a culled MPAS mesh.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Create SCRIP file for culled </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> mesh&#39;</span><span class="p">)</span>
+
+        <span class="n">scrip_filename</span> <span class="o">=</span> <span class="n">mesh_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;.scrip.nc&#39;</span><span class="p">)</span>
+        <span class="n">netcdf4_filename</span> <span class="o">=</span> <span class="n">mesh_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;.scrip.netcdf4.nc&#39;</span><span class="p">)</span>
+        <span class="n">mesh_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">MpasCellMeshDescriptor</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">mesh_filename</span><span class="p">,</span>
+            <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">descriptor</span><span class="o">.</span><span class="n">to_scrip</span><span class="p">(</span><span class="n">netcdf4_filename</span><span class="p">)</span>
+
+        <span class="c1"># writing directly in NETCDF3_64BIT_DATA proved prohibitively slow</span>
+        <span class="c1"># so we will use ncks to convert</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;ncks&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;-O&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;-5&#39;</span><span class="p">,</span>
+            <span class="n">netcdf4_filename</span><span class="p">,</span>
+            <span class="n">scrip_filename</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">check_call</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;  Done.&#39;</span><span class="p">)</span></div>
 
 </pre></div>
 
