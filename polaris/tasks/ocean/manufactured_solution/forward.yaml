@@ -22,8 +22,6 @@ mpas-ocean:
     config_disable_vel_vmix: true
     config_disable_tr_all_tend: true
   streams:
-    mesh:
-      filename_template: init.nc
     input:
       filename_template: init.nc
     restart: {}

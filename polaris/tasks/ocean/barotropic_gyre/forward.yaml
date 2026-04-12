@@ -31,8 +31,6 @@ mpas-ocean:
     config_disable_tr_all_tend: true
 
   streams:
-    mesh:
-      filename_template: init.nc
     input:
       filename_template: init.nc
     forcing:

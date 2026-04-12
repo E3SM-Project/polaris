@@ -47,6 +47,10 @@ class OceanModelStep(ModelStep):
     graph_target : str
         The name of the graph partition file to link to (relative to the base
         working directory)
+
+    horiz_mesh_filename : str or None
+        The local input filename the model should use for the horizontal
+        mesh stream
     """
 
     # make sure component is of type Ocean
@@ -170,6 +174,7 @@ class OceanModelStep(ModelStep):
         ] = None
         self.graph_target = graph_target
         self.update_eos = update_eos
+        self.horiz_mesh_filename: Optional[str] = None
 
     def setup(self) -> None:
         """
@@ -195,6 +200,15 @@ class OceanModelStep(ModelStep):
             self.streams_section = 'streams'
         else:
             raise ValueError(f'Unexpected ocean model: {model}')
+
+        if self.horiz_mesh_filename is not None:
+            self.add_yaml_file(
+                'polaris.ocean.config',
+                'horiz_mesh.yaml',
+                template_replacements=dict(
+                    horiz_mesh_filename=self.horiz_mesh_filename
+                ),
+            )
 
         self.dynamic_ntasks = self.ntasks is None and self.min_tasks is None
 

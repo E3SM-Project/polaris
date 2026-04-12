@@ -32,7 +32,7 @@ class Init(OceanIOStep):
         super().__init__(component=component, name=name, subdir=subdir)
 
         self.add_input_file(
-            filename='mesh.nc',
+            filename='base_mesh.nc',
             work_dir_target=f'{base_mesh.path}/base_mesh.nc',
         )
 
@@ -41,6 +41,7 @@ class Init(OceanIOStep):
             work_dir_target=f'{base_mesh.path}/graph.info',
         )
 
+        self.add_output_file(filename='mesh.nc')
         self.add_output_file(filename='initial_state.nc')
 
     def run(self):
@@ -58,11 +59,12 @@ class Init(OceanIOStep):
         section = config['vertical_grid']
         bottom_depth = section.getfloat('bottom_depth')
 
-        ds_mesh = xr.open_dataset('mesh.nc')
+        ds_mesh = xr.open_dataset('base_mesh.nc')
         latCell = ds_mesh.latCell
         latEdge = ds_mesh.latEdge
         lonCell = ds_mesh.lonCell
 
+        self.write_model_dataset(ds_mesh, 'mesh.nc')
         ds = ds_mesh.copy()
 
         ds['bottomDepth'] = bottom_depth * xr.ones_like(latCell)

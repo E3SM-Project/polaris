@@ -13,6 +13,8 @@ dimensions:
 
 variables:
   # mesh
+  nEdgesOnCell: NEdgesOnCell
+  nEdgesOnEdge: NEdgesOnEdge
   cellsOnCell: CellsOnCell
   edgesOnCell: EdgesOnCell
   verticesOnCell: VerticesOnCell
@@ -21,6 +23,32 @@ variables:
   verticesOnEdge: VerticesOnEdge
   cellsOnVertex: CellsOnVertex
   edgesOnVertex: EdgesOnVertex
+  xCell: XCell
+  yCell: YCell
+  zCell: ZCell
+  latCell: LatCell
+  lonCell: LonCell
+  xEdge: XEdge
+  yEdge: YEdge
+  zEdge: ZEdge
+  latEdge: LatEdge
+  lonEdge: LonEdge
+  xVertex: XVertex
+  yVertex: YVertex
+  zVertex: ZVertex
+  latVertex: LatVertex
+  lonVertex: LonVertex
+  areaCell: AreaCell
+  meshDensity: MeshDensity
+  areaTriangle: AreaTriangle
+  dvEdge: DvEdge
+  dcEdge: DcEdge
+  angleEdge: AngleEdge
+  kiteAreasOnVertex: KiteAreasOnVertex
+  weightsOnEdge: WeightsOnEdge
+  fCell: FCell
+  fEdge: FEdge
+  fVertex: FVertex
 
   # tracers
   temperature: Temperature

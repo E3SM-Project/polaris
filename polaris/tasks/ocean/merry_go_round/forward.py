@@ -75,17 +75,7 @@ class Forward(ConvergenceForward):
         )
         self.order = vert_adv_order
         self.limiter = limiter
-
-    def setup(self):
-        """
-        TEMP: symlink initial condition to name hard-coded in Omega
-        """
-        super().setup()
-        config = self.config
-        model = config.get('ocean', 'model')
-        # TODO: remove as soon as Omega no longer hard-codes this file
-        if model == 'omega':
-            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
+        self.horiz_mesh_filename = 'mesh.nc'
 
     def dynamic_model_config(self, at_setup):
         """

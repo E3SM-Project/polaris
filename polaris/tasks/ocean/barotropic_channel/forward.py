@@ -78,6 +78,11 @@ class Forward(OceanModelStep):
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
         self.add_input_file(
+            filename='mesh.nc',
+            target='../init/culled_mesh.nc',
+        )
+
+        self.add_input_file(
             filename='init.nc',
             target='../init/initial_state.nc',
         )
@@ -95,16 +100,7 @@ class Forward(OceanModelStep):
                 'temperature',
             ],
         )
-
-    def setup(self):
-        """
-        TEMP: symlink initial condition to name hard-coded in Omega
-        """
-        super().setup()
-        model = self.config.get('ocean', 'model')
-        # TODO: remove as soon as Omega no longer hard-codes this file
-        if model == 'omega':
-            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
+        self.horiz_mesh_filename = 'mesh.nc'
 
     def dynamic_model_config(self, at_setup):
         super().dynamic_model_config(at_setup=at_setup)

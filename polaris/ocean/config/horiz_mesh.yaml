@@ -1,0 +1,9 @@
+mpas-ocean:
+  streams:
+    mesh:
+      filename_template: {{ horiz_mesh_filename }}
+
+Omega:
+  IOStreams:
+    HorzMeshIn:
+      Filename: {{ horiz_mesh_filename }}
