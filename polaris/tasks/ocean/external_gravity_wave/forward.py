@@ -75,6 +75,7 @@ class Forward(SphericalConvergenceForward):
             refinement=refinement,
         )
         self.dt_type = dt_type
+        self.horiz_mesh_filename = 'mesh.nc'
 
         if dt_type == 'local':
             self.add_yaml_file(
@@ -180,6 +181,10 @@ class ReferenceForward(OceanModelStep):
             filename='init.nc',
             work_dir_target=f'{init.path}/initial_state.nc',
         )
+        self.add_input_file(
+            filename='mesh.nc',
+            work_dir_target=f'{mesh.path}/base_mesh.nc',
+        )
 
         if dt_type == 'local':
             self.add_yaml_file(
@@ -195,6 +200,7 @@ class ReferenceForward(OceanModelStep):
         self.dt = dt
         self.package = package
         self.yaml_filename = yaml_filename
+        self.horiz_mesh_filename = 'mesh.nc'
 
     def compute_cell_count(self):
         """
@@ -271,13 +277,3 @@ class ReferenceForward(OceanModelStep):
             self.yaml_filename,
             template_replacements=replacements,
         )
-
-    def setup(self):
-        """
-        TEMP: symlink initial condition to name hard-coded in Omega
-        """
-        super().setup()
-        model = self.config.get('ocean', 'model')
-        # TODO: remove as soon as Omega no longer hard-codes this file
-        if model == 'omega':
-            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
