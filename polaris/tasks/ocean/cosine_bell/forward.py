@@ -59,11 +59,11 @@ class Forward(SphericalConvergenceForward):
             component=component,
             name=name,
             subdir=subdir,
-            mesh=mesh,
+            mesh=init,
             init=init,
             package=package,
             yaml_filename='forward.yaml',
-            mesh_input_filename='base_mesh.nc',
+            mesh_input_filename='mesh.nc',
             output_filename='output.nc',
             validate_vars=validate_vars,
             check_properties=['mass conservation', 'tracer conservation'],
@@ -72,13 +72,4 @@ class Forward(SphericalConvergenceForward):
             refinement=refinement,
         )
         self.do_restart = do_restart
-
-    def setup(self):
-        """
-        TEMP: symlink initial condition to name hard-coded in Omega
-        """
-        super().setup()
-        model = self.config.get('ocean', 'model')
-        # TODO: remove as soon as Omega no longer hard-codes this file
-        if model == 'omega':
-            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
+        self.horiz_mesh_filename = 'mesh.nc'
