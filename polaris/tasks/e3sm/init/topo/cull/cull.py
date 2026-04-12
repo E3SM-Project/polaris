@@ -2,12 +2,17 @@ import os
 
 import xarray as xr
 from mpas_tools.io import write_netcdf
+from mpas_tools.logging import check_call
 from mpas_tools.mesh.conversion import cull
 from mpas_tools.mesh.creation.sort_mesh import sort_mesh
 from mpas_tools.mesh.cull import map_culled_to_base
+from pyremap import MpasCellMeshDescriptor
 
 from polaris import Step
 from polaris.model_step import make_graph_file
+
+CULL_PREFIXES = ['ocean', 'ocean_no_cavities', 'land']
+SCRIP_PREFIXES = ['ocean', 'ocean_no_cavities', 'land']
 
 
 class CullMeshStep(Step):
@@ -62,9 +67,11 @@ class CullMeshStep(Step):
         self.base_mesh_step = base_mesh_step
         self.cull_mask_step = cull_mask_step
 
-        for prefix in ['ocean', 'ocean_no_cavities', 'land']:
+        for prefix in CULL_PREFIXES:
             self.add_output_file(filename=f'culled_{prefix}_mesh.nc')
             self.add_output_file(filename=f'{prefix}_map_culled_to_base.nc')
+            if prefix in SCRIP_PREFIXES:
+                self.add_output_file(filename=f'culled_{prefix}_mesh.scrip.nc')
             if prefix.startswith('ocean'):
                 self.add_output_file(filename=f'culled_{prefix}_graph.info')
 
@@ -115,7 +122,7 @@ class CullMeshStep(Step):
         Run this step of the test case
         """
         super().run()
-        for prefix in ['ocean', 'ocean_no_cavities', 'land']:
+        for prefix in CULL_PREFIXES:
             self._cull_mesh(prefix)
 
     def _cull_mesh(self, prefix):
@@ -152,6 +159,8 @@ class CullMeshStep(Step):
 
         out_filename = f'culled_{prefix}_mesh.nc'
         write_netcdf(ds_culled_mesh, out_filename)
+        if prefix in SCRIP_PREFIXES:
+            self._create_scrip_file(mesh_filename=out_filename, prefix=prefix)
 
         ds_map_culled_to_base = map_culled_to_base(
             ds_base=ds_base_mesh,
@@ -166,3 +175,33 @@ class CullMeshStep(Step):
                 mesh_filename=out_filename,
                 graph_filename=f'culled_{prefix}_graph.info',
             )
+
+    def _create_scrip_file(self, mesh_filename, prefix):
+        """
+        Create a SCRIP file from a culled MPAS mesh.
+        """
+        logger = self.logger
+        logger.info(f'Create SCRIP file for culled {prefix} mesh')
+
+        scrip_filename = mesh_filename.replace('.nc', '.scrip.nc')
+        netcdf4_filename = mesh_filename.replace('.nc', '.scrip.netcdf4.nc')
+        mesh_name = f'{self.base_mesh_step.mesh_name}_{prefix}'
+
+        descriptor = MpasCellMeshDescriptor(
+            filename=mesh_filename,
+            mesh_name=mesh_name,
+        )
+        descriptor.to_scrip(netcdf4_filename)
+
+        # writing directly in NETCDF3_64BIT_DATA proved prohibitively slow
+        # so we will use ncks to convert
+        args = [
+            'ncks',
+            '-O',
+            '-5',
+            netcdf4_filename,
+            scrip_filename,
+        ]
+        check_call(args, logger)
+
+        logger.info('  Done.')
