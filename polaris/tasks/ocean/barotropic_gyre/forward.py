@@ -112,6 +112,7 @@ class Forward(OceanModelStep):
 
         self.package = 'polaris.tasks.ocean.barotropic_gyre'
         self.yaml_filename = 'forward.yaml'
+        self.horiz_mesh_filename = 'mesh.nc'
 
     def compute_cell_count(self):
         """
@@ -267,16 +268,6 @@ class Forward(OceanModelStep):
             self.yaml_filename,
             template_replacements=replacements,
         )
-
-    def setup(self):
-        """
-        TEMP: symlink initial condition to name hard-coded in Omega
-        """
-        super().setup()
-        model = self.config.get('ocean', 'model')
-        # TODO: remove as soon as Omega no longer hard-codes this file
-        if model == 'omega':
-            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
 
     def compute_max_time_step(self, config):
         """
