@@ -125,27 +125,9 @@ class Init(OceanIOStep):
         )
 
         # Coriolis parameter is zero
-        ds['fCell'] = (
-            (
-                'nCells',
-                'nVertLevels',
-            ),
-            np.zeros([ds.sizes['nCells'], ds.sizes['nVertLevels']]),
-        )
-        ds['fEdge'] = (
-            (
-                'nEdges',
-                'nVertLevels',
-            ),
-            np.zeros([ds.sizes['nEdges'], ds.sizes['nVertLevels']]),
-        )
-        ds['fVertex'] = (
-            (
-                'nVertices',
-                'nVertLevels',
-            ),
-            np.zeros([ds.sizes['nVertices'], ds.sizes['nVertLevels']]),
-        )
+        ds['fCell'] = xr.zeros_like(ds.xCell)
+        ds['fEdge'] = xr.zeros_like(ds.xEdge)
+        ds['fVertex'] = xr.zeros_like(ds.xVertex)
 
         # finalize and write file
         self.write_model_dataset(ds, 'init.nc')

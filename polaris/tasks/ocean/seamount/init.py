@@ -149,7 +149,7 @@ class Init(OceanIOStep):
             ),
             np.zeros([1, ds.sizes['nEdges'], ds.sizes['nVertLevels']]),
         )
-        ds['fCell'] = coriolis_parameter * xr.ones_like(temperature)
+        ds['fCell'] = coriolis_parameter * xr.ones_like(ds.xCell)
         ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
         ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
 
