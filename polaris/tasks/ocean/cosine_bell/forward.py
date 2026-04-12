@@ -72,13 +72,4 @@ class Forward(SphericalConvergenceForward):
             refinement=refinement,
         )
         self.do_restart = do_restart
-
-    def setup(self):
-        """
-        TEMP: symlink initial condition to name hard-coded in Omega
-        """
-        super().setup()
-        model = self.config.get('ocean', 'model')
-        # TODO: remove as soon as Omega no longer hard-codes this file
-        if model == 'omega':
-            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
+        self.horiz_mesh_filename = 'mesh.nc'
