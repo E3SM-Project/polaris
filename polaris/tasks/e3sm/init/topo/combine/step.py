@@ -56,21 +56,14 @@ class CombineStep(Step):
     }
 
     @staticmethod
-    def get_subdir(low_res):
+    def get_subdir():
         """
-        Get the subdirectory for the step based on the datasets
-        Parameters
-        ----------
-        low_res : bool, optional
-            Whether to use the low resolution configuration options
+        Get the base subdirectory for the step based on the datasets.
         """
-        suffix = '_low_res' if low_res else ''
-        subdir = (
-            f'combine_{CombineStep.ANTARCTIC}_{CombineStep.GLOBAL}{suffix}'
-        )
+        subdir = f'combine_{CombineStep.ANTARCTIC}_{CombineStep.GLOBAL}'
         return os.path.join('topo', subdir)
 
-    def __init__(self, component, subdir, low_res=False):
+    def __init__(self, component, subdir):
         """
         Create a new step
 
@@ -82,13 +75,10 @@ class CombineStep(Step):
         subdir : str
             The subdirectory within the component's work directory
 
-        low_res : bool, optional
-            Whether to use the low resolution configuration options
         """
         antarctic_dataset = self.ANTARCTIC
         global_dataset = self.GLOBAL
-        suffix = '_low_res' if low_res else ''
-        name = f'combine_topo_{antarctic_dataset}_{global_dataset}{suffix}'
+        name = f'combine_topo_{antarctic_dataset}_{global_dataset}'
         super().__init__(
             component=component,
             name=name,
@@ -266,11 +256,15 @@ class CombineStep(Step):
                 f'{res_name}.nc',
             ]
         )
-        self.exodus_filename = f'{self.resolution_name}.g'
+        if target_grid == 'cubed_sphere':
+            self.exodus_filename = f'{self.resolution_name}.g'
+        else:
+            self.exodus_filename = None
 
         self.add_output_file(filename=self.dst_scrip_filename)
         self.add_output_file(filename=self.combined_filename)
-        self.add_output_file(filename=self.exodus_filename)
+        if self.exodus_filename is not None:
+            self.add_output_file(filename=self.exodus_filename)
 
         if update:
             # We need to set absolute paths
@@ -282,10 +276,10 @@ class CombineStep(Step):
 
     def _modify_gebco(self, in_filename, out_filename):
         """
-        Modify GEBCO to include lon/lat bounds located at grid edges
+        Modify GEBCO to include lon/lat bounds and an ocean mask
         """
         logger = self.logger
-        logger.info('Adding bounds to GEBCO lat/lon')
+        logger.info('Adding bounds and an ocean mask to GEBCO')
 
         # Modify GEBCO
         gebco = xr.open_dataset(in_filename)
@@ -299,6 +293,7 @@ class CombineStep(Step):
         gebco['lon_bnds'] = lon_bnds.transpose('lon', 'bnds')
         gebco.lat.attrs['bounds'] = 'lat_bnds'
         gebco.lon.attrs['bounds'] = 'lon_bnds'
+        gebco['ocean_mask'] = (gebco.elevation < 0.0).astype(float)
 
         # Write modified GEBCO to netCDF
         _write_netcdf_with_fill_values(gebco, out_filename)
@@ -451,10 +446,18 @@ class CombineStep(Step):
 
         # Select tile from dataset
         tile = ds.isel(lat=lat_indices, lon=lon_indices)
+        lat = tile.lat.values.copy()
+        lat_attrs = tile.lat.attrs.copy()
+        # xarray may expose coordinate views from ``isel()`` as read-only.
+        # Reassign corrected pole coordinates instead of mutating in place,
+        # while preserving CF metadata that ESMF uses to detect CFGRID files.
         if lat_tile == 0:
-            tile.lat.values[0] = -90.0  # Correct south pole
+            lat[0] = -90.0  # Correct south pole
         if lat_tile == lat_tiles - 1:
-            tile.lat.values[-1] = 90.0  # Correct north pole
+            lat[-1] = 90.0  # Correct north pole
+        tile = tile.assign_coords(
+            lat=xr.DataArray(lat, dims=tile.lat.dims, attrs=lat_attrs)
+        )
 
         # Write tile to netCDF
         _write_netcdf_with_fill_values(tile, out_filename)
@@ -702,14 +705,14 @@ class CombineStep(Step):
 
                 # Add tile to remapped global topography
                 logger.info(f'    adding {remapped_filename}')
-                elevation = xr.open_dataset(remapped_filename).elevation
-                elevation = elevation.where(elevation.notnull(), 0.0)
-                if 'elevation' in global_remapped:
-                    global_remapped['elevation'] = (
-                        global_remapped.elevation + elevation
-                    )
-                else:
-                    global_remapped['elevation'] = elevation
+                ds_tile = xr.open_dataset(remapped_filename)
+                for field in ['elevation', 'ocean_mask']:
+                    da = ds_tile[field]
+                    da = da.where(da.notnull(), 0.0)
+                    if field in global_remapped:
+                        global_remapped[field] = global_remapped[field] + da
+                    else:
+                        global_remapped[field] = da
 
         # Write tile to netCDF
         logger.info(f'    writing {out_filename}')
@@ -781,6 +784,10 @@ class CombineStep(Step):
         global_elevation = global_elevation.where(
             global_elevation.notnull(), 0.0
         )
+        global_ocean_mask = ds_global.ocean_mask
+        global_ocean_mask = global_ocean_mask.where(
+            global_ocean_mask.notnull(), 0.0
+        )
 
         # Load and mask Antarctic dataset
         ds_antarctic = xr.open_dataset(antarctic_filename)
@@ -795,6 +802,7 @@ class CombineStep(Step):
             'ice_draft',
             'ice_mask',
             'grounded_mask',
+            'ocean_mask',
         ]
 
         for var in vars:
@@ -822,6 +830,12 @@ class CombineStep(Step):
         # Add masks
         for field in ['ice_mask', 'grounded_mask']:
             combined[field] = ds_antarctic[field]
+        antarctic_ocean_mask = ds_antarctic.ocean_mask.where(
+            ds_antarctic.ocean_mask.notnull(), global_ocean_mask
+        )
+        combined['ocean_mask'] = (
+            alpha * global_ocean_mask + (1.0 - alpha) * antarctic_ocean_mask
+        )
 
         # Add fill values
         fill_vals = {
@@ -829,6 +843,7 @@ class CombineStep(Step):
             'ice_thickness': 0.0,
             'ice_mask': 0.0,
             'grounded_mask': 0.0,
+            'ocean_mask': 0.0,
         }
         for field, fill_val in fill_vals.items():
             valid = combined[field].notnull()
