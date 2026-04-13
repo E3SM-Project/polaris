@@ -1,6 +1,6 @@
 # Sizing-Field Construction for Unified Base Mesh Workflow
 
-date: 2026/04/10
+date: 2026/04/13
 
 Contributors:
 
@@ -285,7 +285,7 @@ step.
 
 ### Implementation: Explicit Consumption of Shared Coastline and River Products
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/13
 
 Contributors:
 
@@ -294,6 +294,13 @@ Contributors:
 
 The first implementation should keep step interfaces explicit and should avoid
 reintroducing raw-dataset dependencies inside `build_sizing_field`.
+
+The sibling `add-lat-lon-topo-combine` branch already implements the shared
+lat-lon `e3sm/init/topo/combine` tasks at 0.0625, 0.25 and 1.0 degree and the
+associated `CombineStep` support. That does not yet build the sizing field,
+but it provides the upstream target-grid topography path assumed by this
+design. See Polaris pull request
+<https://github.com/E3SM-Project/polaris/pull/526>.
 
 ### Implementation: Composable Feature-Based Resolution Controls
 

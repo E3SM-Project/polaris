@@ -1,6 +1,6 @@
 # Coastline Preparation for Unified Base Mesh Workflow
 
-date: 2026/04/10
+date: 2026/04/13
 
 Contributors:
 
@@ -264,7 +264,7 @@ by the full unified workflow when configuration choices match.
 
 ### Implementation: Raster-First Coastline Products for Downstream Steps
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/13
 
 Contributors:
 
@@ -275,6 +275,14 @@ Detailed class layout, file naming, and output caching strategy should be
 deferred until the requirements and algorithm design settle further. The first
 implementation should favor a small raster-based output contract over a broad
 set of derived artifacts.
+
+One enabling dependency is already implemented on the sibling
+`add-lat-lon-topo-combine` branch: three lat-lon
+`e3sm/init/topo/combine` tasks at 0.0625, 0.25 and 1.0 degree, together with
+the `CombineStep` changes needed to support `target_grid = lat_lon`. That
+work does not yet implement `prepare_coastline`, but it directly supports the
+preferred upstream source described in this design. See Polaris pull request
+<https://github.com/E3SM-Project/polaris/pull/526>.
 
 ### Implementation: Topography-Consistent and Explicit Coastline Definition
 

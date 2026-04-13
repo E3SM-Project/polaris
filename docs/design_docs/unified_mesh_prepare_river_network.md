@@ -1,6 +1,6 @@
 # River Network Preparation for Unified Base Mesh Workflow
 
-date: 2026/04/10
+date: 2026/04/13
 
 Contributors:
 
@@ -253,7 +253,7 @@ configuration choices match.
 
 ### Implementation: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/13
 
 Contributors:
 
@@ -264,6 +264,13 @@ Detailed file naming and class layout should be deferred until the interface is
 settled further. The first implementation should prioritize a clean output
 contract over carrying forward the standalone workflow's mixed raster
 conventions.
+
+The sibling `add-lat-lon-topo-combine` branch already adds the shared lat-lon
+`e3sm/init/topo/combine` tasks and `CombineStep` support that underpin the
+preferred topo-driven coastline path in this design. That is enabling work
+rather than a river-network implementation, but it reduces risk for aligning
+outlets with shared target-grid coastline products. See Polaris pull request
+<https://github.com/E3SM-Project/polaris/pull/526>.
 
 ### Implementation: Hydrologically Meaningful Simplification
 
