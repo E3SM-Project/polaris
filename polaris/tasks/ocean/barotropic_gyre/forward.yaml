@@ -60,6 +60,7 @@ Omega:
     TracerHorzAdvTendencyEnable : false
     TracerDiffTendencyEnable : false
     TracerHyperDiffTendencyEnable : false
+    PressureGradTendencyEnable : false
   Advection:
     FluxThicknessType: Center
   IOStreams:

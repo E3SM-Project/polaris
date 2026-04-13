@@ -44,6 +44,7 @@ Omega:
     VelHyperDiffTendencyEnable: false
     UseCustomTendency: true
     ManufacturedSolutionTendency: true
+    PressureGradTendencyEnable : false
   IOStreams:
     InitialVertCoord:
       Filename: init.nc
