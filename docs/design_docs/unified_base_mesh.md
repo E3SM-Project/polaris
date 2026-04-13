@@ -1,6 +1,6 @@
 # Unified Global Base Mesh Workflow
 
-date: 2026/04/10
+date: 2026/04/13
 
 Contributors:
 
@@ -397,7 +397,7 @@ existing downstream tasks.
 
 ### Implementation: Feature-Aware Resolution Control
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/13
 
 Contributors:
 
@@ -416,6 +416,14 @@ The likely first-pass step decomposition is:
   using signed-distance fields where that simplifies the definition of
   transition zones and buffers; and
 - `unified_base_mesh`: consume the sizing field and create the MPAS base mesh.
+
+Related enabling work is already in place on the sibling
+`add-lat-lon-topo-combine` branch, which adds three lat-lon
+`e3sm/init/topo/combine` tasks at 0.0625, 0.25 and 1.0 degree and extends
+`CombineStep` accordingly. That branch does not implement the unified-mesh
+workflow itself, but it reduces risk for the shared target-grid preprocessing
+described here. See Polaris pull request
+<https://github.com/E3SM-Project/polaris/pull/526>.
 
 These names are intentionally provisional. They are useful labels for the
 current design discussion but should not yet be interpreted as final public
