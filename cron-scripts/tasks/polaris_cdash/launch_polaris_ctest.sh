@@ -55,29 +55,29 @@ fi
 
 }
 
-setup_polaris_repo() {
-    echo "================================================================================"
-    echo "STEP 1: Setting up Polaris Repo (Baseline)"
-    echo "================================================================================"
-    cd "${POLARIS_CDASH_BASEDIR}"
-
-    # Check if we are inside the 'polaris' folder or need to enter it
-    if [ ! -d "polaris" ]; then
-        echo "Cloning Polaris repository..."
-        git clone git@github.com:E3SM-Project/polaris.git
-        cd polaris
-    else
-        cd polaris
-        echo "Repository exists. Resetting to main branch..."
-        git fetch origin
-        git checkout main
-        git reset --hard origin/main
-    fi
-
-    echo "Updating specific submodules (jigsaw-python, Omega)..."
-    git submodule update --init --recursive jigsaw-python
-    git submodule update --init --recursive e3sm_submodules/Omega
-}
+#setup_polaris_repo() {
+#    echo "================================================================================"
+#    echo "STEP 1: Setting up Polaris Repo (Baseline)"
+#    echo "================================================================================"
+#    cd "${POLARIS_CDASH_BASEDIR}"
+#
+#    # Check if we are inside the 'polaris' folder or need to enter it
+#    if [ ! -d "polaris" ]; then
+#        echo "Cloning Polaris repository..."
+#        git clone git@github.com:E3SM-Project/polaris.git
+#        cd polaris
+#    else
+#        cd polaris
+#        echo "Repository exists. Resetting to main branch..."
+#        git fetch origin
+#        git checkout main
+#        git reset --hard origin/main
+#    fi
+#
+#    echo "Updating specific submodules (jigsaw-python, Omega)..."
+#    git submodule update --init --recursive jigsaw-python
+#    git submodule update --init --recursive e3sm_submodules/Omega
+#}
 
 configure_polaris() {
     local compiler=$1
@@ -88,16 +88,11 @@ configure_polaris() {
 
     cd "${POLARIS_CDASH_BASEDIR}/polaris"
 
-    if [ ! -f "configure_polaris_envs.py" ]; then
-        echo "Error: configure_polaris_envs.py not found in $(pwd)"
-        exit 1
+    if [ ! -f "load_polaris_${CRONJOB_MACHINE}_${compiler}_*.sh" ]; then
+        ./deploy.py --machine ${CRONJOB_MACHINE} --compiler ${compiler}
     fi
 
-    if ! ls load_dev_polaris_*_${CRONJOB_MACHINE}_${compiler}_*.sh >/dev/null 2>&1; then
-        echo "Configuring Polaris Environment"
-        ./configure_polaris_envs.py --conda "${MINIFORGE3_HOME}" \
-            -c "${compiler}" -m "${CRONJOB_MACHINE}"
-    fi
+    source ./load_polaris_${CRONJOB_MACHINE}_${compiler}_*.sh
 }
 
 build_omega_dev() {
@@ -182,7 +177,7 @@ run_baseline_suite() {
 # Main Execution
 # ==============================================================================
 install_miniforge3
-setup_polaris_repo
+#setup_polaris_repo
 
 for COMPILER in ${E3SM_COMPILERS}; do
     echo "################################################################################"

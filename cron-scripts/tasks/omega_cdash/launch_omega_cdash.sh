@@ -10,18 +10,30 @@ export TESTROOT="${OMEGA_CDASH_BASEDIR}/tests"
 mkdir -p $OMEGA_CDASH_BASEDIR
 mkdir -p $TESTROOT
 
-export OMEGA_HOME="${OMEGA_CDASH_BASEDIR}/Omega"
 
-if [[ ! -d $OMEGA_HOME ]]; then
-    cd ${OMEGA_CDASH_BASEDIR}
-    git clone https://github.com/E3SM-Project/Omega.git
+# Configuration
+export REPO_PATH="${OMEGA_CDASH_BASEDIR}/Omega"
+REMOTE_URL="https://github.com/E3SM-Project/Omega.git"
+BRANCH="develop"
+
+# 1. & 2. Check existence and handle repository state
+if [ ! -d "$REPO_PATH/.git" ]; then
+    echo "Repository not found. Cloning..."
+    git clone -b "$BRANCH" "$REMOTE_URL" "$REPO_PATH"
+    cd "$REPO_PATH" || exit
+else
+    echo "Repository exists. Updating to latest remote state..."
+    cd "$REPO_PATH" || exit
+    
+    # Ensure we are on the correct branch and sync with origin
+    git fetch origin
+    git checkout "$BRANCH"
+    git reset --hard "origin/$BRANCH"
 fi
 
-cd ${OMEGA_HOME}
-git checkout develop
-git fetch origin
-git reset --hard origin/develop
-git submodule update --init --recursive || true
+# 3. Update specific submodules recursively
+echo "Updating submodules..."
+git submodule update --init --recursive externals/ekat externals/scorpio cime components/omega/external
 
 if [[ ! -f ${TESTROOT}/OmegaMesh.nc ]]; then
     wget -O ${TESTROOT}/OmegaMesh.nc https://web.lcrc.anl.gov/public/e3sm/inputdata/ocn/mpas-o/oQU240/ocean.QU.240km.151209.nc
