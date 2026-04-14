@@ -32,10 +32,11 @@ polaris setup -t ocean/global_ocean/hydrography/woa23 ...
 
 The task is organized into three inspectable steps:
 
-1. `combine_topo` reuses a cached `e3sm/init` combined-topography step
-   configured for the WOA23 0.25-degree latitude-longitude grid.
+1. `combine_topo` from the `e3sm/init` component is used to combine topography
+   GEBCO and Bedmap3 datasets on the WOA23 0.25-degree latitude-longitude grid.
 2. `combine` creates `woa_combined.nc` by combining January and annual WOA23
-   fields and converting temperature to potential temperature.
+   in-situ temperature and practical-salinity fields, then deriving
+   conservative temperature and absolute salinity.
 3. `extrapolate` creates the final
    `woa23_decav_0.25_jan_extrap.nc` product.
 

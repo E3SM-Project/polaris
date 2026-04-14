@@ -68,12 +68,14 @@ class Woa23VizStep(Step):
             'woa23', 'horizontal_plot_depths', dtype=float
         ):
             depth_tag = self._depth_tag(depth)
-            self.add_output_file(filename=f'pt_an_depth_{depth_tag}.png')
+            self.add_output_file(filename=f'ct_an_depth_{depth_tag}.png')
             self.add_output_file(
-                filename=f'pt_an_depth_{depth_tag}_filled.png'
+                filename=f'ct_an_depth_{depth_tag}_filled.png'
             )
-            self.add_output_file(filename=f's_an_depth_{depth_tag}.png')
-            self.add_output_file(filename=f's_an_depth_{depth_tag}_filled.png')
+            self.add_output_file(filename=f'sa_an_depth_{depth_tag}.png')
+            self.add_output_file(
+                filename=f'sa_an_depth_{depth_tag}_filled.png'
+            )
 
         self.add_output_file(filename='filchner_section.png')
         self.add_output_file(filename='filchner_section_filled.png')
@@ -98,15 +100,15 @@ class Woa23VizStep(Step):
         logger = self.logger
         fields = [
             (
-                'pt_an',
-                'Potential temperature',
-                r'Potential temperature ($^{\circ}$C)',
+                'ct_an',
+                'Conservative temperature',
+                r'Conservative temperature ($^{\circ}$C)',
                 'woa23_viz_temperature',
             ),
             (
-                's_an',
-                'Salinity',
-                'Salinity (PSU)',
+                'sa_an',
+                'Absolute salinity',
+                r'Absolute salinity (g kg$^{-1}$)',
                 'woa23_viz_salinity',
             ),
         ]
@@ -245,7 +247,7 @@ class Woa23VizStep(Step):
             'lon': xr.DataArray(lon, dims=('nPoints',)),
         }
 
-        ds_section = ds_woa[['pt_an', 's_an']].interp(**coords)
+        ds_section = ds_woa[['ct_an', 'sa_an']].interp(**coords)
         ds_topo_section = ds_topo[['base_elevation', 'ice_draft']].interp(
             **coords
         )
@@ -274,15 +276,15 @@ class Woa23VizStep(Step):
 
         fields = [
             (
-                'pt_an',
-                'Potential temperature',
-                r'Potential temperature ($^{\circ}$C)',
+                'ct_an',
+                'Conservative temperature',
+                r'Conservative temperature ($^{\circ}$C)',
                 'woa23_viz_section_temperature',
             ),
             (
-                's_an',
-                'Salinity',
-                'Salinity (PSU)',
+                'sa_an',
+                'Absolute salinity',
+                r'Absolute salinity (g kg$^{-1}$)',
                 'woa23_viz_section_salinity',
             ),
         ]

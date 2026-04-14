@@ -75,8 +75,8 @@ class CombineStep(Step):
 
     def run(self):
         """
-        Combine January and annual climatologies and convert temperature to
-        potential temperature.
+        Combine January and annual climatologies and derive conservative
+        temperature and absolute salinity.
         """
         logger = self.logger
         logger.info('Combining January and annual WOA23 climatologies')
@@ -108,14 +108,15 @@ class CombineStep(Step):
                     ds_out[var_name] = xr.concat(slices, dim='depth')
                     ds_out[var_name].attrs = ds_ann[var_name].attrs
 
-        ds_out = self._temp_to_potential_temp(ds_out)
+        ds_out = self._to_canonical_teos10(ds_out)
         write_netcdf(ds_out, 'woa_combined.nc')
         logger.info('Wrote woa_combined.nc')
 
     @staticmethod
-    def _temp_to_potential_temp(ds):
+    def _to_canonical_teos10(ds):
         """
-        Convert WOA in-situ temperature to potential temperature.
+        Convert WOA in-situ temperature and practical salinity to canonical
+        conservative temperature and absolute salinity.
 
         Parameters
         ----------
@@ -125,10 +126,11 @@ class CombineStep(Step):
         Returns
         -------
         ds : xarray.Dataset
-            The dataset with temperature replaced by potential temperature.
+            The dataset with conservative temperature and absolute salinity.
         """
         dims = ds.t_an.dims
-        slices = []
+        ct_slices = []
+        sa_slices = []
         for depth_index in range(ds.sizes['depth']):
             temp_slice = ds.t_an.isel(depth=depth_index)
             in_situ_temp = temp_slice.values
@@ -138,33 +140,47 @@ class CombineStep(Step):
             z = -ds.depth.isel(depth=depth_index).values
             pressure = gsw.p_from_z(z, lat)
 
-            mask = np.isfinite(in_situ_temp)
-            potential_temp = np.full(in_situ_temp.shape, np.nan)
-            absolute_salinity = gsw.SA_from_SP(
+            mask = np.isfinite(in_situ_temp) & np.isfinite(practical_salinity)
+            conservative_temp = np.full(in_situ_temp.shape, np.nan)
+            absolute_salinity = np.full(practical_salinity.shape, np.nan)
+            absolute_salinity[mask] = gsw.SA_from_SP(
                 practical_salinity[mask],
                 pressure[mask],
                 lon[mask],
                 lat[mask],
             )
-            potential_temp[mask] = gsw.pt_from_t(
-                absolute_salinity,
+            conservative_temp[mask] = gsw.CT_from_t(
+                absolute_salinity[mask],
                 in_situ_temp[mask],
                 pressure[mask],
-                p_ref=0.0,
             )
-            slices.append(
+            ct_slices.append(
                 xr.DataArray(
-                    data=potential_temp,
+                    data=conservative_temp,
                     dims=temp_slice.dims,
                     attrs=temp_slice.attrs,
                 )
             )
+            sa_slices.append(
+                xr.DataArray(
+                    data=absolute_salinity,
+                    dims=temp_slice.dims,
+                    attrs=ds.s_an.attrs,
+                )
+            )
 
-        ds['pt_an'] = xr.concat(slices, dim='depth').transpose(*dims)
-        ds.pt_an.attrs['standard_name'] = 'sea_water_potential_temperature'
-        ds.pt_an.attrs['long_name'] = (
+        ds['ct_an'] = xr.concat(ct_slices, dim='depth').transpose(*dims)
+        ds.ct_an.attrs['standard_name'] = 'sea_water_conservative_temperature'
+        ds.ct_an.attrs['long_name'] = (
             'Objectively analyzed mean fields for '
-            'sea_water_potential_temperature at standard depth levels.'
+            'sea_water_conservative_temperature at standard depth levels.'
         )
+        ds['sa_an'] = xr.concat(sa_slices, dim='depth').transpose(*dims)
+        ds.sa_an.attrs['standard_name'] = 'sea_water_absolute_salinity'
+        ds.sa_an.attrs['long_name'] = (
+            'Objectively analyzed mean fields for '
+            'sea_water_absolute_salinity at standard depth levels.'
+        )
+        ds.sa_an.attrs['units'] = 'g kg-1'
 
-        return ds.drop_vars('t_an')
+        return ds.drop_vars(['t_an', 's_an'])

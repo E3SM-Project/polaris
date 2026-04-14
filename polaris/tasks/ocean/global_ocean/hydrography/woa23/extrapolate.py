@@ -162,7 +162,7 @@ class ExtrapolateStep(Step):
                 ocean_mask=level_mask,
                 threshold=self.config.getfloat('woa23', 'extrap_threshold'),
             )
-            for field_name in ['pt_an', 's_an']:
+            for field_name in ['ct_an', 'sa_an']:
                 ds_out[field_name][depth_index, :, :] = ds_level[field_name]
 
         write_netcdf(ds_out, out_filename)
@@ -192,7 +192,7 @@ class ExtrapolateStep(Step):
                 ocean_mask = ds_mask.ocean_mask.values.astype(bool)
 
         ndepth = ds_out.sizes['depth']
-        for field_name in ['pt_an', 's_an']:
+        for field_name in ['ct_an', 'sa_an']:
             field = ds_out[field_name].values
             for depth_index in range(1, ndepth):
                 mask = np.isnan(field[depth_index, :, :])
@@ -226,7 +226,7 @@ class ExtrapolateStep(Step):
             The filled depth level.
         """
         kernel = ExtrapolateStep._get_kernel()
-        field = ds_level.pt_an.values
+        field = ds_level.ct_an.values
 
         valid = np.isfinite(field)
         orig_mask = valid.copy()
@@ -239,7 +239,7 @@ class ExtrapolateStep(Step):
 
         fields = {
             field_name: ds_level[field_name].values.copy()
-            for field_name in ['pt_an', 's_an']
+            for field_name in ['ct_an', 'sa_an']
         }
 
         nlon = field.shape[1]

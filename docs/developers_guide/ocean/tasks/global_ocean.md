@@ -52,8 +52,9 @@ combines January and annual WOA23 temperature and salinity climatologies into
 a single dataset. January values are used where they exist, and annual values
 fill deeper levels where the monthly product is not available.
 
-This step also converts in-situ temperature to potential temperature with
-`gsw`, producing `woa_combined.nc`.
+WOA23 supplies in-situ temperature and practical salinity, so this step uses
+`gsw` to derive conservative temperature and absolute salinity for the
+canonical `woa_combined.nc` product.
 
 ### extrapolate
 
