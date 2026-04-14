@@ -1,6 +1,6 @@
 # Global Ocean Initial Conditions
 
-date: 2026/03/22
+date: 2026/04/14
 
 Contributors: Xylar Asay-Davis, Codex
 
@@ -68,15 +68,18 @@ topographic description across E3SM components.
 
 ### Requirement: A reusable global hydrography product is available from WOA
 
-Date last modified: 2026/03/22
+Date last modified: 2026/04/14
 
 Contributors: Xylar Asay-Davis, Codex
 
 Polaris shall provide a reusable hydrography product derived from the World
-Ocean Atlas at 0.25-degree resolution. This product shall contain the
-temperature and salinity fields needed to initialize the ocean state over the
-full globe, including values in regions where the original product is missing
-and extrapolation is required for later remapping.
+Ocean Atlas at 0.25-degree resolution. This product shall contain canonical
+conservative temperature and absolute salinity fields needed to initialize the
+ocean state over the full globe, including values in regions where the original
+product is missing and extrapolation is required for later remapping. Because
+WOA23 supplies in-situ temperature and practical salinity rather than
+conservative temperature and absolute salinity, the workflow shall derive the
+canonical tracers during preprocessing.
 
 The hydrography product shall be suitable for caching because it is expected to
 be computationally expensive and because it should be reusable across many
@@ -182,19 +185,26 @@ topography as authoritative.
 
 ### Algorithm Design: A reusable global hydrography product is available from WOA
 
-Date last modified: 2026/03/22
+Date last modified: 2026/04/14
 
 Contributors: Xylar Asay-Davis, Codex
 
-The workflow should create a canonical hydrography product on the native WOA
-latitude-longitude grid before any remapping to an MPAS mesh. A likely approach
-is:
+The workflow should create a canonical hydrography product on the native WOA23
+latitude-longitude grid before any remapping to an MPAS mesh. The current
+implementation does this with a concrete sequence:
 
-1. Read the selected WOA fields and normalize them to a common representation.
-2. Extrapolate horizontally within the ocean domain.
-3. Extrapolate vertically to fill gaps that remain after horizontal filling.
-4. Extrapolate into non-ocean source-grid regions if needed so later remapping
-   to the MPAS mesh never samples missing data.
+1. Create combined topography on the native 0.25-degree latitude-longitude
+   grid.
+2. Read WOA23 January and annual temperature and salinity climatologies and
+   combine them into a single source product, using annual values at depths
+   where the monthly fields are not available, then derive conservative
+   temperature and absolute salinity from WOA23 in-situ temperature and
+   practical salinity.
+3. Build a 3D ocean mask on the WOA grid from the combined topography product.
+4. Extrapolate horizontally and then vertically within the ocean mask.
+5. Extrapolate horizontally and then vertically into land and grounded-ice
+   regions so later remapping will not sample missing values.
+6. Optionally produce visualization products for sanity checking.
 
 This is conceptually similar to the existing Compass `extrap_woa` utility but
 the Polaris implementation should favor xarray-based operations and clear
@@ -317,19 +327,25 @@ ocean, sea-ice, land, and river workflows.
 
 ### Implementation: A reusable global hydrography product is available from WOA
 
-Date last modified: 2026/03/22
+Date last modified: 2026/04/14
 
 Contributors: Xylar Asay-Davis, Codex
 
-This requirement is a good candidate for a shared or cached Polaris step. A
-first implementation should likely create a step analogous to `extrap_woa` that
-produces a single preprocessed WOA product with well-defined fields and
-metadata.
+The first implemented pieces of this part of the design are now in place.
+`e3sm/init` can create combined topography on a native 0.25-degree
+latitude-longitude grid, and `ocean/global_ocean/hydrography/woa23` builds the
+corresponding reusable WOA23 product on that grid. The WOA23 task currently
+consists of:
 
-That step should be designed so it can later support additional hydrographic
-products if needed, but the first implementation can focus on WOA23 at
-0.25-degree resolution. The output should be versioned clearly enough that it
-can be cached and invalidated when extrapolation logic changes.
+1. `combine`, which merges January and annual WOA23 climatologies into
+   `woa_combined.nc`, using annual values at depths where the monthly fields
+   are not available
+2. `extrapolate`, which builds a 3D ocean mask from the combined topography and
+   produces the reusable product `woa23_decav_0.25_jan_extrap.nc`
+3. `viz`, an optional diagnostics step for maps and Antarctic transects
+
+This provides a concrete implementation starting point for the reusable
+hydrography portion of the broader design.
 
 ### Implementation: The workflow produces consistent tracer initial conditions for MPAS-Ocean and Omega
 
@@ -390,19 +406,28 @@ model-specific vertical-state fields, or output formatting genuinely differ.
 
 ### Implementation: The capability is decomposed into inspectable Polaris steps
 
-Date last modified: 2026/03/22
+Date last modified: 2026/04/14
 
 Contributors: Xylar Asay-Davis, Codex
 
-An initial decomposition could be:
+An initial decomposition can now start from the pieces that have already been
+implemented:
 
-1. `extrapolate_woa`: build or download the cached, extrapolated WOA product.
-2. `shared_vert_coord`: perform the coupled hydrography
-   interpolation and Omega pseudo-height solve needed to determine the shared
-   initialized geometric grid and retain inspectable intermediate products.
-3. `initial_state`: construct model-specific tracers and the native vertical
-   representation, then write the final initial-condition file or files.
-4. `diagnostics`: create plots and lightweight summaries for sanity checking.
+1. `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.2500_degree/task`:
+   create combined topography on the native WOA grid
+2. `ocean/global_ocean/hydrography/woa23/combine`: merge WOA23 climatologies
+   on that grid
+3. `ocean/global_ocean/hydrography/woa23/extrapolate`: create the reusable,
+   extrapolated WOA23 product
+4. `ocean/global_ocean/hydrography/woa23/viz`: optional hydrography
+   diagnostics
+5. `shared_vert_coord`: perform the coupled hydrography interpolation and
+   Omega pseudo-height solve needed to determine the shared initialized
+   geometric grid and retain inspectable intermediate products
+6. `initial_state`: construct model-specific tracers and the native vertical
+   representation, then write the final initial-condition file or files
+7. `diagnostics`: create any additional mesh-specific plots and lightweight
+   summaries for sanity checking
 
 This decomposition also suggests a preliminary division of work among
 developers:
