@@ -164,8 +164,9 @@ assume outputs such as:
 
 - combined topography on the target grid, either as a direct dependency or as
   a shared input artifact, not necessarily a new coastline output;
-- one multi-variant coastline product containing exclusive land/ocean masks
-  for the supported Antarctic conventions;
+- one convention-specific coastline product per supported Antarctic
+  convention, each containing exclusive land/ocean masks on the shared target
+  grid;
 - coastline-cell or coastline-edge indicators for those conventions, plus any
   lightweight boundary-sample diagnostics needed by downstream steps; and
 - signed coastal-distance fields for those conventions.
@@ -220,11 +221,11 @@ only `calving_front`, but the unified mesh design should preserve the other two
 because static cavities, wetting-and-drying, and dynamic grounding-line work
 are expected downstream use cases.
 
-The coastline step should expose these variants through one multi-variant
-product, and downstream steps should explicitly choose which convention to
-consume through workflow configuration. This is expected to align naturally
-with different unified-mesh variants, such as meshes that exclude Antarctic
-ice-shelf cavities and meshes that include them.
+The coastline step should expose these variants through separate but
+simultaneously generated products, and downstream steps should explicitly
+choose which convention to consume through workflow configuration. This is
+expected to align naturally with different unified-mesh variants, such as
+meshes that exclude Antarctic ice-shelf cavities and meshes that include them.
 
 An exclusive ocean mask should not be inferred solely from a local threshold
 such as `base_elevation < 0`. Instead, each Antarctic convention should first
@@ -333,7 +334,7 @@ Contributors:
 
 The first implementation should add a shared coastline-preparation step that
 depends on the shared lat-lon combined-topography steps from the sibling
-`add-lat-lon-topo-combine` branch, most likely through a helper such as
+`add-lat-lon-topo-combine` branch through
 `get_lat_lon_topo_steps()` rather than through an ad hoc local remap path.
 
 That enabling branch already provides lat-lon combined-topography tasks and
@@ -344,26 +345,26 @@ authoritative upstream inputs for the preferred topo-derived path. See Polaris
 pull request <https://github.com/E3SM-Project/polaris/pull/526>.
 
 The first implementation should support all three of these target-grid tiers
-for coastline preparation. In practice, 1.0 degree is likely to be used only
+for coastline preparation. In practice, 1.0 degree is expected to be used only
 for very coarse or smoke-test meshes, while 0.25 and 0.0625 degree are the
 expected production tiers.
 
-The shared coastline step should produce a multi-variant coastline product with
-at least:
+The shared coastline step should produce three convention-specific coastline
+products, one each for `calving_front`, `grounding_line`, and
+`bedrock_zero`, each with at least:
 
-- land masks, ocean masks, coastline-cell masks, coastline-edge diagnostics,
-  and signed coastal-distance fields for `calving_front`,
-  `grounding_line`, and `bedrock_zero`; and
+- `candidate_ocean_mask`, `ocean_mask`, `land_mask`, `coastline_mask`,
+  `coastline_edge_east`, `coastline_edge_north`, and `signed_distance`
+  variables; and
 - metadata that records how downstream steps should identify the convention
   they intend to use.
 
 The first implementation should also write lightweight metadata and diagnostic
 artifacts that record the selected target-grid tier, selected Antarctic
 convention names available in the product, source type, mask thresholds,
-flood-fill seed strategy, and sign convention. If boundary samples are
-generated for signed distance, the step should consider writing them to a
-small diagnostic dataset so `prepare_river_network` can reuse them for outlet
-snapping if that proves useful.
+flood-fill seed strategy, and sign convention. The first implementation does
+not write boundary samples as part of the public product yet, so any later
+reuse of those samples by `prepare_river_network` remains future work.
 
 ### Implementation: Topography-Consistent and Explicit Coastline Definition
 
@@ -377,9 +378,9 @@ Contributors:
 The first implementation should always generate all three Antarctic coastline
 products in one run and cache them together for downstream reuse. The
 configuration choice should be which convention downstream steps consume from
-the multi-variant product, not which convention `prepare_coastline` produces.
+the generated files, not which convention `prepare_coastline` produces.
 
-The topo-derived path should likely be organized around a small set of
+The topo-derived path is organized around a small set of
 explicit helpers:
 
 1. load the shared combined-topography dataset and normalize its coordinate and
@@ -389,10 +390,11 @@ explicit helpers:
 3. build candidate ocean masks for `calving_front`, `grounding_line`, and
    `bedrock_zero`;
 4. flood fill from trusted ocean-side seed cells to derive an exclusive,
-   ocean-connected ocean mask for each convention;
+   ocean-connected ocean mask for each convention, implemented with connected
+   component labeling plus explicit longitude-wrap merging;
 5. derive complementary land masks and coastline-edge diagnostics; and
-6. write all three conventions into one multi-variant output in a form that
-   downstream steps can select from explicitly.
+6. write one output file per convention in a form that downstream steps can
+   select from explicitly.
 
 The initial candidate-mask definitions should be straightforward and explicit:
 
@@ -433,7 +435,7 @@ ocean, and compute spherical distance from each target-grid cell to the
 nearest such coastline sample. This should be done before introducing any
 custom vector-coastline workflow or custom spherical distance library.
 
-In practice, that implementation should likely:
+In practice, that implementation does:
 
 1. derive coastline transitions directly from the exclusive ocean and land
    masks for each supported convention;
@@ -444,8 +446,8 @@ In practice, that implementation should likely:
    coordinates on the unit sphere;
 5. use a KD-tree or closely related nearest-neighbor method to compute
    unsigned distance; and
-6. apply a recorded sign convention, preferably negative over land and
-   positive over ocean unless downstream needs suggest the opposite.
+6. apply the recorded sign convention of negative over land and positive over
+   ocean.
 
 The first implementation should generate and cache signed-distance fields for
 all three Antarctic conventions so downstream steps can choose the convention
@@ -476,7 +478,8 @@ shared step and should avoid a separate task-specific code path.
 
 The standalone task should depend on the selected shared lat-lon
 combined-topography step and then run the shared coastline step plus a `viz`
-step by default.
+step by default. The shared-step helper for this path is
+`get_lat_lon_coastline_steps()`.
 
 The `viz` step should write high-resolution PNG plots designed specifically to
 inspect the coastline without distracting overlays. The first required plot set
@@ -509,10 +512,10 @@ Contributors:
 - Codex
 
 The first automated tests should verify the public output contract directly.
-At a minimum, they should confirm that the multi-variant coastline product
-exposes the variables and metadata required by downstream steps, including the
-land/ocean masks, coastline-edge diagnostics, signed-distance fields,
-available Antarctic conventions, target-grid tier, source type, flood-fill
+At a minimum, they should confirm that each convention-specific coastline
+product exposes the variables and metadata required by downstream steps,
+including the land/ocean masks, coastline-edge diagnostics, signed-distance
+fields, coastline convention name, target-grid tier, source type, flood-fill
 seed strategy, and mask threshold.
 
 Validation should also compare supported target-grid tiers and confirm that the
