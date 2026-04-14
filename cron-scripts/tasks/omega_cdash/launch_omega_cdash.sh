@@ -12,18 +12,18 @@ mkdir -p $TESTROOT
 
 
 # Configuration
-export REPO_PATH="${OMEGA_CDASH_BASEDIR}/Omega"
+export OMEGA_ROOT="${OMEGA_CDASH_BASEDIR}/Omega"
 REMOTE_URL="https://github.com/E3SM-Project/Omega.git"
 BRANCH="develop"
 
 # 1. & 2. Check existence and handle repository state
-if [ ! -d "$REPO_PATH/.git" ]; then
+if [ ! -d "$OMEGA_ROOT/.git" ]; then
     echo "Repository not found. Cloning..."
-    git clone -b "$BRANCH" "$REMOTE_URL" "$REPO_PATH"
-    cd "$REPO_PATH" || exit
+    git clone -b "$BRANCH" "$REMOTE_URL" "$OMEGA_ROOT"
+    cd "$OMEGA_ROOT" || exit
 else
     echo "Repository exists. Updating to latest remote state..."
-    cd "$REPO_PATH" || exit
+    cd "$OMEGA_ROOT" || exit
     
     # Ensure we are on the correct branch and sync with origin
     git fetch origin

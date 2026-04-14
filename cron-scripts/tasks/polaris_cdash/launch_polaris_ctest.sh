@@ -86,7 +86,7 @@ configure_polaris() {
     echo "Configuring Polaris for $compiler"
     echo "--------------------------------------------------------------------------------"
 
-    cd "${POLARIS_CDASH_BASEDIR}/polaris"
+    cd "${POLARIS_ROOT}"
 
     if [ ! -f "load_polaris_${CRONJOB_MACHINE}_${compiler}_*.sh" ]; then
         ./deploy.py --machine ${CRONJOB_MACHINE} --compiler ${compiler}
@@ -143,16 +143,6 @@ run_baseline_suite() {
     echo "--------------------------------------------------------------------------------"
     echo "Running Polaris Baseline Suite for $compiler"
     echo "--------------------------------------------------------------------------------"
-
-    cd ""
-
-    local env_file=$(ls ${POLARIS_CDASH_BASEDIR}/polaris/load_dev_polaris_*_${CRONJOB_MACHINE}_${compiler}_*.sh | head -n 1)
-    if [ -f "$env_file" ]; then
-        echo "Sourcing $env_file"
-        source "$env_file"
-    else
-        echo "Warning: Environment file matching 'load_dev_polaris_*_${CRONJOB_MACHINE}_${compiler}_*.sh' not found."
-    fi
 
     # Set up baseline suite
     polaris suite -c ocean -t omega_nightly --model omega \
