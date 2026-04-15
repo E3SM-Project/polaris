@@ -4,6 +4,9 @@ from polaris.config import PolarisConfigParser
 from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
 from polaris.tasks.e3sm.init.topo.combine.viz import VizCombinedStep
 
+_MIN_CUBED_SPHERE_RESOLUTION = 120
+_MAX_LAT_LON_RESOLUTION = 1.0
+
 
 def get_cubed_sphere_topo_steps(component, resolution, include_viz=False):
     """
@@ -94,9 +97,11 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
         The shared config options.
     """
     if target_grid == 'cubed_sphere':
-        resolution_name = f'ne{int(resolution)}'
+        resolution, resolution_name = _validate_cubed_sphere_resolution(
+            resolution
+        )
     elif target_grid == 'lat_lon':
-        resolution_name = f'{float(resolution):.4f}_degree'
+        resolution, resolution_name = _validate_lat_lon_resolution(resolution)
     else:
         raise ValueError(f'Unexpected target grid: {target_grid}')
 
@@ -137,3 +142,77 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
         steps.append(viz_step)
 
     return steps, config
+
+
+def _validate_cubed_sphere_resolution(resolution):
+    """
+    Validate and normalize a cubed-sphere resolution.
+
+    Parameters
+    ----------
+    resolution : int or float
+        The cubed-sphere resolution.
+
+    Returns
+    -------
+    resolution : int
+        The validated cubed-sphere resolution.
+
+    resolution_name : str
+        The corresponding resolution name.
+    """
+    resolution = float(resolution)
+    if resolution <= 0.0:
+        raise ValueError(
+            f'Cubed-sphere resolution must be positive, got {resolution}.'
+        )
+
+    if not resolution.is_integer():
+        raise ValueError(
+            'Cubed-sphere resolution must be an integer face count, '
+            f'got {resolution}.'
+        )
+
+    resolution = int(resolution)
+    if resolution < _MIN_CUBED_SPHERE_RESOLUTION:
+        raise ValueError(
+            'Cubed-sphere resolution is implausibly coarse for combined '
+            f'topography: ne{resolution}. Expected ne'
+            f'{_MIN_CUBED_SPHERE_RESOLUTION} or finer.'
+        )
+
+    return resolution, f'ne{resolution}'
+
+
+def _validate_lat_lon_resolution(resolution):
+    """
+    Validate and normalize a latitude-longitude resolution.
+
+    Parameters
+    ----------
+    resolution : float
+        The latitude-longitude resolution in degrees.
+
+    Returns
+    -------
+    resolution : float
+        The validated latitude-longitude resolution.
+
+    resolution_name : str
+        The corresponding resolution name.
+    """
+    resolution = float(resolution)
+    if resolution <= 0.0:
+        raise ValueError(
+            'Latitude-longitude resolution must be positive, '
+            f'got {resolution}.'
+        )
+
+    if resolution > _MAX_LAT_LON_RESOLUTION:
+        raise ValueError(
+            'Latitude-longitude resolution is implausibly coarse for '
+            f'combined topography: {resolution} degree. Expected '
+            f'{_MAX_LAT_LON_RESOLUTION} degree or finer.'
+        )
+
+    return resolution, f'{resolution:.4f}_degree'
