@@ -38,13 +38,36 @@ include:
 
 1. Cubed-sphere topography on `ne3000`
 2. Cubed-sphere topography on `ne120`
-3. Latitude-longitude topography on `0.2500_degree`
+3. Latitude-longitude topography on `1.0000_degree`
+4. Latitude-longitude topography on `0.2500_degree`
+5. Latitude-longitude topography on `0.0625_degree`
+
+These resolutions are intended for different downstream uses:
+
+- `ne3000` is the standard high-resolution cubed-sphere product. At roughly
+   1 km resolution, it is suitable for remapping topography to standard and
+   high-resolution MPAS meshes, approximately 60 km and finer, for scientific
+   applications.
+- `ne120` is a lower-cost cubed-sphere product at roughly 25 km resolution.
+   It is useful for remapping to coarse meshes such as Icos240 and for
+   regression testing or other non-scientific workflows where the full
+   high-resolution product is not needed.
+- `1.0000_degree` is intended for quick, non-scientific testing when a very
+   coarse latitude-longitude product is sufficient.
+- `0.2500_degree` aligns with the WOA23 (World Ocean Atlas 2023) dataset and
+   can also be used when defining mesh resolution at moderate scales, roughly
+   down to 30 km.
+- `0.0625_degree` is intended for defining mesh resolution for most
+   scientific runs and will be used by the E3SM v4 unified MPAS mesh across
+   land, river, ocean, and sea-ice.
 
 These appear in task paths such as:
 
 - `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne3000/task`
 - `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne120/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/1.0000_degree/task`
 - `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.2500_degree/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.0625_degree/task`
 
 This structure makes it easier for downstream consumers such as ocean
 hydrography preprocessing to reuse combined topography products without
