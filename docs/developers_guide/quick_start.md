@@ -47,6 +47,8 @@ As a developer, rerun `./deploy.py` when you check out a new branch or use a
 new worktree. In most cases you do not need to rerun deployment while editing
 existing files in `polaris`, because the package is installed in editable mode.
 
+Polaris requires Python 3.11 or newer.
+
 :::{note}
 Miniforge, Micromamba, and Miniconda are no longer required for Polaris
 deployment. If pixi is not already installed, `./deploy.py` can install it.
