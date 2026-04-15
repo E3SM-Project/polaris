@@ -61,7 +61,8 @@ These resolutions are intended for different downstream uses:
    scientific runs and will be used by the E3SM v4 unified MPAS mesh across
    land, river, ocean, and sea-ice.
 
-These appear in task paths such as:
+A series of standalone tasks are available to create each topography dataset
+on its own:
 
 - `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne3000/task`
 - `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne120/task`
@@ -69,9 +70,10 @@ These appear in task paths such as:
 - `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.2500_degree/task`
 - `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.0625_degree/task`
 
-This structure makes it easier for downstream consumers such as ocean
-hydrography preprocessing to reuse combined topography products without
-embedding product-specific names into `e3sm/init`.
+Downstream workflows such as topography remapping to the MPAS mesh,
+extrapolation of the WOA23 dataset and defining mesh resolution for unified
+E3SM v4 meshes will use shared `topo/combine` steps referenced by their
+grid and resolution.
 
 ## Key Features
 
