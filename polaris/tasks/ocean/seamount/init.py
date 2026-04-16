@@ -149,9 +149,9 @@ class Init(OceanIOStep):
             ),
             np.zeros([1, ds.sizes['nEdges'], ds.sizes['nVertLevels']]),
         )
-        ds['fCell'] = coriolis_parameter * xr.ones_like(temperature)
-        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
-        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
+        ds['fCell'] = coriolis_parameter * xr.ones_like(ds.xCell)
+        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds.xEdge)
+        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds.xVertex)
 
         # this was in internal wave but not overflow. Is it needed?
         ds.attrs['nx'] = nx
