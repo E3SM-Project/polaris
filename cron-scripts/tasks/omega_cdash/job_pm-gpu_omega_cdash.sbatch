@@ -13,10 +13,11 @@ if [ -f /etc/bash.bashrc ]; then
     source /etc/bash.bashrc
 fi
 
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+#SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 
 # Check if the target script exists before executing
-TARGET_SCRIPT="$SCRIPT_DIR/run_omega_cdash.sh"
+#TARGET_SCRIPT="$SCRIPT_DIR/run_omega_cdash.sh"
+TARGET_SCRIPT="$RUNSCRIPT_DIR/run_omega_cdash.sh"
 
 if [ -f "$TARGET_SCRIPT" ]; then
     echo "Running script from: $TARGET_SCRIPT"

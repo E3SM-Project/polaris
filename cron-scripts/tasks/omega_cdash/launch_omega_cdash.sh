@@ -48,6 +48,7 @@ if [[ ! -f ${TESTROOT}/OmegaPlanarMesh.nc ]]; then
 fi
 
 sbatch \
+  --export=RUNSCRIPT_DIR=${HERE} \
   --job-name=OmegaCdash \
   --output="$CRONJOB_LOGDIR/omega_cdash_%j.out" \
   --error="$CRONJOB_LOGDIR/omega_cdash_%j.err" \
