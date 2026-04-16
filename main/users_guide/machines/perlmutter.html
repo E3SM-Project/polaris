@@ -373,7 +373,7 @@ custom kernel based on a Conda environment. Let’s start by assuming you are a
 user with username <code class="docutils literal notranslate"><span class="pre">user</span></code> who wants to create a Conda environment on
 Perlmutter and use it from Jupyter.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>load<span class="w"> </span>python
-conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>myenv<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.7<span class="w"> </span>ipykernel<span class="w"> </span>&lt;further-packages-to-install&gt;
+conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>myenv<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.14<span class="w"> </span>ipykernel<span class="w"> </span>&lt;further-packages-to-install&gt;
 &lt;...<span class="w"> </span>installation<span class="w"> </span>messages<span class="w"> </span>...&gt;
 <span class="nb">source</span><span class="w"> </span>activate<span class="w"> </span>myenv
 python<span class="w"> </span>-m<span class="w"> </span>ipykernel<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>--name<span class="w"> </span>myenv<span class="w"> </span>--display-name<span class="w"> </span>MyEnv
