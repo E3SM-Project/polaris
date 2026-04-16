@@ -254,11 +254,17 @@ class Ocean(Component):
         ds_mesh : xr.Dataset
             The MPAS mesh dataset for the ocean model.
 
-        reconstruct_variables : list of str
+        mesh_filename : str, optional
+            Path to the mesh NetCDF file.
+
+        reconstruct_variables : list of str, optional
             List of variable names to reconstruct in the dataset.
 
         coeffs_reconstruct : xarray.DataArray, optional
             Coefficients used for reconstructing variables.
+
+        coeffs_filename : str, optional
+            Path to the coefficients NetCDF file.
 
         kwargs
             keyword arguments passed to `xarray.open_dataset()`
@@ -270,50 +276,9 @@ class Ocean(Component):
         """
         ds = xr.open_dataset(filename, **kwargs)
         ds = self.map_from_native_model_vars(ds)
-        if reconstruct_variables is None:
-            reconstruct_variables = []
-        for variable in reconstruct_variables:
-            if variable in ds.keys():
-                if 'normal' in variable:
-                    out_var_name = variable.replace('normal', '').lower()
-                else:
-                    out_var_name = variable
-                if (
-                    f'{out_var_name}Zonal' in ds.keys()
-                    and f'{out_var_name}Meridional' in ds.keys()
-                ):
-                    return ds
-                if mesh_filename is None:
-                    raise ValueError(
-                        'mesh_filename must be provided to '
-                        f'open_model_dataset for reconstruction of {variable}'
-                    )
-                ds_mesh = xr.open_dataset(mesh_filename)
-                if coeffs_filename is None:
-                    raise ValueError(
-                        'coeffs_filename must be provided to '
-                        f'open_model_dataset for reconstruction of {variable}'
-                    )
-                ds_coeff = xr.open_dataset(coeffs_filename)
-                coeffs_reconstruct = ds_coeff.coeffs_reconstruct
-                if (ds_coeff.sizes['nCells'] != ds_mesh.sizes['nCells']):
-                    print('The sizes of coefficient dataset do not match mesh'
-                          ' dataset; exiting without reconstructing variable '
-                          f'{out_var_name}')
-                    return ds
-                reconstruct_variable(
-                    out_var_name,
-                    ds[variable],
-                    ds_mesh,
-                    coeffs_reconstruct,
-                    ds,
-                    quiet=True,
-                )
-            else:
-                raise ValueError(
-                    f'User requested vector reconstruction for {variable} but '
-                    f"it isn't present in the dataset."
-                )
+        ds = _add_reconstructed_variables_to_dataset(
+            ds, reconstruct_variables, mesh_filename, coeffs_filename
+        )
         return ds
 
     def _has_ocean_io_model_steps(self, tasks) -> Tuple[bool, bool]:
@@ -416,6 +381,84 @@ class Ocean(Component):
                 all_found = False
                 break
         return all_found
+
+
+def _add_reconstructed_variables_to_dataset(
+    ds, reconstruct_variables, mesh_filename, coeffs_filename
+):
+    """
+    Add reconstructed vector variables to the dataset if requested.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The dataset to add reconstructed variables to.
+
+    reconstruct_variables : list of str or None
+        List of variable names to reconstruct.
+
+    mesh_filename : str
+        Path to the mesh NetCDF file.
+
+    coeffs_filename : str
+        Path to the coefficients NetCDF file.
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        The dataset with reconstructed variables added.
+    """
+    if reconstruct_variables is None:
+        return ds
+
+    if mesh_filename is None:
+        raise ValueError(
+            'mesh_filename must be provided to open_model_dataset for '
+            'variable reconstruction'
+        )
+    if coeffs_filename is None:
+        raise ValueError(
+            'coeffs_filename must be provided to open_model_dataset for '
+            'variable reconstruction'
+        )
+
+    for variable in reconstruct_variables:
+        if variable not in ds:
+            raise ValueError(
+                f"User requested vector reconstruction for '{variable}' "
+                "but it isn't present in the dataset."
+            )
+
+        out_var_name = (
+            variable.replace('normal', '').lower()
+            if 'normal' in variable
+            else variable
+        )
+
+        if f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds:
+            continue
+
+        ds_mesh = xr.open_dataset(mesh_filename)
+        ds_coeff = xr.open_dataset(coeffs_filename)
+        coeffs_reconstruct = ds_coeff.coeffs_reconstruct
+
+        if ds_coeff.sizes['nCells'] != ds_mesh.sizes['nCells']:
+            print(
+                f'The sizes of coefficient dataset do not match mesh '
+                f'dataset; exiting without reconstructing {out_var_name}'
+            )
+            continue
+
+        reconstruct_variable(
+            out_var_name,
+            ds[variable],
+            ds_mesh,
+            coeffs_reconstruct,
+            ds,
+            quiet=True,
+        )
+
+    return ds
 
 
 # create a single module-level instance available to other components
