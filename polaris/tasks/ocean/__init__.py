@@ -296,6 +296,11 @@ class Ocean(Component):
                     )
                 ds_coeff = xr.open_dataset(coeffs_filename)
                 coeffs_reconstruct = ds_coeff.coeffs_reconstruct
+                if (ds_coeff.sizes['nCells'] != ds_mesh.sizes['nCells']):
+                    print('The sizes of coefficient dataset do not match mesh'
+                          ' dataset; exiting without reconstructing variable '
+                          f'{out_var_name}')
+                    return ds
                 reconstruct_variable(
                     out_var_name,
                     ds[variable],
