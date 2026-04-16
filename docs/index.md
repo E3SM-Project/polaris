@@ -12,6 +12,9 @@ of Polaris will be kept closely synchronized with the development repositories
 for the components it supports. Release versions will be compatible with
 specific tags of the MPAS components.
 
+Polaris requires Python 3.11 or newer. Python 3.10 is no longer
+supported because `mpas_tools` 1.5.0 and newer do not support it.
+
 Many Polaris tasks are idealized, and are used for things like
 performing convergence tests or regression tests on particular parts of the
 model code.  Other Polaris tasks are "realistic" in the sense that they use

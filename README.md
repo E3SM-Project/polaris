@@ -6,6 +6,8 @@ Polaris provides infrastructure, test cases and analysis tasks related to the
 ocean, land-ice and sea-ice components of the Exascale Energy Earth System
 Model ([E3SM](https://e3sm.org/)).
 
+Polaris requires Python 3.11 or newer.
+
 Supported models include:
 * [Omega](https://github.com/E3SM-Project/Omega) (in early stages of development)
 * [MPAS-Albany Land Ice (MALI)](https://mpas-dev.github.io/land_ice/land_ice.html)

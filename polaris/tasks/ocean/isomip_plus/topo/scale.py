@@ -75,7 +75,7 @@ class TopoScale(Step):
         for index in range(len(dates)):
             date = dates[index]
             scale = scales[index]
-            ds = xr.Dataset(ds_orig)
+            ds = ds_orig.copy()
             ds['xtime'] = date
             for var in ['landIcePressure', 'landIceDraft']:
                 ds[var] = ds_orig[var] * scale

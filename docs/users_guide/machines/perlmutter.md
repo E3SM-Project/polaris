@@ -256,7 +256,7 @@ Perlmutter and use it from Jupyter.
 
 ```bash
 module load python
-conda create -n myenv python=3.7 ipykernel <further-packages-to-install>
+conda create -n myenv python=3.14 ipykernel <further-packages-to-install>
 <... installation messages ...>
 source activate myenv
 python -m ipykernel install --user --name myenv --display-name MyEnv
