@@ -79,6 +79,7 @@ Omega:
     TracerHorzAdvTendencyEnable : true
     TracerDiffTendencyEnable : false
     TracerHyperDiffTendencyEnable : false
+    PressureGradTendencyEnable : false
   IOStreams:
     InitialVertCoord:
       Filename: init.nc
