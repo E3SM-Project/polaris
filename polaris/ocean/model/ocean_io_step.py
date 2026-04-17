@@ -47,6 +47,20 @@ class OceanIOStep(Step):
         """
         self.component.write_model_dataset(ds, filename)
 
+    def write_initial_state_dataset(self, ds, filename):
+        """
+        Write an initial-state dataset without horizontal mesh fields.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean variable names
+
+        filename : str
+            The path for the NetCDF file to write
+        """
+        self.component.write_initial_state_dataset(ds, filename)
+
     def map_from_native_model_vars(self, ds):
         """
         If the model is Omega, rename dimensions and variables in a dataset

@@ -128,6 +128,7 @@ class IceShelfTask(Task):
                 config=config,
                 config_filename=config_filename,
                 min_resolution=min_resolution,
+                mesh_filename=mesh_filename,
                 init_filename=current_init_filename,
                 graph_target=graph_target,
                 name=name,

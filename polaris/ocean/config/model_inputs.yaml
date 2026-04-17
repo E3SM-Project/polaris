@@ -1,0 +1,15 @@
+mpas-ocean:
+  streams:
+    mesh:
+      filename_template: {{ horiz_mesh_filename }}
+    input:
+      filename_template: {{ init_filename }}
+
+Omega:
+  IOStreams:
+    HorzMeshIn:
+      Filename: {{ horiz_mesh_filename }}
+    InitialVertCoord:
+      Filename: {{ init_filename }}
+    InitialState:
+      Filename: {{ init_filename }}

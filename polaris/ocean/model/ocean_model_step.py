@@ -49,6 +49,14 @@ class OceanModelStep(ModelStep):
         working directory)
     """
 
+    # a mapping from placeholder filenames to config options for the config
+    # options used to determine the actual filenames to use for these model
+    # inputs at runtime
+    _MODEL_INPUT_OPTIONS = {
+        '<<<horiz_mesh>>>': 'horiz_mesh_filename',
+        '<<<init>>>': 'init_filename',
+    }
+
     # make sure component is of type Ocean
     component: Ocean
 
@@ -77,7 +85,7 @@ class OceanModelStep(ModelStep):
 
         Parameters
         ----------
-        component : polaris.Component
+        component : polaris.ocean.tasks.Ocean
             The component the step belongs to
 
         name : str
@@ -237,6 +245,41 @@ class OceanModelStep(ModelStep):
             self.add_yaml_file(
                 'polaris.ocean.config', 'coeffs_reconstruct.yaml'
             )
+
+        self.add_yaml_file(
+            'polaris.ocean.config',
+            'model_inputs.yaml',
+            template_replacements=self._get_model_input_replacements(),
+        )
+
+    def add_horiz_mesh_input_file(self, **kwargs) -> None:
+        """
+        Add a horizontal-mesh input file using the configured local filename.
+
+        Parameters
+        ----------
+        **kwargs
+            Additional keyword arguments to pass to
+            {py:meth}`polaris.Step.add_input_file()`
+        """
+        # a placeholder filename that will be replaced at runtime with the
+        # configured horizontal mesh filename
+        self.add_input_file(filename='<<<horiz_mesh>>>', **kwargs)
+
+    def add_init_input_file(self, **kwargs) -> None:
+        """
+        Add an initial-condition input file using the configured local
+        filename.
+
+        Parameters
+        ----------
+        **kwargs
+            Additional keyword arguments to pass to
+            {py:meth}`polaris.Step.add_input_file()`
+        """
+        # a placeholder filename that will be replaced at runtime with the
+        # configured initial condition filename
+        self.add_input_file(filename='<<<init>>>', **kwargs)
 
     def constrain_resources(self, available_cores: Dict[str, Any]) -> None:
         """
@@ -415,7 +458,9 @@ class OceanModelStep(ModelStep):
         failed_properties = []
         for filename, properties in self.properties_to_check.items():
             filename = str(filename)
-            mesh_filename = os.path.join(self.work_dir, 'mesh.nc')
+            mesh_filename = os.path.join(
+                self.work_dir, self.get_horiz_mesh_filename()
+            )
             this_filename = os.path.join(self.work_dir, filename)
             ds_mesh = self.component.open_model_dataset(mesh_filename)
             ds = self.component.open_model_dataset(this_filename)
@@ -523,6 +568,32 @@ class OceanModelStep(ModelStep):
 
         return checked, success
 
+    def get_horiz_mesh_filename(self) -> str:
+        """
+        Get the configured local filename for the horizontal mesh file.
+        """
+        return self._get_model_input_filename('horiz_mesh_filename')
+
+    def get_init_filename(self) -> str:
+        """
+        Get the configured local filename for the initial-condition file.
+        """
+        return self._get_model_input_filename('init_filename')
+
+    def process_inputs_and_outputs(self) -> None:
+        """
+        Process the model and any configured model-input placeholders.
+        """
+        for entry in self.input_data:
+            filename = entry['filename']
+
+            if filename in self._MODEL_INPUT_OPTIONS:
+                entry['filename'] = self._get_model_input_filename(
+                    self._MODEL_INPUT_OPTIONS[filename]
+                )
+
+        super().process_inputs_and_outputs()
+
     def _update_ntasks(self) -> None:
         """
         Update ``ntasks`` and ``min_tasks`` for the step based on the estimated
@@ -556,6 +627,28 @@ class OceanModelStep(ModelStep):
         self.min_tasks = max(
             1, 4 * round(cell_count / (4 * max_cells_per_core))
         )
+
+    def _get_model_input_filename(self, option: str) -> str:
+        section = 'ocean_model_files'
+        if not self.config.has_section(section):
+            raise ValueError(
+                f'Config section {section} is required to determine model '
+                f'input filenames, but it was not found.'
+            )
+
+        if not self.config.has_option(section, option):
+            raise ValueError(
+                f'Config option {option} is required to determine model input '
+                f'filenames, but it was not found in section {section}.'
+            )
+
+        return self.config.get(section, option)
+
+    def _get_model_input_replacements(self) -> Dict[str, str]:
+        return {
+            'horiz_mesh_filename': self.get_horiz_mesh_filename(),
+            'init_filename': self.get_init_filename(),
+        }
 
     def _set_gpus_per_task(self) -> None:
         """

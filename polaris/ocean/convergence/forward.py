@@ -112,12 +112,11 @@ class ConvergenceForward(OceanModelStep):
                     options=options[config_model], config_model=config_model
                 )
 
-        self.add_input_file(
-            filename='init.nc', work_dir_target=f'{init.path}/initial_state.nc'
+        self.add_horiz_mesh_input_file(
+            work_dir_target=f'{mesh.path}/{mesh_input_filename}'
         )
-        self.add_input_file(
-            filename='mesh.nc',
-            work_dir_target=f'{mesh.path}/{mesh_input_filename}',
+        self.add_init_input_file(
+            work_dir_target=f'{init.path}/initial_state.nc'
         )
 
         self.add_output_file(

@@ -25,6 +25,10 @@ class Ocean(Component):
 
     mpaso_to_omega_var_map : dict
         A map from MPAS-Ocean variable names to their Omega equivalents
+
+    horiz_mesh_vars : list of str
+        Variables that belong in the horizontal mesh file rather than the
+        initial condition file
     """
 
     def __init__(self):
@@ -35,6 +39,7 @@ class Ocean(Component):
         self.model: Union[None, str] = None
         self.mpaso_to_omega_dim_map: Union[None, Dict[str, str]] = None
         self.mpaso_to_omega_var_map: Union[None, Dict[str, str]] = None
+        self.horiz_mesh_vars: Union[None, list[str]] = None
 
     def configure(self, config, tasks):
         """
@@ -170,6 +175,47 @@ class Ocean(Component):
         """
         ds = self.map_to_native_model_vars(ds)
         write_netcdf(ds=ds, fileName=filename)
+
+    def remove_horiz_mesh_vars(self, ds):
+        """
+        Remove horizontal mesh variables from a dataset.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean variable names
+
+        Returns
+        -------
+        ds : xarray.Dataset
+            The same dataset without horizontal mesh variables
+        """
+        if self.horiz_mesh_vars is None:
+            self._read_var_map()
+
+        assert self.horiz_mesh_vars is not None
+        horiz_mesh_vars = [
+            variable for variable in self.horiz_mesh_vars if variable in ds
+        ]
+        if horiz_mesh_vars:
+            ds = ds.drop_vars(horiz_mesh_vars)
+        return ds
+
+    def write_initial_state_dataset(self, ds, filename):
+        """
+        Write out the given initial-state dataset without horizontal mesh
+        variables.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean variable names
+
+        filename : str
+            The path for the NetCDF file to write
+        """
+        ds = self.remove_horiz_mesh_vars(ds)
+        self.write_model_dataset(ds, filename)
 
     def map_from_native_model_vars(self, ds):
         """
@@ -315,6 +361,7 @@ class Ocean(Component):
         nested_dict = yaml_data.load(text)
         self.mpaso_to_omega_dim_map = nested_dict['dimensions']
         self.mpaso_to_omega_var_map = nested_dict['variables']
+        self.horiz_mesh_vars = nested_dict['horiz_mesh_variables']
 
     def _detect_model(self, config) -> str:
         """
