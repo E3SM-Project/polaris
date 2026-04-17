@@ -4,8 +4,8 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.inertial_gravity_wave.exact_solution import (
@@ -13,7 +13,7 @@ from polaris.tasks.ocean.inertial_gravity_wave.exact_solution import (
 )
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for creating a mesh and initial condition for the
     inertial gravity wave test cases
@@ -111,4 +111,4 @@ class Init(Step):
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
         ds['normalVelocity'] = normal_velocity
 
-        write_netcdf(ds, 'initial_state.nc')
+        self.write_initial_state_dataset(ds, 'initial_state.nc')
