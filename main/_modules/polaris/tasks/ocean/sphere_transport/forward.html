@@ -110,7 +110,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.sphere_transport.forward</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.convergence.spherical</span><span class="w"> </span><span class="kn">import</span> <span class="n">SphericalConvergenceForward</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_mesh_filepath</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.convergence.spherical</span><span class="w"> </span><span class="kn">import</span> <span class="n">SphericalConvergenceForward</span>
 
 
 <div class="viewcode-block" id="Forward">
@@ -193,7 +194,8 @@
             <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/graph.info&#39;</span><span class="p">,</span>
             <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
             <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_path</span> <span class="o">=</span> <span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -204,7 +206,16 @@
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
         <span class="c1"># TODO: remove as soon as Omega no longer hard-codes this file</span>
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;OmegaMesh.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;OmegaMesh.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">)</span>
+            <span class="n">component</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">parse_mesh_filepath</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mesh_path</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;coeffs.nc&#39;</span><span class="p">,</span>
+                <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_coeffs.nc&#39;</span><span class="p">,</span>
+                <span class="n">database_component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span>
+            <span class="p">)</span></div>
 
 </pre></div>
 

@@ -114,6 +114,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.vector.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="n">reconstruct_variable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span>
@@ -365,7 +366,14 @@
 
 <div class="viewcode-block" id="Ocean.open_model_dataset">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.tasks.ocean.Ocean.open_model_dataset.html#polaris.tasks.ocean.Ocean.open_model_dataset">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">open_model_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_model_dataset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">filename</span><span class="p">,</span>
+        <span class="n">mesh_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">reconstruct_variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">coeffs_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Open the given dataset, mapping variable and dimension names from Omega</span>
 <span class="sd">        to MPAS-Ocean names if appropriate</span>
@@ -374,6 +382,21 @@
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
 <span class="sd">            The path for the NetCDF file to open</span>
+
+<span class="sd">        ds_mesh : xr.Dataset</span>
+<span class="sd">            The MPAS mesh dataset for the ocean model.</span>
+
+<span class="sd">        mesh_filename : str, optional</span>
+<span class="sd">            Path to the mesh NetCDF file.</span>
+
+<span class="sd">        reconstruct_variables : list of str, optional</span>
+<span class="sd">            List of variable names to reconstruct in the dataset.</span>
+
+<span class="sd">        coeffs_reconstruct : xarray.DataArray, optional</span>
+<span class="sd">            Coefficients used for reconstructing variables.</span>
+
+<span class="sd">        coeffs_filename : str, optional</span>
+<span class="sd">            Path to the coefficients NetCDF file.</span>
 
 <span class="sd">        kwargs</span>
 <span class="sd">            keyword arguments passed to `xarray.open_dataset()`</span>
@@ -385,6 +408,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">_add_reconstructed_variables_to_dataset</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span> <span class="n">reconstruct_variables</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">,</span> <span class="n">coeffs_filename</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">ds</span></div>
 
 
@@ -489,6 +515,84 @@
                 <span class="k">break</span>
         <span class="k">return</span> <span class="n">all_found</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_reconstructed_variables_to_dataset</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span> <span class="n">reconstruct_variables</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">,</span> <span class="n">coeffs_filename</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add reconstructed vector variables to the dataset if requested.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The dataset to add reconstructed variables to.</span>
+
+<span class="sd">    reconstruct_variables : list of str or None</span>
+<span class="sd">        List of variable names to reconstruct.</span>
+
+<span class="sd">    mesh_filename : str</span>
+<span class="sd">        Path to the mesh NetCDF file.</span>
+
+<span class="sd">    coeffs_filename : str</span>
+<span class="sd">        Path to the coefficients NetCDF file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The dataset with reconstructed variables added.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">reconstruct_variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="k">if</span> <span class="n">mesh_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;mesh_filename must be provided to open_model_dataset for &#39;</span>
+            <span class="s1">&#39;variable reconstruction&#39;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">coeffs_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;coeffs_filename must be provided to open_model_dataset for &#39;</span>
+            <span class="s1">&#39;variable reconstruction&#39;</span>
+        <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">reconstruct_variables</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;User requested vector reconstruction for &#39;</span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                <span class="s2">&quot;but it isn&#39;t present in the dataset.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">out_var_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">variable</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;normal&#39;</span> <span class="ow">in</span> <span class="n">variable</span>
+            <span class="k">else</span> <span class="n">variable</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal&#39;</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">)</span>
+        <span class="n">ds_coeff</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">coeffs_filename</span><span class="p">)</span>
+        <span class="n">coeffs_reconstruct</span> <span class="o">=</span> <span class="n">ds_coeff</span><span class="o">.</span><span class="n">coeffs_reconstruct</span>
+
+        <span class="k">if</span> <span class="n">ds_coeff</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;The sizes of coefficient dataset do not match mesh &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;dataset; exiting without reconstructing </span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">reconstruct_variable</span><span class="p">(</span>
+            <span class="n">out_var_name</span><span class="p">,</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span>
+            <span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">coeffs_reconstruct</span><span class="p">,</span>
+            <span class="n">ds</span><span class="p">,</span>
+            <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds</span>
 
 
 <span class="c1"># create a single module-level instance available to other components</span>

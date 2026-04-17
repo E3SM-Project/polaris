@@ -154,8 +154,12 @@ and writing easier, we also provide
 <a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.write_model_dataset.html#polaris.ocean.model.OceanIOStep.write_model_dataset" title="polaris.ocean.model.OceanIOStep.write_model_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.write_model_dataset()</span></code></a> and
 <a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset" title="polaris.ocean.model.OceanIOStep.open_model_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.open_model_dataset()</span></code></a>, which take
 care of of the mapping in addition to writing and opening a dataset,
-respectively. As new variables are added to Omega, they should be added to the
-<code class="docutils literal notranslate"><span class="pre">variables</span></code> section in the
+respectively. The <code class="docutils literal notranslate"><span class="pre">open_model_dataset()</span></code> method also supports reconstructing
+normal vector components to their zonal and meridional equivalents by passing
+a list of variable names to
+<code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.vector.reconstruct.reconstruct_variables</span></code>, along with the mesh and
+reconstruction coefficient files. As new variables are added to Omega, they
+should be added to the <code class="docutils literal notranslate"><span class="pre">variables</span></code> section in the
 <a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml">mpaso_to_omega.yaml</a>
 file.</p>
 </section>
@@ -438,7 +442,7 @@ base meshes, respectively.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code> will generally be modified by each test case. The
 <code class="docutils literal notranslate"><span class="pre">convergence_thresh</span></code> will also be modified by each test case, and will depend
 on the numerical methods being tested. The <code class="docutils literal notranslate"><span class="pre">error_type</span></code> is the L2 norm by
-default. The L-infty norm, <code class="docutils literal notranslate"><span class="pre">inf</span></code>, is also supported.</p>
+default. The L-infinity norm, <code class="docutils literal notranslate"><span class="pre">inf</span></code>, is also supported.</p>
 <p><code class="docutils literal notranslate"><span class="pre">time_integrator</span></code> will typically be overridden by the specific convergence
 task’s config options, and indicates which time integrator to use for the
 forward run.  Depending on the time integrator, either <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code> or

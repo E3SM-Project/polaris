@@ -25,8 +25,12 @@ and writing easier, we also provide
 {py:meth}`polaris.ocean.model.OceanIOStep.write_model_dataset()` and
 {py:meth}`polaris.ocean.model.OceanIOStep.open_model_dataset()`, which take
 care of of the mapping in addition to writing and opening a dataset,
-respectively. As new variables are added to Omega, they should be added to the
-`variables` section in the
+respectively. The `open_model_dataset()` method also supports reconstructing
+normal vector components to their zonal and meridional equivalents by passing
+a list of variable names to
+{py:class}`mpas_tools.vector.reconstruct.reconstruct_variables`, along with the mesh and
+reconstruction coefficient files. As new variables are added to Omega, they
+should be added to the `variables` section in the
 [mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
 file.
 
@@ -334,7 +338,7 @@ base meshes, respectively.
 The `convergence_eval_time` will generally be modified by each test case. The
 `convergence_thresh` will also be modified by each test case, and will depend
 on the numerical methods being tested. The `error_type` is the L2 norm by
-default. The L-infty norm, `inf`, is also supported.
+default. The L-infinity norm, `inf`, is also supported.
 
 `time_integrator` will typically be overridden by the specific convergence
 task's config options, and indicates which time integrator to use for the

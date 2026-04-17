@@ -154,6 +154,13 @@
 
     <span class="k">return</span> <span class="n">base_mesh_steps</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_mesh_filepath</span><span class="p">(</span><span class="n">mesh_path</span><span class="p">):</span>
+    <span class="n">component</span> <span class="o">=</span> <span class="n">mesh_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">database</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mesh_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">component</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">mesh_name</span>
 </pre></div>
 
            </div>
