@@ -140,7 +140,7 @@ class Init(OceanIOStep):
         )
 
         # write the initial condition file
-        self.write_model_dataset(ds, 'init.nc')
+        self.write_initial_state_dataset(ds, 'init.nc')
 
         cell_mask = ds.maxLevelCell >= 1
 
