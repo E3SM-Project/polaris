@@ -159,7 +159,7 @@ class Init(OceanIOStep):
         ds.attrs['dc'] = dc
 
         # finalize and write file
-        self.write_model_dataset(ds, 'init.nc')
+        self.write_initial_state_dataset(ds, 'init.nc')
         # May not be needed.
 
 
