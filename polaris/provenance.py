@@ -2,6 +2,8 @@ import os
 import subprocess
 import sys
 
+from polaris.build.omega import detect_omega_build_type
+
 
 def write(work_dir, tasks, config=None, machine=None, baseline_dir=None):
     """
@@ -83,6 +85,7 @@ def write(work_dir, tasks, config=None, machine=None, baseline_dir=None):
     _write_meta(provenance_file, 'compiler', _get_compiler(config))
     _write_meta(provenance_file, 'work directory', work_dir)
     _write_meta(provenance_file, 'build directory', _get_build_dir(config))
+    _write_meta(provenance_file, 'build type', _get_build_type(config))
     _write_meta(provenance_file, 'baseline work directory', baseline_dir)
     provenance_file.write('tasks:\n')
 
@@ -229,6 +232,40 @@ def _get_build_dir(config):
         val = config.get('paths', 'component_path')
         return val or None
     return None
+
+
+def _get_model(config):
+    if config is None:
+        return None
+    if config.has_option('ocean', 'model'):
+        val = config.get('ocean', 'model')
+        return val or None
+    return None
+
+
+def _get_build_type(config):
+    if config is None:
+        return None
+
+    build_dir = _get_build_dir(config)
+    build_type = detect_omega_build_type(build_dir)
+    if build_type is not None:
+        return build_type
+
+    if _get_model(config) != 'omega':
+        return None
+
+    if not config.has_option('build', 'debug'):
+        return None
+
+    try:
+        debug = config.getboolean('build', 'debug')
+    except ValueError:
+        return None
+
+    if debug:
+        return 'Debug'
+    return 'Release'
 
 
 def _write_meta(provenance_file, label, value):

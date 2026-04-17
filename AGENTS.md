@@ -10,6 +10,19 @@ These instructions apply to the whole repository unless a deeper
 - If an instruction here conflicts with automated tooling, follow the
   automated tooling.
 
+## Environment
+
+- If `pixi-env/` exists, it is the preferred development environment for
+  Python, testing, linting, and `pre-commit`. It is created by
+  `./deploy.py`.
+- AI agents should not run `./deploy.py` to create `pixi-env/`
+  themselves. Creating or refreshing `pixi-env/` is a developer action.
+- Prefer running tools from `pixi-env/.pixi/envs/default/bin/` (for
+  example `python`, `pytest`, `pre-commit`, `ruff`, and `mypy`) instead
+  of relying on the system environment.
+- Only fall back to other Python environments if `pixi-env/` does not
+  exist or is clearly incomplete.
+
 ## Python style
 
 - Keep Python lines at 79 characters or fewer whenever possible.

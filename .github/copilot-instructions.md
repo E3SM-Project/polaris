@@ -15,6 +15,15 @@ Follow the repository's automated style configuration in
   `.github/instructions/python.instructions.md`.
 - For documentation in `docs/`, follow the path-specific instructions in
   `.github/instructions/docs.instructions.md`.
+- If `pixi-env/` exists, use it as the default Python environment for
+  this repo. It is created by `./deploy.py`.
+- Do not run `./deploy.py` to create `pixi-env/` yourself. That setup
+  step must be performed by a developer, not an AI agent.
+- Prefer executables from `pixi-env/.pixi/envs/default/bin/` for
+  `python`, `pytest`, `pre-commit`, `ruff`, and `mypy` instead of the
+  system environment.
+- Only search for or configure another Python environment if
+  `pixi-env/` does not exist or is clearly incomplete.
 - Run pre-commit on changed files is required before finishing; if sandboxed
   execution fails, request escalation and do not close the task until it has
   run or the user declines.

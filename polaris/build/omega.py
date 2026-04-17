@@ -2,6 +2,7 @@ import importlib.resources
 import os
 import shutil
 import subprocess
+from typing import Optional
 
 from jinja2 import Template
 
@@ -182,3 +183,90 @@ def make_build_script(
         f.write(script)
 
     return script_filename
+
+
+def detect_omega_build_type(build_dir: Optional[str]) -> Optional[str]:
+    """
+    Detect the configured build type in a standalone Omega build.
+
+    Parameters
+    ----------
+    build_dir : str, optional
+        The root of the standalone Omega build directory.
+
+    Returns
+    -------
+    Optional[str]
+        The configured build type, typically ``'Debug'`` or
+        ``'Release'``, or ``None`` if it cannot be determined.
+    """
+    if not build_dir:
+        return None
+
+    build_dir = os.path.abspath(build_dir)
+    if not _is_omega_build_dir(build_dir):
+        return None
+
+    cache_path = os.path.join(build_dir, 'CMakeCache.txt')
+    if not os.path.exists(cache_path):
+        return None
+
+    for key in ['OMEGA_BUILD_TYPE', 'CMAKE_BUILD_TYPE']:
+        build_type = _read_cmake_cache_value(cache_path, key)
+        build_type = _normalize_build_type(build_type)
+        if build_type is not None:
+            return build_type
+
+    return None
+
+
+def _is_omega_build_dir(build_dir: str) -> bool:
+    omega_markers = [
+        'omega_build.sh',
+        'omega_env.sh',
+        'omega_run.sh',
+        'src/omega.exe',
+        'configs/Default.yml',
+    ]
+
+    return any(
+        os.path.exists(os.path.join(build_dir, marker))
+        for marker in omega_markers
+    )
+
+
+def _read_cmake_cache_value(cache_path: str, key: str) -> Optional[str]:
+    try:
+        with open(cache_path, 'r', encoding='utf-8') as cache_file:
+            for line in cache_file:
+                line = line.strip()
+                if line == '' or line.startswith('#') or line.startswith('//'):
+                    continue
+
+                name_and_type, separator, value = line.partition('=')
+                if separator == '':
+                    continue
+
+                name, _, _ = name_and_type.partition(':')
+                if name == key:
+                    value = value.strip()
+                    return value or None
+    except OSError:
+        return None
+
+    return None
+
+
+def _normalize_build_type(build_type: Optional[str]) -> Optional[str]:
+    if build_type is None:
+        return None
+
+    build_type = build_type.strip()
+    if build_type == '':
+        return None
+
+    normalized = {
+        'debug': 'Debug',
+        'release': 'Release',
+    }
+    return normalized.get(build_type.lower(), build_type)
