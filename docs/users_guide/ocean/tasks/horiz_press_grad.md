@@ -8,6 +8,13 @@ The `horiz_press_grad` tasks in `polaris.tasks.ocean.horiz_press_grad`
 exercise Omega's hydrostatic pressure-gradient acceleration (`HPGA`)
 for a two-column configuration with prescribed horizontal gradients.
 
+The analysis uses two different baselines, each with a different purpose:
+
+- a high-fidelity offline reference solution that is used as the main
+  accuracy target, and
+- a Python-computed two-column HPGA diagnostic from the `init` step that is
+  used as a consistency check against Omega.
+
 Each task includes:
 
 - a high-fidelity `reference` solution for HPGA,
@@ -28,6 +35,12 @@ ocean/horiz_press_grad/ztilde_gradient
 :align: center
 :width: 600 px
 ```
+
+The point of these tasks is not only to verify that Omega can reproduce the
+same discrete answer as the Python initialization, but also to measure how the
+two-column discretization converges toward a more accurate non-local
+approximation of the continuous hydrostatic pressure-gradient force.
+
 ## supported models
 
 These tasks currently support Omega only.
@@ -46,6 +59,119 @@ each test in `vert_resolutions`.
 The `reference` step uses a finer spacing `vert_res` chosen so that every test
 spacing is an integer multiple of `2 * vert_res`. This allows reference
 interfaces to align with test midpoints for exact subsampling in analysis.
+
+## reference solution
+
+The `reference` step constructs a high-fidelity numerical approximation to the
+HPGA before any Omega run is performed.  This reference is not an exact
+analytic solution.  Instead, it is a deliberately more accurate offline
+calculation based on more columns and a much finer vertical grid than the
+two-column test itself.
+
+The reference starts from the Omega pseudo-height coordinate `z-tilde`, with
+
+$$
+p = -\rho_0 g \tilde z,
+$$
+
+and converts to geometric height `z` by integrating the hydrostatic relation
+
+$$
+\frac{\partial z}{\partial \tilde z} = \rho_0\,\nu\left(S_A, \Theta, p\right),
+$$
+
+where $\nu$ is specific volume from the TEOS-10 equation of state, $S_A$ is
+Absolute Salinity, and $\Theta$ is Conservative Temperature.
+
+For each reference column, the configured `z_tilde`, `temperature`, and
+`salinity` node values are first reconstructed from the prescribed midpoint
+values and horizontal gradients.  The vertical profiles are then evaluated as
+functions of `z-tilde` and integrated upward from the seafloor to obtain
+geometric height, specific volume, salinity and temperature on the refined
+reference grid.
+
+The reference uses five columns at
+
+$$
+x = \Delta x_{\mathrm{ref}}\,[-1.5, -0.5, 0, 0.5, 1.5],
+$$
+
+where $\Delta x_{\mathrm{ref}} =$ `reference_horiz_res`, 250 m by default.
+After constructing Montgomery potential,
+
+$$
+M = \alpha p + gz = g\left(z - \rho_0 \alpha \tilde z\right),
+$$
+
+the reference HPGA is formed with the same sign convention used in the task
+diagnostics,
+
+$$
+\mathrm{HPGA}_{\mathrm{ref}} = -\frac{\partial M}{\partial x}
++ p\frac{\partial \alpha}{\partial x}.
+$$
+
+The horizontal derivatives at the center column are approximated with the
+4th-order centered stencil
+
+$$
+\frac{\partial f}{\partial x}(0) \approx
+\frac{f\left(-\tfrac{3}{2}\Delta x\right)
+- 27 f\left(-\tfrac{1}{2}\Delta x\right)
++ 27 f\left(\tfrac{1}{2}\Delta x\right)
+- f\left(\tfrac{3}{2}\Delta x\right)}{24\Delta x}.
+$$
+
+This reconstruction is non-local: it uses four surrounding columns to evaluate
+the gradient at the central column.  It is therefore not the same as a local
+reconstruction based only on the two test cells or on local derivatives such
+as `dT/dx` and `dS/dx` at the edge midpoint.  That kind of local reference may
+be worth exploring in the future, especially when these tasks are extended to
+support higher-order HPGA formulations, but it is not what is used today.
+
+## python HPGA in the `init` step
+
+The `init` step computes a second HPGA estimate directly from the initialized
+two-column state.  This calculation is intentionally much closer to the
+discrete Omega formulation than the high-fidelity reference is.
+
+First, the step constructs the two-cell mesh and the test vertical grid for the
+requested `(horiz_res, vert_res)` pair.  Because the geometric water-column
+thickness depends on the equation of state through the mapping from
+`z-tilde` to `z`, the step iteratively rescales the pseudo-bottom depth so that
+the resulting geometric water-column thickness matches the prescribed
+sea-surface and bottom geometry.
+
+Once the initialized state is available, the Python diagnostic computes the
+same thermodynamic quantities used by Omega: pressure, specific volume,
+geometric height, and Montgomery potential.  It then forms a two-column finite
+difference,
+
+$$
+\frac{\partial M}{\partial x} \approx \frac{M_R - M_L}{\Delta x},
+\qquad
+\frac{\partial \alpha}{\partial x} \approx
+\frac{\alpha_R - \alpha_L}{\Delta x},
+$$
+
+with edge pressure
+
+$$
+p_{\mathrm{edge}} = \frac{p_L + p_R}{2},
+$$
+
+and writes the corresponding diagnostic
+
+$$
+\mathrm{HPGA}_{\mathrm{python}} = -\frac{\partial M}{\partial x}
++ p_{\mathrm{edge}}\frac{\partial \alpha}{\partial x}
+$$
+
+to `initial_state.nc`.
+
+This Python HPGA is not the main reference solution.  Instead, it checks
+whether Omega's one-step tendency matches the expected two-column discrete
+calculation from the initialized state.
 
 (ocean-horiz-press-grad-config)=
 ## config options
@@ -105,4 +231,18 @@ The `analysis` step computes and plots:
 
 The corresponding tabulated data are written to
 `omega_vs_reference.nc` and `omega_vs_python.nc`.
+
+For the Omega-versus-reference comparison, the reference is sampled onto the
+test vertical locations without interpolation.  This is why the refined
+reference spacing is chosen so that the reference interfaces align exactly with
+test midpoints and interfaces.  The comparison only uses layers that are valid
+in both the reference and the Omega solution.
+
+For the Omega-versus-Python comparison, the analysis uses the HPGA written by
+the `init` step in `initial_state.nc`, so this second metric should be read as
+an implementation-consistency check rather than as an accuracy measure against
+the high-fidelity reference.
+
+Implementation details for the `reference`, `init`, and `analysis` steps are
+described in {ref}`dev-ocean-horiz-press-grad`.
 
