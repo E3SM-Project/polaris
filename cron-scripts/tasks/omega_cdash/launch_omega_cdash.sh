@@ -49,6 +49,11 @@ fi
 
 sbatch \
   --export=RUNSCRIPT_DIR=${HERE} \
+  --export=CRONJOB_MACHINE=${CRONJOB_MACHINE} \
+  --export=E3SM_COMPILERS=${E3SM_COMPILERS} \
+  --export=CRONJOB_DATE=${E3SM_COMPILERS} \
+  --export=TESTROOT=${TESTROOT} \
+  --export=OMEGA_ROOT=${OMEGA_ROOT} \
   --job-name=OmegaCdash \
   --output="$CRONJOB_LOGDIR/omega_cdash_%j.out" \
   --error="$CRONJOB_LOGDIR/omega_cdash_%j.err" \

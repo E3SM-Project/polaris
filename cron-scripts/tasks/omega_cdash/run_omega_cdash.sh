@@ -51,7 +51,7 @@ for COMPILER in ${E3SM_COMPILERS}; do
       -DOMEGA_ARCH=SERIAL \
       -DOMEGA_BUILD_TEST=ON \
       -DOMEGA_PARMETIS_ROOT=${PARMETIS_HOME} \
-      -S ${OMEGA_HOME}/components/omega \
+      -S ${OMEGA_ROOT}/components/omega \
       -B ${WORKDIR};
 
     mkdir -p ${WORKDIR}/test
@@ -63,8 +63,8 @@ for COMPILER in ${E3SM_COMPILERS}; do
     source ${WORKDIR}/omega_env.sh
 
     ctest \
-      -S ${OMEGA_HOME}/components/omega/CTestScript.cmake \
-      -DCTEST_SOURCE_DIRECTORY=${OMEGA_HOME}/components/omega \
+      -S ${OMEGA_ROOT}/components/omega/CTestScript.cmake \
+      -DCTEST_SOURCE_DIRECTORY=${OMEGA_ROOT}/components/omega \
       -DCTEST_BINARY_DIRECTORY=${WORKDIR} \
       -DCTEST_SITE=${CRONJOB_MACHINE} \
       -DCTEST_BUILD_GROUP="Omega Unit-test" \
