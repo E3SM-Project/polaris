@@ -171,4 +171,4 @@ class Init(OceanIOStep):
         ds['tracer2'] = tracer2_background * xr.ones_like(temperature)
         ds['tracer3'] = tracer3_background * xr.ones_like(temperature)
 
-        self.write_model_dataset(ds, 'initial_state.nc')
+        self.write_initial_state_dataset(ds, 'initial_state.nc')
