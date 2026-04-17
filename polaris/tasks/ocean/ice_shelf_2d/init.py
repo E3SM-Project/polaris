@@ -4,13 +4,13 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris import Step
 from polaris.constants import get_constant
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for creating a mesh and initial condition for ice shelf 2-d tasks
 
@@ -166,7 +166,7 @@ class Init(Step):
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
 
-        write_netcdf(ds, 'output.nc')
+        self.write_initial_state_dataset(ds, 'output.nc')
 
         # Generate the tidal forcing dataset whether it is used or not
         ds_forcing = xr.Dataset()
