@@ -86,9 +86,11 @@ class Forward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_input_file(
-            filename='initial_state.nc',
-            work_dir_target=f'{init.path}/initial_state.nc',
+        self.add_horiz_mesh_input_file(
+            work_dir_target=f'{init.path}/culled_mesh.nc'
+        )
+        self.add_init_input_file(
+            work_dir_target=f'{init.path}/initial_state.nc'
         )
 
         self.add_yaml_file('polaris.tasks.ocean.internal_wave', 'forward.yaml')
