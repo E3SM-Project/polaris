@@ -51,10 +51,25 @@ The mesh is planar with two adjacent ocean cells.  For each resolution in
 `horiz_resolutions`, the spacing between the two columns is set by that value
 (in km).
 
+The HPGA diagnostic is evaluated on the single internal horizontal edge that
+connects the two columns, at each layer midpoint.  In this page, `x` denotes
+the along-layer horizontal direction used by Omega's horizontal gradient
+operator.  In the idealized two-column planar geometry, this direction follows
+the line joining the two cell centers.  It is therefore related to the shared
+edge normal, but it is not intended to define a separate exact geometric
+edge-normal coordinate.
+
 ## vertical grid
 
 The vertical coordinate is `z-tilde` with a uniform pseudo-height spacing for
 each test in `vert_resolutions`.
+
+The meaning of the along-layer `x` direction depends on the task variant.  In
+the `salinity_gradient` and `temperature_gradient` tests, the `z-tilde`
+interfaces are level, so pressure surfaces are also horizontally level except
+where they intersect the bathymetry.  In the `ztilde_gradient` test, the
+prescribed `z-tilde` gradient tilts the layers, so the pressure surfaces are
+sloped and the along-layer direction follows those sloping layers.
 
 The `reference` step uses a finer spacing `vert_res` chosen so that every test
 spacing is an integer multiple of `2 * vert_res`. This allows reference
