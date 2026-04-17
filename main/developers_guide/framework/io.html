@@ -203,7 +203,7 @@ bathymetry database.</p>
 <p>After downloading a file to a shared location, it is typically a good idea to
 change permissions so others can access the file and write to the directory it
 is stored in.</p>
-<p>This can be accomplished with <a class="reference internal" href="../generated/polaris.io.update_permissions.html#polaris.io.update_permissions" title="polaris.io.update_permissions"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.io.update_permissions()</span></code></a>,
+<p>This can be accomplished with <a class="reference external" href="https://docs.e3sm.org/mache/main/developers_guide/generated/mache.permissions.update_permissions.html#mache.permissions.update_permissions" title="(in Mache vmain)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mache.permissions.update_permissions()</span></code></a>,
 which takes a list of one or more directories on which to update permissions,
 along with a group name that files should belong to. As an example, if we
 download a file <code class="docutils literal notranslate"><span class="pre">ocean.QU.240km.151209.nc</span></code> to a database <code class="docutils literal notranslate"><span class="pre">ocean/omega_ctest</span></code>,
@@ -211,7 +211,8 @@ we would then change permissions on the database so it is readable and writable
 by the group identified by the <code class="docutils literal notranslate"><span class="pre">[e3sm_unified]/group</span></code> config option (if any) as
 follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">download</span><span class="p">,</span> <span class="n">update_permissions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mache.permissions</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_permissions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">download</span>
 
 
 <span class="n">machine</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_MACHINE&#39;</span><span class="p">]</span>
@@ -236,7 +237,7 @@ follows:</p>
 <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;e3sm_unified&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">):</span>
     <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">database_root</span><span class="p">,</span> <span class="n">database_path</span><span class="p">)</span>
     <span class="n">group</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;e3sm_unified&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">)</span>
-    <span class="n">update_permissions</span><span class="p">([</span><span class="n">full_path</span><span class="p">],</span> <span class="n">group</span><span class="p">)</span>
+    <span class="n">update_permissions</span><span class="p">([</span><span class="n">full_path</span><span class="p">],</span> <span class="n">group</span><span class="p">,</span> <span class="n">group_writable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This counts on us having set the <code class="docutils literal notranslate"><span class="pre">$POLARIS_MACHINE</span></code> environment variable, which
