@@ -216,7 +216,6 @@ seaice/api
 
    download
    symlink
-   update_permissions
 ```
 
 ### job
