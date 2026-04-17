@@ -25,6 +25,9 @@ def add_barotropic_gyre_tasks(component):
     config_filepath = os.path.join(component.name, group_dir, config_filename)
     config = PolarisConfigParser(filepath=config_filepath)
     config.add_from_package(
+        f'polaris.ocean.eos', 'constant.cfg'
+    )
+    config.add_from_package(
         f'polaris.tasks.ocean.{group_name}', config_filename
     )
 

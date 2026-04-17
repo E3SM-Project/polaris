@@ -89,6 +89,7 @@ Omega:
       Contents:
       - AuxiliaryState
       - State
+      - Eos
       - SshCell
       FileFreq: 9999
       FileFreqUnits: years
