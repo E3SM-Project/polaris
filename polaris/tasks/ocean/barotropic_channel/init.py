@@ -4,12 +4,12 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for creating a mesh and initial condition for barotropic channel
     tasks
@@ -102,7 +102,7 @@ class Init(Step):
         ds['fCell'] = xr.zeros_like(ds.xCell)
         ds['fEdge'] = xr.zeros_like(ds.xEdge)
         ds['fVertex'] = xr.zeros_like(ds.xVertex)
-        write_netcdf(ds, 'initial_state.nc')
+        self.write_initial_state_dataset(ds, 'initial_state.nc')
 
         # set the wind stress forcing
         ds_forcing = xr.Dataset()
