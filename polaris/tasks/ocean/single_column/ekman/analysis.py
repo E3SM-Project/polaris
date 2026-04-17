@@ -29,9 +29,8 @@ class Analysis(Step):
 
         """
         super().__init__(component=component, name='analysis', indir=indir)
-        self.add_input_file(
-            filename='init.nc', target='../forward/initial_state.nc'
-        )
+        self.add_input_file(filename='mesh.nc', target='../forward/mesh.nc')
+        self.add_input_file(filename='init.nc', target='../forward/init.nc')
         self.add_input_file(
             filename='output.nc', target='../forward/output.nc'
         )
@@ -50,7 +49,7 @@ class Analysis(Step):
         nu = config.getfloat('single_column_ekman', 'vertical_viscosity')
         tol = config.getfloat('single_column_ekman', 'L2_error_norm_max')
 
-        ds_mesh = xr.load_dataset('init.nc')
+        ds_mesh = xr.load_dataset('mesh.nc')
         ds = xr.load_dataset('output.nc')
         t_index = ds.sizes['Time'] - 1
         t = ds.daysSinceStartOfSim[t_index]

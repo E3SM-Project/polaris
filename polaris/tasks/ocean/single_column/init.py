@@ -4,11 +4,11 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris import Step
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for creating a mesh and initial condition for single column
     test cases
@@ -153,7 +153,7 @@ class Init(Step):
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
-        write_netcdf(ds, 'initial_state.nc')
+        self.write_initial_state_dataset(ds, 'initial_state.nc')
 
         # create forcing stream
         ds_forcing = xr.Dataset()
