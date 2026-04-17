@@ -47,13 +47,17 @@ if [[ ! -f ${TESTROOT}/OmegaPlanarMesh.nc ]]; then
     wget -O ${TESTROOT}/OmegaPlanarMesh.nc https://gist.github.com/mwarusz/f8caf260398dbe140d2102ec46a41268/raw/e3c29afbadc835797604369114321d93fd69886d/PlanarPeriodic48x48.nc
 fi
 
+  # --export=RUNSCRIPT_DIR="${HERE}",CRONJOB_MACHINE="${CRONJOB_MACHINE}",E3SM_COMPILERS="${E3SM_COMPILERS}",CRONJOB_DATE="${E3SM_COMPILERS}",TESTROOT="${TESTROOT}",OMEGA_ROOT="${OMEGA_ROOT}"
+  #--export=RUNSCRIPT_DIR,CRONJOB_MACHINE,E3SM_COMPILERS,CRONJOB_DATE,TESTROOT,OMEGA_ROOT \
+
+export RUNSCRIPT_DIR="${HERE}"
+export CRONJOB_MACHINE
+export COMPILER_MAP_DEF
+export CRONJOB_DATE
+export TESTROOT
+export OMEGA_ROOT
+
 sbatch \
-  --export=RUNSCRIPT_DIR=${HERE} \
-  --export=CRONJOB_MACHINE=${CRONJOB_MACHINE} \
-  --export=E3SM_COMPILERS=${E3SM_COMPILERS} \
-  --export=CRONJOB_DATE=${E3SM_COMPILERS} \
-  --export=TESTROOT=${TESTROOT} \
-  --export=OMEGA_ROOT=${OMEGA_ROOT} \
   --job-name=OmegaCdash \
   --output="$CRONJOB_LOGDIR/omega_cdash_%j.out" \
   --error="$CRONJOB_LOGDIR/omega_cdash_%j.err" \

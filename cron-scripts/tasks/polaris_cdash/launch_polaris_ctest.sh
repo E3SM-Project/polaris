@@ -169,7 +169,10 @@ run_baseline_suite() {
 install_miniforge3
 #setup_polaris_repo
 
-for COMPILER in ${E3SM_COMPILERS}; do
+eval "$COMPILER_MAP_DEF"
+
+#for COMPILER in ${E3SM_COMPILERS}; do
+for COMPILER in "${!COMPILER_MAP[@]}"; do
     echo "################################################################################"
     echo "Processing Baseline for COMPILER: $COMPILER"
     echo "################################################################################"

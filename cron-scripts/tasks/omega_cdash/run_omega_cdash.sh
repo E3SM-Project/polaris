@@ -30,9 +30,10 @@ else
 
 fi
 
-echo "Compilers: ${E3SM_COMPILERS}"
+#echo "Compilers and ARCHs: ${COMPILER_MAP}"
+eval "$COMPILER_MAP_DEF"
 
-for COMPILER in ${E3SM_COMPILERS}; do
+for COMPILER in "${!COMPILER_MAP[@]}"; do
 
     WORKDIR=${TESTROOT}/${COMPILER}/${CRONJOB_DATE}
     rm -rf ${WORKDIR}
@@ -48,7 +49,7 @@ for COMPILER in ${E3SM_COMPILERS}; do
     cmake \
       -DOMEGA_CIME_MACHINE=${CRONJOB_MACHINE} \
       -DOMEGA_CIME_COMPILER=${COMPILER} \
-      -DOMEGA_ARCH=SERIAL \
+      -DOMEGA_ARCH=${COMPILER_MAP[$COMPILER]} \
       -DOMEGA_BUILD_TEST=ON \
       -DOMEGA_PARMETIS_ROOT=${PARMETIS_HOME} \
       -S ${OMEGA_ROOT}/components/omega \
