@@ -78,6 +78,7 @@ exclude_patterns = [
 intersphinx_mapping = {
     'geometric_features':
         ('https://mpas-dev.github.io/geometric_features/main', None),
+    'mache': ('https://docs.e3sm.org/mache/main', None),
     'matplotlib': ('https://matplotlib.org/stable', None),
     'mpas_tools': ('https://mpas-dev.github.io/MPAS-Tools/master', None),
     'mosaic': ('https://docs.e3sm.org/mosaic', None),
