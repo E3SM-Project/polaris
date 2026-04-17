@@ -277,6 +277,11 @@ class Forward(OceanModelStep):
         # TODO: remove as soon as Omega no longer hard-codes this file
         if model == 'omega':
             self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
+            self.add_input_file(
+                target='coeffs.nc',
+                filename='coeffs.nc',
+                database='barotropic_gyre',
+            )
 
     def compute_max_time_step(self, config):
         """

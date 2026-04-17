@@ -57,6 +57,7 @@ class Viz(OceanIOStep):
         self.add_input_file(
             filename='output.nc', work_dir_target=f'{forward.path}/output.nc'
         )
+        self.forward = forward
         self.mesh_name = mesh_name
         variables_to_plot = dict(
             {
@@ -64,6 +65,8 @@ class Viz(OceanIOStep):
                 'tracer2': 'tracer',
                 'tracer3': 'tracer',
                 'layerThickness': 'h',
+                'velocityZonal': 'velocity',
+                'velocityMeridional': 'velocity',
             }
         )
         self.variables_to_plot = variables_to_plot
@@ -71,6 +74,15 @@ class Viz(OceanIOStep):
             self.add_output_file(f'{var}_init.png')
             self.add_output_file(f'{var}_final.png')
             self.add_output_file(f'{var}_diff.png')
+
+    def setup(self):
+        model = self.config.get('ocean', 'model')
+        # TODO: remove as soon as Omega no longer needs this file
+        if model == 'omega':
+            self.add_input_file(
+                filename='coeffs.nc',
+                work_dir_target=f'{self.forward.path}/coeffs.nc',
+            )
 
     def run(self):
         """
@@ -82,10 +94,25 @@ class Viz(OceanIOStep):
         run_duration = config.getfloat('convergence_forward', 'run_duration')
 
         variables_to_plot = self.variables_to_plot
-        ds_init = self.open_model_dataset('initial_state.nc')
-        ds_init = ds_init[variables_to_plot.keys()].isel(Time=0, nVertLevels=0)
+        ds_init = self.open_model_dataset(
+            'initial_state.nc',
+            decode_times=False,
+            mesh_filename='mesh.nc',
+            reconstruct_variables=['normalVelocity'],
+            coeffs_filename='coeffs.nc',
+        )
+        variables_in_init = [
+            var for var in variables_to_plot.keys() if var in ds_init.variables
+        ]
+        ds_init = ds_init[variables_in_init].isel(Time=0, nVertLevels=0)
 
-        ds_out = self.open_model_dataset('output.nc', decode_times=False)
+        ds_out = self.open_model_dataset(
+            'output.nc',
+            decode_times=False,
+            mesh_filename='mesh.nc',
+            reconstruct_variables=['normalVelocity'],
+            coeffs_filename='coeffs.nc',
+        )
         s_per_hour = 3600.0
 
         # Visualization at halfway around the globe (provided run duration is
@@ -96,57 +123,61 @@ class Viz(OceanIOStep):
         else:
             # time is seconds since the start of the simulation in Omega
             dt = ds_out.Time.values
+        variables_in_output = [
+            var for var in variables_to_plot.keys() if var in ds_out.variables
+        ]
         tidx = np.argmin(np.abs(dt - time / 2.0))
-        ds_mid = ds_out[variables_to_plot.keys()].isel(
-            Time=tidx, nVertLevels=0
-        )
+        ds_mid = ds_out[variables_in_output].isel(Time=tidx, nVertLevels=0)
 
         # Visualization at all the way around the globe
         tidx = np.argmin(np.abs(dt - time))
-        ds_final = ds_out[variables_to_plot.keys()].isel(
-            Time=tidx, nVertLevels=0
-        )
+        ds_final = ds_out[variables_in_output].isel(Time=tidx, nVertLevels=0)
 
         for var, section_name in variables_to_plot.items():
             colormap_section = f'sphere_transport_viz_{section_name}'
-            plot_global_mpas_field(
-                mesh_filename='mesh.nc',
-                da=ds_init[var],
-                out_filename=f'{var}_init.png',
-                config=config,
-                colormap_section=colormap_section,
-                title=f'{mesh_name} {var} at init',
-                plot_land=False,
-                central_longitude=180.0,
-            )
-            plot_global_mpas_field(
-                mesh_filename='mesh.nc',
-                da=ds_mid[var],
-                out_filename=f'{var}_mid.png',
-                config=config,
-                colormap_section=colormap_section,
-                title=f'{mesh_name} {var} after {run_duration / 48.0:g} days',
-                plot_land=False,
-                central_longitude=180.0,
-            )
-            plot_global_mpas_field(
-                mesh_filename='mesh.nc',
-                da=ds_final[var],
-                out_filename=f'{var}_final.png',
-                config=config,
-                colormap_section=colormap_section,
-                title=f'{mesh_name} {var} after {run_duration / 24.0:g} days',
-                plot_land=False,
-                central_longitude=180.0,
-            )
-            plot_global_mpas_field(
-                mesh_filename='mesh.nc',
-                da=ds_final[var] - ds_init[var],
-                out_filename=f'{var}_diff.png',
-                config=config,
-                colormap_section=f'{colormap_section}_diff',
-                title=f'Difference in {mesh_name} {var} from initial '
-                f'condition after {run_duration / 24.0:g} days',
-                plot_land=False,
-                central_longitude=180.0,
-            )
+            if var in variables_in_init:
+                plot_global_mpas_field(
+                    mesh_filename='mesh.nc',
+                    da=ds_init[var],
+                    out_filename=f'{var}_init.png',
+                    config=config,
+                    colormap_section=colormap_section,
+                    title=f'{mesh_name} {var} at init',
+                    plot_land=False,
+                    central_longitude=180.0,
+                )
+            if var in variables_in_output:
+                plot_global_mpas_field(
+                    mesh_filename='mesh.nc',
+                    da=ds_mid[var],
+                    out_filename=f'{var}_mid.png',
+                    config=config,
+                    colormap_section=colormap_section,
+                    title=f'{mesh_name} {var} after '
+                    f'{run_duration / 48.0:g} days',
+                    plot_land=False,
+                    central_longitude=180.0,
+                )
+                plot_global_mpas_field(
+                    mesh_filename='mesh.nc',
+                    da=ds_final[var],
+                    out_filename=f'{var}_final.png',
+                    config=config,
+                    colormap_section=colormap_section,
+                    title=f'{mesh_name} {var} after '
+                    f'{run_duration / 24.0:g} days',
+                    plot_land=False,
+                    central_longitude=180.0,
+                )
+            if var in variables_in_output and var in variables_in_init:
+                plot_global_mpas_field(
+                    mesh_filename='mesh.nc',
+                    da=ds_final[var] - ds_init[var],
+                    out_filename=f'{var}_diff.png',
+                    config=config,
+                    colormap_section=f'{colormap_section}_diff',
+                    title=f'Difference in {mesh_name} {var} from initial '
+                    f'condition after {run_duration / 24.0:g} days',
+                    plot_land=False,
+                    central_longitude=180.0,
+                )

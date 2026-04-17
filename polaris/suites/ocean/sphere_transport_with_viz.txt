@@ -1,4 +1,8 @@
 ocean/spherical/icos/rotation_2d/with_viz
+  cached: icos_base_mesh_60km icos_base_mesh_120km icos_base_mesh_240km icos_base_mesh_480km
 ocean/spherical/icos/nondivergent_2d/with_viz
+  cached: icos_base_mesh_60km icos_base_mesh_120km icos_base_mesh_240km icos_base_mesh_480km
 ocean/spherical/icos/divergent_2d/with_viz
+  cached: icos_base_mesh_60km icos_base_mesh_120km icos_base_mesh_240km icos_base_mesh_480km
 ocean/spherical/icos/correlated_tracers_2d/with_viz
+  cached: icos_base_mesh_60km icos_base_mesh_120km icos_base_mesh_240km icos_base_mesh_480km
