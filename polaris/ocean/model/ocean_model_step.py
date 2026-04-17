@@ -229,7 +229,7 @@ class OceanModelStep(ModelStep):
             self.write_coeffs_reconstruct = False
         if self.write_coeffs_reconstruct:
             model = self.config.get('ocean', 'model')
-            if not model == 'mpas-ocean':
+            if model != 'mpas-ocean':
                 raise ValueError(
                     'Coefficients for vector reconstruction can only be '
                     'written for ocean model MPAS-Ocean'
