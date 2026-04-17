@@ -1,13 +1,14 @@
 import os
 
+import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import xarray as xr
-from matplotlib.colors import Normalize
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from polaris.step import Step
+from polaris.viz import plot_global_lat_lon_field, setup_colormap
 
 
 class VizCombinedStep(Step):
@@ -60,39 +61,78 @@ class VizCombinedStep(Step):
             work_dir_target=os.path.join(combine_step.path, topo_filename),
         )
 
-        self.add_input_file(
-            filename='cubed_sphere.g',
-            work_dir_target=os.path.join(combine_step.path, exodus_filename),
-        )
+        if exodus_filename is not None:
+            self.add_input_file(
+                filename='cubed_sphere.g',
+                work_dir_target=os.path.join(
+                    combine_step.path, exodus_filename
+                ),
+            )
 
     def run(self):
         """
         Run this step
         """
 
-        colormaps = {
-            'base_elevation': 'cmo.deep_r',
-            'ice_thickness': 'cmo.ice_r',
-            'ice_draft': 'cmo.deep_r',
-            'ice_mask': 'cmo.amp_r',
-            'grounded_mask': 'cmo.amp_r',
+        colormap_sections = {
+            'base_elevation': 'viz_combine_topo_base_elevation',
+            'ice_thickness': 'viz_combine_topo_ice_thickness',
+            'ice_draft': 'viz_combine_topo_ice_draft',
+            'ice_mask': 'viz_combine_topo_ice_mask',
+            'grounded_mask': 'viz_combine_topo_grounded_mask',
         }
 
         ds_data = xr.open_dataset('topography.nc')
+        target_grid = self.config.get('combine_topo', 'target_grid')
 
-        # Use one field to define the valid mask (they all share indexing)
+        if target_grid == 'cubed_sphere':
+            self._plot_cubed_sphere_fields(ds_data, colormap_sections)
+        elif target_grid == 'lat_lon':
+            self._plot_lat_lon_fields(ds_data, colormap_sections)
+        else:
+            raise ValueError(f'Unexpected target grid: {target_grid}')
+
+    def _plot_cubed_sphere_fields(self, ds_data, colormap_sections):
+        """
+        Plot fields on the cubed-sphere target grid.
+        """
         valid_mask = np.isfinite(ds_data['base_elevation'].values)
-
-        # Build mesh only once
         vertices, tris = self._load_trimesh_geometry(
             'cubed_sphere.g', valid_mask
         )
 
-        # Plot each field
-        for field, colormap in colormaps.items():
+        for field, section in colormap_sections.items():
             self.logger.info(f'Plotting field: {field}')
             data = ds_data[field].values[valid_mask]
-            self._plot_field(vertices, tris, data, field, colormap)
+            self._plot_cubed_sphere_field(
+                vertices,
+                tris,
+                data,
+                field,
+                colormap_section=section,
+            )
+
+    def _plot_lat_lon_fields(self, ds_data, colormap_sections):
+        """
+        Plot fields on the latitude-longitude target grid.
+        """
+        lon = ds_data.lon.values
+        lat = ds_data.lat.values
+
+        for field, section in colormap_sections.items():
+            self.logger.info(f'Plotting field: {field}')
+            data_array = ds_data[field].transpose('lat', 'lon').values
+            plot_global_lat_lon_field(
+                lon=lon,
+                lat=lat,
+                data_array=data_array,
+                out_filename=f'{field}.png',
+                config=self.config,
+                colormap_section=section,
+                title=f'{self.combine_step.resolution_name} {field}',
+                plot_land=False,
+                colorbar_label=field,
+            )
 
     @staticmethod
     def _load_trimesh_geometry(exodus_path, valid_mask):
@@ -125,7 +165,9 @@ class VizCombinedStep(Step):
 
         return vertices, tris
 
-    def _plot_field(self, vertices, tris, field_data, field_name, cmap):
+    def _plot_cubed_sphere_field(
+        self, vertices, tris, field_data, field_name, colormap_section
+    ):
         """
         Rasterize and save a trisurf-style field image using Datashader.
         """
@@ -157,12 +199,24 @@ class VizCombinedStep(Step):
         agg = canvas.trimesh(
             simplices=tris, vertices=vertices, agg=datashader.mean('value')
         )
+        colormap, norm, ticks = setup_colormap(self.config, colormap_section)
         self._plot_with_colorbar(
-            agg, cmap=cmap, field_name=field_name, filename=image_filename
+            agg,
+            colormap=colormap,
+            norm=norm,
+            ticks=ticks,
+            field_name=field_name,
+            filename=image_filename,
         )
 
     def _plot_with_colorbar(
-        self, agg, cmap, field_name, vmin=None, vmax=None, filename=None
+        self,
+        agg,
+        colormap,
+        norm,
+        ticks,
+        field_name,
+        filename=None,
     ):
         """
         Render a datashader aggregate with matplotlib colorbar.
@@ -171,21 +225,22 @@ class VizCombinedStep(Step):
         # mask background
         img_data = np.ma.masked_invalid(agg.data).astype('float32')
 
-        # Normalize range
-        norm = Normalize(
-            vmin=np.nanmin(img_data) if vmin is None else vmin,
-            vmax=np.nanmax(img_data) if vmax is None else vmax,
-        )
-
         # Plot
         fig, ax = plt.subplots(figsize=(22, 10))
         im = ax.imshow(
-            img_data, cmap=cmap, norm=norm, origin='lower', aspect='equal'
+            img_data,
+            cmap=colormap,
+            norm=norm,
+            origin='lower',
+            aspect='equal',
         )
 
         divider = make_axes_locatable(ax)
         cax = divider.append_axes('right', size='2%', pad=0.05)
-        plt.colorbar(im, cax=cax, label=field_name)
+        colorbar = plt.colorbar(im, cax=cax, label=field_name, extend='both')
+        if ticks is not None:
+            colorbar.set_ticks(ticks)
+            colorbar.set_ticklabels([f'{tick}' for tick in ticks])
         ax.axis('off')
 
         plt.savefig(filename, dpi=150, bbox_inches='tight')

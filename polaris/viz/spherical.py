@@ -140,7 +140,7 @@ def plot_global_mpas_field(
     if title is not None:
         fig.suptitle(title, y=0.935)
 
-    colormap, norm, ticks = _setup_colormap(config, colormap_section)
+    colormap, norm, ticks = setup_colormap(config, colormap_section)
 
     pcolor_kwargs = dict(cmap=colormap, norm=norm, zorder=1, edgecolors='face')
 
@@ -281,7 +281,7 @@ def plot_global_lat_lon_field(
 
     extent = [lon_corner[0], lon_corner[-1], lat_corner[0], lat_corner[-1]]
 
-    colormap, norm, ticks = _setup_colormap(config, colormap_section)
+    colormap, norm, ticks = setup_colormap(config, colormap_section)
 
     ax = plt.subplot(subplots[0], projection=projection)
 
@@ -331,7 +331,7 @@ def plot_global_lat_lon_field(
     plt.close()
 
 
-def _setup_colormap(config, colormap_section):
+def setup_colormap(config, colormap_section):
     """
     Set up a colormap from the registry
 

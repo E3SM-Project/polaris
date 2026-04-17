@@ -18,32 +18,62 @@ and Antarctic topography datasets into a single dataset suitable for use in
 E3SM simulations. The step supports blending datasets across specified latitude
 ranges and remapping them to a target grid.
 
-The {py:class}`polaris.tasks.e3sm.init.topo.combine.CombineTask` wraps the
-`CombineStep` into a task that can be used to generate and cache combined
-topography datasets for reuse in other contexts.
+The
+{py:class}`polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask`
+and
+{py:class}`polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask`
+wrap the `CombineStep` into tasks that can be used to generate and cache
+combined topography datasets for reuse in other contexts.
 
 The {py:class}`polaris.tasks.e3sm.init.topo.combine.VizCombinedStep` step is
 an optional visualization step that can be added to the workflow to create
 plots of the combined topography dataset. This step is particularly useful for
 debugging or analyzing the combined dataset.
 
-## High-Resolution and Low-Resolution Versions
+## Target Grids and Resolutions
 
-There are two versions of the combine steps and task:
+The combine framework is now organized explicitly around the target grid and
+resolution rather than around a special “low-resolution” mode. Current tasks
+include:
 
-1. **Standard (High-Resolution) Version**: This version maps to a
-   high-resolution (ne3000, ~1 km) cubed-sphere grid by default, producing
-   topogrpahy that is suitable for remapping to standard and high-resolution
-   MPAS meshes (~60 km and finer).
+1. Cubed-sphere topography on `ne3000`
+2. Cubed-sphere topography on `ne120`
+3. Latitude-longitude topography on `1.0000_degree`
+4. Latitude-longitude topography on `0.2500_degree`
+5. Latitude-longitude topography on `0.0625_degree`
 
-2. **Low-Resolution Version**: This version uses a coarser ne120 (~25 km) grid
-   for faster remapping to coarse-resolution MPAS meshes (e.g., Icos240). It is
-   designed to reduce computational cost while still providing adequate accuracy
-   for low-resolution simulations used for regression testing rather than
-   science.
+These resolutions are intended for different downstream uses:
 
-The low-resolution version can be selected by setting the `low_res` parameter
-to `True` when creating the `CombineStep` or `CombineTask`.
+- `ne3000` is the standard high-resolution cubed-sphere product. At roughly
+   1 km resolution, it is suitable for remapping topography to standard and
+   high-resolution MPAS meshes, approximately 60 km and finer, for scientific
+   applications.
+- `ne120` is a lower-cost cubed-sphere product at roughly 25 km resolution.
+   It is useful for remapping to coarse meshes such as Icos240 and for
+   regression testing or other non-scientific workflows where the full
+   high-resolution product is not needed.
+- `1.0000_degree` is intended for quick, non-scientific testing when a very
+   coarse latitude-longitude product is sufficient.
+- `0.2500_degree` aligns with the WOA23 (World Ocean Atlas 2023) dataset and
+   can also be used when defining mesh resolution at moderate scales, roughly
+   down to 30 km.
+- `0.0625_degree` is intended for defining mesh resolution for most
+   scientific runs and will be used by the E3SM v4 unified MPAS mesh across
+   land, river, ocean, and sea-ice.
+
+A series of standalone tasks are available to create each topography dataset
+on its own:
+
+- `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne3000/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne120/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/1.0000_degree/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.2500_degree/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.0625_degree/task`
+
+Downstream workflows such as topography remapping to the MPAS mesh,
+extrapolation of the WOA23 dataset and defining mesh resolution for unified
+E3SM v4 meshes will use shared `topo/combine` steps referenced by their
+grid and resolution.
 
 ## Key Features
 
@@ -73,9 +103,6 @@ the configuration file. Key options include:
 - `lat_tiles` and `lon_tiles`: Number of tiles to split the global dataset for parallel remapping.
 - `renorm_thresh`: Threshold for renormalizing Antarctic variables during blending.
 
-For the low-resolution version, additional configuration options are provided
-in the `combine_low_res.cfg` file.
-
 ## Workflow
 
 1. **Setup**: The step downloads required datasets and sets up input/output
@@ -98,21 +125,30 @@ task:
 from polaris.tasks.e3sm.init.topo.combine import CombineStep
 
 component = task.component
-subdir = CombineStep.get_subdir(low_res=False)
+subdir = CombineStep.get_subdir()
 if subdir in component.steps:
     step = component.steps[subdir]
 else:
-    step = CombineStep(component=component, low_res=False)
+    step = CombineStep(component=component, subdir=subdir)
     component.add_step(step)
 task.add_step(step)
 ```
 
-To create a `CombineTask` for caching combined datasets:
+To create a cubed-sphere combine task for caching combined datasets:
 
 ```python
-from polaris.tasks.e3sm.init.topo.combine import CombineTask
+from polaris.tasks.e3sm.init.topo.combine import CubedSphereCombineTask
 
-combine_task = CombineTask(component=my_component, low_res=False)
+combine_task = CubedSphereCombineTask(component=my_component, resolution=3000)
+my_component.add_task(combine_task)
+```
+
+To create a latitude-longitude combine task:
+
+```python
+from polaris.tasks.e3sm.init.topo.combine import LatLonCombineTask
+
+combine_task = LatLonCombineTask(component=my_component, resolution=0.25)
 my_component.add_task(combine_task)
 ```
 
@@ -133,7 +169,8 @@ The `VizCombinedStep` is typically added only when visualization is explicitly r
 
 For more details, refer to the source code of the
 {py:class}`polaris.tasks.e3sm.init.topo.combine.CombineStep` and
-{py:class}`polaris.tasks.e3sm.init.topo.combine.CombineTask` classes.
+{py:class}`polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask` and
+{py:class}`polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask` classes.
 
 ```{note}
 Since this step is expensive and time-consuming to run, most tasks will
