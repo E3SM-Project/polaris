@@ -176,16 +176,12 @@ class ReferenceForward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_input_file(
-            filename='init.nc',
-            work_dir_target=f'{init.path}/initial_state.nc',
+        self.add_horiz_mesh_input_file(
+            work_dir_target=f'{mesh.path}/base_mesh.nc'
         )
-
-        if dt_type == 'local':
-            self.add_yaml_file(
-                'polaris.tasks.ocean.external_gravity_wave',
-                'local_time_step.yaml',
-            )
+        self.add_init_input_file(
+            work_dir_target=f'{init.path}/initial_state.nc'
+        )
 
         self.add_output_file(
             filename='output.nc',
@@ -195,6 +191,7 @@ class ReferenceForward(OceanModelStep):
         self.dt = dt
         self.package = package
         self.yaml_filename = yaml_filename
+        self.dt_type = dt_type
 
     def compute_cell_count(self):
         """
@@ -272,12 +269,13 @@ class ReferenceForward(OceanModelStep):
             template_replacements=replacements,
         )
 
-    def setup(self):
-        """
-        TEMP: symlink initial condition to name hard-coded in Omega
-        """
-        super().setup()
-        model = self.config.get('ocean', 'model')
-        # TODO: remove as soon as Omega no longer hard-codes this file
-        if model == 'omega':
-            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
+        template_replacements = {
+            'init_filename': self.get_init_filename(),
+        }
+
+        if self.dt_type == 'local':
+            self.add_yaml_file(
+                'polaris.tasks.ocean.external_gravity_wave',
+                'local_time_step.yaml',
+                template_replacements=template_replacements,
+            )

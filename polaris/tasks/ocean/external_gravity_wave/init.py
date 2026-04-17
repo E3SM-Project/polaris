@@ -93,7 +93,7 @@ class Init(OceanIOStep):
         ds['fEdge'] = xr.zeros_like(ds_mesh.xEdge)
         ds['fVertex'] = xr.zeros_like(ds_mesh.xVertex)
 
-        self.write_model_dataset(ds, 'initial_state.nc')
+        self.write_initial_state_dataset(ds, 'initial_state.nc')
 
 
 def gaussian_bump(lat_center, lon_center, latCell, lonCell):

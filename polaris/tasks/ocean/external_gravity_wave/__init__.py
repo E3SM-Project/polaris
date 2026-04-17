@@ -212,7 +212,11 @@ class ExternalGravityWave(Task):
                 lts_step = component.steps[subdir]
             else:
                 lts_step = LTSRegions(
-                    component, init_step, name=name, subdir=subdir
+                    component,
+                    base_mesh_step,
+                    init_step,
+                    name=name,
+                    subdir=subdir,
                 )
                 lts_step.set_shared_config(config, link=config_filename)
 
