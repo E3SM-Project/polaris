@@ -69,6 +69,7 @@ class Forward(OceanModelStep):
             indir=indir,
             ntasks=ntasks,
             min_tasks=min_tasks,
+            update_eos=True,
             openmp_threads=openmp_threads,
             graph_target=graph_target,
         )
