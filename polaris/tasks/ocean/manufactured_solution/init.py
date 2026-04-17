@@ -91,7 +91,7 @@ class Init(OceanIOStep):
         ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
 
         # Evaluate the exact solution at time=0
-        exact_solution = ExactSolution(config, ds)
+        exact_solution = ExactSolution(config, ds=ds_mesh)
         ssh = exact_solution.ssh(0.0)
         normal_velocity = exact_solution.normal_velocity(0.0)
 
@@ -110,4 +110,4 @@ class Init(OceanIOStep):
         )
         ds['layerThickness'] = layer_thickness
 
-        self.write_model_dataset(ds, 'initial_state.nc')
+        self.write_initial_state_dataset(ds, 'initial_state.nc')
