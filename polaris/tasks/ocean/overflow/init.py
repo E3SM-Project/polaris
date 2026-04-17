@@ -130,4 +130,4 @@ class Init(OceanIOStep):
         ds['fVertex'] = xr.zeros_like(ds.xVertex)
 
         # finalize and write file
-        self.write_model_dataset(ds, 'init.nc')
+        self.write_initial_state_dataset(ds, 'init.nc')
