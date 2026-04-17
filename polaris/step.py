@@ -4,9 +4,10 @@ import os
 import shutil
 
 from mache import MachineInfo
+from mache.permissions import update_permissions
 
 from polaris.config import PolarisConfigParser
-from polaris.io import download, symlink, update_permissions
+from polaris.io import download, symlink
 from polaris.validate import compare_variables
 
 
@@ -731,7 +732,9 @@ class Step:
             'e3sm_unified', 'group'
         ):
             group = config.get('e3sm_unified', 'group')
-            update_permissions(databases_with_downloads, group)
+            update_permissions(
+                databases_with_downloads, group, group_writable=True
+            )
 
         # inputs are already absolute paths, convert outputs to absolute paths
         self.outputs = [

@@ -6,10 +6,11 @@ import shutil
 import subprocess
 
 from jinja2 import Template
+from mache.permissions import update_permissions
 
 from polaris.build.omega import make_build_script as make_base_build_script
 from polaris.config import PolarisConfigParser
-from polaris.io import download, update_permissions
+from polaris.io import download
 from polaris.job import write_job_script
 
 
@@ -144,7 +145,7 @@ def download_meshes(config):
     if config.has_option('e3sm_unified', 'group'):
         database_path = os.path.join(database_root, database_path)
         group = config.get('e3sm_unified', 'group')
-        update_permissions([database_path], group)
+        update_permissions([database_path], group, group_writable=True)
 
     return download_targets
 
