@@ -6,14 +6,14 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.mpas import cell_mask_to_edge_mask
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.viz import plot_horiz_field
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for creating a mesh and initial condition for baroclinic channel
     tasks
@@ -176,7 +176,7 @@ class Init(Step):
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
 
-        write_netcdf(ds, 'initial_state.nc')
+        self.write_initial_state_dataset(ds, 'initial_state.nc')
 
         cell_mask = ds.maxLevelCell >= 1
         edge_mask = cell_mask_to_edge_mask(ds, cell_mask)
