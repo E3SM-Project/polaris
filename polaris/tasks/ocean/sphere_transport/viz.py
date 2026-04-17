@@ -40,7 +40,7 @@ class Viz(OceanIOStep):
             The init step
 
         forward : polaris.Step
-            The init step
+            The forward step
 
         mesh_name : str
             The name of the mesh
@@ -118,7 +118,7 @@ class Viz(OceanIOStep):
         # Visualization at halfway around the globe (provided run duration is
         # set to the time needed to circumnavigate the globe)
         time = run_duration * s_per_hour
-        if model == 'mpas-o':
+        if model == 'mpas-ocean':
             dt = time_since_start(ds_out.xtime.values)
         else:
             # time is seconds since the start of the simulation in Omega
