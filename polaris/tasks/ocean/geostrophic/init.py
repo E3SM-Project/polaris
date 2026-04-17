@@ -1,16 +1,15 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
 
-from polaris import Step
 from polaris.constants import get_constant
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.tasks.ocean.geostrophic.exact_solution import (
     compute_exact_solution,
 )
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for an initial condition for for the geostrophic test case
     """
@@ -112,7 +111,7 @@ class Init(Step):
         ds['velocityZonal'] = u_cell.broadcast_like(ds.temperature)
         ds['velocityMeridional'] = v_cell.broadcast_like(ds.temperature)
 
-        write_netcdf(ds, 'initial_state.nc')
+        self.write_initial_state_dataset(ds, 'initial_state.nc')
 
 
 def _coriolis(lon, lat, alpha, omega):
