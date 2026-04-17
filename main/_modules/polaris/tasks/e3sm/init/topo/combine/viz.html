@@ -110,14 +110,15 @@
   <h1>Source code for polaris.tasks.e3sm.init.topo.combine.viz</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">Normalize</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.axes_grid1</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_axes_locatable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_global_lat_lon_field</span><span class="p">,</span> <span class="n">setup_colormap</span>
 
 
 <div class="viewcode-block" id="VizCombinedStep">
@@ -177,10 +178,13 @@
             <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">topo_filename</span><span class="p">),</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;cubed_sphere.g&#39;</span><span class="p">,</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">exodus_filename</span><span class="p">),</span>
-        <span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">exodus_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;cubed_sphere.g&#39;</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">exodus_filename</span>
+                <span class="p">),</span>
+            <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="VizCombinedStep.run">
@@ -190,30 +194,66 @@
 <span class="sd">        Run this step</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">colormaps</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;base_elevation&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.deep_r&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;ice_thickness&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.ice_r&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;ice_draft&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.deep_r&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;ice_mask&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.amp_r&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;grounded_mask&#39;</span><span class="p">:</span> <span class="s1">&#39;cmo.amp_r&#39;</span><span class="p">,</span>
+        <span class="n">colormap_sections</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;base_elevation&#39;</span><span class="p">:</span> <span class="s1">&#39;viz_combine_topo_base_elevation&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ice_thickness&#39;</span><span class="p">:</span> <span class="s1">&#39;viz_combine_topo_ice_thickness&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ice_draft&#39;</span><span class="p">:</span> <span class="s1">&#39;viz_combine_topo_ice_draft&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ice_mask&#39;</span><span class="p">:</span> <span class="s1">&#39;viz_combine_topo_ice_mask&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;grounded_mask&#39;</span><span class="p">:</span> <span class="s1">&#39;viz_combine_topo_grounded_mask&#39;</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="n">ds_data</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;topography.nc&#39;</span><span class="p">)</span>
+        <span class="n">target_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;combine_topo&#39;</span><span class="p">,</span> <span class="s1">&#39;target_grid&#39;</span><span class="p">)</span>
 
-        <span class="c1"># Use one field to define the valid mask (they all share indexing)</span>
+        <span class="k">if</span> <span class="n">target_grid</span> <span class="o">==</span> <span class="s1">&#39;cubed_sphere&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_cubed_sphere_fields</span><span class="p">(</span><span class="n">ds_data</span><span class="p">,</span> <span class="n">colormap_sections</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">target_grid</span> <span class="o">==</span> <span class="s1">&#39;lat_lon&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_lat_lon_fields</span><span class="p">(</span><span class="n">ds_data</span><span class="p">,</span> <span class="n">colormap_sections</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected target grid: </span><span class="si">{</span><span class="n">target_grid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_cubed_sphere_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_data</span><span class="p">,</span> <span class="n">colormap_sections</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot fields on the cubed-sphere target grid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ds_data</span><span class="p">[</span><span class="s1">&#39;base_elevation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-
-        <span class="c1"># Build mesh only once</span>
         <span class="n">vertices</span><span class="p">,</span> <span class="n">tris</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_trimesh_geometry</span><span class="p">(</span>
             <span class="s1">&#39;cubed_sphere.g&#39;</span><span class="p">,</span> <span class="n">valid_mask</span>
         <span class="p">)</span>
 
-        <span class="c1"># Plot each field</span>
-        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">colormap</span> <span class="ow">in</span> <span class="n">colormaps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">colormap_sections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Plotting field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">ds_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_field</span><span class="p">(</span><span class="n">vertices</span><span class="p">,</span> <span class="n">tris</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">colormap</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_cubed_sphere_field</span><span class="p">(</span>
+                <span class="n">vertices</span><span class="p">,</span>
+                <span class="n">tris</span><span class="p">,</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="n">field</span><span class="p">,</span>
+                <span class="n">colormap_section</span><span class="o">=</span><span class="n">section</span><span class="p">,</span>
+            <span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_lat_lon_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_data</span><span class="p">,</span> <span class="n">colormap_sections</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot fields on the latitude-longitude target grid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="n">ds_data</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">ds_data</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">colormap_sections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Plotting field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">data_array</span> <span class="o">=</span> <span class="n">ds_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">plot_global_lat_lon_field</span><span class="p">(</span>
+                <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+                <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+                <span class="n">data_array</span><span class="o">=</span><span class="n">data_array</span><span class="p">,</span>
+                <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">colormap_section</span><span class="o">=</span><span class="n">section</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">resolution_name</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">colorbar_label</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+            <span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_load_trimesh_geometry</span><span class="p">(</span><span class="n">exodus_path</span><span class="p">,</span> <span class="n">valid_mask</span><span class="p">):</span>
@@ -246,7 +286,9 @@
 
         <span class="k">return</span> <span class="n">vertices</span><span class="p">,</span> <span class="n">tris</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertices</span><span class="p">,</span> <span class="n">tris</span><span class="p">,</span> <span class="n">field_data</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">cmap</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_cubed_sphere_field</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">vertices</span><span class="p">,</span> <span class="n">tris</span><span class="p">,</span> <span class="n">field_data</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">colormap_section</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Rasterize and save a trisurf-style field image using Datashader.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -278,12 +320,24 @@
         <span class="n">agg</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">trimesh</span><span class="p">(</span>
             <span class="n">simplices</span><span class="o">=</span><span class="n">tris</span><span class="p">,</span> <span class="n">vertices</span><span class="o">=</span><span class="n">vertices</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="n">datashader</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
         <span class="p">)</span>
+        <span class="n">colormap</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">ticks</span> <span class="o">=</span> <span class="n">setup_colormap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">colormap_section</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot_with_colorbar</span><span class="p">(</span>
-            <span class="n">agg</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="n">field_name</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">image_filename</span>
+            <span class="n">agg</span><span class="p">,</span>
+            <span class="n">colormap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span>
+            <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
+            <span class="n">ticks</span><span class="o">=</span><span class="n">ticks</span><span class="p">,</span>
+            <span class="n">field_name</span><span class="o">=</span><span class="n">field_name</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">image_filename</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_plot_with_colorbar</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">agg</span><span class="p">,</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">agg</span><span class="p">,</span>
+        <span class="n">colormap</span><span class="p">,</span>
+        <span class="n">norm</span><span class="p">,</span>
+        <span class="n">ticks</span><span class="p">,</span>
+        <span class="n">field_name</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Render a datashader aggregate with matplotlib colorbar.</span>
@@ -292,21 +346,22 @@
         <span class="c1"># mask background</span>
         <span class="n">img_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">agg</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
 
-        <span class="c1"># Normalize range</span>
-        <span class="n">norm</span> <span class="o">=</span> <span class="n">Normalize</span><span class="p">(</span>
-            <span class="n">vmin</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">img_data</span><span class="p">)</span> <span class="k">if</span> <span class="n">vmin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">vmin</span><span class="p">,</span>
-            <span class="n">vmax</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">img_data</span><span class="p">)</span> <span class="k">if</span> <span class="n">vmax</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">vmax</span><span class="p">,</span>
-        <span class="p">)</span>
-
         <span class="c1"># Plot</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
         <span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
-            <span class="n">img_data</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;equal&#39;</span>
+            <span class="n">img_data</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span>
+            <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
+            <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span>
+            <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">divider</span> <span class="o">=</span> <span class="n">make_axes_locatable</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
         <span class="n">cax</span> <span class="o">=</span> <span class="n">divider</span><span class="o">.</span><span class="n">append_axes</span><span class="p">(</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s1">&#39;2%&#39;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">field_name</span><span class="p">)</span>
+        <span class="n">colorbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">field_name</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ticks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">colorbar</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span>
+            <span class="n">colorbar</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tick</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ticks</span><span class="p">])</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>

@@ -179,7 +179,9 @@
 </li>
         <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.__init__">(polaris.tasks.e3sm.init.topo.combine.CombineStep method)</a>
 </li>
-        <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineTask.html#polaris.tasks.e3sm.init.topo.combine.CombineTask.__init__">(polaris.tasks.e3sm.init.topo.combine.CombineTask method)</a>
+        <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.html#polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.__init__">(polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask method)</a>
+</li>
+        <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask.html#polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask.__init__">(polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask method)</a>
 </li>
         <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.html#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.__init__">(polaris.tasks.e3sm.init.topo.combine.VizCombinedStep method)</a>
 </li>
@@ -550,8 +552,6 @@
       </ul></li>
       <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep">CombineStep (class in polaris.tasks.e3sm.init.topo.combine)</a>
 </li>
-      <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineTask.html#polaris.tasks.e3sm.init.topo.combine.CombineTask">CombineTask (class in polaris.tasks.e3sm.init.topo.combine)</a>
-</li>
       <li><a href="developers_guide/generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables">compare_variables() (in module polaris.validate)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.run.complete_step_run.html#polaris.run.complete_step_run">complete_step_run() (in module polaris.run)</a>
@@ -608,14 +608,14 @@
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.vertical.sigma.compute_sigma_layer_thickness.html#polaris.ocean.vertical.sigma.compute_sigma_layer_thickness">compute_sigma_layer_thickness() (in module polaris.ocean.vertical.sigma)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.eos.compute_specvol.html#polaris.ocean.eos.compute_specvol">compute_specvol() (in module polaris.ocean.eos)</a>
 
       <ul>
         <li><a href="developers_guide/ocean/generated/polaris.ocean.eos.teos10.compute_specvol.html#polaris.ocean.eos.teos10.compute_specvol">(in module polaris.ocean.eos.teos10)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.conservation.compute_total_energy.html#polaris.ocean.conservation.compute_total_energy">compute_total_energy() (in module polaris.ocean.conservation)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.conservation.compute_total_mass.html#polaris.ocean.conservation.compute_total_mass">compute_total_mass() (in module polaris.ocean.conservation)</a>
@@ -673,6 +673,8 @@
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.cosine_bell.init.cosine_bell.html#polaris.tasks.ocean.cosine_bell.init.cosine_bell">cosine_bell() (in module polaris.tasks.ocean.cosine_bell.init)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.cosine_bell.CosineBell.html#polaris.tasks.ocean.cosine_bell.CosineBell">CosineBell (class in polaris.tasks.ocean.cosine_bell)</a>
+</li>
+      <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.html#polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask">CubedSphereCombineTask (class in polaris.tasks.e3sm.init.topo.combine)</a>
 </li>
       <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.cull.CullMaskStep.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep">CullMaskStep (class in polaris.tasks.e3sm.init.topo.cull)</a>
 </li>
@@ -854,16 +856,20 @@
         <li><a href="developers_guide/generated/polaris.constants.pcd.get_constant.html#polaris.constants.pcd.get_constant">(in module polaris.constants.pcd)</a>
 </li>
       </ul></li>
+      <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.get_cubed_sphere_topo_steps.html#polaris.tasks.e3sm.init.topo.combine.get_cubed_sphere_topo_steps">get_cubed_sphere_topo_steps() (in module polaris.tasks.e3sm.init.topo.combine)</a>
+</li>
+      <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.get_lat_lon_topo_steps.html#polaris.tasks.e3sm.init.topo.combine.get_lat_lon_topo_steps">get_lat_lon_topo_steps() (in module polaris.tasks.e3sm.init.topo.combine)</a>
+</li>
       <li><a href="developers_guide/generated/polaris.Component.get_or_create_shared_step.html#polaris.Component.get_or_create_shared_step">get_or_create_shared_step() (polaris.Component method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.get_output_field.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.get_output_field">get_output_field() (polaris.ocean.convergence.analysis.ConvergenceAnalysis method)</a>
 
       <ul>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.geostrophic.analysis.Analysis.get_output_field.html#polaris.tasks.ocean.geostrophic.analysis.Analysis.get_output_field">(polaris.tasks.ocean.geostrophic.analysis.Analysis method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.constants.pcd.get_pcd_version.html#polaris.constants.pcd.get_pcd_version">get_pcd_version() (in module polaris.constants.pcd)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.constants.pcd.get_pcd_version_from_file.html#polaris.constants.pcd.get_pcd_version_from_file">get_pcd_version_from_file() (in module polaris.constants.pcd)</a>
@@ -946,6 +952,8 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask.html#polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask">LatLonCombineTask (class in polaris.tasks.e3sm.init.topo.combine)</a>
+</li>
       <li><a href="developers_guide/generated/polaris.list.list_cases.html#polaris.list.list_cases">list_cases() (in module polaris.list)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.list.list_machines.html#polaris.list.list_machines">list_machines() (in module polaris.list)</a>

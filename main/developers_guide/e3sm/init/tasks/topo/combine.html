@@ -136,29 +136,60 @@ component of the topography framework. It is responsible for combining global
 and Antarctic topography datasets into a single dataset suitable for use in
 E3SM simulations. The step supports blending datasets across specified latitude
 ranges and remapping them to a target grid.</p>
-<p>The <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.CombineTask.html#polaris.tasks.e3sm.init.topo.combine.CombineTask" title="polaris.tasks.e3sm.init.topo.combine.CombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.CombineTask</span></code></a> wraps the
-<code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> into a task that can be used to generate and cache combined
-topography datasets for reuse in other contexts.</p>
+<p>The
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.html#polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask" title="polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask</span></code></a>
+and
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask.html#polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask" title="polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask</span></code></a>
+wrap the <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> into tasks that can be used to generate and cache
+combined topography datasets for reuse in other contexts.</p>
 <p>The <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.html#polaris.tasks.e3sm.init.topo.combine.VizCombinedStep" title="polaris.tasks.e3sm.init.topo.combine.VizCombinedStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.VizCombinedStep</span></code></a> step is
 an optional visualization step that can be added to the workflow to create
 plots of the combined topography dataset. This step is particularly useful for
 debugging or analyzing the combined dataset.</p>
-<section id="high-resolution-and-low-resolution-versions">
-<h2>High-Resolution and Low-Resolution Versions<a class="headerlink" href="#high-resolution-and-low-resolution-versions" title="Link to this heading"></a></h2>
-<p>There are two versions of the combine steps and task:</p>
+<section id="target-grids-and-resolutions">
+<h2>Target Grids and Resolutions<a class="headerlink" href="#target-grids-and-resolutions" title="Link to this heading"></a></h2>
+<p>The combine framework is now organized explicitly around the target grid and
+resolution rather than around a special “low-resolution” mode. Current tasks
+include:</p>
 <ol class="arabic simple">
-<li><p><strong>Standard (High-Resolution) Version</strong>: This version maps to a
-high-resolution (ne3000, ~1 km) cubed-sphere grid by default, producing
-topogrpahy that is suitable for remapping to standard and high-resolution
-MPAS meshes (~60 km and finer).</p></li>
-<li><p><strong>Low-Resolution Version</strong>: This version uses a coarser ne120 (~25 km) grid
-for faster remapping to coarse-resolution MPAS meshes (e.g., Icos240). It is
-designed to reduce computational cost while still providing adequate accuracy
-for low-resolution simulations used for regression testing rather than
-science.</p></li>
+<li><p>Cubed-sphere topography on <code class="docutils literal notranslate"><span class="pre">ne3000</span></code></p></li>
+<li><p>Cubed-sphere topography on <code class="docutils literal notranslate"><span class="pre">ne120</span></code></p></li>
+<li><p>Latitude-longitude topography on <code class="docutils literal notranslate"><span class="pre">1.0000_degree</span></code></p></li>
+<li><p>Latitude-longitude topography on <code class="docutils literal notranslate"><span class="pre">0.2500_degree</span></code></p></li>
+<li><p>Latitude-longitude topography on <code class="docutils literal notranslate"><span class="pre">0.0625_degree</span></code></p></li>
 </ol>
-<p>The low-resolution version can be selected by setting the <code class="docutils literal notranslate"><span class="pre">low_res</span></code> parameter
-to <code class="docutils literal notranslate"><span class="pre">True</span></code> when creating the <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> or <code class="docutils literal notranslate"><span class="pre">CombineTask</span></code>.</p>
+<p>These resolutions are intended for different downstream uses:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ne3000</span></code> is the standard high-resolution cubed-sphere product. At roughly
+1 km resolution, it is suitable for remapping topography to standard and
+high-resolution MPAS meshes, approximately 60 km and finer, for scientific
+applications.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ne120</span></code> is a lower-cost cubed-sphere product at roughly 25 km resolution.
+It is useful for remapping to coarse meshes such as Icos240 and for
+regression testing or other non-scientific workflows where the full
+high-resolution product is not needed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1.0000_degree</span></code> is intended for quick, non-scientific testing when a very
+coarse latitude-longitude product is sufficient.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0.2500_degree</span></code> aligns with the WOA23 (World Ocean Atlas 2023) dataset and
+can also be used when defining mesh resolution at moderate scales, roughly
+down to 30 km.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0.0625_degree</span></code> is intended for defining mesh resolution for most
+scientific runs and will be used by the E3SM v4 unified MPAS mesh across
+land, river, ocean, and sea-ice.</p></li>
+</ul>
+<p>A series of standalone tasks are available to create each topography dataset
+on its own:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne3000/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne120/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/1.0000_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.2500_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.0625_degree/task</span></code></p></li>
+</ul>
+<p>Downstream workflows such as topography remapping to the MPAS mesh,
+extrapolation of the WOA23 dataset and defining mesh resolution for unified
+E3SM v4 meshes will use shared <code class="docutils literal notranslate"><span class="pre">topo/combine</span></code> steps referenced by their
+grid and resolution.</p>
 </section>
 <section id="key-features">
 <h2>Key Features<a class="headerlink" href="#key-features" title="Link to this heading"></a></h2>
@@ -190,8 +221,6 @@ the configuration file. Key options include:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">lat_tiles</span></code> and <code class="docutils literal notranslate"><span class="pre">lon_tiles</span></code>: Number of tiles to split the global dataset for parallel remapping.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">renorm_thresh</span></code>: Threshold for renormalizing Antarctic variables during blending.</p></li>
 </ul>
-<p>For the low-resolution version, additional configuration options are provided
-in the <code class="docutils literal notranslate"><span class="pre">combine_low_res.cfg</span></code> file.</p>
 </section>
 <section id="workflow">
 <h2>Workflow<a class="headerlink" href="#workflow" title="Link to this heading"></a></h2>
@@ -215,19 +244,26 @@ task:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine</span><span class="w"> </span><span class="kn">import</span> <span class="n">CombineStep</span>
 
 <span class="n">component</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span>
-<span class="n">subdir</span> <span class="o">=</span> <span class="n">CombineStep</span><span class="o">.</span><span class="n">get_subdir</span><span class="p">(</span><span class="n">low_res</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">subdir</span> <span class="o">=</span> <span class="n">CombineStep</span><span class="o">.</span><span class="n">get_subdir</span><span class="p">()</span>
 <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
     <span class="n">step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="n">step</span> <span class="o">=</span> <span class="n">CombineStep</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">low_res</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">CombineStep</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
     <span class="n">component</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 <span class="n">task</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>To create a <code class="docutils literal notranslate"><span class="pre">CombineTask</span></code> for caching combined datasets:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine</span><span class="w"> </span><span class="kn">import</span> <span class="n">CombineTask</span>
+<p>To create a cubed-sphere combine task for caching combined datasets:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine</span><span class="w"> </span><span class="kn">import</span> <span class="n">CubedSphereCombineTask</span>
 
-<span class="n">combine_task</span> <span class="o">=</span> <span class="n">CombineTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">my_component</span><span class="p">,</span> <span class="n">low_res</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">combine_task</span> <span class="o">=</span> <span class="n">CubedSphereCombineTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">my_component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">3000</span><span class="p">)</span>
+<span class="n">my_component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">combine_task</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To create a latitude-longitude combine task:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine</span><span class="w"> </span><span class="kn">import</span> <span class="n">LatLonCombineTask</span>
+
+<span class="n">combine_task</span> <span class="o">=</span> <span class="n">LatLonCombineTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">my_component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
 <span class="n">my_component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">combine_task</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -244,7 +280,8 @@ step (identifiable via its <code class="docutils literal notranslate"><span clas
 <p>The <code class="docutils literal notranslate"><span class="pre">VizCombinedStep</span></code> is typically added only when visualization is explicitly required, as it is not part of the default workflow.</p>
 <p>For more details, refer to the source code of the
 <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="polaris.tasks.e3sm.init.topo.combine.CombineStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.CombineStep</span></code></a> and
-<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.CombineTask.html#polaris.tasks.e3sm.init.topo.combine.CombineTask" title="polaris.tasks.e3sm.init.topo.combine.CombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.CombineTask</span></code></a> classes.</p>
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.html#polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask" title="polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask</span></code></a> and
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask.html#polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask" title="polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask</span></code></a> classes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Since this step is expensive and time-consuming to run, most tasks will

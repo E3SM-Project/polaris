@@ -170,24 +170,17 @@
 <div class="viewcode-block" id="CombineStep.get_subdir">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_subdir</span><span class="p">(</span><span class="n">low_res</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_subdir</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the subdirectory for the step based on the datasets</span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        low_res : bool, optional</span>
-<span class="sd">            Whether to use the low resolution configuration options</span>
+<span class="sd">        Get the base subdirectory for the step based on the datasets.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;_low_res&#39;</span> <span class="k">if</span> <span class="n">low_res</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;combine_</span><span class="si">{</span><span class="n">CombineStep</span><span class="o">.</span><span class="n">ANTARCTIC</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">CombineStep</span><span class="o">.</span><span class="n">GLOBAL</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="p">)</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;combine_</span><span class="si">{</span><span class="n">CombineStep</span><span class="o">.</span><span class="n">ANTARCTIC</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">CombineStep</span><span class="o">.</span><span class="n">GLOBAL</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;topo&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CombineStep.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">low_res</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new step</span>
 
@@ -199,13 +192,10 @@
 <span class="sd">        subdir : str</span>
 <span class="sd">            The subdirectory within the component&#39;s work directory</span>
 
-<span class="sd">        low_res : bool, optional</span>
-<span class="sd">            Whether to use the low resolution configuration options</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">antarctic_dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ANTARCTIC</span>
         <span class="n">global_dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GLOBAL</span>
-        <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;_low_res&#39;</span> <span class="k">if</span> <span class="n">low_res</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;combine_topo_</span><span class="si">{</span><span class="n">antarctic_dataset</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">global_dataset</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;combine_topo_</span><span class="si">{</span><span class="n">antarctic_dataset</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">global_dataset</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
@@ -393,11 +383,15 @@
                 <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">res_name</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exodus_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">resolution_name</span><span class="si">}</span><span class="s1">.g&#39;</span>
+        <span class="k">if</span> <span class="n">target_grid</span> <span class="o">==</span> <span class="s1">&#39;cubed_sphere&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exodus_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">resolution_name</span><span class="si">}</span><span class="s1">.g&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exodus_filename</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dst_scrip_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">combined_filename</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exodus_filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exodus_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exodus_filename</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">update</span><span class="p">:</span>
             <span class="c1"># We need to set absolute paths</span>
@@ -409,10 +403,10 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_modify_gebco</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_filename</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Modify GEBCO to include lon/lat bounds located at grid edges</span>
+<span class="sd">        Modify GEBCO to include lon/lat bounds and an ocean mask</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Adding bounds to GEBCO lat/lon&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Adding bounds and an ocean mask to GEBCO&#39;</span><span class="p">)</span>
 
         <span class="c1"># Modify GEBCO</span>
         <span class="n">gebco</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">in_filename</span><span class="p">)</span>
@@ -426,6 +420,7 @@
         <span class="n">gebco</span><span class="p">[</span><span class="s1">&#39;lon_bnds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon_bnds</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="s1">&#39;bnds&#39;</span><span class="p">)</span>
         <span class="n">gebco</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;bounds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;lat_bnds&#39;</span>
         <span class="n">gebco</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;bounds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;lon_bnds&#39;</span>
+        <span class="n">gebco</span><span class="p">[</span><span class="s1">&#39;ocean_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">gebco</span><span class="o">.</span><span class="n">elevation</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
 
         <span class="c1"># Write modified GEBCO to netCDF</span>
         <span class="n">_write_netcdf_with_fill_values</span><span class="p">(</span><span class="n">gebco</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">)</span>
@@ -578,10 +573,18 @@
 
         <span class="c1"># Select tile from dataset</span>
         <span class="n">tile</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">lat</span><span class="o">=</span><span class="n">lat_indices</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">lon_indices</span><span class="p">)</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">tile</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">lat_attrs</span> <span class="o">=</span> <span class="n">tile</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># xarray may expose coordinate views from ``isel()`` as read-only.</span>
+        <span class="c1"># Reassign corrected pole coordinates instead of mutating in place,</span>
+        <span class="c1"># while preserving CF metadata that ESMF uses to detect CFGRID files.</span>
         <span class="k">if</span> <span class="n">lat_tile</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">tile</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">90.0</span>  <span class="c1"># Correct south pole</span>
+            <span class="n">lat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">90.0</span>  <span class="c1"># Correct south pole</span>
         <span class="k">if</span> <span class="n">lat_tile</span> <span class="o">==</span> <span class="n">lat_tiles</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">tile</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">90.0</span>  <span class="c1"># Correct north pole</span>
+            <span class="n">lat</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">90.0</span>  <span class="c1"># Correct north pole</span>
+        <span class="n">tile</span> <span class="o">=</span> <span class="n">tile</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">tile</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">lat_attrs</span><span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="c1"># Write tile to netCDF</span>
         <span class="n">_write_netcdf_with_fill_values</span><span class="p">(</span><span class="n">tile</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">)</span>
@@ -829,14 +832,14 @@
 
                 <span class="c1"># Add tile to remapped global topography</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    adding </span><span class="si">{</span><span class="n">remapped_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="n">elevation</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">remapped_filename</span><span class="p">)</span><span class="o">.</span><span class="n">elevation</span>
-                <span class="n">elevation</span> <span class="o">=</span> <span class="n">elevation</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">elevation</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="mf">0.0</span><span class="p">)</span>
-                <span class="k">if</span> <span class="s1">&#39;elevation&#39;</span> <span class="ow">in</span> <span class="n">global_remapped</span><span class="p">:</span>
-                    <span class="n">global_remapped</span><span class="p">[</span><span class="s1">&#39;elevation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">global_remapped</span><span class="o">.</span><span class="n">elevation</span> <span class="o">+</span> <span class="n">elevation</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">global_remapped</span><span class="p">[</span><span class="s1">&#39;elevation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elevation</span>
+                <span class="n">ds_tile</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">remapped_filename</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;elevation&#39;</span><span class="p">,</span> <span class="s1">&#39;ocean_mask&#39;</span><span class="p">]:</span>
+                    <span class="n">da</span> <span class="o">=</span> <span class="n">ds_tile</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+                    <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="mf">0.0</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">global_remapped</span><span class="p">:</span>
+                        <span class="n">global_remapped</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">global_remapped</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">+</span> <span class="n">da</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">global_remapped</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">da</span>
 
         <span class="c1"># Write tile to netCDF</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    writing </span><span class="si">{</span><span class="n">out_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -908,6 +911,10 @@
         <span class="n">global_elevation</span> <span class="o">=</span> <span class="n">global_elevation</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
             <span class="n">global_elevation</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="mf">0.0</span>
         <span class="p">)</span>
+        <span class="n">global_ocean_mask</span> <span class="o">=</span> <span class="n">ds_global</span><span class="o">.</span><span class="n">ocean_mask</span>
+        <span class="n">global_ocean_mask</span> <span class="o">=</span> <span class="n">global_ocean_mask</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">global_ocean_mask</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="mf">0.0</span>
+        <span class="p">)</span>
 
         <span class="c1"># Load and mask Antarctic dataset</span>
         <span class="n">ds_antarctic</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">antarctic_filename</span><span class="p">)</span>
@@ -922,6 +929,7 @@
             <span class="s1">&#39;ice_draft&#39;</span><span class="p">,</span>
             <span class="s1">&#39;ice_mask&#39;</span><span class="p">,</span>
             <span class="s1">&#39;grounded_mask&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ocean_mask&#39;</span><span class="p">,</span>
         <span class="p">]</span>
 
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">:</span>
@@ -949,6 +957,12 @@
         <span class="c1"># Add masks</span>
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ice_mask&#39;</span><span class="p">,</span> <span class="s1">&#39;grounded_mask&#39;</span><span class="p">]:</span>
             <span class="n">combined</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_antarctic</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+        <span class="n">antarctic_ocean_mask</span> <span class="o">=</span> <span class="n">ds_antarctic</span><span class="o">.</span><span class="n">ocean_mask</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">ds_antarctic</span><span class="o">.</span><span class="n">ocean_mask</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="n">global_ocean_mask</span>
+        <span class="p">)</span>
+        <span class="n">combined</span><span class="p">[</span><span class="s1">&#39;ocean_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">alpha</span> <span class="o">*</span> <span class="n">global_ocean_mask</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">antarctic_ocean_mask</span>
+        <span class="p">)</span>
 
         <span class="c1"># Add fill values</span>
         <span class="n">fill_vals</span> <span class="o">=</span> <span class="p">{</span>
@@ -956,6 +970,7 @@
             <span class="s1">&#39;ice_thickness&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
             <span class="s1">&#39;ice_mask&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
             <span class="s1">&#39;grounded_mask&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s1">&#39;ocean_mask&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fill_val</span> <span class="ow">in</span> <span class="n">fill_vals</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">valid</span> <span class="o">=</span> <span class="n">combined</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
