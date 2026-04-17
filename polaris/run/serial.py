@@ -11,6 +11,7 @@ import mpas_tools.io
 from mpas_tools.logging import LoggingContext, check_call
 
 from polaris import Task
+from polaris.build.omega import detect_omega_build_type
 from polaris.logging import log_function_call, log_method_call
 from polaris.run import (
     complete_step_run,
@@ -754,6 +755,7 @@ def _write_output_for_pull_request(
     labels = {
         'baseline work directory': 'baseline',
         'build directory': 'build',
+        'build type': 'build_type',
         'work directory': 'work',
         'machine': 'machine',
         'partition': 'partition',
@@ -785,8 +787,14 @@ def _write_output_for_pull_request(
     if values['compiler']:
         lines.append(f'- Compiler: `{values["compiler"]}`')
 
-    # Placeholder for developer to fill in
-    lines.append('- Build type: <Debug|Release>')
+    build_type = values['build_type']
+    if build_type is None:
+        build_type = detect_omega_build_type(values['build'])
+
+    if build_type:
+        lines.append(f'- Build type: `{build_type}`')
+    else:
+        lines.append('- Build type: unknown')
 
     # Try to include job scheduler log path for Slurm
     job_log = _derive_job_log_path(suite_name, suite)
@@ -808,7 +816,7 @@ def _write_output_for_pull_request(
             if failures:
                 lines.append(f'  - Failures ({len(failures)} of {total}):')
                 for name in failures:
-                    lines.append(f'    - {name}')
+                    lines.append(f'    - `{name}`')
             if diffs:
                 lines.append(f'  - Diffs ({len(diffs)} of {total}):')
                 for name in diffs:
