@@ -1,6 +1,7 @@
 import numpy as np
 import xarray as xr
 
+from polaris.ocean.coriolis import add_zero_coriolis
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.tasks.ocean.sphere_transport.resources.flow_types import (
@@ -56,6 +57,7 @@ class Init(OceanIOStep):
             work_dir_target=f'{base_mesh.path}/graph.info',
         )
 
+        self.add_output_file(filename='base_mesh.nc')
         self.add_output_file(filename='initial_state.nc')
 
     def run(self):
@@ -81,6 +83,9 @@ class Init(OceanIOStep):
         lonCell = ds_mesh.lonCell
         lonEdge = ds_mesh.lonEdge
         sphere_radius = ds_mesh.sphere_radius
+
+        add_zero_coriolis(ds_mesh)
+        self.write_model_dataset(ds_mesh, 'base_mesh.nc')
 
         ds = ds_mesh.copy()
 
@@ -194,9 +199,5 @@ class Init(OceanIOStep):
         ds['normalVelocity'] = normalVelocity.expand_dims(dim='Time', axis=0)
         ds['velocityZonal'] = np.nan * xr.zeros_like(ds.temperature)
         ds['velocityMeridional'] = np.nan * xr.zeros_like(ds.temperature)
-
-        ds['fCell'] = xr.zeros_like(ds_mesh.xCell)
-        ds['fEdge'] = xr.zeros_like(ds_mesh.xEdge)
-        ds['fVertex'] = xr.zeros_like(ds_mesh.xVertex)
 
         self.write_initial_state_dataset(ds, 'initial_state.nc')
