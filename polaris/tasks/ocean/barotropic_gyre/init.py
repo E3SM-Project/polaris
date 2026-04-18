@@ -4,6 +4,7 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.coriolis import add_beta_plane_coriolis
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.viz import plot_horiz_field
@@ -87,8 +88,6 @@ class Init(OceanIOStep):
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        self.write_model_dataset(ds_mesh, 'culled_mesh.nc')
-
         # vertical coordinate parameters
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
         # coriolis parameters
@@ -97,6 +96,10 @@ class Init(OceanIOStep):
             'f_0',
         )
         beta = config.getfloat('barotropic_gyre', 'beta')
+
+        add_beta_plane_coriolis(ds_mesh, f0=f0, beta=beta)
+        self.write_model_dataset(ds_mesh, 'culled_mesh.nc')
+
         # surface (wind) forcing parameters
         tau_0 = config.getfloat('barotropic_gyre', 'tau_0')
 
@@ -109,10 +112,6 @@ class Init(OceanIOStep):
 
         # use polaris framework functions to initialize the vertical coordinate
         init_vertical_coord(config, ds)
-
-        # set the coriolis values
-        for loc in ['Cell', 'Edge', 'Vertex']:
-            ds[f'f{loc}'] = f0 + beta * ds[f'y{loc}']
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
