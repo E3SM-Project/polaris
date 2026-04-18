@@ -1,8 +1,8 @@
-from polaris.mesh.base import get_base_mesh_steps
-from polaris.tasks.e3sm.init.topo import (
+from polaris.e3sm.init.topo import (
     get_cubed_sphere_resolution,
     uses_low_res_cubed_sphere,
 )
+from polaris.mesh.base import get_base_mesh_steps
 from polaris.tasks.e3sm.init.topo.combine import (
     get_cubed_sphere_topo_steps,
 )

@@ -1,7 +1,7 @@
 import os
 
+from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.task import Task
-from polaris.tasks.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
 from polaris.tasks.e3sm.init.topo.combine.steps import (
     get_cubed_sphere_topo_steps,

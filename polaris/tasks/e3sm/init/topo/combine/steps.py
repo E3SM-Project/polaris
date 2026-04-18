@@ -1,7 +1,7 @@
 import os
 
 from polaris.config import PolarisConfigParser
-from polaris.tasks.e3sm.init.topo import format_lat_lon_resolution_name
+from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
 from polaris.tasks.e3sm.init.topo.combine.viz import VizCombinedStep
 

@@ -1,4 +1,4 @@
-from polaris.tasks.e3sm.init.topo import (
+from polaris.e3sm.init.topo import (
     CUBED_SPHERE_RESOLUTIONS,
     LAT_LON_RESOLUTIONS,
 )
