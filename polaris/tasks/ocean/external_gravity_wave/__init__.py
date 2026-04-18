@@ -205,6 +205,8 @@ class ExternalGravityWave(Task):
             )
             init_step.set_shared_config(config, link=config_filename)
 
+        mesh_step = init_step
+
         if dt_type == 'local':
             name = f'{prefix}_init_lts_{mesh_name}'
             subdir = f'{case_dir}/init_lts/{mesh_name}'
@@ -213,7 +215,7 @@ class ExternalGravityWave(Task):
             else:
                 lts_step = LTSRegions(
                     component,
-                    base_mesh_step,
+                    init_step,
                     init_step,
                     name=name,
                     subdir=subdir,
@@ -226,6 +228,7 @@ class ExternalGravityWave(Task):
             if dt_type == 'local':
                 self.add_step(lts_step, symlink=f'init_lts/{mesh_name}')
                 init_step = lts_step
+                mesh_step = lts_step
             resolutions.append(resolution)
 
         section = config['convergence_forward']
@@ -253,7 +256,7 @@ class ExternalGravityWave(Task):
                 resolution=resolution,
                 name=name,
                 subdir=subdir,
-                mesh=base_mesh_step,
+                mesh=mesh_step,
                 init=init_step,
                 dt_type=dt_type,
                 dt=dt,
@@ -287,7 +290,7 @@ class ExternalGravityWave(Task):
                     name=name,
                     subdir=subdir,
                     refinement_factor=refinement_factor,
-                    mesh=base_mesh_step,
+                    mesh=mesh_step,
                     init=init_step,
                     refinement=refinement,
                     dt_type=dt_type,

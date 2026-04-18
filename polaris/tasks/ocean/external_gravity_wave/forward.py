@@ -56,8 +56,10 @@ class Forward(SphericalConvergenceForward):
 
         if dt_type == 'local':
             graph_target = f'{init.path}/graph.info'
+            mesh_input_filename = 'lts_mesh.nc'
         else:
             graph_target = f'{mesh.path}/graph.info'
+            mesh_input_filename = 'base_mesh.nc'
 
         super().__init__(
             component=component,
@@ -67,7 +69,7 @@ class Forward(SphericalConvergenceForward):
             init=init,
             package=package,
             yaml_filename='forward.yaml',
-            mesh_input_filename='base_mesh.nc',
+            mesh_input_filename=mesh_input_filename,
             output_filename='output.nc',
             validate_vars=validate_vars,
             graph_target=graph_target,
@@ -155,6 +157,8 @@ class ReferenceForward(OceanModelStep):
         package = 'polaris.tasks.ocean.external_gravity_wave'
         yaml_filename = 'forward.yaml'
         validate_vars = ['normalVelocity', 'layerThickness']
+        assert mesh is not None
+        assert init is not None
 
         if dt_type == 'local':
             graph_target = f'{init.path}/graph.info'
@@ -176,8 +180,13 @@ class ReferenceForward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
+        if dt_type == 'local':
+            mesh_input_filename = 'lts_mesh.nc'
+        else:
+            mesh_input_filename = 'base_mesh.nc'
+
         self.add_horiz_mesh_input_file(
-            work_dir_target=f'{mesh.path}/base_mesh.nc'
+            work_dir_target=f'{mesh.path}/{mesh_input_filename}'
         )
         self.add_init_input_file(
             work_dir_target=f'{init.path}/initial_state.nc'

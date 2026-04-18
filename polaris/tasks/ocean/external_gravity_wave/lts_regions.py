@@ -45,7 +45,7 @@ class LTSRegions(Step):
         """
         super().__init__(component, name=name, subdir=subdir)
 
-        for file in ['graph.info', 'initial_state.nc']:
+        for file in ['graph.info', 'initial_state.nc', 'lts_mesh.nc']:
             self.add_output_file(filename=file)
 
         self.mesh_step = mesh_step
