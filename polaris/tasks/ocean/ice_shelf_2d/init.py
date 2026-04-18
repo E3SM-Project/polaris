@@ -6,6 +6,7 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.constants import get_constant
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.coriolis import add_constant_coriolis
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
@@ -74,8 +75,6 @@ class Init(OceanIOStep):
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        write_netcdf(ds_mesh, 'culled_mesh.nc')
-
         ds = ds_mesh.copy()
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
@@ -84,6 +83,9 @@ class Init(OceanIOStep):
         surface_salinity = section.getfloat('surface_salinity')
         bottom_salinity = section.getfloat('bottom_salinity')
         coriolis_parameter = section.getfloat('coriolis_parameter')
+
+        add_constant_coriolis(ds_mesh, coriolis_parameter)
+        self.write_model_dataset(ds_mesh, 'culled_mesh.nc')
 
         # points 1 and 2 are where angles on ice shelf are located.
         # point 3 is at the surface.
@@ -95,7 +97,6 @@ class Init(OceanIOStep):
         d2 = section.getfloat('y2_water_column_thickness')
         d3 = bottom_depth
 
-        x_cell = ds.xCell
         y_cell = ds.yCell
         ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell)
 
@@ -151,9 +152,6 @@ class Init(OceanIOStep):
         ds[mask_variable] = mask
 
         ds['normalVelocity'] = normal_velocity
-        ds['fCell'] = coriolis_parameter * xr.ones_like(x_cell)
-        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
-        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
         ds['modifyLandIcePressureMask'] = modify_mask
         ds['landIceFraction'] = landIceFraction
         ds['landIceFloatingFraction'] = landIceFloatingFraction
