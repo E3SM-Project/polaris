@@ -266,7 +266,7 @@ class Woa23VizStep(Step):
         valid_column = np.logical_and(ocean_mask, bottom_depth > top_depth)
 
         depth = ds_woa.depth.values
-        depth_bounds = self._depth_bounds(ds_woa.depth_bnds.values)
+        depth_bounds = self._depth_bounds(ds_woa.depth_bnds)
         distance_bounds = self._distance_bounds(distance)
         water_mask = (
             (depth[:, np.newaxis] >= top_depth[np.newaxis, :])
@@ -431,21 +431,39 @@ class Woa23VizStep(Step):
 
     @staticmethod
     def _add_periodic_lon(ds):
-        lon = ds.lon
-        lon_sections = [lon - 360.0, lon, lon + 360.0]
-        lon_periodic = xr.concat(lon_sections, dim='lon')
-
         periodic = []
         for offset in [-360.0, 0.0, 360.0]:
             shifted = ds.assign_coords(lon=ds.lon + offset)
             periodic.append(shifted)
 
-        ds_periodic = xr.concat(periodic, dim='lon', data_vars='all')
-        ds_periodic = ds_periodic.assign_coords(lon=lon_periodic)
+        ds_periodic = xr.concat(
+            periodic,
+            dim='lon',
+            data_vars='minimal',
+            coords='minimal',
+            compat='override',
+        )
         return ds_periodic.sortby('lon')
 
     @staticmethod
     def _depth_bounds(depth_bounds):
+        if isinstance(depth_bounds, xr.DataArray):
+            if {'depth', 'nbounds'}.issubset(depth_bounds.dims):
+                depth_bounds = depth_bounds.transpose('depth', 'nbounds')
+            depth_bounds = depth_bounds.values
+
+        depth_bounds = np.asarray(depth_bounds)
+        if depth_bounds.ndim != 2:
+            raise ValueError('Expected 2D depth bounds array.')
+        if depth_bounds.shape[1] != 2:
+            if depth_bounds.shape[0] == 2:
+                depth_bounds = depth_bounds.T
+            else:
+                raise ValueError(
+                    'Expected depth bounds with shape (depth, 2) or (2, '
+                    'depth).'
+                )
+
         lower = depth_bounds[:, 0]
         upper = depth_bounds[:, 1]
         return np.concatenate(([lower[0]], upper))
