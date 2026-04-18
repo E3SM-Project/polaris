@@ -4,6 +4,7 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
+from polaris.ocean.coriolis import add_constant_coriolis
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
@@ -61,8 +62,6 @@ class Init(OceanIOStep):
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        write_netcdf(ds_mesh, 'culled_mesh.nc')
-
         ds = ds_mesh.copy()
         x_cell = ds_mesh.xCell
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
@@ -100,6 +99,9 @@ class Init(OceanIOStep):
         coriolis_parameter = section.getfloat('coriolis_parameter')
         u = section.getfloat('zonal_velocity')
         v = section.getfloat('meridional_velocity')
+
+        add_constant_coriolis(ds_mesh, coriolis_parameter)
+        self.write_model_dataset(ds_mesh, 'culled_mesh.nc')
 
         z_mid = ds.refZMid
 
@@ -146,9 +148,6 @@ class Init(OceanIOStep):
         ds['temperature'] = temperature
         ds['salinity'] = salinity
         ds['normalVelocity'] = normal_velocity
-        ds['fCell'] = coriolis_parameter * xr.ones_like(x_cell)
-        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
-        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
 
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
