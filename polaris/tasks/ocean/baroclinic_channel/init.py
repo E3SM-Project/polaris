@@ -8,6 +8,7 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.mpas import cell_mask_to_edge_mask
+from polaris.ocean.coriolis import add_constant_coriolis
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.viz import plot_horiz_field
@@ -77,8 +78,6 @@ class Init(OceanIOStep):
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        write_netcdf(ds_mesh, 'culled_mesh.nc')
-
         section = config['baroclinic_channel']
         use_distances = section.getboolean('use_distances')
         gradient_width_dist = section.getfloat('gradient_width_dist')
@@ -88,6 +87,9 @@ class Init(OceanIOStep):
         temperature_difference = section.getfloat('temperature_difference')
         salinity = section.getfloat('salinity')
         coriolis_parameter = section.getfloat('coriolis_parameter')
+
+        add_constant_coriolis(ds_mesh, coriolis_parameter)
+        self.write_model_dataset(ds_mesh, 'culled_mesh.nc')
 
         ds = ds_mesh.copy()
         x_cell = ds.xCell
@@ -168,9 +170,6 @@ class Init(OceanIOStep):
         ds['temperature'] = temperature
         ds['salinity'] = salinity * xr.ones_like(temperature)
         ds['normalVelocity'] = normal_velocity
-        ds['fCell'] = coriolis_parameter * xr.ones_like(x_cell)
-        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
-        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
 
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
