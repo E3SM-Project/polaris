@@ -1,5 +1,12 @@
+from typing import TYPE_CHECKING
+
 from polaris import Step
-from polaris.tasks.ocean import Ocean
+
+if TYPE_CHECKING:
+    # Keep Ocean as a type-only import. Importing it at runtime pulls
+    # polaris.tasks.ocean back into polaris.ocean.model while that package is
+    # still importing these step classes, creating a circular import.
+    from polaris.tasks.ocean import Ocean
 
 
 class OceanIOStep(Step):
@@ -7,10 +14,11 @@ class OceanIOStep(Step):
     A step that writes input and/or output files for Omega or MPAS-Ocean
     """
 
-    # make sure component is of type Ocean
-    component: Ocean
+    # make sure component is of type Ocean, using a string to avoid circular
+    # imports
+    component: 'Ocean'
 
-    def __init__(self, component: Ocean, **kwargs):
+    def __init__(self, component: 'Ocean', **kwargs):
         super().__init__(component=component, **kwargs)
 
     def map_to_native_model_vars(self, ds):

@@ -1,7 +1,7 @@
 import importlib.resources as imp_res
 import os
 from types import ModuleType
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from ruamel.yaml import YAML
 
@@ -13,7 +13,12 @@ from polaris.ocean.conservation import (
     compute_total_salt,
     compute_total_tracer,
 )
-from polaris.tasks.ocean import Ocean
+
+if TYPE_CHECKING:
+    # Keep Ocean as a type-only import. Importing it at runtime pulls
+    # polaris.tasks.ocean back into polaris.ocean.model while that package is
+    # still importing these step classes, creating a circular import.
+    from polaris.tasks.ocean import Ocean
 
 OptionValue = Union[str, int, float, bool]
 MapSectionKey = Union[str, List[str]]
@@ -57,12 +62,13 @@ class OceanModelStep(ModelStep):
         '<<<init>>>': 'init_filename',
     }
 
-    # make sure component is of type Ocean
-    component: Ocean
+    # make sure component is of type Ocean, using a string to avoid circular
+    # imports
+    component: 'Ocean'
 
     def __init__(
         self,
-        component: Ocean,
+        component: 'Ocean',
         name: str,
         subdir: Optional[str] = None,
         indir: Optional[str] = None,
