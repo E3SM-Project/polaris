@@ -397,7 +397,7 @@ existing downstream tasks.
 
 ### Implementation: Feature-Aware Resolution Control
 
-Date last modified: 2026/04/13
+Date last modified: 2026/04/18
 
 Contributors:
 
@@ -424,6 +424,19 @@ Related enabling work is already in place on the sibling
 workflow itself, but it reduces risk for the shared target-grid preprocessing
 described here. See Polaris pull request
 <https://github.com/E3SM-Project/polaris/pull/526>.
+
+Additional enabling work is now in place on the `add-prepare-coastline`
+branch, which adds shared `mesh/spherical/unified/coastline` tasks and steps
+on those same three lat-lon target-grid tiers while still reusing the shared
+`e3sm/init/topo/combine` products. This branch introduces a shared
+`prepare_coastline` step, a standalone coastline task with a `viz` step, and
+raster coastline products for the `calving_front`, `grounding_line`, and
+`bedrock_zero` Antarctic conventions based on the shared combined topography
+product. This branch still does not implement the full unified-mesh workflow,
+but it further reduces risk for the feature-aware preprocessing described
+here by establishing the first shared coastline products on the supported
+target-grid tiers. See Polaris pull request
+<https://github.com/E3SM-Project/polaris/pull/545>.
 
 These names are intentionally provisional. They are useful labels for the
 current design discussion but should not yet be interpreted as final public
@@ -629,27 +642,26 @@ first-choice path is selected.
 
 ### Testing and Validation: Feature-Aware Resolution Control
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/18
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-Tests should verify that the sizing-field builder responds to coastline and
-river inputs as configured and that it behaves sensibly across the
-antimeridian.
+Current automated coverage for feature-aware preprocessing is limited to the
+coastline stage. Unit tests in `tests/mesh/spherical/unified/test_coastline.py`
+verify the
+coastline dataset contract, convention-specific Antarctic behavior, exclusion
+of disconnected inland water, and the use of the northernmost latitude row for
+flood-fill seeding.
 
-Where practical, unit or small-integration tests should be added for any new
-geometry or raster helper functions that are extracted from the standalone
-workflow, especially for antimeridian handling and feature buffering.
+There are not yet automated tests for river preprocessing, sizing-field
+construction, coastline-source fallback behavior, or feature-aware mesh
+generation, because those parts of the workflow have not been implemented yet.
 
-Tests should also cover coastline-source selection, including the preferred
-topography-derived coastline path and the Natural Earth fallback path.
-
-If a signed-distance coastline path is adopted, tests should verify that the
-distance field and resulting coastal buffers behave as expected on both sides
-of the coastline and across the antimeridian.
+The current coastline tests do not yet include a dedicated antimeridian case
+or a task-level smoke test of the full standalone coastline workflow.
 
 ### Testing and Validation: Shared Target-Grid Tiers and Cacheable Preprocessing
 

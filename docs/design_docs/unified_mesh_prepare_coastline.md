@@ -153,11 +153,14 @@ The target-grid choice should be constrained by coastline fidelity, not only
 by downstream convenience. Because the coastline is inferred from remapped
 topography, the remapped product and any derived sizing array should be
 meaningfully finer than the local destination mesh spacing. A 0.25-degree
-product may be adequate for fairly coarse meshes, but it becomes a marginal
-choice as the target mesh approaches roughly 30 km. The 1-degree product is
+product is useful as a cheaper inspection tier, but testing shows it is too
+coarse for scientifically valid coastline preparation because semi-enclosed
+basins such as the Mediterranean can disappear. The 1-degree product is
 valuable mainly for very coarse mesh workflows such as smoke-test meshes near
-240 km, but `prepare_coastline` should support all three shared target-grid
-tiers from the lat-lon combine workflow: 1.0, 0.25, and 0.0625 degree.
+240 km, but `prepare_coastline` should support four coastline target-grid
+tiers: 0.25, 0.125, 0.0625, and 0.03125 degree. The shared lat-lon combine
+workflow should support those same four resolutions plus the 1.0-degree
+smoke-test tier.
 
 The shared output contract should remain raster-first. The first design should
 assume outputs such as:
@@ -325,294 +328,251 @@ by the full unified workflow when configuration choices match.
 
 ### Implementation: Raster-First Coastline Products for Downstream Steps
 
-Date last modified: 2026/04/14
+Date last modified: 2026/04/18
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The first implementation should add a shared coastline-preparation step that
-depends on the shared lat-lon combined-topography steps from the sibling
-`add-lat-lon-topo-combine` branch through
-`get_lat_lon_topo_steps()` rather than through an ad hoc local remap path.
+The current implementation adds a shared coastline-preparation workflow in
+`polaris.tasks.mesh.spherical.unified.coastline` and reuses the shared lat-lon
+combined-topography steps through `get_lat_lon_topo_steps()` rather than
+adding a separate remap path.
 
-That enabling branch already provides lat-lon combined-topography tasks and
-shared steps at 0.0625, 0.25 and 1.0 degree, with combined outputs including
-`base_elevation`, `ice_draft`, `ice_thickness`, `ice_mask`, and
-`grounded_mask`. `prepare_coastline` should treat those fields as the
-authoritative upstream inputs for the preferred topo-derived path. See Polaris
-pull request <https://github.com/E3SM-Project/polaris/pull/526>.
+That enabling work was already put in place on the sibling
+`add-lat-lon-topo-combine` branch, which added shared lat-lon combined-
+topography tasks and steps at 1.0, 0.25, 0.125, 0.0625, and 0.03125 degree,
+with combined outputs including `base_elevation`, `ice_draft`,
+`ice_thickness`, `ice_mask`, and `grounded_mask`. `prepare_coastline` now
+treats those shared lat-lon topography products as the authoritative upstream
+inputs for the preferred topo-derived path. See Polaris pull request
+<https://github.com/E3SM-Project/polaris/pull/526>.
 
-The first implementation should support all three of these target-grid tiers
-for coastline preparation. In practice, 1.0 degree is expected to be used only
-for very coarse or smoke-test meshes, while 0.25 and 0.0625 degree are the
-expected production tiers.
+The implemented coastline workflow in the current branch supports those same
+four coastline target-grid tiers other than the 1.0-degree smoke-test
+product. Standalone coastline tasks exist for 0.25, 0.125, 0.0625, and
+0.03125 degree. The expected usage is that 0.25 degree remains the cheaper
+inspection tier, while 0.125, 0.0625, and 0.03125 degree are the scientifically
+credible coastline tiers. See Polaris pull request
+<https://github.com/E3SM-Project/polaris/pull/545>.
 
-The shared coastline step should produce three convention-specific coastline
-products, one each for `calving_front`, `grounding_line`, and
-`bedrock_zero`, each with at least:
+The shared coastline step writes one convention-specific NetCDF file for each
+of `calving_front`, `grounding_line`, and `bedrock_zero`. Each file currently
+contains:
 
 - `candidate_ocean_mask`, `ocean_mask`, `land_mask`, `coastline_mask`,
-  `coastline_edge_east`, `coastline_edge_north`, and `signed_distance`
-  variables; and
-- metadata that records how downstream steps should identify the convention
-  they intend to use.
+  `coastline_edge_east`, `coastline_edge_north`, and `signed_distance`; and
+- metadata including the coastline convention, target-grid type and
+  resolution, source type, mask threshold, sea-level threshold, flood-fill
+  seed strategy, sign convention, and text descriptions of the coastline-edge
+  and distance definitions.
 
-The first implementation should also write lightweight metadata and diagnostic
-artifacts that record the selected target-grid tier, selected Antarctic
-convention names available in the product, source type, mask thresholds,
-flood-fill seed strategy, and sign convention. The first implementation does
-not write boundary samples as part of the public product yet, so any later
-reuse of those samples by `prepare_river_network` remains future work.
+The current implementation also records the source combined-topography file
+and source step in the output attributes. This satisfies part of the intended
+lightweight metadata and diagnostics contract for recording the selected
+target-grid tier, source type, mask thresholds, flood-fill seed strategy, and
+sign convention. The implementation still does not write boundary samples as a
+public product, so any later reuse of those samples by
+`prepare_river_network` remains future work.
+
+The implemented source path is only the topo-derived one so far. A Natural
+Earth fallback has not been added yet.
 
 ### Implementation: Topography-Consistent and Explicit Coastline Definition
 
-Date last modified: 2026/04/14
+Date last modified: 2026/04/18
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The first implementation should always generate all three Antarctic coastline
-products in one run and cache them together for downstream reuse. The
-configuration choice should be which convention downstream steps consume from
-the generated files, not which convention `prepare_coastline` produces.
+The current implementation always generates all three Antarctic coastline
+products in one run and writes them as separate files that downstream steps
+can select from explicitly.
 
-The topo-derived path is organized around a small set of
-explicit helpers:
+The implemented topo-derived path is organized around the following concrete
+operations:
 
-1. load the shared combined-topography dataset and normalize its coordinate and
-   metadata handling;
-2. threshold remapped `ice_mask` and `grounded_mask` fields into binary masks,
-   with a configurable threshold whose default is 0.5;
+1. read `base_elevation`, `ice_mask`, and `grounded_mask` from the shared
+  combined-topography dataset on the target lat-lon grid;
+2. threshold the remapped `ice_mask` and `grounded_mask` arrays with the
+  configurable `mask_threshold` option, whose default is 0.5;
 3. build candidate ocean masks for `calving_front`, `grounding_line`, and
-   `bedrock_zero`;
-4. flood fill from trusted ocean-side seed cells to derive an exclusive,
-   ocean-connected ocean mask for each convention, implemented with connected
-   component labeling plus explicit longitude-wrap merging;
-5. derive complementary land masks and coastline-edge diagnostics; and
-6. write one output file per convention in a form that downstream steps can
-   select from explicitly.
+  `bedrock_zero`;
+4. label connected candidate-ocean regions, merge labels that wrap across the
+  eastern and western grid edges, and keep only regions connected to the
+  northernmost latitude row;
+5. derive `land_mask`, `coastline_mask`, `coastline_edge_east`, and
+  `coastline_edge_north`; and
+6. write one output file per convention.
 
-The initial candidate-mask definitions should be straightforward and explicit:
+The current candidate-mask definitions are:
 
-- `calving_front`: below sea level and not covered by Antarctic ice;
-- `grounding_line`: below sea level and not under grounded Antarctic ice; and
-- `bedrock_zero`: below sea level, regardless of Antarctic ice state.
+- `calving_front`: below sea level and not covered by ice;
+- `grounding_line`: below sea level and not covered by grounded ice; and
+- `bedrock_zero`: below sea level, regardless of ice state.
 
-Outside Antarctica, where `ice_mask` is effectively zero, these definitions
-reduce to the same open-ocean interpretation.
+Outside Antarctica, where `ice_mask` and `grounded_mask` are effectively zero,
+the three candidate masks reduce to the same open-ocean interpretation.
 
-The flood-fill implementation should operate on the periodic lon/lat grid with
-longitude wraparound and explicit treatment of the two latitude boundaries.
-The first implementation should seed from candidate-ocean cells on the
-northernmost latitude row.
-
-Natural Earth fallback behavior does not need to be finalized in the first
-implementation plan. The initial implementation should focus on the
-topography-derived path and leave detailed fallback design work until a real
-need arises.
-
-The first implementation should write diagnostics that make the mask-building
-process auditable. Useful examples include candidate-ocean masks, connected
-ocean masks after flood fill, difference masks between Antarctic conventions,
-and source-comparison masks when the fallback path is enabled.
+The implemented workflow still does not include a Natural Earth fallback. It
+does, however, write diagnostics that make the mask-building process auditable
+through the `viz` step, including candidate-ocean, connected-ocean,
+disconnected candidate-ocean, coastline-mask, and coastline-contour plots for
+each convention.
 
 ### Implementation: Global Coastal Distance on the Sphere
 
-Date last modified: 2026/04/14
+Date last modified: 2026/04/18
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The first implementation should start from the raster land/ocean masks,
-identify coastline locations where neighboring cells switch between land and
-ocean, and compute spherical distance from each target-grid cell to the
-nearest such coastline sample. This should be done before introducing any
-custom vector-coastline workflow or custom spherical distance library.
+The current implementation starts from the raster land/ocean masks, identifies
+coastline locations where neighboring cells switch between land and ocean, and
+computes spherical distance from each target-grid cell to the nearest such
+coastline sample without introducing a persisted vector coastline product.
 
-In practice, that implementation does:
+In practice, the implemented workflow:
 
-1. derive coastline transitions directly from the exclusive ocean and land
-   masks for each supported convention;
-2. emit a coastline-cell mask indicating cells adjacent to a land-ocean
-   transition;
-3. generate one or more boundary samples on the corresponding cell edges;
-4. convert target-grid cell centers and boundary samples to 3D Cartesian
-   coordinates on the unit sphere;
-5. use a KD-tree or closely related nearest-neighbor method to compute
-   unsigned distance; and
-6. apply the recorded sign convention of negative over land and positive over
-   ocean.
+1. derives coastline transitions directly from the exclusive ocean masks;
+2. builds `coastline_mask`, `coastline_edge_east`, and
+  `coastline_edge_north`;
+3. places coastline samples at east-edge angular midpoints and north-edge
+  latitudinal midpoints;
+4. converts target-grid cell centers and coastline samples to Cartesian
+  coordinates on the sphere;
+5. uses `scipy.spatial.cKDTree` to compute nearest-sample chord distances,
+  then converts those to spherical arc distance; and
+6. applies the sign convention of negative over land and positive over ocean.
 
-The first implementation should generate and cache signed-distance fields for
-all three Antarctic conventions so downstream steps can choose the convention
-they need through configuration rather than by rerunning the coastline step.
+Signed-distance fields are currently generated for all three conventions in
+every run.
 
-The first implementation should include a `viz` step that runs by default and
-writes high-resolution PNG diagnostics focused on the coastline itself rather
-than on broader cartographic context. In particular, these plots should avoid
-adding continents or other background features that would obscure close
-inspection of the coastline. The first required plot set should include:
-
-- three global coastline plots, one each for `calving_front`,
-  `grounding_line`, and `bedrock_zero`; and
-- three Antarctic stereographic coastline plots, again one for each of the
-  three conventions.
+The implemented `viz` step writes more than the six primary coastline plots.
+It produces global and Antarctic coastline contours, signed-distance plots,
+binary plots for the thresholded input masks, and binary plots for
+candidate-ocean, connected-ocean, disconnected candidate-ocean, and
+coastline-mask diagnostics for each convention, along with `debug_summary.txt`.
 
 ### Implementation: Standalone Coastline Task
 
-Date last modified: 2026/04/14
+Date last modified: 2026/04/18
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The first implementation should add a lightweight task wrapper around the
-shared step and should avoid a separate task-specific code path.
+The current implementation adds a lightweight task wrapper around the shared
+steps and does not introduce a separate task-specific coastline algorithm.
 
-The standalone task should depend on the selected shared lat-lon
-combined-topography step and then run the shared coastline step plus a `viz`
-step by default. The shared-step helper for this path is
+`LatLonCoastlineTask` depends on the selected shared lat-lon combined-
+topography step and then adds the shared coastline step plus the shared `viz`
+step with `include_viz=True`. The shared-step helper for this path is
 `get_lat_lon_coastline_steps()`.
 
-The `viz` step should write high-resolution PNG plots designed specifically to
-inspect the coastline without distracting overlays. The first required plot set
-should be:
+The standalone task subdirectories are currently:
 
-- a global plot of the `calving_front` coastline;
-- a global plot of the `grounding_line` coastline;
-- a global plot of the `bedrock_zero` coastline;
-- an Antarctic stereographic plot of the `calving_front` coastline;
-- an Antarctic stereographic plot of the `grounding_line` coastline; and
-- an Antarctic stereographic plot of the `bedrock_zero` coastline.
+- `spherical/unified/coastline/lat_lon/0.25000_degree/task`
+- `spherical/unified/coastline/lat_lon/0.12500_degree/task`
+- `spherical/unified/coastline/lat_lon/0.06250_degree/task`
+- `spherical/unified/coastline/lat_lon/0.03125_degree/task`
 
-Additional plots such as land/ocean masks, coastline-cell indicators, or
-signed-distance fields may still be useful, but they should be treated as
-secondary diagnostics after the six coastline plots above.
+Each task links the shared `coastline.cfg` file and exposes the `combine_topo`,
+`prepare`, and `viz` step directories within the task work directory.
 
-This task should be the main place to inspect whether a target-grid tier is
-adequate for a given intended mesh resolution before using the product in the
-full unified workflow.
+The task is therefore the current place to inspect whether a target-grid tier
+is adequate for a given intended mesh resolution before using the product in a
+later unified workflow.
 
 ## Testing
 
 ### Testing and Validation: Raster-First Coastline Products for Downstream Steps
 
-Date last modified: 2026/04/14
+Date last modified: 2026/04/18
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The first automated tests should verify the public output contract directly.
-At a minimum, they should confirm that each convention-specific coastline
-product exposes the variables and metadata required by downstream steps,
-including the land/ocean masks, coastline-edge diagnostics, signed-distance
-fields, coastline convention name, target-grid tier, source type, flood-fill
-seed strategy, and mask threshold.
+Automated tests now verify the public output contract at the dataset-builder
+level. In `tests/mesh/spherical/unified/test_coastline.py`, the current
+coverage confirms
+that the convention-specific coastline products expose the expected variables,
+that the conventions are returned together in the expected order, and that the
+output metadata records items such as the coastline convention and flood-fill
+seed strategy.
 
-Validation should also compare supported target-grid tiers and confirm that the
-chosen remapped topography resolution is sufficiently finer than the intended
-mesh resolution to preserve coastline fidelity in the resulting sizing field.
-This should likely be done first through manual or baseline diagnostic
-comparisons at 0.25 and 0.0625 degree rather than through a brittle numerical
-threshold alone.
-
-The first downstream contract checks should confirm that:
-
-- `prepare_river_network` can consume the land/ocean mask and coastline-edge
-  diagnostics for a chosen convention without rereading raw topography; and
-- `build_sizing_field` can consume the land/ocean mask and signed
-  coastal-distance field for a chosen convention without reconstructing
-  coastline geometry itself.
+There is not yet automated validation that compares different target-grid
+tiers, nor are there downstream contract tests for `prepare_river_network` or
+`build_sizing_field`, because those consumers are not implemented yet.
 
 ### Testing and Validation: Topography-Consistent and Explicit Coastline Definition
 
-Date last modified: 2026/04/14
+Date last modified: 2026/04/18
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The first automated tests in this area should be unit tests on synthetic
-target-grid datasets rather than full global products. Small synthetic cases
-should cover at least:
+The current automated tests in this area are unit tests on synthetic target-
+grid datasets rather than full global products.
 
-- a simple non-Antarctic coastline where all conventions agree;
-- an Antarctic cavity case where `calving_front` and `grounding_line` differ;
-- a grounded-below-sea-level Antarctic case where `grounding_line` and
-  `bedrock_zero` differ; and
-- a disconnected below-sea-level basin that should remain on the land side
-  after flood fill.
+Those tests currently cover:
 
-Early validation should compare the preferred topography-derived coastline
-and should make Antarctic convention differences explicit in diagnostics.
+- a case where `calving_front`, `grounding_line`, and `bedrock_zero` differ in
+  Antarctica;
+- a disconnected below-sea-level basin that remains on the land side after
+  flood fill; and
+- a case confirming that the northernmost latitude row is used for flood-fill
+  seeding even when latitude values are ordered south to north.
 
-Validation should also confirm that the flood-fill step produces a contiguous
-ocean mask for each Antarctic convention and that disconnected below-sea-level
-regions do not leak into the ocean classification.
-
-Where practical, synthetic tests should also exercise threshold sensitivity by
-perturbing remapped `ice_mask` and `grounded_mask` values around the default
-threshold and confirming that the resulting behavior is at least predictable
-and metadata-tracked.
+The current tests do not yet include dedicated threshold-sensitivity cases or
+full-resolution comparisons against realistic global datasets.
 
 ### Testing and Validation: Global Coastal Distance on the Sphere
 
-Date last modified: 2026/04/14
+Date last modified: 2026/04/18
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The first automated tests should focus on the distance helper functions using
-small synthetic masks where expected answers are easy to reason about. At a
-minimum, tests should cover:
+The current automated coverage checks the signed-distance field indirectly in
+synthetic dataset tests. Existing assertions confirm that the field is finite
+for the tested cases and that the sign matches the intended convention of
+negative over land and positive over ocean.
 
-- a straight coastline on a regular lat-lon grid, where the sign and ordering
-  of distances should be obvious;
-- a coastline crossing the antimeridian, to confirm that longitude wraparound
-  works correctly; and
-- a compact island or cavity example, to confirm that boundary sampling works
-  sensibly for closed shapes.
-
-Early validation should focus on antimeridian behavior, sign convention, and
-whether the raster-based spherical distance is smooth enough to drive mesh
-sizing.
-
-For manual or baseline validation on realistic datasets, the signed-distance
-field should also be inspected for artifacts such as stair-stepping, isolated
-distance spikes, or convention-dependent discontinuities around Antarctica.
+There is not yet a dedicated antimeridian-specific automated test, nor a
+task-level baseline that checks the smoothness of the signed-distance field on
+realistic global products. Manual inspection is still needed for those cases.
 
 ### Testing and Validation: Standalone Coastline Task
 
-Date last modified: 2026/04/14
+Date last modified: 2026/04/18
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The standalone task should eventually be validated as the primary place to
-inspect and compare coastline choices before they are used in the full unified
-workflow.
+The standalone task is the intended place to inspect and compare coastline
+choices before they are used in a later unified workflow, but there is not yet
+an automated task-level smoke test for it.
 
-The first task-level validation should be a smoke test that confirms the task
-can set up shared dependencies and write the expected coastline products and
-the default `viz` outputs for at least one supported target-grid tier.
+Current validation of the standalone task is therefore manual. The expected
+manual checks are:
 
-Beyond that smoke test, the task should be used for manual comparison of:
-
-- 1.0, 0.25, and 0.0625 degree coastline fidelity;
-- the three Antarctic coastline conventions;
-- the resulting global and Antarctic stereographic coastline plots; and
-- the resulting signed-distance fields used by downstream sizing.
+- comparing 0.25, 0.125, 0.0625, and 0.03125 degree coastline fidelity;
+- comparing the three Antarctic coastline conventions;
+- inspecting the global and Antarctic coastline and signed-distance plots; and
+- reviewing `debug_summary.txt` for disconnected candidate-ocean counts and
+  signed-distance ranges.
