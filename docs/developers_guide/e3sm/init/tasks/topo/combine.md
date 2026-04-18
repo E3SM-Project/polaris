@@ -38,9 +38,24 @@ include:
 
 1. Cubed-sphere topography on `ne3000`
 2. Cubed-sphere topography on `ne120`
-3. Latitude-longitude topography on `1.0000_degree`
-4. Latitude-longitude topography on `0.2500_degree`
-5. Latitude-longitude topography on `0.0625_degree`
+3. Latitude-longitude topography on `1.00000_degree`
+4. Latitude-longitude topography on `0.25000_degree`
+5. Latitude-longitude topography on `0.12500_degree`
+6. Latitude-longitude topography on `0.06250_degree`
+7. Latitude-longitude topography on `0.03125_degree`
+
+The shared constants and helper functions that define these supported
+resolutions now live in `polaris.e3sm.init.topo` so mesh, ocean, and other
+components can use the same resolution logic without importing from the
+`e3sm/init` task family. In particular, use
+`CUBED_SPHERE_RESOLUTIONS`, `LAT_LON_RESOLUTIONS`,
+`format_lat_lon_resolution_name()`, `get_cubed_sphere_resolution()`, and
+`uses_low_res_cubed_sphere()` from that framework module.
+
+Latitude-longitude directory names are produced by
+`format_lat_lon_resolution_name()`, which uses
+`LAT_LON_RESOLUTION_DECIMALS = 5`. For example, `0.125` maps to
+`0.12500_degree` and `0.03125` maps to `0.03125_degree`.
 
 These resolutions are intended for different downstream uses:
 
@@ -52,23 +67,25 @@ These resolutions are intended for different downstream uses:
    It is useful for remapping to coarse meshes such as Icos240 and for
    regression testing or other non-scientific workflows where the full
    high-resolution product is not needed.
-- `1.0000_degree` is intended for quick, non-scientific testing when a very
+- `1.00000_degree` is intended for quick, non-scientific testing when a very
    coarse latitude-longitude product is sufficient.
-- `0.2500_degree` aligns with the WOA23 (World Ocean Atlas 2023) dataset and
+- `0.25000_degree` aligns with the WOA23 (World Ocean Atlas 2023) dataset and
    can also be used when defining mesh resolution at moderate scales, roughly
    down to 30 km.
-- `0.0625_degree` is intended for defining mesh resolution for most
-   scientific runs and will be used by the E3SM v4 unified MPAS mesh across
-   land, river, ocean, and sea-ice.
+- `0.12500_degree`, `0.06250_degree` and `0.03125_degree` are intended for
+   defining mesh resolution for most scientific runs and will be used by the
+   E3SM v4 unified MPAS mesh across land, river, ocean, and sea-ice.
 
 A series of standalone tasks are available to create each topography dataset
 on its own:
 
 - `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne3000/task`
 - `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne120/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/1.0000_degree/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.2500_degree/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.0625_degree/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/1.00000_degree/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.25000_degree/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.12500_degree/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.06250_degree/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.03125_degree/task`
 
 Downstream workflows such as topography remapping to the MPAS mesh,
 extrapolation of the WOA23 dataset and defining mesh resolution for unified
