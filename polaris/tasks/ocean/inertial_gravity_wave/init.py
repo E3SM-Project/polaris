@@ -5,6 +5,7 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.coriolis import add_constant_coriolis
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.resolution import resolution_to_string
@@ -77,7 +78,8 @@ class Init(OceanIOStep):
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        write_netcdf(ds_mesh, 'culled_mesh.nc')
+        add_constant_coriolis(ds_mesh, f0)
+        self.write_model_dataset(ds_mesh, 'culled_mesh.nc')
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
 
@@ -87,10 +89,6 @@ class Init(OceanIOStep):
         ds['bottomDepth'] = bottom_depth * xr.ones_like(ds_mesh.xCell)
 
         init_vertical_coord(config, ds)
-
-        ds['fCell'] = f0 * xr.ones_like(ds_mesh.xCell)
-        ds['fEdge'] = f0 * xr.ones_like(ds_mesh.xEdge)
-        ds['fVertex'] = f0 * xr.ones_like(ds_mesh.xVertex)
 
         exact_solution = ExactSolution(ds, config)
 
