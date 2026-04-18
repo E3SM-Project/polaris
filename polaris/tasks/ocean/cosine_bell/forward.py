@@ -60,7 +60,7 @@ class Forward(SphericalConvergenceForward):
             component=component,
             name=name,
             subdir=subdir,
-            mesh=mesh,
+            mesh=init,
             init=init,
             package=package,
             yaml_filename='forward.yaml',
