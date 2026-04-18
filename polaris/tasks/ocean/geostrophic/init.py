@@ -1,7 +1,6 @@
-import numpy as np
 import xarray as xr
 
-from polaris.constants import get_constant
+from polaris.ocean.coriolis import add_rotated_sphere_coriolis
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.tasks.ocean.geostrophic.exact_solution import (
@@ -44,6 +43,7 @@ class Init(OceanIOStep):
             work_dir_target=f'{base_mesh.path}/graph.info',
         )
 
+        self.add_output_file(filename='base_mesh.nc')
         self.add_output_file(
             filename='initial_state.nc',
             validate_vars=[
@@ -73,18 +73,14 @@ class Init(OceanIOStep):
             alpha, vel_period, gh_0, mesh_filename
         )
 
-        omega = get_constant('angular_velocity')
-
         section = config['vertical_grid']
         bottom_depth = section.getfloat('bottom_depth')
 
         ds_mesh = xr.open_dataset('mesh.nc')
         latCell = ds_mesh.latCell
-        lonCell = ds_mesh.lonCell
-        latEdge = ds_mesh.latEdge
-        lonEdge = ds_mesh.lonEdge
-        latVertex = ds_mesh.latVertex
-        lonVertex = ds_mesh.lonVertex
+
+        add_rotated_sphere_coriolis(ds_mesh, alpha=alpha)
+        self.write_model_dataset(ds_mesh, 'base_mesh.nc')
 
         ds = ds_mesh.copy()
 
@@ -103,24 +99,8 @@ class Init(OceanIOStep):
         ds['salinity'] = salinity_array.expand_dims(dim='Time', axis=0)
         ds['normalVelocity'] = normalVelocity.expand_dims(dim='Time', axis=0)
 
-        ds['fCell'] = _coriolis(lonCell, latCell, alpha, omega)
-        ds['fEdge'] = _coriolis(lonEdge, latEdge, alpha, omega)
-        ds['fVertex'] = _coriolis(lonVertex, latVertex, alpha, omega)
-
         # for visualization
         ds['velocityZonal'] = u_cell.broadcast_like(ds.temperature)
         ds['velocityMeridional'] = v_cell.broadcast_like(ds.temperature)
 
         self.write_initial_state_dataset(ds, 'initial_state.nc')
-
-
-def _coriolis(lon, lat, alpha, omega):
-    f = (
-        2
-        * omega
-        * (
-            -np.cos(lon) * np.cos(lat) * np.sin(alpha)
-            + np.sin(lat) * np.cos(alpha)
-        )
-    )
-    return f
