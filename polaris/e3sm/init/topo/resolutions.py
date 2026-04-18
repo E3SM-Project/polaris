@@ -5,13 +5,31 @@ Shared resolution definitions for e3sm/init topography workflows.
 STANDARD_CUBED_SPHERE_RESOLUTION = 3000
 LOW_RES_CUBED_SPHERE_RESOLUTION = 120
 LOW_RES_BASE_MESH_CELL_WIDTH = 120.0
+LAT_LON_RESOLUTION_DECIMALS = 5
 
 CUBED_SPHERE_RESOLUTIONS = (
     STANDARD_CUBED_SPHERE_RESOLUTION,
     LOW_RES_CUBED_SPHERE_RESOLUTION,
 )
 
-LAT_LON_RESOLUTIONS = (0.0625, 0.25, 1.0)
+LAT_LON_RESOLUTIONS = (1.0, 0.25, 0.125, 0.0625, 0.03125)
+
+
+def format_lat_lon_resolution_name(resolution):
+    """
+    Format a latitude-longitude resolution for use in task subdirectories.
+
+    Parameters
+    ----------
+    resolution : float
+        The latitude-longitude resolution in degrees.
+
+    Returns
+    -------
+    resolution_name : str
+        The formatted resolution name.
+    """
+    return f'{float(resolution):.{LAT_LON_RESOLUTION_DECIMALS}f}_degree'
 
 
 def get_cubed_sphere_resolution(low_res):

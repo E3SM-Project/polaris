@@ -9,6 +9,7 @@ import xarray as xr
 from mpas_tools.logging import check_call
 from pyremap import ProjectionGridDescriptor, get_lat_lon_descriptor
 
+from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.step import Step
 
 
@@ -240,7 +241,7 @@ class CombineStep(Step):
                 # nothing to do
                 return
             self.resolution = resolution
-            self.resolution_name = f'{resolution:.4f}_degree'
+            self.resolution_name = format_lat_lon_resolution_name(resolution)
 
         # Start over with empty outputs
         self.outputs = []
