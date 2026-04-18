@@ -48,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/machines/index.html">Machines</a></li>
@@ -110,6 +111,7 @@
   <h1>Source code for polaris.tasks.e3sm.init.topo.combine.task</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.e3sm.init.topo</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_lat_lon_resolution_name</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">CombineStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine.steps</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -189,7 +191,7 @@
 <span class="sd">        resolution : float</span>
 <span class="sd">            The latitude-longitude resolution in degrees.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">resolution_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">_degree&#39;</span>
+        <span class="n">resolution_name</span> <span class="o">=</span> <span class="n">format_lat_lon_resolution_name</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">CombineStep</span><span class="o">.</span><span class="n">get_subdir</span><span class="p">(),</span>
             <span class="s1">&#39;lat_lon&#39;</span><span class="p">,</span>

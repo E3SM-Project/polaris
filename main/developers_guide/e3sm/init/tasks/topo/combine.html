@@ -51,6 +51,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
@@ -62,6 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">E3SM initial condition (e3sm/init) component</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../framework.html">Framework</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">Tasks</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#topography-tasks">Topography Tasks</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">Combine Steps and Tasks</a></li>
@@ -154,10 +156,23 @@ include:</p>
 <ol class="arabic simple">
 <li><p>Cubed-sphere topography on <code class="docutils literal notranslate"><span class="pre">ne3000</span></code></p></li>
 <li><p>Cubed-sphere topography on <code class="docutils literal notranslate"><span class="pre">ne120</span></code></p></li>
-<li><p>Latitude-longitude topography on <code class="docutils literal notranslate"><span class="pre">1.0000_degree</span></code></p></li>
-<li><p>Latitude-longitude topography on <code class="docutils literal notranslate"><span class="pre">0.2500_degree</span></code></p></li>
-<li><p>Latitude-longitude topography on <code class="docutils literal notranslate"><span class="pre">0.0625_degree</span></code></p></li>
+<li><p>Latitude-longitude topography on <code class="docutils literal notranslate"><span class="pre">1.00000_degree</span></code></p></li>
+<li><p>Latitude-longitude topography on <code class="docutils literal notranslate"><span class="pre">0.25000_degree</span></code></p></li>
+<li><p>Latitude-longitude topography on <code class="docutils literal notranslate"><span class="pre">0.12500_degree</span></code></p></li>
+<li><p>Latitude-longitude topography on <code class="docutils literal notranslate"><span class="pre">0.06250_degree</span></code></p></li>
+<li><p>Latitude-longitude topography on <code class="docutils literal notranslate"><span class="pre">0.03125_degree</span></code></p></li>
 </ol>
+<p>The shared constants and helper functions that define these supported
+resolutions now live in <code class="docutils literal notranslate"><span class="pre">polaris.e3sm.init.topo</span></code> so mesh, ocean, and other
+components can use the same resolution logic without importing from the
+<code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> task family. In particular, use
+<code class="docutils literal notranslate"><span class="pre">CUBED_SPHERE_RESOLUTIONS</span></code>, <code class="docutils literal notranslate"><span class="pre">LAT_LON_RESOLUTIONS</span></code>,
+<code class="docutils literal notranslate"><span class="pre">format_lat_lon_resolution_name()</span></code>, <code class="docutils literal notranslate"><span class="pre">get_cubed_sphere_resolution()</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">uses_low_res_cubed_sphere()</span></code> from that framework module.</p>
+<p>Latitude-longitude directory names are produced by
+<code class="docutils literal notranslate"><span class="pre">format_lat_lon_resolution_name()</span></code>, which uses
+<code class="docutils literal notranslate"><span class="pre">LAT_LON_RESOLUTION_DECIMALS</span> <span class="pre">=</span> <span class="pre">5</span></code>. For example, <code class="docutils literal notranslate"><span class="pre">0.125</span></code> maps to
+<code class="docutils literal notranslate"><span class="pre">0.12500_degree</span></code> and <code class="docutils literal notranslate"><span class="pre">0.03125</span></code> maps to <code class="docutils literal notranslate"><span class="pre">0.03125_degree</span></code>.</p>
 <p>These resolutions are intended for different downstream uses:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">ne3000</span></code> is the standard high-resolution cubed-sphere product. At roughly
@@ -168,23 +183,25 @@ applications.</p></li>
 It is useful for remapping to coarse meshes such as Icos240 and for
 regression testing or other non-scientific workflows where the full
 high-resolution product is not needed.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">1.0000_degree</span></code> is intended for quick, non-scientific testing when a very
+<li><p><code class="docutils literal notranslate"><span class="pre">1.00000_degree</span></code> is intended for quick, non-scientific testing when a very
 coarse latitude-longitude product is sufficient.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0.2500_degree</span></code> aligns with the WOA23 (World Ocean Atlas 2023) dataset and
+<li><p><code class="docutils literal notranslate"><span class="pre">0.25000_degree</span></code> aligns with the WOA23 (World Ocean Atlas 2023) dataset and
 can also be used when defining mesh resolution at moderate scales, roughly
 down to 30 km.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0.0625_degree</span></code> is intended for defining mesh resolution for most
-scientific runs and will be used by the E3SM v4 unified MPAS mesh across
-land, river, ocean, and sea-ice.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0.12500_degree</span></code>, <code class="docutils literal notranslate"><span class="pre">0.06250_degree</span></code> and <code class="docutils literal notranslate"><span class="pre">0.03125_degree</span></code> are intended for
+defining mesh resolution for most scientific runs and will be used by the
+E3SM v4 unified MPAS mesh across land, river, ocean, and sea-ice.</p></li>
 </ul>
 <p>A series of standalone tasks are available to create each topography dataset
 on its own:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne3000/task</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne120/task</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/1.0000_degree/task</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.2500_degree/task</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.0625_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/1.00000_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.25000_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.12500_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.06250_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.03125_degree/task</span></code></p></li>
 </ul>
 <p>Downstream workflows such as topography remapping to the MPAS mesh,
 extrapolation of the WOA23 dataset and defining mesh resolution for unified

@@ -11,6 +11,35 @@
 
 ## Tasks
 
+### topo resolution constants
+
+```{eval-rst}
+.. currentmodule:: polaris.e3sm.init.topo.resolutions
+
+.. autosummary::
+   :toctree: generated/
+
+   STANDARD_CUBED_SPHERE_RESOLUTION
+   LOW_RES_CUBED_SPHERE_RESOLUTION
+   LOW_RES_BASE_MESH_CELL_WIDTH
+   LAT_LON_RESOLUTION_DECIMALS
+```
+
+### topo shared utilities
+
+```{eval-rst}
+.. currentmodule:: polaris.e3sm.init.topo
+
+.. autosummary::
+   :toctree: generated/
+
+   CUBED_SPHERE_RESOLUTIONS
+   LAT_LON_RESOLUTIONS
+   format_lat_lon_resolution_name
+   get_cubed_sphere_resolution
+   uses_low_res_cubed_sphere
+```
+
 ### topo
 
 #### combine

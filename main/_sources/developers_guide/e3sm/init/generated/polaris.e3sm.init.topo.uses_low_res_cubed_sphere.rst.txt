@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.topo.uses\_low\_res\_cubed\_sphere
+====================================================
+
+.. currentmodule:: polaris.e3sm.init.topo
+
+.. autofunction:: uses_low_res_cubed_sphere

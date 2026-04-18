@@ -51,6 +51,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
@@ -136,6 +137,47 @@
 </table>
 <section id="tasks">
 <h2>Tasks<a class="headerlink" href="#tasks" title="Link to this heading"></a></h2>
+<section id="topo-resolution-constants">
+<h3>topo resolution constants<a class="headerlink" href="#topo-resolution-constants" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.topo.resolutions.STANDARD_CUBED_SPHERE_RESOLUTION.html#polaris.e3sm.init.topo.resolutions.STANDARD_CUBED_SPHERE_RESOLUTION" title="polaris.e3sm.init.topo.resolutions.STANDARD_CUBED_SPHERE_RESOLUTION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">STANDARD_CUBED_SPHERE_RESOLUTION</span></code></a></p></td>
+<td><p>int([x]) -&gt; integer int(x, base=10) -&gt; integer</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.topo.resolutions.LOW_RES_CUBED_SPHERE_RESOLUTION.html#polaris.e3sm.init.topo.resolutions.LOW_RES_CUBED_SPHERE_RESOLUTION" title="polaris.e3sm.init.topo.resolutions.LOW_RES_CUBED_SPHERE_RESOLUTION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOW_RES_CUBED_SPHERE_RESOLUTION</span></code></a></p></td>
+<td><p>int([x]) -&gt; integer int(x, base=10) -&gt; integer</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.topo.resolutions.LOW_RES_BASE_MESH_CELL_WIDTH.html#polaris.e3sm.init.topo.resolutions.LOW_RES_BASE_MESH_CELL_WIDTH" title="polaris.e3sm.init.topo.resolutions.LOW_RES_BASE_MESH_CELL_WIDTH"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOW_RES_BASE_MESH_CELL_WIDTH</span></code></a></p></td>
+<td><p>Convert a string or number to a floating-point number, if possible.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.topo.resolutions.LAT_LON_RESOLUTION_DECIMALS.html#polaris.e3sm.init.topo.resolutions.LAT_LON_RESOLUTION_DECIMALS" title="polaris.e3sm.init.topo.resolutions.LAT_LON_RESOLUTION_DECIMALS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LAT_LON_RESOLUTION_DECIMALS</span></code></a></p></td>
+<td><p>int([x]) -&gt; integer int(x, base=10) -&gt; integer</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="topo-shared-utilities">
+<h3>topo shared utilities<a class="headerlink" href="#topo-shared-utilities" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.topo.CUBED_SPHERE_RESOLUTIONS.html#polaris.e3sm.init.topo.CUBED_SPHERE_RESOLUTIONS" title="polaris.e3sm.init.topo.CUBED_SPHERE_RESOLUTIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUBED_SPHERE_RESOLUTIONS</span></code></a></p></td>
+<td><p>Built-in immutable sequence.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.topo.LAT_LON_RESOLUTIONS.html#polaris.e3sm.init.topo.LAT_LON_RESOLUTIONS" title="polaris.e3sm.init.topo.LAT_LON_RESOLUTIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LAT_LON_RESOLUTIONS</span></code></a></p></td>
+<td><p>Built-in immutable sequence.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.topo.format_lat_lon_resolution_name.html#polaris.e3sm.init.topo.format_lat_lon_resolution_name" title="polaris.e3sm.init.topo.format_lat_lon_resolution_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_lat_lon_resolution_name</span></code></a>(resolution)</p></td>
+<td><p>Format a latitude-longitude resolution for use in task subdirectories.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.topo.get_cubed_sphere_resolution.html#polaris.e3sm.init.topo.get_cubed_sphere_resolution" title="polaris.e3sm.init.topo.get_cubed_sphere_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cubed_sphere_resolution</span></code></a>(low_res)</p></td>
+<td><p>Get the cubed-sphere source-topography resolution for a mode.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.topo.uses_low_res_cubed_sphere.html#polaris.e3sm.init.topo.uses_low_res_cubed_sphere" title="polaris.e3sm.init.topo.uses_low_res_cubed_sphere"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_low_res_cubed_sphere</span></code></a>(cell_width)</p></td>
+<td><p>Determine whether a base mesh should use lower-resolution topography.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="topo">
 <h3>topo<a class="headerlink" href="#topo" title="Link to this heading"></a></h3>
 <section id="combine">

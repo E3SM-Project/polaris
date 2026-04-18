@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/machines/index.html">Machines</a></li>
@@ -137,8 +138,9 @@ the E3SM development team.</p>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris</span></code> python package defines the tasks and analysis tasks along
 with the commands  to list and set up both tasks and suites (groups
-of tasks or analysis tasks).  Polaris currently supports <code class="docutils literal notranslate"><span class="pre">ocean</span></code> and
-<code class="docutils literal notranslate"><span class="pre">seaice</span></code> components.  Nearly all tasks include calls that launch one
+of tasks or analysis tasks).  Polaris currently includes documented
+<code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>, <code class="docutils literal notranslate"><span class="pre">ocean</span></code> and <code class="docutils literal notranslate"><span class="pre">seaice</span></code> components. Nearly all
+runtime tasks include calls that launch one
 of these E3SM components, built in “standalone” (uncoupled) mode.  These runs
 are configured with config files (e.g. YAML or namelist files) and one of the
 benefits of using Polaris over attempting to run one of the components directly
@@ -165,6 +167,10 @@ mesh generation capabilities would not be possible, are developed primarily by
 <li class="toctree-l1"><a class="reference internal" href="users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/mesh/index.html">Mesh component</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="users_guide/mesh/tasks/index.html">Tasks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="users_guide/e3sm/init/tasks/index.html">Tasks</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/ocean/index.html">Ocean component</a><ul>
@@ -229,6 +235,7 @@ mesh generation capabilities would not be possible, are developed primarily by
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="developers_guide/e3sm/init/framework.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/e3sm/init/tasks/index.html">Tasks</a></li>
 </ul>
 </li>

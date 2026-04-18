@@ -19,7 +19,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Tasks" href="tasks/index.html" />
+    <link rel="next" title="Framework" href="framework.html" />
     <link rel="prev" title="Suites" href="../../organization/suites.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -51,6 +51,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
@@ -62,6 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">E3SM initial condition (e3sm/init) component</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="framework.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
 </ul>
 </li>
@@ -116,10 +118,13 @@
   <section class="tex2jax_ignore mathjax_ignore" id="e3sm-initial-condition-e3sm-init-component">
 <span id="dev-e3sm-init"></span><h1>E3SM initial condition (e3sm/init) component<a class="headerlink" href="#e3sm-initial-condition-e3sm-init-component" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> component defines tasks and steps related to generating ocean
-and sea-ice initial conditions for E3SM.  There are currently no
-component-level config options or shared framework.</p>
+and sea-ice initial conditions for E3SM. There are currently no
+component-level config options. The component does include a small amount of
+shared framework code for topography-resolution handling in
+<code class="docutils literal notranslate"><span class="pre">polaris.e3sm.init.topo</span></code>.</p>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="framework.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tasks/index.html">Tasks</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tasks/topo/combine.html">Combine Steps and Tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tasks/topo/remap.html">Remapping Topography to MPAS Base Meshes</a></li>
@@ -135,7 +140,7 @@ component-level config options or shared framework.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../../organization/suites.html" class="btn btn-neutral float-left" title="Suites" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tasks/index.html" class="btn btn-neutral float-right" title="Tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="framework.html" class="btn btn-neutral float-right" title="Framework" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

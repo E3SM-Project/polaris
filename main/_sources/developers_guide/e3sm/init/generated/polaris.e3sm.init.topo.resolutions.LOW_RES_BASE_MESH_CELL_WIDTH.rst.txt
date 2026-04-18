@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.topo.resolutions.LOW\_RES\_BASE\_MESH\_CELL\_WIDTH
+====================================================================
+
+.. currentmodule:: polaris.e3sm.init.topo.resolutions
+
+.. autodata:: LOW_RES_BASE_MESH_CELL_WIDTH

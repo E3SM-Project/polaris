@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.topo.LAT\_LON\_RESOLUTIONS
+============================================
+
+.. currentmodule:: polaris.e3sm.init.topo
+
+.. autodata:: LAT_LON_RESOLUTIONS
