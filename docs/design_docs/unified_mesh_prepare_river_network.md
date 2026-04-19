@@ -1,6 +1,6 @@
 # River Network Preparation for Unified Base Mesh Workflow
 
-date: 2026/04/13
+date: 2026/04/19
 
 Contributors:
 
@@ -116,6 +116,27 @@ workflow.
 
 The same shared step and configuration shall be reusable from the full unified
 workflow when settings match.
+
+### Requirement: Reproducible Source Data Access
+
+Date last modified: 2026/04/19
+
+Contributors:
+
+- Xylar Asay-Davis
+- Codex
+
+All source datasets needed by `prepare_river_network` shall be obtained either
+from documented public sources or, if that is not feasible, from the Polaris
+database.
+
+The preferred implementation shall download raw source data from public
+sources and perform any needed preprocessing within Polaris rather than
+requiring users to provide local input-file paths.
+
+Adding preprocessed artifacts to the Polaris database should be treated as a
+fallback for cases where the source data are not publicly distributable or the
+required preprocessing cannot be reproduced robustly within Polaris.
 
 ## Algorithm Design
 
@@ -253,7 +274,7 @@ configuration choices match.
 
 ### Implementation: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/13
+Date last modified: 2026/04/19
 
 Contributors:
 
@@ -264,6 +285,11 @@ Detailed file naming and class layout should be deferred until the interface is
 settled further. The first implementation should prioritize a clean output
 contract over carrying forward the standalone workflow's mixed raster
 conventions.
+
+The first Polaris implementation should also avoid making the default workflow
+depend on a user-supplied local source-file path. Instead, it should identify
+the required public datasets and either download them directly or, only if
+necessary, consume them from the Polaris database.
 
 The sibling `add-lat-lon-topo-combine` branch already adds the shared lat-lon
 `e3sm/init/topo/combine` tasks and `CombineStep` support that underpin the
