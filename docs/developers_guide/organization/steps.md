@@ -903,6 +903,18 @@ step.add_input_file(
 
 We recommend against this practice except for very small files.
 
+If you want a file from a public URL to be cached in one of the local
+databases instead of downloading it into the work directory each time,
+provide both `database` and `url`:
+
+```python
+self.add_input_file(
+    filename='bedmap3.nc',
+    target='bedmap3.nc',
+    database='topo',
+    url='https://ramadda.data.bas.ac.uk/repository/entry/get/bedmap3.nc?entryid=...')
+```
+
 (dev-step-input-copy)=
 
 ### Copying input files
