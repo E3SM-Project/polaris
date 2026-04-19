@@ -9,6 +9,7 @@ import xarray as xr
 from mpas_tools.logging import check_call
 from pyremap import ProjectionGridDescriptor, get_lat_lon_descriptor
 
+from polaris.archive import extract_zip_member
 from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.step import Step
 
@@ -49,10 +50,21 @@ class CombineStep(Step):
             'filename': 'bedmap3.nc',
             'proj4': 'epsg:3031',
             'mesh_name': 'Bedmap3_500m',
+            'url': (
+                'https://ramadda.data.bas.ac.uk/repository/entry/get/'
+                'bedmap3.nc?entryid=synth%3A2d0e4791-8e20-46a3-80e4-'
+                'f5f6716025d2%3AL2JlZG1hcDMubmM%3D'
+            ),
         },
         'gebco2023': {
             'filename': 'GEBCO_2023.nc',
             'mesh_name': 'GEBCO_2023',
+            'source_filename': 'gebco_2023.zip',
+            'url': (
+                'https://www.bodc.ac.uk/data/open_download/gebco/'
+                'gebco_2023/zip/'
+            ),
+            'archive_member': 'GEBCO_2023.nc',
         },
     }
 
@@ -114,19 +126,27 @@ class CombineStep(Step):
         if global_dataset not in self.DATASETS:
             raise ValueError(f'Unrecognized global dataset: {global_dataset}')
 
-        antarctic_filename = self.DATASETS[antarctic_dataset]['filename']
-        global_filename = self.DATASETS[global_dataset]['filename']
+        antarctic_info = self.DATASETS[antarctic_dataset]
+        global_info = self.DATASETS[global_dataset]
+        antarctic_filename = antarctic_info['filename']
+        global_filename = global_info['filename']
+        antarctic_source = antarctic_info.get(
+            'source_filename', antarctic_filename
+        )
+        global_source = global_info.get('source_filename', global_filename)
 
         # Add topography data input files
         self.add_input_file(
-            filename=antarctic_filename,
-            target=antarctic_filename,
+            filename=antarctic_source,
+            target=antarctic_source,
             database='topo',
+            url=antarctic_info.get('url'),
         )
         self.add_input_file(
-            filename=global_filename,
-            target=global_filename,
+            filename=global_source,
+            target=global_source,
             database='topo',
+            url=global_info.get('url'),
         )
         self._set_res_and_outputs(update=False)
 
@@ -155,12 +175,24 @@ class CombineStep(Step):
         """
         antarctic_dataset = self.ANTARCTIC
         global_dataset = self.GLOBAL
-        antarctic_filename = self.DATASETS[antarctic_dataset]['filename']
-        global_filename = self.DATASETS[global_dataset]['filename']
+        antarctic_info = self.DATASETS[antarctic_dataset]
+        global_info = self.DATASETS[global_dataset]
+        antarctic_filename = antarctic_info['filename']
+        global_filename = global_info['filename']
+        antarctic_source = antarctic_info.get(
+            'source_filename', antarctic_filename
+        )
+        global_source = global_info.get('source_filename', global_filename)
 
         self._set_res_and_outputs(update=True)
 
         if global_dataset in ['gebco2023']:
+            archive_member = global_info['archive_member']
+            self.logger.info(
+                f'Extracting {archive_member} from {global_source}'
+            )
+            extract_zip_member(global_source, archive_member, global_filename)
+            self.logger.info('  Done.')
             in_filename = global_filename
             global_filename = global_filename.replace('.nc', '_cf.nc')
             self._modify_gebco(
@@ -169,14 +201,14 @@ class CombineStep(Step):
             )
 
         if antarctic_dataset in ['bedmachinev3']:
-            in_filename = antarctic_filename
+            in_filename = antarctic_source
             antarctic_filename = antarctic_filename.replace('.nc', '_mod.nc')
             self._modify_bedmachine(
                 in_filename=in_filename,
                 out_filename=antarctic_filename,
             )
         elif antarctic_dataset in ['bedmap3']:
-            in_filename = antarctic_filename
+            in_filename = antarctic_source
             antarctic_filename = antarctic_filename.replace('.nc', '_mod.nc')
             self._modify_bedmap3(
                 in_filename=in_filename,
