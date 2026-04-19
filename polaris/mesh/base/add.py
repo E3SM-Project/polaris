@@ -74,7 +74,7 @@ def add_spherical_base_mesh_step(prefix, min_res, max_res=None):
 
     filepath = os.path.join(component.name, subdir, config_filename)
     config = PolarisConfigParser(filepath=filepath)
-    config.add_from_package('polaris.mesh', 'spherical.cfg')
+    config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
     config.set('spherical_mesh', 'prefix', MESH_NAME_PREFIXES[prefix])
     config.set('spherical_mesh', 'min_cell_width', f'{min_res:g}')
     config.set('spherical_mesh', 'max_cell_width', f'{max_res:g}')
