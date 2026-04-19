@@ -913,6 +913,16 @@ the step’s working directory:</p>
 </pre></div>
 </div>
 <p>We recommend against this practice except for very small files.</p>
+<p>If you want a file from a public URL to be cached in one of the local
+databases instead of downloading it into the work directory each time,
+provide both <code class="docutils literal notranslate"><span class="pre">database</span></code> and <code class="docutils literal notranslate"><span class="pre">url</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;bedmap3.nc&#39;</span><span class="p">,</span>
+    <span class="n">target</span><span class="o">=</span><span class="s1">&#39;bedmap3.nc&#39;</span><span class="p">,</span>
+    <span class="n">database</span><span class="o">=</span><span class="s1">&#39;topo&#39;</span><span class="p">,</span>
+    <span class="n">url</span><span class="o">=</span><span class="s1">&#39;https://ramadda.data.bas.ac.uk/repository/entry/get/bedmap3.nc?entryid=...&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="copying-input-files">
 <span id="dev-step-input-copy"></span><h3>Copying input files<a class="headerlink" href="#copying-input-files" title="Link to this heading"></a></h3>
