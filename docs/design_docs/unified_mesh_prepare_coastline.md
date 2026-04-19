@@ -361,8 +361,7 @@ The shared coastline step writes one convention-specific NetCDF file for each
 of `calving_front`, `grounding_line`, and `bedrock_zero`. Each file currently
 contains:
 
-- `candidate_ocean_mask`, `ocean_mask`, `land_mask`, `coastline_mask`,
-  `coastline_edge_east`, `coastline_edge_north`, and `signed_distance`; and
+- `ocean_mask` and `signed_distance`; and
 - metadata including the coastline convention, target-grid type and
   resolution, source type, mask threshold, sea-level threshold, flood-fill
   seed strategy, sign convention, and text descriptions of the coastline-edge
@@ -404,8 +403,8 @@ operations:
 4. label connected candidate-ocean regions, merge labels that wrap across the
   eastern and western grid edges, and keep only regions connected to the
   northernmost latitude row;
-5. derive `land_mask`, `coastline_mask`, `coastline_edge_east`, and
-  `coastline_edge_north`; and
+5. derive the transient coastline-edge diagnostics needed for signed-distance
+  sampling; and
 6. write one output file per convention.
 
 The current candidate-mask definitions are:
@@ -419,9 +418,8 @@ the three candidate masks reduce to the same open-ocean interpretation.
 
 The implemented workflow still does not include a Natural Earth fallback. It
 does, however, write diagnostics that make the mask-building process auditable
-through the `viz` step, including candidate-ocean, connected-ocean,
-disconnected candidate-ocean, coastline-mask, and coastline-contour plots for
-each convention.
+through the `viz` step, including final ocean-mask and signed-distance plots
+for each convention.
 
 ### Implementation: Global Coastal Distance on the Sphere
 
@@ -440,8 +438,7 @@ coastline sample without introducing a persisted vector coastline product.
 In practice, the implemented workflow:
 
 1. derives coastline transitions directly from the exclusive ocean masks;
-2. builds `coastline_mask`, `coastline_edge_east`, and
-  `coastline_edge_north`;
+2. builds transient east-edge and north-edge coastline diagnostics;
 3. places coastline samples at east-edge angular midpoints and north-edge
   latitudinal midpoints;
 4. converts target-grid cell centers and coastline samples to Cartesian
@@ -453,11 +450,9 @@ In practice, the implemented workflow:
 Signed-distance fields are currently generated for all three conventions in
 every run.
 
-The implemented `viz` step writes more than the six primary coastline plots.
-It produces global and Antarctic coastline contours, signed-distance plots,
-binary plots for the thresholded input masks, and binary plots for
-candidate-ocean, connected-ocean, disconnected candidate-ocean, and
-coastline-mask diagnostics for each convention, along with `debug_summary.txt`.
+The implemented `viz` step writes global and Antarctic binary plots of the
+final `ocean_mask`, signed-distance plots for each convention, and
+`debug_summary.txt`.
 
 ### Implementation: Standalone Coastline Task
 
@@ -574,5 +569,5 @@ manual checks are:
 - comparing 0.25, 0.125, 0.0625, and 0.03125 degree coastline fidelity;
 - comparing the three Antarctic coastline conventions;
 - inspecting the global and Antarctic coastline and signed-distance plots; and
-- reviewing `debug_summary.txt` for disconnected candidate-ocean counts and
-  signed-distance ranges.
+- reviewing `debug_summary.txt` for ocean-mask counts and signed-distance
+  ranges.
