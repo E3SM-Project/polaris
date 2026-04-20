@@ -7,6 +7,7 @@ from polaris import (
     Task as Task,
 )
 from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.constants import get_constant
 from polaris.tasks.ocean.barotropic_gyre.analysis import Analysis as Analysis
 from polaris.tasks.ocean.barotropic_gyre.forward import Forward as Forward
 from polaris.tasks.ocean.barotropic_gyre.init import Init as Init
@@ -29,6 +30,14 @@ def add_barotropic_gyre_tasks(component):
     )
     config.add_from_package(
         f'polaris.tasks.ocean.{group_name}', config_filename
+    )
+    # Set rhoref to the PCD value only at setup so that if the
+    # user wants to run with a different value by changing the cfg
+    # before runtime, they can
+    config.set(
+        'ocean',
+        'eos_constant_rhoref',
+        value=f'{get_constant('seawater_density_reference'):02g}'
     )
 
     for boundary_condition in ['free-slip', 'no-slip']:
