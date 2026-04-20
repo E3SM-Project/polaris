@@ -1,0 +1,40 @@
+import xarray as xr
+
+from polaris.config import PolarisConfigParser
+
+
+def compute_constant_density(
+    config: PolarisConfigParser,
+    temperature: xr.DataArray,
+    salinity: xr.DataArray,
+) -> xr.DataArray:
+    """
+    Compute the density of seawater based on the constant equation of state
+    with the value specified in the configuration.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Configuration object containing ocean parameters.
+
+    temperature : float or xarray.DataArray
+        Temperature of the seawater.
+
+    salinity : float or xarray.DataArray
+        Salinity of the seawater.
+
+    Returns
+    -------
+    density : float or xarray.DataArray
+        Computed density of the seawater.
+    """
+    section = config['ocean']
+    rhoref = section.getfloat('eos_rhoref')
+    assert rhoref is not None, (
+        'eos_rho_ref must be specified in the config options for eos type '
+        'constant.'
+    )
+    # Return density of same type and size as temperature
+    # (needs to work for both float and xarray DataArray)
+    density = rhoref * (temperature / temperature)
+    return density
