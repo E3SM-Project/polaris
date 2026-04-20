@@ -395,9 +395,24 @@ class OceanModelStep(ModelStep):
             'config_eos_linear_alpha': eos_linear_alpha,
             'config_eos_linear_beta': eos_linear_beta,
             'config_eos_linear_densityref': eos_linear_rhoref,
-            'config_eos_linear_Tref': eos_linear_Tref,
-            'config_eos_linear_Sref': eos_linear_Sref,
         }
+        model = config.get('ocean', 'model')
+        if model == 'mpas-ocean':
+            if eos_type.lower() == 'constant':
+                eos_type = 'linear'
+            replacements.update(
+                {
+                    'config_eos_type': eos_type,
+                    'config_eos_linear_Tref': eos_linear_Tref,
+                    'config_eos_linear_Sref': eos_linear_Sref,
+                }
+            )
+        else:
+            if eos_linear_Tref != 0.0 or eos_linear_Sref != 0.0:
+                raise ValueError(
+                    'Nonzero Tref and Sref are not supported for Omega '
+                    'model since they do not affect the linear EOS'
+                )
 
         self.add_model_config_options(
             options=replacements, config_model='ocean'
