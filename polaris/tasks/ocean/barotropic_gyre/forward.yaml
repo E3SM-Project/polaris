@@ -92,3 +92,15 @@ Omega:
       - SshCell
       FileFreq: 9999
       FileFreqUnits: years
+    RestartWrite:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: 3
+      FreqUnits: months
+      UseStartEnd: false
+      Contents:
+        - Restart
