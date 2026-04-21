@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>horiz_press_grad</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="divergent_2d" href="divergent_2d.html" />
+    <link rel="prev" title="geostrophic" href="geostrophic.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_channel.html">barotropic_channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic_gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated_tracers_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine_bell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customizable_viz.html">customizable_viz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_gravity_wave.html">external_gravity_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">horiz_press_grad</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice_shelf_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial_gravity_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured_solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seamount.html">seamount</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single_column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework.html">Ocean framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">horiz_press_grad</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/developers_guide/ocean/tasks/horiz_press_grad.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="horiz-press-grad">
+<span id="dev-ocean-horiz-press-grad"></span><h1>horiz_press_grad<a class="headerlink" href="#horiz-press-grad" title="Link to this heading"></a></h1>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.html#polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask" title="polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask</span></code></a>
+provides two-column Omega tests for pressure-gradient-acceleration (<code class="docutils literal notranslate"><span class="pre">HPGA</span></code>)
+accuracy and convergence across horizontal and vertical resolutions.</p>
+<p>The task family includes three variants:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">temperature_gradient</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code></p></li>
+</ul>
+<section id="framework">
+<h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
+<p>The config options for these tests are described in
+<a class="reference internal" href="../../../users_guide/ocean/tasks/horiz_press_grad.html#ocean-horiz-press-grad"><span class="std std-ref">horizontal pressure gradient</span></a> in the User’s Guide.</p>
+<p>The User’s Guide is also place to go for the mathematical formulation,
+the reference-solution definition, and the algorithmic interpretation of the
+two task baselines.  This page focuses on how that workflow is implemented in
+the code.</p>
+<p>The task dynamically rebuilds <code class="docutils literal notranslate"><span class="pre">init</span></code> and <code class="docutils literal notranslate"><span class="pre">forward</span></code> steps in <code class="docutils literal notranslate"><span class="pre">configure()</span></code> so
+user-supplied <code class="docutils literal notranslate"><span class="pre">horiz_resolutions</span></code> and <code class="docutils literal notranslate"><span class="pre">vert_resolutions</span></code> in config files are
+reflected in the work directory setup.</p>
+<section id="reference">
+<h3>reference<a class="headerlink" href="#reference" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.reference.Reference.html#polaris.tasks.ocean.horiz_press_grad.reference.Reference" title="polaris.tasks.ocean.horiz_press_grad.reference.Reference"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.reference.Reference</span></code></a>
+defines a step that builds a high-fidelity reference HPGA solution in
+<code class="docutils literal notranslate"><span class="pre">reference_solution.nc</span></code>.</p>
+<p>In implementation terms, <code class="docutils literal notranslate"><span class="pre">Reference.run()</span></code> does four things:</p>
+<ul class="simple">
+<li><p>determines the refined vertical resolution from the configured test
+resolutions,</p></li>
+<li><p>builds the reference columns and their thermodynamic profiles,</p></li>
+<li><p>computes the reference diagnostic fields, and</p></li>
+<li><p>writes <code class="docutils literal notranslate"><span class="pre">reference_solution.nc</span></code>.</p></li>
+</ul>
+<p>Most of the work is organized through the private helpers
+<code class="docutils literal notranslate"><span class="pre">_get_ssh_z_bot()</span></code>, <code class="docutils literal notranslate"><span class="pre">_get_z_tilde_t_s_nodes()</span></code>, <code class="docutils literal notranslate"><span class="pre">_compute_column()</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">_integrate_geometric_height()</span></code>.  Together, these routines reconstruct the
+column state, convert from pseudo-height to geometric height, and populate the
+reference dataset.</p>
+<p><code class="docutils literal notranslate"><span class="pre">reference_solution.nc</span></code> contains both the baseline fields used directly in
+analysis and additional diagnostics that are useful when debugging or
+inspecting the reference calculation, including <code class="docutils literal notranslate"><span class="pre">HPGAMid</span></code>, <code class="docutils literal notranslate"><span class="pre">HPGAInter</span></code>,
+<code class="docutils literal notranslate"><span class="pre">MontgomeryMid</span></code>, <code class="docutils literal notranslate"><span class="pre">MontgomeryInter</span></code>, <code class="docutils literal notranslate"><span class="pre">dMdxMid</span></code>, <code class="docutils literal notranslate"><span class="pre">dalphadxMid</span></code>, <code class="docutils literal notranslate"><span class="pre">PEdgeMid</span></code>, and
+the valid-gradient masks.</p>
+</section>
+<section id="init">
+<h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init" title="polaris.tasks.ocean.horiz_press_grad.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.init.Init</span></code></a>
+defines one step per <code class="docutils literal notranslate"><span class="pre">(horiz_res,</span> <span class="pre">vert_res)</span></code> pair.</p>
+<p>Each <code class="docutils literal notranslate"><span class="pre">init</span></code> step:</p>
+<ul class="simple">
+<li><p>builds and culls a planar two-cell mesh,</p></li>
+<li><p>sets up z-tilde vertical coordinates and profile fields,</p></li>
+<li><p>iteratively adjusts pseudo-bottom depth to match target geometric
+water-column thickness, and</p></li>
+<li><p>writes <code class="docutils literal notranslate"><span class="pre">culled_mesh.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code>.</p></li>
+</ul>
+<p>The implementation is centered around <code class="docutils literal notranslate"><span class="pre">Init.run()</span></code> and three helpers:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">_init_z_tilde_vert_coord()</span></code> initializes the vertical coordinate for each
+column separately,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_interpolate_t_s()</span></code> reconstructs temperature and salinity on the test grid,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_compute_montgomery_and_hpga()</span></code> computes the Python-side HPGA diagnostic and
+related output fields.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code> stores both the fields needed by Omega and the offline
+diagnostics later used in analysis, including <code class="docutils literal notranslate"><span class="pre">PressureMid</span></code>, <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Density</span></code>, <code class="docutils literal notranslate"><span class="pre">GeomZMid</span></code>, <code class="docutils literal notranslate"><span class="pre">GeomZInter</span></code>, <code class="docutils literal notranslate"><span class="pre">MontgomeryMid</span></code>, <code class="docutils literal notranslate"><span class="pre">MontgomeryInter</span></code>,
+<code class="docutils literal notranslate"><span class="pre">HPGA</span></code>, <code class="docutils literal notranslate"><span class="pre">dMdxMid</span></code>, <code class="docutils literal notranslate"><span class="pre">dalphadxMid</span></code>, <code class="docutils literal notranslate"><span class="pre">PEdgeMid</span></code>, and <code class="docutils literal notranslate"><span class="pre">dSAdxMid</span></code>.</p>
+</section>
+<section id="forward">
+<h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.forward.Forward.html#polaris.tasks.ocean.horiz_press_grad.forward.Forward" title="polaris.tasks.ocean.horiz_press_grad.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.forward.Forward</span></code></a>
+defines one model step per horizontal resolution.</p>
+<p>It runs Omega from the corresponding <code class="docutils literal notranslate"><span class="pre">init</span></code> output and writes <code class="docutils literal notranslate"><span class="pre">output.nc</span></code>
+(with <code class="docutils literal notranslate"><span class="pre">NormalVelocityTend</span></code> validation), using options from <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>.</p>
+</section>
+<section id="analysis">
+<h3>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.analysis.Analysis</span></code></a>
+compares each <code class="docutils literal notranslate"><span class="pre">forward</span></code> result with:</p>
+<ul class="simple">
+<li><p>the high-fidelity reference solution, and</p></li>
+<li><p>the Python-computed HPGA from <code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code>.</p></li>
+</ul>
+<p>The step writes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">omega_vs_reference.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">omega_vs_reference.png</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">omega_vs_python.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">omega_vs_python.png</span></code></p></li>
+</ul>
+<p>and enforces regression criteria from <code class="docutils literal notranslate"><span class="pre">[horiz_press_grad]</span></code>, including:</p>
+<ul class="simple">
+<li><p>allowed convergence-slope range for Omega-vs-reference,</p></li>
+<li><p>high-resolution RMS threshold for Omega-vs-reference, and</p></li>
+<li><p>RMS threshold for Omega-vs-Python consistency.</p></li>
+</ul>
+<p>Implementation-wise, <code class="docutils literal notranslate"><span class="pre">Analysis.run()</span></code> reads the reference, init, and forward
+outputs for each configured horizontal resolution, then uses helper routines
+such as <code class="docutils literal notranslate"><span class="pre">_get_internal_edge()</span></code>, <code class="docutils literal notranslate"><span class="pre">_get_forward_z_tilde_edge_mid()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">_sample_reference_without_interpolation()</span></code>, <code class="docutils literal notranslate"><span class="pre">_check_vertical_match()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">_rms_error()</span></code>, and <code class="docutils literal notranslate"><span class="pre">_power_law_fit()</span></code> to produce the comparison datasets and
+plots.</p>
+<p>The key code-level distinction is that the reference comparison is built from
+<code class="docutils literal notranslate"><span class="pre">reference_solution.nc</span></code>, whereas the implementation-consistency comparison is
+built from <code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code>.  The forward solution always comes from
+<code class="docutils literal notranslate"><span class="pre">output.nc</span></code> via <code class="docutils literal notranslate"><span class="pre">NormalVelocityTend</span></code>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="geostrophic.html" class="btn btn-neutral float-left" title="geostrophic" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="divergent_2d.html" class="btn btn-neutral float-right" title="divergent_2d" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

@@ -454,6 +454,49 @@
 </tbody>
 </table>
 </section>
+<section id="horiz-press-grad">
+<h3>horiz_press_grad<a class="headerlink" href="#horiz-press-grad" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.add_horiz_press_grad_tasks.html#polaris.tasks.ocean.horiz_press_grad.add_horiz_press_grad_tasks" title="polaris.tasks.ocean.horiz_press_grad.add_horiz_press_grad_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_horiz_press_grad_tasks</span></code></a>(component)</p></td>
+<td><p>Add tasks for various tests involving the horizonal pressure-gradient acceleration between two adjacent ocean columns</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.html#polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask" title="polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">task.HorizPressGradTask</span></code></a>(component, name)</p></td>
+<td><p>The two-column test case tests convergence of the TEOS-10 pressure-gradient computation in Omega at various horizontal and vertical resolutions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.configure.html#polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.configure" title="polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">task.HorizPressGradTask.configure</span></code></a>()</p></td>
+<td><p>Set config options for the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.Reference.html#polaris.tasks.ocean.horiz_press_grad.reference.Reference" title="polaris.tasks.ocean.horiz_press_grad.reference.Reference"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.Reference</span></code></a>(component, indir)</p></td>
+<td><p>A step for creating a high-fidelity reference solution for two column test cases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.Reference.run.html#polaris.tasks.ocean.horiz_press_grad.reference.Reference.run" title="polaris.tasks.ocean.horiz_press_grad.reference.Reference.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.Reference.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init" title="polaris.tasks.ocean.horiz_press_grad.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, horiz_res, vert_res, indir)</p></td>
+<td><p>A step for creating a mesh and initial condition for two column test cases</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.run.html#polaris.tasks.ocean.horiz_press_grad.init.Init.run" title="polaris.tasks.ocean.horiz_press_grad.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.forward.Forward.html#polaris.tasks.ocean.horiz_press_grad.forward.Forward" title="polaris.tasks.ocean.horiz_press_grad.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, horiz_res, indir)</p></td>
+<td><p>This step performs a forward run for a single time step, writing out the normal-velocity tendency (which is just the pressure gradient acceleration) along with other diagnostics.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup.html#polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup" title="polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.setup</span></code></a>()</p></td>
+<td><p>Fill in config options in the forward.yaml file based on config options</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, indir, dependencies)</p></td>
+<td><p>A step for analyzing two-column HPGA errors versus a reference solution and versus the Python-computed initial-state solution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.setup</span></code></a>()</p></td>
+<td><p>Add inputs from reference, init and forward steps</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.run.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.run" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="ice-shelf-2d">
 <h3>ice_shelf_2d<a class="headerlink" href="#ice-shelf-2d" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">

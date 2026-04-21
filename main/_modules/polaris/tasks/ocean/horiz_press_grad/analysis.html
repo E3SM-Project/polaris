@@ -1,0 +1,797 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.horiz_press_grad.analysis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../horiz_press_grad.html">polaris.tasks.ocean.horiz_press_grad</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.horiz_press_grad.analysis</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.horiz_press_grad.analysis</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gravity</span><span class="p">,</span> <span class="n">RhoSw</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
+
+
+<div class="viewcode-block" id="Analysis">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Analysis</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A step for analyzing two-column HPGA errors versus a reference solution</span>
+<span class="sd">    and versus the Python-computed initial-state solution.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dependencies_dict : dict</span>
+<span class="sd">        A dictionary of dependent steps:</span>
+
+<span class="sd">        reference : polaris.Step</span>
+<span class="sd">            The reference step that produces ``reference_solution.nc``</span>
+
+<span class="sd">        init : dict</span>
+<span class="sd">            Mapping from horizontal resolution (km) to ``Init`` step</span>
+
+<span class="sd">        forward : dict</span>
+<span class="sd">            Mapping from horizontal resolution (km) to ``Forward`` step</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Analysis.__init__">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the analysis step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        indir : str</span>
+<span class="sd">            The subdirectory that the task belongs to, that this step will</span>
+<span class="sd">            go into a subdirectory of</span>
+
+<span class="sd">        dependencies : dict</span>
+<span class="sd">            A dictionary of dependent steps</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;analysis&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span> <span class="o">=</span> <span class="n">dependencies</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">&#39;omega_vs_reference.png&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">&#39;omega_vs_reference.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">&#39;omega_vs_python.png&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">&#39;omega_vs_python.nc&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Analysis.setup">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add inputs from reference, init and forward steps</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">]</span>
+        <span class="n">horiz_resolutions</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getexpression</span><span class="p">(</span><span class="s1">&#39;horiz_resolutions&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">horiz_resolutions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="n">reference</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span><span class="p">[</span><span class="s1">&#39;reference&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;reference_solution.nc&#39;</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">reference</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/reference_solution.nc&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">init_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span><span class="p">[</span><span class="s1">&#39;init&#39;</span><span class="p">]</span>
+        <span class="n">forward_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="n">horiz_resolutions</span><span class="p">:</span>
+            <span class="n">init</span> <span class="o">=</span> <span class="n">init_steps</span><span class="p">[</span><span class="n">resolution</span><span class="p">]</span>
+            <span class="n">forward</span> <span class="o">=</span> <span class="n">forward_steps</span><span class="p">[</span><span class="n">resolution</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;init_r</span><span class="si">{</span><span class="n">resolution</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/initial_state.nc&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;output_r</span><span class="si">{</span><span class="n">resolution</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Analysis.run">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.run.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run this step of the test case</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">switch_backend</span><span class="p">(</span><span class="s1">&#39;Agg&#39;</span><span class="p">)</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">]</span>
+        <span class="n">horiz_resolutions</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getexpression</span><span class="p">(</span><span class="s1">&#39;horiz_resolutions&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">horiz_resolutions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s1">&#39;The &quot;horiz_resolutions&quot; configuration option must be set in &#39;</span>
+            <span class="s1">&#39;the &quot;horiz_press_grad&quot; section.&#39;</span>
+        <span class="p">)</span>
+        <span class="n">omega_vs_reference_convergence_rate_min</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">&#39;omega_vs_reference_convergence_rate_min&#39;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">omega_vs_reference_convergence_rate_min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s1">&#39;The &quot;omega_vs_reference_convergence_rate_min&quot; configuration &#39;</span>
+            <span class="s1">&#39;option must be set in the &quot;horiz_press_grad&quot; section.&#39;</span>
+        <span class="p">)</span>
+        <span class="n">omega_vs_reference_convergence_rate_max</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">&#39;omega_vs_reference_convergence_rate_max&#39;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">omega_vs_reference_convergence_rate_max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s1">&#39;The &quot;omega_vs_reference_convergence_rate_max&quot; configuration &#39;</span>
+            <span class="s1">&#39;option must be set in the &quot;horiz_press_grad&quot; section.&#39;</span>
+        <span class="p">)</span>
+        <span class="n">omega_vs_reference_convergence_fit_max_resolution</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">&#39;omega_vs_reference_convergence_fit_max_resolution&#39;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">omega_vs_reference_convergence_fit_max_resolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s1">&#39;The &quot;omega_vs_reference_convergence_fit_max_resolution&quot; &#39;</span>
+            <span class="s1">&#39;configuration option must be set in the &quot;horiz_press_grad&quot; &#39;</span>
+            <span class="s1">&#39;section.&#39;</span>
+        <span class="p">)</span>
+        <span class="n">omega_vs_reference_high_res_rms_threshold</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">&#39;omega_vs_reference_high_res_rms_threshold&#39;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">omega_vs_reference_high_res_rms_threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s1">&#39;The &quot;omega_vs_reference_high_res_rms_threshold&quot; &#39;</span>
+            <span class="s1">&#39;configuration option must be set in the &quot;horiz_press_grad&quot; &#39;</span>
+            <span class="s1">&#39;section.&#39;</span>
+        <span class="p">)</span>
+        <span class="n">omega_vs_polaris_rms_threshold</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">&#39;omega_vs_polaris_rms_threshold&#39;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">omega_vs_polaris_rms_threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s1">&#39;The &quot;omega_vs_polaris_rms_threshold&quot; configuration option &#39;</span>
+            <span class="s1">&#39;must be set in the &quot;horiz_press_grad&quot; section.&#39;</span>
+        <span class="p">)</span>
+
+        <span class="n">ds_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;reference_solution.nc&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ds_ref</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;The reference solution requires at least 3 columns so that &#39;</span>
+                <span class="s1">&#39;the central column is nCells=2.&#39;</span>
+            <span class="p">)</span>
+
+        <span class="n">ref_z</span> <span class="o">=</span> <span class="n">ds_ref</span><span class="o">.</span><span class="n">ZTildeInter</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nCells</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">ref_hpga</span> <span class="o">=</span> <span class="n">ds_ref</span><span class="o">.</span><span class="n">HPGAInter</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">ref_valid_grad_mask</span> <span class="o">=</span> <span class="n">ds_ref</span><span class="o">.</span><span class="n">ValidGradInterMask</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="n">ref_errors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">py_errors</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="n">horiz_resolutions</span><span class="p">:</span>
+            <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;init_r</span><span class="si">{</span><span class="n">resolution</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">)</span>
+            <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;output_r</span><span class="si">{</span><span class="n">resolution</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+
+            <span class="n">edge_index</span><span class="p">,</span> <span class="n">cells_on_edge</span> <span class="o">=</span> <span class="n">_get_internal_edge</span><span class="p">(</span><span class="n">ds_init</span><span class="p">)</span>
+            <span class="n">cell0</span><span class="p">,</span> <span class="n">cell1</span> <span class="o">=</span> <span class="n">cells_on_edge</span>
+
+            <span class="n">z_tilde_forward</span> <span class="o">=</span> <span class="n">_get_forward_z_tilde_edge_mid</span><span class="p">(</span>
+                <span class="n">ds_out</span><span class="o">=</span><span class="n">ds_out</span><span class="p">,</span>
+                <span class="n">cell0</span><span class="o">=</span><span class="n">cell0</span><span class="p">,</span>
+                <span class="n">cell1</span><span class="o">=</span><span class="n">cell1</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">hpga_forward</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">NormalVelocityTend</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+                <span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nEdges</span><span class="o">=</span><span class="n">edge_index</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+            <span class="c1"># maxLevelCell is one-based (Fortran indexing), convert to</span>
+            <span class="c1"># zero-based and use the shallowest valid bottom among the two</span>
+            <span class="c1"># cells that bound the internal edge.</span>
+            <span class="n">max_level_cells</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+                <span class="n">nCells</span><span class="o">=</span><span class="p">[</span><span class="n">cell0</span><span class="p">,</span> <span class="n">cell1</span><span class="p">]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">max_level_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">max_level_cells</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">max_level_index</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Invalid maxLevelCell values </span><span class="si">{</span><span class="n">max_level_cells</span><span class="si">}</span><span class="s1"> at &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;resolution </span><span class="si">{</span><span class="n">resolution</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> km.&#39;</span>
+                <span class="p">)</span>
+
+            <span class="n">forward_valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">hpga_forward</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="n">forward_valid_mask</span><span class="p">[:</span> <span class="n">max_level_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="n">sampled_ref_hpga</span> <span class="o">=</span> <span class="n">_sample_reference_without_interpolation</span><span class="p">(</span>
+                <span class="n">ref_z</span><span class="o">=</span><span class="n">ref_z</span><span class="p">,</span>
+                <span class="n">ref_values</span><span class="o">=</span><span class="n">ref_hpga</span><span class="p">,</span>
+                <span class="n">target_z</span><span class="o">=</span><span class="n">z_tilde_forward</span><span class="p">,</span>
+                <span class="n">ref_valid_mask</span><span class="o">=</span><span class="n">ref_valid_grad_mask</span><span class="p">,</span>
+                <span class="n">target_valid_mask</span><span class="o">=</span><span class="n">forward_valid_mask</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">hpga_ref_diff</span> <span class="o">=</span> <span class="n">hpga_forward</span> <span class="o">-</span> <span class="n">sampled_ref_hpga</span>
+            <span class="n">ref_errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_rms_error</span><span class="p">(</span><span class="n">hpga_ref_diff</span><span class="p">))</span>
+
+            <span class="n">z_tilde_init</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mf">0.5</span>
+                <span class="o">*</span> <span class="p">(</span>
+                    <span class="n">ds_init</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nCells</span><span class="o">=</span><span class="n">cell0</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nCells</span><span class="o">=</span><span class="n">cell1</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">values</span>
+            <span class="p">)</span>
+            <span class="n">_check_vertical_match</span><span class="p">(</span>
+                <span class="n">z_ref</span><span class="o">=</span><span class="n">z_tilde_init</span><span class="p">,</span>
+                <span class="n">z_test</span><span class="o">=</span><span class="n">z_tilde_forward</span><span class="p">,</span>
+                <span class="n">msg</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s1">&#39;ZTilde mismatch between Python init and Omega forward &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;at resolution </span><span class="si">{</span><span class="n">resolution</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> km&#39;</span>
+                <span class="p">),</span>
+                <span class="n">valid_mask</span><span class="o">=</span><span class="n">forward_valid_mask</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">hpga_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">HPGA</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">hpga_diff</span> <span class="o">=</span> <span class="n">hpga_forward</span> <span class="o">-</span> <span class="n">hpga_init</span>
+            <span class="n">py_errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_rms_error</span><span class="p">(</span><span class="n">hpga_diff</span><span class="p">[</span><span class="n">forward_valid_mask</span><span class="p">]))</span>
+
+        <span class="n">resolution_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">horiz_resolutions</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">ref_error_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ref_errors</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">py_error_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">py_errors</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="n">fit_mask</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">resolution_array</span>
+            <span class="o">&lt;=</span> <span class="n">omega_vs_reference_convergence_fit_max_resolution</span>
+        <span class="p">)</span>
+
+        <span class="n">ref_fit</span><span class="p">,</span> <span class="n">ref_slope</span><span class="p">,</span> <span class="n">ref_intercept</span> <span class="o">=</span> <span class="n">_power_law_fit</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">resolution_array</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">ref_error_array</span><span class="p">,</span>
+            <span class="n">fit_mask</span><span class="o">=</span><span class="n">fit_mask</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">_write_dataset</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;omega_vs_reference.nc&#39;</span><span class="p">,</span>
+            <span class="n">resolution_km</span><span class="o">=</span><span class="n">resolution_array</span><span class="p">,</span>
+            <span class="n">rms_error</span><span class="o">=</span><span class="n">ref_error_array</span><span class="p">,</span>
+            <span class="n">fit</span><span class="o">=</span><span class="n">ref_fit</span><span class="p">,</span>
+            <span class="n">slope</span><span class="o">=</span><span class="n">ref_slope</span><span class="p">,</span>
+            <span class="n">intercept</span><span class="o">=</span><span class="n">ref_intercept</span><span class="p">,</span>
+            <span class="n">y_name</span><span class="o">=</span><span class="s1">&#39;rms_error_vs_reference&#39;</span><span class="p">,</span>
+            <span class="n">y_units</span><span class="o">=</span><span class="s1">&#39;m s-2&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">_write_dataset</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;omega_vs_python.nc&#39;</span><span class="p">,</span>
+            <span class="n">resolution_km</span><span class="o">=</span><span class="n">resolution_array</span><span class="p">,</span>
+            <span class="n">rms_error</span><span class="o">=</span><span class="n">py_error_array</span><span class="p">,</span>
+            <span class="n">y_name</span><span class="o">=</span><span class="s1">&#39;rms_error_vs_python&#39;</span><span class="p">,</span>
+            <span class="n">y_units</span><span class="o">=</span><span class="s1">&#39;m s-2&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">_plot_errors</span><span class="p">(</span>
+            <span class="n">resolution_km</span><span class="o">=</span><span class="n">resolution_array</span><span class="p">,</span>
+            <span class="n">rms_error</span><span class="o">=</span><span class="n">ref_error_array</span><span class="p">,</span>
+            <span class="n">fit</span><span class="o">=</span><span class="n">ref_fit</span><span class="p">,</span>
+            <span class="n">slope</span><span class="o">=</span><span class="n">ref_slope</span><span class="p">,</span>
+            <span class="n">y_label</span><span class="o">=</span><span class="s1">&#39;RMS error in HPGA (m s-2)&#39;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Omega HPGA Error vs Reference Solution&#39;</span><span class="p">,</span>
+            <span class="n">output</span><span class="o">=</span><span class="s1">&#39;omega_vs_reference.png&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">_plot_errors</span><span class="p">(</span>
+            <span class="n">resolution_km</span><span class="o">=</span><span class="n">resolution_array</span><span class="p">,</span>
+            <span class="n">rms_error</span><span class="o">=</span><span class="n">py_error_array</span><span class="p">,</span>
+            <span class="n">y_label</span><span class="o">=</span><span class="s1">&#39;RMS difference in HPGA (m s-2)&#39;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Omega vs Polaris HPGA RMS Difference&#39;</span><span class="p">,</span>
+            <span class="n">output</span><span class="o">=</span><span class="s1">&#39;omega_vs_python.png&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Omega-vs-reference convergence slope: </span><span class="si">{</span><span class="n">ref_slope</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s1">&#39;Omega-vs-reference fit uses resolutions (km): &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_format_resolution_list</span><span class="p">(</span><span class="n">resolution_array</span><span class="p">[</span><span class="n">fit_mask</span><span class="p">])</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+        <span class="n">res_error_pairs</span> <span class="o">=</span> <span class="n">_format_resolution_error_pairs</span><span class="p">(</span>
+            <span class="n">resolution_array</span><span class="p">,</span> <span class="n">ref_error_array</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s1">&#39;Omega-vs-Polaris RMS differences by resolution: &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">res_error_pairs</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+        <span class="n">failing_polaris</span> <span class="o">=</span> <span class="n">py_error_array</span> <span class="o">&gt;</span> <span class="n">omega_vs_polaris_rms_threshold</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">failing_polaris</span><span class="p">):</span>
+            <span class="n">failing_text</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution_array</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> km: &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">py_error_array</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">failing_polaris</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Omega-vs-Polaris RMS difference exceeds &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;omega_vs_polaris_rms_threshold=&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">omega_vs_polaris_rms_threshold</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> at: </span><span class="si">{</span><span class="n">failing_text</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
+        <span class="n">highest_resolution_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">resolution_array</span><span class="p">))</span>
+        <span class="n">highest_resolution</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">resolution_array</span><span class="p">[</span><span class="n">highest_resolution_index</span><span class="p">])</span>
+        <span class="n">highest_resolution_ref_error</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">ref_error_array</span><span class="p">[</span><span class="n">highest_resolution_index</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">highest_resolution_ref_error</span>
+            <span class="o">&gt;</span> <span class="n">omega_vs_reference_high_res_rms_threshold</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Omega-vs-reference RMS error at highest resolution &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">highest_resolution</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> km) is &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">highest_resolution_ref_error</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1">, which exceeds &#39;</span>
+                <span class="s1">&#39;omega_vs_reference_high_res_rms_threshold &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">omega_vs_reference_high_res_rms_threshold</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1">).&#39;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="n">omega_vs_reference_convergence_rate_min</span>
+            <span class="o">&lt;=</span> <span class="n">ref_slope</span>
+            <span class="o">&lt;=</span> <span class="n">omega_vs_reference_convergence_rate_max</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Omega-vs-reference convergence slope is outside the &#39;</span>
+                <span class="s1">&#39;allowed range: &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ref_slope</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> not in &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">omega_vs_reference_convergence_rate_min</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">, &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">omega_vs_reference_convergence_rate_max</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">]&#39;</span>
+            <span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_internal_edge</span><span class="p">(</span><span class="n">ds_init</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine the edge that connects the two valid cells in the two-column</span>
+<span class="sd">    mesh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;cellsOnEdge&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_init</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cellsOnEdge is required in initial_state.nc&#39;</span><span class="p">)</span>
+
+    <span class="n">cells_on_edge</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">cellsOnEdge</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cells_on_edge</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">cells_on_edge</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cellsOnEdge must have shape (nEdges, 2).&#39;</span><span class="p">)</span>
+
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">cells_on_edge</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">cells_on_edge</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">valid_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_edges</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;Expected exactly one edge with two valid cells in the &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;two-column mesh, found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">valid_edges</span><span class="p">)</span><span class="si">}</span><span class="s1">.&#39;</span>
+        <span class="p">)</span>
+
+    <span class="n">edge_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">valid_edges</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="c1"># convert from 1-based MPAS indexing to 0-based indexing</span>
+    <span class="n">cell0</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cells_on_edge</span><span class="p">[</span><span class="n">edge_index</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">cell1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cells_on_edge</span><span class="p">[</span><span class="n">edge_index</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">edge_index</span><span class="p">,</span> <span class="p">(</span><span class="n">cell0</span><span class="p">,</span> <span class="n">cell1</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_forward_z_tilde_edge_mid</span><span class="p">(</span>
+    <span class="n">ds_out</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">cell0</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">cell1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute edge-centered pseudo-height at layer midpoints from Omega output</span>
+<span class="sd">    pressure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pressure_mid</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">PressureMid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">pressure_edge_mid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+        <span class="n">pressure_mid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">cell0</span><span class="p">)</span> <span class="o">+</span> <span class="n">pressure_mid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">cell1</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="o">-</span><span class="n">pressure_edge_mid</span> <span class="o">/</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sample_reference_without_interpolation</span><span class="p">(</span>
+    <span class="n">ref_z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">ref_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">target_z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">ref_valid_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">target_valid_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">abs_tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0e-6</span><span class="p">,</span>
+    <span class="n">rel_tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0e-10</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sample reference values at target z-tilde values by exact matching within a</span>
+<span class="sd">    strict tolerance, without interpolation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ref_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ref_z</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">ref_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ref_values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">target_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">target_z</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ref_valid_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ref_valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ref_valid_mask</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ref_valid_mask</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">ref_z</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;ref_valid_mask must have the same shape as ref_z.&#39;</span>
+            <span class="p">)</span>
+    <span class="k">if</span> <span class="n">target_valid_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">target_valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">target_valid_mask</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">target_valid_mask</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">target_z</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;target_valid_mask must have the same shape as target_z.&#39;</span>
+            <span class="p">)</span>
+
+    <span class="n">sampled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">target_z</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">valid_target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">target_z</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">target_valid_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">valid_target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">valid_target</span><span class="p">,</span> <span class="n">target_valid_mask</span><span class="p">)</span>
+    <span class="n">valid_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ref_z</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ref_values</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">ref_valid_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">valid_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">valid_ref</span><span class="p">,</span> <span class="n">ref_valid_mask</span><span class="p">)</span>
+
+    <span class="c1"># The bottom valid forward layer hits bathymetry and should not be used</span>
+    <span class="c1"># in the reference comparison.</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valid_target</span><span class="p">):</span>
+        <span class="n">deepest</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid_target</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">valid_target</span><span class="p">[</span><span class="n">deepest</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">ref_z_valid</span> <span class="o">=</span> <span class="n">ref_z</span><span class="p">[</span><span class="n">valid_ref</span><span class="p">]</span>
+    <span class="n">ref_values_valid</span> <span class="o">=</span> <span class="n">ref_values</span><span class="p">[</span><span class="n">valid_ref</span><span class="p">]</span>
+
+    <span class="n">target_valid</span> <span class="o">=</span> <span class="n">target_z</span><span class="p">[</span><span class="n">valid_target</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_valid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">sampled</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref_z_valid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;No valid reference z-tilde values remain after applying &#39;</span>
+            <span class="s1">&#39;ValidGradInterMask.&#39;</span>
+        <span class="p">)</span>
+
+    <span class="n">dz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ref_z_valid</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">-</span> <span class="n">target_valid</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:])</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">dz</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">min_dz</span> <span class="o">=</span> <span class="n">dz</span><span class="p">[</span><span class="n">indices</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))]</span>
+
+    <span class="n">tol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">abs_tol</span><span class="p">,</span> <span class="n">rel_tol</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">target_valid</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">min_dz</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">):</span>
+        <span class="n">max_mismatch</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">min_dz</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Reference z-tilde values do not match Omega z-tilde values &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;closely enough for subsampling without interpolation. max &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;|dz|=</span><span class="si">{</span><span class="n">max_mismatch</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+
+    <span class="n">sampled</span><span class="p">[</span><span class="n">valid_target</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_values_valid</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">sampled</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_vertical_match</span><span class="p">(</span>
+    <span class="n">z_ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">z_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">valid_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">abs_tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0e-6</span><span class="p">,</span>
+    <span class="n">rel_tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0e-10</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ensure two pseudo-height arrays match within strict tolerances.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">z_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">z_ref</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">z_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">z_test</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">z_ref</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">z_test</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s1">: shape mismatch </span><span class="si">{</span><span class="n">z_ref</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1"> != </span><span class="si">{</span><span class="n">z_test</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">valid_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">valid_mask</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">valid_mask</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">z_ref</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s1">: valid_mask shape mismatch &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">valid_mask</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1"> != </span><span class="si">{</span><span class="n">z_ref</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">z_ref</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">z_test</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">valid_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">valid_mask</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valid</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s1">: no valid levels for comparison.&#39;</span><span class="p">)</span>
+
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">z_ref</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">-</span> <span class="n">z_test</span><span class="p">[</span><span class="n">valid</span><span class="p">])</span>
+    <span class="n">tol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">abs_tol</span><span class="p">,</span> <span class="n">rel_tol</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">z_ref</span><span class="p">[</span><span class="n">valid</span><span class="p">])))</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">diff</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s1">: max |dz| = </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">diff</span><span class="p">))</span><span class="si">}</span><span class="s1">, exceeds tolerance.&#39;</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rms_error</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute RMS over finite values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valid</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No finite values available for RMS error.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_resolution_list</span><span class="p">(</span><span class="n">resolution_km</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Format a resolution array as a compact list of floats.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="n">resolution_km</span><span class="p">]</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="si">}</span><span class="s1">]&#39;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_resolution_error_pairs</span><span class="p">(</span>
+    <span class="n">resolution_km</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">rms_error</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Format resolution/error pairs as readable key-value text.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> km: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">error</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">resolution_km</span><span class="p">,</span> <span class="n">rms_error</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_power_law_fit</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">fit_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fit y = 10**b * x**m in log10 space.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">fit_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fit_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">fit_mask</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fit_mask</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;fit_mask must have the same shape as x and y for &#39;</span>
+                <span class="s1">&#39;power-law fitting.&#39;</span>
+            <span class="p">)</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">fit_mask</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;At least two positive finite points are required for fit.&#39;</span>
+        <span class="p">)</span>
+
+    <span class="n">poly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">valid</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">valid</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">slope</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">intercept</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">poly</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">fit</span> <span class="o">=</span> <span class="n">x</span><span class="o">**</span><span class="n">slope</span> <span class="o">*</span> <span class="mf">10.0</span><span class="o">**</span><span class="n">intercept</span>
+    <span class="k">return</span> <span class="n">fit</span><span class="p">,</span> <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_dataset</span><span class="p">(</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">resolution_km</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">rms_error</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">y_units</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">fit</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">slope</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">intercept</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write data used in a convergence plot to netCDF.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nres</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">resolution_km</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;resolution_km&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">resolution_km</span><span class="p">,</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nResolutions&#39;</span><span class="p">],</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;horizontal resolution&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;km&#39;</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="n">y_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">rms_error</span><span class="p">,</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nResolutions&#39;</span><span class="p">],</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="n">y_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">),</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="n">y_units</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">fit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;power_law_fit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">fit</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nResolutions&#39;</span><span class="p">],</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;power-law fit to rms error&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="n">y_units</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">slope</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;fit_slope&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slope</span>
+    <span class="k">if</span> <span class="n">intercept</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;fit_intercept_log10&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">intercept</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;nResolutions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nres</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot_errors</span><span class="p">(</span>
+    <span class="n">resolution_km</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">rms_error</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y_label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">fit</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">slope</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot RMS error vs. horizontal resolution with a power-law fit.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">use_mplstyle</span><span class="p">()</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">fit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">slope</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;slope must be provided when fit is provided.&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+            <span class="n">resolution_km</span><span class="p">,</span>
+            <span class="n">fit</span><span class="p">,</span>
+            <span class="s1">&#39;k&#39;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;power-law fit (slope=</span><span class="si">{</span><span class="n">slope</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">resolution_km</span><span class="p">,</span> <span class="n">rms_error</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RMS error&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Horizontal resolution (km)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">y_label</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower right&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>
