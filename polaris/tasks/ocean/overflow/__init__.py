@@ -19,6 +19,7 @@ def add_overflow_tasks(component):
     config = PolarisConfigParser(
         filepath=os.path.join(component.name, taskdir, config_filename)
     )
+    config.add_from_package('polaris.ocean.eos', 'linear.cfg')
     config.add_from_package('polaris.tasks.ocean.overflow', config_filename)
 
     init_step = Init(component=component, name='init', indir=taskdir)
