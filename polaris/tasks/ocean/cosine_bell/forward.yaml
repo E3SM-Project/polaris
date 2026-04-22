@@ -100,3 +100,4 @@ Omega:
         - Tracers
         - LayerThickness
         - NormalVelocity
+        - Eos
