@@ -254,25 +254,24 @@ builders.
 
 ### Algorithm Design: Shared Target-Grid Tiers and Cacheable Preprocessing
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The workflow should standardize on a small set of named target-grid tiers for
-all shared preprocessing products. A reasonable first set is:
+The workflow should standardize on a small set of supported regular lon/lat
+target-grid resolutions for all shared preprocessing products. These are:
 
-- `coarse`: 1.0 degree;
-- `medium`: 0.25 degree; and
-- `fine`: 1/16 degree, or 0.0625 degree.
+- 0.25 degree;
+- 0.125 degree;
+- 0.0625 degree; and
+- 0.03125 degree.
 
-These choices balance several competing needs. A 1-degree grid is inexpensive
-and suitable for exploratory or coarse products. A 0.25-degree grid is already
-useful for other E3SM preprocessing such as WOA 2023 extrapolation work. A
-1/16-degree grid is fine enough to support mesh-resolution choices down to
-roughly 5 km or so without making every workflow pay that cost by default.
+This range is expected to cover needs from quick testing that is not
+scientifically validated (unified meshes with coarser than ~120 km resolution)
+to our highest resolutions (finer than ~5 km).
 
 The selected target-grid tier should be a cross-cutting workflow choice. It
 should control the resolution used for shared `e3sm/init/topo/combine`
@@ -397,20 +396,20 @@ existing downstream tasks.
 
 ### Implementation: Feature-Aware Resolution Control
 
-Date last modified: 2026/04/18
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The likely first-pass step decomposition is:
+The current step decomposition is now partially implemented:
 
 - `prepare_coastline`: derive a coastline representation suitable for mesh
   refinement, using the `e3sm/init/topo` coastline as the first-choice source
   and Natural Earth as a fallback;
 - `prepare_river_network`: simplify and filter a global river dataset into a
-  refinement-ready product;
+  source-level and target-grid-ready product;
 - `build_sizing_field`: combine baseline ocean and land resolution choices with
   coastline and river refinement controls on a global lon/lat grid, ideally
   using signed-distance fields where that simplifies the definition of
@@ -418,25 +417,30 @@ The likely first-pass step decomposition is:
 - `unified_base_mesh`: consume the sizing field and create the MPAS base mesh.
 
 Related enabling work is already in place on the sibling
-`add-lat-lon-topo-combine` branch, which adds three lat-lon
-`e3sm/init/topo/combine` tasks at 0.0625, 0.25 and 1.0 degree and extends
-`CombineStep` accordingly. That branch does not implement the unified-mesh
-workflow itself, but it reduces risk for the shared target-grid preprocessing
-described here. See Polaris pull request
-<https://github.com/E3SM-Project/polaris/pull/526>.
+`add-lat-lon-topo-combine` branch, which adds shared lat-lon
+`e3sm/init/topo/combine` support and extends `CombineStep` accordingly. That
+branch does not implement the unified-mesh workflow itself, but it reduces
+risk for the shared target-grid preprocessing described here. See Polaris pull
+request <https://github.com/E3SM-Project/polaris/pull/526>.
 
-Additional enabling work is now in place on the `add-prepare-coastline`
-branch, which adds shared `mesh/spherical/unified/coastline` tasks and steps
-on those same three lat-lon target-grid tiers while still reusing the shared
-`e3sm/init/topo/combine` products. This branch introduces a shared
-`prepare_coastline` step, a standalone coastline task with a `viz` step, and
-raster coastline products for the `calving_front`, `grounding_line`, and
-`bedrock_zero` Antarctic conventions based on the shared combined topography
-product. This branch still does not implement the full unified-mesh workflow,
-but it further reduces risk for the feature-aware preprocessing described
-here by establishing the first shared coastline products on the supported
-target-grid tiers. See Polaris pull request
-<https://github.com/E3SM-Project/polaris/pull/545>.
+Additional enabling work is now in place in the shared coastline and river
+subtrees under `polaris/tasks/mesh/spherical/unified/`. The coastline
+implementation now provides shared lat-lon coastline products on the supported
+target-grid resolutions, and the river implementation now provides shared
+source-level and target-grid preprocessing products that can be coordinated
+with those coastline products. This is enough to make the intended sequence
+more concrete:
+
+1. build or reuse shared lat-lon topography products;
+2. derive coastline products on the selected shared target grid;
+3. prepare river-network products that use the same shared target grid and a
+   consistent coastline interpretation;
+4. combine coastline and river refinement signals into a unified sizing field;
+   and
+5. generate the spherical base mesh from that sizing field.
+
+Both coastline and river preprocessing now fit the same shared-step pattern and
+exchange products on a common target grid.
 
 These names are intentionally provisional. They are useful labels for the
 current design discussion but should not yet be interpreted as final public
@@ -458,10 +462,11 @@ the stage-level algorithms and interfaces, especially `prepare_coastline`,
 `unified_base_mesh` may or may not be needed depending on how much new logic
 remains after reuse of the existing spherical JIGSAW infrastructure.
 
-The preprocessing steps should write clear intermediate products that are
-useful for debugging and caching, such as cleaned GeoJSON or raster files.
-However, those products should be internal workflow artifacts, not new required
-external interfaces for downstream users.
+The preprocessing steps write clear intermediate products that are useful for
+debugging and caching, including both source-level vector products and lat-lon
+target-grid products. These intermediate products are explicit enough to
+support shared reuse between stages while still keeping `build_sizing_field` as
+the main integration point.
 
 `build_sizing_field` needs a tighter contract than its working name suggests.
 It should be defined as the step that takes:
@@ -470,8 +475,8 @@ It should be defined as the step that takes:
 - the background land and ocean resolution choices for the mesh;
 - the outputs of `prepare_coastline`, such as coastline geometry, masks or
   signed-distance fields;
-- the outputs of `prepare_river_network`, such as simplified flowlines,
-  drainage-area filters or rasterized distance products; and
+- the outputs of `prepare_river_network`, such as retained flowlines, outlet
+  information, masks, or other river-refinement products; and
 - configuration controlling how these refinement signals are blended,
   including minimum and maximum cell widths, transition distances and optional
   feature toggles.
@@ -501,9 +506,9 @@ configuration and internal APIs should nonetheless leave room for later steps
 that prepare watershed boundaries, lake boundaries or dam data if those prove
 necessary.
 
-The selected target-grid tier should be treated as part of this interface. The
-preprocessing and sizing-field steps should exchange products on one shared
-grid, not on independently chosen grids.
+The selected target-grid resolution should be treated as part of this
+interface. The preprocessing and sizing-field steps should exchange products on
+one shared grid, not on independently chosen grids.
 
 ### Implementation: Polaris-Native Configuration and Execution
 
@@ -551,20 +556,23 @@ mesh generator.
 
 ### Implementation: Shared Target-Grid Tiers and Cacheable Preprocessing
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The first implementation should expose target-grid choice through a small
-enumerated option such as `target_grid_tier = coarse`, `medium`, or `fine`
-rather than by encouraging arbitrary floating-point defaults in every task.
+The current shared implementation exposes target-grid choice through the
+supported lat-lon resolutions in
+`polaris.mesh.spherical.unified.LAT_LON_TARGET_GRID_RESOLUTIONS`, currently
+`0.25`, `0.125`, `0.0625`, and `0.03125` degrees.
 
-Each tier should map to a specific regular lon/lat resolution and should be
-used consistently in work-directory layout, shared-step cache keys, and output
-file naming so it is obvious which products can be reused together.
+The standalone coastline and river task families both iterate over that same
+tuple when constructing per-resolution tasks, and the shared step subdirectory
+layout includes the formatted resolution name. In practice, this means the
+resolution itself is already part of the cache key and of the work-directory
+layout, which is exactly the behavior the design intended.
 
 ### Implementation: Selective Migration and Maintainability
 
@@ -642,26 +650,26 @@ first-choice path is selected.
 
 ### Testing and Validation: Feature-Aware Resolution Control
 
-Date last modified: 2026/04/18
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-Current automated coverage for feature-aware preprocessing is limited to the
-coastline stage. Unit tests in `tests/mesh/spherical/unified/test_coastline.py`
-verify the
-coastline dataset contract, convention-specific Antarctic behavior, exclusion
-of disconnected inland water, and the use of the northernmost latitude row for
-flood-fill seeding.
+Current automated coverage for feature-aware preprocessing now includes both
+the coastline and river stages.
 
-There are not yet automated tests for river preprocessing, sizing-field
-construction, coastline-source fallback behavior, or feature-aware mesh
-generation, because those parts of the workflow have not been implemented yet.
+The current unit tests verify the coastline preprocessing contract and key
+convention-specific behavior, and they verify that river preprocessing
+preserves major network structure and produces consistent target-grid river and
+outlet products.
 
-The current coastline tests do not yet include a dedicated antimeridian case
-or a task-level smoke test of the full standalone coastline workflow.
+There are still no automated tests for `build_sizing_field`, feature-aware
+mesh generation, or downstream remap/cull integration, because those workflow
+stages are not implemented yet. The current river and coastline coverage is
+also mostly unit-level; it does not yet include a task-level smoke test of the
+full standalone shared-step chain.
 
 ### Testing and Validation: Shared Target-Grid Tiers and Cacheable Preprocessing
 

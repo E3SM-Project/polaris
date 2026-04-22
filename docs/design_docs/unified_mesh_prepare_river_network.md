@@ -42,15 +42,15 @@ downstream steps to consume.
 
 ### Requirement: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-`prepare_river_network` shall provide products that can be consumed directly by
-`build_sizing_field`.
+`prepare_river_network` shall provide source-level and target-grid products
+that can be consumed directly by `build_sizing_field`.
 
 The shared products shall retain the major river-network information needed for
 mesh refinement, including channel locations and outlet locations.
@@ -100,21 +100,23 @@ already perfectly consistent with the preferred coastline source.
 
 ### Requirement: Standalone River-Network Task
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-Polaris shall provide a task that runs the shared `prepare_river_network` step
-and the shared steps it depends on (e.g. `prepare_coastline`).
+Polaris shall provide a standalone task for the shared source-level river
+preprocessing and a standalone lat-lon task that runs the shared river
+rasterization together with the shared steps it depends on (for example
+`e3sm/init/topo/combine` and `prepare_coastline`).
 
-The standalone task shall make it practical to inspect retained basins,
-outlets, and target-grid river products without running the full unified mesh
-workflow.
+These standalone tasks shall make it practical to inspect retained basins,
+outlets, target-grid river masks, and outlet-snapping diagnostics without
+running the full unified mesh workflow.
 
-The same shared step and configuration shall be reusable from the full unified
+The same shared steps and configuration shall be reusable from the full unified
 workflow when settings match.
 
 ### Requirement: Reproducible Source Data Access
@@ -142,107 +144,101 @@ required preprocessing cannot be reproduced robustly within Polaris.
 
 ### Algorithm Design: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The step should consume a global river-flowline source together with the shared
-coastline products and target-grid tier selected for the workflow. The output
-contract should then separate authoritative hydrographic products from the
-grid-specific products needed by `build_sizing_field`.
+The current implementation separates source-level hydrographic products from
+target-grid products rather than trying to make one step serve both roles.
+This aligns with the design intent that downstream consumers should not need to
+reinterpret HydroRIVERS or infer outlet semantics from one overloaded raster.
 
-The authoritative hydrographic product should be a simplified vector river
-network with attributes such as drainage area, stream segment, stream order,
-downstream segment, and outlet type.
+At the source level, the workflow writes:
 
-That simplified vector product should remain a first-class workflow artifact,
-not just an intermediate used to create rasters. In particular, it is needed
-both by `build_sizing_field` and by the final mesh step because the first
-Polaris design intends to retain the current standalone use of river geometry
-to influence cell placement.
+- `source_river_network.geojson`, containing the converted HydroRIVERS source;
+- `simplified_river_network.geojson`, containing retained segments with
+  `hyriv_id`, `main_riv`, `ord_stra`, `drainage_area`, `next_down`,
+  `endorheic`, `outlet_type`, and `outlet_hyriv_id`; and
+- `retained_outlets.geojson`, containing the retained outlet points and their
+  basic classification.
 
-For direct use by `build_sizing_field`, the workflow should also produce
-target-grid river products on the same regular lon/lat grid used by
-`prepare_coastline` and `build_sizing_field`, most likely:
+At the target-grid level, the workflow writes:
 
-- a river-channel mask;
-- a river-outlet mask;
-- outlet metadata or outlet points with drainage area and outlet type; and
-- optionally other diagnostic rasters such as stream-order or basin IDs if
-  they prove useful.
+- `river_network.nc`, with `river_channel_mask`, `river_outlet_mask`,
+  `river_ocean_outlet_mask`, and `river_inland_sink_mask`; and
+- `river_outlets.geojson`, containing the snapped outlet points together with
+  source coordinates, snapped coordinates, snapped grid indices, snapping
+  distance, and `matched_to_ocean`.
 
-This is intentionally clearer than the current standalone workflow, which uses
-one raster and a special outlet value. In Polaris, separate masks should be
-preferred so the downstream contract is easy to interpret and extend.
+This is intentionally clearer than the standalone workflow's mixed raster
+semantics. The present implementation does not yet add stream-order rasters or
+basin IDs, but it does establish a clean product split that `build_sizing_field`
+can consume directly later.
 
 ### Algorithm Design: Hydrologically Meaningful Simplification
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The current `mpas_land_mesh` workflow provides a useful starting point. It
-uses HydroRIVERS attributes such as `HYRIV_ID`, `MAIN_RIV`, `ORD_STRA`,
-`UPLAND_SKM`, `NEXT_DOWN`, and `ENDORHEIC` to identify outlets, build basin
-topology, and simplify the network with proximity and drainage-area criteria.
-
-The first Polaris design should preserve that overall logic as directly as is
-practical, while documenting it in a clearer staged form. For example:
+The current Polaris implementation is a focused reimplementation built around
+HydroRIVERS attributes such as `HYRIV_ID`, `MAIN_RIV`, `ORD_STRA`,
+`UPLAND_SKM`, `NEXT_DOWN`, and `ENDORHEIC`. Its staged logic is:
 
 1. Filter source flowlines by a minimum drainage-area threshold tied to the
    intended river-refinement scale.
-2. Identify candidate outlets for both ocean-draining and endorheic basins.
-3. Merge or suppress nearby candidate outlets based on a geodesic separation
-   tolerance, generally keeping the larger drainage area when two outlets are
-   too close.
-4. For each retained outlet, reconstruct upstream topology and assign stream
-   segments and stream order.
-5. Simplify upstream reaches recursively, preserving the main stem and major
-   tributaries while dropping small, redundant, or too-close reaches.
+2. Merge multiple source features with the same `hyriv_id` into one canonical
+   segment when needed.
+3. Validate that the retained `NEXT_DOWN` graph is acyclic before attempting
+   basin traversal.
+4. Identify candidate outlets from segments with `next_down == 0`, then retain
+   large, well-separated outlets based on geodesic distance while preserving
+   distinct inland sinks.
+5. Traverse upstream iteratively from each retained outlet, keeping the
+   largest upstream segment at each confluence as the main stem.
+6. Retain additional tributaries when either their drainage area exceeds a
+   configurable fraction of the main stem or their minimum distance from the
+   already retained basin skeleton exceeds the outlet-distance tolerance.
 
 The key point is that simplification should be basin-aware and topology-aware.
 The Polaris design should preserve connectivity and confluences, not just apply
 independent Douglas-Peucker style simplification to each source feature.
 
-The current standalone code uses `pyrivergraph`, R-trees, and drainage-area
-ratios to decide when a nearby tributary should still be kept. Because this is
-the least well-understood part of the workflow by Polaris developers, Polaris
-should preferentially preserve these river-specific algorithms through targeted
-extraction or close reimplementation, rather than treating them as the first
-place to simplify the overall design.
-
 ### Algorithm Design: Coastline-Consistent Outlets and Explicit Inland Sinks
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The simplified network should not be finalized independently of the coastline
-step. Instead, the retained outlets should be checked against the land/ocean
-mask and coastline-edge products from `prepare_coastline`.
+The simplified network is finalized in two phases: source-level retention and
+target-grid reconciliation. The source-level step identifies retained outlet
+points, and the lat-lon step then reconciles those points against the shared
+coastline product.
 
-For basins that drain to the ocean, the outlet should be matched to a
-compatible coastline location on the shared target grid. If the river source
-and coastline source disagree slightly, the workflow should reconcile them
-through a controlled snapping or matching procedure and record the resulting
-outlet location and any applied displacement.
+For ocean-draining basins, the current implementation searches for the nearest
+ocean cell in `coastline.nc`, computes the haversine distance to that cell, and
+marks the outlet as matched only if the distance is within the configured
+`outlet_match_tolerance`. If no ocean cell is close enough, the outlet is still
+snapped to the nearest grid cell but is recorded as `matched_to_ocean = false`
+with the snapping distance preserved for diagnostics.
 
-Endorheic basins should bypass coastline matching and retain an explicit inland
-sink classification. This distinction is important because downstream mesh
-refinement may wish to treat inland sinks differently from ocean outlets.
+Endorheic basins bypass ocean matching and are snapped to the nearest land cell
+derived from the coastline `ocean_mask`. They retain the explicit
+`inland_sink` classification in both the vector outlet metadata and the target-
+grid masks.
 
-If an ocean-draining outlet cannot be matched to a compatible coastline
-location within a configured tolerance, the workflow should flag that basin for
-diagnostics rather than silently leaving the inconsistency unresolved.
+If an ocean-draining outlet cannot be matched within tolerance, the workflow
+flags that basin through per-feature metadata and through the dataset attribute
+`unmatched_ocean_outlets`.
 
 Once outlet reconciliation is complete, the simplified river network can be
 rasterized onto the shared target grid. Rasterization should produce separate
@@ -250,141 +246,174 @@ channel and outlet masks rather than a single overloaded integer raster.
 
 ### Algorithm Design: Standalone River-Network Task
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The standalone task should be a thin wrapper around the shared
-`prepare_river_network` step rather than a separate implementation path.
+The current standalone task design uses two thin wrappers rather than one
+monolithic task.
 
-The task will depend on the selected coastline and target-grid products
-because outlet reconciliation requires a coastline interpretation. Beyond that,
-the standalone task should focus on diagnostics and iteration: comparing
-drainage-area thresholds, outlet-separation tolerances, and the resulting
-retained basins and outlet masks.
+`PrepareRiverNetworkTask` wraps only the shared source-level step and is the
+right place to inspect HydroRIVERS conversion and source-grid-independent
+simplification choices. `LatLonRiverNetworkTask` adds the shared lat-lon topo
+combine step, the shared coastline step, the shared lat-lon river step, and an
+optional visualization step so outlet matching and rasterization can be
+inspected on a concrete target grid.
 
-Because the task wraps the shared step, the same simplified river products can
-later be reused by `build_sizing_field` and the full unified workflow when
-configuration choices match.
+This split keeps each task close to one layer of the interface while still
+reusing the same shared steps that a future `build_sizing_field` task would
+consume.
 
 ## Implementation
 
 ### Implementation: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/19
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-Detailed file naming and class layout should be deferred until the interface is
-settled further. The first implementation should prioritize a clean output
-contract over carrying forward the standalone workflow's mixed raster
-conventions.
+The file naming and class layout are now concrete. The river implementation is
+organized under `polaris/tasks/mesh/spherical/unified/river/` as:
+
+- `source.py` for HydroRIVERS download, unpacking, shapefile conversion, and
+  source-level simplification;
+- `lat_lon.py` for target-grid rasterization and outlet reconciliation;
+- `viz.py` for diagnostic plotting and text summaries;
+- `steps.py` for shared-step factories;
+- `task.py` for standalone task wrappers; and
+- `river_network.cfg` for the shared configuration sections.
+
+This implementation prioritizes a clean output contract over carrying forward
+the standalone workflow's mixed raster conventions.
 
 The first Polaris implementation should also avoid making the default workflow
 depend on a user-supplied local source-file path. Instead, it should identify
 the required public datasets and either download them directly or, only if
 necessary, consume them from the Polaris database.
 
-The sibling `add-lat-lon-topo-combine` branch already adds the shared lat-lon
-`e3sm/init/topo/combine` tasks and `CombineStep` support that underpin the
-preferred topo-driven coastline path in this design. That is enabling work
-rather than a river-network implementation, but it reduces risk for aligning
-outlets with shared target-grid coastline products. See Polaris pull request
-<https://github.com/E3SM-Project/polaris/pull/526>.
+The source step obtains HydroRIVERS through `add_input_file()` using the public
+archive URL in `[prepare_river_network]`, with the Polaris database still
+available as a fallback cache location. The lat-lon step then consumes the
+shared coastline dataset selected by `[prepare_river_lat_lon]`.
 
 ### Implementation: Hydrologically Meaningful Simplification
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The first implementation should preserve the basin-aware simplification logic
-from `mpas_land_mesh` as directly as is practical while favoring smaller
-focused helpers over broad utility-layer migration.
+The current simplification logic lives in
+`simplify_river_network_feature_collection()` in
+`polaris/tasks/mesh/spherical/unified/river/source.py`. It uses small focused
+helpers for canonicalizing segments, validating downstream topology, filtering
+outlets, and traversing retained basin structure.
+
+The implementation favors a compact Polaris-native reimplementation over a
+direct migration of `mpas_land_mesh` helper layers. No clear defect emerged
+from the current unit tests, but this remains an area where additional
+comparison against real HydroRIVERS output would strengthen confidence.
 
 ### Implementation: Coastline-Consistent Outlets and Explicit Inland Sinks
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The first implementation should keep coastline matching and inland-sink
-classification explicit in metadata and diagnostics so outlet treatment is easy
-to audit.
+The current implementation keeps coastline matching and inland-sink treatment
+explicit in both NetCDF and GeoJSON outputs. `river_network.nc` separates
+channel cells, all outlet cells, ocean outlets, and inland sinks, and
+`river_outlets.geojson` records both source and snapped positions together with
+match status and snapping distance.
 
 ### Implementation: Standalone River-Network Task
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The first implementation should add a lightweight task wrapper around the
-shared step and should avoid a separate task-specific code path.
+The current implementation adds two lightweight task wrappers in
+`polaris/tasks/mesh/spherical/unified/river/task.py` and avoids any separate
+task-specific river-processing code path. `PrepareRiverNetworkTask` exposes the
+shared source step, while `LatLonRiverNetworkTask` exposes the target-grid
+workflow and diagnostics for each supported resolution.
 
 ## Testing
 
 ### Testing and Validation: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-Detailed validation criteria should be added once the implementation plan is
-more concrete. The main early check will be that `build_sizing_field` can
-consume the shared river products without rerunning source-data processing.
+The implementation now has unit tests for the source-level and target-grid
+product contracts in `tests/mesh/spherical/unified/test_river.py`. These tests
+verify that the expected masks and snapped-outlet metadata are written and that
+ocean-outlet and inland-sink cases remain distinct.
+
+`build_sizing_field` does not yet exist, so there is not yet an integration
+test showing direct downstream consumption of the river products.
 
 ### Testing and Validation: Hydrologically Meaningful Simplification
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-Early validation should focus on whether major outlets, main stems, and major
-tributaries are retained in a way that scales sensibly with the chosen
-thresholds.
+Current unit tests validate whether major outlets, main stems, and major
+tributaries are retained for representative synthetic networks, including deep
+main stems and branching cases. They also verify that invalid cyclic
+`NEXT_DOWN` graphs are rejected.
+
+What is still missing is validation against real HydroRIVERS subsets to ensure
+the present heuristics retain scientifically appropriate networks across
+different hydrographic settings.
 
 ### Testing and Validation: Coastline-Consistent Outlets and Explicit Inland Sinks
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-Early validation should make outlet matching diagnostics explicit and should
-show that endorheic basins remain distinct from ocean outlets.
+Current unit tests verify matched and unmatched ocean-outlet behavior as well
+as inland-sink snapping to land cells. The visualization step also writes
+`river_network_overview.png` and `debug_summary.txt`, which makes outlet
+matching diagnostics straightforward to inspect in task runs.
 
 ### Testing and Validation: Standalone River-Network Task
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/22
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The standalone task should eventually be validated as the primary place to
-inspect river simplification choices before those products are used in the full
-unified workflow.
+The standalone tasks are now the primary implementation path for inspecting
+river simplification and target-grid diagnostics, but there is not yet a
+task-level smoke test that exercises the full setup and run path for either
+task. Adding such a test would be a good next step once suitable lightweight
+test inputs are available.
