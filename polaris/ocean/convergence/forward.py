@@ -33,6 +33,7 @@ class ConvergenceForward(OceanModelStep):
         mesh,
         init,
         package,
+        update_eos=False,
         yaml_filename='forward.yaml',
         mesh_input_filename='mesh.nc',
         options=None,
@@ -94,6 +95,7 @@ class ConvergenceForward(OceanModelStep):
             component=component,
             name=name,
             subdir=subdir,
+            update_eos=update_eos,
             openmp_threads=1,
             graph_target=graph_target,
         )
