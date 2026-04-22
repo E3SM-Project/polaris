@@ -99,6 +99,7 @@ build_omega_dev() {
     local compiler=$1
     local omega_build=$2
     local parmetis_path=$3
+    local arch=$4
 
     echo "--------------------------------------------------------------------------------"
     echo "Building Omega (dev) with $compiler in $omega_build"
@@ -113,6 +114,7 @@ build_omega_dev() {
       -DOMEGA_CIME_MACHINE="${CRONJOB_MACHINE}" \
       -DOMEGA_CIME_COMPILER="${compiler}" \
       -DOMEGA_BUILD_TEST=ON \
+      -DOMEGA_ARCH="${arch}" \
       -DOMEGA_PARMETIS_ROOT="${parmetis_path}" \
       "${OMEGA_HOME}/components/omega"
 
@@ -194,7 +196,7 @@ for COMPILER in "${!COMPILER_MAP[@]}"; do
             fi
 		fi
 
-        build_omega_dev "$COMPILER" "$DEVELOP_BUILD" "$PARMETIS_HOME"
+        build_omega_dev "$COMPILER" "$DEVELOP_BUILD" "$PARMETIS_HOME" "${COMPILER_MAP[$MY_COMPILER]}"
 
         run_baseline_suite "$COMPILER" "$DEVELOP_BUILD"
     } 2>&1 | tee "$MAIN_LOG"
