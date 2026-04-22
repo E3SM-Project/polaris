@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import sys
 
@@ -48,11 +49,14 @@ def write(work_dir, tasks, config=None, machine=None, baseline_dir=None):
     else:
         component_git_version = _get_component_git_version(config)
 
-    try:
-        args = ['pixi', 'list']
-        pixi_list = subprocess.check_output(args).decode('utf-8')
-    except subprocess.CalledProcessError:
-        pixi_list = None
+    pixi_list = None
+    pixi_exe = _get_pixi_executable()
+    if pixi_exe is not None:
+        try:
+            args = [pixi_exe, 'list']
+            pixi_list = subprocess.check_output(args).decode('utf-8')
+        except (OSError, subprocess.CalledProcessError):
+            pass
 
     calling_command = ' '.join(sys.argv)
 
@@ -144,6 +148,35 @@ def _get_component_git_version(config):
     os.chdir(cwd)
 
     return component_git_version
+
+
+def _get_pixi_executable():
+    for env_var in (
+        'MACHE_DEPLOY_ACTIVE_PIXI_EXE',
+        'MACHE_DEPLOY_COMPUTE_PIXI_EXE',
+        'PIXI',
+    ):
+        pixi_exe = os.environ.get(env_var)
+        if _is_executable_file(pixi_exe):
+            return pixi_exe
+
+    pixi_exe = shutil.which('pixi')
+    if pixi_exe is not None:
+        return pixi_exe
+
+    default_pixi = os.path.join(
+        os.path.expanduser('~'), '.pixi', 'bin', 'pixi'
+    )
+    if _is_executable_file(default_pixi):
+        return default_pixi
+
+    return None
+
+
+def _is_executable_file(path):
+    return (
+        path is not None and os.path.isfile(path) and os.access(path, os.X_OK)
+    )
 
 
 def _get_system(config):

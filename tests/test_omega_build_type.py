@@ -34,6 +34,62 @@ def test_provenance_build_type_falls_back_to_config(tmp_path):
     assert provenance._get_build_type(config) == 'Debug'
 
 
+def test_provenance_write_uses_deploy_pixi_executable(tmp_path, monkeypatch):
+    pixi_exe = _make_executable(tmp_path / 'pixi')
+    monkeypatch.setenv('MACHE_DEPLOY_ACTIVE_PIXI_EXE', str(pixi_exe))
+    monkeypatch.setattr(provenance.sys, 'argv', ['polaris', 'suite'])
+
+    def _check_output(args):
+        if args == ['git', 'describe', '--tags', '--dirty', '--always']:
+            return b'test-version\n'
+        if args == [str(pixi_exe), 'list']:
+            return b'test-package\n'
+        raise AssertionError(f'unexpected command: {args}')
+
+    monkeypatch.setattr(provenance.subprocess, 'check_output', _check_output)
+
+    provenance.write(str(tmp_path / 'work'), tasks={})
+
+    contents = (tmp_path / 'work' / 'provenance').read_text(encoding='utf-8')
+    assert 'pixi list:\n' in contents
+    assert 'test-package\n' in contents
+
+
+def test_provenance_write_skips_pixi_list_when_pixi_missing(
+    tmp_path, monkeypatch
+):
+    monkeypatch.delenv('MACHE_DEPLOY_ACTIVE_PIXI_EXE', raising=False)
+    monkeypatch.delenv('MACHE_DEPLOY_COMPUTE_PIXI_EXE', raising=False)
+    monkeypatch.delenv('PIXI', raising=False)
+    monkeypatch.setenv('PATH', '')
+    monkeypatch.setenv('HOME', str(tmp_path / 'home'))
+    monkeypatch.setattr(provenance.sys, 'argv', ['polaris', 'suite'])
+
+    def _check_output(args):
+        if args == ['git', 'describe', '--tags', '--dirty', '--always']:
+            return b'test-version\n'
+        raise AssertionError(f'unexpected command: {args}')
+
+    monkeypatch.setattr(provenance.subprocess, 'check_output', _check_output)
+
+    provenance.write(str(tmp_path / 'work'), tasks={})
+
+    contents = (tmp_path / 'work' / 'provenance').read_text(encoding='utf-8')
+    assert 'pixi list:\n' not in contents
+
+
+def test_get_pixi_executable_falls_back_to_home_default(tmp_path, monkeypatch):
+    monkeypatch.delenv('MACHE_DEPLOY_ACTIVE_PIXI_EXE', raising=False)
+    monkeypatch.delenv('MACHE_DEPLOY_COMPUTE_PIXI_EXE', raising=False)
+    monkeypatch.delenv('PIXI', raising=False)
+    monkeypatch.setenv('PATH', '')
+    monkeypatch.setenv('HOME', str(tmp_path))
+
+    pixi_exe = _make_executable(tmp_path / '.pixi' / 'bin' / 'pixi')
+
+    assert provenance._get_pixi_executable() == str(pixi_exe)
+
+
 def _make_omega_build_dir(build_dir, build_type, cache_key='OMEGA_BUILD_TYPE'):
     build_dir.mkdir()
     (build_dir / 'omega_build.sh').write_text('#!/bin/sh\n', encoding='utf-8')
@@ -51,3 +107,10 @@ def _make_config(build_dir, debug):
     config.add_section('build')
     config.set('build', 'debug', str(debug))
     return config
+
+
+def _make_executable(path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text('#!/bin/sh\n', encoding='utf-8')
+    path.chmod(0o755)
+    return path
