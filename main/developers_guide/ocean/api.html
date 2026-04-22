@@ -454,6 +454,50 @@
 </tbody>
 </table>
 </section>
+<section id="global-ocean">
+<h3>global_ocean<a class="headerlink" href="#global-ocean" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.global_ocean.add_global_ocean_tasks.html#polaris.tasks.ocean.global_ocean.add_global_ocean_tasks" title="polaris.tasks.ocean.global_ocean.add_global_ocean_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_global_ocean_tasks</span></code></a>(component)</p></td>
+<td><p>Add tasks for global-ocean preprocessing and initialization.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="global-ocean-hydrography-woa23">
+<h3>global_ocean.hydrography.woa23<a class="headerlink" href="#global-ocean-hydrography-woa23" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.global_ocean.hydrography.woa23.Woa23.html#polaris.tasks.ocean.global_ocean.hydrography.woa23.Woa23" title="polaris.tasks.ocean.global_ocean.hydrography.woa23.Woa23"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Woa23</span></code></a>(component)</p></td>
+<td><p>A task for building a reusable WOA23 hydrography product.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.global_ocean.hydrography.woa23.get_woa23_topography_step.html#polaris.tasks.ocean.global_ocean.hydrography.woa23.get_woa23_topography_step" title="polaris.tasks.ocean.global_ocean.hydrography.woa23.get_woa23_topography_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_woa23_topography_step</span></code></a>()</p></td>
+<td><p>Get the cached combined-topography step for the WOA23 target grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.global_ocean.hydrography.woa23.get_woa23_steps.html#polaris.tasks.ocean.global_ocean.hydrography.woa23.get_woa23_steps" title="polaris.tasks.ocean.global_ocean.hydrography.woa23.get_woa23_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_woa23_steps</span></code></a>(component, combine_topo_step)</p></td>
+<td><p>Get the shared steps for building the reusable WOA23 hydrography product.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.global_ocean.hydrography.woa23.CombineStep.html#polaris.tasks.ocean.global_ocean.hydrography.woa23.CombineStep" title="polaris.tasks.ocean.global_ocean.hydrography.woa23.CombineStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep</span></code></a>(component, subdir)</p></td>
+<td><p>A step for combining January and annual WOA23 climatologies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.global_ocean.hydrography.woa23.CombineStep.setup.html#polaris.tasks.ocean.global_ocean.hydrography.woa23.CombineStep.setup" title="polaris.tasks.ocean.global_ocean.hydrography.woa23.CombineStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep.setup</span></code></a>()</p></td>
+<td><p>Set up input files for the step.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.global_ocean.hydrography.woa23.CombineStep.run.html#polaris.tasks.ocean.global_ocean.hydrography.woa23.CombineStep.run" title="polaris.tasks.ocean.global_ocean.hydrography.woa23.CombineStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep.run</span></code></a>()</p></td>
+<td><p>Combine January and annual climatologies and derive conservative temperature and absolute salinity.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.global_ocean.hydrography.woa23.ExtrapolateStep.html#polaris.tasks.ocean.global_ocean.hydrography.woa23.ExtrapolateStep" title="polaris.tasks.ocean.global_ocean.hydrography.woa23.ExtrapolateStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExtrapolateStep</span></code></a>(component, subdir, ...)</p></td>
+<td><p>A step for extrapolating WOA23 into missing ocean, land and ice regions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.global_ocean.hydrography.woa23.ExtrapolateStep.setup.html#polaris.tasks.ocean.global_ocean.hydrography.woa23.ExtrapolateStep.setup" title="polaris.tasks.ocean.global_ocean.hydrography.woa23.ExtrapolateStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExtrapolateStep.setup</span></code></a>()</p></td>
+<td><p>Set up input files for the step.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.global_ocean.hydrography.woa23.ExtrapolateStep.run.html#polaris.tasks.ocean.global_ocean.hydrography.woa23.ExtrapolateStep.run" title="polaris.tasks.ocean.global_ocean.hydrography.woa23.ExtrapolateStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExtrapolateStep.run</span></code></a>()</p></td>
+<td><p>Extrapolate WOA23 horizontally and vertically in two stages.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="horiz-press-grad">
 <h3>horiz_press_grad<a class="headerlink" href="#horiz-press-grad" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">

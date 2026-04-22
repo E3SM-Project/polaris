@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.global\_ocean.hydrography.woa23.Woa23
+=========================================================
+
+.. currentmodule:: polaris.tasks.ocean.global_ocean.hydrography.woa23
+
+.. autoclass:: Woa23
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Woa23.__init__
+      ~Woa23.add_step
+      ~Woa23.configure
+      ~Woa23.remove_step
+      ~Woa23.set_shared_config
+   
+   
+
+   
+   
+   

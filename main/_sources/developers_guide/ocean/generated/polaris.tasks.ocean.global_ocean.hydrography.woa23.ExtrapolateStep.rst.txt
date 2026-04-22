@@ -1,0 +1,40 @@
+﻿polaris.tasks.ocean.global\_ocean.hydrography.woa23.ExtrapolateStep
+===================================================================
+
+.. currentmodule:: polaris.tasks.ocean.global_ocean.hydrography.woa23
+
+.. autoclass:: ExtrapolateStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ExtrapolateStep.__init__
+      ~ExtrapolateStep.add_dependency
+      ~ExtrapolateStep.add_input_file
+      ~ExtrapolateStep.add_output_file
+      ~ExtrapolateStep.check_properties
+      ~ExtrapolateStep.constrain_resources
+      ~ExtrapolateStep.process_inputs_and_outputs
+      ~ExtrapolateStep.run
+      ~ExtrapolateStep.runtime_setup
+      ~ExtrapolateStep.set_resources
+      ~ExtrapolateStep.set_shared_config
+      ~ExtrapolateStep.setup
+      ~ExtrapolateStep.validate_baselines
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ExtrapolateStep.output_filename
+   
+   
