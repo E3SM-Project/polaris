@@ -50,7 +50,7 @@ def add_isomip_plus_tasks(component, mesh_type):
         filepath = os.path.join(component.name, resdir, 'isomip_plus_topo.cfg')
         config = PolarisConfigParser(filepath=filepath)
         if not planar:
-            config.add_from_package('polaris.mesh', 'spherical.cfg')
+            config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
             config.set(
                 'spherical_mesh',
                 'mpas_mesh_filename',

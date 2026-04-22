@@ -16,6 +16,9 @@ from mpas_tools.ocean.coastline_alteration import (
 )
 
 from polaris import Step
+from polaris.mesh.spherical.critical_transects import (
+    load_default_critical_transects,
+)
 
 
 class CullMaskStep(Step):
@@ -80,6 +83,7 @@ class CullMaskStep(Step):
         )
 
         self.add_output_file(filename='cull_masks.nc')
+        self._critical_transects = None
 
     def setup(self):
         """
@@ -150,11 +154,9 @@ class CullMaskStep(Step):
             'include_critical_transects'
         )
         if include_critical_transects:
-            fc_crit_land_transects = gf.read(
-                componentName='ocean',
-                objectType='transect',
-                tags=['Critical_Land_Blockage'],
-            )
+            fc_crit_land_transects = self._load_default_critical_transects(
+                gf
+            ).land_blockages
         else:
             fc_crit_land_transects = None
 
@@ -184,15 +186,31 @@ class CullMaskStep(Step):
             'include_critical_transects'
         )
         if include_critical_transects:
-            fc_crit_ocean_transects = gf.read(
-                componentName='ocean',
-                objectType='transect',
-                tags=['Critical_Passage'],
-            )
+            fc_crit_ocean_transects = self._load_default_critical_transects(
+                gf
+            ).passages
         else:
             fc_crit_ocean_transects = None
 
         return fc_crit_ocean_transects
+
+    def _load_default_critical_transects(self, gf):
+        """
+        Load and cache the shared default critical transects.
+
+        Parameters
+        ----------
+        gf : geometric_features.GeometricFeatures
+            The geometric features from which to get the transects
+
+        Returns
+        -------
+        polaris.mesh.spherical.critical_transects.CriticalTransects
+            The shared critical transects
+        """
+        if self._critical_transects is None:
+            self._critical_transects = load_default_critical_transects(gf)
+        return self._critical_transects
 
     def refine_ocean_cull_mask(self, ds_base_mesh, ds_topo, cull_mask):
         """
@@ -367,11 +385,6 @@ class CullMaskStep(Step):
         netcdf_engine = mpas_tools.io.default_engine
 
         gf = GeometricFeatures()
-        gf.read(
-            componentName='ocean',
-            objectType='transect',
-            tags=['Critical_Land_Blockage', 'Critical_Passage'],
-        )
 
         ds_base_mesh = xr.open_dataset('base_mesh.nc')
 
