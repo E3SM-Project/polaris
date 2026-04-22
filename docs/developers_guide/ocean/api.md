@@ -595,6 +595,7 @@
    compute_density
    compute_specvol
 
+   constant.compute_constant_density
    linear.compute_linear_density
    teos10.compute_specvol
 ```
