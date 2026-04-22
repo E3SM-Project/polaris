@@ -196,7 +196,7 @@ for COMPILER in "${!COMPILER_MAP[@]}"; do
             fi
 		fi
 
-        build_omega_dev "$COMPILER" "$DEVELOP_BUILD" "$PARMETIS_HOME" "${COMPILER_MAP[$MY_COMPILER]}"
+        build_omega_dev "$COMPILER" "$DEVELOP_BUILD" "$PARMETIS_HOME" "${COMPILER_MAP[$COMPILER]}"
 
         run_baseline_suite "$COMPILER" "$DEVELOP_BUILD"
     } 2>&1 | tee "$MAIN_LOG"
