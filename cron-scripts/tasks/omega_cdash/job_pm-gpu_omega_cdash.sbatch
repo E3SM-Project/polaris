@@ -30,4 +30,3 @@ else
     echo "Script directory: $SCRIPT_DIR"
     exit 1
 fi
-
