@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.get\_days\_since\_start
+===========================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. autofunction:: get_days_since_start

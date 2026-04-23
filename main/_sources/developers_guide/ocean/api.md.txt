@@ -613,6 +613,7 @@
    OceanModelStep.map_yaml_options
    OceanModelStep.map_yaml_configs
 
+   get_days_since_start
    get_time_interval_string
 ```
 
