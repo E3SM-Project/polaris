@@ -110,6 +110,7 @@
              
   <h1>Source code for polaris.provenance</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
@@ -161,11 +162,14 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">component_git_version</span> <span class="o">=</span> <span class="n">_get_component_git_version</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pixi&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">]</span>
-        <span class="n">pixi_list</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
-        <span class="n">pixi_list</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pixi_list</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pixi_exe</span> <span class="o">=</span> <span class="n">_get_pixi_executable</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">pixi_exe</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">pixi_exe</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">]</span>
+            <span class="n">pixi_list</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">):</span>
+            <span class="k">pass</span>
 
     <span class="n">calling_command</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
 
@@ -258,6 +262,35 @@
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">component_git_version</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_pixi_executable</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">env_var</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="s1">&#39;MACHE_DEPLOY_ACTIVE_PIXI_EXE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;MACHE_DEPLOY_COMPUTE_PIXI_EXE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;PIXI&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">pixi_exe</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">env_var</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_is_executable_file</span><span class="p">(</span><span class="n">pixi_exe</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">pixi_exe</span>
+
+    <span class="n">pixi_exe</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s1">&#39;pixi&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pixi_exe</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pixi_exe</span>
+
+    <span class="n">default_pixi</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s1">&#39;~&#39;</span><span class="p">),</span> <span class="s1">&#39;.pixi&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;pixi&#39;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">_is_executable_file</span><span class="p">(</span><span class="n">default_pixi</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">default_pixi</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_executable_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">X_OK</span><span class="p">)</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_system</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
