@@ -25,9 +25,7 @@ def add_barotropic_gyre_tasks(component):
     config_filename = f'{group_name}.cfg'
     config_filepath = os.path.join(component.name, group_dir, config_filename)
     config = PolarisConfigParser(filepath=config_filepath)
-    config.add_from_package(
-        f'polaris.ocean.eos', 'constant.cfg'
-    )
+    config.add_from_package('polaris.ocean.eos', 'constant.cfg')
     config.add_from_package(
         f'polaris.tasks.ocean.{group_name}', config_filename
     )
@@ -37,7 +35,7 @@ def add_barotropic_gyre_tasks(component):
     config.set(
         'ocean',
         'eos_constant_rhoref',
-        value=f'{get_constant('seawater_density_reference'):02g}'
+        value=f'{get_constant("seawater_density_reference"):02g}',
     )
 
     for boundary_condition in ['free-slip', 'no-slip']:
