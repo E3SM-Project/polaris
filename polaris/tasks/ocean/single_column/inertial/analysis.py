@@ -3,7 +3,7 @@ import numpy as np
 import xarray as xr
 
 from polaris import Step
-from polaris.ocean.model.time import get_days_since_start
+from polaris.ocean.model import get_days_since_start
 from polaris.viz import use_mplstyle
 
 
