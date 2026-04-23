@@ -24,7 +24,7 @@ if [ ! -d "$OMEGA_ROOT/.git" ]; then
 else
     echo "Repository exists. Updating to latest remote state..."
     cd "$OMEGA_ROOT" || exit
-    
+
     # Ensure we are on the correct branch and sync with origin
     git fetch origin
     git checkout "$BRANCH"
