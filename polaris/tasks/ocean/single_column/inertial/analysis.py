@@ -3,6 +3,7 @@ import numpy as np
 import xarray as xr
 
 from polaris import Step
+from polaris.ocean.model.time import get_days_since_start
 from polaris.viz import use_mplstyle
 
 
@@ -49,12 +50,10 @@ class Analysis(Step):
         )
 
         ds = xr.load_dataset('output.nc')
-        t_days = ds.daysSinceStartOfSim.values
-        t = t_days.astype('timedelta64[ns]')
-        dt = (t[1] - t[0]).astype('timedelta64[s]') / np.timedelta64(1, 's')
-        t = t / np.timedelta64(1, 'D')
+        t = get_days_since_start(ds)
+        s_per_day = 24.0 * 3600.0
+        dt = (t[1] - t[0]) * s_per_day
         t_index = np.argmin(np.abs(t - 1.0))  # ds.sizes['Time'] - 1
-        t_days = t[t_index]
         u = ds['velocityZonal'].mean(dim='nCells')
         v = ds['velocityMeridional'].mean(dim='nCells')
         u_max = np.max(u.values, axis=1)
