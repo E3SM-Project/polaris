@@ -162,7 +162,6 @@ class Forward(OceanModelStep):
             )
         else:
             nu = 0.0
-        rho_0 = config.getfloat('barotropic_gyre', 'rho_0')
         # beta = df/dy where f is coriolis parameter
         beta = config.getfloat('barotropic_gyre', 'beta')
 
@@ -205,12 +204,6 @@ class Forward(OceanModelStep):
                 f'maximum value is {nu_max} or decrease the time step'
             )
 
-        model = config.get('ocean', 'model')
-        options = {'config_dt': dt_str, 'config_density0': rho_0}
-        self.add_model_config_options(
-            options=options, config_model='mpas-ocean'
-        )
-
         if self.run_time_steps is not None:
             output_interval_units = 'Seconds'
             run_duration = ceil(self.run_time_steps * dt)
@@ -239,10 +232,12 @@ class Forward(OceanModelStep):
 
         # slip_factor_dict = {'no-slip': 0.0, 'free-slip': 1.0}  # noqa: E501 Uncomment this when free-slip BCs are supported
         time_integrator = config.get('barotropic_gyre', 'time_integrator')
-        time_integrator_map = dict([('RK4', 'RungeKutta4')])
+        if time_integrator.lower() == 'rk4':
+            dt_str = dt_btr_str
+        time_integrator_map = dict([('rk4', 'RungeKutta4')])
         if model == 'omega':
-            if time_integrator in time_integrator_map.keys():
-                time_integrator = time_integrator_map[time_integrator]
+            if time_integrator.lower() in time_integrator_map.keys():
+                time_integrator = time_integrator_map[time_integrator.lower()]
             else:
                 print(
                     'Warning: mapping from time integrator '

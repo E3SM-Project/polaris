@@ -18,10 +18,14 @@ ocean:
 mpas-ocean:
   run_modes:
     config_ocean_run_mode: forward
+  io:
+    config_write_output_on_startup: false
   decomposition:
     config_block_decomp_file_prefix: graph.info.part.
   advection:
     config_thickness_flux_type: constant
+  split_explicit_ts:
+    config_btr_dt: {{ dt_btr }}
 #  lateral_walls:  # Uncomment this section when free-slip BC are supported
 #    config_wall_slip_factor: {{ slip_factor }}
   debug:
@@ -88,3 +92,15 @@ Omega:
       - SshCell
       FileFreq: 9999
       FileFreqUnits: years
+    RestartWrite:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: 3
+      FreqUnits: months
+      UseStartEnd: false
+      Contents:
+        - Restart
