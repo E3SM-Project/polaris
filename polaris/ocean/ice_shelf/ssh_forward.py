@@ -26,6 +26,7 @@ class SshForward(OceanModelStep):
         self,
         component,
         min_resolution,
+        mesh_filename,
         init_filename,
         graph_target,
         subdir,
@@ -47,6 +48,9 @@ class SshForward(OceanModelStep):
 
         min_resolution : float
             The minimum resolution in km used to determine the time step
+
+        mesh_filename : str
+            the mesh filename (relative to the base work directory)
 
         init_filename : str
             the initial condition filename (relative to the base work
@@ -101,7 +105,8 @@ class SshForward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_input_file(filename='init.nc', work_dir_target=init_filename)
+        self.add_horiz_mesh_input_file(work_dir_target=mesh_filename)
+        self.add_init_input_file(work_dir_target=init_filename)
         self.add_input_file(
             filename='graph.info', work_dir_target=graph_target
         )

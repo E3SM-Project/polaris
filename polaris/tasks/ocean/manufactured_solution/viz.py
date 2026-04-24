@@ -158,9 +158,9 @@ class Viz(OceanIOStep):
                 f'output_r{refinement_factor:02g}.nc', decode_times=False
             )
 
-            exact = ExactSolution(config, ds_init)
+            exact = ExactSolution(config, ds=ds_mesh)
 
-            if model == 'mpas-o':
+            if model == 'mpas-ocean':
                 dt = time_since_start(ds.xtime.values)
             else:
                 # time is seconds since the start of the simulation in Omega

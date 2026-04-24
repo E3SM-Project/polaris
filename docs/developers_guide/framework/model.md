@@ -75,7 +75,7 @@ ocean:
 
   streams:
     mesh:
-      filename_template: init.nc
+      filename_template: mesh.nc
     input:
       filename_template: init.nc
     restart:
@@ -275,7 +275,7 @@ generated streams file, e.g.:
 <streams>
 
 <immutable_stream name="mesh"
-                  filename_template="init.nc"/>
+                  filename_template="mesh.nc"/>
 
 <immutable_stream name="input"
                   filename_template="init.nc"/>

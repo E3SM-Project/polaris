@@ -9,7 +9,9 @@
    Ocean
    Ocean.map_to_native_model_vars
    Ocean.map_var_list_to_native_model
+   Ocean.remove_horiz_mesh_vars
    Ocean.write_model_dataset
+   Ocean.write_initial_state_dataset
    Ocean.map_from_native_model_vars
    Ocean.map_var_list_from_native_model
    Ocean.open_model_dataset
@@ -602,11 +604,14 @@
    OceanIOStep.setup
    OceanIOStep.map_to_native_model_vars
    OceanIOStep.write_model_dataset
+   OceanIOStep.write_initial_state_dataset
    OceanIOStep.map_from_native_model_vars
    OceanIOStep.open_model_dataset
 
    OceanModelStep
    OceanModelStep.setup
+   OceanModelStep.add_horiz_mesh_input_file
+   OceanModelStep.add_init_input_file
    OceanModelStep.check_properties
    OceanModelStep.constrain_resources
    OceanModelStep.compute_cell_count

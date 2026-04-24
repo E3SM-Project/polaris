@@ -22,7 +22,7 @@ class LTSRegions(Step):
         The initial step containing input files to this step
     """
 
-    def __init__(self, component, init_step, name, subdir):
+    def __init__(self, component, mesh_step, init_step, name, subdir):
         """
         Create a new step
 
@@ -30,6 +30,9 @@ class LTSRegions(Step):
         ----------
         component : polaris.Component
             The test case this step belongs to
+
+        mesh_step : polaris.Step
+            The base mesh step containing the horizontal mesh
 
         init_step :
             The initial state step containing input files to this step
@@ -42,9 +45,10 @@ class LTSRegions(Step):
         """
         super().__init__(component, name=name, subdir=subdir)
 
-        for file in ['graph.info', 'initial_state.nc']:
+        for file in ['graph.info', 'initial_state.nc', 'lts_mesh.nc']:
             self.add_output_file(filename=file)
 
+        self.mesh_step = mesh_step
         self.init_step = init_step
 
     def setup(self):
@@ -54,7 +58,13 @@ class LTSRegions(Step):
         """
         super().setup()
 
+        mesh_step = self.mesh_step
         init_step = self.init_step
+
+        self.add_input_file(
+            filename='mesh.nc',
+            work_dir_target=f'{mesh_step.path}/base_mesh.nc',
+        )
 
         self.add_input_file(
             filename='init.nc',
@@ -78,7 +88,8 @@ class LTSRegions(Step):
 
         use_progress_bar = self.log_filename is None
         label_mesh(
-            mesh='init.nc',
+            mesh='mesh.nc',
+            init='init.nc',
             graph_info='pre_lts_graph.info',
             num_interface=2,
             num_interface_adjacent=10,
@@ -92,6 +103,7 @@ class LTSRegions(Step):
 
 def label_mesh(
     mesh,
+    init,
     graph_info,
     num_interface,  # noqa: C901
     num_interface_adjacent,
@@ -102,14 +114,14 @@ def label_mesh(
     use_progress_bar,
 ):
     # read in mesh data
-    ds = xr.open_dataset(mesh)
-    n_cells = ds['nCells'].size
-    n_edges = ds['nEdges'].size
-    area_cell = ds['areaCell'].values
-    cells_on_edge = ds['cellsOnEdge'].values
-    edges_on_cell = ds['edgesOnCell'].values
-    lat_cell = ds['latCell']
-    lon_cell = ds['lonCell']
+    ds_mesh = xr.open_dataset(mesh)
+    n_cells = ds_mesh['nCells'].size
+    n_edges = ds_mesh['nEdges'].size
+    area_cell = ds_mesh['areaCell'].values
+    cells_on_edge = ds_mesh['cellsOnEdge'].values
+    edges_on_cell = ds_mesh['edgesOnCell'].values
+    lat_cell = ds_mesh['latCell']
+    lon_cell = ds_mesh['lonCell']
 
     lts_rgn = label_fine_region(
         n_cells,
@@ -136,25 +148,17 @@ def label_mesh(
 
     # open mesh nc file to be copied
 
-    ds_msh = xr.open_dataset(mesh)
-    ds_ltsmsh = ds_msh.copy(deep=True)
-    ltsmsh_name = 'initial_state.nc'
-    write_netcdf(ds_ltsmsh, ltsmsh_name)
-    mshnc = nc.Dataset(ltsmsh_name, 'a', format='NETCDF4_64BIT_OFFSET')
-
-    try:
-        # try to get LTSRegion and assign new value
-        lts_rgn_NC = mshnc.variables['LTSRegion']
-        lts_rgn_NC[:] = lts_rgn[:]
-    except KeyError:
-        # create new variable
-        ncells_NC = mshnc.dimensions['nCells'].name
-        lts_rgns_NC = mshnc.createVariable('LTSRegion', np.int32, (ncells_NC,))
-
-        # set new variable
-        lts_rgns_NC[:] = lts_rgn[:]
-
-    mshnc.close()
+    _write_lts_region_file(
+        ds_in=xr.open_dataset(init),
+        lts_rgn=lts_rgn,
+        filename='initial_state.nc',
+    )
+    ltsmsh_name = 'lts_mesh.nc'
+    _write_lts_region_file(
+        ds_in=ds_mesh,
+        lts_rgn=lts_rgn,
+        filename=ltsmsh_name,
+    )
 
     extract_vtk(
         ignore_time=True,
@@ -219,6 +223,22 @@ def label_mesh(
 
     with open('lts_mesh_info.txt', 'w') as f:
         f.write(txt)
+
+
+def _write_lts_region_file(ds_in, lts_rgn, filename):
+    ds_out = ds_in.copy(deep=True)
+    write_netcdf(ds_out, filename)
+    nc_file = nc.Dataset(filename, 'a', format='NETCDF4_64BIT_OFFSET')
+
+    try:
+        lts_rgn_nc = nc_file.variables['LTSRegion']
+        lts_rgn_nc[:] = lts_rgn[:]
+    except KeyError:
+        n_cells = nc_file.dimensions['nCells'].name
+        lts_rgn_nc = nc_file.createVariable('LTSRegion', np.int32, (n_cells,))
+        lts_rgn_nc[:] = lts_rgn[:]
+
+    nc_file.close()
 
 
 def label_fine_region(  # noqa: C901

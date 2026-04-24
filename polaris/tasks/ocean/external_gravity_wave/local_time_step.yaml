@@ -6,7 +6,7 @@ ocean:
   streams:
     ltsregion:
       type: input
-      filename_template: init.nc
+      filename_template: {{ init_filename }}
       filename_interval: none
       input_interval: initial_only
       contents:

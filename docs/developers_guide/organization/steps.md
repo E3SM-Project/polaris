@@ -393,8 +393,8 @@ class Forward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_input_file(filename='initial_state.nc',
-                            target='../../init/initial_state.nc')
+        self.add_horiz_mesh_input_file(target='../../init/culled_mesh.nc')
+        self.add_init_input_file(target='../../init/initial_state.nc')
 
         self.add_yaml_file('polaris.tasks.ocean.baroclinic_channel',
                            'forward.yaml')
@@ -423,7 +423,7 @@ Then, two yaml files with modifications to the model config options are added
 (for later processing).  An additional model config option, `config_mom_del2`
 is set manually via a python dictionary of namelist options.
 
-Additionally, two input and one output file are added.  By providing
+Additionally, three input files and one output file are added.  By providing
 `validate_vars` to {py:meth}`polaris.Step.add_output_file()`, validation of
 these 4 variables in the `output.nc` output file will automatically be
 performed after the step has run if a baseline was provided as part of the call
@@ -826,8 +826,8 @@ def __init__(self, component, mesh, init):
         initial_state_target = f'{init.path}/ssh_adjustment/adjusted_init.nc'
     else:
         initial_state_target = f'{init.path}/init/initial_state.nc'
-    self.add_input_file(filename='init.nc',
-                        work_dir_target=initial_state_target)
+    self.add_horiz_mesh_input_file(work_dir_target=f'{mesh_path}/culled_mesh.nc')
+    self.add_init_input_file(work_dir_target=initial_state_target)
     self.add_input_file(
         filename='forcing_data.nc',
         work_dir_target=f'{init.path}/init/init_mode_forcing_data.nc')

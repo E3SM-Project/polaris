@@ -34,6 +34,14 @@ should be added to the `variables` section in the
 [mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
 file.
 
+Initial-condition writers should generally use
+{py:meth}`polaris.ocean.model.OceanIOStep.write_initial_state_dataset()`
+instead of `write_model_dataset()`. This helper removes horizontal mesh fields
+before writing the file so the same init step can produce a state file that is
+compatible with both MPAS-Ocean and Omega. The list of mesh variables removed
+from the state file is maintained in `horiz_mesh_variables` in
+`polaris/ocean/model/mpaso_to_omega.yaml`.
+
 ### Running an E3SM component
 
 Steps that run either Omega or MPAS-Ocean should descend from the
@@ -44,6 +52,16 @@ discussion in {ref}`dev-model`.
 If the graph partition file has been constructed prior to the ocean model step,
 the path to the graph file should be provided in the `graph_target` argument
 to the constructor {py:class}`polaris.ocean.model.OceanModelStep()`.
+
+Ocean model steps should typically stage the horizontal mesh and initial-state
+files with
+{py:meth}`polaris.ocean.model.OceanModelStep.add_horiz_mesh_input_file()` and
+{py:meth}`polaris.ocean.model.OceanModelStep.add_init_input_file()`.
+These helpers keep Polaris stream filenames aligned with the setup-time
+conventions in the `[ocean_model_files]` config section. Polaris applies those
+filenames through `polaris/ocean/config/model_inputs.yaml` so MPAS-Ocean uses
+the configured `mesh` and `input` stream filenames, while Omega uses matching
+`HorzMeshIn`, `InitialVertCoord`, and `InitialState` filenames.
 
 #### YAML files vs. namelists and streams
 
@@ -446,8 +464,10 @@ baseline (if one is provided), and can be `None` if baseline validation should
 not be performed.
 
 The `mesh` step should be created with the function described in
-{ref}`dev-ocean-spherical-meshes`, and the `init` step should produce a file
-`init.nc` that will be the initial condition for the forward run.
+{ref}`dev-ocean-spherical-meshes`, and the `init` step should produce a state
+file for the forward run. By convention, ocean model steps stage the mesh and
+state as `mesh.nc` and `init.nc`, respectively, through the helper methods
+described above.
 
 The `forward.yaml` file should be a YAML file with Jinja templating for the
 time integrator, time step, run duration and output interval, e.g.:
@@ -463,7 +483,7 @@ ocean:
 mpas-ocean:
   streams:
     mesh:
-      filename_template: init.nc
+      filename_template: mesh.nc
     input:
       filename_template: init.nc
     restart: {}

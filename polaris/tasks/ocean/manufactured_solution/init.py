@@ -4,6 +4,7 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.coriolis import add_constant_coriolis
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.tasks.ocean.manufactured_solution.exact_solution import (
@@ -75,6 +76,7 @@ class Init(OceanIOStep):
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
+        add_constant_coriolis(ds_mesh, coriolis_parameter)
         self.write_model_dataset(ds_mesh, 'culled_mesh.nc')
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
@@ -86,12 +88,8 @@ class Init(OceanIOStep):
 
         init_vertical_coord(config, ds)
 
-        ds['fCell'] = coriolis_parameter * xr.ones_like(ds_mesh.xCell)
-        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
-        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
-
         # Evaluate the exact solution at time=0
-        exact_solution = ExactSolution(config, ds)
+        exact_solution = ExactSolution(config, ds=ds_mesh)
         ssh = exact_solution.ssh(0.0)
         normal_velocity = exact_solution.normal_velocity(0.0)
 
@@ -110,4 +108,4 @@ class Init(OceanIOStep):
         )
         ds['layerThickness'] = layer_thickness
 
-        self.write_model_dataset(ds, 'initial_state.nc')
+        self.write_initial_state_dataset(ds, 'initial_state.nc')

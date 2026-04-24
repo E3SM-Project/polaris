@@ -99,10 +99,8 @@ class Forward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_input_file(
-            filename='mesh.nc', target='../init/culled_mesh.nc'
-        )
-        self.add_input_file(filename='init.nc', target='../init/init.nc')
+        self.add_horiz_mesh_input_file(target='../init/culled_mesh.nc')
+        self.add_init_input_file(target='../init/init.nc')
 
         self.add_output_file(
             filename='output.nc',
@@ -264,14 +262,9 @@ class Forward(OceanModelStep):
         )
 
     def setup(self):
-        """
-        TEMP: symlink initial condition to name hard-coded in Omega
-        """
         super().setup()
         model = self.config.get('ocean', 'model')
-        # TODO: remove as soon as Omega no longer hard-codes this file
         if model == 'omega':
-            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
             self.add_input_file(
                 target='coeffs.nc',
                 filename='coeffs.nc',

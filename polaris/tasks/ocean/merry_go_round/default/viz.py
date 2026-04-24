@@ -104,7 +104,7 @@ class Viz(OceanIOStep):
         x = xr.DataArray(data=np.linspace(x_min, x_max, 2), dims=('nPoints',))
         y = y_mid * xr.ones_like(x)
 
-        if model == 'mpas-o':
+        if model == 'mpas-ocean':
             dt = time_since_start(ds.xtime.values)
         else:
             # time is seconds since the start of the simulation in Omega

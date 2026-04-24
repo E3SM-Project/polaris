@@ -35,8 +35,8 @@ class Viz(Step):
         """
         Run this step of the test case
         """
-        ds_mesh = xr.load_dataset('init.nc')
-        ds_init = ds_mesh
+        ds_mesh = xr.load_dataset('mesh.nc')
+        ds_init = xr.load_dataset('init.nc')
         ds = xr.load_dataset('output.nc')
 
         x_mid = ds_mesh.xCell.median()

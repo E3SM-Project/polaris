@@ -42,3 +42,6 @@ pixi-env/
 
 # mache
 .mache_cache/
+
+# codex
+.codex
