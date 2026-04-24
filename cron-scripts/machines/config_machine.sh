@@ -62,6 +62,9 @@ else
     *.lcrc.anl.gov)
       CRONJOB_MACHINE="chrysalis"
       ;;
+    *.aurora.alcf.anl.gov)
+      CRONJOB_MACHINE="aurora"
+      ;;
   esac
 fi
 
