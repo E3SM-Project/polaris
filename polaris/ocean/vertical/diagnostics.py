@@ -11,6 +11,29 @@ RhoSw = get_constant('seawater_density_reference')
 
 
 def geom_thickness_from_ds(ds, config):
+    """
+    Extract or compute geometric layer thickness from dataset.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        An ocean dataset containing either 'layerThickness' directly, or
+        'SpecVol' and 'PseudoThickness' to compute it
+
+    config : polaris.config.PolarisConfigParser
+        Configuration options for the test case
+
+    Returns
+    -------
+    layer_thickness : xarray.DataArray
+        The geometric layer thickness in meters
+
+    Raises
+    ------
+    ValueError
+        If neither layerThickness nor the variables needed to compute it
+        are present in the dataset
+    """
     if 'layerThickness' in ds.keys():
         return ds['layerThickness']
     elif 'SpecVol' in ds.keys() and 'PseudoThickness' in ds.keys():
@@ -24,6 +47,25 @@ def geom_thickness_from_ds(ds, config):
 
 
 def pseudothickness_from_ds(ds, config):
+    """
+    Compute pseudothickness from temperature and salinity in dataset.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        An ocean dataset containing 'temperature', 'salinity',
+        'layerThickness', and 'ssh'
+
+    config : polaris.config.PolarisConfigParser
+        Configuration options for the test case, including
+        'vertical_grid:surface_pressure'
+
+    Returns
+    -------
+    pseudothickness : xarray.DataArray or None
+        The pseudothickness computed from pressure, or None if
+        temperature and salinity are not available
+    """
     if 'temperature' not in ds.keys() or 'salinity' not in ds.keys():
         print(
             'PseudoThickness is not present in the '
@@ -49,23 +91,30 @@ def pseudothickness_from_ds(ds, config):
 
 def depth_from_thickness(ds):
     """
-    Compute the depth of the midpoint of each layer from `layerThickness`. It
-    is assumed that the `layerThickness` of invalid levels is 0. If
+    Compute the depth of the midpoint of each layer from `layerThickness`.
+
+    It is assumed that the `layerThickness` of invalid levels is 0. If
     `ssh` is present in the dataset, depths will be offset by `ssh`. If
-    `bottomDepth` is present in the dataset, the location of the bottom of the
-    bottommost vertical level will be compared with `bottomDepth`.
+    `bottomDepth` is present in the dataset, the location of the bottom
+    of the bottommost vertical level will be compared with `bottomDepth`.
 
     Parameters
     ----------
-    ds: xarray.Dataset
+    ds : xarray.Dataset
         An ocean dataset containing `layerThickness` and optionally `ssh`
         and `bottomDepth`
 
     Returns
     -------
     z_mid : xarray.DataArray
-        The location in meters from the sea surface of the midpoint of each
-        layer (level), positive upward
+        The location in meters from the sea surface of the midpoint of
+        each layer (level), positive upward
+
+    Raises
+    ------
+    ValueError
+        If `layerThickness` is not present in the dataset, or if required
+        dimensions are missing
     """
     # TODO when Omega supports these variables, just fetch them
     # if 'zMid' in ds.keys():
