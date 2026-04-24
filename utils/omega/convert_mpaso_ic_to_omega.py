@@ -91,6 +91,7 @@ def convert_to_omega(input_file, output_file, eos_type, zero_velocity_mpas_file)
     _add_pseudo_thickness(ds, valid, spec_vol)
     velocity_fields = _zero_velocity_fields(ds)
     ds = _map_mpaso_to_omega(ds)
+    ds = _rename_geom_vars_for_omega(ds)
 
     ds.to_netcdf(output_file)
 
@@ -284,6 +285,26 @@ def _map_mpaso_to_omega(ds):
     rename.update(rename_vars)
 
     return ds.rename(rename)
+
+
+def _rename_geom_vars_for_omega(ds):
+    rename = {}
+
+    if 'zMid' in ds.variables:
+        rename['zMid'] = 'GeomZMid'
+
+    if 'refZMid' in ds.variables:
+        rename['refZMid'] = 'RefGeomZMid'
+
+    if 'LayerThickness' in ds.variables:
+        rename['LayerThickness'] = 'GeomLayerThickness'
+    elif 'layerThickness' in ds.variables:
+        rename['layerThickness'] = 'GeomLayerThickness'
+
+    if rename:
+        ds = ds.rename(rename)
+
+    return ds
 
 
 def main():
