@@ -32,5 +32,8 @@ def compute_constant_density(
     )
     # Return density of same type and size as temperature
     # (needs to work for both float and xarray DataArray)
-    density = rhoref * (temperature / temperature)
+    if isinstance(temperature, xr.DataArray):
+        density = rhoref * xr.ones_like(temperature)
+    else:
+        density = rhoref
     return density
