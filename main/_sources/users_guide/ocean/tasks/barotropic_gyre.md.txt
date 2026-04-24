@@ -79,8 +79,7 @@ min_pc_fraction = 0.1
 
 ## initial conditions
 
-The initial condition is at rest. Since the test case is barotropic, only a
-reference density is provided with the config option `rho_0`. A beta-plane
+The initial condition is at rest. A beta-plane
 is indicated by the coriolis parameter and determined by the config options
 `f_0` and `beta`.
 
@@ -122,9 +121,6 @@ tau_0 = 0.1
 
 # Horizontal gradient in coriolis parameter [s-1 m-1]
 beta = 1.0e-10
-
-# homogenous fluid density [kg m-3]
-rho_0 = 1000
 
 # Duration of forward step if run_time_steps not given [years]
 run_duration = 2.
