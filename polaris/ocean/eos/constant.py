@@ -5,8 +5,8 @@ from polaris.config import PolarisConfigParser
 
 def compute_constant_density(
     config: PolarisConfigParser,
-    temperature: xr.DataArray,
-) -> xr.DataArray or float:
+    temperature: xr.DataArray | float,
+) -> xr.DataArray | float:
     """
     Compute the density of seawater based on the constant equation of state
     with the value specified in the configuration.
