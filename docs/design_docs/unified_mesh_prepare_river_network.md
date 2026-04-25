@@ -41,6 +41,20 @@ preprocessing workflow that preserves the major hydrographic controls relevant
 for mesh generation and makes its outputs easy to inspect and easy for
 downstream steps to consume.
 
+## Workflow Context
+
+The overall unified-mesh workflow is described in
+[Unified Mesh: Global Base Mesh Workflow](unified_base_mesh.md).
+
+The upstream unified-mesh workflow design is:
+
+- [Unified Mesh: Coastline Preparation](unified_mesh_prepare_coastline.md)
+
+The downstream unified-mesh workflow designs are:
+
+- [Unified Mesh: Sizing-Field Construction](unified_mesh_build_sizing_field.md)
+- [Unified Mesh: Base-Mesh Creation and Downstream Integration](unified_mesh_create_base_mesh.md)
+
 ## Requirements
 
 ### Requirement: Downstream-Ready River Network Products

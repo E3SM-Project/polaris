@@ -63,6 +63,22 @@ mesh with feature-aware resolution controls, using Polaris-native setup and run
 machinery, and that the resulting mesh can be consumed by existing downstream
 E3SM workflows without an extra conversion stage.
 
+## Detailed Stage Designs
+
+The four stage-specific unified-mesh design documents provide the detailed
+workflow design that this umbrella document summarizes:
+
+- [Unified Mesh: Coastline Preparation](unified_mesh_prepare_coastline.md)
+  describes the shared coastline-preparation workflow.
+- [Unified Mesh: River Network Preparation](unified_mesh_prepare_river_network.md)
+  describes the shared river-network preprocessing workflow.
+- [Unified Mesh: Sizing-Field Construction](unified_mesh_build_sizing_field.md)
+  describes how the upstream shared products are combined into the raster
+  sizing field used for final mesh generation.
+- [Unified Mesh: Base-Mesh Creation and Downstream Integration](unified_mesh_create_base_mesh.md)
+  describes the final base-mesh stage together with downstream topography
+  remap and land or ocean culling variants.
+
 ## Requirements
 
 ### Requirement: Global Spherical MPAS Base Mesh

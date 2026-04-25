@@ -35,6 +35,20 @@ workflow whose outputs can be consumed directly by downstream steps and whose
 standalone task makes it practical to inspect and iterate on coastline choices
 without running the full unified mesh workflow.
 
+## Workflow Context
+
+The overall unified-mesh workflow is described in
+[Unified Mesh: Global Base Mesh Workflow](unified_base_mesh.md).
+
+There are no earlier stage-specific unified-mesh design documents upstream of
+this coastline workflow in the current series.
+
+The downstream unified-mesh workflow designs are:
+
+- [Unified Mesh: River Network Preparation](unified_mesh_prepare_river_network.md)
+- [Unified Mesh: Sizing-Field Construction](unified_mesh_build_sizing_field.md)
+- [Unified Mesh: Base-Mesh Creation and Downstream Integration](unified_mesh_create_base_mesh.md)
+
 ## Requirements
 
 ### Requirement: Raster-First Coastline Products for Downstream Steps
