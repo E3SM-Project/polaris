@@ -117,59 +117,122 @@
 <div class="viewcode-block" id="compute_specvol">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.eos.teos10.compute_specvol.html#polaris.ocean.eos.teos10.compute_specvol">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_specvol</span><span class="p">(</span>
-    <span class="n">sa</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">ct</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="n">sa</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">ct</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">p</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute specific volume from co-located p, CT and SA.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    - This function converts inputs to NumPy arrays and calls</span>
-<span class="sd">        ``gsw.specvol`` directly for performance. Inputs must fit in</span>
-<span class="sd">        memory.</span>
+<span class="sd">    - For xarray inputs, this function converts inputs to NumPy arrays</span>
+<span class="sd">        and calls ``gsw.specvol`` directly for performance. Inputs must</span>
+<span class="sd">        fit in memory.</span>
 
 <span class="sd">    - Any parallelization should be handled by the caller (e.g., splitting</span>
 <span class="sd">        over outer dimensions and calling this function per chunk).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    sa : xarray.DataArray</span>
+<span class="sd">    sa : float or xarray.DataArray</span>
 <span class="sd">        Absolute Salinity at the same points as p and ct.</span>
 
-<span class="sd">    ct : xarray.DataArray</span>
+<span class="sd">    ct : float or xarray.DataArray</span>
 <span class="sd">        Conservative Temperature at the same points as p and sa.</span>
 
-<span class="sd">    p : xarray.DataArray</span>
+<span class="sd">    p : float or xarray.DataArray</span>
 <span class="sd">        Sea pressure in Pascals (Pa) at the same points as ct and sa.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    xarray.DataArray</span>
-<span class="sd">        Specific volume with the same dims/coords as ct and sa (m^3/kg).</span>
+<span class="sd">    float or xarray.DataArray</span>
+<span class="sd">        Specific volume with the same dims/coords as the input arrays</span>
+<span class="sd">        (m^3/kg), or a scalar if all inputs are scalar.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Check sizes/dims match exactly</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">sizes</span> <span class="o">==</span> <span class="n">ct</span><span class="o">.</span><span class="n">sizes</span> <span class="o">==</span> <span class="n">sa</span><span class="o">.</span><span class="n">sizes</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;p, ct and sa must have identical dimensions and sizes; &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;got p=</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">sizes</span><span class="si">}</span><span class="s1">, ct=</span><span class="si">{</span><span class="n">ct</span><span class="o">.</span><span class="n">sizes</span><span class="si">}</span><span class="s1">, sa=</span><span class="si">{</span><span class="n">sa</span><span class="o">.</span><span class="n">sizes</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sa</span><span class="p">)):</span>
+        <span class="n">p_dbar</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="mf">1.0e4</span>
+        <span class="n">specvol</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">specvol</span><span class="p">(</span><span class="n">sa</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">p_dbar</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">specvol</span><span class="p">)</span>
 
-    <span class="c1"># Ensure coordinates align identically (names and labels)</span>
-    <span class="n">p</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sa</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sa</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s1">&#39;exact&#39;</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sa</span> <span class="o">=</span> <span class="n">_align_data_arrays</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">ct</span><span class="o">=</span><span class="n">ct</span><span class="p">,</span> <span class="n">sa</span><span class="o">=</span><span class="n">sa</span><span class="p">)</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">_get_template_data_array</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">ct</span><span class="o">=</span><span class="n">ct</span><span class="p">,</span> <span class="n">sa</span><span class="o">=</span><span class="n">sa</span><span class="p">)</span>
 
     <span class="c1"># Convert to NumPy and call gsw directly for performance</span>
-    <span class="n">p_dbar</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="mf">1.0e4</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-    <span class="n">ct_np</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-    <span class="n">sa_np</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">p_dbar</span> <span class="o">=</span> <span class="n">_to_numpy</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1.0e4</span>
+    <span class="n">ct_np</span> <span class="o">=</span> <span class="n">_to_numpy</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
+    <span class="n">sa_np</span> <span class="o">=</span> <span class="n">_to_numpy</span><span class="p">(</span><span class="n">sa</span><span class="p">)</span>
     <span class="n">specvol_np</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">specvol</span><span class="p">(</span><span class="n">sa_np</span><span class="p">,</span> <span class="n">ct_np</span><span class="p">,</span> <span class="n">p_dbar</span><span class="p">)</span>
 
     <span class="n">specvol</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-        <span class="n">specvol_np</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">ct</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">ct</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;specvol&#39;</span>
+        <span class="n">specvol_np</span><span class="p">,</span>
+        <span class="n">dims</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;specvol&#39;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">specvol</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_align_data_arrays</span><span class="p">(</span>
+    <span class="n">p</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">ct</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">sa</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="n">data_arrays</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">value</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sa</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sa</span>
+
+    <span class="n">dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_array</span><span class="o">.</span><span class="n">dims</span> <span class="k">for</span> <span class="n">data_array</span> <span class="ow">in</span> <span class="n">data_arrays</span><span class="p">]</span>
+    <span class="n">sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_array</span><span class="o">.</span><span class="n">sizes</span> <span class="k">for</span> <span class="n">data_array</span> <span class="ow">in</span> <span class="n">data_arrays</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">dim</span> <span class="o">!=</span> <span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">dims</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="n">size</span> <span class="o">!=</span> <span class="n">sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">sizes</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;DataArray inputs must have identical dimensions and sizes; &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;got p=</span><span class="si">{</span><span class="n">_sizes_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="si">}</span><span class="s1">, ct=</span><span class="si">{</span><span class="n">_sizes_str</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="si">}</span><span class="s1">, sa=</span><span class="si">{</span><span class="n">_sizes_str</span><span class="p">(</span><span class="n">sa</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+
+    <span class="n">aligned</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">xr</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="o">*</span><span class="n">data_arrays</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s1">&#39;exact&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">aligned</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ct</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="n">ct</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">aligned</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sa</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="n">sa</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">aligned</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sa</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_template_data_array</span><span class="p">(</span>
+    <span class="n">p</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">ct</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">sa</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ct</span><span class="p">,</span> <span class="n">sa</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;At least one input must be an xarray.DataArray.&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_to_numpy</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sizes_str</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">sizes</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="s1">&#39;scalar&#39;</span>
 </pre></div>
 
            </div>

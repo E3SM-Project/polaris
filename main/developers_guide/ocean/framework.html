@@ -338,13 +338,16 @@ and outputting variables related to frazil ice and land-ice fluxes.</p>
 <a class="reference internal" href="generated/polaris.ocean.eos.compute_specvol.html#polaris.ocean.eos.compute_specvol" title="polaris.ocean.eos.compute_specvol"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.compute_specvol()</span></code></a>.  These functions dispatch
 based on <code class="docutils literal notranslate"><span class="pre">eos_type</span></code> in the <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> config section.</p>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">constant</span></code> uses the linear EOS and calls
+<a class="reference internal" href="generated/polaris.ocean.eos.constant.compute_constant_density.html#polaris.ocean.eos.constant.compute_constant_density" title="polaris.ocean.eos.constant.compute_constant_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.constant.compute_constant_density()</span></code></a>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">linear</span></code> uses the linear EOS and calls
 <a class="reference internal" href="generated/polaris.ocean.eos.linear.compute_linear_density.html#polaris.ocean.eos.linear.compute_linear_density" title="polaris.ocean.eos.linear.compute_linear_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.linear.compute_linear_density()</span></code></a>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">teos-10</span></code> uses TEOS-10 and calls
 <a class="reference internal" href="generated/polaris.ocean.eos.teos10.compute_specvol.html#polaris.ocean.eos.teos10.compute_specvol" title="polaris.ocean.eos.teos10.compute_specvol"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.teos10.compute_specvol()</span></code></a>, with density computed
 as the inverse of specific volume.</p></li>
 </ul>
-<p>The linear EOS coefficients and reference values are set with ocean config
+<p>The constant EOS density is set by the config option <code class="docutils literal notranslate"><span class="pre">eos_constant_rhoref</span></code>.
+The linear EOS coefficients and reference values are set with ocean config
 options such as <code class="docutils literal notranslate"><span class="pre">eos_linear_alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_linear_beta</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_linear_rhoref</span></code>,
 <code class="docutils literal notranslate"><span class="pre">eos_linear_Tref</span></code>, and <code class="docutils literal notranslate"><span class="pre">eos_linear_Sref</span></code>.  TEOS-10 requires pressure to be
 provided when calling the high-level EOS functions.</p>
