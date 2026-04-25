@@ -75,6 +75,7 @@ class Forward(SphericalConvergenceForward):
             validate_vars=validate_vars,
             check_properties=['mass conservation', 'tracer conservation'],
             options=namelist_options,
+            update_eos=True,
             graph_target=f'{base_mesh.path}/graph.info',
             refinement_factor=refinement_factor,
             refinement=refinement,

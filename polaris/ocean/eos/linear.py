@@ -5,9 +5,9 @@ from polaris.config import PolarisConfigParser
 
 def compute_linear_density(
     config: PolarisConfigParser,
-    temperature: xr.DataArray,
-    salinity: xr.DataArray,
-) -> xr.DataArray:
+    temperature: xr.DataArray | float,
+    salinity: xr.DataArray | float,
+) -> xr.DataArray | float:
     """
     Compute the density of seawater based on the the linear equation of state
     with coefficients specified in the configuration. The distinction between

@@ -39,6 +39,8 @@ mpas-ocean:
       - ssh
 
 Omega:
+  Eos:
+    EosType: constant
   Tendencies:
     VelDiffTendencyEnable: false
     VelHyperDiffTendencyEnable: false
@@ -65,4 +67,5 @@ Omega:
       Contents:
       - NormalVelocity
       - LayerThickness
+      - Eos
       - SshCell

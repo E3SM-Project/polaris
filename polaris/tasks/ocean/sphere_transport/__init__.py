@@ -9,6 +9,7 @@ from polaris import (
     Task as Task,
 )
 from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.constants import get_constant
 from polaris.mesh.base import add_spherical_base_mesh_step
 from polaris.ocean.convergence import (
     get_resolution_for_task as get_resolution_for_task,
@@ -54,6 +55,7 @@ def add_sphere_transport_tasks(component):
                 f'{case_name}.cfg',
             )
             config = PolarisConfigParser(filepath=filepath)
+            config.add_from_package('polaris.ocean.eos', 'constant.cfg')
             config.add_from_package(
                 'polaris.ocean.convergence', 'convergence.cfg'
             )
@@ -63,6 +65,14 @@ def add_sphere_transport_tasks(component):
             package = 'polaris.tasks.ocean.sphere_transport'
             config.add_from_package(package, 'sphere_transport.cfg')
             config.add_from_package(package, f'{case_name}.cfg')
+            # Set rhoref to the PCD value only at setup so that if the
+            # user wants to run with a different value by changing the cfg
+            # before runtime, they can
+            config.set(
+                'ocean',
+                'eos_constant_rhoref',
+                value=f'{get_constant("seawater_density_reference"):02g}',
+            )
             for include_viz in [False, True]:
                 component.add_task(
                     SphereTransport(

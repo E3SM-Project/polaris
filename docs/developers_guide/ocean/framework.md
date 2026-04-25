@@ -224,12 +224,15 @@ The high-level APIs are {py:func}`polaris.ocean.eos.compute_density()` and
 {py:func}`polaris.ocean.eos.compute_specvol()`.  These functions dispatch
 based on `eos_type` in the `[ocean]` config section.
 
+- `eos_type = constant` uses the linear EOS and calls
+  {py:func}`polaris.ocean.eos.constant.compute_constant_density()`.
 - `eos_type = linear` uses the linear EOS and calls
   {py:func}`polaris.ocean.eos.linear.compute_linear_density()`.
 - `eos_type = teos-10` uses TEOS-10 and calls
   {py:func}`polaris.ocean.eos.teos10.compute_specvol()`, with density computed
   as the inverse of specific volume.
 
+The constant EOS density is set by the config option `eos_constant_rhoref`.
 The linear EOS coefficients and reference values are set with ocean config
 options such as `eos_linear_alpha`, `eos_linear_beta`, `eos_linear_rhoref`,
 `eos_linear_Tref`, and `eos_linear_Sref`.  TEOS-10 requires pressure to be

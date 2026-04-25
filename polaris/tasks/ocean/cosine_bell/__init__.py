@@ -3,6 +3,7 @@ from typing import Dict as Dict
 
 from polaris import Step, Task
 from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.constants import get_constant
 from polaris.mesh.base import add_spherical_base_mesh_step
 from polaris.ocean.convergence import (
     get_resolution_for_task as get_resolution_for_task,
@@ -31,6 +32,7 @@ def add_cosine_bell_tasks(component):
             f'{component.name}/spherical/{prefix}/cosine_bell/cosine_bell.cfg'
         )
         config = PolarisConfigParser(filepath=filepath)
+        config.add_from_package('polaris.ocean.eos', 'constant.cfg')
         config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
         config.add_from_package(
             'polaris.ocean.convergence.spherical', 'spherical.cfg'
@@ -161,6 +163,14 @@ class CosineBell(Task):
         else:
             option = 'refinement_factors_space'
 
+        # Set rhoref to the PCD value only at setup so that if the
+        # user wants to run with a different value by changing the cfg
+        # before runtime, they can
+        config.set(
+            'ocean',
+            'eos_constant_rhoref',
+            value=f'{get_constant("seawater_density_reference"):02g}',
+        )
         _set_convergence_configs(config, prefix)
 
         refinement_factors = config.getlist('convergence', option, dtype=float)

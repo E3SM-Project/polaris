@@ -2,16 +2,17 @@ import xarray as xr
 
 from polaris.config import PolarisConfigParser
 
+from .constant import compute_constant_density
 from .linear import compute_linear_density
 from .teos10 import compute_specvol as compute_teos10_specvol
 
 
 def compute_density(
     config: PolarisConfigParser,
-    temperature: xr.DataArray,
-    salinity: xr.DataArray,
-    pressure: xr.DataArray | None = None,
-) -> xr.DataArray:
+    temperature: xr.DataArray | float,
+    salinity: xr.DataArray | float,
+    pressure: xr.DataArray | float | None = None,
+) -> xr.DataArray | float:
     """
     Compute the density of seawater based on the equation of state specified
     in the configuration.
@@ -36,7 +37,9 @@ def compute_density(
         Computed density (in-situ or reference) of the seawater.
     """
     eos_type = config.get('ocean', 'eos_type')
-    if eos_type == 'linear':
+    if eos_type == 'constant':
+        density = compute_constant_density(config, temperature)
+    elif eos_type == 'linear':
         density = compute_linear_density(config, temperature, salinity)
     elif eos_type == 'teos-10':
         if pressure is None:
@@ -49,17 +52,18 @@ def compute_density(
         )
     else:
         raise ValueError(f'Unsupported equation of state type: {eos_type}')
-    density.attrs['units'] = 'kg m-3'
-    density.attrs['long_name'] = 'density'
+    if isinstance(density, xr.DataArray):
+        density.attrs['units'] = 'kg m-3'
+        density.attrs['long_name'] = 'density'
     return density
 
 
 def compute_specvol(
     config: PolarisConfigParser,
-    temperature: xr.DataArray,
-    salinity: xr.DataArray,
-    pressure: xr.DataArray | None = None,
-) -> xr.DataArray:
+    temperature: xr.DataArray | float,
+    salinity: xr.DataArray | float,
+    pressure: xr.DataArray | float | None = None,
+) -> xr.DataArray | float:
     """
     Compute the specific volume of seawater based on the equation of state
     specified in the configuration.
@@ -97,6 +101,7 @@ def compute_specvol(
         )
     else:
         raise ValueError(f'Unsupported equation of state type: {eos_type}')
-    specvol.attrs['units'] = 'm3 kg-1'
-    specvol.attrs['long_name'] = 'specific volume'
+    if isinstance(specvol, xr.DataArray):
+        specvol.attrs['units'] = 'm3 kg-1'
+        specvol.attrs['long_name'] = 'specific volume'
     return specvol

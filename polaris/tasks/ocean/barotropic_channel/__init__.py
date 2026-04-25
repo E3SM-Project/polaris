@@ -1,6 +1,7 @@
 import os
 
 from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.constants import get_constant
 from polaris.tasks.ocean.barotropic_channel.default import Default as Default
 
 
@@ -18,8 +19,17 @@ def add_barotropic_channel_tasks(component):
         component.name, 'planar', group_name, config_filename
     )
     config = PolarisConfigParser(filepath=filepath)
+    config.add_from_package('polaris.ocean.eos', 'constant.cfg')
     config.add_from_package(
         f'polaris.tasks.ocean.{group_name}', config_filename
+    )
+    # Set rhoref to the PCD value only at setup so that if the
+    # user wants to run with a different value by changing the cfg
+    # before runtime, they can
+    config.set(
+        'ocean',
+        'eos_constant_rhoref',
+        value=f'{get_constant("seawater_density_reference"):02g}',
     )
     default = Default(component=component)
     default.set_shared_config(config, link=config_filename)
