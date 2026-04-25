@@ -9,10 +9,10 @@ from .teos10 import compute_specvol as compute_teos10_specvol
 
 def compute_density(
     config: PolarisConfigParser,
-    temperature: xr.DataArray,
-    salinity: xr.DataArray,
-    pressure: xr.DataArray | None = None,
-) -> xr.DataArray:
+    temperature: xr.DataArray | float,
+    salinity: xr.DataArray | float,
+    pressure: xr.DataArray | float | None = None,
+) -> xr.DataArray | float:
     """
     Compute the density of seawater based on the equation of state specified
     in the configuration.
@@ -52,17 +52,18 @@ def compute_density(
         )
     else:
         raise ValueError(f'Unsupported equation of state type: {eos_type}')
-    density.attrs['units'] = 'kg m-3'
-    density.attrs['long_name'] = 'density'
+    if isinstance(density, xr.DataArray):
+        density.attrs['units'] = 'kg m-3'
+        density.attrs['long_name'] = 'density'
     return density
 
 
 def compute_specvol(
     config: PolarisConfigParser,
-    temperature: xr.DataArray,
-    salinity: xr.DataArray,
-    pressure: xr.DataArray | None = None,
-) -> xr.DataArray:
+    temperature: xr.DataArray | float,
+    salinity: xr.DataArray | float,
+    pressure: xr.DataArray | float | None = None,
+) -> xr.DataArray | float:
     """
     Compute the specific volume of seawater based on the equation of state
     specified in the configuration.
@@ -100,6 +101,7 @@ def compute_specvol(
         )
     else:
         raise ValueError(f'Unsupported equation of state type: {eos_type}')
-    specvol.attrs['units'] = 'm3 kg-1'
-    specvol.attrs['long_name'] = 'specific volume'
+    if isinstance(specvol, xr.DataArray):
+        specvol.attrs['units'] = 'm3 kg-1'
+        specvol.attrs['long_name'] = 'specific volume'
     return specvol
