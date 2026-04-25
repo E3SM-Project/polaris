@@ -41,6 +41,20 @@ whose inputs from earlier steps are clear, whose outputs are directly usable by
 the final mesh step, and whose diagnostics make it easy to see why a given
 region is refined.
 
+## Workflow Context
+
+The overall unified-mesh workflow is described in
+[Unified Mesh: Global Base Mesh Workflow](unified_base_mesh.md).
+
+The upstream unified-mesh workflow designs are:
+
+- [Unified Mesh: Coastline Preparation](unified_mesh_prepare_coastline.md)
+- [Unified Mesh: River Network Preparation](unified_mesh_prepare_river_network.md)
+
+The downstream unified-mesh workflow design is:
+
+- [Unified Mesh: Base-Mesh Creation and Downstream Integration](unified_mesh_create_base_mesh.md)
+
 ## Requirements
 
 ### Requirement: JIGSAW-Ready Global Sizing Field

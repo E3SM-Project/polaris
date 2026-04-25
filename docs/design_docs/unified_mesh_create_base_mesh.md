@@ -44,6 +44,21 @@ and retained river geometry, and pass the produced mesh directly into explicit
 downstream topography-remap and land or ocean culling task variants without
 an ad hoc conversion stage.
 
+## Workflow Context
+
+The overall unified-mesh workflow is described in
+[Unified Mesh: Global Base Mesh Workflow](unified_base_mesh.md).
+
+The upstream unified-mesh workflow designs are:
+
+- [Unified Mesh: Coastline Preparation](unified_mesh_prepare_coastline.md)
+- [Unified Mesh: River Network Preparation](unified_mesh_prepare_river_network.md)
+- [Unified Mesh: Sizing-Field Construction](unified_mesh_build_sizing_field.md)
+
+There are no later stage-specific unified-mesh design documents downstream of
+this one in the current series. This document itself covers the final
+base-mesh stage together with downstream remap and culling integration.
+
 ## Requirements
 
 ### Requirement: Final JIGSAW-to-MPAS Unified Base Mesh
