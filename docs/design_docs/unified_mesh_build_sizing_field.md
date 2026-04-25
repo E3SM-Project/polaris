@@ -495,7 +495,7 @@ Contributors:
 - Codex
 
 Current unit tests verify that `get_sizing_field_config()` uses the unified
-mesh configs, that the sizing-field step factory uses mesh-specific
+mesh configs, that the code that constructs the sizing-field step uses mesh-specific
 subdirectories, and that the registered standalone task count matches the
 number of named unified-mesh configs.
 

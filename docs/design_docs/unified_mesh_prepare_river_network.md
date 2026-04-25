@@ -302,7 +302,7 @@ organized under `polaris/tasks/mesh/spherical/unified/river/` as:
   source-level simplification;
 - `lat_lon.py` for target-grid rasterization and outlet reconciliation;
 - `viz.py` for diagnostic plotting and text summaries;
-- `steps.py` for shared-step factories;
+- `steps.py` for shared-step setup helpers;
 - `task.py` for standalone task wrappers; and
 - `river_network.cfg` for the shared configuration sections.
 
@@ -438,8 +438,8 @@ Contributors:
 
 The standalone tasks are now the primary implementation path for inspecting
 river simplification and target-grid diagnostics. Unit tests verify that the
-source and lat-lon task factories register the expected named-mesh tasks, use
-mesh-specific subdirectories, and reuse shared configs and steps.
+source and lat-lon task-registration code registers the expected named-mesh
+tasks, uses mesh-specific subdirectories, and reuses shared configs and steps.
 
 Standalone smoke tests for each of the 3 supported unified meshes have been
 run on Frontier, showing the expected rasterized river networks at each

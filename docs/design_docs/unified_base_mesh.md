@@ -705,7 +705,7 @@ rasterized river channels by a physical distance when configured.
 
 Sizing-field tests verify that `build_sizing_field` composes constant and
 latitude-dependent ocean backgrounds with land, coastline, river-channel and
-river-outlet controls, that the shared grid is used through the step factory,
+river-outlet controls, that the shared grid is used by the step-setup logic,
 and that `UnifiedCellWidthMeshStep` can read `sizing_field.nc`.
 
 There are still no automated tests for end-to-end feature-aware mesh
@@ -724,7 +724,7 @@ Contributors:
 - Codex
 
 Current unit tests verify some parts of this contract: the river and
-sizing-field factories use mesh-specific shared subdirectories, shared configs
+sizing-field setup helpers use mesh-specific shared subdirectories, shared configs
 are reused when the same product is requested more than once, and the named
 mesh configs provide the required `resolution_latlon` options.
 
