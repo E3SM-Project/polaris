@@ -9,29 +9,32 @@ Contributors:
 
 ## Summary
 
-This design proposes a shared `prepare_river_network` step and an associated
-task that can run that shared step on its own for the unified global
+This design describes the shared `prepare_river_network` step and associated
+tasks that can run the shared river steps on their own for the unified global
 base-mesh workflow. The purpose of the step is to simplify a global river
 dataset into products that can be consumed directly by `build_sizing_field`
 without re-reading or reinterpreting the raw source data.
 
+The implementation is being added on the `add-prepare-river-network` branch in
+Polaris pull request <https://github.com/E3SM-Project/polaris/pull/556>.
+
 The preferred first source is HydroRIVERS or an equivalent global flowline
-dataset. Unlike the standalone `mpas_land_mesh` workflow, the Polaris design
-should make the downstream interface explicit. In particular, the workflow
-should distinguish between the authoritative simplified river network and the
-target-grid products needed by `build_sizing_field`, rather than overloading a
-single raster with mixed semantics.
+dataset. Unlike the standalone
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
+workflow, the Polaris design makes the downstream interface explicit. In
+particular, the workflow distinguishes between the authoritative simplified
+river network and the target-grid products needed by `build_sizing_field`,
+rather than overloading a single raster with mixed semantics.
 
 Because river-network simplification and river-driven meshing are the parts of
-the workflow where Xylar's design intuition is currently weakest, the first Polaris
-design should preserve the `mpas_land_mesh` river algorithms as closely as is
-practical.
+the workflow where Xylar's design intuition is currently weakest, the first
+Polaris design should preserve the
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
+river algorithms as closely as is practical.
 
-This document intentionally emphasizes requirements and algorithm design more
-than implementation or testing. It also assumes that `prepare_river_network`
-will be aligned with the shared target-grid tier and coastline interpretation
-chosen for the workflow, so that river outlets and coastal refinement can be
-made consistent.
+The implementation aligns `prepare_river_network` with the shared target-grid
+tier and coastline interpretation chosen for the workflow, so that river
+outlets and coastal refinement can be made consistent.
 
 Success means that Polaris gains a documented, reusable river-network
 preprocessing workflow that preserves the major hydrographic controls relevant
@@ -78,7 +81,8 @@ The simplification shall preserve connectivity and confluence structure rather
 than reducing the product to disconnected local segments.
 
 Where practical, the first Polaris design shall preserve the existing
-`mpas_land_mesh` river-network algorithms rather than redesigning them.
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
+river-network algorithms rather than redesigning them.
 
 ### Requirement: Coastline-Consistent Outlets and Explicit Inland Sinks
 
@@ -175,8 +179,8 @@ At the target-grid level, the workflow writes:
 
 This is intentionally clearer than the standalone workflow's mixed raster
 semantics. The present implementation does not yet add stream-order rasters or
-basin IDs, but it does establish a clean product split that `build_sizing_field`
-can consume directly later.
+basin IDs, but it does establish a clean product split that the
+`add-build-sizing-field` implementation now consumes directly.
 
 ### Algorithm Design: Hydrologically Meaningful Simplification
 
@@ -264,8 +268,7 @@ optional visualization step so outlet matching and rasterization can be
 inspected on a concrete target grid.
 
 This split keeps each task close to one layer of the interface while still
-reusing the same shared steps that a future `build_sizing_field` task would
-consume.
+reusing the same shared steps that the `build_sizing_field` task consumes.
 
 ## Implementation
 
@@ -318,9 +321,11 @@ helpers for canonicalizing segments, validating downstream topology, filtering
 outlets, and traversing retained basin structure.
 
 The implementation favors a compact Polaris-native reimplementation over a
-direct migration of `mpas_land_mesh` helper layers. No clear defect emerged
-from the current unit tests, but this remains an area where additional
-comparison against real HydroRIVERS output would strengthen confidence.
+direct migration of
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
+helper layers. No clear defect emerged from the current unit tests, but this
+remains an area where additional comparison against real HydroRIVERS output
+would strengthen confidence.
 
 ### Implementation: Coastline-Consistent Outlets and Explicit Inland Sinks
 
@@ -356,7 +361,7 @@ workflow and diagnostics for each supported resolution.
 
 ### Testing and Validation: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/22
+Date last modified: 2026/04/25
 
 Contributors:
 
@@ -365,15 +370,17 @@ Contributors:
 
 The implementation now has unit tests for the source-level and target-grid
 product contracts in `tests/mesh/spherical/unified/test_river.py`. These tests
-verify that the expected masks and snapped-outlet metadata are written and that
-ocean-outlet and inland-sink cases remain distinct.
+verify that the expected masks and snapped-outlet metadata are written, that
+ocean-outlet and inland-sink cases remain distinct, and that named unified-mesh
+configs provide the required river options.
 
-`build_sizing_field` does not yet exist, so there is not yet an integration
-test showing direct downstream consumption of the river products.
+`build_sizing_field` now exists and its unit tests consume the target-grid
+river masks. There is still not a task-level integration test showing the full
+river task output consumed by the sizing-field task output on real data.
 
 ### Testing and Validation: Hydrologically Meaningful Simplification
 
-Date last modified: 2026/04/22
+Date last modified: 2026/04/25
 
 Contributors:
 
@@ -383,7 +390,9 @@ Contributors:
 Current unit tests validate whether major outlets, main stems, and major
 tributaries are retained for representative synthetic networks, including deep
 main stems and branching cases. They also verify that invalid cyclic
-`NEXT_DOWN` graphs are rejected.
+`NEXT_DOWN` graphs are rejected, that duplicate source features can be
+converted from HydroRIVERS shapefile data, and that the HydroRIVERS archive
+unpack path behaves as expected for a lightweight archive.
 
 What is still missing is validation against real HydroRIVERS subsets to ensure
 the present heuristics retain scientifically appropriate networks across
@@ -391,21 +400,22 @@ different hydrographic settings.
 
 ### Testing and Validation: Coastline-Consistent Outlets and Explicit Inland Sinks
 
-Date last modified: 2026/04/22
+Date last modified: 2026/04/25
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-Current unit tests verify matched and unmatched ocean-outlet behavior as well
-as inland-sink snapping to land cells. The visualization step also writes
+Current unit tests verify matched and unmatched ocean-outlet behavior, inland-
+sink snapping to land cells, derivation of the land mask from `ocean_mask`,
+and physical channel-buffering behavior. The visualization step also writes
 `river_network_overview.png` and `debug_summary.txt`, which makes outlet
 matching diagnostics straightforward to inspect in task runs.
 
 ### Testing and Validation: Standalone River-Network Task
 
-Date last modified: 2026/04/22
+Date last modified: 2026/04/25
 
 Contributors:
 
@@ -413,7 +423,10 @@ Contributors:
 - Codex
 
 The standalone tasks are now the primary implementation path for inspecting
-river simplification and target-grid diagnostics, but there is not yet a
-task-level smoke test that exercises the full setup and run path for either
-task. Adding such a test would be a good next step once suitable lightweight
-test inputs are available.
+river simplification and target-grid diagnostics. Unit tests verify that the
+source and lat-lon task factories register the expected named-mesh tasks, use
+mesh-specific subdirectories, and reuse shared configs and steps.
+
+Standalone smoke tests for each of the 3 supported unified meshes have been
+run on Frontier, showing the expected rasterized river networks at each
+resolution.  Specific parameter choices still need to be fine-tuned.

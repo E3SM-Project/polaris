@@ -9,11 +9,14 @@ Contributors:
 
 ## Summary
 
-This design proposes a shared `prepare_coastline` step and an associated task
-that can run that shared step on its own for the unified global base-mesh
+This design describes the shared `prepare_coastline` step and an associated
+task that can run that shared step on its own for the unified global base-mesh
 workflow. The purpose of the step is to create a single coastline
 interpretation that downstream steps can reuse, especially
 `prepare_river_network` and `build_sizing_field`.
+
+The implementation is being added on the `add-prepare-coastline` branch in
+Polaris pull request <https://github.com/E3SM-Project/polaris/pull/545>.
 
 The preferred first source for coastline information is the combined
 topography already used in `e3sm/init/topo`, because that gives the strongest
@@ -21,13 +24,11 @@ consistency with downstream topography remapping and culling. The resulting
 coastline products should be defined on the same regular lon/lat grid that
 `build_sizing_field` will consume.
 
-This document intentionally emphasizes requirements and algorithm design more
-than implementation or testing. A key design choice is to keep the shared
-coastline interface raster-first if possible. In particular, the public output
-contract should prefer target-grid masks and coastal-distance fields over a
-persisted polygonal coastline product. If temporary contour extraction is ever
-needed internally, it should remain an implementation detail rather than the
-main workflow artifact.
+The implementation keeps the shared coastline interface raster-first. In
+particular, the public output contract uses target-grid masks and
+coastal-distance fields rather than a persisted polygonal coastline product.
+If temporary contour extraction is ever needed internally, it should remain an
+implementation detail rather than the main workflow artifact.
 
 Success means that Polaris gains a documented, reusable coastline-preparation
 workflow whose outputs can be consumed directly by downstream steps and whose
@@ -64,7 +65,7 @@ topography source datasets independently.
 
 ### Requirement: Topography-Consistent and Explicit Coastline Definition
 
-Date last modified: 2026/04/13
+Date last modified: 2026/04/25
 
 Contributors:
 
@@ -83,6 +84,13 @@ the ocean side and flood filling connected ocean regions, so the ocean
 interpretation remains contiguous and disconnected depressions are not
 misidentified as ocean simply because their remapped topography falls below
 sea level.
+
+The coastline workflow shall support critical ocean passages and critical land
+blockages that are applied before flood fill. Critical passages are needed to
+keep semi-enclosed seas such as the Mediterranean connected to the ocean
+domain when the remapped topography would otherwise close them; critical land
+blockages are needed to close known artificial openings that should remain
+land for the selected coastline interpretation.
 
 The coastline workflow shall support multiple explicit Antarctic coastline
 definitions within the shared design rather than baking in only the first
@@ -185,7 +193,7 @@ experiment, it should not become the required downstream artifact.
 
 ### Algorithm Design: Topography-Consistent and Explicit Coastline Definition
 
-Date last modified: 2026/04/14
+Date last modified: 2026/04/25
 
 Contributors:
 
@@ -233,12 +241,20 @@ meshes that exclude Antarctic ice-shelf cavities and meshes that include them.
 An exclusive ocean mask should not be inferred solely from a local threshold
 such as `base_elevation < 0`. Instead, each Antarctic convention should first
 define a candidate ocean mask and then perform a flood fill from trusted
-ocean-side seed cells to determine the connected ocean region. The first design
-should seed from all candidate-ocean cells on the northernmost latitude row.
-Cells that are below sea level but disconnected from the global ocean should
-remain on the land side of the partition unless a later workflow explicitly
-decides otherwise. This flood-fill step is important both in Antarctica and
-elsewhere for preserving a contiguous ocean interpretation.
+ocean-side seed cells to determine the connected ocean region. Before flood
+fill, default critical transects from `geometric_features` should be
+rasterized onto the target grid. Transects tagged as critical land blockages
+remove cells from the candidate ocean mask, while transects tagged as critical
+passages add cells to it. This gives the flood fill enough connectivity
+information to include major semi-enclosed seas and enough blockage
+information to prevent known false ocean connections.
+
+The first design should seed from all candidate-ocean cells on the
+northernmost latitude row. Cells that are below sea level but disconnected
+from the global ocean should remain on the land side of the partition unless a
+later workflow explicitly decides otherwise. This flood-fill step is important
+both in Antarctica and elsewhere for preserving a contiguous ocean
+interpretation.
 
 If one default must be chosen early for existing downstream workflows,
 `calving_front` appears to be the safer first shared product because it gives a
@@ -403,9 +419,12 @@ operations:
 4. label connected candidate-ocean regions, merge labels that wrap across the
   eastern and western grid edges, and keep only regions connected to the
   northernmost latitude row;
-5. derive the transient coastline-edge diagnostics needed for signed-distance
-  sampling; and
-6. write one output file per convention.
+5. optionally rasterize critical land blockages and passages from
+   `geometric_features` and apply them to the candidate ocean masks before
+   flood fill;
+6. derive the transient coastline-edge diagnostics needed for signed-distance
+   sampling; and
+7. write one output file per convention.
 
 The current candidate-mask definitions are:
 
@@ -420,6 +439,9 @@ The implemented workflow still does not include a Natural Earth fallback. It
 does, however, write diagnostics that make the mask-building process auditable
 through the `viz` step, including final ocean-mask and signed-distance plots
 for each convention.
+
+The default configuration sets `include_critical_transects = True`, so the
+shared critical land blockages and passages are included in normal task runs.
 
 ### Implementation: Global Coastal Distance on the Sphere
 
@@ -453,6 +475,10 @@ every run.
 The implemented `viz` step writes global and Antarctic binary plots of the
 final `ocean_mask`, signed-distance plots for each convention, and
 `debug_summary.txt`.
+
+The same rasterization machinery used for critical passages and land blockages
+handles diagonal paths as four-connected raster paths and treats longitude as
+periodic across the antimeridian.
 
 ### Implementation: Standalone Coastline Task
 
@@ -489,7 +515,7 @@ later unified workflow.
 
 ### Testing and Validation: Raster-First Coastline Products for Downstream Steps
 
-Date last modified: 2026/04/18
+Date last modified: 2026/04/25
 
 Contributors:
 
@@ -498,19 +524,20 @@ Contributors:
 
 Automated tests now verify the public output contract at the dataset-builder
 level. In `tests/mesh/spherical/unified/test_coastline.py`, the current
-coverage confirms
-that the convention-specific coastline products expose the expected variables,
+coverage confirms that the convention-specific coastline products expose the
+expected variables,
 that the conventions are returned together in the expected order, and that the
 output metadata records items such as the coastline convention and flood-fill
 seed strategy.
 
 There is not yet automated validation that compares different target-grid
-tiers, nor are there downstream contract tests for `prepare_river_network` or
-`build_sizing_field`, because those consumers are not implemented yet.
+tiers. Downstream contract coverage now exists at the unit-test level in the
+river and sizing-field tests, but there is not yet a task-level integration
+test that runs the full coastline-to-river-to-sizing-field chain.
 
 ### Testing and Validation: Topography-Consistent and Explicit Coastline Definition
 
-Date last modified: 2026/04/18
+Date last modified: 2026/04/25
 
 Contributors:
 
@@ -527,14 +554,16 @@ Those tests currently cover:
 - a disconnected below-sea-level basin that remains on the land side after
   flood fill; and
 - a case confirming that the northernmost latitude row is used for flood-fill
-  seeding even when latitude values are ordered south to north.
+  seeding even when latitude values are ordered south to north;
+- a critical land blockage that closes a narrow ocean connection; and
+- a critical passage that connects an otherwise disconnected ocean region.
 
 The current tests do not yet include dedicated threshold-sensitivity cases or
 full-resolution comparisons against realistic global datasets.
 
 ### Testing and Validation: Global Coastal Distance on the Sphere
 
-Date last modified: 2026/04/18
+Date last modified: 2026/04/25
 
 Contributors:
 
@@ -546,13 +575,15 @@ synthetic dataset tests. Existing assertions confirm that the field is finite
 for the tested cases and that the sign matches the intended convention of
 negative over land and positive over ocean.
 
-There is not yet a dedicated antimeridian-specific automated test, nor a
-task-level baseline that checks the smoothness of the signed-distance field on
-realistic global products. Manual inspection is still needed for those cases.
+There is an antimeridian-specific automated test for critical-transect
+rasterization, but not yet for the signed-distance field itself. There is also
+not yet a task-level baseline that checks the smoothness of the signed-distance
+field on realistic global products. Manual inspection is still needed for
+those cases.
 
 ### Testing and Validation: Standalone Coastline Task
 
-Date last modified: 2026/04/18
+Date last modified: 2026/04/25
 
 Contributors:
 
@@ -563,8 +594,7 @@ The standalone task is the intended place to inspect and compare coastline
 choices before they are used in a later unified workflow, but there is not yet
 an automated task-level smoke test for it.
 
-Current validation of the standalone task is therefore manual. The expected
-manual checks are:
+A test has been performed on Frontier, showing the expected behavior:
 
 - comparing 0.25, 0.125, 0.0625, and 0.03125 degree coastline fidelity;
 - comparing the three Antarctic coastline conventions;

@@ -11,10 +11,11 @@ Contributors:
 
 This design proposes a Polaris workflow for creating a global, spherical MPAS
 base mesh for the E3SM land, river, ocean and sea-ice models using JIGSAW. The
-starting point is the work-in-progress `mpas_land_mesh` package,
-which currently combines geospatial preprocessing, JSON-based configuration,
-JIGSAW setup, mesh generation and ad hoc job creation in a single standalone
-workflow.
+starting point is the work-in-progress
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
+package, which currently combines geospatial preprocessing, JSON-based
+configuration, JIGSAW setup, mesh generation and ad hoc job creation in a
+single standalone workflow.
 
 The Polaris implementation should preserve the relevant parts of that workflow
 while translating them into shared steps, Polaris configuration files and
@@ -27,11 +28,22 @@ modules.
 The initial focus is a feature-aware global base mesh whose resolution can be
 informed by coastline and river-network data and whose output is directly
 usable by downstream Polaris tasks such as `e3sm/init` topography remapping and mesh
-culling. This design is intentionally a first draft because `mpas_land_mesh`
-is still evolving. The document therefore emphasizes interfaces, workflow
-decomposition and reuse strategy more than it fixes every implementation
-detail. In particular, the exact component boundary between generic mesh work
-and land/river-specific preprocessing remains an open design choice.
+culling. This design began as a first draft because
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
+is still evolving, but three Polaris workflow stages are now implemented on
+the current branch stack:
+
+- `add-prepare-coastline`, Polaris pull request
+  <https://github.com/E3SM-Project/polaris/pull/545>;
+- `add-prepare-river-network`, Polaris pull request
+  <https://github.com/E3SM-Project/polaris/pull/556>; and
+- `add-build-sizing-field`, Polaris pull request
+  <https://github.com/E3SM-Project/polaris/pull/561>.
+
+The document therefore records both the intended workflow interfaces and the
+current implementation state. The final end-to-end base-mesh task is still not
+implemented, but the shared coastline, river-network, sizing-field and
+sizing-field-to-cell-width pieces are in place.
 
 This document should be treated as an umbrella design for the overall workflow.
 As the work is refined, we expect to add more focused design documents for
@@ -150,7 +162,9 @@ Contributors:
 The Polaris implementation shall prefer existing Polaris, `mpas_tools`,
 JIGSAW and conda-forge capabilities wherever practical.
 
-Migration from `mpas_land_mesh` shall focus on the specific algorithms and
+Migration from
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
+shall focus on the specific algorithms and
 helpers needed for the Polaris workflow rather than wholesale reuse of general
 utility modules or standalone workflow infrastructure.
 
@@ -221,7 +235,8 @@ feature preprocessing and sizing-field construction.
 
 Feature preprocessing converts raw source datasets into cleaned global inputs
 that are stable enough to drive mesh sizing. Based on the current
-`mpas_land_mesh` workflow, the first supported sources should be:
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
+workflow, the first supported sources should be:
 
 - a coastline mask derived first from the existing `e3sm/init/topo`
   topography product and its land/ocean masking logic, so the unified mesh
@@ -320,7 +335,8 @@ Contributors:
 - Xylar Asay-Davis
 - Codex
 
-The migration strategy should begin with an audit of `mpas_land_mesh`
+The migration strategy should begin with an audit of
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
 capabilities grouped into three categories:
 
 - functionality already available in Polaris or `mpas_tools`,
@@ -335,52 +351,51 @@ default implementation strategy in Polaris.
 Instead, new shared helpers should be introduced only when a focused algorithm
 cannot be expressed clearly with existing package APIs or current Polaris
 utilities. This keeps the eventual Polaris implementation smaller, easier to
-review and more adaptable as `mpas_land_mesh` continues to change.
+review and more adaptable as
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
+continues to change.
 
 River-network simplification and river-driven meshing deserve special caution
 in this migration strategy. Because that part of the workflow is the least
 well-understood, the first Polaris design should preserve the corresponding
-`mpas_land_mesh` algorithms more closely than the coastline path whenever
-practical.
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
+algorithms more closely than the coastline path whenever practical.
 
 ## Implementation
 
 ### Implementation: Global Spherical MPAS Base Mesh
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/25
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The recommended implementation is a new feature-aware spherical base-mesh step
-in `polaris.mesh` that builds on `SphericalBaseStep` rather than replacing it.
-Two implementation paths both appear reasonable:
+The current branch adds `UnifiedCellWidthMeshStep` in
+`polaris.mesh.spherical.unified.cell_width`. This is a subclass of
+`QuasiUniformSphericalMeshStep` that overrides `build_cell_width_lat_lon()` to
+read `cellWidth`, `lon`, and `lat` directly from `sizing_field.nc`.
 
-- a subclass of `QuasiUniformSphericalMeshStep` that overrides construction of
-  the global `cellWidth` field, or
-- a new sibling class whose responsibility is explicitly a feature-driven
-  spherical sizing field.
+This keeps the implementation on the existing `SphericalBaseStep.run()` path
+for JIGSAW invocation, conversion to MPAS form and graph-file creation. The
+expected output naming remains `base_mesh.nc` as the primary mesh product and
+`graph.info` produced alongside it.
 
-In either case, the step should continue to rely on the existing
-`SphericalBaseStep.run()` logic for JIGSAW invocation, conversion to MPAS form
-and graph-file creation.
-
-The output naming should match existing Polaris conventions, with
-`base_mesh.nc` as the primary mesh product and `graph.info` produced alongside
-it.
+The remaining gap is task wiring: there is not yet a full standalone
+`unified_base_mesh` task that depends on a sizing-field task and runs this mesh
+step end to end.
 
 ### Implementation: Downstream E3SM Interoperability
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/25
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The new unified base-mesh step should be shaped so it can be passed directly to
+The new unified base-mesh step is shaped so it can be passed directly to
 existing E3SM tasks that expect a `SphericalBaseStep`-like dependency. In
 practice, this means keeping the same mesh and graph-file outputs and the same
 basic interface expected by the current remap and cull tasks.
@@ -391,8 +406,8 @@ expected by `polaris.tasks.e3sm.init.topo.remap` and
 `polaris.tasks.e3sm.init.topo.cull`.
 
 For validation and adoption, the first Polaris task that exercises the new
-workflow should likely connect the generated base mesh to one or both of those
-existing downstream tasks.
+workflow should still connect the generated base mesh to one or both of those
+existing downstream tasks. That connection is not implemented yet.
 
 ### Implementation: Feature-Aware Resolution Control
 
@@ -423,13 +438,18 @@ branch does not implement the unified-mesh workflow itself, but it reduces
 risk for the shared target-grid preprocessing described here. See Polaris pull
 request <https://github.com/E3SM-Project/polaris/pull/526>.
 
-Additional enabling work is now in place in the shared coastline and river
-subtrees under `polaris/tasks/mesh/spherical/unified/`. The coastline
-implementation now provides shared lat-lon coastline products on the supported
-target-grid resolutions, and the river implementation now provides shared
+The three stage branches in this stack now make the intended sequence
+concrete. The coastline implementation in `add-prepare-coastline`
+(<https://github.com/E3SM-Project/polaris/pull/545>) provides shared lat-lon
+coastline products on the supported target-grid resolutions. The river
+implementation in `add-prepare-river-network`
+(<https://github.com/E3SM-Project/polaris/pull/556>) provides shared
 source-level and target-grid preprocessing products that can be coordinated
-with those coastline products. This is enough to make the intended sequence
-more concrete:
+with those coastline products. The sizing-field implementation in
+`add-build-sizing-field`
+(<https://github.com/E3SM-Project/polaris/pull/561>) consumes those products
+for each named unified mesh and writes a JIGSAW-ready `sizing_field.nc`.
+This is enough to make the implemented sequence:
 
 1. build or reuse shared lat-lon topography products;
 2. derive coastline products on the selected shared target grid;
@@ -437,14 +457,11 @@ more concrete:
    consistent coastline interpretation;
 4. combine coastline and river refinement signals into a unified sizing field;
    and
-5. generate the spherical base mesh from that sizing field.
+5. read that sizing field through `UnifiedCellWidthMeshStep` when generating a
+   spherical base mesh.
 
-Both coastline and river preprocessing now fit the same shared-step pattern and
-exchange products on a common target grid.
-
-These names are intentionally provisional. They are useful labels for the
-current design discussion but should not yet be interpreted as final public
-interfaces or directory names in Polaris.
+Coastline, river and sizing-field preprocessing now fit the same shared-step
+pattern and exchange products on a common target grid.
 
 Even if the final implementation uses several shared steps, Polaris should
 present them as one coherent workflow rather than as unrelated utilities. The
@@ -468,8 +485,8 @@ target-grid products. These intermediate products are explicit enough to
 support shared reuse between stages while still keeping `build_sizing_field` as
 the main integration point.
 
-`build_sizing_field` needs a tighter contract than its working name suggests.
-It should be defined as the step that takes:
+`build_sizing_field` now has a concrete contract. It is defined as the step
+that takes:
 
 - the selected target-grid tier;
 - the background land and ocean resolution choices for the mesh;
@@ -478,37 +495,38 @@ It should be defined as the step that takes:
 - the outputs of `prepare_river_network`, such as retained flowlines, outlet
   information, masks, or other river-refinement products; and
 - configuration controlling how these refinement signals are blended,
-  including minimum and maximum cell widths, transition distances and optional
-  feature toggles.
+  including background cell widths, transition distances and optional feature
+  toggles.
 
-Its output should be a single regular lon/lat `cellWidth` field in the format
-already expected by the spherical JIGSAW workflow. Framing it this way makes
-clear that `build_sizing_field` is not another ad hoc resolution option like
-the current quasi-uniform mesh choices. Instead, it is the integration point
-between shared feature preprocessing and the existing `SphericalBaseStep`
-machinery. The downstream mesh-generation step should consume the resulting
-`cellWidth` field without needing to know whether refinement came from
-coastlines, rivers or later feature classes.
+Its output is a single regular lon/lat `cellWidth` field in
+`sizing_field.nc`, together with diagnostic candidate fields and active-control
+metadata. Framing it this way makes clear that `build_sizing_field` is not
+another ad hoc resolution option like the current quasi-uniform mesh choices.
+Instead, it is the integration point between shared feature preprocessing and
+the existing `SphericalBaseStep` machinery. The downstream mesh-generation
+step can consume the resulting `cellWidth` field without needing to know
+whether refinement came from coastlines, rivers or later feature classes.
 
-For coastline processing, the first implementation should attempt to derive the
-coastline from the same topography inputs used in `e3sm/init/topo`, because
-that gives the strongest consistency with downstream masking and culling. The
-preferred next step would then be to construct a signed-distance field on the
-sphere from that coastline and use it to define smooth resolution transitions,
-including inland coastal buffers where the coastal or ocean resolution is
-preserved for a configurable distance from shore. A fallback path based on
-Natural Earth should be retained in case the topo-derived coastline is too
-noisy, too expensive to generate, or otherwise unsuitable for driving mesh
-refinement.
+For coastline processing, the current implementation derives the coastline
+from the same topography inputs used in `e3sm/init/topo`, because that gives
+the strongest consistency with downstream masking and culling. It constructs a
+signed-distance field on the sphere from raster coastline transitions and uses
+that field to define smooth resolution transitions. The implementation also
+applies shared critical passages and land blockages before flood filling the
+candidate ocean mask, which is necessary to keep important connected seas in
+the ocean domain and to close known artificial openings. A fallback path based
+on Natural Earth should still be retained in case the topo-derived coastline
+is too noisy, too expensive to generate, or otherwise unsuitable for driving
+mesh refinement.
 
-The first implementation should target coastline and river inputs only. The
+The first implementation targets coastline and river inputs only. The
 configuration and internal APIs should nonetheless leave room for later steps
 that prepare watershed boundaries, lake boundaries or dam data if those prove
 necessary.
 
-The selected target-grid resolution should be treated as part of this
-interface. The preprocessing and sizing-field steps should exchange products on
-one shared grid, not on independently chosen grids.
+The selected target-grid resolution is now treated as part of this interface.
+The preprocessing and sizing-field steps exchange products on one shared grid,
+not on independently chosen grids.
 
 ### Implementation: Polaris-Native Configuration and Execution
 
@@ -584,19 +602,22 @@ Contributors:
 - Codex
 
 The implementation effort should begin with a short function-by-function audit
-of `mpas_land_mesh` to decide what should be:
+of [`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh) to
+decide what should be:
 
 - reused from Polaris or `mpas_tools`,
 - replaced with direct use of external packages, or
 - extracted into small Polaris helpers.
 
-The following parts of `mpas_land_mesh` appear unlikely to be appropriate for
-direct migration:
+The following parts of
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh) appear
+unlikely to be appropriate for direct migration:
 
 - JSON configuration management in `utilities/config_manager.py`;
 - standalone case and job infrastructure in `classes/jigsawcase.py`; and
 - broad general-purpose utility layers such as
-  `mpas_land_mesh/utilities/vector.py`.
+  [`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)/
+  `utilities/vector.py`.
 
 Candidate targeted extractions may still be needed for items such as
 geographic buffering, antimeridian-safe geometry handling or specific river
@@ -650,42 +671,51 @@ first-choice path is selected.
 
 ### Testing and Validation: Feature-Aware Resolution Control
 
-Date last modified: 2026/04/22
+Date last modified: 2026/04/25
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-Current automated coverage for feature-aware preprocessing now includes both
-the coastline and river stages.
+Current automated coverage for feature-aware preprocessing now includes the
+coastline, river and sizing-field stages.
 
-The current unit tests verify the coastline preprocessing contract and key
-convention-specific behavior, and they verify that river preprocessing
-preserves major network structure and produces consistent target-grid river and
-outlet products.
+The current unit tests verify the coastline preprocessing contract, key
+convention-specific behavior, and critical-passage or land-blockage handling.
+They also verify that river preprocessing preserves major network structure,
+produces consistent target-grid river and outlet products, and buffers
+rasterized river channels by a physical distance when configured.
 
-There are still no automated tests for `build_sizing_field`, feature-aware
-mesh generation, or downstream remap/cull integration, because those workflow
-stages are not implemented yet. The current river and coastline coverage is
-also mostly unit-level; it does not yet include a task-level smoke test of the
-full standalone shared-step chain.
+Sizing-field tests verify that `build_sizing_field` composes constant and
+latitude-dependent ocean backgrounds with land, coastline, river-channel and
+river-outlet controls, that the shared grid is used through the step factory,
+and that `UnifiedCellWidthMeshStep` can read `sizing_field.nc`.
+
+There are still no automated tests for end-to-end feature-aware mesh
+generation or downstream remap/cull integration, because the final workflow
+task is not implemented yet. The current coverage is also mostly unit-level;
+it does not yet include a task-level smoke test of the full standalone
+shared-step chain.
 
 ### Testing and Validation: Shared Target-Grid Tiers and Cacheable Preprocessing
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/25
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-Tests should verify that the supported target-grid tiers produce the expected
-lon/lat dimensions and that dependent shared steps reuse cached outputs when
-the same tier is selected.
+Current unit tests verify some parts of this contract: the river and
+sizing-field factories use mesh-specific shared subdirectories, shared configs
+are reused when the same product is requested more than once, and the named
+mesh configs provide the required `resolution_latlon` options.
 
-They should also verify that switching tiers produces separate products rather
-than silently reusing incompatible cached artifacts.
+Tests should still verify that all supported target-grid tiers produce the
+expected lon/lat dimensions, that dependent shared steps reuse cached outputs
+when the same tier is selected, and that switching tiers produces separate
+products rather than silently reusing incompatible cached artifacts.
 
 ### Testing and Validation: Polaris-Native Configuration and Execution
 
@@ -714,8 +744,10 @@ Contributors:
 - Xylar Asay-Davis
 - Codex
 
-Any helper code extracted from `mpas_land_mesh` should receive targeted tests
-that protect the specific behavior Polaris depends on.
+Any helper code extracted from
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
+should receive targeted tests that protect the specific behavior Polaris
+depends on.
 
 The first implementation should also document which external conda-forge
 packages were chosen in place of direct code migration so future contributors
