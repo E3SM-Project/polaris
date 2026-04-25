@@ -14,7 +14,8 @@ unified global mesh workflow, the standalone tasks that run that step for each
 named unified mesh, and the downstream workflow variants that consume the new
 base meshes for topography remapping and mesh culling.
 
-The current branch stack already implements the shared `prepare_coastline`,
+The [`add-build-sizing-field`](https://github.com/E3SM-Project/polaris/pull/561)
+branch already includes implementations of the shared `prepare_coastline`,
 `prepare_river_network`, and `build_sizing_field` stages. It also adds
 `UnifiedCellWidthMeshStep`, which can already read `sizing_field.nc` and hand
 that raster cell-width field to the existing spherical JIGSAW machinery. What
@@ -22,13 +23,6 @@ remains is the final stage that turns those shared products into complete
 unified MPAS base meshes, adds the required direct use of retained river
 geometry during final mesh generation, and hooks those meshes into downstream
 E3SM workflows.
-
-This design keeps requirements distinct from implementation choices. In
-particular, the design requires that retained river geometry influence final
-cell placement, but it does not require one particular JIGSAW mechanism to do
-so. Likewise, it is reasonable for the implementation to descend from
-`QuasiUniformSphericalMeshStep` in a style similar to `RRSBaseMesh`, but that
-inheritance choice is not itself a requirement.
 
 The first implementation should provide standalone base-mesh tasks for the
 three currently defined named unified meshes in
@@ -77,7 +71,7 @@ The primary output of that stage shall be a standard MPAS base mesh that can
 be consumed directly by existing MPAS and E3SM tooling.
 
 The final stage shall preserve the spatially varying resolution described by
-the unified sizing field rather than falling back to a quasi-uniform mesh.
+the unified sizing field.
 
 ### Requirement: Explicit Consumption of Shared Unified-Mesh Products
 
@@ -259,10 +253,14 @@ stage:
 How those signals are combined should remain flexible. Plausible mechanisms
 include explicit JIGSAW geometry constraints, river-centered attractors or
 guides, or another approach that causes vertices or cell centers to align more
-closely with retained river flowlines. The requirement is not exact parity
-with `mpas_land_mesh`, but the first Polaris implementation should preserve
-the essential behavior that river geometry directly affects final cell
-placement.
+closely with retained river flowlines. For the first Polaris implementation,
+the design should closely match the algorithmic approach used by the standalone
+reference solution in
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
+for using river-network geometry to place cell centers. We do not require a
+byte-for-byte match to the standalone implementation, but we do want to
+preserve that reference workflow's basic geometry-driven approach rather than
+replace it with an unrelated first-cut method.
 
 Because outlet regions are especially sensitive, the geometry path should also
 leave room for stronger treatment near retained outlets than along the generic
@@ -281,8 +279,8 @@ The final stage should follow the same pattern as the new coastline, river,
 and sizing-field stages: one shared implementation plus thin standalone task
 wrappers.
 
-The shared step should be parameterized by the named unified-mesh config. Task
-factories should iterate over the named mesh configs in
+The shared step should be parameterized by the named unified-mesh config. The
+code that registers standalone tasks should iterate over the named mesh configs in
 `polaris.mesh.spherical.unified` and register one standalone task per mesh.
 With the current configs, that means one standalone task each for:
 
@@ -367,16 +365,11 @@ class reads `cellWidth`, `lat`, and `lon` from `sizing_field.nc` and reuses
 the existing spherical mesh-generation machinery.
 
 The next implementation step should build on that capability rather than
-replace it. A likely structure is a shared unified base-mesh step that either:
+replace it. A likely structure is a shared unified base-mesh step that extends
+`UnifiedCellWidthMeshStep` with the additional river-geometry logic.
 
-- extends `UnifiedCellWidthMeshStep` with the additional river-geometry logic;
-  or
-- introduces a sibling class that still descends from
-  `QuasiUniformSphericalMeshStep` and reuses the same raster-loading pattern.
-
-Either approach is consistent with the design. The important point is to keep
-the raster sizing-field handoff simple and to isolate the new behavior in the
-final unified-mesh stage.
+The important point is to keep the raster sizing-field handoff simple and to
+isolate the new behavior in the final unified-mesh stage.
 
 ### Implementation: Explicit Consumption of Shared Unified-Mesh Products
 
@@ -390,12 +383,14 @@ Contributors:
 A likely software layout is a new package under
 `polaris/tasks/mesh/spherical/unified/base_mesh/` with modules such as:
 
-- `build.py` for the shared final step;
 - `viz.py` for standalone visualization;
-- `steps.py` for shared-step factories;
+- `steps.py` for shared-step setup helpers;
 - `task.py` and `tasks.py` for standalone task wrappers; and
 - `base_mesh.cfg` for shared configuration options specific to final mesh
   generation and visualization.
+
+A new shared step is not needed because that is already in
+`polaris.mesh.spherical.unified.cell_width`.
 
 The shared build step should link upstream `sizing_field.nc` and the retained
 river vector products from the river workflow, rather than re-reading raw
@@ -430,10 +425,11 @@ approach minimizes risk because it builds on the part of the branch stack that
 already exists while still satisfying the new requirement that river geometry
 matter directly.
 
-The implementation should not assume that exact parity with the standalone
-reference is required. However, the reference implementation should be used as
-the primary guide for what kinds of geometry-driven behavior matter enough to
-preserve, especially for river alignment and outlet treatment.
+The implementation should not aim for byte-for-byte parity with the standalone
+reference. However, it should preserve the same basic algorithmic approach for
+using river-network geometry to influence cell-center placement, with the
+standalone reference serving as the primary guide for river alignment and
+outlet treatment.
 
 ### Implementation: Shared Final Step and Per-Mesh Standalone Tasks
 
@@ -447,7 +443,7 @@ Contributors:
 The standalone task registration should follow the same mesh-config discovery
 pattern already used by the current unified sizing-field and river tasks.
 
-In practice, that means task factories should iterate over
+In practice, the code that registers standalone tasks should iterate over
 `UNIFIED_MESH_NAMES` from `polaris.mesh.spherical.unified.configs`, load each
 named config with `get_unified_mesh_config()`, and register one standalone
 base-mesh task per mesh.
@@ -457,7 +453,7 @@ workflows that reuse the shared final step should depend only on the build step
 unless they explicitly opt into diagnostics.
 
 The first implementation should assume the currently defined named meshes use
-`calving_front`, but the step and task factories should avoid hard-coding that
+`calving_front`, but the shared-step and task-registration code should avoid hard-coding that
 convention so future mesh configs can select others.
 
 ### Implementation: Standalone Visualization for Mesh and Inputs
