@@ -48,10 +48,9 @@ sizing-field-to-cell-width pieces are in place.
 This document should be treated as an umbrella design for the overall workflow.
 As the work is refined, we expect to add more focused design documents for
 stages such as `prepare_coastline`, `prepare_river_network`,
-`build_sizing_field`, and possibly `unified_base_mesh` if that stage proves
-complex enough to warrant its own design. These stage names are only working
-names for now and should not be treated as final task, step, class or
-component names.
+`build_sizing_field`, and the final base-mesh stage. These stage names are
+only working names for now and should not be treated as final task, step, class
+or component names.
 
 The stage-level shared products should be built on a small set of supported
 regular lon/lat target grids rather than on arbitrary default resolutions. A
@@ -475,9 +474,10 @@ base-mesh generation.
 
 As this workflow matures, more targeted design documents should be added for
 the stage-level algorithms and interfaces, especially `prepare_coastline`,
-`prepare_river_network`, and `build_sizing_field`. A separate design for
-`unified_base_mesh` may or may not be needed depending on how much new logic
-remains after reuse of the existing spherical JIGSAW infrastructure.
+`prepare_river_network`, and `build_sizing_field`. The final stage is now
+covered by the separate `unified_mesh_create_base_mesh.md` design, which
+describes final mesh creation, standalone visualization, and downstream remap
+and culling integration.
 
 The preprocessing steps write clear intermediate products that are useful for
 debugging and caching, including both source-level vector products and lat-lon
