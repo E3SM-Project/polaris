@@ -1,6 +1,7 @@
 import time
 from datetime import datetime
 
+import cftime
 import numpy as np
 import pandas as pd
 
@@ -26,10 +27,18 @@ def get_days_since_start(ds):
         ]
         t_arr = np.array(seconds_since_start, dtype=float) / 86400.0
     elif 'Time' in ds.keys():
-        t_vals = ds['Time'].values
-        t_pd = pd.to_datetime(t_vals)
-        t_arr = 1.0e9 * (t_pd - t_pd[0]) / np.timedelta64(1, 's')
-        t_arr = t_arr.astype(float) / 86400.0
+        # This option works if decode_times=True when loading xr.Dataset
+        if 'Time' in ds['Time'].coords:
+            t_arr = cftime.date2num(
+                ds['Time'].values,
+                units=ds['Time'].Units.replace('seconds', 'days'),
+                calendar=ds['Time'].dt.calendar,
+                has_year_zero=True,
+            )
+        else:
+            t_pd = pd.to_datetime(ds['Time'].values)
+            t_arr = 1.0e9 * (t_pd - t_pd[0]) / np.timedelta64(1, 's')
+            t_arr = t_arr.astype(float) / 86400.0
     else:
         raise ValueError('Could not find a time variable in dataset')
     return t_arr
