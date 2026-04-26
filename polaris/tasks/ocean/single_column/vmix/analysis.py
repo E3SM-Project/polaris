@@ -27,21 +27,11 @@ class Analysis(OceanIOStep):
             if comparisons
             else {'forward': '../forward/output.nc'}
         )
-
-    def setup(self):
-        model = self.config.get('ocean', 'model')
-        if model == 'mpas-ocean':
-            for comparison_name, comparison_path in self.comparisons.items():
-                self.add_input_file(
-                    filename=f'{comparison_name}.nc',
-                    target=f'{comparison_path}/output/KPP_test.0001-01-01_00.00.00.nc',
-                )
-        else:
-            for comparison_name, comparison_path in self.comparisons.items():
-                self.add_input_file(
-                    filename=f'{comparison_name}.nc',
-                    target=f'{comparison_path}/output.nc',
-                )
+        for comparison_name, comparison_path in self.comparisons.items():
+            self.add_input_file(
+                filename=f'{comparison_name}.nc',
+                target=f'{comparison_path}/output.nc',
+            )
 
     def run(self):
         """

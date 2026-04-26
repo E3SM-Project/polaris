@@ -254,3 +254,4 @@ config:
     config_cvmix_shear_KPP_nu_zero: BaseShearValue
     config_cvmix_shear_KPP_Ri_zero: RiCrit
     config_cvmix_shear_KPP_exp: Exponent
+    config_cvmix_num_ri_smooth_loops: RiSmoothLoops
