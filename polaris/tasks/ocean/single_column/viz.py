@@ -70,15 +70,14 @@ class Viz(OceanIOStep):
     def setup(self):
         model = self.config.get('ocean', 'model')
         for comparison_name, comparison_path in self.comparisons.items():
+            self.add_input_file(
+                filename=f'{comparison_name}.nc',
+                target=f'{comparison_path}/output.nc',
+            )
             if model == 'mpas-ocean':
                 self.add_input_file(
                     filename=f'{comparison_name}_diags.nc',
                     target=f'{comparison_path}/output/KPP_test.0001-01-01_00.00.00.nc',
-                )
-            else:
-                self.add_input_file(
-                    filename=f'{comparison_name}.nc',
-                    target=f'{comparison_path}/output.nc',
                 )
 
     def run(self):
@@ -98,11 +97,13 @@ class Viz(OceanIOStep):
 
         ds_list = []
         time_ds = []
+        comparisons = dict()
         for comparison_name in self.comparisons.keys():
-            if not os.path.exists(f'{comparison_name}.nc'):
+            if os.path.exists(f'{comparison_name}.nc'):
                 # Remove missing comparison so it won't be used later
-                self.comparisons.pop(comparison_name, None)
+                comparisons[comparison_name] = self.comparisons[comparison_name]
                 continue
+        for comparison_name in comparisons.keys():
             if os.path.exists(f'../{comparison_name}/coeffs_reconstruct.nc'):
                 ds_comp = self.open_model_dataset(
                     f'{comparison_name}.nc',
@@ -178,12 +179,29 @@ class Viz(OceanIOStep):
                     curves_plotted += 1
                 else:
                     if field_name not in ds_comp.keys():
-                        self.logger.info(
-                            f'\t{field_name} not found; skipping plot for '
-                            f'{comparison_name}'
-                        )
-                        continue
-                    var_comp = ds_comp[field_name].mean(dim='nCells')
+                        if os.path.exists(f'{comparison_name}_diags.nc'):
+                            ds_diags = self.open_model_dataset(
+                                f'{comparison_name}.nc',
+                                decode_times=True,
+                            )
+                            if field_name in ds_diags.keys():
+                                t_arr = get_days_since_start(ds_diags)
+                                t_index = np.argmin(np.abs(t_arr - t_target))
+                                var_comp = ds_diags[field_name].isel(Time=t_index).mean(dim='nCells')
+                            else:
+                                self.logger.info(
+                                    f'\t{field_name} not found; skipping plot for '
+                                    f'{comparison_name}'
+                                )
+                                continue
+                        else:
+                            self.logger.info(
+                                f'\t{field_name} not found; skipping plot for '
+                                f'{comparison_name}'
+                            )
+                            continue
+                    else:
+                        var_comp = ds_comp[field_name].mean(dim='nCells')
                     if 'nVertLevelsP1' in var_comp.dims:
                         var_comp = var_comp.isel(nVertLevelsP1=slice(0, -1))
                     # TODO delete this line when MPAS-O bug is fixed
