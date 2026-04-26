@@ -4,12 +4,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 
-from polaris import Step
+from polaris.constants import get_constant
 from polaris.mpas import area_for_field
+from polaris.ocean.model import OceanIOStep, get_days_since_start
 from polaris.viz import use_mplstyle
 
 
-class Analysis(Step):
+class Analysis(OceanIOStep):
     """
     A step for comparing the velocity profile to an analytic solution
     """
@@ -58,14 +59,25 @@ class Analysis(Step):
         tol = config.getfloat('single_column_ekman', 'L2_error_norm_max')
 
         ds_mesh = xr.load_dataset('init.nc')
-        ds = xr.load_dataset('output.nc')
-        t_index = ds.sizes['Time'] - 1
-        t = ds.daysSinceStartOfSim[t_index]
-        t_days = t.values.astype('timedelta64[D]')
+        ds = self.open_model_dataset(
+            'output.nc',
+            decode_times=True,
+            mesh_filename='../init/initial_state.nc',
+            reconstruct_variables=['normalVelocity'],
+            coeffs_filename='../forward_constant/coeffs_reconstruct.nc',
+        )
+        t_index = -1
         ds = ds.isel(Time=t_index)
-        title = f'final time = {t_days / np.timedelta64(1, "D")} days'
+        t_days = get_days_since_start(ds)
         z_mid = ds.zMid.mean(dim='nCells').values
-        rho_0 = ds['density'].mean(dim='nCells').isel(nVertLevels=0).values
+        if 'density' in ds.keys():
+            rho_0 = ds['density'].mean(dim='nCells').isel(nVertLevels=0).values
+        elif 'SpecVol' in ds.keys():
+            rho_0 = np.divide(
+                1, ds['SpecVol'].mean(dim='nCells').isel(nVertLevels=0).values
+            )
+        else:
+            rho_0 = get_constant('seawater_density_reference')
         u = ds['velocityZonal'].mean(dim='nCells')
         v = ds['velocityMeridional'].mean(dim='nCells')
         z_max = bottom_depth / 3.0
@@ -92,9 +104,8 @@ class Analysis(Step):
         ax.set_xlabel('Velocity (m/s)')
         ax.set_ylabel('z (m)')
         ax.legend()
-        plt.title(title)
         plt.tight_layout(pad=0.5)
-        plt.savefig('velocity_comparison.png')
+        plt.savefig(f'velocity_comparison_day{t_days:02g}.png')
         plt.close()
 
         # Write out some information about the error
