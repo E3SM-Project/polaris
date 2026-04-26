@@ -120,6 +120,13 @@ class Forward(OceanModelStep):
         # TODO: remove as soon as Omega no longer hard-codes this file
         if model == 'omega':
             self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
+            # Uncomment these lines when coeffs.nc has been added to the
+            # database
+            # self.add_input_file(
+            #    target='coeffs.nc',
+            #    filename='coeffs.nc',
+            #    database='single_column',
+            # )
 
     def dynamic_model_config(self, at_setup):
         super().dynamic_model_config(at_setup=at_setup)
