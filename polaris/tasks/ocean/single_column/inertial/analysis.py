@@ -1,13 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray as xr
 
-from polaris import Step
-from polaris.ocean.model import get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_days_since_start
 from polaris.viz import use_mplstyle
 
 
-class Analysis(Step):
+class Analysis(OceanIOStep):
     """
     The analysis step plots a time series showing inertial oscillations
     computes the oscillation frequency, and compares it to the theoretical
@@ -36,6 +34,16 @@ class Analysis(Step):
             filename='output.nc', target='../forward/output.nc'
         )
 
+    # def setup(self):
+    #    model = self.config.get('ocean', 'model')
+    #    # TODO: remove as soon as Omega no longer needs this file
+    #    if model == 'omega':
+    #        self.add_input_file(
+    #            target='coeffs.nc',
+    #            filename='coeffs.nc',
+    #            database='single_column',
+    #        )
+
     def run(self):
         """
         Run this step of the test case
@@ -49,7 +57,13 @@ class Analysis(Step):
             'single_column_inertial', 'period_tolerance_fraction'
         )
 
-        ds = xr.load_dataset('output.nc')
+        ds = self.open_model_dataset(
+            'output.nc',
+            decode_times=True,
+            mesh_filename='../init/initial_state.nc',
+            reconstruct_variables=['normalVelocity'],
+            coeffs_filename='../forward/coeffs_reconstruct.nc',
+        )
         t = get_days_since_start(ds)
         s_per_day = 24.0 * 3600.0
         dt = (t[1] - t[0]) * s_per_day
@@ -70,8 +84,8 @@ class Analysis(Step):
         # Plot a time series of the maximum u and v components
         plt.figure(figsize=(3, 5))
         ax = plt.subplot(111)
-        ax.plot(t[:t_index], u_max[:t_index], '-k')
-        ax.plot(t[:t_index], v_max[:t_index], '-b')
+        ax.plot(t[:t_index], u_max[:t_index], '-b')
+        ax.plot(t[:t_index], v_max[:t_index], '--b')
         ymin, ymax = ax.get_ylim()
         ax.plot(
             [expected_period / 24.0, expected_period / 24.0],
