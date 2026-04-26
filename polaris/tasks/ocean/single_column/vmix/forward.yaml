@@ -1,5 +1,6 @@
 ocean:
   time_management:
+    # TODO set duration from cfg file
     config_run_duration: 0010_00:00:00
   hmix_del4:
     config_use_mom_del4: false
@@ -28,9 +29,9 @@ mpas-ocean:
     config_disable_vel_vmix: false
     config_disable_tr_vmix: false
   streams:
-    KPP_testing:
+    output:
+      output_interval: 0000_01:00:00
       contents:
-      - mesh
       - layerThickness
       - tracers
       - vertNonLocalFlux
