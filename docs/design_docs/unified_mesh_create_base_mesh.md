@@ -95,7 +95,7 @@ manual work-directory edits.
 
 ### Requirement: River-Geometry Influence on Final Cell Placement
 
-Date last modified: 2026/04/25
+Date last modified: 2026/04/26
 
 Contributors:
 
@@ -108,10 +108,6 @@ than only through the raster sizing field.
 The requirement is on the resulting behavior, namely that final cell placement
 can reflect the retained river network, especially along important channels and
 near outlets.
-
-The design shall not require one particular mechanism for applying that
-geometry, as long as the retained river geometry has a direct influence on the
-final mesh-generation process.
 
 ### Requirement: Shared Final Step and Per-Mesh Standalone Tasks
 
@@ -231,7 +227,7 @@ special one-off scripts.
 
 ### Algorithm Design: River-Geometry Influence on Final Cell Placement
 
-Date last modified: 2026/04/25
+Date last modified: 2026/04/26
 
 Contributors:
 
@@ -250,17 +246,13 @@ stage:
 - a raster resolution signal from `build_sizing_field`; and
 - a vector geometry signal from the retained river network.
 
-How those signals are combined should remain flexible. Plausible mechanisms
-include explicit JIGSAW geometry constraints, river-centered attractors or
-guides, or another approach that causes vertices or cell centers to align more
-closely with retained river flowlines. For the first Polaris implementation,
-the design should closely match the algorithmic approach used by the standalone
+The design should follow the algorithmic approach used by the standalone
 reference solution in
 [`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
 for using river-network geometry to place cell centers. We do not require a
-byte-for-byte match to the standalone implementation, but we do want to
-preserve that reference workflow's basic geometry-driven approach rather than
-replace it with an unrelated first-cut method.
+byte-for-byte match to the standalone implementation, but we do want Polaris to
+preserve that reference workflow's geometry-driven method for river alignment
+and outlet treatment rather than substitute a different first-cut approach.
 
 Because outlet regions are especially sensitive, the geometry path should also
 leave room for stronger treatment near retained outlets than along the generic
@@ -403,33 +395,25 @@ base mesh linked as the upstream mesh input.
 
 ### Implementation: River-Geometry Influence on Final Cell Placement
 
-Date last modified: 2026/04/25
+Date last modified: 2026/04/26
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-This is the part of the design where the implementation should remain least
-overconstrained.
-
 The first implementation should read the retained river geometry already
 produced by `prepare_river_network` and apply it during final mesh creation.
-It is reasonable to start with the smallest mechanism that can demonstrate
-direct influence on final cell placement, even if later tuning produces a more
-refined approach.
-
-A pragmatic path is to keep the existing raster HFUN workflow intact and add a
-geometry-aware adjustment or geometry constraint layer on top of it. That
-approach minimizes risk because it builds on the part of the branch stack that
-already exists while still satisfying the new requirement that river geometry
-matter directly.
+The implementation should follow the approach in
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
+for using river-network geometry to influence cell-center placement, while
+building on the existing Polaris raster HFUN workflow and JIGSAW-to-MPAS
+conversion path.
 
 The implementation should not aim for byte-for-byte parity with the standalone
-reference. However, it should preserve the same basic algorithmic approach for
-using river-network geometry to influence cell-center placement, with the
-standalone reference serving as the primary guide for river alignment and
-outlet treatment.
+reference. However, it should preserve the same basic algorithmic approach,
+with the standalone reference serving as the primary guide for river alignment
+and outlet treatment.
 
 ### Implementation: Shared Final Step and Per-Mesh Standalone Tasks
 
