@@ -1071,7 +1071,6 @@ def _add_reconstructed_variables_to_dataset(
 ):
     """
     Add reconstructed vector variables to the dataset if requested.
-
     Parameters
     ----------
     ds : xarray.Dataset
@@ -1159,7 +1158,12 @@ def _add_reconstructed_variables_to_dataset(
                 ds[f'{out_var_name}Zonal'] = u_zonal
                 ds[f'{out_var_name}Meridional'] = u_merid
 
-    return ds
+        if not (
+            f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds
+        ):
+            print(f'Failed to reconstruct {out_var_name}')
+
+        return ds
 
 
 def _reconstruction_weights_in_dataset(ds, vertices=False):
