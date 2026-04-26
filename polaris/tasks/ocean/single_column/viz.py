@@ -105,6 +105,7 @@ class Viz(OceanIOStep):
             if os.path.exists(f'../{comparison_name}/coeffs_reconstruct.nc'):
                 ds_comp = self.open_model_dataset(
                     f'{comparison_name}.nc',
+                    config=self.config,
                     decode_times=True,
                     mesh_filename='../init/initial_state.nc',
                     reconstruct_variables=['normalVelocity'],
