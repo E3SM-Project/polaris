@@ -3,9 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-from polaris.ocean.vertical.diagnostics import depth_from_thickness
-from polaris.ocean.model import OceanIOStep
-from polaris.ocean.model import get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_days_since_start
 from polaris.viz import use_mplstyle
 
 # TODO import rho_0 from constants
@@ -49,9 +47,7 @@ class Viz(OceanIOStep):
         """
         super().__init__(component=component, name=name, indir=indir)
         self.comparisons = (
-            dict(comparisons)
-            if comparisons
-            else {'forward': '../forward'}
+            dict(comparisons) if comparisons else {'forward': '../forward'}
         )
         self.variables = (
             dict(variables)
@@ -79,23 +75,25 @@ class Viz(OceanIOStep):
         Run this step of the test case
         """
         use_mplstyle()
-        model = self.config.get('ocean', 'model')
         section = self.config['single_column']
         if section.has_option('run_duration'):
             t_target = section.getfloat('run_duration')
         else:
             self.logger.info(
                 'run_duration not found in config; using default plotting '
-                'time of 10 days')
-            t_target = 10.
+                'time of 10 days'
+            )
+            t_target = 10.0
 
         ds_list = []
         time_ds = []
+        # Remove missing comparison so it won't be used later
         comparisons = dict()
         for comparison_name in self.comparisons.keys():
             if os.path.exists(f'{comparison_name}.nc'):
-                # Remove missing comparison so it won't be used later
-                comparisons[comparison_name] = self.comparisons[comparison_name]
+                comparisons[comparison_name] = self.comparisons[
+                    comparison_name
+                ]
                 continue
         for comparison_name in comparisons.keys():
             if os.path.exists(f'../{comparison_name}/coeffs_reconstruct.nc'):
@@ -122,8 +120,7 @@ class Viz(OceanIOStep):
 
         z_mid_final = z_mid_init
         self.logger.warn(
-            'Using initial zMid values; may not represent '
-            'plotted state'
+            'Using initial zMid values; may not represent plotted state'
         )
 
         # Plot depth profiles of variables
@@ -135,19 +132,19 @@ class Viz(OceanIOStep):
                 self.comparisons.keys(), ds_list, time_ds, colors, strict=False
             ):
                 # TODO use this line when Omega zMid is correct
-                #z_mid_final = ds_comp['zMid'].mean(dim='nCells')
+                # z_mid_final = ds_comp['zMid'].mean(dim='nCells')
                 # TODO compare with z_mid computed from layerThickness
-                #z_mid_final = depth_from_thickness(ds_comp).mean(
+                # z_mid_final = depth_from_thickness(ds_comp).mean(
                 #    dim='nCells'
-                #)
+                # )
                 if field_name == 'velocity':
                     if (
                         'velocityZonal' not in ds_comp.keys()
                         and 'velocityMeridional' not in ds_comp.keys()
                     ):
                         self.logger.info(
-                            '\tvelocityZonal,Meridional not found; skipping plot'
-                            f'for {comparison_name}'
+                            '\tvelocityZonal,Meridional not found; skipping '
+                            f'plot for {comparison_name}'
                         )
                         continue
                     self.logger.info(
@@ -199,8 +196,10 @@ class Viz(OceanIOStep):
                         for lbl in plt.gca().get_legend_handles_labels()[1]
                         if isinstance(lbl, str)
                     ]
-                    if field_name in ds_init.keys() and \
-                            'initial' not in existing_labels:
+                    if (
+                        field_name in ds_init.keys()
+                        and 'initial' not in existing_labels
+                    ):
                         var_init = ds_init[field_name].mean(dim='nCells')
                         plt.plot(var_init, z_mid_init, '--k', label='initial')
                         curves_plotted += 1
