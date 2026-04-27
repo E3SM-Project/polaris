@@ -8,7 +8,6 @@ from jigsawpy.savejig import savejig
 from mpas_tools.io import write_netcdf
 from mpas_tools.logging import check_call
 from mpas_tools.mesh.creation.jigsaw_to_netcdf import jigsaw_to_netcdf
-from mpas_tools.mesh.interpolation import interp_bilin
 from mpas_tools.ocean.inject_meshDensity import inject_spherical_meshDensity
 from mpas_tools.transects import lon_lat_to_cartesian
 from mpas_tools.viz.colormaps import register_sci_viz_colormaps
@@ -129,7 +128,6 @@ class SphericalBaseStep(Step):
         # open the mesh and rewrite it in the desired NetCDF format
         ds_mesh = xr.open_dataset(tmp_mesh_filename)
 
-        self._add_cell_width_to_mesh(ds_mesh)
         angle_edge = recompute_angle_edge(ds_mesh)
         ds_mesh.angleEdge.values = angle_edge.values
         write_netcdf(ds_mesh, mpas_mesh_filename)
@@ -246,32 +244,6 @@ class SphericalBaseStep(Step):
         plt.tight_layout()
         plt.savefig(image_filename, bbox_inches='tight')
         plt.close()
-
-    def _add_cell_width_to_mesh(self, ds_mesh):
-        """
-        Interpolate the cell width from a lon/lat grid to the MPAS mesh and
-        add it to the mesh file
-        """
-        config = self.config
-        section = config['spherical_mesh']
-        cell_width_filename = section.get('cell_width_filename')
-        ds_cell_width = xr.open_dataset(cell_width_filename)
-
-        lon_cell = np.degrees(ds_mesh.lonCell)
-        # Convert lon_cell to be between -180 and 180 using np.mod
-        lon_cell = np.mod(lon_cell + 180.0, 360.0) - 180.0
-        lat_cell = np.degrees(ds_mesh.latCell)
-
-        cell_width = interp_bilin(
-            x=ds_cell_width.lon.values,
-            y=ds_cell_width.lat.values,
-            field=ds_cell_width.cellWidth.values,
-            xCell=lon_cell,
-            yCell=lat_cell,
-        )
-
-        # interpolate the cell width to the MPAS mesh
-        ds_mesh['cellWidth'] = (('nCells'), cell_width)
 
 
 class QuasiUniformSphericalMeshStep(SphericalBaseStep):

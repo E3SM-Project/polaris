@@ -25,6 +25,7 @@ class CullTopoTask(Task):
         combine_topo_step,
         remap_mask_step,
         unsmoothed_topo_step,
+        base_mesh_steps=None,
         include_viz=False,
     ):
         """
@@ -45,14 +46,9 @@ class CullTopoTask(Task):
         unsmoothed_topo_step : polaris.tasks.e3sm.init.topo.remap.RemapTopoStep
             The step for remapping the unsmoothed topography
 
-        low_res : bool
-            Whether the base mesh is low resolution (120km or coarser), so that
-            a set of config options for low resolution and a lower resolution
-            source topography should be used
-
-        smoothing : bool, optional
-            Whether to create a step with smoothing in addition to the step
-            without smoothing
+        base_mesh_steps : list of polaris.Step, optional
+            Steps needed to build the base mesh, including the base-mesh step
+            itself. If omitted, only ``base_mesh_step`` is added to the task
 
         include_viz : bool, optional
             Whether to include visualization steps
@@ -64,7 +60,9 @@ class CullTopoTask(Task):
             name=f'{mesh_name}_cull_topo_task',
             subdir=subdir,
         )
-        self.add_step(base_mesh_step, symlink='base_mesh')
+        self._add_base_mesh_steps(
+            base_mesh_step=base_mesh_step, base_mesh_steps=base_mesh_steps
+        )
         self.add_step(combine_topo_step, symlink='combine_topo')
         self.add_step(remap_mask_step, symlink='remap_mask')
         self.add_step(unsmoothed_topo_step, symlink='remap_unsmoothed_topo')
@@ -88,3 +86,17 @@ class CullTopoTask(Task):
         # The combine topo step is really expensive so we want to use the
         # cached version
         self.combine_topo_step.cached = True
+
+    def _add_base_mesh_steps(self, base_mesh_step, base_mesh_steps):
+        """
+        Add the base mesh and any steps required to build it.
+        """
+        if base_mesh_steps is None:
+            base_mesh_steps = [base_mesh_step]
+
+        for step in base_mesh_steps:
+            if step is base_mesh_step:
+                symlink = 'base_mesh'
+            else:
+                symlink = f'base_mesh_{step.name}'
+            self.add_step(step, symlink=symlink)

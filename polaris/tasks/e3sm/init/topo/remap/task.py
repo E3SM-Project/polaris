@@ -24,6 +24,7 @@ class RemapTopoTask(Task):
         base_mesh_step,
         combine_topo_step,
         low_res,
+        base_mesh_steps=None,
         smoothing=False,
         include_viz=False,
     ):
@@ -47,6 +48,10 @@ class RemapTopoTask(Task):
             a set of config options for low resolution and a lower resolution
             source topography should be used
 
+        base_mesh_steps : list of polaris.Step, optional
+            Steps needed to build the base mesh, including the base-mesh step
+            itself. If omitted, only ``base_mesh_step`` is added to the task
+
         smoothing : bool, optional
             Whether to create a step with smoothing in addition to the step
             without smoothing
@@ -61,7 +66,9 @@ class RemapTopoTask(Task):
             name=f'{mesh_name}_topo_remap_task',
             subdir=subdir,
         )
-        self.add_step(base_mesh_step, symlink='base_mesh')
+        self._add_base_mesh_steps(
+            base_mesh_step=base_mesh_step, base_mesh_steps=base_mesh_steps
+        )
         self.add_step(combine_topo_step, symlink='combine_topo')
         steps, config = get_default_remap_topo_steps(
             component=component,
@@ -85,3 +92,17 @@ class RemapTopoTask(Task):
         # The combine topo step is really expensive so we want to use the
         # cached version
         self.combine_topo_step.cached = True
+
+    def _add_base_mesh_steps(self, base_mesh_step, base_mesh_steps):
+        """
+        Add the base mesh and any steps required to build it.
+        """
+        if base_mesh_steps is None:
+            base_mesh_steps = [base_mesh_step]
+
+        for step in base_mesh_steps:
+            if step is base_mesh_step:
+                symlink = 'base_mesh'
+            else:
+                symlink = f'base_mesh_{step.name}'
+            self.add_step(step, symlink=symlink)

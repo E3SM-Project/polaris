@@ -1,5 +1,11 @@
-from polaris.mesh.spherical.unified.cell_width import (
-    UnifiedCellWidthMeshStep as UnifiedCellWidthMeshStep,
+from polaris.mesh.spherical.unified.base_mesh import (
+    UnifiedBaseMeshStep as UnifiedBaseMeshStep,
+)
+from polaris.mesh.spherical.unified.base_mesh import (
+    get_unified_background_cell_width as get_unified_background_cell_width,
+)
+from polaris.mesh.spherical.unified.base_mesh import (
+    get_unified_finest_cell_width as get_unified_finest_cell_width,
 )
 from polaris.mesh.spherical.unified.configs import (
     RIVER_CONFIG_FILENAME as RIVER_CONFIG_FILENAME,
