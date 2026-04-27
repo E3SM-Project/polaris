@@ -37,6 +37,7 @@ def compute_density(
         Computed density (in-situ or reference) of the seawater.
     """
     eos_type = config.get('ocean', 'eos_type')
+    eos_type = eos_type.strip()
     if eos_type == 'constant':
         density = compute_constant_density(config, temperature)
     elif eos_type == 'linear':
@@ -88,7 +89,10 @@ def compute_specvol(
         Computed specific volume (in-situ or reference) of the seawater.
     """
     eos_type = config.get('ocean', 'eos_type')
-    if eos_type == 'linear':
+    eos_type = eos_type.strip()
+    if eos_type == 'constant':
+        specvol = 1.0 / compute_constant_density(config, temperature)
+    elif eos_type == 'linear':
         specvol = 1.0 / compute_linear_density(config, temperature, salinity)
     elif eos_type == 'teos-10':
         if pressure is None:
