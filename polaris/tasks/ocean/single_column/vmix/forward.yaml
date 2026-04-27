@@ -2,6 +2,9 @@ ocean:
   time_management:
     # TODO set duration from cfg file
     config_run_duration: 0010_00:00:00
+  hmix_del2:
+    config_use_mom_del2: false
+    config_use_tracer_del2: false
   hmix_del4:
     config_use_mom_del4: false
     config_use_tracer_del4: false
@@ -16,6 +19,11 @@ ocean:
     config_eos_linear_beta: 0.01
     # 1000.0 + 0.2 * 5 - 0.01 * 35
     config_eos_linear_densityref: 1000.65
+  forcing:
+    config_use_bulk_wind_stress: true
+  debug:
+    config_disable_vel_explicit_bottom_drag: true
+    config_disable_tr_adv: false
 
 mpas-ocean:
   frazil_ice:
@@ -65,14 +73,7 @@ Omega:
     PVTendencyEnable: false
     KETendencyEnable: false
     SSHTendencyEnable: false
-    VelDiffTendencyEnable: false
-    VelHyperDiffTendencyEnable: false
     PressureGradTendencyEnable: false
-    WindForcingTendencyEnable: true
-    BottomDragTendencyEnable: false
-    TracerHorzAdvTendencyEnable: false
-    TracerDiffTendencyEnable: false
-    TracerHyperDiffTendencyEnable: false
   IOStreams:
     History:
       Contents:
