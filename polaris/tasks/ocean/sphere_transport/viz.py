@@ -94,8 +94,10 @@ class Viz(OceanIOStep):
         run_duration = config.getfloat('convergence_forward', 'run_duration')
 
         variables_to_plot = self.variables_to_plot
+
         ds_init = self.open_model_dataset(
             'initial_state.nc',
+            config,
             decode_times=False,
             mesh_filename='mesh.nc',
             reconstruct_variables=['normalVelocity'],
@@ -108,6 +110,7 @@ class Viz(OceanIOStep):
 
         ds_out = self.open_model_dataset(
             'output.nc',
+            config,
             decode_times=False,
             mesh_filename='mesh.nc',
             reconstruct_variables=['normalVelocity'],

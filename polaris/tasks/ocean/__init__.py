@@ -8,6 +8,10 @@ from mpas_tools.vector.reconstruct import reconstruct_variable
 from ruamel.yaml import YAML
 
 from polaris import Component
+from polaris.ocean.vertical.diagnostics import (
+    geom_thickness_from_ds,
+    pseudothickness_from_ds,
+)
 
 
 class Ocean(Component):
@@ -155,7 +159,7 @@ class Ocean(Component):
             ]
         return renamed_vars
 
-    def write_model_dataset(self, ds, filename):
+    def write_model_dataset(self, ds, filename, config=None):
         """
         Write out the given dataset, mapping dimension and variable names from
         MPAS-Ocean to Omega names if appropriate
@@ -168,6 +172,14 @@ class Ocean(Component):
         filename : str
             The path for the NetCDF file to write
         """
+        if (
+            self.model == 'omega'
+            and 'layerThickness' in ds.keys()
+            and 'PseudoThickness' not in ds.keys()
+            and config is not None
+        ):
+            ds['PseudoThickness'] = pseudothickness_from_ds(ds, config=config)
+            ds['layerThickness'] = ds['PseudoThickness'].copy()
         ds = self.map_to_native_model_vars(ds)
         write_netcdf(ds=ds, fileName=filename)
 
@@ -237,6 +249,7 @@ class Ocean(Component):
     def open_model_dataset(
         self,
         filename,
+        config=None,
         mesh_filename=None,
         reconstruct_variables=None,
         coeffs_filename=None,
@@ -251,8 +264,8 @@ class Ocean(Component):
         filename : str
             The path for the NetCDF file to open
 
-        ds_mesh : xr.Dataset
-            The MPAS mesh dataset for the ocean model.
+        config : polaris.Config, optional
+            The configuration object for the simulation.
 
         mesh_filename : str, optional
             Path to the mesh NetCDF file.
@@ -275,6 +288,13 @@ class Ocean(Component):
             The dataset with variables named as expected in MPAS-Ocean
         """
         ds = xr.open_dataset(filename, **kwargs)
+        if (
+            self.model == 'omega'
+            and 'LayerThickness' in ds.keys()
+            and config is not None
+        ):
+            ds['PseudoThickness'] = ds.LayerThickness
+            ds['LayerThickness'] = geom_thickness_from_ds(ds, config=config)
         ds = self.map_from_native_model_vars(ds)
         ds = _add_reconstructed_variables_to_dataset(
             ds, reconstruct_variables, mesh_filename, coeffs_filename

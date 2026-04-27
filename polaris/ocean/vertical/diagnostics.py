@@ -1,26 +1,120 @@
 import numpy as np
 import xarray as xr
 
+from polaris.constants import get_constant
+from polaris.ocean.vertical.ztilde import (
+    pressure_and_spec_vol_from_state_at_geom_height,
+    pseudothickness_from_pressure,
+)
 
-def depth_from_thickness(ds):
+RhoSw = get_constant('seawater_density_reference')
+
+
+def geom_thickness_from_ds(ds, config):
     """
-    Compute the depth of the midpoint of each layer from `layerThickness`. It
-    is assumed that the `layerThickness` of invalid levels is 0. If
-    `ssh` is present in the dataset, depths will be offset by `ssh`. If
-    `bottomDepth` is present in the dataset, the location of the bottom of the
-    bottommost vertical level will be compared with `bottomDepth`.
+    Extract or compute geometric layer thickness from dataset.
 
     Parameters
     ----------
-    ds: xarray.Dataset
+    ds : xarray.Dataset
+        An ocean dataset containing either 'layerThickness' directly, or
+        'SpecVol' and 'PseudoThickness' to compute it
+
+    config : polaris.config.PolarisConfigParser
+        Configuration options for the test case
+
+    Returns
+    -------
+    layer_thickness : xarray.DataArray
+        The geometric layer thickness in meters
+
+    Raises
+    ------
+    ValueError
+        If neither layerThickness nor the variables needed to compute it
+        are present in the dataset
+    """
+    if 'layerThickness' in ds.keys():
+        return ds['layerThickness']
+    elif 'SpecVol' in ds.keys() and 'PseudoThickness' in ds.keys():
+        return RhoSw * ds['SpecVol'] * ds['layerThickness']
+    else:
+        raise ValueError(
+            'Geometric layerThickness is not present in the '
+            'initial condition and SpecVol is not present '
+            'to compute it'
+        )
+
+
+def pseudothickness_from_ds(ds, config):
+    """
+    Compute pseudothickness from temperature and salinity in dataset.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        An ocean dataset containing 'temperature', 'salinity',
+        'layerThickness', and 'ssh'
+
+    config : polaris.config.PolarisConfigParser
+        Configuration options for the test case, including
+        'vertical_grid:surface_pressure'
+
+    Returns
+    -------
+    pseudothickness : xarray.DataArray or None
+        The pseudothickness computed from pressure, or None if
+        temperature and salinity are not available
+    """
+    if 'temperature' not in ds.keys() or 'salinity' not in ds.keys():
+        print(
+            'PseudoThickness is not present in the '
+            'initial condition and T,S are not present '
+            'to compute it'
+        )
+        return
+
+    surface_pressure = config.getfloat('vertical_grid', 'surface_pressure')
+    p_interface, _, _ = pressure_and_spec_vol_from_state_at_geom_height(
+        config,
+        ds.layerThickness,
+        ds.temperature,
+        ds.salinity,
+        surface_pressure * xr.ones_like(ds.ssh),
+        iter_count=1,
+    )
+
+    pseudothickness = pseudothickness_from_pressure(p_interface)
+
+    return pseudothickness
+
+
+def depth_from_thickness(ds):
+    """
+    Compute the depth of the midpoint of each layer from `layerThickness`.
+
+    It is assumed that the `layerThickness` of invalid levels is 0. If
+    `ssh` is present in the dataset, depths will be offset by `ssh`. If
+    `bottomDepth` is present in the dataset, the location of the bottom
+    of the bottommost vertical level will be compared with `bottomDepth`.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
         An ocean dataset containing `layerThickness` and optionally `ssh`
         and `bottomDepth`
 
     Returns
     -------
     z_mid : xarray.DataArray
-        The location in meters from the sea surface of the midpoint of each
-        layer (level), positive upward
+        The location in meters from the sea surface of the midpoint of
+        each layer (level), positive upward
+
+    Raises
+    ------
+    ValueError
+        If `layerThickness` is not present in the dataset, or if required
+        dimensions are missing
     """
     # TODO when Omega supports these variables, just fetch them
     # if 'zMid' in ds.keys():

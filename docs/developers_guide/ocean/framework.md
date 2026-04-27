@@ -29,7 +29,12 @@ respectively. The `open_model_dataset()` method also supports reconstructing
 normal vector components to their zonal and meridional equivalents by passing
 a list of variable names to
 {py:class}`mpas_tools.vector.reconstruct.reconstruct_variables`, along with the mesh and
-reconstruction coefficient files. As new variables are added to Omega, they
+reconstruction coefficient files. In addition,
+`open_model_dataset()` derives `PseudoThickness` from the ocean state when it
+is not present in the dataset. This provides a way of using the same initial
+conditions for MPAS-Ocean and Omega when the geometric thickness is the state
+variable for MPAS-Ocean and the pseudo-thickness is the state variable for
+Omega. As new variables are added to Omega, they
 should be added to the `variables` section in the
 [mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
 file.
@@ -604,6 +609,12 @@ For workflows that need pseudo-height/pressure conversion, the
 For sigma coordinates, shared functionality for direct thickness computation is
 available in
 {py:func}`polaris.ocean.vertical.sigma.compute_sigma_layer_thickness()`.
+
+The `polaris.ocean.vertical.diagnostics` module provides utilities:
+
+- {py:func}`polaris.ocean.vertical.diagnostics.geom_thickness_from_ds()`
+- {py:func}`polaris.ocean.vertical.diagnostics.pseudothickness_from_ds()`
+- {py:func}`polaris.ocean.vertical.diagnostics.depth_from_thickness()`
 
 (dev-ocean-rpe)=
 
