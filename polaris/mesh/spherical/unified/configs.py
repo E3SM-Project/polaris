@@ -4,9 +4,13 @@ import os
 from polaris.config import PolarisConfigParser
 
 PACKAGE = 'polaris.mesh.spherical.unified'
+FAMILY_CONFIG_PACKAGE = 'polaris.mesh.spherical.unified.families'
 RIVER_CONFIG_PACKAGE = 'polaris.mesh.spherical.unified.river'
 RIVER_CONFIG_FILENAME = 'river_network.cfg'
+SIZING_FIELD_CONFIG_PACKAGE = 'polaris.mesh.spherical.unified.sizing_field'
+SIZING_FIELD_CONFIG_FILENAME = 'sizing_field.cfg'
 DEFAULT_CONFIG_FILENAME = 'unified_mesh.cfg'
+DEFAULT_FAMILY_NAME = 'default'
 
 
 def _discover_mesh_names():
@@ -47,15 +51,39 @@ UNIFIED_MESH_NAMES = _discover_mesh_names()
 
 def get_unified_mesh_config(mesh_name, filepath=None):
     """
-    Load default, generic river and per-mesh unified-mesh configs.
+    Load default, generic workflow and per-mesh unified-mesh configs.
     """
     config_filename = _get_mesh_config_filename(mesh_name)
+    family_name = _get_mesh_family_name(config_filename)
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package(PACKAGE, DEFAULT_CONFIG_FILENAME)
     config.add_from_package(RIVER_CONFIG_PACKAGE, RIVER_CONFIG_FILENAME)
+    config.add_from_package(
+        SIZING_FIELD_CONFIG_PACKAGE, SIZING_FIELD_CONFIG_FILENAME
+    )
+    _add_family_config(config=config, family_name=family_name)
     config.add_from_package(PACKAGE, config_filename)
     config.combine()
     return config
+
+
+def _add_family_config(config, family_name):
+    package_files = imp_res.files(FAMILY_CONFIG_PACKAGE)
+    family_config_filename = f'{family_name}.cfg'
+    family_config = package_files.joinpath(family_config_filename)
+    if family_config.is_file():
+        config.add_from_package(FAMILY_CONFIG_PACKAGE, family_config_filename)
+
+
+def _get_mesh_family_name(config_filename):
+    config = PolarisConfigParser()
+    config.add_from_package(PACKAGE, config_filename)
+    config.combine()
+    combined = config.combined
+    assert combined is not None
+    return combined.get(
+        'unified_mesh', 'mesh_family', fallback=DEFAULT_FAMILY_NAME
+    )
 
 
 def _get_mesh_config_filename(mesh_name):
