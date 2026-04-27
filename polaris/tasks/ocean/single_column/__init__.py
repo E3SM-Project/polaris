@@ -20,7 +20,7 @@ def add_single_column_tasks(component):
     name = 'vmix_stable'
     forcing = ['wind']
     forcing_dir = '_'.join(forcing) if forcing else 'no_forcing'
-    filepath = f'{component.name}/{group_name}/{name}/{name}.cfg'
+    filepath = f'{component.name}/column/{name}/{name}.cfg'
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package(
         'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
@@ -34,7 +34,7 @@ def add_single_column_tasks(component):
     )
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
-        subdir=f'{group_name}/{forcing_dir}/init_stable',
+        subdir=f'column/{forcing_dir}/init_stable',
         config=config,
         config_filename=f'{name}.cfg',
     )
@@ -44,14 +44,14 @@ def add_single_column_tasks(component):
             config=config,
             name=name,
             init=init_step,
-            indir=group_name,
+            indir='column',
         )
     )
 
     name = 'vmix_unstable'
     forcing = []
     forcing_dir = '_'.join(forcing) if forcing else 'no_forcing'
-    filepath = f'{component.name}/{group_name}/{name}/{name}.cfg'
+    filepath = f'{component.name}/column/{name}/{name}.cfg'
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package(
         'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
@@ -65,7 +65,7 @@ def add_single_column_tasks(component):
     )
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
-        subdir=f'{group_name}/{forcing_dir}/init_unstable',
+        subdir=f'column/{forcing_dir}/init_unstable',
         config=config,
         config_filename=f'{name}.cfg',
     )
@@ -75,13 +75,13 @@ def add_single_column_tasks(component):
             config=config,
             name=name,
             init=init_step,
-            indir=group_name,
+            indir='column',
         )
     )
 
     forcing = ['wind']
     name = 'ekman'
-    filepath = f'{component.name}/{group_name}/{name}/{name}.cfg'
+    filepath = f'{component.name}/column/{name}/{name}.cfg'
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package(
         'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
@@ -92,7 +92,7 @@ def add_single_column_tasks(component):
         )
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
-        subdir=f'{group_name}/{forcing_name}/init',
+        subdir=f'column/{forcing_name}/init',
         config=config,
         config_filename=f'{name}.cfg',
     )
@@ -101,14 +101,14 @@ def add_single_column_tasks(component):
             component=component,
             config=config,
             init=init_step,
-            indir=group_name,
+            indir='column',
         )
     )
 
     name = 'ideal_age'
     forcing = ['evap']
     forcing_dir = '_'.join(forcing) if forcing else 'no_forcing'
-    filepath = f'{component.name}/{group_name}/{name}/{name}.cfg'
+    filepath = f'{component.name}/column/{name}/{name}.cfg'
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package(
         'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
@@ -122,7 +122,7 @@ def add_single_column_tasks(component):
     )
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
-        subdir=f'{group_name}/{forcing_dir}/init_stable',
+        subdir=f'column/{forcing_dir}/init_stable',
         config=config,
         config_filename=f'{name}.cfg',
     )
@@ -131,14 +131,14 @@ def add_single_column_tasks(component):
             component=component,
             init=init_step,
             config=config,
-            indir=group_name,
+            indir='column',
         )
     )
 
     name = 'inertial'
     forcing = []
     forcing_dir = '_'.join(forcing) if forcing else 'no_forcing'
-    filepath = f'{component.name}/{group_name}/{name}/{name}.cfg'
+    filepath = f'{component.name}/column/{name}/{name}.cfg'
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package(
         'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
@@ -152,7 +152,7 @@ def add_single_column_tasks(component):
     )
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
-        subdir=f'{group_name}/{forcing_dir}/init_stable',
+        subdir=f'column/{forcing_dir}/init_stable',
         config=config,
         config_filename=f'{name}.cfg',
     )
@@ -161,6 +161,6 @@ def add_single_column_tasks(component):
             component=component,
             init=init_step,
             config=config,
-            indir=group_name,
+            indir='column',
         )
     )
