@@ -37,7 +37,7 @@ def geom_thickness_from_ds(ds, config):
     if 'layerThickness' in ds.keys():
         return ds['layerThickness']
     elif 'SpecVol' in ds.keys() and 'PseudoThickness' in ds.keys():
-        return RhoSw * ds['SpecVol'] * ds['layerThickness']
+        return RhoSw * ds['SpecVol'] * ds['PseudoThickness']
     else:
         raise ValueError(
             'Geometric layerThickness is not present in the '
@@ -65,6 +65,10 @@ def pseudothickness_from_ds(ds, config):
     pseudothickness : xarray.DataArray or None
         The pseudothickness computed from pressure, or None if
         temperature and salinity are not available
+
+    spec_vol : xarray.DataArray or None
+        The specific volume computed from model state, or None if
+        temperature and salinity are not available
     """
     if 'temperature' not in ds.keys() or 'salinity' not in ds.keys():
         print(
@@ -75,7 +79,7 @@ def pseudothickness_from_ds(ds, config):
         return
 
     surface_pressure = config.getfloat('vertical_grid', 'surface_pressure')
-    p_interface, _, _ = pressure_and_spec_vol_from_state_at_geom_height(
+    p_interface, _, spec_vol = pressure_and_spec_vol_from_state_at_geom_height(
         config,
         ds.layerThickness,
         ds.temperature,
@@ -86,7 +90,7 @@ def pseudothickness_from_ds(ds, config):
 
     pseudothickness = pseudothickness_from_pressure(p_interface)
 
-    return pseudothickness
+    return pseudothickness, spec_vol
 
 
 def depth_from_thickness(ds):
