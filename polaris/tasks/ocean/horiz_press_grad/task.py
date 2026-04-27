@@ -40,7 +40,7 @@ class HorizPressGradTask(Task):
             <name>.cfg config file in the horiz_press_grad package that
             specifies which properties vary betweeen the columns.
         """
-        subdir = os.path.join('horiz_press_grad', name)
+        subdir = os.path.join('column', 'horiz_press_grad', name)
         super().__init__(component=component, name=name, subdir=subdir)
 
         self.config.add_from_package(

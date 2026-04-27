@@ -26,9 +26,9 @@ Each task includes:
 The tasks currently provided are:
 
 ```
-ocean/horiz_press_grad/salinity_gradient
-ocean/horiz_press_grad/temperature_gradient
-ocean/horiz_press_grad/ztilde_gradient
+ocean/column/horiz_press_grad/salinity_gradient
+ocean/column/horiz_press_grad/temperature_gradient
+ocean/column/horiz_press_grad/ztilde_gradient
 ```
 
 ```{image} images/horiz_press_grad_salin_grad.png
