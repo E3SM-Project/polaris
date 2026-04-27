@@ -1,11 +1,7 @@
 import numpy as np
-from geometric_features import read_feature_collection
-from mpas_tools.mesh.creation.signed_distance import (
-    signed_distance_from_geojson,
-)
 
-from polaris.constants import get_constant
 from polaris.mesh import QuasiUniformSphericalMeshStep
+from polaris.mesh.base.so.background import build_southern_ocean_background
 
 
 class SOBaseMesh(QuasiUniformSphericalMeshStep):
@@ -19,7 +15,8 @@ class SOBaseMesh(QuasiUniformSphericalMeshStep):
         """
 
         self.add_input_file(
-            filename='high_res_region.geojson', package=self.__module__
+            filename='high_res_region.geojson',
+            package='polaris.mesh.base.so',
         )
 
         super().setup()
@@ -47,29 +44,17 @@ class SOBaseMesh(QuasiUniformSphericalMeshStep):
 
         dlon = 0.1
         dlat = dlon
-        earth_radius = get_constant('mean_radius')
         nlon = int(360.0 / dlon) + 1
         nlat = int(180.0 / dlat) + 1
         lon = np.linspace(-180.0, 180.0, nlon)
         lat = np.linspace(-90.0, 90.0, nlat)
 
-        # start with a uniform max_res km background resolution
-        cell_width = max_res * np.ones((nlat, nlon))
-
-        fc = read_feature_collection('high_res_region.geojson')
-
-        so_signed_distance = signed_distance_from_geojson(
-            fc, lon, lat, earth_radius, max_length=0.25
+        cell_width = build_southern_ocean_background(
+            lat=lat,
+            lon=lon,
+            high_res_km=min_res,
+            low_res_km=max_res,
+            region_filename='high_res_region.geojson',
         )
-
-        # Equivalent to 20 degrees latitude
-        trans_width = 1600e3
-        trans_start = 500e3
-
-        weights = 0.5 * (
-            1 + np.tanh((so_signed_distance - trans_start) / trans_width)
-        )
-
-        cell_width = min_res * (1 - weights) + cell_width * weights
 
         return cell_width, lon, lat
