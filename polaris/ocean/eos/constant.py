@@ -25,10 +25,10 @@ def compute_constant_density(
         Computed density of the seawater.
     """
     section = config['ocean']
-    rhoref = section.getfloat('eos_rhoref')
+    rhoref = section.getfloat('eos_constant_rhoref')
     assert rhoref is not None, (
-        'eos_rho_ref must be specified in the config options for eos type '
-        'constant.'
+        'eos_constant_rhoref must be specified in the config options for eos '
+        'type constant.'
     )
     # Return density of same type and size as temperature
     # (needs to work for both float and xarray DataArray)
