@@ -150,6 +150,7 @@
 <span class="sd">        Computed density (in-situ or reference) of the seawater.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">eos_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_type&#39;</span><span class="p">)</span>
+    <span class="n">eos_type</span> <span class="o">=</span> <span class="n">eos_type</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">&#39;constant&#39;</span><span class="p">:</span>
         <span class="n">density</span> <span class="o">=</span> <span class="n">compute_constant_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
@@ -204,7 +205,10 @@
 <span class="sd">        Computed specific volume (in-situ or reference) of the seawater.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">eos_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_type&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
+    <span class="n">eos_type</span> <span class="o">=</span> <span class="n">eos_type</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">&#39;constant&#39;</span><span class="p">:</span>
+        <span class="n">specvol</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">compute_constant_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
         <span class="n">specvol</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">compute_linear_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">&#39;teos-10&#39;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">pressure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

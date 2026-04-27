@@ -139,10 +139,10 @@
 <span class="sd">        Computed density of the seawater.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
-    <span class="n">rhoref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_rhoref&#39;</span><span class="p">)</span>
+    <span class="n">rhoref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_constant_rhoref&#39;</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">rhoref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
-        <span class="s1">&#39;eos_rho_ref must be specified in the config options for eos type &#39;</span>
-        <span class="s1">&#39;constant.&#39;</span>
+        <span class="s1">&#39;eos_constant_rhoref must be specified in the config options for eos &#39;</span>
+        <span class="s1">&#39;type constant.&#39;</span>
     <span class="p">)</span>
     <span class="c1"># Return density of same type and size as temperature</span>
     <span class="c1"># (needs to work for both float and xarray DataArray)</span>
