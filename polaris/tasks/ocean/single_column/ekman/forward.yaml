@@ -4,7 +4,8 @@ ocean:
   hmix_del4:
     config_use_mom_del4: false
   cvmix:
-    config_cvmix_background_diffusion: 0.0
+    config_cvmix_background_diffusion: 0.
+    config_cvmix_background_viscosity: 1.e-4
     config_use_cvmix_convection: false
     config_use_cvmix_shear: false
   eos:
