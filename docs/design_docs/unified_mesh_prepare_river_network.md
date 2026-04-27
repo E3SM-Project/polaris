@@ -15,16 +15,17 @@ base-mesh workflow. The purpose of the step is to simplify a global river
 dataset into products that can be consumed directly by `build_sizing_field`
 without re-reading or reinterpreting the raw source data.
 
-The implementation is being added on the `add-prepare-river-network` branch in
-Polaris pull request <https://github.com/E3SM-Project/polaris/pull/556>.
+The shared river-network workflow is implemented in Polaris pull request
+<https://github.com/E3SM-Project/polaris/pull/556>.
 
 The preferred first source is HydroRIVERS or an equivalent global flowline
 dataset. Unlike the standalone
 [`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
 workflow, the Polaris design makes the downstream interface explicit. In
 particular, the workflow distinguishes between the authoritative simplified
-river network and the target-grid products needed by `build_sizing_field`,
-rather than overloading a single raster with mixed semantics.
+river network, the target-grid products needed by `build_sizing_field`, and
+the mesh-conditioned products needed by `create_base_mesh`, rather than
+overloading a single raster with mixed semantics.
 
 Because river-network simplification and river-driven meshing are the parts of
 the workflow where Xylar's design intuition is currently weakest, the first
@@ -59,21 +60,24 @@ The downstream unified-mesh workflow designs are:
 
 ### Requirement: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/22
+Date last modified: 2026/04/27
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-`prepare_river_network` shall provide source-level and target-grid products
-that can be consumed directly by `build_sizing_field`.
+`prepare_river_network` shall provide source-level, target-grid, and
+mesh-conditioned river products that can be consumed directly by
+`build_sizing_field` and `create_base_mesh`.
 
 The shared products shall retain the major river-network information needed for
-mesh refinement, including channel locations and outlet locations.
+mesh refinement and direct cell-center placement, including channel locations
+and outlet locations.
 
-The downstream sizing-field step shall not need to rerun HydroRIVERS
-filtering, network reconstruction, or outlet discovery.
+The downstream sizing-field and base-mesh steps shall not need to rerun
+HydroRIVERS filtering, network reconstruction, outlet discovery, or
+coastline-aware river clipping and simplification.
 
 ### Requirement: Hydrologically Meaningful Simplification
 
@@ -162,7 +166,7 @@ required preprocessing cannot be reproduced robustly within Polaris.
 
 ### Algorithm Design: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/22
+Date last modified: 2026/04/27
 
 Contributors:
 
@@ -194,7 +198,22 @@ At the target-grid level, the workflow writes:
 This is intentionally clearer than the standalone workflow's mixed raster
 semantics. The present implementation does not yet add stream-order rasters or
 basin IDs, but it does establish a clean product split that the
-`add-build-sizing-field` implementation now consumes directly.
+`build_sizing_field` implementation now consumes directly.
+
+For base-mesh consumers, the workflow also writes a mesh-conditioned product
+set:
+
+- `clipped_river_network.geojson`, containing river segments clipped inland of
+  the coastline and simplified for direct JIGSAW geometry use;
+- `clipped_outlets.geojson`, containing only outlets that remain relevant after
+  that conditioning; and
+- `clipped_river_network.nc`, containing masks regenerated from the clipped
+  network for diagnostics.
+
+These products are where the river workflow becomes aware of the selected
+unified mesh and its direct cell-placement needs. `build_sizing_field` uses the
+target-grid masks, while `create_base_mesh` consumes the conditioned vector
+geometry.
 
 ### Algorithm Design: Hydrologically Meaningful Simplification
 
@@ -288,7 +307,7 @@ reusing the same shared steps that the `build_sizing_field` task consumes.
 
 ### Implementation: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/22
+Date last modified: 2026/04/27
 
 Contributors:
 
@@ -301,6 +320,8 @@ organized under `polaris/tasks/mesh/spherical/unified/river/` as:
 - `source.py` for HydroRIVERS download, unpacking, shapefile conversion, and
   source-level simplification;
 - `lat_lon.py` for target-grid rasterization and outlet reconciliation;
+- `base_mesh.py` for coastline-aware clipping and conditioning of retained
+   river geometry for final mesh generation;
 - `viz.py` for diagnostic plotting and text summaries;
 - `steps.py` for shared-step setup helpers;
 - `task.py` for standalone task wrappers; and
@@ -317,7 +338,10 @@ necessary, consume them from the Polaris database.
 The source step obtains HydroRIVERS through `add_input_file()` using the public
 archive URL in `[prepare_river_network]`, with the Polaris database still
 available as a fallback cache location. The lat-lon step then consumes the
-shared coastline dataset selected by `[prepare_river_lat_lon]`.
+shared coastline dataset selected by `[prepare_river_lat_lon]`. The
+`PrepareRiverForBaseMeshStep` consumes the simplified network together with the
+selected coastline product and writes the clipped river geometry consumed by
+the unified base-mesh step.
 
 ### Implementation: Hydrologically Meaningful Simplification
 
@@ -375,7 +399,7 @@ workflow and diagnostics for each supported resolution.
 
 ### Testing and Validation: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/25
+Date last modified: 2026/04/27
 
 Contributors:
 
@@ -388,9 +412,15 @@ verify that the expected masks and snapped-outlet metadata are written, that
 ocean-outlet and inland-sink cases remain distinct, and that named unified-mesh
 configs provide the required river options.
 
-`build_sizing_field` now exists and its unit tests consume the target-grid
-river masks. There is still not a task-level integration test showing the full
-river task output consumed by the sizing-field task output on real data.
+Those tests also verify the coastline-aware conditioning used for base-mesh
+products, including inland clipping, outlet removal near the coastline, and the
+mesh-specific shared-step factory wiring for `river/base_mesh`. The base-mesh
+tests then verify that `UnifiedBaseMeshStep` consumes the prepared
+`clipped_river_network.geojson` product rather than raw river geometry.
+
+`build_sizing_field` unit tests consume the target-grid river masks. There is
+still not a task-level integration test showing the full river workflow feeding
+either the sizing-field task or the final base-mesh task on real data.
 
 ### Testing and Validation: Hydrologically Meaningful Simplification
 
