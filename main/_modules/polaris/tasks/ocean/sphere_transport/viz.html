@@ -214,8 +214,10 @@
         <span class="n">run_duration</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;convergence_forward&#39;</span><span class="p">,</span> <span class="s1">&#39;run_duration&#39;</span><span class="p">)</span>
 
         <span class="n">variables_to_plot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables_to_plot</span>
+
         <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
             <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
+            <span class="n">config</span><span class="p">,</span>
             <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
             <span class="n">reconstruct_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">],</span>
@@ -228,6 +230,7 @@
 
         <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
             <span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+            <span class="n">config</span><span class="p">,</span>
             <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
             <span class="n">reconstruct_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">],</span>

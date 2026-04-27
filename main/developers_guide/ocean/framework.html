@@ -159,7 +159,12 @@ respectively. The <code class="docutils literal notranslate"><span class="pre">o
 normal vector components to their zonal and meridional equivalents by passing
 a list of variable names to
 <code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.vector.reconstruct.reconstruct_variables</span></code>, along with the mesh and
-reconstruction coefficient files. As new variables are added to Omega, they
+reconstruction coefficient files. In addition,
+<code class="docutils literal notranslate"><span class="pre">open_model_dataset()</span></code> derives <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> from the ocean state when it
+is not present in the dataset. This provides a way of using the same initial
+conditions for MPAS-Ocean and Omega when the geometric thickness is the state
+variable for MPAS-Ocean and the pseudo-thickness is the state variable for
+Omega. As new variables are added to Omega, they
 should be added to the <code class="docutils literal notranslate"><span class="pre">variables</span></code> section in the
 <a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml">mpaso_to_omega.yaml</a>
 file.</p>
@@ -688,6 +693,12 @@ pseudo-thickness and specific volume.</p></li>
 <p>For sigma coordinates, shared functionality for direct thickness computation is
 available in
 <a class="reference internal" href="generated/polaris.ocean.vertical.sigma.compute_sigma_layer_thickness.html#polaris.ocean.vertical.sigma.compute_sigma_layer_thickness" title="polaris.ocean.vertical.sigma.compute_sigma_layer_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.sigma.compute_sigma_layer_thickness()</span></code></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics</span></code> module provides utilities:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.geom_thickness_from_ds.html#polaris.ocean.vertical.diagnostics.geom_thickness_from_ds" title="polaris.ocean.vertical.diagnostics.geom_thickness_from_ds"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.geom_thickness_from_ds()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.pseudothickness_from_ds.html#polaris.ocean.vertical.diagnostics.pseudothickness_from_ds" title="polaris.ocean.vertical.diagnostics.pseudothickness_from_ds"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.pseudothickness_from_ds()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.depth_from_thickness.html#polaris.ocean.vertical.diagnostics.depth_from_thickness" title="polaris.ocean.vertical.diagnostics.depth_from_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.depth_from_thickness()</span></code></a></p></li>
+</ul>
 </section>
 <section id="reference-resting-potential-energy-rpe">
 <span id="dev-ocean-rpe"></span><h2>reference (resting) potential energy (RPE)<a class="headerlink" href="#reference-resting-potential-energy-rpe" title="Link to this heading"></a></h2>

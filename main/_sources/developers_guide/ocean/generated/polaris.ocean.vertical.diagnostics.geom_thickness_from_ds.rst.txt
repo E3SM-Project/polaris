@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.diagnostics.geom\_thickness\_from\_ds
+============================================================
+
+.. currentmodule:: polaris.ocean.vertical.diagnostics
+
+.. autofunction:: geom_thickness_from_ds

@@ -119,6 +119,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">geom_thickness_from_ds</span><span class="p">,</span>
+    <span class="n">pseudothickness_from_ds</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="Ocean">
@@ -279,7 +283,7 @@
 
 <div class="viewcode-block" id="Ocean.write_model_dataset">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.tasks.ocean.Ocean.write_model_dataset.html#polaris.tasks.ocean.Ocean.write_model_dataset">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">write_model_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_model_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write out the given dataset, mapping dimension and variable names from</span>
 <span class="sd">        MPAS-Ocean to Omega names if appropriate</span>
@@ -292,6 +296,14 @@
 <span class="sd">        filename : str</span>
 <span class="sd">            The path for the NetCDF file to write</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span>
+            <span class="ow">and</span> <span class="s1">&#39;layerThickness&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="s1">&#39;PseudoThickness&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;PseudoThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pseudothickness_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;PseudoThickness&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_to_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span></div>
 
@@ -370,6 +382,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">open_model_dataset</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">mesh_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">reconstruct_variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">coeffs_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -384,8 +397,8 @@
 <span class="sd">        filename : str</span>
 <span class="sd">            The path for the NetCDF file to open</span>
 
-<span class="sd">        ds_mesh : xr.Dataset</span>
-<span class="sd">            The MPAS mesh dataset for the ocean model.</span>
+<span class="sd">        config : polaris.Config, optional</span>
+<span class="sd">            The configuration object for the simulation.</span>
 
 <span class="sd">        mesh_filename : str, optional</span>
 <span class="sd">            Path to the mesh NetCDF file.</span>
@@ -408,6 +421,13 @@
 <span class="sd">            The dataset with variables named as expected in MPAS-Ocean</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span>
+            <span class="ow">and</span> <span class="s1">&#39;LayerThickness&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;PseudoThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">LayerThickness</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;LayerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_thickness_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">_add_reconstructed_variables_to_dataset</span><span class="p">(</span>
             <span class="n">ds</span><span class="p">,</span> <span class="n">reconstruct_variables</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">,</span> <span class="n">coeffs_filename</span>

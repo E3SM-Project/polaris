@@ -116,6 +116,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">Task</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span> <span class="k">as</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.convergence</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_resolution_for_task</span> <span class="k">as</span> <span class="n">get_resolution_for_task</span><span class="p">,</span>
 <span class="p">)</span>
@@ -147,6 +148,12 @@
     <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;manufactured_solution.cfg&#39;</span>
     <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">basedir</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.eos&#39;</span><span class="p">,</span> <span class="s1">&#39;constant.cfg&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+        <span class="s1">&#39;ocean&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;eos_constant_rhoref&#39;</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">get_constant</span><span class="p">(</span><span class="s2">&quot;seawater_density_reference&quot;</span><span class="p">)</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.convergence&#39;</span><span class="p">,</span> <span class="s1">&#39;convergence.cfg&#39;</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
         <span class="s1">&#39;polaris.tasks.ocean.manufactured_solution&#39;</span><span class="p">,</span> <span class="n">config_filename</span>

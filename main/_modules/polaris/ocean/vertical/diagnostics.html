@@ -113,28 +113,128 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">pressure_and_spec_vol_from_state_at_geom_height</span><span class="p">,</span>
+    <span class="n">pseudothickness_from_pressure</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">RhoSw</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;seawater_density_reference&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="geom_thickness_from_ds">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.geom_thickness_from_ds.html#polaris.ocean.vertical.diagnostics.geom_thickness_from_ds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">geom_thickness_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract or compute geometric layer thickness from dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        An ocean dataset containing either &#39;layerThickness&#39; directly, or</span>
+<span class="sd">        &#39;SpecVol&#39; and &#39;PseudoThickness&#39; to compute it</span>
+
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Configuration options for the test case</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    layer_thickness : xarray.DataArray</span>
+<span class="sd">        The geometric layer thickness in meters</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If neither layerThickness nor the variables needed to compute it</span>
+<span class="sd">        are present in the dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;layerThickness&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="s1">&#39;SpecVol&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="s1">&#39;PseudoThickness&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">RhoSw</span> <span class="o">*</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SpecVol&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;Geometric layerThickness is not present in the &#39;</span>
+            <span class="s1">&#39;initial condition and SpecVol is not present &#39;</span>
+            <span class="s1">&#39;to compute it&#39;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="pseudothickness_from_ds">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.pseudothickness_from_ds.html#polaris.ocean.vertical.diagnostics.pseudothickness_from_ds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pseudothickness_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute pseudothickness from temperature and salinity in dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        An ocean dataset containing &#39;temperature&#39;, &#39;salinity&#39;,</span>
+<span class="sd">        &#39;layerThickness&#39;, and &#39;ssh&#39;</span>
+
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Configuration options for the test case, including</span>
+<span class="sd">        &#39;vertical_grid:surface_pressure&#39;</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pseudothickness : xarray.DataArray or None</span>
+<span class="sd">        The pseudothickness computed from pressure, or None if</span>
+<span class="sd">        temperature and salinity are not available</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;temperature&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;salinity&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s1">&#39;PseudoThickness is not present in the &#39;</span>
+            <span class="s1">&#39;initial condition and T,S are not present &#39;</span>
+            <span class="s1">&#39;to compute it&#39;</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;surface_pressure&#39;</span><span class="p">)</span>
+    <span class="n">p_interface</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">pressure_and_spec_vol_from_state_at_geom_height</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="p">,</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="p">,</span>
+        <span class="n">surface_pressure</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="p">),</span>
+        <span class="n">iter_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">pseudothickness</span> <span class="o">=</span> <span class="n">pseudothickness_from_pressure</span><span class="p">(</span><span class="n">p_interface</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pseudothickness</span></div>
+
+
 
 <div class="viewcode-block" id="depth_from_thickness">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.depth_from_thickness.html#polaris.ocean.vertical.diagnostics.depth_from_thickness">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">depth_from_thickness</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the depth of the midpoint of each layer from `layerThickness`. It</span>
-<span class="sd">    is assumed that the `layerThickness` of invalid levels is 0. If</span>
+<span class="sd">    Compute the depth of the midpoint of each layer from `layerThickness`.</span>
+
+<span class="sd">    It is assumed that the `layerThickness` of invalid levels is 0. If</span>
 <span class="sd">    `ssh` is present in the dataset, depths will be offset by `ssh`. If</span>
-<span class="sd">    `bottomDepth` is present in the dataset, the location of the bottom of the</span>
-<span class="sd">    bottommost vertical level will be compared with `bottomDepth`.</span>
+<span class="sd">    `bottomDepth` is present in the dataset, the location of the bottom</span>
+<span class="sd">    of the bottommost vertical level will be compared with `bottomDepth`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ds: xarray.Dataset</span>
+<span class="sd">    ds : xarray.Dataset</span>
 <span class="sd">        An ocean dataset containing `layerThickness` and optionally `ssh`</span>
 <span class="sd">        and `bottomDepth`</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    z_mid : xarray.DataArray</span>
-<span class="sd">        The location in meters from the sea surface of the midpoint of each</span>
-<span class="sd">        layer (level), positive upward</span>
+<span class="sd">        The location in meters from the sea surface of the midpoint of</span>
+<span class="sd">        each layer (level), positive upward</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `layerThickness` is not present in the dataset, or if required</span>
+<span class="sd">        dimensions are missing</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># TODO when Omega supports these variables, just fetch them</span>
     <span class="c1"># if &#39;zMid&#39; in ds.keys():</span>

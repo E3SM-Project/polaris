@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="polaris.ocean.vertical.grid_1d.generate_1d_grid" href="polaris.ocean.vertical.grid_1d.generate_1d_grid.html" />
-    <link rel="prev" title="polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness" href="polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness.html" />
+    <link rel="prev" title="polaris.ocean.vertical.diagnostics.pseudothickness_from_ds" href="polaris.ocean.vertical.diagnostics.pseudothickness_from_ds.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -140,19 +140,23 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.ocean.vertical.diagnostics.depth_from_thickness">
 <span class="sig-prename descclassname"><span class="pre">polaris.ocean.vertical.diagnostics.</span></span><span class="sig-name descname"><span class="pre">depth_from_thickness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/vertical/diagnostics.html#depth_from_thickness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.vertical.diagnostics.depth_from_thickness" title="Link to this definition"></a></dt>
-<dd><p>Compute the depth of the midpoint of each layer from <cite>layerThickness</cite>. It
-is assumed that the <cite>layerThickness</cite> of invalid levels is 0. If
+<dd><p>Compute the depth of the midpoint of each layer from <cite>layerThickness</cite>.</p>
+<p>It is assumed that the <cite>layerThickness</cite> of invalid levels is 0. If
 <cite>ssh</cite> is present in the dataset, depths will be offset by <cite>ssh</cite>. If
-<cite>bottomDepth</cite> is present in the dataset, the location of the bottom of the
-bottommost vertical level will be compared with <cite>bottomDepth</cite>.</p>
+<cite>bottomDepth</cite> is present in the dataset, the location of the bottom
+of the bottommost vertical level will be compared with <cite>bottomDepth</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.4.0)"><em>xarray.Dataset</em></a>) – An ocean dataset containing <cite>layerThickness</cite> and optionally <cite>ssh</cite>
 and <cite>bottomDepth</cite></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>z_mid</strong> (<em>xarray.DataArray</em>) – The location in meters from the sea surface of the midpoint of each
-layer (level), positive upward</p>
+<dd class="field-even"><p><strong>z_mid</strong> (<em>xarray.DataArray</em>) – The location in meters from the sea surface of the midpoint of
+each layer (level), positive upward</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <cite>layerThickness</cite> is not present in the dataset, or if required
+    dimensions are missing</p>
 </dd>
 </dl>
 </dd></dl>
@@ -163,7 +167,7 @@ layer (level), positive upward</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness.html" class="btn btn-neutral float-left" title="polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.ocean.vertical.diagnostics.pseudothickness_from_ds.html" class="btn btn-neutral float-left" title="polaris.ocean.vertical.diagnostics.pseudothickness_from_ds" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.ocean.vertical.grid_1d.generate_1d_grid.html" class="btn btn-neutral float-right" title="polaris.ocean.vertical.grid_1d.generate_1d_grid" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
