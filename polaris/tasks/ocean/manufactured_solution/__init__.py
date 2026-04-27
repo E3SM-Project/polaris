@@ -4,6 +4,7 @@ from typing import Dict as Dict
 
 from polaris import Step, Task
 from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.constants import get_constant
 from polaris.ocean.convergence import (
     get_resolution_for_task as get_resolution_for_task,
 )
@@ -33,6 +34,12 @@ def add_manufactured_solution_tasks(component):
     config_filename = 'manufactured_solution.cfg'
     filepath = os.path.join(component.name, basedir, config_filename)
     config = PolarisConfigParser(filepath=filepath)
+    config.add_from_package('polaris.ocean.eos', 'constant.cfg')
+    config.set(
+        'ocean',
+        'eos_constant_rhoref',
+        value=f'{get_constant("seawater_density_reference"):02g}',
+    )
     config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
     config.add_from_package(
         'polaris.tasks.ocean.manufactured_solution', config_filename
