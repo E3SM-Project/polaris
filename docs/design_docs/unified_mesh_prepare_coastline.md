@@ -15,8 +15,8 @@ workflow. The purpose of the step is to create a single coastline
 interpretation that downstream steps can reuse, especially
 `prepare_river_network` and `build_sizing_field`.
 
-The implementation is being added on the `add-prepare-coastline` branch in
-Polaris pull request <https://github.com/E3SM-Project/polaris/pull/545>.
+The shared coastline workflow is implemented in Polaris pull request
+<https://github.com/E3SM-Project/polaris/pull/545>.
 
 The preferred first source for coastline information is the combined
 topography already used in `e3sm/init/topo`, because that gives the strongest
@@ -358,7 +358,7 @@ by the full unified workflow when configuration choices match.
 
 ### Implementation: Raster-First Coastline Products for Downstream Steps
 
-Date last modified: 2026/04/18
+Date last modified: 2026/04/27
 
 Contributors:
 
@@ -370,21 +370,21 @@ The current implementation adds a shared coastline-preparation workflow in
 combined-topography steps through `get_lat_lon_topo_steps()` rather than
 adding a separate remap path.
 
-That enabling work was already put in place on the sibling
-`add-lat-lon-topo-combine` branch, which added shared lat-lon combined-
-topography tasks and steps at 1.0, 0.25, 0.125, 0.0625, and 0.03125 degree,
-with combined outputs including `base_elevation`, `ice_draft`,
+That enabling work was already put in place by the shared lat-lon combined-
+topography support in Polaris pull request
+<https://github.com/E3SM-Project/polaris/pull/526>, which added shared lat-lon
+combined-topography tasks and steps at 1.0, 0.25, 0.125, 0.0625, and 0.03125
+degree, with combined outputs including `base_elevation`, `ice_draft`,
 `ice_thickness`, `ice_mask`, and `grounded_mask`. `prepare_coastline` now
 treats those shared lat-lon topography products as the authoritative upstream
-inputs for the preferred topo-derived path. See Polaris pull request
-<https://github.com/E3SM-Project/polaris/pull/526>.
+inputs for the preferred topo-derived path.
 
-The implemented coastline workflow in the current branch supports those same
-four coastline target-grid tiers other than the 1.0-degree smoke-test
-product. Standalone coastline tasks exist for 0.25, 0.125, 0.0625, and
-0.03125 degree. The expected usage is that 0.25 degree remains the cheaper
-inspection tier, while 0.125, 0.0625, and 0.03125 degree are the scientifically
-credible coastline tiers. See Polaris pull request
+The implemented coastline workflow supports those same four coastline
+target-grid tiers other than the 1.0-degree smoke-test product. Standalone
+coastline tasks exist for 0.25, 0.125, 0.0625, and 0.03125 degree. The
+expected usage is that 0.25 degree remains the cheaper inspection tier, while
+0.125, 0.0625, and 0.03125 degree are the scientifically credible coastline
+tiers. See Polaris pull request
 <https://github.com/E3SM-Project/polaris/pull/545>.
 
 The shared coastline step writes one convention-specific NetCDF file for each

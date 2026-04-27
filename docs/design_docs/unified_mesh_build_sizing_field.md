@@ -15,15 +15,14 @@ workflow. The purpose of the step is to combine baseline mesh-resolution
 choices with coastline and river controls into a single global lon/lat sizing
 field that can be passed directly to the final spherical JIGSAW mesh step.
 
-The implementation is being added on the `add-build-sizing-field` branch in
-Polaris pull request <https://github.com/E3SM-Project/polaris/pull/561>.
+The shared sizing-field workflow is implemented in Polaris pull request
+<https://github.com/E3SM-Project/polaris/pull/561>.
 
 The design assumes that `prepare_coastline` and `prepare_river_network` have
 already converted raw source datasets into shared products with explicit
-interfaces. Those stages are implemented in `add-prepare-coastline`
-(<https://github.com/E3SM-Project/polaris/pull/545>) and
-`add-prepare-river-network`
-(<https://github.com/E3SM-Project/polaris/pull/556>). `build_sizing_field`
+interfaces. Those stages are implemented in Polaris pull requests
+<https://github.com/E3SM-Project/polaris/pull/545> and
+<https://github.com/E3SM-Project/polaris/pull/556>. `build_sizing_field`
 consumes those products directly rather than mixing raw-data interpretation,
 feature preprocessing, and mesh-sizing logic in one place.
 
@@ -31,10 +30,10 @@ Feature refinement is expressed as clearly as practical in the sizing field
 itself. For coastline refinement, this points strongly toward explicit raster
 candidate fields. For rivers, the current implementation uses target-grid
 river masks to drive sizing-field refinement. The separate direct use of river
-geometry in final mesh generation, which exists in the standalone reference
-implementation in
-[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh), remains a
-follow-up decision for the final base-mesh stage.
+geometry in final mesh generation is now handled downstream by the
+mesh-conditioned river products from `prepare_river_network` and by
+`create_base_mesh`. `build_sizing_field` continues to own only the raster river
+controls.
 
 Success means that Polaris gains a documented, reusable sizing-field workflow
 whose inputs from earlier steps are clear, whose outputs are directly usable by
@@ -197,7 +196,7 @@ retain the existing standalone use of river geometry in the final mesh step.
 
 ### Algorithm Design: Composable Feature-Based Resolution Controls
 
-Date last modified: 2026/04/10
+Date last modified: 2026/04/26
 
 Contributors:
 
@@ -211,8 +210,9 @@ The background field should be constructed first. A reasonable first design is
 to use the land/ocean mask from `prepare_coastline` to choose between:
 
 - an ocean background, which may be constant or may reuse existing Polaris
-  latitude-dependent functions such as `EC_CellWidthVsLat()` or
-  `RRS_CellWidthVsLat()`; and
+  latitude-dependent functions such as `RRS_CellWidthVsLat()`, or may be
+  delegated to a mesh-specific sizing-field step for more complex regional
+  ocean profiles; and
 - a land background, which may be constant at first.
 
 Feature refinement should then be expressed as additional candidate fields:
@@ -294,7 +294,7 @@ configuration choices match.
 
 ### Implementation: JIGSAW-Ready Global Sizing Field
 
-Date last modified: 2026/04/25
+Date last modified: 2026/04/27
 
 Contributors:
 
@@ -325,10 +325,10 @@ diagnostic fields:
 - `river_outlet_cell_width`; and
 - `active_control`.
 
-The `add-build-sizing-field` branch also adds `UnifiedCellWidthMeshStep` in
-`polaris.mesh.spherical.unified.cell_width`. This step reads `cellWidth`,
-`lon`, and `lat` from `sizing_field.nc` and then reuses the existing spherical
-mesh-generation machinery.
+The downstream base-mesh implementation now uses `UnifiedBaseMeshStep` in
+`polaris.mesh.spherical.unified.base_mesh`. That step reads `cellWidth`,
+`lon`, and `lat` from `sizing_field.nc`, links mesh-conditioned river geometry,
+and then reuses the existing spherical mesh-generation machinery.
 
 ### Implementation: Explicit Consumption of Shared Coastline and River Products
 
@@ -355,16 +355,30 @@ HydroRIVERS data.
 
 ### Implementation: Composable Feature-Based Resolution Controls
 
-Date last modified: 2026/04/25
+Date last modified: 2026/04/26
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The implementation builds the final field from explicit candidate fields. It
-supports three ocean background modes: `constant`, `rrs_latitude`, and
-`ec_latitude`. Land starts from a configurable constant background.
+The implementation builds the final field from explicit candidate fields.
+`build_sizing_field_dataset()` now composes a precomputed ocean background
+with land, river, coastline, and active-control products rather than deciding
+which ocean algorithm to use itself.
+
+The generic `BuildSizingFieldStep` supports only two built-in ocean
+backgrounds: `constant` and `rrs_latitude`. The previous `ec_latitude`
+branch has been removed from the unified-mesh path and now raises a clear
+error if requested. More complex ocean backgrounds are handled by
+mesh-family implementations selected from the unified-mesh config.
+
+The first concrete specialized path is
+`ocn_so_12to30km_lnd_10km_riv_10km`, which uses the `so_region`
+mesh family. That family reuses the existing Southern Ocean
+`high_res_region.geojson` and the shared Southern Ocean background helper from
+`polaris.mesh.base.so` to build a 12 km to 30 km regional ocean profile on
+the unified target grid. Land starts from a configurable constant background.
 
 River channel and river outlet candidates are mask-based. They are controlled
 separately with `enable_river_channel_refinement`, `river_channel_km`,
@@ -384,7 +398,7 @@ equal to, or coarser than the background.
 
 ### Implementation: Compatibility with Shared Target-Grid Tiers
 
-Date last modified: 2026/04/25
+Date last modified: 2026/04/26
 
 Contributors:
 
@@ -397,7 +411,8 @@ The currently implemented named meshes are:
 
 - `ocn_240km_lnd_240km_riv_240km`, using 0.25 degree;
 - `ocn_30km_lnd_10km_riv_10km`, using 0.125 degree; and
-- `ocn_rrs_6to18km_lnd_12km_riv_6km`, using 0.03125 degree.
+- `ocn_rrs_6to18km_lnd_12km_riv_6km`, using 0.03125 degree; and
+- `ocn_so_12to30km_lnd_10km_riv_10km`, using 0.0625 degree.
 
 The sizing-field shared-step subdirectory includes the mesh name:
 `spherical/unified/<mesh_name>/sizing_field/build`. This makes the mesh
@@ -405,7 +420,7 @@ configuration part of the work-directory layout and cache key.
 
 ### Implementation: Standalone Sizing-Field Task
 
-Date last modified: 2026/04/25
+Date last modified: 2026/04/26
 
 Contributors:
 
@@ -419,7 +434,13 @@ the shared steps. For each named mesh, the standalone task links:
 - the shared coastline step and an optional coastline visualization step;
 - the mesh-specific shared river source step;
 - the mesh-specific shared river lat-lon step; and
-- the shared sizing-field build step plus its visualization step.
+- the selected sizing-field build step plus its visualization step.
+
+The sizing-field factory remains config-driven. It discovers mesh configs from
+`polaris.mesh.spherical.unified`, then reads the `mesh_family` declared in the
+mesh config and lets the generic `BuildSizingFieldStep` delegate ocean
+background construction and any extra inputs to that mesh-family
+implementation.
 
 `add_build_sizing_field_tasks()` registers one standalone sizing-field task per
 named mesh. The task-specific path is
@@ -429,7 +450,7 @@ named mesh. The task-specific path is
 
 ### Testing and Validation: JIGSAW-Ready Global Sizing Field
 
-Date last modified: 2026/04/25
+Date last modified: 2026/04/27
 
 Contributors:
 
@@ -439,7 +460,7 @@ Contributors:
 Current unit tests in `tests/mesh/spherical/unified/test_sizing_field.py`
 verify that `build_sizing_field_dataset()` writes a `cellWidth` field with
 the expected values for representative configurations and that
-`UnifiedCellWidthMeshStep` reads `cellWidth`, `lon`, and `lat` from
+`UnifiedBaseMeshStep` reads `cellWidth`, `lon`, and `lat` from
 `sizing_field.nc`.
 
 There is not yet an end-to-end task-level test that passes this sizing field
@@ -465,7 +486,7 @@ mesh.
 
 ### Testing and Validation: Composable Feature-Based Resolution Controls
 
-Date last modified: 2026/04/25
+Date last modified: 2026/04/26
 
 Contributors:
 
@@ -477,9 +498,15 @@ Current unit tests check:
 - a uniform 240 km case with no active refinement;
 - a split 30 km ocean and 10 km land/river case;
 - an RRS latitude-dependent ocean background;
+- rejection of `ec_latitude` in the generic unified sizing-field path;
 - coastline transition composition using signed distance;
 - river outlet controls composed before coastline transitions; and
-- `active_control` values for representative cells.
+- `active_control` values for representative cells;
+- discovery and task registration for
+  `ocn_so_12to30km_lnd_10km_riv_10km`; and
+- the Southern Ocean specialized sizing-field step linking the shared
+  GeoJSON and producing a nonuniform ocean background that is finer in the
+  Southern Ocean than outside it.
 
 There is not yet validation on full global products showing that coastline,
 river-channel, and outlet controls influence the intended real-world regions
