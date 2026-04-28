@@ -187,7 +187,6 @@ class Ocean(Component):
                         ds[omega_var] = pseudothickness
                         if mpas_var == 'layerThickness':
                             ds['SpecVol'] = spec_vol
-                            ds['layerThickness'] = ds['PseudoThickness'].copy()
 
         # After map_to_native_model_vars, the dataset contains
         # LayerThickness and PseudoThickness which are both
@@ -303,13 +302,14 @@ class Ocean(Component):
         ds = xr.open_dataset(filename, **kwargs)
         if (
             self.model == 'omega'
-            and 'LayerThickness' in ds.keys()
+            and 'GeomLayerThickness' not in ds.keys()
+            and 'PseudoThickness' in ds.keys()
             and 'SpecVol' in ds.keys()
             and config is not None
         ):
-            # Omega's LayerThickness is actually pseudo-thickness
-            ds['PseudoThickness'] = ds.LayerThickness
-            ds['LayerThickness'] = geom_thickness_from_ds(ds, config=config)
+            ds['GeomLayerThickness'] = geom_thickness_from_ds(
+                ds, config=config
+            )
         ds = self.map_from_native_model_vars(ds)
         ds = _add_reconstructed_variables_to_dataset(
             ds, reconstruct_variables, mesh_filename, coeffs_filename

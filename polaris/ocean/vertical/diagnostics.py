@@ -41,8 +41,8 @@ def geom_thickness_from_ds(ds, config):
     else:
         raise ValueError(
             'Geometric layerThickness is not present in the '
-            'initial condition and SpecVol is not present '
-            'to compute it'
+            'initial condition and PseudoThickness and SpecVol are not '
+            'present to compute it'
         )
 
 
