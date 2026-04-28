@@ -7,13 +7,13 @@ ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/inertial_gravity_wave/convergence_both
 ocean/planar/internal_wave/standard/default
 ocean/planar/internal_wave/vlr/default
-# ocean/planar/manufactured_solution/convergence_both
+ocean/planar/manufactured_solution/convergence_both/default
 ocean/planar/merry_go_round/default
 ocean/planar/overflow/default
-ocean/single_column/cvmix
-ocean/single_column/cvmix_no_vadv
-ocean/single_column/ekman
-ocean/single_column/ideal_age
-ocean/single_column/inertial
+ocean/column/ekman
+ocean/column/vmix_stable
+ocean/column/vmix_unstable
+ocean/column/ideal_age
+ocean/column/inertial
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
