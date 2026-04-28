@@ -23,4 +23,5 @@ than implemented separately inside each consumer.
 :titlesonly: true
 
 unified/coastline
+unified/river
 ```

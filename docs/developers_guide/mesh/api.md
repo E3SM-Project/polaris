@@ -48,3 +48,30 @@
    VizCoastlineStep.setup
    VizCoastlineStep.run
 ```
+
+### Unified River Tasks
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.river
+
+.. autosummary::
+   :toctree: generated/
+
+   SimplifyRiverNetworkStep
+   SimplifyRiverNetworkStep.setup
+   SimplifyRiverNetworkStep.run
+   simplify_river_network_feature_collection
+   RasterizeRiverLatLonStep
+   RasterizeRiverLatLonStep.setup
+   RasterizeRiverLatLonStep.run
+   build_river_network_dataset
+   ClipRiverNetworkStep
+   ClipRiverNetworkStep.setup
+   ClipRiverNetworkStep.run
+   get_unified_mesh_river_steps
+   VizRiverStep
+   VizRiverStep.setup
+   VizRiverStep.run
+   UnifiedRiverNetworkTask
+   add_river_tasks
+```
