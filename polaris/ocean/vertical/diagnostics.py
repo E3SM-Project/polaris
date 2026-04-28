@@ -76,7 +76,7 @@ def pseudothickness_from_ds(ds, config):
             'initial condition and T,S are not present '
             'to compute it'
         )
-        return
+        return None, None
 
     surface_pressure = config.getfloat('vertical_grid', 'surface_pressure')
     p_interface, _, spec_vol = pressure_and_spec_vol_from_state_at_geom_height(
