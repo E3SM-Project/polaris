@@ -1,17 +1,17 @@
 #!/bin/bash -l
-set -eo pipefail
+set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
 echo "[$(date)] Starting $SCRIPT_NAME"
 
-POLARIS_CDASH_BASEDIR=${CRONJOB_BASEDIR}/tasks/polaris_cdash
+POLARIS_CDASH_BASEDIR="${CRONJOB_BASEDIR:?CRONJOB_BASEDIR must be set}/tasks/polaris_cdash"
 POLARIS_CDASH_TESTDIR="${POLARIS_CDASH_BASEDIR}/tests"
 OMEGA_HOME="${POLARIS_CDASH_BASEDIR}/polaris/e3sm_submodules/Omega"
 MINIFORGE3_HOME="${POLARIS_CDASH_BASEDIR}/miniforge3"
 
-mkdir -p $POLARIS_CDASH_BASEDIR
-mkdir -p $POLARIS_CDASH_TESTDIR
+mkdir -p "$POLARIS_CDASH_BASEDIR"
+mkdir -p "$POLARIS_CDASH_TESTDIR"
 
 if [[ "$CRONJOB_MACHINE" == "chrysalis" ]]; then
     module load python cmake
@@ -31,11 +31,11 @@ elif [[ "$CRONJOB_MACHINE" == "pm-cpu" ]]; then
 
 elif [[ "$CRONJOB_MACHINE" == "unknown" ]]; then
   echo "CRONJOB_MACHINE is not set."
-  exit -1
+  exit 1
 
 else
   echo "It seems that the cron job is not configured with CRONJOB_MACHINE."
-  exit -1
+  exit 1
 
 fi
 
@@ -49,7 +49,7 @@ if [ ! -d "$MINIFORGE3_HOME" ]; then
     echo "Installing Miniforge3..."
     pushd "$POLARIS_CDASH_BASEDIR" > /dev/null
     wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
-    bash Miniforge3-Linux-x86_64.sh -b -p $MINIFORGE3_HOME
+    bash Miniforge3-Linux-x86_64.sh -b -p "$MINIFORGE3_HOME"
     popd > /dev/null
 fi
 
@@ -88,11 +88,22 @@ configure_polaris() {
 
     cd "${POLARIS_ROOT}"
 
-    if [ ! -f "load_polaris_${CRONJOB_MACHINE}_${compiler}_*.sh" ]; then
-        ./deploy.py --machine ${CRONJOB_MACHINE} --compiler ${compiler}
+    shopt -s nullglob
+    load_scripts=( ./load_polaris_${CRONJOB_MACHINE}_${compiler}_*.sh )
+    shopt -u nullglob
+    if [[ ${#load_scripts[@]} -eq 0 ]]; then
+        ./deploy.py --machine "${CRONJOB_MACHINE}" --compiler "${compiler}"
+        shopt -s nullglob
+        load_scripts=( ./load_polaris_${CRONJOB_MACHINE}_${compiler}_*.sh )
+        shopt -u nullglob
     fi
-
-    source ./load_polaris_${CRONJOB_MACHINE}_${compiler}_*.sh
+    if [[ ${#load_scripts[@]} -ne 1 ]]; then
+        echo "ERROR: Expected exactly one load script matching" \
+             "load_polaris_${CRONJOB_MACHINE}_${compiler}_*.sh," \
+             "found ${#load_scripts[@]}" >&2
+        exit 1
+    fi
+    source "${load_scripts[0]}"
 }
 
 build_omega_dev() {
@@ -190,7 +201,7 @@ for COMPILER in "${!COMPILER_MAP[@]}"; do
         configure_polaris "$COMPILER"
 
         PARMETIS_HOME="${PARMETIS_TPL//COMPILER/$COMPILER}"
-		if [ ! -f "$PARMETIS_HOME" ]; then
+		if [ ! -d "$PARMETIS_HOME" ]; then
 			if [[ "$CRONJOB_MACHINE" == "frontier" ]]; then
 				PARMETIS_HOME=/ccs/proj/cli115/software/polaris/frontier/spack/dev_polaris_0_10_0_craygnu-mphipcc_mpich/var/spack/environments/dev_polaris_0_10_0_craygnu-mphipcc_mpich/.spack-env/view
             fi

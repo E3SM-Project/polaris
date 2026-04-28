@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
@@ -36,7 +36,7 @@ mkdir -p "$CRONJOB_LOGDIR"
 export CRONJOB_DATE=$(date +"%d")
 export CRONJOB_TIME=$(date +"%T")
 
-LOCKFILE="/tmp/${USER}_cronjob.lock"
+LOCKFILE="${TMPDIR:-/tmp}/${USER:?USER must be set}_cronjob.lock"
 exec 9>"$LOCKFILE"
 if ! flock -n 9; then
     echo "[$(date)] launch_all.sh is already running, exiting."

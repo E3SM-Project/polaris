@@ -26,7 +26,7 @@ elif [[ "${CRONJOB_MACHINE:-unknown}" == "unknown" ]]; then
 
 else
     echo "It seems that the cron job is not configured with CRONJOB_MACHINE."
-    exit -1
+    exit 1
 
 fi
 
@@ -35,9 +35,9 @@ eval "$COMPILER_MAP_DEF"
 
 for COMPILER in "${!COMPILER_MAP[@]}"; do
 
-    WORKDIR=${TESTROOT}/${COMPILER}/${CRONJOB_DATE}
-    rm -rf ${WORKDIR}
-    mkdir -p ${WORKDIR}
+    WORKDIR="${TESTROOT}/${COMPILER}/${CRONJOB_DATE}"
+    rm -rf "${WORKDIR}"
+    mkdir -p "${WORKDIR}"
 
     PARMETIS_HOME="${PARMETIS_TPL//COMPILER/$COMPILER}"
     if [ ! -d "$PARMETIS_HOME" ]; then
@@ -47,27 +47,27 @@ for COMPILER in "${!COMPILER_MAP[@]}"; do
     fi
 
     cmake \
-      -DOMEGA_CIME_MACHINE=${CRONJOB_MACHINE} \
-      -DOMEGA_CIME_COMPILER=${COMPILER} \
-      -DOMEGA_ARCH=${COMPILER_MAP[$COMPILER]} \
+      -DOMEGA_CIME_MACHINE="${CRONJOB_MACHINE}" \
+      -DOMEGA_CIME_COMPILER="${COMPILER}" \
+      -DOMEGA_ARCH="${COMPILER_MAP[$COMPILER]}" \
       -DOMEGA_BUILD_TEST=ON \
-      -DOMEGA_PARMETIS_ROOT=${PARMETIS_HOME} \
-      -S ${OMEGA_ROOT}/components/omega \
-      -B ${WORKDIR};
+      -DOMEGA_PARMETIS_ROOT="${PARMETIS_HOME}" \
+      -S "${OMEGA_ROOT}/components/omega" \
+      -B "${WORKDIR}";
 
-    mkdir -p ${WORKDIR}/test
+    mkdir -p "${WORKDIR}/test"
 
-    ln -sf  ${TESTROOT}/OmegaMesh.nc ${WORKDIR}/test/OmegaMesh.nc
-    ln -sf  ${TESTROOT}/OmegaSphereMesh.nc ${WORKDIR}/test/OmegaSphereMesh.nc
-    ln -sf  ${TESTROOT}/OmegaPlanarMesh.nc ${WORKDIR}/test/OmegaPlanarMesh.nc
+    ln -sf  "${TESTROOT}/OmegaMesh.nc" "${WORKDIR}/test/OmegaMesh.nc"
+    ln -sf  "${TESTROOT}/OmegaSphereMesh.nc" "${WORKDIR}/test/OmegaSphereMesh.nc"
+    ln -sf  "${TESTROOT}/OmegaPlanarMesh.nc" "${WORKDIR}/test/OmegaPlanarMesh.nc"
 
-    source ${WORKDIR}/omega_env.sh
+    source "${WORKDIR}/omega_env.sh"
 
     ctest \
-      -S ${OMEGA_ROOT}/components/omega/CTestScript.cmake \
-      -DCTEST_SOURCE_DIRECTORY=${OMEGA_ROOT}/components/omega \
-      -DCTEST_BINARY_DIRECTORY=${WORKDIR} \
-      -DCTEST_SITE=${CRONJOB_MACHINE} \
+      -S "${OMEGA_ROOT}/components/omega/CTestScript.cmake" \
+      -DCTEST_SOURCE_DIRECTORY="${OMEGA_ROOT}/components/omega" \
+      -DCTEST_BINARY_DIRECTORY="${WORKDIR}" \
+      -DCTEST_SITE="${CRONJOB_MACHINE}" \
       -DCTEST_BUILD_GROUP="Omega Unit-test" \
       -DCTEST_BUILD_NAME="unitest-develop-${COMPILER}" \
       -DCTEST_NIGHTLY_START_TIME="06:00:00 UTC" \

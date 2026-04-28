@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
 echo "[$(date)] Starting $SCRIPT_NAME"
 
-export OMEGA_CDASH_BASEDIR=${CRONJOB_BASEDIR}/tasks/omega_cdash
+export OMEGA_CDASH_BASEDIR="${CRONJOB_BASEDIR:?CRONJOB_BASEDIR must be set}/tasks/omega_cdash"
 export TESTROOT="${OMEGA_CDASH_BASEDIR}/tests"
-mkdir -p $OMEGA_CDASH_BASEDIR
-mkdir -p $TESTROOT
+mkdir -p "$OMEGA_CDASH_BASEDIR"
+mkdir -p "$TESTROOT"
 
 
 # Configuration
@@ -61,6 +61,6 @@ sbatch \
   --job-name=OmegaCdash \
   --output="$CRONJOB_LOGDIR/omega_cdash_%j.out" \
   --error="$CRONJOB_LOGDIR/omega_cdash_%j.err" \
-  ${HERE}/job_${CRONJOB_MACHINE}_omega_cdash.sbatch
+  "${HERE}/job_${CRONJOB_MACHINE}_omega_cdash.sbatch"
 
 echo "[$(date)] Finished $SCRIPT_NAME"
