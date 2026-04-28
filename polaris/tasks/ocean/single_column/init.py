@@ -14,7 +14,7 @@ class Init(Step):
     test cases
     """
 
-    def __init__(self, component, indir, ideal_age=False):
+    def __init__(self, component, subdir):
         """
         Create the step
 
@@ -26,18 +26,13 @@ class Init(Step):
         indir : str
             The subdirectory that the task belongs to, that this step will
             go into a subdirectory of
-
-        ideal_age : bool, optional
-            Whether the initial condition should include the ideal age tracer
         """
-        super().__init__(component=component, name='init', indir=indir)
-        self.ideal_age = ideal_age
+        super().__init__(component=component, name='init', subdir=subdir)
         for file in [
             'base_mesh.nc',
             'culled_mesh.nc',
             'culled_graph.info',
             'initial_state.nc',
-            'forcing.nc',
         ]:
             self.add_output_file(file)
 
@@ -48,7 +43,6 @@ class Init(Step):
         logger = self.logger
         config = self.config
         section = config['single_column']
-        ideal_age = self.ideal_age
         resolution = section.getfloat('resolution')
         nx = section.getint('nx')
         ny = section.getint('ny')
@@ -140,8 +134,8 @@ class Init(Step):
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
 
-        if ideal_age:
-            ds['idealAgeTracers'] = xr.zeros_like(x_cell)
+        # We include this variable in initial conditions even when unused
+        ds['idealAgeTracers'] = xr.zeros_like(x_cell)
 
         ds['temperature'] = temperature
         ds['salinity'] = salinity
@@ -153,10 +147,9 @@ class Init(Step):
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
-        write_netcdf(ds, 'initial_state.nc')
 
         # create forcing stream
-        ds_forcing = xr.Dataset()
+        ds_forcing = ds.copy()
         forcing_array = xr.ones_like(temperature)
         forcing_array_surface = xr.ones_like(ds.bottomDepth)
         forcing_array_surface = forcing_array_surface.expand_dims(
@@ -239,4 +232,4 @@ class Init(Step):
         ds_forcing['icebergFreshWaterFlux'] = (
             iceberg_flux * forcing_array_surface
         )
-        write_netcdf(ds_forcing, 'forcing.nc')
+        write_netcdf(ds_forcing, 'initial_state.nc')
