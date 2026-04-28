@@ -34,7 +34,7 @@ The finer `0.12500_degree`, `0.06250_degree`, and `0.03125_degree` tasks are
 the supported science-oriented coastline tiers.
 
 If a developer wants to add more resolutions, they can edit the list of
-resolutions in `add_coastline_tasks()`.  It would be best to also add
+resolutions in `add_coastline_tasks()`. It would be best to also add
 that resolution to the tasks for creating combined topography in
 `polaris.tasks.e3sm.init.topo.resolutions.LAT_LON_RESOLUTIONS`, though
 that isn't strictly required.
@@ -105,9 +105,8 @@ such as ocean and land cells and the min/max signed distance.
 The current implementation is intentionally narrow: lat-lon target grids,
 three coastline conventions, and raster outputs. Common developer changes are:
 
-- adding a new target resolution by updating
-  `add_coastline_tasks()` and, ideally, the matching shared
-  `e3sm/init/topo/combine` tasks;
+- adding a new target resolution by updating `add_coastline_tasks()` and,
+  ideally, the matching shared `e3sm/init/topo/combine` tasks;
 - adding a new convention by extending `CONVENTIONS`, the `candidate_masks`
   dictionary in `build_coastline_datasets()`, the visualization step, and the
   associated tests; and

@@ -2,9 +2,18 @@
 
 # Tasks
 
+## Base Mesh Tasks
+
 ```{toctree}
 :titlesonly: true
 
 base
-coastline
+```
+
+## Unified Mesh Preparation Tasks
+
+```{toctree}
+:titlesonly: true
+
+unified/index
 ```
