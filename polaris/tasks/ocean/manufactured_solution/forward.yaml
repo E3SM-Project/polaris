@@ -55,7 +55,7 @@ Omega:
       Filename: init.nc
       Contents:
       - NormalVelocity
-      - LayerThickness
+      - PseudoThickness
     History:
       Filename: output.nc
       Freq: {{ output_freq }}
@@ -66,6 +66,6 @@ Omega:
       FileFreqUnits: years
       Contents:
       - NormalVelocity
-      - LayerThickness
+      - PseudoThickness
       - Eos
       - SshCell
