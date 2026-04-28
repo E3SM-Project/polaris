@@ -16,6 +16,7 @@ from mpas_tools.viz.paraview_extractor import extract_vtk
 
 from polaris import Step
 from polaris.constants import get_constant
+from polaris.mesh.spherical.quality import check_cell_polygon_quality
 from polaris.model_step import make_graph_file
 
 
@@ -133,6 +134,8 @@ class SphericalBaseStep(Step):
         ds_mesh.angleEdge.values = angle_edge.values
         write_netcdf(ds_mesh, mpas_mesh_filename)
 
+        self._check_cell_polygon_quality(ds_mesh=ds_mesh)
+
         if section.getboolean('add_mesh_density'):
             logger.info('Add meshDensity into the mesh file')
             cell_width_filename = section.get('cell_width_filename')
@@ -163,6 +166,36 @@ class SphericalBaseStep(Step):
 
         make_graph_file(
             mesh_filename=mpas_mesh_filename, graph_filename='graph.info'
+        )
+
+    def _check_cell_polygon_quality(self, ds_mesh):
+        """
+        Check the generated MPAS mesh for degenerate cell polygons.
+
+        Parameters
+        ----------
+        ds_mesh : xarray.Dataset
+            MPAS mesh dataset
+        """
+        section = self.config['spherical_mesh_quality']
+        if not section.getboolean('check_cell_geometry'):
+            return
+
+        diagnostics = check_cell_polygon_quality(
+            ds_mesh=ds_mesh,
+            minimum_edge_length_ratio=section.getfloat(
+                'minimum_edge_length_ratio'
+            ),
+            minimum_corner_sine=section.getfloat('minimum_corner_sine'),
+            max_bad_cells_to_report=section.getint('max_bad_cells_to_report'),
+        )
+
+        self.logger.info(
+            'Spherical mesh cell-polygon quality check passed. '
+            f'Minimum edge-length ratio: '
+            f'{diagnostics["minimum_edge_length_ratio"]:.3e}; '
+            f'minimum corner sine: '
+            f'{diagnostics["minimum_corner_sine"]:.3e}.'
         )
 
     def _plot_cell_width(self, cell_width):
