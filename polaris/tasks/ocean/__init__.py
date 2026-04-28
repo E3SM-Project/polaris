@@ -178,9 +178,19 @@ class Ocean(Component):
             and 'PseudoThickness' not in ds.keys()
             and config is not None
         ):
-            ds['PseudoThickness'] = pseudothickness_from_ds(ds, config=config)
-            ds['layerThickness'] = ds['PseudoThickness'].copy()
+            pseudothickness, spec_vol = pseudothickness_from_ds(
+                ds, config=config
+            )
+            if pseudothickness is not None and spec_vol is not None:
+                ds['PseudoThickness'] = pseudothickness
+                ds['SpecVol'] = spec_vol
+                ds['layerThickness'] = ds['PseudoThickness'].copy()
+
+        # After map_to_native_model_vars, the dataset contains
+        # LayerThickness and PseudoThickness which are both
+        # pseudo-thickness
         ds = self.map_to_native_model_vars(ds)
+
         write_netcdf(ds=ds, fileName=filename)
 
     def map_from_native_model_vars(self, ds):
@@ -291,8 +301,10 @@ class Ocean(Component):
         if (
             self.model == 'omega'
             and 'LayerThickness' in ds.keys()
+            and 'SpecVol' in ds.keys()
             and config is not None
         ):
+            # Omega's LayerThickness is actually pseudo-thickness
             ds['PseudoThickness'] = ds.LayerThickness
             ds['LayerThickness'] = geom_thickness_from_ds(ds, config=config)
         ds = self.map_from_native_model_vars(ds)
