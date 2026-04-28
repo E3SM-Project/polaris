@@ -193,14 +193,15 @@ test case. Both can be changed after set-up by modifying the namelist file.
 Both default and minimum number of cores are hard-coded as 1 given that the
 domain is only 16 cells.
 
-(ocean-single-column-cvmix)=
+(ocean-single-column-vmix)=
 
-## cvmix
+## vmix stable
 
 ### description
 
-The `cvmix` test exercises the [CVMix](https://github.com/CVMix/CVMix-src)
-schemes for vertical mixing.
+The `vmix_stable` test runs a series of forward steps with different namelist
+paramters to test out different vertical mixing options under stable
+stratification.
 
 The temperature and salinity profiles after 10 days are shown here:
 
@@ -212,8 +213,6 @@ The temperature and salinity profiles after 10 days are shown here:
 :align: center
 :width: 200 px
 ```
-
-The namelist options for this test case dictate that the KPP scheme is tested.
 
 ### mesh
 
@@ -399,7 +398,7 @@ The `ideal age` test exercises the ideal age tracers.
 ### description
 
 Temperature and salinity profiles evolve in the same way as in the
-{ref}`ocean-single-column-cvmix` test case. 10-day profiles for the ideal age
+{ref}`ocean-single-column-vmix` test case. 10-day profiles for the ideal age
 tracer are as follows:
 
 ```{image} images/single_column_ideal_age_tracer_10day.png
