@@ -97,6 +97,6 @@ Omega:
       FileFreqUnits: years
       Contents:
         - Tracers
-        - LayerThickness
+        - PseudoThickness
         - NormalVelocity
         - Eos
