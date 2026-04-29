@@ -13,6 +13,7 @@ def add_seamount_tasks(component):
     indir = 'planar/seamount'
     config_filename = 'seamount.cfg'
     config = PolarisConfigParser(filepath=f'{indir}/{config_filename}')
+    config.add_from_package('polaris.ocean.eos', 'linear.cfg')
     config.add_from_package('polaris.tasks.ocean.seamount', config_filename)
 
     init_step = Init(component=component, name='init', indir=indir)
