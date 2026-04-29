@@ -1,5 +1,6 @@
 #!/bin/bash -l
-set -euo pipefail
+#set -euo pipefail # Failed at pixi-env/.pixi/envs/default/etc/conda/activate.d/cartopy_offline_data-activate.sh: line 6: CARTOPY_DATA_DIR: unbound variable
+set -eo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
