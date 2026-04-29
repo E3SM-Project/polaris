@@ -9,15 +9,16 @@ To enable, add a `hooks` section like:
   hooks:
     file: "deploy/hooks.py"  # default
     entrypoints:
-      pre_pixi: "pre_pixi"      # optional
-      post_pixi: "post_pixi"    # optional
-      post_deploy: "post_deploy"  # optional
+      pre_pixi: "pre_pixi"          # optional
+      post_pixi: "post_pixi"        # optional
+      post_publish: "post_publish"  # optional
 
 """
 
 from __future__ import annotations
 
 import os
+import shlex
 from typing import TYPE_CHECKING, Any, Dict
 
 from packaging.version import Version
@@ -82,6 +83,72 @@ def pre_spack(ctx: DeployContext) -> dict[str, Any] | None:
         }
 
     return {'spack': {'spack_path': spack_path}}
+
+
+def post_publish(ctx: DeployContext) -> None:
+    """Install Git hooks from the deployed Pixi environment."""
+
+    pixi = ctx.config.get('pixi', {})
+    if not isinstance(pixi, dict) or not pixi.get(
+        'install_dev_software', False
+    ):
+        return
+
+    _install_pre_commit(ctx)
+
+
+def _install_pre_commit(ctx: DeployContext) -> None:
+    pre_commit_config = os.path.join(ctx.repo_root, '.pre-commit-config.yaml')
+    if not os.path.exists(pre_commit_config):
+        ctx.logger.info(
+            'Skipping pre-commit install because %s was not found.',
+            pre_commit_config,
+        )
+        return
+
+    git_dir = os.path.join(ctx.repo_root, '.git')
+    if not os.path.exists(git_dir):
+        ctx.logger.info(
+            'Skipping pre-commit install because %s is not a Git checkout.',
+            ctx.repo_root,
+        )
+        return
+
+    load_script = _get_load_script(ctx)
+    if load_script is None:
+        ctx.logger.info(
+            'Skipping pre-commit install because no load script was recorded.'
+        )
+        return
+
+    ctx.logger.info('Installing pre-commit hooks in %s', ctx.repo_root)
+    from mache.deploy.bootstrap import check_call
+
+    check_call(
+        (
+            f'source {shlex.quote(load_script)} && '
+            f'cd {shlex.quote(ctx.repo_root)} && '
+            'pre-commit install'
+        ),
+        log_filename=_get_deploy_log_filename(ctx),
+        quiet=ctx.args.quiet,
+    )
+
+
+def _get_load_script(ctx: DeployContext) -> str | None:
+    load_scripts = ctx.runtime.get('load_scripts')
+    if not isinstance(load_scripts, list) or len(load_scripts) == 0:
+        return None
+
+    for script in load_scripts:
+        if isinstance(script, str) and os.path.exists(script):
+            return script
+
+    return None
+
+
+def _get_deploy_log_filename(ctx: DeployContext) -> str:
+    return os.path.join(ctx.work_dir, 'logs', 'mache_deploy_run.log')
 
 
 def _get_version():
