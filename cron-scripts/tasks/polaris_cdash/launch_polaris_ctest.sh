@@ -7,7 +7,7 @@ echo "[$(date)] Starting $SCRIPT_NAME"
 
 POLARIS_CDASH_BASEDIR="${CRONJOB_BASEDIR:?CRONJOB_BASEDIR must be set}/tasks/polaris_cdash"
 POLARIS_CDASH_TESTDIR="${POLARIS_CDASH_BASEDIR}/tests"
-OMEGA_HOME="${POLARIS_CDASH_BASEDIR}/polaris/e3sm_submodules/Omega"
+OMEGA_HOME="${POLARIS_ROOT}/e3sm_submodules/Omega"
 MINIFORGE3_HOME="${POLARIS_CDASH_BASEDIR}/miniforge3"
 
 mkdir -p "$POLARIS_CDASH_BASEDIR"
