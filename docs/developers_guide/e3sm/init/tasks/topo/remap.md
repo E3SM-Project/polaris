@@ -62,23 +62,26 @@ in the `remap_low_res.cfg` file.
 4. **Visualization**: The `VizRemappedTopoStep` can be added to plot each remapped field using configuration-driven colormaps and normalization.
 5. **Output**: The final remapped topography is saved as `topography_remapped.nc` for each mesh and smoothing option.
 
+## Supported Mesh Types
+
+`add_remap_topo_tasks` registers tasks for all supported base meshes,
+including both simple (quasi-uniform and icosahedral) base meshes and
+named unified meshes (see {ref}`users-mesh-unified-base-mesh`). The set
+of mesh names is the union of `get_base_mesh_step_names()` and
+`UNIFIED_MESH_NAMES`.
+
 ## Example Usage
 
-Below is an example of how the remapping steps can be added to a Polaris task:
+To get the shared remap steps for a specific mesh:
 
 ```python
-from polaris.tasks.e3sm.init.topo.remap import get_default_remap_topo_steps
+from polaris.tasks.e3sm.init.topo.remap import get_remap_topo_steps
 
-steps, config = get_default_remap_topo_steps(
-    component=component,
-    base_mesh_step=base_mesh_step,
-    combine_topo_step=combine_topo_step,
-    low_res=low_res,
+steps, config = get_remap_topo_steps(
+    mesh_name='u.oi30.lr10',
     smoothing=True,
     include_viz=True,
 )
-for step in steps.values():
-    component.add_step(step)
 ```
 
 To add the full remapping workflow as a task for each supported mesh:

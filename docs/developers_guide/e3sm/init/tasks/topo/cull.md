@@ -68,21 +68,33 @@ remains consistent with the remapped topography masks.
 3. **Output**: The final culled meshes and masks are saved as NetCDF files for
    each region.
 
+## Supported Mesh Types
+
+`add_cull_topo_tasks` registers tasks for all supported base meshes,
+including both simple (quasi-uniform and icosahedral) base meshes and
+named unified meshes (see {ref}`users-mesh-unified-base-mesh`). The set
+of mesh names is the union of `get_base_mesh_step_names()` and
+`UNIFIED_MESH_NAMES`.
+
 ## Example Usage
 
-Below is an example of how the culling steps can be added to a Polaris task:
+To get the shared cull steps for a specific mesh:
 
 ```python
-from polaris.tasks.e3sm.init.topo.cull import get_default_cull_topo_steps
+from polaris.tasks.e3sm.init.topo.cull import get_cull_topo_steps
 
-steps, config = get_default_cull_topo_steps(
-    component=component,
-    base_mesh_step=base_mesh_step,
-    unsmoothed_topo_step=unsmoothed_topo_step,
+steps, config = get_cull_topo_steps(
+    mesh_name='u.oi30.lr10',
     include_viz=False,
 )
-for step in steps.values():
-    component.add_step(step)
+```
+
+To add the full culling workflow as a task for each supported mesh:
+
+```python
+from polaris.tasks.e3sm.init.topo.cull import add_cull_topo_tasks
+
+add_cull_topo_tasks(component)
 ```
 
 ## Example: Culled Ocean Mesh
