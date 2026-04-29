@@ -1,9 +1,10 @@
 import time
-from datetime import datetime
 
 import cftime
 import numpy as np
 import pandas as pd
+
+from polaris.mpas.time import time_since_start
 
 
 def get_days_since_start(ds):
@@ -14,17 +15,9 @@ def get_days_since_start(ds):
     if 'daysSinceStartOfSim' in ds.keys():
         t_arr = ds.daysSinceStartOfSim.values.astype(float)
     elif 'xtime' in ds.keys():
-        timestamps = []
-        for time_str in ds.xtime.values.astype(str):
-            try:
-                timestamp = datetime.strptime(time_str, '%Y-%m-%d_%H:%M:%S.%f')
-            except ValueError:
-                timestamp = datetime.strptime(time_str, '%Y-%m-%d_%H:%M:%S')
-            timestamps.append(timestamp)
         # Calculate seconds since the first timestamp
-        seconds_since_start = [
-            (ts - timestamps[0]).total_seconds() for ts in timestamps
-        ]
+        seconds_since_start = time_since_start(ds.xtime.values)
+        # Convert to days
         t_arr = np.array(seconds_since_start, dtype=float) / 86400.0
     elif 'Time' in ds.keys():
         # This option works if decode_times=True when loading xr.Dataset
