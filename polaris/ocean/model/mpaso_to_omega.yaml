@@ -86,7 +86,7 @@ config:
 - section:
     advection: Advection
   options:
-    config_horiz_tracer_adv_order: TracerHorzAdvTendencyOrder
+    config_horiz_tracer_adv_order: HorzTracerFluxOrder
 
 - section:
     advection: Advection
