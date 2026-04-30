@@ -3,10 +3,10 @@
 # Tasks
 
 Polaris currently supports tasks for the {ref}`mesh`, {ref}`e3sm-init`,
-{ref}`ocean` ([MPAS-Ocean](https://mpas-dev.github.io/ocean/ocean.html)) and
-{ref}`seaice`
-([MPAS-Seaice](https://mpas-dev.github.io/sea_ice/sea_ice.html)) components.
-Land-ice support is planned but has not yet been migrated.
+{ref}`ocean` ([MPAS-Ocean](https://mpas-dev.github.io/ocean/ocean.html)), and
+{ref}`seaice` ([MPAS-Seaice](https://mpas-dev.github.io/sea_ice/sea_ice.html))
+components. Land-ice support is planned but has not yet been migrated as its
+own component.
 Tasks are grouped under these components and then into common categories for
 convenience and shared framework.  These groupings of tasks have some common
 purpose or concept. For ocean, this includes "idealized" tasks like
