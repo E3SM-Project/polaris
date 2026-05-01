@@ -6,8 +6,13 @@ import xarray as xr
 from matplotlib.lines import Line2D
 
 from polaris import Step
-from polaris.mpas import time_index_from_xtime
-from polaris.ocean.convergence import get_resolution_for_task
+from polaris.ocean.convergence import (
+    get_resolution_for_task as get_resolution_for_task,
+)
+from polaris.ocean.convergence import (
+    get_timestep_for_task as get_timestep_for_task,
+)
+from polaris.ocean.model import get_days_since_start
 from polaris.resolution import resolution_to_string
 from polaris.viz import use_mplstyle
 
@@ -69,11 +74,13 @@ class MixingAnalysis(Step):
         self.refinement_factors = refinement_factors
         self.refinement = refinement
         self.case_name = case_name
+        self.step_dependencies = dependencies
 
-        for refinement_factor in refinement_factors:
-            base_mesh = dependencies['mesh'][refinement_factor]
-            init = dependencies['init'][refinement_factor]
-            forward = dependencies['forward'][refinement_factor]
+    def setup(self):
+        for refinement_factor in self.refinement_factors:
+            base_mesh = self.step_dependencies['mesh'][refinement_factor]
+            init = self.step_dependencies['init'][refinement_factor]
+            forward = self.step_dependencies['forward'][refinement_factor]
             self.add_input_file(
                 filename=f'mesh_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{base_mesh.path}/base_mesh.nc',
@@ -119,10 +126,11 @@ class MixingAnalysis(Step):
                 ax.set_ylabel('tracer3')
             if int(i / 2) == nrows - 1:
                 ax.set_xlabel('tracer2')
-            tidx = time_index_from_xtime(
-                ds.xtime.values, eval_time * s_per_day
+            t_days = get_days_since_start(ds)
+            time_index = np.argmin(
+                np.abs(np.subtract(t_days, eval_time * s_per_day))
             )
-            ds = ds.isel(Time=tidx)
+            ds = ds.isel(Time=time_index)
             ds = ds.isel(nVertLevels=zidx)
             tracer2 = ds['tracer2'].values
             tracer3 = ds['tracer3'].values
