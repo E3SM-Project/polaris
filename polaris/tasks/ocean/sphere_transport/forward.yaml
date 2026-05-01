@@ -15,6 +15,7 @@ mpas-ocean:
     config_block_decomp_file_prefix: graph.info.part.
   advection:
     config_vert_coord_movement: impermeable_interfaces
+    config_flux_limiter: none
   transport_tests:
     config_transport_tests_flow_id: {{ flow_id }}
   debug:
