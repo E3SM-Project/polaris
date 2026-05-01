@@ -28,7 +28,7 @@ def time_index_from_xtime(xtime, dt_target, start_xtime=None):
     return time_index
 
 
-def time_since_start(xtime, start_xtime=None):
+def time_since_start(xtime, start_xtime='0001-01-01_01:00:00'):
     """
     Determine the time elapsed since the start of the simulation
 
@@ -48,9 +48,14 @@ def time_since_start(xtime, start_xtime=None):
     if start_xtime is None:
         start_xtime = xtime[0].decode()
 
-    t0 = datetime.datetime.strptime(start_xtime, '%Y-%m-%d_%H:%M:%S')
+    try:
+        time_format = '%Y-%m-%d_%H:%M:%S.%f'
+        t0 = datetime.datetime.strptime(start_xtime, time_format)
+    except ValueError:
+        time_format = '%Y-%m-%d_%H:%M:%S'
+        t0 = datetime.datetime.strptime(start_xtime, time_format)
     dt = np.zeros((len(xtime),))
     for idx, xt in enumerate(xtime):
-        t = datetime.datetime.strptime(xt.decode(), '%Y-%m-%d_%H:%M:%S')
+        t = datetime.datetime.strptime(xt.decode(), time_format)
         dt[idx] = (t - t0).total_seconds()
     return dt

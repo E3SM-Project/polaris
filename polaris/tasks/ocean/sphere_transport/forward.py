@@ -56,10 +56,15 @@ class Forward(SphericalConvergenceForward):
             'divergent_2d': 3,
             'correlated_tracers_2d': 4,
         }
-        namelist_options = {
-            'mpas-ocean': {
-                'config_transport_tests_flow_id': flow_id[case_name]
-            }
+        flow_type = {
+            'rotation_2d': 'Init',
+            'nondivergent_2d': 'NonDivergent',
+            'divergent_2d': 'Divergent',
+            'correlated_tracers_2d': 'NonDivergent',
+        }
+        replacements = {
+            'flow_id': flow_id[case_name],
+            'flow_type': flow_type[case_name],
         }
         validate_vars = ['normalVelocity', 'tracer1', 'tracer2', 'tracer3']
         super().__init__(
@@ -74,7 +79,7 @@ class Forward(SphericalConvergenceForward):
             output_filename='output.nc',
             validate_vars=validate_vars,
             check_properties=['mass conservation', 'tracer conservation'],
-            options=namelist_options,
+            replacements=replacements,
             update_eos=True,
             graph_target=f'{base_mesh.path}/graph.info',
             refinement_factor=refinement_factor,

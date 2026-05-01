@@ -5,6 +5,8 @@ ocean:
   time_integration:
     config_dt: {{ dt }}
     config_time_integrator: {{ time_integrator }}
+  advection:
+    config_horiz_tracer_adv_order: 3
 
 mpas-ocean:
   run_modes:
@@ -13,6 +15,9 @@ mpas-ocean:
     config_block_decomp_file_prefix: graph.info.part.
   advection:
     config_vert_coord_movement: impermeable_interfaces
+    config_flux_limiter: none
+  transport_tests:
+    config_transport_tests_flow_id: {{ flow_id }}
   debug:
     config_disable_thick_sflux: true
     config_disable_vel_all_tend: true
@@ -61,6 +66,8 @@ mpas-ocean:
       - relativeVorticityCell
 
 Omega:
+  State:
+    PrescribeVelocityType: {{ flow_type }}
   Tendencies:
     ThicknessFluxTendencyEnable : true
     PVTendencyEnable : false
