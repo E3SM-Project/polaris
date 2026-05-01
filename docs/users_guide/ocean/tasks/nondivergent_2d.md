@@ -38,7 +38,7 @@ field.
 
 ## suppported models
 
-These tasks support only MPAS-Ocean.
+These tasks support MPAS-Ocean and Omega.
 
 ## mesh
 
