@@ -2,22 +2,20 @@ from math import ceil
 
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray as xr
 from matplotlib.lines import Line2D
 
-from polaris import Step
 from polaris.ocean.convergence import (
     get_resolution_for_task as get_resolution_for_task,
 )
 from polaris.ocean.convergence import (
     get_timestep_for_task as get_timestep_for_task,
 )
-from polaris.ocean.model import get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_days_since_start
 from polaris.resolution import resolution_to_string
 from polaris.viz import use_mplstyle
 
 
-class MixingAnalysis(Step):
+class MixingAnalysis(OceanIOStep):
     """
     A step for analyzing the output from sphere transport test cases
 
@@ -121,7 +119,7 @@ class MixingAnalysis(Step):
             _init_triplot_axes(ax)
             mesh_name = resolution_to_string(resolutions[i])
             ax.set(title=mesh_name)
-            ds = xr.open_dataset(f'output_r{refinement_factor:02g}.nc')
+            ds = self.open_model_dataset(f'output_r{refinement_factor:02g}.nc')
             if i % 2 == 0:
                 ax.set_ylabel('tracer3')
             if int(i / 2) == nrows - 1:
