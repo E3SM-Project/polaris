@@ -1,3 +1,11 @@
+ocean:
+  time_management:
+    config_stop_time: none
+    config_run_duration: {{ run_duration }}
+  hmix_del2:
+    config_use_mom_del2: true
+    config_mom_del2: {{ nu }}
+
 mpas-ocean:
   time_management:
     config_stop_time: none
@@ -40,3 +48,90 @@ mpas-ocean:
       - density
       - daysSinceStartOfSim
       - relativeVorticity
+
+Omega:
+  TimeIntegration:
+    TimeStepper: RungeKutta4
+    TimeStep: 0000_00:00:15
+  Advection:
+    VerticalTracerFluxLimiterEnable: true
+  Tendencies:
+    SSHTendencyEnable: false
+    VelHyperDiffTendencyEnable: false
+    TracerHorzAdvTendencyEnable: true
+    TracerDiffTendencyEnable: false
+    TracerHyperDiffTendencyEnable: false
+  Tracers:
+    Base: [Temperature, Salinity]
+  VertMix:
+    Background:
+      Diffusivity: 0.0
+      Viscosity: 0.0
+    Convective:
+      Enable: true
+      Diffusivity: 1.0
+      TriggerBVF: 0.0
+    Shear:
+      Enable: false
+  IOStreams:
+    InitialVertCoord:
+      UsePointerFile: false
+      Filename: initial_state.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+        - InitVertCoord
+    InitialState:
+      UsePointerFile: false
+      Filename: initial_state.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+        - State
+        - Base
+        - Tracers
+    RestartRead:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: true
+      StartTime: 0001-01-01_00:00:01
+      EndTime: 99999-12-31_00:00:00
+      Contents:
+        - Restart
+    RestartWrite:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: 9999
+      FreqUnits: months
+      UseStartEnd: false
+      Contents:
+        - Restart
+    History:
+      UsePointerFile: false
+      Filename: output.nc
+      Mode: write
+      IfExists: append
+      Precision: double
+      Freq: {{ output_freq }}
+      FreqUnits: seconds
+      UseStartEnd: false
+      Contents:
+        - Tracers
+        - State
+        - KineticEnergyCell
+        - SpecVol
+        - BottomDepth

@@ -105,6 +105,19 @@ class Forward(OceanModelStep):
             ],
         )
 
+    def setup(self):
+        """
+        TEMP: symlink initial condition to name hard-coded in Omega
+        """
+        super().setup()
+        config = self.config
+        model = config.get('ocean', 'model')
+        # TODO: remove as soon as Omega no longer hard-codes this file
+        if model == 'omega':
+            self.add_input_file(
+                filename='OmegaMesh.nc', target='initial_state.nc'
+            )
+
     def dynamic_model_config(self, at_setup):
         super().dynamic_model_config(at_setup=at_setup)
 
@@ -132,12 +145,16 @@ class Forward(OceanModelStep):
                 seconds=output_interval
             )
 
+        # For Omega, we want the output interval as a number of seconds
+        output_freq = int(output_interval)
+
         replacements = dict(
             dt=dt_str,
             btr_dt=btr_dt_str,
             run_duration=run_duration_str,
             output_interval=output_interval_str,
             nu=self.nu,
+            output_freq=f'{output_freq}',
         )
         self.add_yaml_file(
             'polaris.tasks.ocean.overflow',
