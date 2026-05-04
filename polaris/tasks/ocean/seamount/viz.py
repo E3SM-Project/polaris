@@ -1,16 +1,15 @@
 import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import xarray as xr
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
-from polaris import Step
 from polaris.mpas import cell_mask_to_edge_mask
+from polaris.ocean.model import OceanIOStep, get_days_since_start
 from polaris.viz import plot_horiz_field
 
 
-class Viz(Step):
+class Viz(OceanIOStep):
     """
     A step for plotting the results of the default seamount forward step
     """
@@ -40,9 +39,11 @@ class Viz(Step):
         """
         Run this step of the task
         """
-        ds_mesh = xr.load_dataset('mesh.nc')
-        ds_init = xr.load_dataset('init.nc')
-        ds = xr.load_dataset('output.nc')
+        ds_mesh = self.open_model_dataset('mesh.nc')
+        ds_init = self.open_model_dataset('init.nc', self.config)
+        ds = self.open_model_dataset(
+            'output.nc', self.config, decode_times=True
+        )
 
         x_min = ds_mesh.xVertex.min().values
         x_max = ds_mesh.xVertex.max().values
@@ -115,10 +116,8 @@ class Viz(Step):
         # Plot the time series of max velocity
         plt.figure(figsize=[12, 6], dpi=100)
         umax = np.amax(ds.normalVelocity[:, :, 0].values, axis=1)
-        t = ds.daysSinceStartOfSim.values
-        time = pd.to_timedelta(t)
-        days_float = time / pd.Timedelta(days=1)
-        plt.plot(days_float, umax, 'k-o', label='max(normalVelocity)')
+        t_days = get_days_since_start(ds)
+        plt.plot(t_days, umax, 'k-o', label='max(normalVelocity)')
         plt.xlabel('Time (days)')
         plt.ylabel('Maximum Velocity (m/s)')
         plt.legend()
