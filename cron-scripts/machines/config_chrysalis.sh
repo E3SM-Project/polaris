@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-#source /etc/bashrc
+source /etc/bashrc
 module load python cmake
 
 export CRONJOB_BASEDIR="${POLARIS_CRON_ROOT:?POLARIS_CRON_ROOT must be set}"
