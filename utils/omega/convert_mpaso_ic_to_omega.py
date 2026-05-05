@@ -33,13 +33,6 @@ def parse_args():
         ),
     )
     parser.add_argument(
-        '--zero-velocity-mpas-file',
-        help=(
-            'Output MPAS-O initial condition file with only velocity fields '
-            'zeroed. If omitted, defaults to <input-file>.zero_velocity.nc.'
-        ),
-    )
-    parser.add_argument(
         '--eos-type',
         choices=['teos10', 'linear'],
         default='teos10',
@@ -52,30 +45,38 @@ def parse_args():
     return parser.parse_args()
 
 
-def convert_to_omega(
-    input_file, output_file, eos_type, zero_velocity_mpas_file
-):
+def convert_to_omega(input_file, output_file, eos_type):
     with xr.open_dataset(input_file, decode_times=False) as ds_in:
         ds = ds_in.load()
 
     output_file = _append_eos_suffix(output_file, eos_type)
 
-    if zero_velocity_mpas_file is None:
-        input_path = Path(input_file)
-        zero_velocity_mpas_file = (
-            str(input_path.with_suffix('')) + '.zero_velocity.nc'
-        )
+    input_path = Path(input_file)
+    zero_velocity_mpas_file = str(input_path.with_suffix('')) + '.mpas.nc'
 
     ds_mpas_zero = ds.copy(deep=True)
     mpas_velocity_fields = _zero_velocity_fields(ds_mpas_zero)
+    _rescale_sphere_radius(ds_mpas_zero)
+    _keep_selected_global_attrs(ds_mpas_zero)
+
+    # Remove unlimited dimensions that don't exist in the current dataset
+    if 'unlimited_dims' in ds_mpas_zero.encoding:
+        ds_mpas_zero.encoding['unlimited_dims'] = [
+            d
+            for d in ds_mpas_zero.encoding['unlimited_dims']
+            if d in ds_mpas_zero.dims
+        ]
     ds_mpas_zero.to_netcdf(zero_velocity_mpas_file)
     print(f'Wrote {zero_velocity_mpas_file}')
+    print(
+        'Rescaled MPAS earth radius, coordinates, and areas based on '
+        'earth radius in pcd.yaml'
+    )
     if mpas_velocity_fields:
-        print(
-            f'Zeroed MPAS velocity fields: {", ".join(mpas_velocity_fields)}'
-        )
+        print(f'Zeroed velocity fields: {", ".join(mpas_velocity_fields)}')
     else:
-        print('No MPAS velocity fields found to zero')
+        print('No velocity fields found to zero')
+    print('Removed unnecessary global attributes')
 
     required_vars = ['layerThickness']
     missing = [name for name in required_vars if name not in ds.variables]
@@ -90,24 +91,41 @@ def convert_to_omega(
 
     _add_pseudo_thickness(ds, valid, spec_vol)
     velocity_fields = _zero_velocity_fields(ds)
+    _rescale_sphere_radius(ds)
     ds = _map_mpaso_to_omega(ds)
+    _keep_selected_global_attrs(ds)
 
+    # Remove unlimited dimensions that don't exist in the current dataset
+    if 'unlimited_dims' in ds.encoding:
+        ds.encoding['unlimited_dims'] = [
+            d for d in ds.encoding['unlimited_dims'] if d in ds.dims
+        ]
     ds.to_netcdf(output_file)
 
     print(f'Wrote {output_file}')
     if eos_type == 'teos10':
-        print('Converted temperature: potential -> conservative')
-        print('Converted salinity: practical -> absolute')
+        print(
+            'Converted to Omega TEOS-10 temperature: potential -> conservative'
+        )
+        print('Converted to Omega TEOS-10 salinity: practical -> absolute')
     else:
         print(
             'Kept temperature and salinity unchanged '
             '(potential temperature and practical salinity)'
         )
-    print('Added PseudoThickness')
+    print('Added Omega variable PseudoThickness')
+    print(
+        'Rescaled Omega earth radius, coordinates, and areas based on '
+        'earth radius in pcd.yaml'
+    )
     if velocity_fields:
         print(f'Zeroed velocity fields: {", ".join(velocity_fields)}')
     else:
         print('No velocity fields found to zero')
+    print(
+        'Renamed variables to Omega names based on mpaso_to_omega.yaml mapping'
+    )
+    print('Removed unnecessary global attributes')
 
 
 def _to_degrees(angle):
@@ -350,6 +368,75 @@ def _compute_linear_spec_vol(ds, valid):
     return spec_vol
 
 
+def _rescale_sphere_radius(ds):
+    if 'sphere_radius' not in ds.attrs:
+        raise ValueError(
+            'Global attribute sphere_radius is required to rescale xCell'
+        )
+
+    sphere_radius = float(ds.attrs['sphere_radius'])
+    if sphere_radius <= 0.0:
+        raise ValueError(f'Invalid sphere_radius: {sphere_radius}')
+
+    mean_radius = get_constant('mean_radius')
+
+    # Rescale coordinates and areas based on the ratio of mean_radius
+    # in pcd.yaml versus sphere_radius in input file
+    ds['xCell'] = mean_radius * ds['xCell'] / sphere_radius
+    ds['yCell'] = mean_radius * ds['yCell'] / sphere_radius
+    ds['zCell'] = mean_radius * ds['zCell'] / sphere_radius
+
+    ds['xEdge'] = mean_radius * ds['xEdge'] / sphere_radius
+    ds['yEdge'] = mean_radius * ds['yEdge'] / sphere_radius
+    ds['zEdge'] = mean_radius * ds['zEdge'] / sphere_radius
+
+    ds['xVertex'] = mean_radius * ds['xVertex'] / sphere_radius
+    ds['yVertex'] = mean_radius * ds['yVertex'] / sphere_radius
+    ds['zVertex'] = mean_radius * ds['zVertex'] / sphere_radius
+
+    ds['dcEdge'] = mean_radius * ds['dcEdge'] / sphere_radius
+    ds['dvEdge'] = mean_radius * ds['dvEdge'] / sphere_radius
+
+    ds['areaCell'] = (
+        mean_radius
+        * mean_radius
+        * ds['areaCell']
+        / (sphere_radius * sphere_radius)
+    )
+    ds['areaTriangle'] = (
+        mean_radius
+        * mean_radius
+        * ds['areaTriangle']
+        / (sphere_radius * sphere_radius)
+    )
+    ds['kiteAreasOnVertex'] = (
+        mean_radius
+        * mean_radius
+        * ds['kiteAreasOnVertex']
+        / (sphere_radius * sphere_radius)
+    )
+
+    # Update sphere_radius global attribute to be consistent with mean_radius
+    # in pcd.yaml
+    ds.attrs['sphere_radius'] = mean_radius
+
+
+def _keep_selected_global_attrs(ds):
+    keep_attrs = {
+        'on_a_sphere',
+        'sphere_radius',
+        'is_periodic',
+        'x_period',
+        'y_period',
+        'mesh_spec',
+        'Conventions',
+        'file_id',
+    }
+    ds.attrs = {
+        name: value for name, value in ds.attrs.items() if name in keep_attrs
+    }
+
+
 def _zero_velocity_fields(ds):
     velocity_fields = []
     for var_name, data_array in ds.data_vars.items():
@@ -392,7 +479,6 @@ def main():
         args.input_file,
         args.output_file,
         args.eos_type,
-        args.zero_velocity_mpas_file,
     )
 
 
