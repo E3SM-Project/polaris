@@ -11,7 +11,7 @@ def compute_total_mass(ds_mesh, ds):
     """
     ds = _reduce_dataset_time_dim(ds)
     area_cell = ds_mesh.areaCell
-    layer_thickness = ds.layerThickness
+    layer_thickness = _get_layer_thickness(ds)
     total_mass = rho_sw * (
         area_cell * layer_thickness.sum(dim='nVertLevels')
     ).sum(dim='nCells')
@@ -20,11 +20,11 @@ def compute_total_mass(ds_mesh, ds):
 
 def compute_total_energy(ds_mesh, ds):
     """
-    Compute the total heat content an ocean model output file
+    Compute the total heat content in an ocean model output file
     """
     ds = _reduce_dataset_time_dim(ds)
     area_cell = ds_mesh.areaCell
-    layer_thickness = ds.layerThickness
+    layer_thickness = _get_layer_thickness(ds)
     temperature = ds.temperature
     total_energy = (
         rho_sw
@@ -42,7 +42,7 @@ def compute_total_tracer(ds_mesh, ds, tracer_name='tracer1'):
     """
     ds = _reduce_dataset_time_dim(ds)
     area_cell = ds_mesh.areaCell
-    layer_thickness = ds.layerThickness
+    layer_thickness = _get_layer_thickness(ds)
     tracer = ds[tracer_name]
     total_tracer = (
         area_cell * (layer_thickness * tracer).sum(dim='nVertLevels')
@@ -68,3 +68,15 @@ def _reduce_dataset_time_dim(ds):
             else:
                 ds = ds.isel(time_dim=0)
     return ds
+
+
+def _get_layer_thickness(ds):
+    if 'PseudoThickness' in ds:
+        return ds.PseudoThickness
+    elif 'layerThickness' in ds:
+        return ds.layerThickness
+    else:
+        raise ValueError(
+            'compute_total_energy requires either PseudoThickness or '
+            'layerThickness to be present in the dataset'
+        )
