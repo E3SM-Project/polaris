@@ -1,6 +1,6 @@
 #!/bin/bash -l
 
-set -euo pipefail
+set -eo pipefail
 
 echo "Starting omega cdash job"
 
