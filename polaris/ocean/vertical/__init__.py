@@ -85,10 +85,15 @@ def init_vertical_coord(config, ds):
 
     if coord_type == 'z-level':
         init_z_level_vertical_coord(config, ds)
-    elif coord_type == 'z-star' or coord_type == 'z-tilde':
+    elif coord_type == 'z-star':
         init_z_star_vertical_coord(config, ds)
     elif coord_type == 'sigma':
         init_sigma_vertical_coord(config, ds)
+    elif coord_type == 'z-tilde':
+        raise ValueError(
+            'z-tilde coordinate requires calling '
+            'init_z_tilde_vertical_coord() directly.'
+        )
     elif coord_type == 'haney-number':
         raise ValueError('Haney Number coordinate not yet supported.')
     else:

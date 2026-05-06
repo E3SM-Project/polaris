@@ -6,12 +6,11 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.ocean.eos import compute_specvol
 from polaris.ocean.model import OceanIOStep
-from polaris.ocean.vertical import init_vertical_coord
 from polaris.ocean.vertical.ztilde import (
-    # temporary until we can get this for GCD
     Gravity,
     RhoSw,
     geom_height_from_pseudo_height,
+    init_z_tilde_vertical_coord,
     pressure_from_z_tilde,
 )
 from polaris.resolution import resolution_to_string
@@ -137,18 +136,19 @@ class Init(OceanIOStep):
 
         goal_geom_water_column_thickness = geom_ssh - geom_z_bot
 
-        # first guess at the pseudo bottom depth is the geometric
-        # water column thickness
-        pseudo_bottom_depth = goal_geom_water_column_thickness
+        # first guess at the bottom pressure is based on the geometric water
+        # column thickness and a constant density.  It will be iteratively
+        # adjusted until we get the desired geometric bottom depth
+        bottom_pressure = RhoSw * Gravity * goal_geom_water_column_thickness
 
-        water_col_adjust_iter_count = config.getint(
-            'horiz_press_grad', 'water_col_adjust_iter_count'
+        pseudothickness_iter_count = config.getint(
+            'vertical_grid', 'pseudothickness_iter_count'
         )
 
-        if water_col_adjust_iter_count is None:
+        if pseudothickness_iter_count is None:
             raise ValueError(
-                'The "water_col_adjust_iter_count" configuration option '
-                'must be set in the "horiz_press_grad" section.'
+                'The "pseudothickness_iter_count" configuration option '
+                'must be set in the "vertical_grid" section.'
             )
 
         water_col_adjust_frac_change_threshold = hpg_section.getfloat(
@@ -167,11 +167,11 @@ class Init(OceanIOStep):
 
         prev_geom_water_column_thickness: xr.DataArray | None = None
 
-        for iter in range(water_col_adjust_iter_count):
-            ds = self._init_z_tilde_vert_coord(ds_mesh, pseudo_bottom_depth, x)
+        for iter in range(pseudothickness_iter_count):
+            ds = self._init_z_tilde_vert_coord(ds_mesh, bottom_pressure, x)
 
-            z_tilde_mid = ds.zMid
-            h_tilde = ds.layerThickness
+            z_tilde_mid = ds.ZTildeMid
+            h_tilde = ds.PseudoThickness
 
             logger.debug(f'z_tilde_mid = {z_tilde_mid}')
             logger.debug(f'h_tilde = {h_tilde}')
@@ -195,6 +195,7 @@ class Init(OceanIOStep):
                 salinity=sa,
                 pressure=p_mid,
             )
+            assert isinstance(spec_vol, xr.DataArray)
 
             logger.debug(f'geom_z_bot = {geom_z_bot}')
             logger.debug(f'spec_vol = {spec_vol}')
@@ -269,11 +270,11 @@ class Init(OceanIOStep):
                 f'max scaling factor = {max_scaling_factor:.6f}'
             )
 
-            pseudo_bottom_depth = pseudo_bottom_depth * scaling_factor
+            bottom_pressure = bottom_pressure * scaling_factor
 
             logger.info(
-                f'Iteration {iter}: pseudo bottom depths = '
-                f'{pseudo_bottom_depth.values}'
+                f'Iteration {iter}: bottom pressures = '
+                f'{bottom_pressure.values}'
             )
 
             prev_geom_water_column_thickness = geom_water_column_thickness
@@ -297,9 +298,9 @@ class Init(OceanIOStep):
         ds.bottomDepth.attrs['long_name'] = 'seafloor geometric height'
         ds.bottomDepth.attrs['units'] = 'm'
 
-        ds['PressureMid'] = p_mid
-        ds.PressureMid.attrs['long_name'] = 'pressure at layer midpoints'
-        ds.PressureMid.attrs['units'] = 'Pa'
+        ds['pressure'] = p_mid
+        ds.pressure.attrs['long_name'] = 'pressure at layer midpoints'
+        ds.pressure.attrs['units'] = 'Pa'
 
         ds['Density'] = 1.0 / ds['SpecVol']
         ds.Density.attrs['long_name'] = 'density'
@@ -313,19 +314,19 @@ class Init(OceanIOStep):
         ds.GeomZMid.attrs['long_name'] = 'geometric height at layer midpoints'
         ds.GeomZMid.attrs['units'] = 'm'
 
-        ds['GeomZInter'] = geom_z_inter
-        ds.GeomZInter.attrs['long_name'] = (
+        ds['GeomZInterface'] = geom_z_inter
+        ds.GeomZInterface.attrs['long_name'] = (
             'geometric height at layer interfaces'
         )
-        ds.GeomZInter.attrs['units'] = 'm'
+        ds.GeomZInterface.attrs['units'] = 'm'
 
         self._compute_montgomery_and_hpga(ds=ds, dx=dx, p_mid=p_mid)
 
-        ds.layerThickness.attrs['long_name'] = 'pseudo-layer thickness'
-        ds.layerThickness.attrs['units'] = 'm'
+        ds.PseudoThickness.attrs['long_name'] = 'pseudo-layer thickness'
+        ds.PseudoThickness.attrs['units'] = 'm'
 
-        ds.zMid.attrs['long_name'] = 'pseudo-height at layer midpoints'
-        ds.zMid.attrs['units'] = 'm'
+        ds.ZTildeMid.attrs['long_name'] = 'pseudo-height at layer midpoints'
+        ds.ZTildeMid.attrs['units'] = 'm'
 
         nedges = ds_mesh.sizes['nEdges']
         nvertlevels = ds.sizes['nVertLevels']
@@ -516,7 +517,7 @@ class Init(OceanIOStep):
     def _init_z_tilde_vert_coord(
         self,
         ds_mesh: xr.Dataset,
-        pseudo_bottom_depth: xr.DataArray,
+        bottom_pressure: xr.DataArray,
         x: np.ndarray,
     ) -> xr.Dataset:
         """
@@ -528,13 +529,13 @@ class Init(OceanIOStep):
 
         ds = ds_mesh.copy()
 
-        ds['bottomDepth'] = pseudo_bottom_depth
-        ds.bottomDepth.attrs['long_name'] = 'seafloor pseudo-height'
-        ds.bottomDepth.attrs['units'] = 'm'
-        # the pseudo-ssh is always zero (like the surface pressure)
-        ds['ssh'] = xr.zeros_like(pseudo_bottom_depth)
-        ds.ssh.attrs['long_name'] = 'sea surface pseudo-height'
-        ds.ssh.attrs['units'] = 'm'
+        ds['BottomPressure'] = bottom_pressure
+        ds.BottomPressure.attrs['long_name'] = 'seafloor pressure'
+        ds.BottomPressure.attrs['units'] = 'Pa'
+        # the surface pressure is always zero
+        ds['SurfacePressure'] = xr.zeros_like(bottom_pressure)
+        ds.SurfacePressure.attrs['long_name'] = 'sea surface pressure'
+        ds.SurfacePressure.attrs['units'] = 'Pa'
         ds_list: list[xr.Dataset] = []
         for icell in range(ds.sizes['nCells']):
             # initialize the vertical coordinate for each column separately
@@ -547,7 +548,7 @@ class Init(OceanIOStep):
                 'vertical_grid', 'bottom_depth', str(pseudo_bottom_depth)
             )
 
-            init_vertical_coord(local_config, ds_cell)
+            init_z_tilde_vertical_coord(local_config, ds_cell)
             cell_vars = [
                 var
                 for var in ds_cell.data_vars
