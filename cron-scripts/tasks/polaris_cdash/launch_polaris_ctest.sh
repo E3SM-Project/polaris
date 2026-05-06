@@ -1,5 +1,4 @@
 #!/bin/bash -l
-#set -euo pipefail # Failed at pixi-env/.pixi/envs/default/etc/conda/activate.d/cartopy_offline_data-activate.sh: line 6: CARTOPY_DATA_DIR: unbound variable
 set -eo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -9,7 +8,6 @@ echo "[$(date)] Starting $SCRIPT_NAME"
 POLARIS_CDASH_BASEDIR="${CRONJOB_BASEDIR:?CRONJOB_BASEDIR must be set}/tasks/polaris_cdash"
 POLARIS_CDASH_TESTDIR="${POLARIS_CDASH_BASEDIR}/tests"
 OMEGA_HOME="${POLARIS_ROOT}/e3sm_submodules/Omega"
-MINIFORGE3_HOME="${MINIFORGE3_HOME:-${POLARIS_CDASH_BASEDIR}/miniforge3}"
 
 mkdir -p "$POLARIS_CDASH_BASEDIR"
 mkdir -p "$POLARIS_CDASH_TESTDIR"
@@ -39,46 +37,6 @@ else
   exit 1
 
 fi
-
-# ==============================================================================
-# Functions
-# ==============================================================================
-
-install_miniforge3() {
-
-if [ ! -d "$MINIFORGE3_HOME" ]; then
-    echo "Installing Miniforge3..."
-    pushd "$POLARIS_CDASH_BASEDIR" > /dev/null
-    wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
-    bash Miniforge3-Linux-x86_64.sh -b -p "$MINIFORGE3_HOME"
-    popd > /dev/null
-fi
-
-}
-
-#setup_polaris_repo() {
-#    echo "================================================================================"
-#    echo "STEP 1: Setting up Polaris Repo (Baseline)"
-#    echo "================================================================================"
-#    cd "${POLARIS_CDASH_BASEDIR}"
-#
-#    # Check if we are inside the 'polaris' folder or need to enter it
-#    if [ ! -d "polaris" ]; then
-#        echo "Cloning Polaris repository..."
-#        git clone git@github.com:E3SM-Project/polaris.git
-#        cd polaris
-#    else
-#        cd polaris
-#        echo "Repository exists. Resetting to main branch..."
-#        git fetch origin
-#        git checkout main
-#        git reset --hard origin/main
-#    fi
-#
-#    echo "Updating specific submodules (jigsaw-python, Omega)..."
-#    git submodule update --init --recursive jigsaw-python
-#    git submodule update --init --recursive e3sm_submodules/Omega
-#}
 
 configure_polaris() {
     local compiler=$1
@@ -134,7 +92,7 @@ build_omega_dev() {
 
     ctest -M Nightly -T Start
     ctest -M Nightly -T Build
-    #./omega_build.sh
+
     popd > /dev/null
 }
 
@@ -163,9 +121,6 @@ run_baseline_suite() {
         -w "$polaris_build" \
         -p "$omega_build"
 
-#        --clean_build
-
-
     # Submit baseline job
     if [ -d "$polaris_build" ]; then
         cd "$polaris_build"
@@ -180,8 +135,6 @@ run_baseline_suite() {
 # ==============================================================================
 # Main Execution
 # ==============================================================================
-install_miniforge3
-#setup_polaris_repo
 
 eval "$COMPILER_MAP_DEF"
 
