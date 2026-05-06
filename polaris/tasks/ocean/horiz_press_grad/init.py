@@ -306,9 +306,13 @@ class Init(OceanIOStep):
         ds.Density.attrs['long_name'] = 'density'
         ds.Density.attrs['units'] = 'kg m-3'
 
-        ds['ZTildeMid'] = ds.zMid
         ds.ZTildeMid.attrs['long_name'] = 'pseudo-height at layer midpoints'
         ds.ZTildeMid.attrs['units'] = 'm'
+
+        ds.ZTildeInterface.attrs['long_name'] = (
+            'pseudo-height at layer interfaces'
+        )
+        ds.ZTildeInterface.attrs['units'] = 'm'
 
         ds['GeomZMid'] = geom_z_mid
         ds.GeomZMid.attrs['long_name'] = 'geometric height at layer midpoints'
@@ -386,16 +390,16 @@ class Init(OceanIOStep):
         # Interface quantities: Omega treats alpha as constant within each
         # layer, so interface values are represented as bounds for each layer
         # (top and bottom), with discontinuities permitted between layers.
-        z_tilde_top = ds.zInterface.isel(nVertLevelsP1=slice(0, -1)).rename(
+        z_tilde_top = ds.ZTildeInterface.isel(
+            nVertLevelsP1=slice(0, -1)
+        ).rename({'nVertLevelsP1': 'nVertLevels'})
+        z_tilde_bot = ds.ZTildeInterface.isel(
+            nVertLevelsP1=slice(1, None)
+        ).rename({'nVertLevelsP1': 'nVertLevels'})
+        z_top = ds.GeomZInterface.isel(nVertLevelsP1=slice(0, -1)).rename(
             {'nVertLevelsP1': 'nVertLevels'}
         )
-        z_tilde_bot = ds.zInterface.isel(nVertLevelsP1=slice(1, None)).rename(
-            {'nVertLevelsP1': 'nVertLevels'}
-        )
-        z_top = ds.GeomZInter.isel(nVertLevelsP1=slice(0, -1)).rename(
-            {'nVertLevelsP1': 'nVertLevels'}
-        )
-        z_bot = ds.GeomZInter.isel(nVertLevelsP1=slice(1, None)).rename(
+        z_bot = ds.GeomZInterface.isel(nVertLevelsP1=slice(1, None)).rename(
             {'nVertLevelsP1': 'nVertLevels'}
         )
 

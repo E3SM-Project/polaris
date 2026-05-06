@@ -358,7 +358,7 @@ def _get_forward_z_tilde_edge_mid(
     Compute edge-centered pseudo-height at layer midpoints from Omega output
     pressure.
     """
-    pressure_mid = ds_out.PressureMid.isel(Time=0)
+    pressure_mid = ds_out.pressure.isel(Time=0)
     pressure_edge_mid = 0.5 * (
         pressure_mid.isel(nCells=cell0) + pressure_mid.isel(nCells=cell1)
     )

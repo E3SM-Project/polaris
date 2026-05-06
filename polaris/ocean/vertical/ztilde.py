@@ -230,7 +230,6 @@ def pressure_and_spec_vol_from_state_at_geom_height(
     spec_vol : xarray.DataArray
         The specific volume at layer midpoints.
     """
-
     spec_vol = 1.0 / RhoSw * xr.ones_like(geom_layer_thickness)
 
     p_interface, p_mid = pressure_from_geom_thickness(
@@ -462,12 +461,13 @@ def init_z_tilde_vertical_coord(config, ds):
     )
     ds['cellMask'] = cell_mask
 
-    # mask layerThickness and restingThickness
-    ds['PseudoThickness'] = pseudo_thickness.where(cell_mask)
-    ds['RefPseudoThickness'] = ds.PseudoThickness.copy()
+    pseudo_thickness = pseudo_thickness.where(cell_mask)
+    ds['RefPseudoThickness'] = pseudo_thickness.copy()
 
-    # add Time dimension
-    ds['PseudoThickness'] = ds.PseudoThickness.expand_dims(dim='Time', axis=0)
+    pseudo_thickness = pseudo_thickness.expand_dims(dim='Time', axis=0)
+
+    # add Time dimension to PseudoThickness but not RefPseudoThickness
+    ds['PseudoThickness'] = pseudo_thickness
 
     ds['ZTildeInterface'], ds['ZTildeMid'] = (
         compute_zint_zmid_from_layer_thickness(

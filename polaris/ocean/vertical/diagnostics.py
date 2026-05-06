@@ -94,9 +94,13 @@ def pseudothickness_from_ds(
         iter_count = get_iter_count_for_eos(config)
 
     surface_pressure = config.getfloat('vertical_grid', 'surface_pressure')
+    src_var = ds[src_var_name]
+    src_has_time = 'Time' in src_var.dims
+    if not src_has_time:
+        src_var = src_var.expand_dims(dim='Time', axis=0)
     p_interface, _, spec_vol = pressure_and_spec_vol_from_state_at_geom_height(
         config,
-        ds[src_var_name],
+        src_var,
         ds.temperature,
         ds.salinity,
         surface_pressure * xr.ones_like(ds.ssh),
@@ -104,6 +108,10 @@ def pseudothickness_from_ds(
     )
 
     pseudothickness = pseudothickness_from_pressure(p_interface)
+
+    if not src_has_time:
+        pseudothickness = pseudothickness.squeeze(dim='Time')
+        spec_vol = spec_vol.squeeze(dim='Time')
 
     return pseudothickness, spec_vol
 
