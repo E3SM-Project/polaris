@@ -3,6 +3,7 @@ import xarray as xr
 
 from polaris.constants import get_constant
 from polaris.ocean.vertical.ztilde import (
+    get_iter_count_for_eos,
     pressure_and_spec_vol_from_state_at_geom_height,
     pseudothickness_from_pressure,
 )
@@ -90,15 +91,7 @@ def pseudothickness_from_ds(
         return None, None
 
     if iter_count is None:
-        eos_type = config.get('ocean', 'eos_type')
-        if eos_type in ['constant', 'linear']:
-            iter_count = 1
-        elif eos_type == 'teos-10':
-            iter_count = config.getint(
-                'vertical_grid', 'pseudothickness_iter_count'
-            )
-        else:
-            raise ValueError(f'Unsupported equation of state type: {eos_type}')
+        iter_count = get_iter_count_for_eos(config)
 
     surface_pressure = config.getfloat('vertical_grid', 'surface_pressure')
     p_interface, _, spec_vol = pressure_and_spec_vol_from_state_at_geom_height(

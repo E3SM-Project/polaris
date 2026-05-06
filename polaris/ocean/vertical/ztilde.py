@@ -347,3 +347,27 @@ def geom_height_from_pseudo_height(
     geom_z_mid = geom_z_mid.transpose(*z_mid_dims)
 
     return geom_z_inter, geom_z_mid
+
+
+def get_iter_count_for_eos(config: PolarisConfigParser) -> int:
+    """
+    Get the number of iterations to perform when adjusting the
+    pseudo-bottom-depth to hit the right geometric bottom depth.  Default is
+    from the `pseudothickness_iter_count` config option for TEOS-10 and 1 for
+    other equations of state.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Configuration options with parameters defining the equation of state.
+
+    Returns
+    -------
+    int
+        The number of iterations to perform.
+    """
+    eos_type = config.get('ocean', 'eos_type')
+    if eos_type == 'teos-10':
+        return config.getint('vertical_grid', 'pseudothickness_iter_count')
+    else:
+        return 1
