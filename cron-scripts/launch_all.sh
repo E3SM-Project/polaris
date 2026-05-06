@@ -36,12 +36,20 @@ mkdir -p "$CRONJOB_LOGDIR"
 export CRONJOB_DATE=$(date +"%d")
 export CRONJOB_TIME=$(date +"%T")
 
-LOCKFILE="/tmp/${USER}_cronjob.lock"
+LOCKFILE="${TMPDIR:-/tmp}/${USER:?USER must be set}_cronjob.lock"
 exec 9>"$LOCKFILE"
 if ! flock -n 9; then
     echo "[$(date)] launch_all.sh is already running, exiting."
     exit 0
 fi
+
+if [[ ! -d "$POLARIS_CRON_ROOT" ]]; then
+    echo "ERROR: POLARIS_CRON_ROOT does not exist: $POLARIS_CRON_ROOT" >&2
+    exit 1
+fi
+
+echo "Removing: outputs from previous tasks"
+rm -rf -- "$POLARIS_CRON_ROOT/tasks"
 
 # Run all launch*.sh scripts under immediate subdirectories of $HERE/tasks
 while IFS= read -r script; do

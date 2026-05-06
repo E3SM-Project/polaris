@@ -4,7 +4,7 @@ set -eo pipefail
 
 module load cray-python cmake
 
-export CRONJOB_BASEDIR=$POLARIS_CRON_ROOT
+export CRONJOB_BASEDIR="${POLARIS_CRON_ROOT:?POLARIS_CRON_ROOT must be set}"
 export E3SM_COMPILERS="gnu"
 
 declare -A COMPILER_MAP
