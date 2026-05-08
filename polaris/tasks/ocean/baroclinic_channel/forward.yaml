@@ -99,14 +99,12 @@ Omega:
       - Restart
     History:
       UsePointerFile: false
-      Filename: output/ocn.hist.$Y-$M-$D_$h.$m.$s
+      Filename: output.nc
       Mode: write
       IfExists: replace
       Precision: double
       Freq: 2
       FreqUnits: Hours
-      FileFreq: 2
-      FileFreqUnits: Hours
       UseStartEnd: false
       Contents:
       - State

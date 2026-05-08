@@ -59,7 +59,7 @@ class Default(Task):
         self.add_step(long_forward_step, run_by_default=False)
 
         viz_dependencies: Dict[str, Step] = dict(
-            mesh=init, init=init, forward=forward_step
+            mesh=init, init=init, forward=long_forward_step
         )
         viz_step = Viz(
             component=component,
