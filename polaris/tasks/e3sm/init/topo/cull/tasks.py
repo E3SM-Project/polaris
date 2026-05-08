@@ -27,7 +27,9 @@ def add_cull_topo_tasks(component):
         combine_topo_steps, _ = get_cubed_sphere_topo_steps(
             component=component, resolution=resolution
         )
-        combine_steps[low_res] = combine_topo_steps[CombineStep.get_name()]
+        combine_steps[low_res] = combine_topo_steps[
+            CombineStep.get_name('cubed_sphere', f'ne{resolution}')
+        ]
 
     base_mesh_steps = get_base_mesh_steps()
 

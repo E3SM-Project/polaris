@@ -1,6 +1,7 @@
 import os
 
 from polaris.config import PolarisConfigParser
+from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.step import Step
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.topo.combine import (
@@ -28,7 +29,8 @@ def get_woa23_topography_step():
     steps, _ = get_lat_lon_topo_steps(
         component=e3sm_init, resolution=0.25, include_viz=False
     )
-    return steps[TopoCombineStep.get_name()]
+    woa23_res_name = format_lat_lon_resolution_name(0.25)
+    return steps[TopoCombineStep.get_name('lat_lon', woa23_res_name)]
 
 
 def get_woa23_steps(component, combine_topo_step):

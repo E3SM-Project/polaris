@@ -131,6 +131,8 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
         step_cls=CombineStep,
         subdir=subdir,
         config=config,
+        target_grid=target_grid,
+        resolution_name=resolution_name,
     )
     combine_step._set_res_and_outputs(update=False)
     steps[combine_step.name] = combine_step
