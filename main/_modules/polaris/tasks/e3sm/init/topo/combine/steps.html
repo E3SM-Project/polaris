@@ -113,6 +113,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.e3sm.init.topo</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_lat_lon_resolution_name</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">CombineStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">VizCombinedStep</span>
 
@@ -139,8 +140,9 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    steps : list of polaris.Step</span>
-<span class="sd">        The combine topo step and optional visualization step.</span>
+<span class="sd">    steps : dict of str to polaris.Step</span>
+<span class="sd">        The combine topo step and optional visualization step, keyed by step</span>
+<span class="sd">        name.</span>
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared config options.</span>
@@ -173,8 +175,9 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    steps : list of polaris.Step</span>
-<span class="sd">        The combine topo step and optional visualization step.</span>
+<span class="sd">    steps : dict of str to polaris.Step</span>
+<span class="sd">        The combine topo step and optional visualization step, keyed by step</span>
+<span class="sd">        name.</span>
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared config options.</span>
@@ -208,8 +211,9 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    steps : list of polaris.Step</span>
-<span class="sd">        The combine topo step and optional visualization step.</span>
+<span class="sd">    steps : dict of str to polaris.Step</span>
+<span class="sd">        The combine topo step and optional visualization step, keyed by step</span>
+<span class="sd">        name.</span>
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared config options.</span>
@@ -239,14 +243,16 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;combine_topo&#39;</span><span class="p">,</span> <span class="s1">&#39;resolution_latlon&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-    <span class="n">steps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">steps</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">combine_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">CombineStep</span><span class="p">,</span>
         <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">target_grid</span><span class="o">=</span><span class="n">target_grid</span><span class="p">,</span>
+        <span class="n">resolution_name</span><span class="o">=</span><span class="n">resolution_name</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">combine_step</span><span class="o">.</span><span class="n">_set_res_and_outputs</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">combine_step</span><span class="p">)</span>
+    <span class="n">steps</span><span class="p">[</span><span class="n">combine_step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">combine_step</span>
 
     <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
         <span class="n">viz_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">combine_step</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="s1">&#39;viz&#39;</span><span class="p">)</span>
@@ -257,7 +263,7 @@
             <span class="n">config_filename</span><span class="o">=</span><span class="s1">&#39;combine_topo.cfg&#39;</span><span class="p">,</span>
             <span class="n">combine_step</span><span class="o">=</span><span class="n">combine_step</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">viz_step</span><span class="p">)</span>
+        <span class="n">steps</span><span class="p">[</span><span class="n">viz_step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">viz_step</span>
 
     <span class="k">return</span> <span class="n">steps</span><span class="p">,</span> <span class="n">config</span>
 
