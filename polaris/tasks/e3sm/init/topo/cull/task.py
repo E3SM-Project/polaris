@@ -75,7 +75,7 @@ class CullTopoTask(Task):
             include_viz=include_viz,
         )
         self.set_shared_config(config, link='cull_topo.cfg')
-        for step in steps:
+        for step in steps.values():
             self.add_step(step)
 
         self.combine_topo_step = combine_topo_step

@@ -5,6 +5,9 @@ from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.topo.combine import (
     get_lat_lon_topo_steps,
 )
+from polaris.tasks.e3sm.init.topo.combine.step import (
+    CombineStep as TopoCombineStep,
+)
 
 from .combine import CombineStep
 from .extrapolate import ExtrapolateStep
@@ -24,7 +27,7 @@ def get_woa23_topography_step():
     steps, _ = get_lat_lon_topo_steps(
         component=e3sm_init, resolution=0.25, include_viz=False
     )
-    return steps[0]
+    return steps[TopoCombineStep.get_name()]
 
 
 def get_woa23_steps(component, combine_topo_step):

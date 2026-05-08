@@ -49,7 +49,7 @@ class CubedSphereCombineTask(Task):
             include_viz=True,
         )
         self.set_shared_config(config, link='combine_topo.cfg')
-        for step in steps:
+        for step in steps.values():
             self.add_step(step)
 
 
@@ -88,5 +88,5 @@ class LatLonCombineTask(Task):
             include_viz=True,
         )
         self.set_shared_config(config, link='combine_topo.cfg')
-        for step in steps:
+        for step in steps.values():
             self.add_step(step)

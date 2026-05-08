@@ -76,6 +76,13 @@ class CombineStep(Step):
         subdir = f'combine_{CombineStep.ANTARCTIC}_{CombineStep.GLOBAL}'
         return os.path.join('topo', subdir)
 
+    @classmethod
+    def get_name(cls):
+        """
+        Get the step name based on the current datasets.
+        """
+        return f'combine_topo_{cls.ANTARCTIC}_{cls.GLOBAL}'
+
     def __init__(self, component, subdir):
         """
         Create a new step
@@ -89,9 +96,7 @@ class CombineStep(Step):
             The subdirectory within the component's work directory
 
         """
-        antarctic_dataset = self.ANTARCTIC
-        global_dataset = self.GLOBAL
-        name = f'combine_topo_{antarctic_dataset}_{global_dataset}'
+        name = self.get_name()
         super().__init__(
             component=component,
             name=name,

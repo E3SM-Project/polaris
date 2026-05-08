@@ -2,6 +2,7 @@ import os
 
 from polaris.config import PolarisConfigParser
 from polaris.e3sm.init.topo import format_lat_lon_resolution_name
+from polaris.step import Step
 from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
 from polaris.tasks.e3sm.init.topo.combine.viz import VizCombinedStep
 
@@ -26,8 +27,9 @@ def get_cubed_sphere_topo_steps(component, resolution, include_viz=False):
 
     Returns
     -------
-    steps : list of polaris.Step
-        The combine topo step and optional visualization step.
+    steps : dict of str to polaris.Step
+        The combine topo step and optional visualization step, keyed by step
+        name.
 
     config : polaris.config.PolarisConfigParser
         The shared config options.
@@ -57,8 +59,9 @@ def get_lat_lon_topo_steps(component, resolution, include_viz=False):
 
     Returns
     -------
-    steps : list of polaris.Step
-        The combine topo step and optional visualization step.
+    steps : dict of str to polaris.Step
+        The combine topo step and optional visualization step, keyed by step
+        name.
 
     config : polaris.config.PolarisConfigParser
         The shared config options.
@@ -91,8 +94,9 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
 
     Returns
     -------
-    steps : list of polaris.Step
-        The combine topo step and optional visualization step.
+    steps : dict of str to polaris.Step
+        The combine topo step and optional visualization step, keyed by step
+        name.
 
     config : polaris.config.PolarisConfigParser
         The shared config options.
@@ -122,14 +126,14 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
     else:
         config.set('combine_topo', 'resolution_latlon', f'{resolution}')
 
-    steps = []
+    steps: dict[str, Step] = {}
     combine_step = component.get_or_create_shared_step(
         step_cls=CombineStep,
         subdir=subdir,
         config=config,
     )
     combine_step._set_res_and_outputs(update=False)
-    steps.append(combine_step)
+    steps[combine_step.name] = combine_step
 
     if include_viz:
         viz_subdir = os.path.join(combine_step.subdir, 'viz')
@@ -140,7 +144,7 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
             config_filename='combine_topo.cfg',
             combine_step=combine_step,
         )
-        steps.append(viz_step)
+        steps[viz_step.name] = viz_step
 
     return steps, config
 
