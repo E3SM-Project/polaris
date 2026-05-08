@@ -33,8 +33,8 @@ def get_default_cull_topo_steps(
 
     Returns
     -------
-    steps : list of polaris.Step
-        Steps for masking and then culling topography
+    steps : dict of str to polaris.Step
+        Steps for masking and then culling topography, keyed by step name
     """
 
     mesh_name = base_mesh_step.mesh_name
@@ -48,7 +48,7 @@ def get_default_cull_topo_steps(
     )
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package('polaris.tasks.e3sm.init.topo.cull', 'cull.cfg')
-    steps: list[Step] = []
+    steps: dict[str, Step] = {}
 
     step_name = 'cull_mask'
     subdir = os.path.join(mesh_name, 'topo', 'cull', 'mask')
@@ -61,7 +61,7 @@ def get_default_cull_topo_steps(
         unsmoothed_topo_step=unsmoothed_topo_step,
         name=step_name,
     )
-    steps.append(cull_mask_step)
+    steps[cull_mask_step.name] = cull_mask_step
 
     step_name = 'cull_mesh'
     subdir = os.path.join(mesh_name, 'topo', 'cull', 'mesh')
@@ -74,6 +74,6 @@ def get_default_cull_topo_steps(
         cull_mask_step=cull_mask_step,
         name=step_name,
     )
-    steps.append(cull_mesh_step)
+    steps[cull_mesh_step.name] = cull_mesh_step
 
     return steps, config

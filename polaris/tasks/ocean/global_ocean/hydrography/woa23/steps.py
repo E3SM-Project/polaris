@@ -1,9 +1,14 @@
 import os
 
 from polaris.config import PolarisConfigParser
+from polaris.e3sm.init.topo import format_lat_lon_resolution_name
+from polaris.step import Step
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.topo.combine import (
     get_lat_lon_topo_steps,
+)
+from polaris.tasks.e3sm.init.topo.combine.step import (
+    CombineStep as TopoCombineStep,
 )
 
 from .combine import CombineStep
@@ -24,7 +29,8 @@ def get_woa23_topography_step():
     steps, _ = get_lat_lon_topo_steps(
         component=e3sm_init, resolution=0.25, include_viz=False
     )
-    return steps[0]
+    woa23_res_name = format_lat_lon_resolution_name(0.25)
+    return steps[TopoCombineStep.get_name('lat_lon', woa23_res_name)]
 
 
 def get_woa23_steps(component, combine_topo_step):
@@ -42,8 +48,9 @@ def get_woa23_steps(component, combine_topo_step):
 
     Returns
     -------
-    steps : list of polaris.Step
-        Shared steps for combining and extrapolating WOA23 data.
+    steps : dict of {str: polaris.Step}
+        Shared steps for combining and extrapolating WOA23 data, keyed by
+        step name.
 
     config : polaris.config.PolarisConfigParser
         The shared config options for the task and its steps.
@@ -86,4 +93,9 @@ def get_woa23_steps(component, combine_topo_step):
         combine_topo_step=combine_topo_step,
     )
 
-    return [combine_step, extrapolate_step, viz_step], config
+    steps: dict[str, Step] = {
+        combine_step.name: combine_step,
+        extrapolate_step.name: extrapolate_step,
+        viz_step.name: viz_step,
+    }
+    return steps, config

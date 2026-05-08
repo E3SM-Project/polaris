@@ -50,9 +50,10 @@ def get_default_remap_topo_steps(
 
     Returns
     -------
-    steps : list of polaris.Step
+    steps : dict of str to polaris.Step
         Steps for remapping topography (without smoothing and optionally with
-        smoothing) as well as, if requested, for visualizing the results.
+        smoothing) as well as, if requested, for visualizing the results,
+        keyed by step name.
     """
 
     mesh_name = base_mesh_step.mesh_name
@@ -70,7 +71,7 @@ def get_default_remap_topo_steps(
         config.add_from_package(
             'polaris.tasks.e3sm.init.topo.remap', 'remap_low_res.cfg'
         )
-    steps: list[Step] = []
+    steps: dict[str, Step] = {}
 
     step_name = 'mask_topo'
     subdir = os.path.join(mesh_name, 'topo', 'remap', 'mask')
@@ -82,7 +83,7 @@ def get_default_remap_topo_steps(
         combine_topo_step=combine_topo_step,
         name=step_name,
     )
-    steps.append(mask_step)
+    steps[mask_step.name] = mask_step
 
     if smoothing:
         suffixes = ['unsmoothed', 'smoothed']
@@ -108,7 +109,7 @@ def get_default_remap_topo_steps(
 
         if suffix == 'unsmoothed':
             unsmoothed_topo = remap_step
-        steps.append(remap_step)
+        steps[remap_step.name] = remap_step
 
         if include_viz:
             step_name = f'viz_remapped_{suffix}'
@@ -121,6 +122,6 @@ def get_default_remap_topo_steps(
                 remap_step=remap_step,
                 name=step_name,
             )
-            steps.append(viz_step)
+            steps[viz_step.name] = viz_step
 
     return steps, config

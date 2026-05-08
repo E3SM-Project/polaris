@@ -6,6 +6,7 @@ from polaris.mesh.base import get_base_mesh_steps
 from polaris.tasks.e3sm.init.topo.combine import (
     get_cubed_sphere_topo_steps,
 )
+from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
 from polaris.tasks.e3sm.init.topo.cull.task import CullTopoTask
 from polaris.tasks.e3sm.init.topo.remap.steps import (
     get_default_remap_topo_steps,
@@ -26,7 +27,9 @@ def add_cull_topo_tasks(component):
         combine_topo_steps, _ = get_cubed_sphere_topo_steps(
             component=component, resolution=resolution
         )
-        combine_steps[low_res] = combine_topo_steps[0]
+        combine_steps[low_res] = combine_topo_steps[
+            CombineStep.get_name('cubed_sphere', f'ne{resolution}')
+        ]
 
     base_mesh_steps = get_base_mesh_steps()
 
@@ -42,8 +45,8 @@ def add_cull_topo_tasks(component):
             smoothing=True,
             include_viz=False,
         )
-        remap_mask_step = remap_topo_steps[0]
-        unsmoothed_topo_step = remap_topo_steps[1]
+        remap_mask_step = remap_topo_steps['mask_topo']
+        unsmoothed_topo_step = remap_topo_steps['remap_unsmoothed']
 
         task = CullTopoTask(
             component=component,

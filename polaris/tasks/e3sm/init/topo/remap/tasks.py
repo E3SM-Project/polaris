@@ -6,6 +6,7 @@ from polaris.mesh.base import get_base_mesh_steps
 from polaris.tasks.e3sm.init.topo.combine import (
     get_cubed_sphere_topo_steps,
 )
+from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
 from polaris.tasks.e3sm.init.topo.remap import RemapTopoTask
 
 
@@ -23,7 +24,9 @@ def add_remap_topo_tasks(component):
         combine_topo_steps, _ = get_cubed_sphere_topo_steps(
             component=component, resolution=resolution
         )
-        combine_steps[low_res] = combine_topo_steps[0]
+        combine_steps[low_res] = combine_topo_steps[
+            CombineStep.get_name('cubed_sphere', f'ne{resolution}')
+        ]
 
     base_mesh_steps = get_base_mesh_steps()
 

@@ -32,7 +32,7 @@ class Woa23(Task):
         self.set_shared_config(config)
 
         self.add_step(self.combine_topo_step, symlink='combine_topo')
-        for step in steps:
+        for step in steps.values():
             self.add_step(step, run_by_default=step.name != 'viz')
 
     def configure(self):

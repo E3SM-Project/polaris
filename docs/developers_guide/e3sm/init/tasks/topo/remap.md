@@ -65,7 +65,7 @@ steps, config = get_default_remap_topo_steps(
     smoothing=True,
     include_viz=True,
 )
-for step in steps:
+for step in steps.values():
     component.add_step(step)
 ```
 

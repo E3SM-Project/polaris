@@ -77,7 +77,7 @@ steps, config = get_default_cull_topo_steps(
     unsmoothed_topo_step=unsmoothed_topo_step,
     include_viz=False,
 )
-for step in steps:
+for step in steps.values():
     component.add_step(step)
 ```
 
