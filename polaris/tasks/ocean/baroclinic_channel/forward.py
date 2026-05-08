@@ -1,3 +1,4 @@
+import os
 import time
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
@@ -137,6 +138,15 @@ class Forward(OceanModelStep):
             self.add_input_file(
                 filename='OmegaMesh.nc', target='initial_state.nc'
             )
+
+    def runtime_setup(self):
+        """
+        Create output directory needed by Omega's History IOStream
+        """
+        super().runtime_setup()
+        model = self.config.get('ocean', 'model')
+        if model == 'omega':
+            os.makedirs('output', exist_ok=True)
 
     def compute_cell_count(self):
         """
