@@ -3,17 +3,32 @@ import numpy as np
 import xarray as xr
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
-from polaris import Step
 from polaris.mpas import cell_mask_to_edge_mask
+from polaris.ocean.model import OceanIOStep
 from polaris.viz import plot_horiz_field
 
 
-class Viz(Step):
+class Viz(OceanIOStep):
     """
     A step for plotting the results of a series of baroclinic channel RPE runs
+
+    Attributes
+    ----------
+    dependencies_dict : dict of polaris.Steps
+        The dependencies of this step must be given as separate keys in the
+        dict:
+
+            mesh : polaris.Step
+                Must have the attribute `path`, the path to `culled_mesh.nc`
+
+            init : polaris.Step
+                Must have the attribute `path`, the path to `init.nc`
+
+            forward : polaris.Step
+                Must have the attribute `path`, the path to `output.nc`
     """
 
-    def __init__(self, component, indir):
+    def __init__(self, component, dependencies, taskdir):
         """
         Create the step
 
@@ -22,25 +37,53 @@ class Viz(Step):
         component : polaris.Component
             The component the step belongs to
 
-        indir : str
-            the directory the step is in, to which ``name`` will be appended
+        dependencies : dict of polaris.Steps
+            The dependencies of this step must be given as separate keys in the
+            dict:
+
+                mesh : polaris.Step
+                    Must have the attribute `path`, the path to
+                    `culled_mesh.nc`
+
+                init : polaris.Step
+                    Must have the attribute `path`, the path to `init.nc`
+
+                forward : polaris.Step
+                    Must have the attribute `path`, the path to `output.nc`
+
+        taskdir : str
+            The subdirectory that the task belongs to
         """
-        super().__init__(component=component, name='viz', indir=indir)
+        super().__init__(component=component, name='viz', indir=taskdir)
+        self.dependencies_dict = dependencies
+
+    def setup(self):
+        """
+        Add input files from dependencies
+        """
+
+        super().setup()
+        dependencies = self.dependencies_dict
+
+        mesh = dependencies['mesh']
+        init = dependencies['init']
+        forward = dependencies['forward']
+
         self.add_input_file(
-            filename='mesh.nc', target='../../init/culled_mesh.nc'
+            filename='mesh.nc', target=f'{mesh.path}/culled_mesh.nc'
         )
-        self.add_input_file(filename='init.nc', target='../../init/init.nc')
+        self.add_input_file(filename='init.nc', target=f'{init.path}/init.nc')
         self.add_input_file(
-            filename='output.nc', target='../forward/output.nc'
+            filename='output.nc', target=f'{forward.path}/output.nc'
         )
 
     def run(self):
         """
         Run this step of the task
         """
-        ds_mesh = xr.load_dataset('mesh.nc')
-        ds_init = xr.load_dataset('init.nc')
-        ds = xr.load_dataset('output.nc')
+        ds_mesh = self.open_model_dataset('mesh.nc')
+        ds_init = self.open_model_dataset('init.nc')
+        ds = self.open_model_dataset('output.nc')
         t_index = ds.sizes['Time'] - 1
         cell_mask = ds_init.maxLevelCell >= 1
         edge_mask = cell_mask_to_edge_mask(ds_init, cell_mask)

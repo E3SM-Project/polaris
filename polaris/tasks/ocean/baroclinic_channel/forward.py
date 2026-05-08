@@ -1,7 +1,7 @@
 import time
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.model import OceanModelStep
+from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
 
 class Forward(OceanModelStep):
@@ -110,7 +110,7 @@ class Forward(OceanModelStep):
             # update the viscosity to the requested value *after* loading
             # forward.yaml
             self.add_model_config_options(
-                options=dict(config_mom_del2=nu), config_model='mpas-ocean'
+                options=dict(config_mom_del2=nu), config_model='ocean'
             )
 
         self.add_output_file(
@@ -125,6 +125,18 @@ class Forward(OceanModelStep):
 
         self.dt = None
         self.btr_dt = None
+
+    def setup(self):
+        """
+        Set up the step, adding the OmegaMesh.nc symlink for Omega
+        """
+        super().setup()
+        model = self.config.get('ocean', 'model')
+        # TODO: remove as soon as Omega no longer hard-codes this file
+        if model == 'omega':
+            self.add_input_file(
+                filename='OmegaMesh.nc', target='initial_state.nc'
+            )
 
     def compute_cell_count(self):
         """
@@ -159,32 +171,42 @@ class Forward(OceanModelStep):
 
         config = self.config
 
-        options = dict()
-
         # dt is proportional to resolution: default 30 seconds per km
         dt_per_km = config.getfloat('baroclinic_channel', 'dt_per_km')
         dt = dt_per_km * self.resolution
-        # https://stackoverflow.com/a/1384565/7728169
-        options['config_dt'] = time.strftime('%H:%M:%S', time.gmtime(dt))
+        dt_str = get_time_interval_string(seconds=dt)
+
+        ocean_options = {'config_dt': dt_str}
 
         if self.run_time_steps is not None:
             # default run duration is a few time steps
             run_seconds = self.run_time_steps * dt
-            options['config_run_duration'] = time.strftime(
-                '%H:%M:%S', time.gmtime(run_seconds)
+            ocean_options['config_run_duration'] = get_time_interval_string(
+                seconds=run_seconds
             )
-            options['config_stop_time'] = 'none'
+            ocean_options['config_stop_time'] = 'none'
+        else:
+            run_duration = config.getfloat(
+                'baroclinic_channel', 'run_duration'
+            )
+            ocean_options['config_run_duration'] = get_time_interval_string(
+                days=run_duration
+            )
+            ocean_options['config_stop_time'] = 'none'
 
-        # btr_dt is also proportional to resolution: default 1.5 seconds per km
+        self.add_model_config_options(
+            options=ocean_options, config_model='ocean'
+        )
+
+        # btr_dt is only for MPAS-Ocean (Omega uses RK4)
         btr_dt_per_km = config.getfloat('baroclinic_channel', 'btr_dt_per_km')
         btr_dt = btr_dt_per_km * self.resolution
-        options['config_btr_dt'] = time.strftime(
-            '%H:%M:%S', time.gmtime(btr_dt)
+        self.add_model_config_options(
+            options={
+                'config_btr_dt': time.strftime('%H:%M:%S', time.gmtime(btr_dt))
+            },
+            config_model='mpas-ocean',
         )
 
         self.dt = dt
         self.btr_dt = btr_dt
-
-        self.add_model_config_options(
-            options=options, config_model='mpas-ocean'
-        )

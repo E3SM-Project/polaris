@@ -1,9 +1,12 @@
-mpas-ocean:
-  io:
-    config_write_output_on_startup: false
+ocean:
   hmix_del2:
     config_use_mom_del2: true
     config_mom_del2: 10.0
+    config_use_tracer_del2: false
+
+mpas-ocean:
+  io:
+    config_write_output_on_startup: false
   bottom_drag:
     config_implicit_bottom_drag_type: constant
     config_implicit_constant_bottom_drag_coeff: 0.01
@@ -22,3 +25,90 @@ mpas-ocean:
       - xtime
       - normalVelocity
       - layerThickness
+
+Omega:
+  TimeIntegration:
+    TimeStepper: RungeKutta4
+  Advection:
+    VerticalTracerFluxLimiterEnable: false
+  Eos:
+    EosType: linear
+  Tendencies:
+    SSHTendencyEnable: false
+    VelHyperDiffTendencyEnable: false
+    TracerDiffTendencyEnable: false
+    TracerHyperDiffTendencyEnable: false
+  Tracers:
+    Base: [Temperature, Salinity]
+  VertMix:
+    Background:
+      Diffusivity: 1.0e-5
+      Viscosity: 1.0e-4
+    Convective:
+      Enable: false
+    Shear:
+      Enable: false
+  IOStreams:
+    InitialVertCoord:
+      UsePointerFile: false
+      Filename: initial_state.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+      - InitVertCoord
+    # InitialState should only be used when starting from scratch.
+    # For restart runs, the frequency units should be changed from
+    # "OnStartup" to "never" so that the initial state file is not read.
+    InitialState:
+      UsePointerFile: false
+      Filename: initial_state.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+      - State
+      - Tracers
+    RestartRead:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: true
+      StartTime: 0001-01-01_00:00:01
+      EndTime: 99999-12-31_00:00:00
+      Contents:
+      - Restart
+    RestartWrite:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: 6
+      FreqUnits: Years
+      UseStartEnd: false
+      Contents:
+      - Restart
+    History:
+      UsePointerFile: false
+      Filename: output/ocn.hist.$Y-$M-$D_$h.$m.$s
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: 2
+      FreqUnits: Hours
+      FileFreq: 2
+      FileFreqUnits: Hours
+      UseStartEnd: false
+      Contents:
+      - State
+      - Tracers
+      - KineticEnergyCell
