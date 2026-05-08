@@ -6,6 +6,7 @@ Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 ## Summary
 
@@ -166,12 +167,13 @@ required preprocessing cannot be reproduced robustly within Polaris.
 
 ### Algorithm Design: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/08
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The current implementation separates source-level hydrographic products from
 target-grid products rather than trying to make one step serve both roles.
@@ -215,6 +217,17 @@ unified mesh and its direct cell-placement needs. `build_sizing_field` uses the
 target-grid masks, while `create_base_mesh` consumes the conditioned vector
 geometry.
 
+Generating the clipped products requires evaluating the coastline's
+`signed_distance` field at each river coordinate.  Rather than calling
+`interp_bilin()` once per segment or outlet feature, the implementation batches
+all coordinates from all segments into a single array, performs one vectorised
+bilinear-interpolation call over the entire network, and then splits the
+resulting distance values back to the corresponding per-segment slices.  The
+same batching is applied to outlet coordinates in `clip_outlet_feature_collection`.
+This makes the coastline-distance interpolation cost proportional to the total
+number of river vertices rather than to the number of segments, which can be
+significant for globally dense simplified networks.
+
 ### Algorithm Design: Hydrologically Meaningful Simplification
 
 Date last modified: 2026/04/22
@@ -249,27 +262,35 @@ independent Douglas-Peucker style simplification to each source feature.
 
 ### Algorithm Design: Coastline-Consistent Outlets and Explicit Inland Sinks
 
-Date last modified: 2026/04/22
+Date last modified: 2026/05/08
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The simplified network is finalized in two phases: source-level retention and
 target-grid reconciliation. The source-level step identifies retained outlet
 points, and the lat-lon step then reconciles those points against the shared
 coastline product.
 
-For ocean-draining basins, the current implementation searches for the nearest
-ocean cell in `coastline.nc`, computes the haversine distance to that cell, and
-marks the outlet as matched only if the distance is within the configured
-`outlet_match_tolerance`. If no ocean cell is close enough, the outlet is still
-snapped to the nearest grid cell but is recorded as `matched_to_ocean = false`
-with the snapping distance preserved for diagnostics.
+For ocean-draining basins, the current implementation identifies the nearest
+ocean cell in `coastline.nc` using a KD tree built once over all ocean cells
+before the outlet loop begins.  Each ocean cell's lat/lon is converted to a
+unit-sphere Cartesian coordinate (the 3-D point on the surface of the unit
+sphere), so that the nearest neighbour in 3-D Euclidean space equals the nearest
+neighbour by great-circle distance.  A single `query()` call on the pre-built
+tree returns the closest ocean cell in O(log n) time rather than requiring a
+linear scan over the full grid.  The haversine distance to that cell is then
+computed, and the outlet is marked as matched only if the distance is within the
+configured `outlet_match_tolerance`. If no ocean cell is close enough, the outlet
+is still snapped to the nearest grid cell but is recorded as
+`matched_to_ocean = false` with the snapping distance preserved for diagnostics.
 
 Endorheic basins bypass ocean matching and are snapped to the nearest land cell
-derived from the coastline `ocean_mask`. They retain the explicit
+derived from the coastline `ocean_mask`, using a KD tree built once over all land
+cells with the same unit-sphere Cartesian approach.  They retain the explicit
 `inland_sink` classification in both the vector outlet metadata and the target-
 grid masks.
 
@@ -307,12 +328,13 @@ reusing the same shared steps that the `build_sizing_field` task consumes.
 
 ### Implementation: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/08
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The file naming and class layout are now concrete. The river implementation is
 organized under `polaris/tasks/mesh/spherical/unified/river/` as:
@@ -343,6 +365,14 @@ shared coastline dataset selected by `[prepare_river_lat_lon]`. The
 selected coastline product and writes the clipped river geometry consumed by
 the unified base-mesh step.
 
+The coastline-aware clipping in `condition_base_mesh_river_segments()` and
+`clip_outlet_feature_collection()` uses a single batched call to `interp_bilin()`
+rather than one call per segment or outlet.  All vertex coordinates are stacked
+into one array, `_interpolate_signed_distance()` is called once, and the
+resulting signed-distance values are split back to per-segment slices with
+`np.split()`.  This keeps bilinear-interpolation overhead proportional to the
+total vertex count rather than to the number of segments.
+
 ### Implementation: Hydrologically Meaningful Simplification
 
 Date last modified: 2026/04/22
@@ -367,18 +397,26 @@ would strengthen confidence.
 
 ### Implementation: Coastline-Consistent Outlets and Explicit Inland Sinks
 
-Date last modified: 2026/04/22
+Date last modified: 2026/05/08
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The current implementation keeps coastline matching and inland-sink treatment
 explicit in both NetCDF and GeoJSON outputs. `river_network.nc` separates
 channel cells, all outlet cells, ocean outlets, and inland sinks, and
 `river_outlets.geojson` records both source and snapped positions together with
 match status and snapping distance.
+
+The nearest-ocean-cell and nearest-land-cell lookups are implemented in
+`_build_cell_kdtree()` and the `_match_ocean_outlet()` / `_match_land_point()`
+helpers in `lat_lon.py`.  `_build_cell_kdtree()` uses `scipy.spatial.cKDTree`
+on unit-sphere Cartesian coordinates derived from the grid cell lat/lon values.
+Both trees are built once before iterating over outlet features, so the total
+lookup cost is O(n_outlets · log n_cells) rather than O(n_outlets · n_cells).
 
 ### Implementation: Standalone River-Network Task
 
