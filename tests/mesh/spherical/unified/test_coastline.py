@@ -15,13 +15,23 @@ from polaris.mesh.spherical.coastline import (
 from polaris.mesh.spherical.critical_transects import CriticalTransects
 from polaris.task import Task
 from polaris.tasks.mesh.spherical.unified.coastline import (
-    get_lat_lon_coastline_steps,
+    compute as coastline_compute_module,
 )
 from polaris.tasks.mesh.spherical.unified.coastline import (
-    prepare as prepare_module,
+    get_unified_mesh_coastline_steps,
 )
-from polaris.tasks.mesh.spherical.unified.coastline.prepare import (
-    PrepareCoastlineStep,
+from polaris.tasks.mesh.spherical.unified.coastline import (
+    steps as coastline_steps_module,
+)
+from polaris.tasks.mesh.spherical.unified.coastline.compute import (
+    ComputeCoastlineStep,
+)
+from polaris.tasks.mesh.spherical.unified.coastline.remap import (
+    RemapCoastlineStep,
+)
+from polaris.tasks.mesh.spherical.unified.coastline.viz import (
+    _get_plot_field,
+    _get_plot_info_from_dataset,
 )
 
 
@@ -295,14 +305,16 @@ def test_coastline_step_configures_critical_transects(monkeypatch):
         calls.append(kwargs['critical_transects'])
         return {convention: dummy_dataset.copy() for convention in CONVENTIONS}
 
-    monkeypatch.setattr(prepare_module, 'build_coastline_datasets', fake_build)
     monkeypatch.setattr(
-        prepare_module,
+        coastline_compute_module, 'build_coastline_datasets', fake_build
+    )
+    monkeypatch.setattr(
+        coastline_compute_module,
         '_write_netcdf_with_fill_values',
         lambda ds, filename: None,
     )
     monkeypatch.setattr(
-        prepare_module.xr,
+        coastline_compute_module.xr,
         'open_dataset',
         lambda filename: xr.Dataset(),
     )
@@ -314,12 +326,12 @@ def test_coastline_step_configures_critical_transects(monkeypatch):
         return sentinel
 
     monkeypatch.setattr(
-        prepare_module,
+        coastline_compute_module,
         'load_default_critical_transects',
         fake_loader,
     )
 
-    disabled_step = PrepareCoastlineStep(
+    disabled_step = ComputeCoastlineStep(
         component=component,
         combine_step=combine_step,
         subdir='prepare_disabled',
@@ -327,7 +339,7 @@ def test_coastline_step_configures_critical_transects(monkeypatch):
     disabled_step.config = _make_prepare_config(False)
     disabled_step.run()
 
-    enabled_step = PrepareCoastlineStep(
+    enabled_step = ComputeCoastlineStep(
         component=component,
         combine_step=combine_step,
         subdir='prepare_enabled',
@@ -339,59 +351,123 @@ def test_coastline_step_configures_critical_transects(monkeypatch):
     assert enabled_calls['count'] == 1
 
 
-def test_get_lat_lon_coastline_steps_reuses_shared_config_for_viz():
+def test_get_unified_mesh_coastline_steps_reuses_shared_config_for_viz(
+    monkeypatch,
+):
     component = Component('mesh')
-    combine_step = SimpleNamespace(
-        combined_filename='combined_topography.nc',
-        subdir='combine',
-        path='combine',
+    monkeypatch.setattr(
+        coastline_steps_module, '_get_mesh_component', lambda: component
     )
-
-    steps_without_viz, config_without_viz = get_lat_lon_coastline_steps(
-        component=component,
-        combine_topo_step=combine_step,
+    steps_without_viz, config_without_viz = get_unified_mesh_coastline_steps(
         resolution=0.25,
         include_viz=False,
     )
-    steps_with_viz, config_with_viz = get_lat_lon_coastline_steps(
-        component=component,
-        combine_topo_step=combine_step,
+    steps_with_viz, config_with_viz = get_unified_mesh_coastline_steps(
         resolution=0.25,
         include_viz=True,
     )
 
-    assert len(steps_without_viz) == 1
-    assert len(steps_with_viz) == 2
-    assert steps_without_viz['coastline'] is steps_with_viz['coastline']
+    # 1 combine topo, 2 coastline compute/remap, and optionally 1 viz step
+    assert len(steps_without_viz) == 3
+    assert len(steps_with_viz) == 4
+    assert (
+        steps_without_viz['coastline_compute']
+        is steps_with_viz['coastline_compute']
+    )
     assert config_without_viz is config_with_viz
 
 
-def test_task_can_include_shared_coastline_viz_without_default_run():
+def test_coarse_viz_uses_coastline_final_output(monkeypatch):
     component = Component('mesh')
-    combine_step = SimpleNamespace(
-        combined_filename='combined_topography.nc',
-        subdir='combine',
-        path='combine',
+    monkeypatch.setattr(
+        coastline_steps_module, '_get_mesh_component', lambda: component
     )
-    coastline_steps, _ = get_lat_lon_coastline_steps(
-        component=component,
-        combine_topo_step=combine_step,
+    steps, _ = get_unified_mesh_coastline_steps(
+        resolution=0.25,
+        include_viz=True,
+    )
+
+    assert isinstance(steps['coastline_final'], RemapCoastlineStep)
+    assert steps['viz_coastline'].coastline_step is steps['coastline_final']
+
+
+def test_finest_viz_uses_compute_output(monkeypatch):
+    component = Component('mesh')
+    monkeypatch.setattr(
+        coastline_steps_module, '_get_mesh_component', lambda: component
+    )
+    steps, _ = get_unified_mesh_coastline_steps(
+        resolution=0.03125,
+        include_viz=True,
+    )
+
+    assert isinstance(steps['coastline_final'], ComputeCoastlineStep)
+    assert steps['viz_coastline'].coastline_step is steps['coastline_final']
+
+
+def test_task_can_include_shared_coastline_viz_without_default_run(
+    monkeypatch,
+):
+    component = Component('mesh')
+    monkeypatch.setattr(
+        coastline_steps_module, '_get_mesh_component', lambda: component
+    )
+    coastline_steps, _ = get_unified_mesh_coastline_steps(
         resolution=0.25,
         include_viz=True,
     )
 
     task = Task(component=component, name='coastline_consumer')
-    task.add_step(coastline_steps['coastline'], symlink='coastline')
+    task.add_step(
+        coastline_steps['coastline_compute'], symlink='coastline_compute'
+    )
     task.add_step(
         coastline_steps['viz_coastline'],
         symlink='viz_coastline',
         run_by_default=False,
     )
 
-    assert 'coastline' in task.steps
+    assert 'coastline_compute' in task.steps
     assert 'viz_coastline' in task.steps
-    assert 'coastline' in task.steps_to_run
+    assert 'coastline_compute' in task.steps_to_run
     assert 'viz_coastline' not in task.steps_to_run
+
+
+def test_plot_info_from_dataset_keeps_non_finest_resolutions_unchanged():
+    ds_coastline = _make_coastline_dataset_for_viz(
+        resolution=0.0625, lat_size=6, lon_size=8
+    )
+
+    plot_info = _get_plot_info_from_dataset(
+        ds_coastline=ds_coastline,
+        finest_plot_stride=2,
+    )
+
+    assert plot_info['plot_stride'] == 1
+    assert plot_info['lat'].size == 6
+    assert plot_info['lon'].size == 8
+
+
+def test_plot_info_from_dataset_decimates_only_finest_resolution():
+    ds_coastline = _make_coastline_dataset_for_viz(
+        resolution=0.03125, lat_size=6, lon_size=8
+    )
+
+    plot_info = _get_plot_info_from_dataset(
+        ds_coastline=ds_coastline,
+        finest_plot_stride=2,
+    )
+    plot_field = _get_plot_field(
+        field=ds_coastline.ocean_mask.values,
+        plot_stride=plot_info['plot_stride'],
+    )
+
+    assert plot_info['plot_stride'] == 2
+    assert plot_info['lat'].size == 3
+    assert plot_info['lon'].size == 4
+    assert plot_info['lat_corner'].size == 4
+    assert plot_info['lon_corner'].size == 5
+    assert plot_field.shape == (3, 4)
 
 
 def _make_topography_dataset(
@@ -462,3 +538,24 @@ def _make_prepare_config(include_critical_transects):
     config.set('coastline', 'sea_level_elevation', '0.0')
     config.set('coastline', 'distance_chunk_size', '2')
     return config
+
+
+def _make_coastline_dataset_for_viz(resolution, lat_size, lon_size):
+    lat = np.linspace(-75.0, 75.0, lat_size)
+    lon = np.linspace(0.0, 360.0 - 360.0 / lon_size, lon_size)
+    ocean_mask = np.arange(lat_size * lon_size, dtype=np.int8).reshape(
+        lat_size, lon_size
+    )
+    signed_distance = ocean_mask.astype(np.float32)
+    ds_coastline = xr.Dataset(
+        data_vars=dict(
+            ocean_mask=(('lat', 'lon'), ocean_mask),
+            signed_distance=(('lat', 'lon'), signed_distance),
+        ),
+        coords=dict(
+            lat=xr.DataArray(lat, dims=('lat',)),
+            lon=xr.DataArray(lon, dims=('lon',)),
+        ),
+    )
+    ds_coastline.attrs['target_grid_resolution_degrees'] = resolution
+    return ds_coastline
