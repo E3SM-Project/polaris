@@ -2,19 +2,19 @@ import os
 
 from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.task import Task
-from polaris.tasks.e3sm.init import e3sm_init
-from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
-from polaris.tasks.e3sm.init.topo.combine.steps import (
-    get_lat_lon_topo_steps,
-)
 from polaris.tasks.mesh.spherical.unified.coastline.steps import (
-    get_lat_lon_coastline_steps,
+    get_unified_mesh_coastline_steps,
 )
 
 
 class LatLonCoastlineTask(Task):
     """
     A task for preparing coastline products on a latitude-longitude grid.
+
+    At the finest supported resolution the task runs a full
+    :class:`ComputeCoastlineStep`.  At coarser resolutions the task runs a
+    :class:`RemapCoastlineStep` that remaps from the finest-resolution output,
+    preserving the higher-fidelity coastline geometry.
     """
 
     def __init__(self, component, resolution):
@@ -34,7 +34,6 @@ class LatLonCoastlineTask(Task):
             'spherical',
             'unified',
             'coastline',
-            'lat_lon',
             resolution_name,
             'task',
         )
@@ -44,25 +43,9 @@ class LatLonCoastlineTask(Task):
             subdir=subdir,
         )
 
-        combine_steps, _ = get_lat_lon_topo_steps(
-            component=e3sm_init,
-            resolution=resolution,
-            include_viz=False,
-        )
-        self.combine_topo_step = combine_steps[
-            CombineStep.get_name(
-                target_grid='lat_lon', resolution_name=resolution_name
-            )
-        ]
-        self.add_step(self.combine_topo_step, symlink='combine_topo')
-
-        steps, config = get_lat_lon_coastline_steps(
-            component=component,
-            combine_topo_step=self.combine_topo_step,
-            resolution=resolution,
-            include_viz=True,
+        steps, config = get_unified_mesh_coastline_steps(
+            resolution=resolution, include_viz=True
         )
         self.set_shared_config(config, link='coastline.cfg')
-        for step in steps.values():
-            symlink = os.path.basename(step.subdir)
+        for symlink, step in steps.items():
             self.add_step(step, symlink=symlink)

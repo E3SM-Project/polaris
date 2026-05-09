@@ -11,17 +11,19 @@ from polaris.mesh.spherical.coastline import (
 from polaris.mesh.spherical.critical_transects import (
     load_default_critical_transects,
 )
+from polaris.mesh.spherical.unified.resolutions import (
+    FINEST_RESOLUTION,
+)
 from polaris.step import Step
 
 __all__ = [
-    'CONVENTIONS',
-    'PrepareCoastlineStep',
+    'ComputeCoastlineStep',
     'build_coastline_dataset',
     'build_coastline_datasets',
 ]
 
 
-class PrepareCoastlineStep(Step):
+class ComputeCoastlineStep(Step):
     """
     Prepare coastline masks and signed-distance fields on a lat-lon grid.
     """
@@ -43,7 +45,7 @@ class PrepareCoastlineStep(Step):
         """
         super().__init__(
             component=component,
-            name='coastline',
+            name='coastline_compute',
             subdir=subdir,
             cpus_per_task=1,
             min_cpus_per_task=1,
@@ -72,8 +74,8 @@ class PrepareCoastlineStep(Step):
         """
         Run this step.
         """
+        resolution = FINEST_RESOLUTION
         section = self.config['coastline']
-        resolution = section.getfloat('resolution_latlon')
         include_critical_transects = section.getboolean(
             'include_critical_transects'
         )

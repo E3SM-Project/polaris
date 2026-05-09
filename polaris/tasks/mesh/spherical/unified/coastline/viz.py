@@ -1,4 +1,6 @@
 import os
+from math import isclose
+from typing import TypeAlias, Union
 
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
@@ -12,11 +14,18 @@ from pyremap.descriptor.utility import interp_extrap_corner
 from polaris.mesh.spherical.critical_transects import (
     load_default_critical_transects,
 )
+from polaris.mesh.spherical.unified.resolutions import FINEST_RESOLUTION
 from polaris.step import Step
-from polaris.tasks.mesh.spherical.unified.coastline.prepare import (
+from polaris.tasks.mesh.spherical.unified.coastline.compute import (
     CONVENTIONS,
+    ComputeCoastlineStep,
+)
+from polaris.tasks.mesh.spherical.unified.coastline.remap import (
+    RemapCoastlineStep,
 )
 from polaris.viz import use_mplstyle
+
+CoastlineStep: TypeAlias = Union[ComputeCoastlineStep, RemapCoastlineStep]
 
 
 class VizCoastlineStep(Step):
@@ -24,7 +33,7 @@ class VizCoastlineStep(Step):
     A step for visualizing coastline diagnostics.
     """
 
-    def __init__(self, component, coastline_step, subdir):
+    def __init__(self, component, coastline_step: CoastlineStep, subdir):
         """
         Create a new step.
 
@@ -33,8 +42,7 @@ class VizCoastlineStep(Step):
         component : polaris.Component
             The component the step belongs to
 
-        coastline_step : polaris.tasks.mesh.spherical.unified.coastline.
-            PrepareCoastlineStep
+        coastline_step : CoastlineStep
             The coastline step to visualize
 
         subdir : str
@@ -72,9 +80,11 @@ class VizCoastlineStep(Step):
         prepare_section = self.config['coastline']
         dpi = viz_section.getint('dpi')
         antarctic_max_latitude = viz_section.getfloat('antarctic_max_latitude')
+        finest_plot_stride = viz_section.getint('finest_plot_stride')
         signed_distance_limit = viz_section.getfloat('signed_distance_limit')
         plot_info = _get_plot_info_from_file(
-            self.coastline_step.output_filenames[CONVENTIONS[0]]
+            self.coastline_step.output_filenames[CONVENTIONS[0]],
+            finest_plot_stride=finest_plot_stride,
         )
         line_overlays = None
         if prepare_section.getboolean('include_critical_transects'):
@@ -222,7 +232,10 @@ class VizCoastlineStep(Step):
         ax_projection = _get_projection(projection)
         figsize = (20, 8) if projection == 'global' else (12, 12)
 
-        ordered_field = field[:, plot_info['center_order']]
+        plot_field = _get_plot_field(
+            field=field, plot_stride=plot_info['plot_stride']
+        )
+        ordered_field = plot_field[:, plot_info['center_order']]
 
         fig = plt.figure(figsize=figsize, dpi=dpi)
         ax = plt.axes(projection=ax_projection)
@@ -276,7 +289,7 @@ class VizCoastlineStep(Step):
         summary.write('\n')
 
 
-def _get_plot_info(lon, lat):
+def _get_plot_info(lon, lat, plot_stride=1):
     """
     Get longitude and latitude arrays for plotting.
     """
@@ -292,18 +305,67 @@ def _get_plot_info(lon, lat):
         lon_corner=lon_corner,
         lat=lat,
         lat_corner=lat_corner,
+        plot_stride=plot_stride,
     )
 
 
-def _get_plot_info_from_file(filename):
+def _get_plot_info_from_dataset(ds_coastline, finest_plot_stride):
+    """
+    Build plot metadata, decimating only the finest-resolution diagnostics.
+    """
+    lon = ds_coastline.lon.values
+    lat = ds_coastline.lat.values
+    resolution = ds_coastline.attrs.get('target_grid_resolution_degrees')
+    plot_stride = _get_plot_stride(
+        resolution=resolution,
+        finest_plot_stride=finest_plot_stride,
+    )
+    return _get_plot_info(
+        lon=lon[::plot_stride],
+        lat=lat[::plot_stride],
+        plot_stride=plot_stride,
+    )
+
+
+def _get_plot_info_from_file(filename, finest_plot_stride):
     """
     Read grid coordinates from a coastline file and build plot metadata.
     """
     with xr.open_dataset(filename) as ds_coastline:
-        return _get_plot_info(
-            lon=ds_coastline.lon.values,
-            lat=ds_coastline.lat.values,
+        return _get_plot_info_from_dataset(
+            ds_coastline=ds_coastline,
+            finest_plot_stride=finest_plot_stride,
         )
+
+
+def _get_plot_stride(resolution, finest_plot_stride):
+    """
+    Determine the plotting stride for a coastline dataset.
+    """
+    if not _is_finest_resolution(resolution):
+        return 1
+
+    return max(1, finest_plot_stride)
+
+
+def _is_finest_resolution(resolution):
+    """
+    Whether a resolution matches the finest supported lat-lon grid.
+    """
+    if resolution is None:
+        return False
+
+    return isclose(float(resolution), FINEST_RESOLUTION, rel_tol=0.0)
+
+
+def _get_plot_field(field, plot_stride):
+    """
+    Downsample a field for plotting while leaving diagnostics untouched.
+    """
+    if plot_stride == 1:
+        return field
+
+    return field[::plot_stride, ::plot_stride]
 
 
 def _get_projection(projection):
