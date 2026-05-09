@@ -33,12 +33,15 @@
    :toctree: generated/
 
    CONVENTIONS
-   PrepareCoastlineStep
-   PrepareCoastlineStep.setup
-   PrepareCoastlineStep.run
+   ComputeCoastlineStep
+   ComputeCoastlineStep.setup
+   ComputeCoastlineStep.run
+   RemapCoastlineStep
+   RemapCoastlineStep.setup
+   RemapCoastlineStep.run
    build_coastline_datasets
    build_coastline_dataset
-   get_lat_lon_coastline_steps
+   get_unified_mesh_coastline_steps
    LatLonCoastlineTask
    add_coastline_tasks
    VizCoastlineStep
