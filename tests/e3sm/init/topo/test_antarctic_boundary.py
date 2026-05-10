@@ -1,19 +1,12 @@
-from types import SimpleNamespace
-
 import numpy as np
 import pytest
 import xarray as xr
 
-from polaris.component import Component
 from polaris.config import PolarisConfigParser
 from polaris.tasks.e3sm.init.topo.cull.mask import CullMaskStep
-from polaris.tasks.e3sm.init.topo.cull.steps import (
-    get_default_cull_topo_steps,
-)
+from polaris.tasks.e3sm.init.topo.cull.steps import _get_cull_topo_config
 from polaris.tasks.e3sm.init.topo.remap.mask import MaskTopoStep
-from polaris.tasks.e3sm.init.topo.remap.steps import (
-    get_default_remap_topo_steps,
-)
+from polaris.tasks.e3sm.init.topo.remap.steps import _get_remap_topo_config
 
 
 @pytest.mark.parametrize(
@@ -56,27 +49,17 @@ def test_spherical_mesh_config_default_convention():
     )
 
 
-def test_topo_configs_inherit_base_mesh_convention(monkeypatch):
-    monkeypatch.setattr(
-        'polaris.step.MachineInfo', lambda *args, **kwargs: None
-    )
-    component = Component(name='e3sm/init')
+def test_topo_configs_inherit_base_mesh_convention():
     base_mesh_step = _base_mesh_step(convention='bedrock_zero')
-    combine_topo_step = SimpleNamespace(
-        path='combine_topo', combined_filename='topography.nc'
-    )
-    unsmoothed_topo_step = SimpleNamespace(path='remap_unsmoothed')
 
-    _, remap_config = get_default_remap_topo_steps(
-        component=component,
+    remap_config = _get_remap_topo_config(
+        filepath='test/QU240/topo/remap/remap_topo.cfg',
         base_mesh_step=base_mesh_step,
-        combine_topo_step=combine_topo_step,
         low_res=False,
     )
-    _, cull_config = get_default_cull_topo_steps(
-        component=component,
+    cull_config = _get_cull_topo_config(
+        filepath='test/QU240/topo/cull/cull_topo.cfg',
         base_mesh_step=base_mesh_step,
-        unsmoothed_topo_step=unsmoothed_topo_step,
     )
 
     for config in [remap_config, cull_config]:
@@ -121,17 +104,21 @@ def _mask_topo_step(convention):
     return step
 
 
+class _BaseMeshStep:
+    def __init__(self, convention):
+        self.mesh_name = 'QU240'
+        self.config = PolarisConfigParser()
+        self.config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
+        self.config.set('spherical_mesh', 'prefix', 'QU')
+        self.config.set('spherical_mesh', 'min_cell_width', '240')
+        self.config.set('spherical_mesh', 'max_cell_width', '240')
+        self.config.set(
+            'spherical_mesh', 'antarctic_boundary_convention', convention
+        )
+
+
 def _base_mesh_step(convention):
-    config = PolarisConfigParser()
-    config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
-    config.set('spherical_mesh', 'prefix', 'QU')
-    config.set('spherical_mesh', 'min_cell_width', '240')
-    config.set('spherical_mesh', 'max_cell_width', '240')
-    config.set('spherical_mesh', 'antarctic_boundary_convention', convention)
-    return SimpleNamespace(
-        mesh_name='QU240',
-        config=config,
-    )
+    return _BaseMeshStep(convention)
 
 
 def _topo_dataset():
