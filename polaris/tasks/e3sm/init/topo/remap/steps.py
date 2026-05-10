@@ -1,23 +1,25 @@
 import os
 
 from polaris.config import PolarisConfigParser
+from polaris.e3sm.init.topo import (
+    get_cubed_sphere_resolution,
+    uses_low_res_cubed_sphere,
+)
 from polaris.step import Step
+from polaris.tasks.e3sm.init import e3sm_init
+from polaris.tasks.e3sm.init.topo.combine import get_cubed_sphere_topo_steps
+from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
 from polaris.tasks.e3sm.init.topo.remap.mask import MaskTopoStep
 from polaris.tasks.e3sm.init.topo.remap.remap import RemapTopoStep
 from polaris.tasks.e3sm.init.topo.remap.viz import VizRemappedTopoStep
+from polaris.tasks.mesh.base.steps import get_base_mesh_steps
 
 
-def get_default_remap_topo_steps(
-    component,
-    base_mesh_step,
-    combine_topo_step,
-    low_res,
-    smoothing=False,
-    include_viz=False,
-):
+def get_remap_topo_steps(mesh_name, smoothing=False, include_viz=False):
     """
-    Add a steps for compting a mapping file and then remapping bathymetry and
-    ice-shelf topography from a cubed-sphere grid to a global MPAS base mesh.
+    Get shared steps for computing a mapping file and then remapping
+    bathymetry and ice-shelf topography from a cubed-sphere grid to a global
+    MPAS base mesh.
     The unsmoothed topography will typically be used to determine coastlines
     for mesh culling and related masks so that they are independent of
     smoothing choices (e.g. so mapping files can be reused with different
@@ -26,20 +28,8 @@ def get_default_remap_topo_steps(
 
     Parameters
     ----------
-    component : polaris.Component
-        The component the steps belong to
-
-    base_mesh_step : polaris.mesh.spherical.SphericalBaseStep
-        The base mesh step containing input files to this step
-
-    combine_topo_step : polaris.tasks.e3sm.init.topo.CombineStep
-        The step for combining global and Antarctic topography on a cubed
-        sphere grid
-
-    low_res : bool
-        Whether the base mesh is low resolution (120km or coarser), so that
-        a set of config options for low resolution and a lower resolution
-        source topography should be used
+    mesh_name : str
+        The name of the base mesh to remap topography onto
 
     smoothing : bool, optional
         Whether to create a step with smoothing in addition to the step without
@@ -51,37 +41,52 @@ def get_default_remap_topo_steps(
     Returns
     -------
     steps : dict of str to polaris.Step
-        Steps for remapping topography (without smoothing and optionally with
-        smoothing) as well as, if requested, for visualizing the results,
-        keyed by step name.
+        All upstream shared steps plus the steps for remapping topography
+        (without smoothing and optionally with smoothing) as well as, if
+        requested, for visualizing the results, keyed by suggested symlink
+        in tasks.
+
+    config : polaris.config.PolarisConfigParser
+        The shared config options for remapping topography.
     """
+    component = e3sm_init
+    base_mesh_steps, base_mesh_config = get_base_mesh_steps(
+        mesh_name=mesh_name, include_viz=False
+    )
+    base_mesh_step = base_mesh_steps['base_mesh']
 
-    mesh_name = base_mesh_step.mesh_name
+    max_cell_width = base_mesh_config.getfloat(
+        'spherical_mesh', 'max_cell_width'
+    )
+    low_res = uses_low_res_cubed_sphere(max_cell_width)
+    resolution = get_cubed_sphere_resolution(low_res)
+    combine_topo_steps, _ = get_cubed_sphere_topo_steps(
+        component=component,
+        resolution=resolution,
+        include_viz=False,
+    )
 
-    # add default config options for remapping topo -- since these are
-    # shared step, the config options need to be defined separately from any
-    # task this may be added to
+    resolution_name = f'ne{resolution}'
+    combine_step_name = CombineStep.get_name(
+        target_grid='cubed_sphere', resolution_name=resolution_name
+    )
+    combine_topo_step = combine_topo_steps[combine_step_name]
+    # the combined topography is expensive to create, so cache it for reuse
+    combine_topo_step.cached = True
+    combine_topo_key = f'combine_topo_cubed_sphere_{resolution_name}'
+
     config_filename = 'remap_topo.cfg'
     filepath = os.path.join(
         component.name, mesh_name, 'topo', 'remap', config_filename
     )
-    config = PolarisConfigParser(filepath=filepath)
-    config.add_from_package('polaris.tasks.e3sm.init.topo.remap', 'remap.cfg')
-    if low_res:
-        config.add_from_package(
-            'polaris.tasks.e3sm.init.topo.remap', 'remap_low_res.cfg'
-        )
-    config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
-    convention = base_mesh_step.config.get(
-        'spherical_mesh', 'antarctic_boundary_convention'
-    )
-    config.set(
-        'spherical_mesh',
-        'antarctic_boundary_convention',
-        convention,
+    config = _get_remap_topo_config(
+        filepath=filepath,
+        base_mesh_step=base_mesh_step,
+        low_res=low_res,
     )
 
-    steps: dict[str, Step] = {}
+    steps: dict[str, Step] = dict(base_mesh_steps)
+    steps[combine_topo_key] = combine_topo_step
 
     step_name = 'mask_topo'
     subdir = os.path.join(mesh_name, 'topo', 'remap', 'mask')
@@ -93,7 +98,7 @@ def get_default_remap_topo_steps(
         combine_topo_step=combine_topo_step,
         name=step_name,
     )
-    steps[mask_step.name] = mask_step
+    steps['mask_topo'] = mask_step
 
     if smoothing:
         suffixes = ['unsmoothed', 'smoothed']
@@ -119,7 +124,9 @@ def get_default_remap_topo_steps(
 
         if suffix == 'unsmoothed':
             unsmoothed_topo = remap_step
-        steps[remap_step.name] = remap_step
+            steps['remap_unsmoothed_topo'] = remap_step
+        else:
+            steps['remap_smoothed_topo'] = remap_step
 
         if include_viz:
             step_name = f'viz_remapped_{suffix}'
@@ -132,6 +139,30 @@ def get_default_remap_topo_steps(
                 remap_step=remap_step,
                 name=step_name,
             )
-            steps[viz_step.name] = viz_step
+            steps[f'viz_remapped_{suffix}_topo'] = viz_step
 
     return steps, config
+
+
+def _get_remap_topo_config(filepath, base_mesh_step, low_res):
+    component = e3sm_init
+    if filepath in component.configs:
+        return component.configs[filepath]
+
+    config = PolarisConfigParser(filepath=filepath)
+    config.add_from_package('polaris.tasks.e3sm.init.topo.remap', 'remap.cfg')
+    if low_res:
+        config.add_from_package(
+            'polaris.tasks.e3sm.init.topo.remap', 'remap_low_res.cfg'
+        )
+    config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
+
+    convention = base_mesh_step.config.get(
+        'spherical_mesh', 'antarctic_boundary_convention'
+    )
+    config.set(
+        'spherical_mesh',
+        'antarctic_boundary_convention',
+        convention,
+    )
+    return config

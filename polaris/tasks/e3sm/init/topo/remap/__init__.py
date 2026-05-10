@@ -5,7 +5,7 @@ from polaris.tasks.e3sm.init.topo.remap.remap import (
     RemapTopoStep as RemapTopoStep,
 )
 from polaris.tasks.e3sm.init.topo.remap.steps import (
-    get_default_remap_topo_steps as get_default_remap_topo_steps,
+    get_remap_topo_steps as get_remap_topo_steps,
 )
 from polaris.tasks.e3sm.init.topo.remap.task import (
     RemapTopoTask as RemapTopoTask,
