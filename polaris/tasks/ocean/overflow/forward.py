@@ -148,7 +148,21 @@ class Forward(OceanModelStep):
         # For Omega, we want the output interval as a number of seconds
         output_freq = int(output_interval)
 
+        time_integrator = config.get('overflow', 'time_integrator')
+        time_integrator_map = dict([('RK4', 'RungeKutta4')])
+        model = config.get('ocean', 'model')
+        if model == 'omega':
+            if time_integrator in time_integrator_map.keys():
+                time_integrator = time_integrator_map[time_integrator]
+            else:
+                print(
+                    'Warning: mapping from time integrator '
+                    f'{time_integrator} to omega not found, '
+                    'retaining name given in config'
+                )
+
         replacements = dict(
+            time_integrator=time_integrator,
             dt=dt_str,
             btr_dt=btr_dt_str,
             run_duration=run_duration_str,
