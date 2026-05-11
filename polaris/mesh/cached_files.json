@@ -54,5 +54,17 @@
     "mesh/spherical/qu/base_mesh/90km/mesh.msh": "spherical/qu/base_mesh/90km/mesh.250528.msh",
     "mesh/spherical/qu/base_mesh/90km/base_mesh.nc": "spherical/qu/base_mesh/90km/base_mesh.250528.nc",
     "mesh/spherical/qu/base_mesh/90km/cellWidthVsLatLon.nc": "spherical/qu/base_mesh/90km/cellWidthVsLatLon.250528.nc",
-    "mesh/spherical/qu/base_mesh/90km/graph.info": "spherical/qu/base_mesh/90km/graph.250528.info"
+    "mesh/spherical/qu/base_mesh/90km/graph.info": "spherical/qu/base_mesh/90km/graph.250528.info",
+    "mesh/spherical/unified/coastline/0.03125_degree/compute/coastline_calving_front.nc": "spherical/unified/coastline/0.03125_degree/compute/coastline_calving_front.260511.nc",
+    "mesh/spherical/unified/coastline/0.03125_degree/compute/coastline_grounding_line.nc": "spherical/unified/coastline/0.03125_degree/compute/coastline_grounding_line.260511.nc",
+    "mesh/spherical/unified/coastline/0.03125_degree/compute/coastline_bedrock_zero.nc": "spherical/unified/coastline/0.03125_degree/compute/coastline_bedrock_zero.260511.nc",
+    "mesh/spherical/unified/coastline/0.06250_degree/remap/coastline_calving_front.nc": "spherical/unified/coastline/0.06250_degree/remap/coastline_calving_front.260511.nc",
+    "mesh/spherical/unified/coastline/0.06250_degree/remap/coastline_grounding_line.nc": "spherical/unified/coastline/0.06250_degree/remap/coastline_grounding_line.260511.nc",
+    "mesh/spherical/unified/coastline/0.06250_degree/remap/coastline_bedrock_zero.nc": "spherical/unified/coastline/0.06250_degree/remap/coastline_bedrock_zero.260511.nc",
+    "mesh/spherical/unified/coastline/0.12500_degree/remap/coastline_calving_front.nc": "spherical/unified/coastline/0.12500_degree/remap/coastline_calving_front.260511.nc",
+    "mesh/spherical/unified/coastline/0.12500_degree/remap/coastline_grounding_line.nc": "spherical/unified/coastline/0.12500_degree/remap/coastline_grounding_line.260511.nc",
+    "mesh/spherical/unified/coastline/0.12500_degree/remap/coastline_bedrock_zero.nc": "spherical/unified/coastline/0.12500_degree/remap/coastline_bedrock_zero.260511.nc",
+    "mesh/spherical/unified/coastline/0.25000_degree/remap/coastline_calving_front.nc": "spherical/unified/coastline/0.25000_degree/remap/coastline_calving_front.260511.nc",
+    "mesh/spherical/unified/coastline/0.25000_degree/remap/coastline_grounding_line.nc": "spherical/unified/coastline/0.25000_degree/remap/coastline_grounding_line.260511.nc",
+    "mesh/spherical/unified/coastline/0.25000_degree/remap/coastline_bedrock_zero.nc": "spherical/unified/coastline/0.25000_degree/remap/coastline_bedrock_zero.260511.nc"
 }
