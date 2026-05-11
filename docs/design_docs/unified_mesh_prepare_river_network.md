@@ -187,7 +187,9 @@ At the source level, the workflow writes:
 - `source_river_network.geojson`, containing the converted HydroRIVERS source;
 - `simplified_river_network.geojson`, containing retained segments with
   `hyriv_id`, `main_riv`, `ord_stra`, `drainage_area`, `next_down`,
-  `endorheic`, `outlet_type`, and `outlet_hyriv_id`; and
+  `endorheic`, `outlet_type`, and `outlet_hyriv_id`; networks are ordered
+  largest-first by outlet drainage area so that downstream tools can select
+  the N largest networks without additional sorting; and
 - `retained_outlets.geojson`, containing the retained outlet points and their
   basic classification.
 
@@ -208,7 +210,8 @@ For base-mesh consumers, the workflow also writes a mesh-conditioned product
 set:
 
 - `clipped_river_network.geojson`, containing river segments clipped inland of
-  the coastline and simplified for direct JIGSAW geometry use;
+  the coastline and simplified for direct JIGSAW geometry use, with networks
+  ordered largest-first by outlet drainage area;
 - `clipped_outlets.geojson`, containing only outlets that remain relevant after
   that conditioning; and
 - `clipped_river_network.nc`, containing masks regenerated from the clipped
