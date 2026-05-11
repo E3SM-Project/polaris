@@ -25,6 +25,7 @@ CoastlineStep: TypeAlias = Union[ComputeCoastlineStep, RemapCoastlineStep]
 
 def get_unified_mesh_coastline_steps(
     resolution,
+    cached=True,
     include_viz=False,
 ):
     """
@@ -40,6 +41,10 @@ def get_unified_mesh_coastline_steps(
     ----------
     resolution : float
         The latitude-longitude resolution in degrees for this grid
+
+    cached : bool, optional
+        Whether to set the steps to be cached. This is True by default since
+        the steps are expensive but is False in the standalone coastline tasks
 
     include_viz : bool, optional
         Whether to include a visualization step
@@ -142,6 +147,10 @@ def get_unified_mesh_coastline_steps(
             coastline_step=steps['coastline_final'],
         )
         steps['viz_coastline'] = viz_step
+
+    if cached:
+        for step in steps.values():
+            step.cached = True
 
     return steps, config
 
