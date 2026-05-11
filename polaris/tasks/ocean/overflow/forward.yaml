@@ -9,7 +9,7 @@ ocean:
   hmix_del4:
     config_use_mom_del4: false
     config_use_tracer_del4: false
-  vert_mix:
+  cvmix:
     config_use_cvmix_convection: true
     config_use_cvmix_shear: false
 

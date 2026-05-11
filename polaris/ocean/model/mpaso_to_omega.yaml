@@ -167,20 +167,20 @@ config:
     config_density0: Density0
 
 - section:
-    vert_mix: [VertMix, Background]
+    cvmix: [VertMix, Background]
   options:
     config_cvmix_background_diffusion: Diffusivity
     config_cvmix_background_viscosity: Viscosity
 
 - section:
-    vert_mix: [VertMix, Convective]
+    cvmix: [VertMix, Convective]
   options:
     config_use_cvmix_convection: Enable
     config_cvmix_convective_diffusion: Diffusivity
     config_cvmix_convective_triggerBVF: TriggerBVF
 
 - section:
-    vert_mix: [VertMix, Shear]
+    cvmix: [VertMix, Shear]
   options:
     config_use_cvmix_shear: Enable
     config_cvmix_shear_PP_nu_zero: NuZero
