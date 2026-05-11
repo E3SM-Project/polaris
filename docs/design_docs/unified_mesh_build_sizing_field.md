@@ -6,6 +6,7 @@ Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 ## Summary
 
@@ -450,35 +451,45 @@ named mesh. The task-specific path is
 
 ### Testing and Validation: JIGSAW-Ready Global Sizing Field
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-Current unit tests in `tests/mesh/spherical/unified/test_sizing_field.py`
-verify that `build_sizing_field_dataset()` writes a `cellWidth` field with
-the expected values for representative configurations and that
-`UnifiedBaseMeshStep` reads `cellWidth`, `lon`, and `lat` from
-`sizing_field.nc`.
+In `tests/mesh/spherical/unified/test_sizing_field.py`:
+
+- `test_sizing_field_mesh_outputs_and_active_control` verifies that
+  `build_sizing_field_dataset()` writes a `cellWidth` field with expected values
+  and correct `active_control` values for representative configurations.
+- `test_unified_base_mesh_step_reads_sizing_field` verifies that
+  `UnifiedBaseMeshStep` reads `cellWidth`, `lon`, and `lat` from
+  `sizing_field.nc`.
 
 There is not yet an end-to-end task-level test that passes this sizing field
 through JIGSAW and verifies `base_mesh.nc` and `graph.info`.
 
 ### Testing and Validation: Explicit Consumption of Shared Coastline and River Products
 
-Date last modified: 2026/04/25
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 Unit tests build synthetic coastline and river products and pass them directly
 to `build_sizing_field_dataset()`. The step implementation links only
 `coastline.nc` and `river_network.nc`, so raw topography and raw HydroRIVERS
 inputs are outside the sizing-field interface.
+
+- `test_sizing_field_mesh_outputs_and_active_control` and related tests
+  pass synthetic coastline and river datasets directly to
+  `build_sizing_field_dataset()`, confirming that the sizing-field step does
+  not attempt to re-read raw source data.
 
 The remaining validation gap is task-level: the full standalone sizing-field
 task should be run on real shared coastline and river outputs for each named
@@ -486,27 +497,34 @@ mesh.
 
 ### Testing and Validation: Composable Feature-Based Resolution Controls
 
-Date last modified: 2026/04/26
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-Current unit tests check:
+Current unit tests in `tests/mesh/spherical/unified/test_sizing_field.py` check:
 
-- a uniform 240 km case with no active refinement;
-- a split 30 km ocean and 10 km land/river case;
-- an RRS latitude-dependent ocean background;
-- rejection of `ec_latitude` in the generic unified sizing-field path;
-- coastline transition composition using signed distance;
-- river outlet controls composed before coastline transitions; and
-- `active_control` values for representative cells;
-- discovery and task registration for
-  `ocn_so_12to30km_lnd_10km_riv_10km`; and
-- the Southern Ocean specialized sizing-field step linking the shared
-  GeoJSON and producing a nonuniform ocean background that is finer in the
-  Southern Ocean than outside it.
+- `test_sizing_field_mesh_outputs_and_active_control`: a uniform 240 km case
+  with no active refinement and a split 30 km ocean / 10 km land-river case,
+  verifying `active_control` values for representative cells.
+- `test_sizing_field_coastline_transition_on_land`: coastline transition
+  composition using the signed-distance field from the coastline step.
+- `test_sizing_field_rivers_composed_before_coastline_transition`: river outlet
+  controls composed before coastline transitions.
+- `test_sizing_field_coastline_overrides_finer_land_and_river_controls`:
+  coastline coarsening that overrides finer land and river controls.
+- `test_generic_ocean_background_modes`: an RRS latitude-dependent ocean
+  background and a constant ocean background.
+- `test_constant_ocean_background_requires_equal_min_max`: validation that
+  a constant ocean background requires equal min and max cell widths.
+- `test_generic_ocean_background_rejects_ec_latitude`: rejection of
+  `ec_latitude` in the generic unified sizing-field path.
+- `test_so_mesh_family_links_shared_region_and_builds_field`: the Southern
+  Ocean specialized sizing-field step linking the shared GeoJSON and producing
+  a nonuniform ocean background that is finer in the Southern Ocean.
 
 There is not yet validation on full global products showing that coastline,
 river-channel, and outlet controls influence the intended real-world regions
@@ -514,34 +532,49 @@ with the intended relative strengths.
 
 ### Testing and Validation: Compatibility with Shared Target-Grid Tiers
 
-Date last modified: 2026/04/25
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-Current unit tests verify that `get_sizing_field_config()` uses the unified
-mesh configs, that the code that constructs the sizing-field step uses mesh-specific
-subdirectories, and that the registered standalone task count matches the
-number of named unified-mesh configs.
+In `tests/mesh/spherical/unified/test_sizing_field.py`:
+
+- `test_sizing_field_step_factory_uses_mesh_subdir` verifies that the code
+  constructing the sizing-field step uses mesh-specific subdirectories.
+- `test_add_sizing_field_tasks_registers_named_meshes` verifies that the
+  registered standalone task count matches the number of named unified-mesh
+  configs.
+- `test_sizing_field_step_factory_uses_mesh_family` verifies that
+  `get_sizing_field_config()` uses the unified mesh configs for mesh-family
+  selection.
+- `test_sizing_field_step_factory_reuses_shared_config_for_viz` verifies config
+  reuse across multiple requests for the same mesh.
 
 There is not yet a full run validating all supported target-grid dimensions or
 cache reuse across setup/run workflows.
 
 ### Testing and Validation: Standalone Sizing-Field Task
 
-Date last modified: 2026/04/25
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-The standalone task is now implemented as the primary place to inspect the
-component refinement fields and the final sizing field before they are used in
-the full unified workflow. Unit tests verify task registration for each named
-mesh. The visualization step writes `sizing_field_overview.png`.
+The standalone task is the primary place to inspect the component refinement
+fields and the final sizing field before they are used in the full unified
+workflow.
 
-Smoke tests for the full sizing-field workflow is being performed on Frontier.
+- `test_add_sizing_field_tasks_registers_named_meshes` in
+  `tests/mesh/spherical/unified/test_sizing_field.py` verifies that one
+  standalone sizing-field task is registered per named unified mesh.
+
+The visualization step writes `sizing_field_overview.png`.
+
+Smoke tests for the full sizing-field workflow are being performed on Frontier.
 An update will follow once satisfactory results are available.

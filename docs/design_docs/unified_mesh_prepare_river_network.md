@@ -123,19 +123,21 @@ already perfectly consistent with the preferred coastline source.
 
 ### Requirement: Standalone River-Network Task
 
-Date last modified: 2026/04/22
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-Polaris shall provide a standalone task for the shared source-level river
-preprocessing and a standalone lat-lon task that runs the shared river
-rasterization together with the shared steps it depends on (for example
+Polaris shall provide a standalone task per named unified mesh that runs the
+full shared river-network workflow for that mesh, including HydroRIVERS
+simplification, coastline-consistent rasterization, and coastline-aware
+clipping, together with the shared upstream steps it depends on (for example
 `e3sm/init/topo/combine` and `prepare_coastline`).
 
-These standalone tasks shall make it practical to inspect retained basins,
+The standalone task shall make it practical to inspect retained basins,
 outlets, target-grid river masks, and outlet-snapping diagnostics without
 running the full unified mesh workflow.
 
@@ -304,31 +306,31 @@ channel and outlet masks rather than a single overloaded integer raster.
 
 ### Algorithm Design: Standalone River-Network Task
 
-Date last modified: 2026/04/22
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-The current standalone task design uses two thin wrappers rather than one
-monolithic task.
+The current standalone task design uses one thin wrapper per named unified
+mesh, `UnifiedRiverNetworkTask`, rather than separate source-level and
+lat-lon tasks. Each task wraps the full shared river-network step chain for
+its mesh — coastline steps, simplification, rasterization, clipping, and
+visualization — so all products can be inspected together without running the
+full unified mesh workflow.
 
-`PrepareRiverNetworkTask` wraps only the shared source-level step and is the
-right place to inspect HydroRIVERS conversion and source-grid-independent
-simplification choices. `LatLonRiverNetworkTask` adds the shared lat-lon topo
-combine step, the shared coastline step, the shared lat-lon river step, and an
-optional visualization step so outlet matching and rasterization can be
-inspected on a concrete target grid.
-
-This split keeps each task close to one layer of the interface while still
-reusing the same shared steps that the `build_sizing_field` task consumes.
+Organizing by mesh name rather than by resolution keeps the task structure
+consistent with the sizing-field and base-mesh task families and avoids
+creating standalone tasks for resolutions that are not tied to a specific
+mesh configuration.
 
 ## Implementation
 
 ### Implementation: Downstream-Ready River Network Products
 
-Date last modified: 2026/05/08
+Date last modified: 2026/05/11
 
 Contributors:
 
@@ -339,29 +341,25 @@ Contributors:
 The file naming and class layout are now concrete. The river implementation is
 organized under `polaris/tasks/mesh/spherical/unified/river/` as:
 
-- `source.py` for HydroRIVERS download, unpacking, shapefile conversion, and
-  source-level simplification;
-- `lat_lon.py` for target-grid rasterization and outlet reconciliation;
-- `base_mesh.py` for coastline-aware clipping and conditioning of retained
-   river geometry for final mesh generation;
-- `viz.py` for diagnostic plotting and text summaries;
-- `steps.py` for shared-step setup helpers;
-- `task.py` for standalone task wrappers; and
-- `river_network.cfg` for the shared configuration sections.
+- `simplify.py` (`SimplifyRiverNetworkStep`) for HydroRIVERS download,
+  unpacking, shapefile conversion, and source-level simplification;
+- `rasterize.py` (`RasterizeRiverLatLonStep`) for target-grid rasterization
+  and outlet reconciliation;
+- `clip.py` (`ClipRiverNetworkStep`) for coastline-aware clipping and
+  conditioning of retained river geometry for final mesh generation;
+- `viz.py` (`VizRiverStep`) for diagnostic plotting and text summaries;
+- `steps.py` for shared-step setup helpers (`get_unified_mesh_river_steps()`);
+- `task.py` and `tasks.py` for standalone task wrappers; and
+- the configuration sections are loaded from the unified mesh config.
 
 This implementation prioritizes a clean output contract over carrying forward
 the standalone workflow's mixed raster conventions.
 
-The first Polaris implementation should also avoid making the default workflow
-depend on a user-supplied local source-file path. Instead, it should identify
-the required public datasets and either download them directly or, only if
-necessary, consume them from the Polaris database.
-
-The source step obtains HydroRIVERS through `add_input_file()` using the public
-archive URL in `[prepare_river_network]`, with the Polaris database still
-available as a fallback cache location. The lat-lon step then consumes the
-shared coastline dataset selected by `[prepare_river_lat_lon]`. The
-`PrepareRiverForBaseMeshStep` consumes the simplified network together with the
+The simplification step obtains HydroRIVERS through `add_input_file()` using
+the public archive URL in the river network config section, with the Polaris
+database still available as a fallback cache location. The rasterization step
+then consumes the shared coastline dataset for the selected convention. The
+`ClipRiverNetworkStep` consumes the simplified network together with the
 selected coastline product and writes the clipped river geometry consumed by
 the unified base-mesh step.
 
@@ -375,16 +373,17 @@ total vertex count rather than to the number of segments.
 
 ### Implementation: Hydrologically Meaningful Simplification
 
-Date last modified: 2026/04/22
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The current simplification logic lives in
 `simplify_river_network_feature_collection()` in
-`polaris/tasks/mesh/spherical/unified/river/source.py`. It uses small focused
+`polaris/tasks/mesh/spherical/unified/river/simplify.py`. It uses small focused
 helpers for canonicalizing segments, validating downstream topology, filtering
 outlets, and traversing retained basin structure.
 
@@ -413,48 +412,64 @@ match status and snapping distance.
 
 The nearest-ocean-cell and nearest-land-cell lookups are implemented in
 `_build_cell_kdtree()` and the `_match_ocean_outlet()` / `_match_land_point()`
-helpers in `lat_lon.py`.  `_build_cell_kdtree()` uses `scipy.spatial.cKDTree`
+helpers in `rasterize.py`.  `_build_cell_kdtree()` uses `scipy.spatial.cKDTree`
 on unit-sphere Cartesian coordinates derived from the grid cell lat/lon values.
 Both trees are built once before iterating over outlet features, so the total
 lookup cost is O(n_outlets · log n_cells) rather than O(n_outlets · n_cells).
 
 ### Implementation: Standalone River-Network Task
 
-Date last modified: 2026/04/22
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-The current implementation adds two lightweight task wrappers in
-`polaris/tasks/mesh/spherical/unified/river/task.py` and avoids any separate
-task-specific river-processing code path. `PrepareRiverNetworkTask` exposes the
-shared source step, while `LatLonRiverNetworkTask` exposes the target-grid
-workflow and diagnostics for each supported resolution.
+The current implementation adds one lightweight task wrapper per named unified
+mesh in `polaris/tasks/mesh/spherical/unified/river/task.py` and avoids any
+separate task-specific river-processing code path. `UnifiedRiverNetworkTask`
+wraps the full shared step chain for its mesh — coastline steps, simplification
+(`SimplifyRiverNetworkStep`), rasterization (`RasterizeRiverLatLonStep`),
+clipping (`ClipRiverNetworkStep`), and visualization — so all products can be
+inspected together. Task registration is handled by `add_river_tasks()` in
+`tasks.py`, which iterates over `UNIFIED_MESH_NAMES` and registers one task per
+mesh.
 
 ## Testing
 
 ### Testing and Validation: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-The implementation now has unit tests for the source-level and target-grid
-product contracts in `tests/mesh/spherical/unified/test_river.py`. These tests
-verify that the expected masks and snapped-outlet metadata are written, that
-ocean-outlet and inland-sink cases remain distinct, and that named unified-mesh
-configs provide the required river options.
+Unit tests in `tests/mesh/spherical/unified/test_river.py` verify the
+target-grid product contract. Specifically:
 
-Those tests also verify the coastline-aware conditioning used for base-mesh
-products, including inland clipping, outlet removal near the coastline, and the
-mesh-specific shared-step factory wiring for `river/base_mesh`. The base-mesh
-tests then verify that `UnifiedBaseMeshStep` consumes the prepared
-`clipped_river_network.geojson` product rather than raw river geometry.
+- `test_build_river_network_dataset_contract_and_snapped_outlets` verifies
+  that `build_river_network_dataset()` writes the expected mask variables
+  (`river_channel_mask`, `river_outlet_mask`, `river_ocean_outlet_mask`,
+  `river_inland_sink_mask`), matched-outlet attributes
+  (`matched_ocean_outlets`, `unmatched_ocean_outlets`), and snapped-outlet
+  GeoJSON with `snapped_lon`, `snapped_lat`, and `matched_to_ocean`.
+- `test_mesh_river_step_factories_use_mesh_subdirs` verifies that
+  `get_unified_mesh_river_steps()` creates `SimplifyRiverNetworkStep`,
+  `RasterizeRiverLatLonStep`, and `ClipRiverNetworkStep` with the expected
+  mesh-specific subdirectories.
+- `test_mesh_river_step_factories_reuse_shared_configs` verifies step and
+  config identity across multiple calls to `get_unified_mesh_river_steps()`.
+
+The coastline-aware conditioning tests in the same file verify
+`condition_base_mesh_river_segments()` and `clip_outlet_feature_collection()`.
+The `test_base_mesh.py` tests then verify that `UnifiedBaseMeshStep` converts
+the prepared `clipped_river_network.geojson` product into JIGSAW line
+constraints rather than raw river geometry.
 
 `build_sizing_field` unit tests consume the target-grid river masks. There is
 still not a task-level integration test showing the full river workflow feeding
@@ -462,19 +477,31 @@ either the sizing-field task or the final base-mesh task on real data.
 
 ### Testing and Validation: Hydrologically Meaningful Simplification
 
-Date last modified: 2026/04/25
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-Current unit tests validate whether major outlets, main stems, and major
-tributaries are retained for representative synthetic networks, including deep
-main stems and branching cases. They also verify that invalid cyclic
-`NEXT_DOWN` graphs are rejected, that duplicate source features can be
-converted from HydroRIVERS shapefile data, and that the HydroRIVERS archive
-unpack path behaves as expected for a lightweight archive.
+Unit tests in `tests/mesh/spherical/unified/test_river.py` validate
+simplification behavior on synthetic networks:
+
+- `test_simplify_river_network_filters_outlets_and_minor_tributaries` verifies
+  that major outlets and tributaries exceeding the area ratio are retained while
+  nearby headwaters within the distance tolerance are filtered.
+- `test_simplify_river_network_handles_deep_main_stem` confirms correctness for
+  a 1500-segment chain without Python recursion limits.
+- `test_simplify_river_network_rejects_next_down_cycles` verifies that cyclic
+  `NEXT_DOWN` graphs are rejected with a clear error.
+- `test_simplify_river_network_preserves_branch_traversal_order` verifies that
+  multi-branch confluence structure is retained correctly.
+- `test_convert_hydrorivers_shapefile_to_geojson` verifies shapefile conversion.
+- `test_unpack_hydrorivers_archive` verifies archive unpacking.
+- `test_drainage_area_threshold_auto_derived_from_config` and
+  `test_outlet_distance_tolerance_auto_derived_from_config` verify that
+  simplification thresholds are derived correctly from mesh configs.
 
 What is still missing is validation against real HydroRIVERS subsets to ensure
 the present heuristics retain scientifically appropriate networks across
@@ -482,33 +509,62 @@ different hydrographic settings.
 
 ### Testing and Validation: Coastline-Consistent Outlets and Explicit Inland Sinks
 
-Date last modified: 2026/04/25
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-Current unit tests verify matched and unmatched ocean-outlet behavior, inland-
-sink snapping to land cells, derivation of the land mask from `ocean_mask`,
-and physical channel-buffering behavior. The visualization step also writes
-`river_network_overview.png` and `debug_summary.txt`, which makes outlet
-matching diagnostics straightforward to inspect in task runs.
+Unit tests in `tests/mesh/spherical/unified/test_river.py` cover outlet
+matching and inland-sink treatment:
+
+- `test_build_river_network_dataset_contract_and_snapped_outlets` verifies
+  matched ocean-outlet snapping and inland-sink classification.
+- `test_build_river_network_dataset_marks_distant_ocean_outlet_unmatched`
+  verifies that an outlet beyond the tolerance is flagged `matched_to_ocean =
+  false` and counted in `unmatched_ocean_outlets`.
+- `test_build_river_network_dataset_derives_land_mask_from_ocean_mask` verifies
+  that inland sinks are snapped to land cells derived from `ocean_mask`.
+- `test_build_river_network_dataset_applies_physical_channel_buffer` verifies
+  the physical buffer applied to rasterized channel cells.
+- `test_condition_base_mesh_river_segments_clips_then_simplifies` and
+  `test_condition_base_mesh_river_segments_drops_short_fragments` verify the
+  coastline clipping applied before base-mesh conditioning.
+- `test_clip_outlet_feature_collection_removes_ocean_outlets` verifies that
+  ocean outlets within the clip zone are removed.
+
+The visualization step writes `river_network_overview.png` and
+`debug_summary.txt`, making outlet-matching diagnostics straightforward to
+inspect in task runs.
 
 ### Testing and Validation: Standalone River-Network Task
 
-Date last modified: 2026/04/25
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-The standalone tasks are now the primary implementation path for inspecting
-river simplification and target-grid diagnostics. Unit tests verify that the
-source and lat-lon task-registration code registers the expected named-mesh
-tasks, uses mesh-specific subdirectories, and reuses shared configs and steps.
+Unit tests in `tests/mesh/spherical/unified/test_river.py` verify the
+standalone task structure:
 
-Standalone smoke tests for each of the 3 supported unified meshes have been
-run on Frontier, showing the expected rasterized river networks at each
-resolution.  Specific parameter choices still need to be fine-tuned.
+- `test_add_river_tasks_registers_mesh_tasks` verifies that `add_river_tasks()`
+  registers one `UnifiedRiverNetworkTask` per name in `UNIFIED_MESH_NAMES`,
+  that each task subdirectory is `spherical/unified/<mesh_name>/river/task`,
+  and that each task name is `river_network_<mesh_name>_task`.
+- `test_mesh_river_step_factories_use_mesh_subdirs` verifies mesh-specific
+  subdirectories for the simplify, rasterize, and clip steps.
+- `test_mesh_river_step_factories_reuse_shared_configs` verifies that step
+  and config instances are shared across multiple `get_unified_mesh_river_steps()`
+  calls for the same mesh.
+
+Standalone smoke tests for each of the supported unified meshes have been run
+on Frontier, showing the expected rasterized river networks at each resolution.
+Specific parameter choices still need to be fine-tuned.
+
+Full end-to-end execution of the river workflow feeding the sizing-field and
+base-mesh tasks on real data is planned but not yet performed.

@@ -6,6 +6,7 @@ Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 ## Summary
 
@@ -79,12 +80,13 @@ topography source datasets independently.
 
 ### Requirement: Topography-Consistent and Explicit Coastline Definition
 
-Date last modified: 2026/04/25
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The preferred coastline definition shall be consistent with the combined
 topography interpretation already used by the existing `e3sm/init/topo`
@@ -109,10 +111,6 @@ land for the selected coastline interpretation.
 The coastline workflow shall support multiple explicit Antarctic coastline
 definitions within the shared design rather than baking in only the first
 consumer's needs.
-
-If the topography-derived coastline proves unsuitable for some workflows, the
-design shall allow an alternate source such as Natural Earth without changing
-the downstream interface.
 
 ### Requirement: Global Coastal Distance on the Sphere
 
@@ -277,12 +275,6 @@ outlet logic. However, the standalone task should make it easy to compare that
 default with the other two shared products before the full workflow commits to
 consumer-specific assumptions.
 
-If the topography-derived coastline proves too noisy, too expensive, or
-otherwise unsuitable, a fallback source such as Natural Earth should be
-rasterized onto the same target grid and normalized into the same output
-contract. In this way, downstream steps can remain agnostic about the
-coastline source.
-
 ### Algorithm Design: Global Coastal Distance on the Sphere
 
 Date last modified: 2026/04/14
@@ -330,12 +322,13 @@ reverse, as long as `build_sizing_field` interprets it consistently.
 
 ### Algorithm Design: Standalone Coastline Task
 
-Date last modified: 2026/04/10
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The standalone task should be a thin wrapper around the shared
 `prepare_coastline` step rather than a separate implementation path.
@@ -346,10 +339,9 @@ there, the task can run the shared coastline step and any lightweight
 diagnostic or visualization steps that prove useful.
 
 This standalone task is important for design iteration. It provides a place to
-compare topography-derived and fallback coastlines, to compare Antarctic
-conventions, and to inspect the target-grid mask and signed-distance products
-without also running river preprocessing, sizing-field construction, or mesh
-generation.
+compare Antarctic conventions and to inspect the target-grid mask and
+signed-distance products without also running river preprocessing,
+sizing-field construction, or mesh generation.
 
 Because the task wraps the shared step, the same outputs can later be reused
 by the full unified workflow when configuration choices match.
@@ -358,12 +350,13 @@ by the full unified workflow when configuration choices match.
 
 ### Implementation: Raster-First Coastline Products for Downstream Steps
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The current implementation adds a shared coastline-preparation workflow in
 `polaris.tasks.mesh.spherical.unified.coastline` and reuses the shared lat-lon
@@ -377,7 +370,7 @@ combined-topography tasks and steps at 1.0, 0.25, 0.125, 0.0625, and 0.03125
 degree, with combined outputs including `base_elevation`, `ice_draft`,
 `ice_thickness`, `ice_mask`, and `grounded_mask`. `prepare_coastline` now
 treats those shared lat-lon topography products as the authoritative upstream
-inputs for the preferred topo-derived path.
+inputs for the topo-derived path.
 
 The implemented coastline workflow supports those same four coastline
 target-grid tiers other than the 1.0-degree smoke-test product. Standalone
@@ -387,9 +380,19 @@ expected usage is that 0.25 degree remains the cheaper inspection tier, while
 tiers. See Polaris pull request
 <https://github.com/E3SM-Project/polaris/pull/545>.
 
-The shared coastline step writes one convention-specific NetCDF file for each
-of `calving_front`, `grounding_line`, and `bedrock_zero`. Each file currently
-contains:
+`ComputeCoastlineStep` always runs at the finest supported resolution
+(`FINEST_RESOLUTION = 0.03125` degree) using the finest combined-topography
+step. For coarser target-grid resolutions, `RemapCoastlineStep` remaps the
+finest-resolution coastline products to the requested resolution. The
+shared-step factory `get_unified_mesh_coastline_steps()` in `steps.py`
+creates both steps and returns them keyed as `coastline_compute` (at
+non-finest resolutions) and `coastline_final` (the step whose outputs are
+consumed by downstream workflows). At the finest resolution `coastline_final`
+is the compute step; at coarser resolutions it is the remap step.
+
+Each `ComputeCoastlineStep` run writes one convention-specific NetCDF file for
+each of `calving_front`, `grounding_line`, and `bedrock_zero`
+(`coastline_<convention>.nc`). Each file currently contains:
 
 - `ocean_mask` and `signed_distance`; and
 - metadata including the coastline convention, target-grid type and
@@ -398,24 +401,19 @@ contains:
   and distance definitions.
 
 The current implementation also records the source combined-topography file
-and source step in the output attributes. This satisfies part of the intended
-lightweight metadata and diagnostics contract for recording the selected
-target-grid tier, source type, mask thresholds, flood-fill seed strategy, and
-sign convention. The implementation still does not write boundary samples as a
-public product, so any later reuse of those samples by
+and source step in the output attributes. The implementation does not write
+boundary samples as a public product, so any later reuse of those samples by
 `prepare_river_network` remains future work.
-
-The implemented source path is only the topo-derived one so far. A Natural
-Earth fallback has not been added yet.
 
 ### Implementation: Topography-Consistent and Explicit Coastline Definition
 
-Date last modified: 2026/04/18
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The current implementation always generates all three Antarctic coastline
 products in one run and writes them as separate files that downstream steps
@@ -449,10 +447,9 @@ The current candidate-mask definitions are:
 Outside Antarctica, where `ice_mask` and `grounded_mask` are effectively zero,
 the three candidate masks reduce to the same open-ocean interpretation.
 
-The implemented workflow still does not include a Natural Earth fallback. It
-does, however, write diagnostics that make the mask-building process auditable
-through the `viz` step, including final ocean-mask and signed-distance plots
-for each convention.
+The implementation writes diagnostics that make the mask-building process
+auditable through the `viz` step, including final ocean-mask and signed-distance
+plots for each convention.
 
 The default configuration sets `include_critical_transects = True`, so the
 shared critical land blockages and passages are included in normal task runs.
@@ -496,12 +493,13 @@ periodic across the antimeridian.
 
 ### Implementation: Standalone Coastline Task
 
-Date last modified: 2026/04/18
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The current implementation adds a lightweight task wrapper around the shared
 steps and does not introduce a separate task-specific coastline algorithm.
@@ -509,14 +507,14 @@ steps and does not introduce a separate task-specific coastline algorithm.
 `LatLonCoastlineTask` depends on the selected shared lat-lon combined-
 topography step and then adds the shared coastline step plus the shared `viz`
 step with `include_viz=True`. The shared-step helper for this path is
-`get_lat_lon_coastline_steps()`.
+`get_unified_mesh_coastline_steps()`.
 
 The standalone task subdirectories are currently:
 
-- `spherical/unified/coastline/lat_lon/0.25000_degree/task`
-- `spherical/unified/coastline/lat_lon/0.12500_degree/task`
-- `spherical/unified/coastline/lat_lon/0.06250_degree/task`
-- `spherical/unified/coastline/lat_lon/0.03125_degree/task`
+- `spherical/unified/coastline/0.25000_degree/task`
+- `spherical/unified/coastline/0.12500_degree/task`
+- `spherical/unified/coastline/0.06250_degree/task`
+- `spherical/unified/coastline/0.03125_degree/task`
 
 Each task links the shared `coastline.cfg` file and exposes the `combine_topo`,
 `prepare`, and `viz` step directories within the task work directory.
@@ -529,84 +527,129 @@ later unified workflow.
 
 ### Testing and Validation: Raster-First Coastline Products for Downstream Steps
 
-Date last modified: 2026/04/25
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-Automated tests now verify the public output contract at the dataset-builder
-level. In `tests/mesh/spherical/unified/test_coastline.py`, the current
-coverage confirms that the convention-specific coastline products expose the
-expected variables,
-that the conventions are returned together in the expected order, and that the
-output metadata records items such as the coastline convention and flood-fill
-seed strategy.
+Automated tests verify the public output contract at the dataset-builder level.
+In `tests/mesh/spherical/unified/test_coastline.py`:
 
-There is not yet automated validation that compares different target-grid
-tiers. Downstream contract coverage now exists at the unit-test level in the
-river and sizing-field tests, but there is not yet a task-level integration
-test that runs the full coastline-to-river-to-sizing-field chain.
+- `test_coastline_contract_and_variants` confirms that the convention-specific
+  coastline products expose the expected variables (`ocean_mask`,
+  `signed_distance`) and that the conventions are returned together in the
+  expected order with correct output metadata.
+- `test_get_unified_mesh_coastline_steps_reuses_shared_config_for_viz` verifies
+  that the step factory `get_unified_mesh_coastline_steps()` returns the correct
+  step structure and that shared config is reused for the viz step.
+- `test_coarse_viz_uses_coastline_final_output` verifies that at coarser
+  resolutions the viz step uses the `coastline_final` (remap) step's output.
+- `test_finest_viz_uses_compute_output` verifies that at the finest resolution
+  the viz step uses the compute step's output directly.
+- `test_task_can_include_shared_coastline_viz_without_default_run` verifies that
+  the viz step can be included without being run by default.
+
+In `tests/mesh/spherical/unified/test_remap_coastline.py`:
+
+- `test_coastline_remap_step_writes_all_conventions` verifies that
+  `RemapCoastlineStep` writes one output file per convention.
+- `test_get_unified_mesh_coastline_steps_creates_remap_step_for_coarse`
+  verifies that the factory creates a remap step for coarser resolutions (with
+  `coastline_compute` pointing to the compute step and `coastline_final` to the
+  remap step) and no remap step at the finest resolution.
+
+There is not yet automated validation that compares different target-grid tiers.
+Downstream contract coverage exists at the unit-test level in the river and
+sizing-field tests, but there is not yet a task-level integration test that runs
+the full coastline-to-river-to-sizing-field chain.
 
 ### Testing and Validation: Topography-Consistent and Explicit Coastline Definition
 
-Date last modified: 2026/04/25
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The current automated tests in this area are unit tests on synthetic target-
-grid datasets rather than full global products.
+grid datasets rather than full global products. In
+`tests/mesh/spherical/unified/test_coastline.py`:
 
-Those tests currently cover:
-
-- a case where `calving_front`, `grounding_line`, and `bedrock_zero` differ in
-  Antarctica;
-- a disconnected below-sea-level basin that remains on the land side after
-  flood fill; and
-- a case confirming that the northernmost latitude row is used for flood-fill
-  seeding even when latitude values are ordered south to north;
-- a critical land blockage that closes a narrow ocean connection; and
-- a critical passage that connects an otherwise disconnected ocean region.
+- `test_coastline_contract_and_variants` covers a case where `calving_front`,
+  `grounding_line`, and `bedrock_zero` differ in Antarctica.
+- `test_coastline_excludes_disconnected_inland_water` verifies that a
+  disconnected below-sea-level basin remains on the land side after flood fill.
+- `test_coastline_uses_northernmost_latitude_for_seed_row` confirms that the
+  northernmost latitude row is used for flood-fill seeding even when latitude
+  values are ordered south to north.
+- `test_coastline_none_transects_matches_legacy_behavior` checks that disabling
+  critical transects produces consistent results.
+- `test_critical_land_blockage_closes_a_narrow_ocean_connection` verifies that a
+  critical land blockage closes a narrow ocean connection.
+- `test_critical_passage_connects_otherwise_disconnected_ocean` verifies that a
+  critical passage connects an otherwise disconnected ocean region.
+- `test_diagonal_transect_rasterization_is_four_connected` and
+  `test_antimeridian_transect_rasterization_uses_periodic_longitude` verify
+  rasterization correctness for diagonal and antimeridian-crossing transects.
+- `test_coastline_step_configures_critical_transects` verifies that the step
+  correctly configures the critical transect behavior.
 
 The current tests do not yet include dedicated threshold-sensitivity cases or
 full-resolution comparisons against realistic global datasets.
 
 ### Testing and Validation: Global Coastal Distance on the Sphere
 
-Date last modified: 2026/04/25
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The current automated coverage checks the signed-distance field indirectly in
-synthetic dataset tests. Existing assertions confirm that the field is finite
-for the tested cases and that the sign matches the intended convention of
-negative over land and positive over ocean.
+synthetic dataset tests. In `tests/mesh/spherical/unified/test_coastline.py`,
+`test_coastline_contract_and_variants` confirms that the `signed_distance` field
+is finite for all tested cases and that the sign matches the intended convention
+of negative over land and positive over ocean.
 
-There is an antimeridian-specific automated test for critical-transect
-rasterization, but not yet for the signed-distance field itself. There is also
-not yet a task-level baseline that checks the smoothness of the signed-distance
-field on realistic global products. Manual inspection is still needed for
-those cases.
+In `tests/mesh/spherical/unified/test_remap_coastline.py`:
+
+- `test_remap_ocean_mask_threshold` and `test_remap_signed_distance_sign_follows_mask`
+  verify that remapped signed-distance fields have signs consistent with the
+  remapped ocean mask.
+- `test_remap_mixed_mask_sign_consistency` and `test_remap_dataset_attributes`
+  verify sign consistency and attribute preservation across remapping.
+
+There is an antimeridian-specific automated test
+(`test_antimeridian_transect_rasterization_uses_periodic_longitude`) for
+critical-transect rasterization, but not yet for the signed-distance field
+itself. There is also not yet a task-level baseline that checks the smoothness
+of the signed-distance field on realistic global products. Manual inspection is
+still needed for those cases.
 
 ### Testing and Validation: Standalone Coastline Task
 
-Date last modified: 2026/04/25
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-The standalone task is the intended place to inspect and compare coastline
-choices before they are used in a later unified workflow, but there is not yet
-an automated task-level smoke test for it.
+The `test_get_unified_mesh_coastline_steps_reuses_shared_config_for_viz` and
+`test_get_unified_mesh_coastline_steps_creates_remap_step_for_coarse` tests in
+`tests/mesh/spherical/unified/test_remap_coastline.py` and
+`test_coastline.py` verify the step factory wiring, including that
+`get_unified_mesh_coastline_steps()` produces the correct set of steps for both
+finest and coarser resolutions and that the viz step can be optionally included.
+There is not yet an automated task-level smoke test.
 
 A test has been performed on Frontier, showing the expected behavior:
 

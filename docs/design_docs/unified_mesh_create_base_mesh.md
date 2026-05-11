@@ -6,6 +6,7 @@ Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 ## Summary
 
@@ -550,138 +551,161 @@ part of the same planned capability keeps the workflow boundary honest.
 
 ### Testing and Validation: Final JIGSAW-to-MPAS Unified Base Mesh
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-Current automated coverage includes unit tests for `UnifiedBaseMeshStep` and
-for standalone base-mesh task registration, but not yet a coarse end-to-end
-smoke test that runs JIGSAW and produces `base_mesh.nc` and `graph.info`.
+In `tests/mesh/spherical/unified/test_base_mesh.py`:
 
-Validation should confirm that the final task uses the standard
-JIGSAW-to-MPAS conversion path and that the result is a valid MPAS mesh.
+- `test_unified_base_mesh_step_writes_river_geometry` verifies that
+  `UnifiedBaseMeshStep` correctly writes river geometry including LineString and
+  MultiLineString features.
+- `test_unified_base_mesh_step_uses_prepared_clipped_river_geometry` verifies
+  that the step reads the prepared clipped river geometry product.
+- `test_read_geojson_line_mesh_deduplicates_shared_endpoints` and
+  `test_read_geojson_line_mesh_drops_degenerate_edges_after_dedup` verify
+  `_read_geojson_line_mesh()` behavior.
+- `test_estimate_dc_edge_from_area_cell_matches_regular_hexagon` and
+  `test_get_regional_extent_uses_conus_example_for_global_bounds` verify the
+  viz helper functions.
+
+There is not yet a coarse end-to-end smoke test that runs JIGSAW and produces
+`base_mesh.nc` and `graph.info`.
 
 ### Testing and Validation: Explicit Consumption of Shared Unified-Mesh Products
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-Tests should verify that the final build step links only the shared upstream
-products it needs, especially `sizing_field.nc` and retained river vector
-artifacts, and does not reach back to raw source datasets.
+In `tests/mesh/spherical/unified/test_base_mesh_tasks.py`:
 
-Current unit tests verify the first part of that contract by exercising the
-base-mesh and river shared-step factories and by confirming that downstream
-remap and cull variants are registered for each named unified mesh.
+- `test_add_unified_base_mesh_task_includes_dependencies` verifies that the
+  standalone task links only the expected shared step keys
+  (`combine_topo_lat_lon_0.03125_degree`, `coastline_compute`,
+  `coastline_final`, `river_simplify`, `river_rasterize`, `river_clip`,
+  `sizing_field`, `base_mesh`, `base_mesh_viz`).
+- `test_base_mesh_step_factory_includes_dependencies` verifies that the factory
+  wiring links only the shared upstream products.
 
 Task-level execution tests should still verify that the remap and cull variants
 accept the produced unified base mesh through standard task interfaces.
 
 ### Testing and Validation: River-Geometry Influence on Final Cell Placement
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-This requirement needs more than a file-exists test. Automated validation
-should include at least one focused check that would fail if the final stage
-ignored retained river geometry and used only the raster sizing field.
+- `test_unified_base_mesh_step_writes_river_geometry` and
+  `test_unified_base_mesh_step_uses_prepared_clipped_river_geometry` in
+  `tests/mesh/spherical/unified/test_base_mesh.py` verify that the clipped
+  river geometry is converted to JIGSAW line constraints.
 
-The current unit tests verify that the prepared clipped river geometry is
-converted into JIGSAW line constraints. The precise mesh-quality check can
-still evolve. Examples include a comparison against a raster-only control mesh,
-a diagnostic that measures mesh alignment near retained channels, or a small
-regression case that verifies a known outlet or main-stem placement pattern.
+A more precise mesh-quality check is still needed. Examples include a
+comparison against a raster-only control mesh, a diagnostic that measures mesh
+alignment near retained channels, or a small regression case that verifies a
+known outlet or main-stem placement pattern.
 
 ### Testing and Validation: River Snapping Shall Not Refine Coastal Ocean Resolution
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-Validation for this requirement should include an ocean-focused check on the
-realized mesh, not only on the retained river inputs or on the raster sizing
-field.
+In `tests/mesh/spherical/unified/test_river.py`, tests cover inland clipping
+of retained river segments and outlet removal near the coastline. These verify
+that `ClipRiverNetworkStep` correctly removes river geometry within the coastal
+clipping zone before it reaches `create_base_mesh`.
 
-One required diagnostic is that `dcEdge` after culling to the ocean-only mesh
-must not show a band of higher resolution along the coastline than elsewhere
-in the mesh, beyond what is expected from the intended ocean resolution
-pattern.
-
-Automated coverage should also include at least one focused regression test of
-the river-conditioning step, verifying that river segments are clipped before
-they reach the coastline clipping zone and that periodic longitude handling
-does not break the cutoff near the dateline.
-
-Current unit tests cover inland clipping of retained segments and outlet
-removal near the coastline. What is still missing is a realized-ocean-mesh
-regression that checks `dcEdge` after ocean culling.
+What is still missing is a realized-ocean-mesh regression that checks `dcEdge`
+after ocean culling to confirm that no band of over-refined coastal ocean
+resolution was introduced by river snapping.
 
 ### Testing and Validation: Shared Final Step and Per-Mesh Standalone Tasks
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-Tests should verify that task registration produces one standalone base-mesh
-task per named unified mesh and that the tasks load the intended named config.
+In `tests/mesh/spherical/unified/test_base_mesh_tasks.py`:
 
-Current unit tests verify that task registration produces one standalone
-base-mesh task per named unified mesh, that the visualization step is included,
-and that the shared final step and config are reused when multiple dependent
-requests target the same mesh product.
+- `test_add_unified_base_mesh_tasks_registers_named_meshes` verifies that task
+  registration produces one standalone base-mesh task per named unified mesh
+  (matching `UNIFIED_MESH_NAMES`).
+- `test_base_mesh_step_factory_uses_mesh_subdir_and_viz` verifies that the viz
+  step is included and that the step factory uses the mesh-specific subdirectory.
+- `test_base_mesh_step_factory_reuses_shared_config_for_viz` verifies that the
+  shared final step and config are reused when multiple requests target the same
+  mesh product.
 
 ### Testing and Validation: Standalone Visualization for Mesh and Inputs
 
-Date last modified: 2026/04/25
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-The standalone task tests should verify that visualization artifacts are
-produced and that the visualization step reads both the input sizing field and
-the generated base mesh.
+- `test_estimate_dc_edge_from_area_cell_matches_regular_hexagon` and
+  `test_get_regional_extent_uses_conus_example_for_global_bounds` in
+  `tests/mesh/spherical/unified/test_base_mesh.py` verify the viz helper
+  functions used by the visualization step.
 
-If practical, tests should also verify that river geometry is included in the
-visualization path so the final diagnostic package really covers the mesh,
-resolution field, and retained river inputs together.
+There is not yet an automated test that verifies that visualization artifact
+files are produced at the task level (e.g. that output PNG figures exist after
+the viz step runs).
 
 ### Testing and Validation: Downstream Remap and Culling Variants for Unified Meshes
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-At least one integration-style test should run a coarse unified base mesh into
-the downstream topography-remap and cull variants and verify that the expected
-intermediate and final products are produced.
+In `tests/e3sm/init/topo/test_unified_tasks.py`:
 
-Success for this requirement is not tuned scientific quality on the first
-attempt. It is that the unified mesh products pass cleanly into the existing
-downstream pipeline and produce the expected remapped topography, masks, and
-culled land and ocean meshes.
+- `test_add_remap_topo_tasks_includes_unified_meshes` and
+  `test_add_cull_topo_tasks_includes_unified_meshes` verify that explicit
+  unified remap and cull task variants are registered for each named mesh.
+- `test_get_remap_topo_steps_includes_upstream_base_mesh_steps` and
+  `test_get_cull_topo_steps_includes_full_remap_workflow` verify step ordering
+  for remap and cull tasks.
+- `test_get_remap_topo_steps_reuses_shared_config_for_viz` verifies config
+  reuse across multiple requests.
+- `test_get_remap_topo_steps_uses_mesh_max_cell_width_for_source_topography`
+  and `test_coarse_unified_mesh_uses_ne120_topography` verify that the coarsest
+  unified mesh selects the expected low-resolution topography path.
+- `test_remap_topo_task_uses_factory_symlink_keys` and
+  `test_cull_topo_task_uses_factory_symlink_keys` verify step-key wiring.
+- `test_unified_remap_topo_task_includes_base_mesh_dependencies` and
+  `test_unified_cull_topo_task_includes_base_mesh_dependencies` verify that
+  remap and cull tasks include the upstream base mesh shared steps.
 
-Current unit tests already verify that the explicit unified remap and cull task
-variants are registered for each named mesh and that the coarsest unified mesh
-selects the expected low-resolution topography path.
+Full end-to-end execution through `e3sm/init/topo/cull` on all four supported
+unified meshes is planned but not yet performed.

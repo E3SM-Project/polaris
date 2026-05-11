@@ -6,6 +6,7 @@ Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 ## Summary
 
@@ -253,11 +254,10 @@ that are stable enough to drive mesh sizing. Based on the current
 [`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
 workflow, the first supported sources should be:
 
-- a coastline mask derived first from the existing `e3sm/init/topo`
+- a coastline mask derived from the existing `e3sm/init/topo`
   topography product and its land/ocean masking logic, so the unified mesh
   uses the same coastline interpretation as downstream topography remap and
-  cull workflows. A Natural Earth-derived coastline should remain available as
-  a fallback if the topo-derived coastline proves unsuitable, and
+  cull workflows; and
 - a simplified global river network derived from HydroRIVERS or an equivalent
   source.
 
@@ -429,18 +429,18 @@ cull tasks without an extra mesh translation stage.
 
 ### Implementation: Feature-Aware Resolution Control
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The current step decomposition is now implemented:
 
 - `prepare_coastline`: derive a coastline representation suitable for mesh
-  refinement, using the `e3sm/init/topo` coastline as the first-choice source
-  and Natural Earth as a fallback;
+  refinement, using the `e3sm/init/topo` coastline as the source;
 - `prepare_river_network`: simplify and filter a global river dataset into
   source-level products, target-grid-ready products, and mesh-conditioned river
   products for final cell-placement control;
@@ -533,10 +533,7 @@ signed-distance field on the sphere from raster coastline transitions and uses
 that field to define smooth resolution transitions. The implementation also
 applies shared critical passages and land blockages before flood filling the
 candidate ocean mask, which is necessary to keep important connected seas in
-the ocean domain and to close known artificial openings. A fallback path based
-on Natural Earth should still be retained in case the topo-derived coastline
-is too noisy, too expensive to generate, or otherwise unsuitable for driving
-mesh refinement.
+the ocean domain and to close known artificial openings.
 
 The first implementation targets coastline and river inputs only. The
 configuration and internal APIs should nonetheless leave room for later steps
@@ -653,93 +650,123 @@ algorithm.
 
 ### Testing and Validation: Global Spherical MPAS Base Mesh
 
-Date last modified: 2026/04/10
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-The workflow should include an integration test that creates a coarse unified
-global mesh and verifies that `base_mesh.nc` and `graph.info` are produced.
+In `tests/mesh/spherical/unified/test_base_mesh.py`,
+`test_unified_base_mesh_step_writes_river_geometry` and
+`test_unified_base_mesh_step_uses_prepared_clipped_river_geometry` verify that
+`UnifiedBaseMeshStep` correctly reads the sizing field and links river geometry.
+`test_read_geojson_line_mesh_deduplicates_shared_endpoints` and
+`test_read_geojson_line_mesh_drops_degenerate_edges_after_dedup` verify the
+`_read_geojson_line_mesh()` helper used by the step.
 
-Validation should confirm that the resulting file is a valid MPAS mesh and that
-the feature-aware step reuses the standard JIGSAW-to-MPAS conversion path.
+In `tests/mesh/spherical/unified/test_base_mesh_tasks.py`,
+`test_add_unified_base_mesh_tasks_registers_named_meshes` verifies one
+standalone task per named mesh, and `test_add_unified_base_mesh_task_includes_dependencies`
+verifies the expected full step chain.
+
+There is not yet an integration test that runs JIGSAW and verifies
+`base_mesh.nc` and `graph.info` are produced.
 
 ### Testing and Validation: Downstream E3SM Interoperability
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-At least one regression-style task should pass the generated base mesh into the
-existing topography remap workflow, and ideally also the cull workflow, without
-any manual conversion or edits in the work directory.
+In `tests/e3sm/init/topo/test_unified_tasks.py`:
 
-Success for this requirement is not that the unified mesh produces final tuned
-science results on the first attempt, but that the mesh product is accepted by
-the existing downstream infrastructure as a standard MPAS base mesh.
+- `test_add_remap_topo_tasks_includes_unified_meshes` and
+  `test_add_cull_topo_tasks_includes_unified_meshes` verify that explicit
+  unified-mesh remap and cull task variants are registered for each named mesh.
+- `test_get_remap_topo_steps_includes_upstream_base_mesh_steps` and
+  `test_get_cull_topo_steps_includes_full_remap_workflow` verify step ordering.
+- `test_get_remap_topo_steps_reuses_shared_config_for_viz` verifies config
+  reuse across multiple requests.
+- `test_get_remap_topo_steps_uses_mesh_max_cell_width_for_source_topography`
+  and `test_coarse_unified_mesh_uses_ne120_topography` verify that the coarsest
+  unified mesh selects the low-resolution topography path.
+- `test_unified_remap_topo_task_includes_base_mesh_dependencies` and
+  `test_unified_cull_topo_task_includes_base_mesh_dependencies` verify that
+  remap and cull tasks include upstream base mesh steps.
 
-Because coastline consistency is a key motivation for the preferred source,
-validation should also check that the coastline product used for refinement is
-derived from the same topography interpretation used downstream when the
-first-choice path is selected.
-
-Current unit tests now verify that the explicit unified-mesh remap and cull
-task variants are registered for each named unified mesh and that the coarsest
-unified mesh selects the low-resolution cubed-sphere topography path.
-
-What remains is an end-to-end execution test that runs a generated unified mesh
-through remapping and culling on real products.
+End-to-end execution through `e3sm/init/topo/cull` on all four supported
+unified meshes is planned but not yet performed.
 
 ### Testing and Validation: Feature-Aware Resolution Control
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-Current automated coverage for feature-aware preprocessing now includes the
-coastline, river and sizing-field stages.
+Current automated coverage for feature-aware preprocessing spans all four
+stages. Detailed test function lists appear in the per-stage design documents;
+a high-level summary follows here.
 
-The current unit tests verify the coastline preprocessing contract, key
-convention-specific behavior, and critical-passage or land-blockage handling.
-They also verify that river preprocessing preserves major network structure,
-produces consistent target-grid river and outlet products, and buffers
-rasterized river channels by a physical distance when configured.
+In `tests/mesh/spherical/unified/test_coastline.py` and
+`test_remap_coastline.py`, tests verify the coastline output contract
+(`ocean_mask`, `signed_distance`), Antarctic convention differences,
+disconnected basin flood-fill, northernmost-row seeding, critical land
+blockage and passage handling, and the `get_unified_mesh_coastline_steps()`
+factory wiring.
 
-Sizing-field tests verify that `build_sizing_field` composes constant and
-latitude-dependent ocean backgrounds with land, coastline, river-channel and
-river-outlet controls, that the shared grid is used by the step-setup logic,
-and that `UnifiedBaseMeshStep` can read `sizing_field.nc`.
+In `tests/mesh/spherical/unified/test_river.py`, tests verify river output
+masks (`river_channel_mask`, `river_outlet_mask`, `river_ocean_outlet_mask`,
+`river_inland_sink_mask`), outlet snapping, coastline-aware clipping, and
+`UnifiedRiverNetworkTask` registration per mesh name.
 
-Base-mesh tests now verify that conditioned river geometry is passed through to
-JIGSAW line constraints and that one standalone base-mesh task is registered
-for each named unified mesh. River tests also verify the coastline-aware river
-conditioning performed for the final mesh stage.
+In `tests/mesh/spherical/unified/test_sizing_field.py`, tests verify that
+`build_sizing_field_dataset()` composes constant and latitude-dependent ocean
+backgrounds with land, coastline, river-channel and river-outlet controls,
+that mesh-specific subdirectories and config reuse are correct, and that
+`UnifiedBaseMeshStep` can read `sizing_field.nc`.
 
-The remaining gap is executable end-to-end coverage: the current automated
-tests are still mostly unit-level and do not yet include a smoke test that runs
-the full shared-step chain through JIGSAW and downstream remap or cull steps.
+In `tests/mesh/spherical/unified/test_base_mesh.py` and
+`test_base_mesh_tasks.py`, tests verify that conditioned river geometry is
+converted to JIGSAW line constraints and that one standalone base-mesh task
+is registered per named unified mesh.
+
+The remaining gap is end-to-end coverage: the current automated tests are
+unit-level and do not yet include a smoke test that runs the full shared-step
+chain through JIGSAW and downstream remap or cull steps.
 
 ### Testing and Validation: Shared Target-Grid Tiers and Cacheable Preprocessing
 
-Date last modified: 2026/04/25
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-Current unit tests verify some parts of this contract: the river and
-sizing-field setup helpers use mesh-specific shared subdirectories, shared configs
-are reused when the same product is requested more than once, and the named
-mesh configs provide the required `resolution_latlon` options.
+Current unit tests verify several parts of this contract. In
+`tests/mesh/spherical/unified/test_base_mesh_tasks.py` and
+`tests/mesh/spherical/unified/test_sizing_field.py`:
+
+- `test_sizing_field_step_factory_uses_mesh_subdir`,
+  `test_base_mesh_step_factory_uses_mesh_subdir_and_viz`, and related tests
+  verify that the river and sizing-field setup helpers use mesh-specific shared
+  subdirectories.
+- `test_sizing_field_step_factory_reuses_shared_config_for_viz` and
+  `test_base_mesh_step_factory_reuses_shared_config_for_viz` verify that shared
+  configs are reused when the same product is requested more than once.
+- `test_add_sizing_field_tasks_registers_named_meshes` verifies that the named
+  mesh configs provide the required configuration.
 
 Tests should still verify that all supported target-grid tiers produce the
 expected lon/lat dimensions, that dependent shared steps reuse cached outputs
@@ -748,37 +775,40 @@ products rather than silently reusing incompatible cached artifacts.
 
 ### Testing and Validation: Polaris-Native Configuration and Execution
 
-Date last modified: 2026/04/10
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-The new workflow should be validated through standard Polaris setup and run
-commands, showing that configuration is expressed entirely through Polaris
-config files and that shared preprocessing steps can be reused by dependent
-tasks.
+The `test_base_mesh_step_factory_includes_dependencies` and
+`test_sizing_field_step_factory_uses_mesh_family` tests in
+`tests/mesh/spherical/unified/test_base_mesh_tasks.py` and
+`test_sizing_field.py` verify that configuration is expressed through Polaris
+config files and that shared steps are linked by the factory functions.
 
-If the workflow is split across multiple components, tests should also verify
-that the dependency chain remains clear to users through `polaris list
---verbose` and standard work-directory links.
+Full validation through standard Polaris setup and run commands, including
+verifying work-directory layout and shared-step cache reuse, is still needed
+for all four supported unified meshes.
 
 ### Testing and Validation: Selective Migration and Maintainability
 
-Date last modified: 2026/04/10
+Date last modified: 2026/05/11
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
-Any helper code extracted from
+The implemented coastline, river, sizing-field, and base-mesh unit tests each
+cover specific helper functions extracted from
 [`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
-should receive targeted tests that protect the specific behavior Polaris
-depends on.
+or reimplemented for Polaris. The stage-specific design documents list the
+precise test functions covering each extracted behavior.
 
-The first implementation should also document which external conda-forge
-packages were chosen in place of direct code migration so future contributors
-can understand why a given helper was or was not carried over from the
-standalone workflow.
+The first implementation chose `scipy`, `shapely`, `networkx`, and
+`rasterio` in place of direct code migration from the standalone utility
+modules.
