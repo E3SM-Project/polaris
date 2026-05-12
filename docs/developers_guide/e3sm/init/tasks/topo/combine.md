@@ -190,6 +190,19 @@ For more details, refer to the source code of the
 {py:class}`polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask` classes.
 
 ```{note}
-Since this step is expensive and time-consuming to run, most tasks will
-want to use cached outputs from this step rather than running it in full.
+Since `CombineStep` is expensive and time-consuming to run, it sets
+`self.default_cached = True` in its `__init__`.  Downstream tasks that add
+a `CombineStep` will therefore automatically use cached outputs without
+needing to opt in via the suite file or `--cached` flag.
+
+The standalone
+{py:class}`polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask`
+and
+{py:class}`polaris.tasks.e3sm.init.topo.combine.task.LatLonCombineTask`
+tasks exist specifically to regenerate these products, so they add all of
+their steps to `self.free_running_steps`, overriding the `default_cached`
+default and ensuring the steps always run.
+
+See {ref}`dev-step-default-cached` for a full description of the
+`default_cached` / `free_running_steps` mechanism.
 ```

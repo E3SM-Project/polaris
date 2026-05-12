@@ -1054,6 +1054,55 @@ recommended.
 More details on cached outputs are available in the compass design document
 [Caching outputs from compass steps](https://mpas-dev.github.io/compass/latest/design_docs/cached_outputs.html).
 
+(dev-step-default-cached)=
+
+### Automatic caching with `default_cached` and `free_running_steps`
+
+Expensive step classes can declare that their outputs should be treated as
+cached by default by setting `self.default_cached = True` in their
+`__init__`.  This lets downstream tasks consume prebuilt products without
+each caller having to opt in via the suite file or the `--cached` CLI flag.
+
+The caching resolution order during setup is (highest to lowest priority):
+
+1. **Free-running override** — if any selected task adds a step's `subdir`
+   to `self.free_running_steps`, that step is always run, even if
+   `default_cached` is `True` or `--cached` was passed on the command line.
+2. **CLI `--cached`** — steps explicitly requested via `polaris setup
+   --cached` or the `c`-suffix notation in suites.
+3. **Factory default** — steps whose `default_cached` attribute is `True`.
+
+**Setting `default_cached` in a step class:**
+
+Steps that are shared across many tasks and are expensive to run should set
+this flag in their `__init__`:
+
+```python
+self.default_cached = True
+```
+
+See {py:class}`polaris.tasks.e3sm.init.topo.combine.step.CombineStep` for
+a concrete example.
+
+**Opting out with `free_running_steps`:**
+
+A task that *owns* a step (e.g. a standalone task whose sole purpose is to
+regenerate an expensive shared product) should add the step's `subdir` to
+`self.free_running_steps` so that the outputs are always regenerated:
+
+```python
+self.free_running_steps.add(step.subdir)
+```
+
+A task can also do this conditionally in its `configure()` method, which
+runs before caching resolution.  For example, a task might add a step to
+`free_running_steps` only when the cached outputs are not yet available in
+the cache database.
+
+See {py:class}`polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask`
+and {py:class}`polaris.tasks.ocean.global_ocean.hydrography.woa23.task.Woa23`
+for concrete examples.
+
 (dev-step-dependencies)=
 
 ### Adding other steps as dependencies
