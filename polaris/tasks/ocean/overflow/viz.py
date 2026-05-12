@@ -91,8 +91,6 @@ class Viz(OceanIOStep):
         ds_init = self.open_model_dataset('init.nc', config=config)
         ds = self.open_model_dataset('output.nc', config=config)
 
-        print(ds.data_vars.keys())
-
         x_min = ds_mesh.xVertex.min().values
         x_max = ds_mesh.xVertex.max().values
         y_mid = ds_mesh.yCell.median().values
