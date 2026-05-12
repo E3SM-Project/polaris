@@ -4,12 +4,12 @@ import numpy as np
 import xarray as xr
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
-from polaris import Step
+from polaris.ocean.model import OceanIOStep, get_days_since_start
 from polaris.ocean.rpe import compute_rpe
 from polaris.viz import use_mplstyle
 
 
-class Analysis(Step):
+class Analysis(OceanIOStep):
     """
     A step for plotting the results of a series of overflow RPE runs
 
@@ -48,11 +48,11 @@ class Analysis(Step):
             filename='init.nc', work_dir_target=f'{init.path}/init.nc'
         )
 
-        for nu in nus:
-            self.add_input_file(
-                filename=f'output_nu_{nu:g}.nc',
-                target=f'../nu_{nu:g}/output.nc',
-            )
+        # for nu in nus:
+        #    self.add_input_file(
+        #        filename=f'output_nu_{nu:g}.nc',
+        #        target=f'../nu_{nu:g}/output.nc',
+        #    )
 
         self.add_output_file(filename='sections_overflow.png')
         self.add_output_file(filename='rpe_t.png')
@@ -68,10 +68,21 @@ class Analysis(Step):
         nus = self.nus
         section = self.config['overflow_rpe']
 
+        ds_mesh = self.open_model_dataset(mesh_filename, config=self.config)
+        ds_init = self.open_model_dataset(init_filename, config=self.config)
+
         rpe = compute_rpe(
-            mesh_filename=mesh_filename,
-            initial_state_filename=init_filename,
-            output_filenames=self.inputs[2:],
+            ds_mesh,
+            ds_init,
+            ds_outputs=[
+                self.open_model_dataset(
+                    f'output_nu_{nu:g}.nc',
+                    config=self.config,
+                    decode_times=True,
+                )
+                for nu in nus
+            ],
+            config=self.config,
         )
 
         plt.switch_backend('Agg')
@@ -79,8 +90,10 @@ class Analysis(Step):
         min_temp = section.getfloat('min_temp')
         max_temp = section.getfloat('max_temp')
 
-        ds = xr.open_dataset(f'output_nu_{nus[0]:g}.nc', decode_times=False)
-        times = ds.daysSinceStartOfSim.values
+        ds = self.open_model_dataset(
+            f'output_nu_{nus[0]:g}.nc', config=self.config, decode_times=True
+        )
+        times = get_days_since_start(ds)
 
         use_mplstyle()
         fig = plt.figure()
@@ -92,9 +105,6 @@ class Analysis(Step):
         plt.legend()
         plt.savefig('rpe_t.png')
         plt.close(fig)
-
-        ds_mesh = xr.open_dataset(mesh_filename)
-        ds_init = xr.open_dataset(init_filename)
 
         time = section.getfloat('plot_time')
 
@@ -113,8 +123,10 @@ class Analysis(Step):
         y = y_mid * xr.ones_like(x)
         for row_index, nu in enumerate(nus):
             ax = axes[row_index]
-            ds = xr.open_dataset(f'output_nu_{nu:g}.nc', decode_times=False)
-            times = ds.daysSinceStartOfSim.values
+            ds = self.open_model_dataset(
+                f'output_nu_{nu:g}.nc', config=self.config, decode_times=True
+            )
+            times = get_days_since_start(ds)
             time_index = np.argmin(np.abs(times - time))
             time = times[time_index]
             ds_transect = compute_transect(

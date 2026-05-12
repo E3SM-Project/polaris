@@ -65,10 +65,13 @@ class Analysis(Step):
         nus = self.nus
         section = self.config['internal_wave_rpe']
 
+        ds_mesh = xr.open_dataset(mesh_filename)
+        ds_init = xr.open_dataset(init_filename)
+        ds_outputs = [xr.open_dataset(i) for i in self.inputs[2:]]
         rpe = compute_rpe(
-            mesh_filename=mesh_filename,
-            initial_state_filename=init_filename,
-            output_filenames=self.inputs[2:],
+            ds_mesh,
+            ds_init,
+            ds_outputs,
         )
 
         plt.switch_backend('Agg')
@@ -90,9 +93,6 @@ class Analysis(Step):
         plt.legend()
         plt.savefig('rpe_t.png')
         plt.close(fig)
-
-        ds_mesh = xr.open_dataset(mesh_filename)
-        ds_init = xr.open_dataset(init_filename)
 
         fig, axes = plt.subplots(
             1,
