@@ -44,8 +44,9 @@ class LatLonCoastlineTask(Task):
         )
 
         steps, config = get_unified_mesh_coastline_steps(
-            resolution=resolution, cached=False, include_viz=True
+            resolution=resolution, include_viz=True
         )
         self.set_shared_config(config, link='coastline.cfg')
         for symlink, step in steps.items():
             self.add_step(step, symlink=symlink)
+            self.free_running_steps.add(step.subdir)

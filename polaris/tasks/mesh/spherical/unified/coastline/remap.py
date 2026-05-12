@@ -57,6 +57,7 @@ class RemapCoastlineStep(Step):
             cpus_per_task=1,
             min_cpus_per_task=1,
         )
+        self.default_cached = True
         self.fine_coastline_step = fine_coastline_step
         self.fine_resolution = FINEST_RESOLUTION
         self.coarse_resolution = coarse_resolution

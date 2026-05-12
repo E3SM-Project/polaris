@@ -50,6 +50,7 @@ class ComputeCoastlineStep(Step):
             cpus_per_task=1,
             min_cpus_per_task=1,
         )
+        self.default_cached = True
         self.combine_step = combine_step
         self.output_filenames = {
             convention: f'coastline_{convention}.nc'
