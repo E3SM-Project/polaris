@@ -71,8 +71,6 @@ def get_remap_topo_steps(mesh_name, smoothing=False, include_viz=False):
         target_grid='cubed_sphere', resolution_name=resolution_name
     )
     combine_topo_step = combine_topo_steps[combine_step_name]
-    # the combined topography is expensive to create, so cache it for reuse
-    combine_topo_step.cached = True
     combine_topo_key = f'combine_topo_cubed_sphere_{resolution_name}'
 
     config_filename = 'remap_topo.cfg'
