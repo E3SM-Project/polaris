@@ -168,12 +168,15 @@ filename as a task-specific input.</p>
 creates a shared <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> <a class="reference internal" href="../../e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="polaris.tasks.e3sm.init.topo.combine.step.CombineStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.step.CombineStep</span></code></a>
 configured for a 0.25-degree lat-lon target grid. The
 <a class="reference internal" href="../generated/polaris.tasks.ocean.global_ocean.hydrography.woa23.Woa23.html#polaris.tasks.ocean.global_ocean.hydrography.woa23.Woa23" title="polaris.tasks.ocean.global_ocean.hydrography.woa23.task.Woa23"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.global_ocean.hydrography.woa23.task.Woa23</span></code></a>
-task adds this step with a symlink <code class="docutils literal notranslate"><span class="pre">combine_topo</span></code> and prefers to use a cached
-version of its outputs when matching entries are available in the
-<code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> cache database.</p>
+task adds this step with a symlink <code class="docutils literal notranslate"><span class="pre">combine_topo</span></code>.</p>
+<p>Because <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> sets <code class="docutils literal notranslate"><span class="pre">default_cached</span> <span class="pre">=</span> <span class="pre">True</span></code>, the <code class="docutils literal notranslate"><span class="pre">combine_topo</span></code> step
+is automatically treated as cached during setup — no explicit opt-in is
+needed.</p>
 <p>This keeps the expensive topography blending logic in one place and makes the
 ocean hydrography preprocessing task consistent with the broader Polaris
-approach to shared, cacheable preprocessing steps.</p>
+approach to shared, cacheable preprocessing steps.  See
+<a class="reference internal" href="../../organization/steps.html#dev-step-default-cached"><span class="std std-ref">Automatic cache use with default_cached and free_running_steps</span></a> for a full description of the
+<code class="docutils literal notranslate"><span class="pre">default_cached</span></code> / <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code> mechanism.</p>
 </section>
 </section>
 <section id="hydrography-woa23">

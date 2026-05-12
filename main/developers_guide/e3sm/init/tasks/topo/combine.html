@@ -301,8 +301,19 @@ step (identifiable via its <code class="docutils literal notranslate"><span clas
 <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask.html#polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask" title="polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask</span></code></a> classes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Since this step is expensive and time-consuming to run, most tasks will
-want to use cached outputs from this step rather than running it in full.</p>
+<p>Since <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> is expensive and time-consuming to run, it sets
+<code class="docutils literal notranslate"><span class="pre">self.default_cached</span> <span class="pre">=</span> <span class="pre">True</span></code> in its <code class="docutils literal notranslate"><span class="pre">__init__</span></code>.  Downstream tasks that add
+a <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> will therefore automatically use cached outputs without
+needing to opt in via the suite file or <code class="docutils literal notranslate"><span class="pre">--cached</span></code> flag.</p>
+<p>The standalone
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.html#polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask" title="polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask</span></code></a>
+and
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask.html#polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask" title="polaris.tasks.e3sm.init.topo.combine.task.LatLonCombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.task.LatLonCombineTask</span></code></a>
+tasks exist specifically to regenerate these products, so they add all of
+their steps to <code class="docutils literal notranslate"><span class="pre">self.free_running_steps</span></code>, overriding the <code class="docutils literal notranslate"><span class="pre">default_cached</span></code>
+default and ensuring the steps always run.</p>
+<p>See <a class="reference internal" href="../../../../organization/steps.html#dev-step-default-cached"><span class="std std-ref">Automatic cache use with default_cached and free_running_steps</span></a> for a full description of the
+<code class="docutils literal notranslate"><span class="pre">default_cached</span></code> / <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code> mechanism.</p>
 </div>
 </section>
 </section>

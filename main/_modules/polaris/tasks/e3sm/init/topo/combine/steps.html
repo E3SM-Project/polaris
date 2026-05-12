@@ -127,6 +127,13 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get shared combined-topography steps for a cubed-sphere target grid.</span>
 
+<span class="sd">    The :class:`CombineStep` (and :class:`VizCombinedStep` when requested) set</span>
+<span class="sd">    ``default_cached = True`` in their constructors because they are expensive</span>
+<span class="sd">    to produce.  Downstream tasks benefit from cached outputs automatically.</span>
+<span class="sd">    Tasks that require free-running execution (e.g. standalone combine tasks)</span>
+<span class="sd">    should add each returned step&#39;s ``subdir`` to ``self.free_running_steps``</span>
+<span class="sd">    in their ``__init__``, as :class:`CubedSphereCombineTask` does.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    component : polaris.Component</span>
@@ -161,6 +168,13 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">get_lat_lon_topo_steps</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get shared combined-topography steps for a latitude-longitude target grid.</span>
+
+<span class="sd">    The :class:`CombineStep` (and :class:`VizCombinedStep` when requested) set</span>
+<span class="sd">    ``default_cached = True`` in their constructors because they are expensive</span>
+<span class="sd">    to produce.  Downstream tasks benefit from cached outputs automatically.</span>
+<span class="sd">    Tasks that require free-running execution (e.g. standalone combine tasks)</span>
+<span class="sd">    should add each returned step&#39;s ``subdir`` to ``self.free_running_steps``</span>
+<span class="sd">    in their ``__init__``, as :class:`LatLonCombineTask` does.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>

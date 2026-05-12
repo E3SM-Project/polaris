@@ -144,6 +144,12 @@ workflows.</p>
 <code class="docutils literal notranslate"><span class="pre">format_lat_lon_resolution_name()</span></code>, which formats the resolution with
 5 decimal places and appends <code class="docutils literal notranslate"><span class="pre">_degree</span></code>. For example, <code class="docutils literal notranslate"><span class="pre">0.125</span></code> becomes
 <code class="docutils literal notranslate"><span class="pre">0.12500_degree</span></code> and <code class="docutils literal notranslate"><span class="pre">0.03125</span></code> becomes <code class="docutils literal notranslate"><span class="pre">0.03125_degree</span></code>.</p>
+<p>The standalone combine tasks listed below always regenerate the combined
+topography from scratch — they are not affected by the automatic caching
+that applies to downstream tasks.  Other tasks that depend on a shared
+combine step (such as remap or ocean hydrography tasks) will automatically
+use cached outputs when they are available, without needing to opt in
+explicitly.</p>
 <p>Standalone tasks are available to create each combined topography product:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne3000/task</span></code></p></li>

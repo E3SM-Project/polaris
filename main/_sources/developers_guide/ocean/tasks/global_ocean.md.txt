@@ -28,13 +28,17 @@ The helper
 creates a shared `e3sm/init` {py:class}`polaris.tasks.e3sm.init.topo.combine.step.CombineStep`
 configured for a 0.25-degree lat-lon target grid. The
 {py:class}`polaris.tasks.ocean.global_ocean.hydrography.woa23.task.Woa23`
-task adds this step with a symlink `combine_topo` and prefers to use a cached
-version of its outputs when matching entries are available in the
-`e3sm/init` cache database.
+task adds this step with a symlink `combine_topo`.
+
+Because `CombineStep` sets `default_cached = True`, the `combine_topo` step
+is automatically treated as cached during setup — no explicit opt-in is
+needed.
 
 This keeps the expensive topography blending logic in one place and makes the
 ocean hydrography preprocessing task consistent with the broader Polaris
-approach to shared, cacheable preprocessing steps.
+approach to shared, cacheable preprocessing steps.  See
+{ref}`dev-step-default-cached` for a full description of the
+`default_cached` / `free_running_steps` mechanism.
 
 (dev-ocean-global-ocean-woa23)=
 

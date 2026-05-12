@@ -24,6 +24,13 @@ Latitude-longitude product names follow the naming convention used by
 5 decimal places and appends `_degree`. For example, `0.125` becomes
 `0.12500_degree` and `0.03125` becomes `0.03125_degree`.
 
+The standalone combine tasks listed below always regenerate the combined
+topography from scratch — they are not affected by the automatic caching
+that applies to downstream tasks.  Other tasks that depend on a shared
+combine step (such as remap or ocean hydrography tasks) will automatically
+use cached outputs when they are available, without needing to opt in
+explicitly.
+
 Standalone tasks are available to create each combined topography product:
 
 - `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne3000/task`

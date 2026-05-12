@@ -94,7 +94,7 @@ The command-line options are:
 $ polaris setup --help
 usage: polaris setup [-h] [-t PATH [PATH ...]] [-n NUM [NUM ...]] [-f FILE] [-m MACH] -w
                      PATH [-b PATH] [-p PATH] [--suite_name SUITE]
-                     [--cached STEP [STEP ...]] [--copy_executable] [--clean_tasks]
+                     [--cached STEP [STEP ...]] [--free_running STEP [STEP ...]] [--copy_executable] [--clean_tasks]
                      [--model MODEL] [--build] [--branch BRANCH] [--clean_build]
                      [--quiet_build] [--cmake_flags CMAKE_FLAGS] [--debug]
 
@@ -161,6 +161,13 @@ dependencies.
 
 You can uses `--cached` to specify steps of a test case to download from
 pre-generated files if they are available (see {ref}`dev-polaris-cache`.)
+
+You can use `--free_running` to force specific steps of a task to run free
+(not cached), overriding any `default_cached = True` setting on those steps
+(see {ref}`dev-step-default-cached`). Like `--cached`, `--free_running`
+accepts a list of step names or the special value `_all` to force every step
+free-running. A step may not appear in both `--cached` and `--free_running`.
+Both flags require exactly one task to be specified.
 
 If you specify `--copy_executable`, the model executable will be copied to the
 work directory rather than just symlinked.  This is useful if wish to run

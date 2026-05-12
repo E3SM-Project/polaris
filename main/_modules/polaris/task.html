@@ -180,6 +180,12 @@
 <span class="sd">        Whether to create a new log file for each step or to log output to a</span>
 <span class="sd">        common log file for the whole task.  The latter is used when</span>
 <span class="sd">        running the task as part of a suite</span>
+
+<span class="sd">    free_running_steps : set of str</span>
+<span class="sd">        The subdirs of steps that this task wants to run free (not cached),</span>
+<span class="sd">        resolved at setup time.  Free-running wins over ``default_cached``</span>
+<span class="sd">        and CLI ``--cached``.  Add step subdirs here during ``__init__``</span>
+<span class="sd">        rather than setting ``step.cached = False`` directly.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Task.__init__">
@@ -221,6 +227,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">step_symlinks</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">free_running_steps</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
         <span class="c1"># these will be set during setup, dummy values for now</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>

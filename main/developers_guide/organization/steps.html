@@ -82,6 +82,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#copying-input-files">Copying input files</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#output-files">Output files</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cached-output-files">Cached output files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#automatic-cache-use-with-default-cached-and-free-running-steps">Automatic cache use with <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> and <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#adding-other-steps-as-dependencies">Adding other steps as dependencies</a></li>
 </ul>
 </li>
@@ -976,7 +977,7 @@ caching the outputs of each step in a database so that they can be downloaded
 and symlinked rather than being computed each time.</p>
 <p>Cached output files are be stored in the <code class="docutils literal notranslate"><span class="pre">polaris_cache</span></code> database within each
 component’s space on that LCRC server (see <a class="reference internal" href="#dev-step-input-download"><span class="std std-ref">Downloading and symlinking input files</span></a>).
-If the “cached” version of a step is selected, as we will describe below, each
+If a step is configured to use cached outputs, as we will describe below, each
 of the task’s outputs will have a corresponding “input” file added with
 the <code class="docutils literal notranslate"><span class="pre">target</span></code> being a cache file on the LCRC server and the <code class="docutils literal notranslate"><span class="pre">filename</span></code> being
 the output file.  Polaris uses the <code class="docutils literal notranslate"><span class="pre">cached_files.json</span></code> database to know
@@ -1003,8 +1004,8 @@ ocean/global_ocean/QUwISC240/PHC/init
 <p>The line can be indented for visual clarity, but must begin with <code class="docutils literal notranslate"><span class="pre">cached:</span></code>,
 followed by a list of steps separated by a single space.</p>
 <p>Similarly, a user setting up tasks has two mechanisms for specifying which
-tasks and steps should have cached outputs.  If all steps in a task
-should have cached outputs, the suffix <code class="docutils literal notranslate"><span class="pre">c</span></code> can be added to the test number:</p>
+tasks and steps should use cached outputs.  If all steps in a task
+should use cached outputs, the suffix <code class="docutils literal notranslate"><span class="pre">c</span></code> can be added to the test number:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris setup -n 90c 91c 92 ...
 </pre></div>
 </div>
@@ -1033,6 +1034,49 @@ LCRC server and the <code class="docutils literal notranslate"><span class="pre"
 recommended.</p>
 <p>More details on cached outputs are available in the compass design document
 <a class="reference external" href="https://mpas-dev.github.io/compass/latest/design_docs/cached_outputs.html">Caching outputs from compass steps</a>.</p>
+</section>
+<section id="automatic-cache-use-with-default-cached-and-free-running-steps">
+<span id="dev-step-default-cached"></span><h3>Automatic cache use with <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> and <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code><a class="headerlink" href="#automatic-cache-use-with-default-cached-and-free-running-steps" title="Link to this heading"></a></h3>
+<p>Expensive step classes can declare that their outputs should be treated as
+cached by default by setting <code class="docutils literal notranslate"><span class="pre">self.default_cached</span> <span class="pre">=</span> <span class="pre">True</span></code> in their
+<code class="docutils literal notranslate"><span class="pre">__init__</span></code>.  This lets downstream tasks consume prebuilt products without
+each caller having to opt in via the suite file or the <code class="docutils literal notranslate"><span class="pre">--cached</span></code> CLI flag.</p>
+<p>The caching resolution order during setup is (highest to lowest priority):</p>
+<ol class="arabic simple">
+<li><p><strong>Free-running override</strong> — if any selected task adds a step’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code>
+to <code class="docutils literal notranslate"><span class="pre">self.free_running_steps</span></code>, <em>or</em> if <code class="docutils literal notranslate"><span class="pre">--free_running</span></code> was passed on the
+command line for that step, that step is always run, even if
+<code class="docutils literal notranslate"><span class="pre">default_cached</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">--cached</span></code> was passed on the command line.</p></li>
+<li><p><strong>CLI <code class="docutils literal notranslate"><span class="pre">--cached</span></code></strong> — steps explicitly requested via <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span> <span class="pre">--cached</span></code> or the <code class="docutils literal notranslate"><span class="pre">c</span></code>-suffix notation in suites.</p></li>
+<li><p><strong>Factory default</strong> — steps whose <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> attribute is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+</ol>
+<p><strong>Setting <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> in a step class:</strong></p>
+<p>Steps that are shared across many tasks and are expensive to run should set
+this flag in their <code class="docutils literal notranslate"><span class="pre">__init__</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">default_cached</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="polaris.tasks.e3sm.init.topo.combine.step.CombineStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.step.CombineStep</span></code></a> for
+a concrete example.</p>
+<p><strong>Opting out with <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code> or <code class="docutils literal notranslate"><span class="pre">--free_running</span></code>:</strong></p>
+<p>A task that <em>owns</em> a step (e.g. a standalone task whose sole purpose is to
+regenerate an expensive shared product) should add the step’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code> to
+<code class="docutils literal notranslate"><span class="pre">self.free_running_steps</span></code> so that the outputs are always regenerated:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">free_running_steps</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A task can also do this conditionally in its <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method, which
+runs before caching resolution.  For example, a task might add a step to
+<code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code> only when the cached outputs are not yet available in
+the cache database.</p>
+<p>Alternatively, a developer setting up a single task interactively can pass
+<code class="docutils literal notranslate"><span class="pre">--free_running</span> <span class="pre">&lt;step&gt;</span> <span class="pre">[&lt;step&gt;</span> <span class="pre">...]</span></code> (or <code class="docutils literal notranslate"><span class="pre">--free_running</span> <span class="pre">_all</span></code>) to
+<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> to force steps free-running at the command line without
+modifying task code.  A step may not appear in both <code class="docutils literal notranslate"><span class="pre">--cached</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--free_running</span></code>.</p>
+<p>See <a class="reference internal" href="../e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.html#polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask" title="polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask</span></code></a>
+and <a class="reference internal" href="../ocean/generated/polaris.tasks.ocean.global_ocean.hydrography.woa23.Woa23.html#polaris.tasks.ocean.global_ocean.hydrography.woa23.Woa23" title="polaris.tasks.ocean.global_ocean.hydrography.woa23.task.Woa23"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.global_ocean.hydrography.woa23.task.Woa23</span></code></a>
+for concrete examples.</p>
 </section>
 <section id="adding-other-steps-as-dependencies">
 <span id="dev-step-dependencies"></span><h3>Adding other steps as dependencies<a class="headerlink" href="#adding-other-steps-as-dependencies" title="Link to this heading"></a></h3>

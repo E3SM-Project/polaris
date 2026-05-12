@@ -220,6 +220,14 @@ baseline validation is performed after the step has run.</p></li>
 are being logged, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if output is to stdout/stderr</p></li>
 <li><p><strong>cached</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to get all of the outputs for the step from the database of
 cached outputs for this component</p></li>
+<li><p><strong>default_cached</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, this step will read its outputs from the cache by default
+when set up by a downstream task.  Set to <code class="docutils literal notranslate"><span class="pre">True</span></code> in the
+<code class="docutils literal notranslate"><span class="pre">__init__</span></code> of expensive step classes (e.g. <code class="xref py py-class docutils literal notranslate"><span class="pre">CombineStep</span></code>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ComputeCoastlineStep</span></code>) to indicate that their outputs should
+be reused across tasks without requiring each caller to opt in.
+Tasks that require free-running execution should add this step’s
+<code class="docutils literal notranslate"><span class="pre">subdir</span></code> to <code class="docutils literal notranslate"><span class="pre">self.free_running_steps</span></code> in their <code class="docutils literal notranslate"><span class="pre">__init__</span></code>
+rather than modifying this flag.</p></li>
 <li><p><strong>run_as_subprocess</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to run this step as a subprocess, rather than just running
 it directly from the task.  It is useful to run a step as a
 subprocess if there is not a good way to redirect output to a log

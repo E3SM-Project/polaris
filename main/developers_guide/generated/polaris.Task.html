@@ -181,6 +181,10 @@ are being logged, or <code class="docutils literal notranslate"><span class="pre
 <li><p><strong>new_step_log_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to create a new log file for each step or to log output to a
 common log file for the whole task.  The latter is used when
 running the task as part of a suite</p></li>
+<li><p><strong>free_running_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><em>set</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The subdirs of steps that this task wants to run free (not cached),
+resolved at setup time.  Free-running wins over <code class="docutils literal notranslate"><span class="pre">default_cached</span></code>
+and CLI <code class="docutils literal notranslate"><span class="pre">--cached</span></code>.  Add step subdirs here during <code class="docutils literal notranslate"><span class="pre">__init__</span></code>
+rather than setting <code class="docutils literal notranslate"><span class="pre">step.cached</span> <span class="pre">=</span> <span class="pre">False</span></code> directly.</p></li>
 </ul>
 </dd>
 </dl>

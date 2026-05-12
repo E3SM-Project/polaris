@@ -199,7 +199,7 @@ build MPAS-Ocean or Omega automatically during <code class="docutils literal not
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ polaris setup --help
 usage: polaris setup [-h] [-t PATH [PATH ...]] [-n NUM [NUM ...]] [-f FILE] [-m MACH] -w
                      PATH [-b PATH] [-p PATH] [--suite_name SUITE]
-                     [--cached STEP [STEP ...]] [--copy_executable] [--clean_tasks]
+                     [--cached STEP [STEP ...]] [--free_running STEP [STEP ...]] [--copy_executable] [--clean_tasks]
                      [--model MODEL] [--build] [--branch BRANCH] [--clean_build]
                      [--quiet_build] [--cmake_flags CMAKE_FLAGS] [--debug]
 
@@ -256,6 +256,12 @@ cases that depend on the output of other tasks must run after their
 dependencies.</p>
 <p>You can uses <code class="docutils literal notranslate"><span class="pre">--cached</span></code> to specify steps of a test case to download from
 pre-generated files if they are available (see <a class="reference internal" href="#dev-polaris-cache"><span class="std std-ref">polaris cache</span></a>.)</p>
+<p>You can use <code class="docutils literal notranslate"><span class="pre">--free_running</span></code> to force specific steps of a task to run free
+(not cached), overriding any <code class="docutils literal notranslate"><span class="pre">default_cached</span> <span class="pre">=</span> <span class="pre">True</span></code> setting on those steps
+(see <a class="reference internal" href="organization/steps.html#dev-step-default-cached"><span class="std std-ref">Automatic cache use with default_cached and free_running_steps</span></a>). Like <code class="docutils literal notranslate"><span class="pre">--cached</span></code>, <code class="docutils literal notranslate"><span class="pre">--free_running</span></code>
+accepts a list of step names or the special value <code class="docutils literal notranslate"><span class="pre">_all</span></code> to force every step
+free-running. A step may not appear in both <code class="docutils literal notranslate"><span class="pre">--cached</span></code> and <code class="docutils literal notranslate"><span class="pre">--free_running</span></code>.
+Both flags require exactly one task to be specified.</p>
 <p>If you specify <code class="docutils literal notranslate"><span class="pre">--copy_executable</span></code>, the model executable will be copied to the
 work directory rather than just symlinked.  This is useful if wish to run
 the tasks again later but anticipate that you may have removed (or replaced)
