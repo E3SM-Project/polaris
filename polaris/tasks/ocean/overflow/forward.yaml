@@ -99,8 +99,8 @@ Omega:
       Mode: write
       IfExists: replace
       Precision: double
-      Freq: 9999
-      FreqUnits: months
+      Freq: 1
+      FreqUnits: day
       UseStartEnd: false
       Contents:
         - Restart
@@ -111,7 +111,7 @@ Omega:
       IfExists: append
       Precision: double
       Freq: {{ output_freq }}
-      FreqUnits: seconds
+      FreqUnits: {{ output_freq_units }}
       UseStartEnd: false
       Contents:
         - Tracers
@@ -119,3 +119,4 @@ Omega:
         - KineticEnergyCell
         - SpecVol
         - BottomDepth
+        - SshCell

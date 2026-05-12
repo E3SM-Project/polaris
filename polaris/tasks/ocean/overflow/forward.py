@@ -131,22 +131,34 @@ class Forward(OceanModelStep):
         )
         section = config[f'overflow_{self.task_name}']
         run_duration = section.getfloat('run_duration')
+        run_duration_units = section.get('run_duration_units')
         output_interval = section.getfloat('output_interval')
-        if self.task_name == 'rpe':
+        output_units = section.get('output_interval_units')
+        output_freq = int(output_interval)
+        if run_duration_units == 'days':
             run_duration_str = get_time_interval_string(days=run_duration)
+        elif run_duration_units == 'hours':
+            run_duration_str = get_time_interval_string(
+                seconds=run_duration * 3600.0
+            )
+        elif run_duration_units == 'minutes':
+            run_duration_str = get_time_interval_string(
+                seconds=run_duration * 60.0
+            )
+        elif run_duration_units == 'seconds':
+            run_duration_str = get_time_interval_string(seconds=run_duration)
+        else:
+            raise ValueError(
+                f'Unknown run duration units: {run_duration_units}'
+            )
+        if self.task_name == 'rpe':
             output_interval_str = get_time_interval_string(
                 days=output_interval
             )
         else:
-            run_duration_str = get_time_interval_string(
-                seconds=run_duration * 60.0
-            )
             output_interval_str = get_time_interval_string(
                 seconds=output_interval
             )
-
-        # For Omega, we want the output interval as a number of seconds
-        output_freq = int(output_interval)
 
         time_integrator = config.get('overflow', 'time_integrator')
         time_integrator_map = dict([('RK4', 'RungeKutta4')])
@@ -166,9 +178,11 @@ class Forward(OceanModelStep):
             dt=dt_str,
             btr_dt=btr_dt_str,
             run_duration=run_duration_str,
+            run_duration_units=run_duration_units,
             output_interval=output_interval_str,
             nu=self.nu,
             output_freq=f'{output_freq}',
+            output_freq_units=output_units,
         )
         self.add_yaml_file(
             'polaris.tasks.ocean.overflow',
