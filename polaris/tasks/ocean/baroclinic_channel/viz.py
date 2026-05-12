@@ -70,11 +70,12 @@ class Viz(OceanIOStep):
         forward = dependencies['forward']
 
         self.add_input_file(
-            filename='mesh.nc', target=f'{mesh.path}/culled_mesh.nc'
+            filename='mesh.nc', work_dir_target=f'{mesh.path}/culled_mesh.nc'
         )
-        self.add_input_file(filename='init.nc', target=f'{init.path}/init.nc')
+        self.add_input_file(filename='init.nc',
+                            work_dir_target=f'{init.path}/init.nc')
         self.add_input_file(
-            filename='output.nc', target=f'{forward.path}/output.nc'
+            filename='output.nc', work_dir_target=f'{forward.path}/output.nc'
         )
 
     def run(self):
