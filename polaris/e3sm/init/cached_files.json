@@ -4,5 +4,15 @@
     "e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne3000/ne3000.g": "topo/combine_bedmap3_gebco2023/ne3000.250523.g",
     "e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne120/ne120.scrip.nc": "topo/combine_bedmap3_gebco2023_low_res/ne120.scrip.250523.nc",
     "e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne120/bedmap3_gebco2023_ne120.nc": "topo/combine_bedmap3_gebco2023_low_res/bedmap3_gebco2023_ne120.250523.nc",
-    "e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne120/ne120.g": "topo/combine_bedmap3_gebco2023_low_res/ne120.250523.g"
+    "e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne120/ne120.g": "topo/combine_bedmap3_gebco2023_low_res/ne120.250523.g",
+    "e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/1.00000_degree/1.00000_degree.scrip.nc": "topo/combine_bedmap3_gebco2023/lat_lon/1.00000_degree/1.00000_degree.scrip.260512.nc",
+    "e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/1.00000_degree/bedmap3_gebco2023_1.00000_degree.nc": "topo/combine_bedmap3_gebco2023/lat_lon/1.00000_degree/bedmap3_gebco2023_1.00000_degree.260512.nc",
+    "e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.25000_degree/0.25000_degree.scrip.nc": "topo/combine_bedmap3_gebco2023/lat_lon/0.25000_degree/0.25000_degree.scrip.260512.nc",
+    "e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.25000_degree/bedmap3_gebco2023_0.25000_degree.nc": "topo/combine_bedmap3_gebco2023/lat_lon/0.25000_degree/bedmap3_gebco2023_0.25000_degree.260512.nc",
+    "e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.12500_degree/0.12500_degree.scrip.nc": "topo/combine_bedmap3_gebco2023/lat_lon/0.12500_degree/0.12500_degree.scrip.260512.nc",
+    "e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.12500_degree/bedmap3_gebco2023_0.12500_degree.nc": "topo/combine_bedmap3_gebco2023/lat_lon/0.12500_degree/bedmap3_gebco2023_0.12500_degree.260512.nc",
+    "e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.06250_degree/0.06250_degree.scrip.nc": "topo/combine_bedmap3_gebco2023/lat_lon/0.06250_degree/0.06250_degree.scrip.260512.nc",
+    "e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.06250_degree/bedmap3_gebco2023_0.06250_degree.nc": "topo/combine_bedmap3_gebco2023/lat_lon/0.06250_degree/bedmap3_gebco2023_0.06250_degree.260512.nc",
+    "e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.03125_degree/0.03125_degree.scrip.nc": "topo/combine_bedmap3_gebco2023/lat_lon/0.03125_degree/0.03125_degree.scrip.260511.nc",
+    "e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.03125_degree/bedmap3_gebco2023_0.03125_degree.nc": "topo/combine_bedmap3_gebco2023/lat_lon/0.03125_degree/bedmap3_gebco2023_0.03125_degree.260511.nc"
 }

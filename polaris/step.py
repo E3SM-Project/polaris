@@ -145,6 +145,16 @@ class Step:
         Whether to get all of the outputs for the step from the database of
         cached outputs for this component
 
+    default_cached : bool
+        If True, this step will read its outputs from the cache by default
+        when set up by a downstream task.  Set to ``True`` in the
+        ``__init__`` of expensive step classes (e.g. :class:`CombineStep`,
+        :class:`ComputeCoastlineStep`) to indicate that their outputs should
+        be reused across tasks without requiring each caller to opt in.
+        Tasks that require free-running execution should add this step's
+        ``subdir`` to ``self.free_running_steps`` in their ``__init__``
+        rather than modifying this flag.
+
     run_as_subprocess : bool
         Whether to run this step as a subprocess, rather than just running
         it directly from the task.  It is useful to run a step as a
@@ -291,6 +301,7 @@ class Step:
 
         # output caching
         self.cached = cached
+        self.default_cached = False
 
     def set_resources(
         self,

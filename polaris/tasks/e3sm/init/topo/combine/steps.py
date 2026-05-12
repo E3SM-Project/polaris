@@ -14,6 +14,13 @@ def get_cubed_sphere_topo_steps(component, resolution, include_viz=False):
     """
     Get shared combined-topography steps for a cubed-sphere target grid.
 
+    The :class:`CombineStep` (and :class:`VizCombinedStep` when requested) set
+    ``default_cached = True`` in their constructors because they are expensive
+    to produce.  Downstream tasks benefit from cached outputs automatically.
+    Tasks that require free-running execution (e.g. standalone combine tasks)
+    should add each returned step's ``subdir`` to ``self.free_running_steps``
+    in their ``__init__``, as :class:`CubedSphereCombineTask` does.
+
     Parameters
     ----------
     component : polaris.Component
@@ -45,6 +52,13 @@ def get_cubed_sphere_topo_steps(component, resolution, include_viz=False):
 def get_lat_lon_topo_steps(component, resolution, include_viz=False):
     """
     Get shared combined-topography steps for a latitude-longitude target grid.
+
+    The :class:`CombineStep` (and :class:`VizCombinedStep` when requested) set
+    ``default_cached = True`` in their constructors because they are expensive
+    to produce.  Downstream tasks benefit from cached outputs automatically.
+    Tasks that require free-running execution (e.g. standalone combine tasks)
+    should add each returned step's ``subdir`` to ``self.free_running_steps``
+    in their ``__init__``, as :class:`LatLonCombineTask` does.
 
     Parameters
     ----------

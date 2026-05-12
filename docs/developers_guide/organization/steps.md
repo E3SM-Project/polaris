@@ -982,7 +982,7 @@ and symlinked rather than being computed each time.
 
 Cached output files are be stored in the `polaris_cache` database within each
 component's space on that LCRC server (see {ref}`dev-step-input-download`).
-If the "cached" version of a step is selected, as we will describe below, each
+If a step is configured to use cached outputs, as we will describe below, each
 of the task's outputs will have a corresponding "input" file added with
 the `target` being a cache file on the LCRC server and the `filename` being
 the output file.  Polaris uses the `cached_files.json` database to know
@@ -1016,8 +1016,8 @@ The line can be indented for visual clarity, but must begin with `cached:`,
 followed by a list of steps separated by a single space.
 
 Similarly, a user setting up tasks has two mechanisms for specifying which
-tasks and steps should have cached outputs.  If all steps in a task
-should have cached outputs, the suffix `c` can be added to the test number:
+tasks and steps should use cached outputs.  If all steps in a task
+should use cached outputs, the suffix `c` can be added to the test number:
 
 ```none
 polaris setup -n 90c 91c 92 ...
@@ -1053,6 +1053,62 @@ recommended.
 
 More details on cached outputs are available in the compass design document
 [Caching outputs from compass steps](https://mpas-dev.github.io/compass/latest/design_docs/cached_outputs.html).
+
+(dev-step-default-cached)=
+
+### Automatic cache use with `default_cached` and `free_running_steps`
+
+Expensive step classes can declare that their outputs should be treated as
+cached by default by setting `self.default_cached = True` in their
+`__init__`.  This lets downstream tasks consume prebuilt products without
+each caller having to opt in via the suite file or the `--cached` CLI flag.
+
+The caching resolution order during setup is (highest to lowest priority):
+
+1. **Free-running override** — if any selected task adds a step's `subdir`
+   to `self.free_running_steps`, *or* if `--free_running` was passed on the
+   command line for that step, that step is always run, even if
+   `default_cached` is `True` or `--cached` was passed on the command line.
+2. **CLI `--cached`** — steps explicitly requested via `polaris setup
+   --cached` or the `c`-suffix notation in suites.
+3. **Factory default** — steps whose `default_cached` attribute is `True`.
+
+**Setting `default_cached` in a step class:**
+
+Steps that are shared across many tasks and are expensive to run should set
+this flag in their `__init__`:
+
+```python
+self.default_cached = True
+```
+
+See {py:class}`polaris.tasks.e3sm.init.topo.combine.step.CombineStep` for
+a concrete example.
+
+**Opting out with `free_running_steps` or `--free_running`:**
+
+A task that *owns* a step (e.g. a standalone task whose sole purpose is to
+regenerate an expensive shared product) should add the step's `subdir` to
+`self.free_running_steps` so that the outputs are always regenerated:
+
+```python
+self.free_running_steps.add(step.subdir)
+```
+
+A task can also do this conditionally in its `configure()` method, which
+runs before caching resolution.  For example, a task might add a step to
+`free_running_steps` only when the cached outputs are not yet available in
+the cache database.
+
+Alternatively, a developer setting up a single task interactively can pass
+`--free_running <step> [<step> ...]` (or `--free_running _all`) to
+`polaris setup` to force steps free-running at the command line without
+modifying task code.  A step may not appear in both `--cached` and
+`--free_running`.
+
+See {py:class}`polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask`
+and {py:class}`polaris.tasks.ocean.global_ocean.hydrography.woa23.task.Woa23`
+for concrete examples.
 
 (dev-step-dependencies)=
 

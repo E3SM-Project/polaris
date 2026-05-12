@@ -1,5 +1,3 @@
-import os
-
 from polaris import Task
 from polaris.tasks.ocean.global_ocean.hydrography.woa23.steps import (
     get_woa23_steps,
@@ -34,17 +32,3 @@ class Woa23(Task):
         self.add_step(self.combine_topo_step, symlink='combine_topo')
         for step in steps.values():
             self.add_step(step, run_by_default=step.name != 'viz')
-
-    def configure(self):
-        """
-        Use the cached combined-topography product from ``e3sm/init``.
-        """
-        super().configure()
-        cache_keys = [
-            os.path.join(self.combine_topo_step.path, output)
-            for output in self.combine_topo_step.outputs
-        ]
-        cached_files = self.combine_topo_step.component.cached_files
-        self.combine_topo_step.cached = all(
-            filename in cached_files for filename in cache_keys
-        )

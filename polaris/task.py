@@ -67,6 +67,12 @@ class Task:
         Whether to create a new log file for each step or to log output to a
         common log file for the whole task.  The latter is used when
         running the task as part of a suite
+
+    free_running_steps : set of str
+        The subdirs of steps that this task wants to run free (not cached),
+        resolved at setup time.  Free-running wins over ``default_cached``
+        and CLI ``--cached``.  Add step subdirs here during ``__init__``
+        rather than setting ``step.cached = False`` directly.
     """
 
     def __init__(self, component, name, subdir=None, indir=None):
@@ -106,6 +112,7 @@ class Task:
         self.steps = dict()
         self.step_symlinks = dict()
         self.steps_to_run = list()
+        self.free_running_steps: set[str] = set()
 
         # these will be set during setup, dummy values for now
         self.work_dir = ''
