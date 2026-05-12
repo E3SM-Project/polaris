@@ -121,6 +121,7 @@ class CombineStep(Step):
             ntasks=None,
             min_tasks=None,
         )
+        self.default_cached = True
         self.resolution = None
         self.resolution_name = None
         self.combined_filename = None
