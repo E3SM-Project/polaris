@@ -526,17 +526,46 @@ def main():
 
 def _expand_and_mark_cached_steps(tasks, cached_steps):
     """
-    Mark any steps that will be cached.  If any task asked for a step to
-    be cached, it will be cached for all tasks that share the step.
+    Mark any steps that will be cached.
+
+    Resolution order (highest to lowest priority):
+
+    1. Free-running: if any selected task added a step subdir to
+       ``free_running_steps``, that step is never cached.
+    2. CLI ``--cached``: steps explicitly requested via command line.
+    3. Factory default: steps whose ``default_cached`` flag is True.
     """
+    # Expand _all shorthand
     for path, task in tasks.items():
         cached_names = cached_steps[path]
         if len(cached_names) > 0 and cached_names[0] == '_all':
             cached_steps[path] = list(task.steps.keys())
 
+    # Phase 1: collect free-running preferences from all selected tasks
+    # (includes additions made by configure(), which runs before this)
+    free_running_subdirs: set[str] = set()
+    for task in tasks.values():
+        free_running_subdirs.update(getattr(task, 'free_running_steps', set()))
+
+    # Phase 2: apply CLI-specified caching
+    for path, task in tasks.items():
         for step_name in cached_steps[path]:
             task.steps[step_name].cached = True
 
+    # Phase 3: apply factory defaults for steps not yet cached
+    for task in tasks.values():
+        for step in task.steps.values():
+            if not step.cached and getattr(step, 'default_cached', False):
+                step.cached = True
+
+    # Phase 4: free-running wins — override any cached=True
+    for task in tasks.values():
+        for step in task.steps.values():
+            if step.subdir in free_running_subdirs:
+                step.cached = False
+
+    # Propagate cached status to cached_steps for display/tracking
+    for path, task in tasks.items():
         for step_name, step in task.steps.items():
             if step.cached and step_name not in cached_steps[path]:
                 cached_steps[path].append(step_name)
