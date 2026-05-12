@@ -3,6 +3,14 @@ ocean:
     config_use_mom_del2: true
     config_mom_del2: 10.0
     config_use_tracer_del2: false
+  hmix_del4:
+    config_use_mom_del4: false
+    config_use_tracer_del4: false
+  cvmix:
+    config_use_cvmix_convection: false
+    config_use_cvmix_shear: false
+    config_cvmix_background_diffusion: 1.0e-5
+    config_cvmix_background_viscosity: 1.0e-4
 
 mpas-ocean:
   io:
@@ -10,9 +18,6 @@ mpas-ocean:
   bottom_drag:
     config_implicit_bottom_drag_type: constant
     config_implicit_constant_bottom_drag_coeff: 0.01
-  cvmix:
-    config_cvmix_background_diffusion: 0.0
-    config_cvmix_background_viscosity: 0.0001
   streams:
     restart: {}
     output:
@@ -35,19 +40,8 @@ Omega:
     EosType: linear
   Tendencies:
     SSHTendencyEnable: false
-    VelHyperDiffTendencyEnable: false
-    TracerDiffTendencyEnable: false
-    TracerHyperDiffTendencyEnable: false
   Tracers:
     Base: [Temperature, Salinity]
-  VertMix:
-    Background:
-      Diffusivity: 1.0e-5
-      Viscosity: 1.0e-4
-    Convective:
-      Enable: false
-    Shear:
-      Enable: false
   IOStreams:
     InitialVertCoord:
       UsePointerFile: false
