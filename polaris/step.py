@@ -146,9 +146,9 @@ class Step:
         cached outputs for this component
 
     default_cached : bool
-        If True, this step will be cached by default when set up by a
-        downstream task.  Set to ``True`` in the ``__init__`` of expensive
-        step classes (e.g. :class:`CombineStep`,
+        If True, this step will read its outputs from the cache by default
+        when set up by a downstream task.  Set to ``True`` in the
+        ``__init__`` of expensive step classes (e.g. :class:`CombineStep`,
         :class:`ComputeCoastlineStep`) to indicate that their outputs should
         be reused across tasks without requiring each caller to opt in.
         Tasks that require free-running execution should add this step's

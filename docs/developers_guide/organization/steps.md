@@ -982,7 +982,7 @@ and symlinked rather than being computed each time.
 
 Cached output files are be stored in the `polaris_cache` database within each
 component's space on that LCRC server (see {ref}`dev-step-input-download`).
-If the "cached" version of a step is selected, as we will describe below, each
+If a step is configured to use cached outputs, as we will describe below, each
 of the task's outputs will have a corresponding "input" file added with
 the `target` being a cache file on the LCRC server and the `filename` being
 the output file.  Polaris uses the `cached_files.json` database to know
@@ -1016,8 +1016,8 @@ The line can be indented for visual clarity, but must begin with `cached:`,
 followed by a list of steps separated by a single space.
 
 Similarly, a user setting up tasks has two mechanisms for specifying which
-tasks and steps should have cached outputs.  If all steps in a task
-should have cached outputs, the suffix `c` can be added to the test number:
+tasks and steps should use cached outputs.  If all steps in a task
+should use cached outputs, the suffix `c` can be added to the test number:
 
 ```none
 polaris setup -n 90c 91c 92 ...
@@ -1056,7 +1056,7 @@ More details on cached outputs are available in the compass design document
 
 (dev-step-default-cached)=
 
-### Automatic caching with `default_cached` and `free_running_steps`
+### Automatic cache use with `default_cached` and `free_running_steps`
 
 Expensive step classes can declare that their outputs should be treated as
 cached by default by setting `self.default_cached = True` in their

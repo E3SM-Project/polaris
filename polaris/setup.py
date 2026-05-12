@@ -75,9 +75,9 @@ def setup_tasks(
         ``'custom'`` if not
 
     cached : list of list of str, optional
-        For each task in ``tasks``, which steps (if any) should be cached,
-        or a list with "_all" as the first entry if all steps in the task
-        should be cached
+        For each task in ``tasks``, which steps (if any) should read their
+        outputs from the cache, or a list with "_all" as the first entry if
+        all steps in the task should use cached outputs
 
     free_running : list of list of str, optional
         For the single task in ``tasks``, which steps (if any) should be
@@ -308,8 +308,8 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
         Location of baselines that can be compared to
 
     cached_steps : list of str
-        Which steps (if any) should be cached, identified by a list of
-        subdirectories in the component
+        Which steps (if any) should read their outputs from the cache,
+        identified by a list of subdirectories in the component
     """
 
     print(f'  {path}')
@@ -468,8 +468,8 @@ def main():
         nargs='+',
         help='A list of steps in a single task supplied with '
         '--tasks or --task_number that should use cached '
-        "outputs, or '_all' if all steps should be "
-        'cached.',
+        "outputs, or '_all' if all steps should "
+        'use cached outputs.',
         metavar='STEP',
     )
     parser.add_argument(
@@ -597,7 +597,7 @@ def _expand_and_mark_cached_steps(tasks, cached_steps):
     Resolution order (highest to lowest priority):
 
     1. Free-running: if any selected task added a step subdir to
-       ``free_running_steps``, that step is never cached.
+       ``free_running_steps``, that step always runs (never reads from cache).
     2. CLI ``--cached``: steps explicitly requested via command line.
     3. Factory default: steps whose ``default_cached`` flag is True.
     """
