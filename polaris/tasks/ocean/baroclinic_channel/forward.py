@@ -106,6 +106,12 @@ class Forward(OceanModelStep):
             'polaris.tasks.ocean.baroclinic_channel', 'forward.yaml'
         )
 
+        # set lower output frequency for long forward case
+        if name == 'long_forward':
+            self.add_yaml_file(
+                'polaris.tasks.ocean.baroclinic_channel', 'long_forward.yaml'
+            )
+
         if nu is not None:
             # update the viscosity to the requested value *after* loading
             # forward.yaml

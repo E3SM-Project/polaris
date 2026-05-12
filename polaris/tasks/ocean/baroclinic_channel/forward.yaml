@@ -103,8 +103,8 @@ Omega:
       Mode: write
       IfExists: replace
       Precision: double
-      Freq: 2
-      FreqUnits: Hours
+      Freq: 1
+      FreqUnits: Minutes
       UseStartEnd: false
       Contents:
       - State

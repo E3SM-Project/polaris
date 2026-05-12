@@ -1,0 +1,15 @@
+Omega:
+  IOStreams:
+    History:
+      UsePointerFile: false
+      Filename: output.nc
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: 2
+      FreqUnits: Hours
+      UseStartEnd: false
+      Contents:
+      - State
+      - Tracers
+      - KineticEnergyCell
