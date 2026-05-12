@@ -86,9 +86,12 @@ class Viz(OceanIOStep):
         """
         Run this step of the task
         """
-        ds_mesh = self.open_model_dataset('mesh.nc')
-        ds_init = self.open_model_dataset('init.nc')
-        ds = self.open_model_dataset('output.nc')
+        config = self.config
+        ds_mesh = self.open_model_dataset('mesh.nc', config=config)
+        ds_init = self.open_model_dataset('init.nc', config=config)
+        ds = self.open_model_dataset('output.nc', config=config)
+
+        print(ds.data_vars.keys())
 
         x_min = ds_mesh.xVertex.min().values
         x_max = ds_mesh.xVertex.max().values
