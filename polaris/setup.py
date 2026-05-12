@@ -618,7 +618,7 @@ def _expand_and_mark_cached_steps(tasks, cached_steps):
         for step_name in cached_steps[path]:
             task.steps[step_name].cached = True
 
-    # Phase 3: Apply default_cached for steps not yet cached
+    # Phase 3: Apply default_cached for steps not yet designated as cached
     for task in tasks.values():
         for step in task.steps.values():
             if not step.cached and getattr(step, 'default_cached', False):
