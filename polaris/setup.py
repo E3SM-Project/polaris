@@ -28,6 +28,7 @@ def setup_tasks(
     component_path=None,
     suite_name='custom',
     cached=None,
+    free_running=None,
     copy_executable=False,
     clean_tasks=False,
     model=None,
@@ -77,6 +78,13 @@ def setup_tasks(
         For each task in ``tasks``, which steps (if any) should be cached,
         or a list with "_all" as the first entry if all steps in the task
         should be cached
+
+    free_running : list of list of str, optional
+        For the single task in ``tasks``, which steps (if any) should be
+        forced free-running (not cached), overriding ``default_cached``,
+        or a list with ``"_all"`` as the first entry if all steps should
+        be free-running.  A step may not appear in both ``cached`` and
+        ``free_running``.
 
     copy_executable : bool, optional
         Whether to copy the model executable to the work directory
@@ -192,6 +200,39 @@ def setup_tasks(
         work_dir=work_dir,
         copy_executable=copy_executable,
     )
+
+    # Apply CLI --free_running before caching resolution so that Phase 4
+    # (free-running wins) in _expand_and_mark_cached_steps picks them up.
+    if free_running is not None:
+        # Exactly one task is guaranteed by earlier validation.
+        path = next(iter(tasks.keys()))
+        task = tasks[path]
+        fr_steps = free_running[0]
+        fr_step_list = (
+            list(task.steps.keys()) if fr_steps[0] == '_all' else fr_steps
+        )
+        for step_name in fr_step_list:
+            if step_name not in task.steps:
+                raise ValueError(
+                    f'Step {step_name!r} is not in the task. '
+                    f'Available steps: {list(task.steps.keys())}'
+                )
+            task.free_running_steps.add(task.steps[step_name].subdir)
+
+        # Raise an error if any step is listed in both --cached and
+        # --free_running (after expanding _all in cached_steps).
+        cached_list = (
+            list(task.steps.keys())
+            if cached_steps.get(path, []) == ['_all']
+            else cached_steps.get(path, [])
+        )
+        conflicts = sorted(set(cached_list) & set(fr_step_list))
+        if conflicts:
+            raise ValueError(
+                f'Steps {conflicts} are listed in both --cached and '
+                '--free_running. Each step must be unambiguously cached, '
+                'free-running, or left at its default.'
+            )
 
     # do this after _setup_configs() in case tasks mark additional steps
     # as cached in their configure() methods
@@ -432,6 +473,16 @@ def main():
         metavar='STEP',
     )
     parser.add_argument(
+        '--free_running',
+        dest='free_running',
+        nargs='+',
+        help='A list of steps in a single task supplied with '
+        '--tasks or --task_number that should be free-running '
+        "(not cached), overriding default_cached, or '_all' "
+        'if all steps should be free-running.',
+        metavar='STEP',
+    )
+    parser.add_argument(
         '--copy_executable',
         dest='copy_executable',
         action='store_true',
@@ -502,6 +553,19 @@ def main():
         # cached is a list of lists
         cached = [args.cached]
 
+    free_running = None
+    if args.free_running is not None:
+        if args.tasks is not None and len(args.tasks) != 1:
+            raise ValueError(
+                'You can only set free-running steps for one task at a time.'
+            )
+        if args.task_num is not None and len(args.task_num) != 1:
+            raise ValueError(
+                'You can only set free-running steps for one task at a time.'
+            )
+        # free_running is a list of lists
+        free_running = [args.free_running]
+
     setup_tasks(
         task_list=args.tasks,
         numbers=args.task_num,
@@ -512,6 +576,7 @@ def main():
         component_path=args.component_path,
         suite_name=args.suite_name,
         cached=cached,
+        free_running=free_running,
         copy_executable=args.copy_executable,
         clean_tasks=args.clean_tasks,
         model=args.model,

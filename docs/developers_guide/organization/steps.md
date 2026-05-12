@@ -1066,7 +1066,8 @@ each caller having to opt in via the suite file or the `--cached` CLI flag.
 The caching resolution order during setup is (highest to lowest priority):
 
 1. **Free-running override** — if any selected task adds a step's `subdir`
-   to `self.free_running_steps`, that step is always run, even if
+   to `self.free_running_steps`, *or* if `--free_running` was passed on the
+   command line for that step, that step is always run, even if
    `default_cached` is `True` or `--cached` was passed on the command line.
 2. **CLI `--cached`** — steps explicitly requested via `polaris setup
    --cached` or the `c`-suffix notation in suites.
@@ -1084,7 +1085,7 @@ self.default_cached = True
 See {py:class}`polaris.tasks.e3sm.init.topo.combine.step.CombineStep` for
 a concrete example.
 
-**Opting out with `free_running_steps`:**
+**Opting out with `free_running_steps` or `--free_running`:**
 
 A task that *owns* a step (e.g. a standalone task whose sole purpose is to
 regenerate an expensive shared product) should add the step's `subdir` to
@@ -1098,6 +1099,12 @@ A task can also do this conditionally in its `configure()` method, which
 runs before caching resolution.  For example, a task might add a step to
 `free_running_steps` only when the cached outputs are not yet available in
 the cache database.
+
+Alternatively, a developer setting up a single task interactively can pass
+`--free_running <step> [<step> ...]` (or `--free_running _all`) to
+`polaris setup` to force steps free-running at the command line without
+modifying task code.  A step may not appear in both `--cached` and
+`--free_running`.
 
 See {py:class}`polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask`
 and {py:class}`polaris.tasks.ocean.global_ocean.hydrography.woa23.task.Woa23`
