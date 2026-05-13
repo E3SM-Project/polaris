@@ -94,11 +94,13 @@ Omega:
     History:
       UsePointerFile: false
       Filename: output.nc
+      FileFreq: 9999
+      FileFreqUnits: Years
       Mode: write
-      IfExists: replace
+      IfExists: append
       Precision: double
-      Freq: 1
-      FreqUnits: Minutes
+      Freq: {{ output_freq }}
+      FreqUnits: {{ output_freq_units }}
       UseStartEnd: false
       Contents:
       - State

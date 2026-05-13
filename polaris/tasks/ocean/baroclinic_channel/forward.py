@@ -102,23 +102,6 @@ class Forward(OceanModelStep):
         self.add_vert_coord_input_file(target='../../init/vert_coord.nc')
         self.add_init_input_file(target='../../init/init.nc')
 
-        self.add_yaml_file(
-            'polaris.tasks.ocean.baroclinic_channel', 'forward.yaml'
-        )
-
-        # set lower output frequency for long forward case
-        if name == 'long_forward':
-            self.add_yaml_file(
-                'polaris.tasks.ocean.baroclinic_channel', 'long_forward.yaml'
-            )
-
-        if nu is not None:
-            # update the viscosity to the requested value *after* loading
-            # forward.yaml
-            self.add_model_config_options(
-                options=dict(config_mom_del2=nu), config_model='ocean'
-            )
-
         self.add_output_file(
             filename='output.nc',
             validate_vars=[
@@ -131,6 +114,7 @@ class Forward(OceanModelStep):
 
         self.dt = None
         self.btr_dt = None
+        self.nu = nu
 
     def setup(self):
         """
@@ -177,6 +161,28 @@ class Forward(OceanModelStep):
 
         config = self.config
 
+        if self.name == 'long_forward':
+            output_interval = config.get(
+                'baroclinic_channel_long', 'output_interval'
+            )
+            output_freq_units = config.get(
+                'baroclinic_channel_long', 'output_interval_units'
+            )
+            output_freq = int(output_interval)
+        else:
+            output_freq = 1
+            output_freq_units = 'minutes'
+
+        replacements = dict(
+            output_freq=f'{output_freq}', output_freq_units=output_freq_units
+        )
+
+        self.add_yaml_file(
+            'polaris.tasks.ocean.baroclinic_channel',
+            'forward.yaml',
+            template_replacements=replacements,
+        )
+
         # dt is proportional to resolution: default 30 seconds per km
         dt_per_km = config.getfloat('baroclinic_channel', 'dt_per_km')
         dt = dt_per_km * self.resolution
@@ -191,9 +197,10 @@ class Forward(OceanModelStep):
                 seconds=run_seconds
             )
             ocean_options['config_stop_time'] = 'none'
-        else:
+
+        if self.name == 'long_forward':
             run_duration = config.getfloat(
-                'baroclinic_channel', 'run_duration'
+                'baroclinic_channel_long', 'run_duration'
             )
             ocean_options['config_run_duration'] = get_time_interval_string(
                 days=run_duration
@@ -216,3 +223,10 @@ class Forward(OceanModelStep):
 
         self.dt = dt
         self.btr_dt = btr_dt
+
+        if self.nu is not None:
+            # update the viscosity to the requested value *after* loading
+            # forward.yaml
+            self.add_model_config_options(
+                options=dict(config_mom_del2=self.nu), config_model='ocean'
+            )
