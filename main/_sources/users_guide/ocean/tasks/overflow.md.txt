@@ -7,7 +7,7 @@ continental slope and includes two test cases.
 
 ## suppported models
 
-These tasks support only MPAS-Ocean.
+These tasks support MPAS-Ocean and Omega.
 
 ## description
 

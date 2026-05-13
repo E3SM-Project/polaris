@@ -115,11 +115,12 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_days_since_start</span>
 
 
 <div class="viewcode-block" id="compute_rpe">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.rpe.compute_rpe.html#polaris.ocean.rpe.compute_rpe">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">compute_rpe</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">initial_state_filename</span><span class="p">,</span> <span class="n">output_filenames</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_rpe</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_init</span><span class="p">,</span> <span class="n">ds_outputs</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the reference (resting) potential energy for the whole domain</span>
 
@@ -139,15 +140,11 @@
 <span class="sd">    rpe : numpy.ndarray</span>
 <span class="sd">        the reference potential energy of size ``Time`` x ``len(output_files)``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">num_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_filenames</span><span class="p">)</span>
+    <span class="n">num_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds_outputs</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">num_files</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Must provide at least one output filename&#39;</span><span class="p">)</span>
 
     <span class="n">gravity</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;standard_acceleration_of_gravity&#39;</span><span class="p">)</span>
-
-    <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">)</span>
-    <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">initial_state_filename</span><span class="p">)</span>
-    <span class="n">nVertLevels</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
 
     <span class="n">xEdge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span>
     <span class="n">yEdge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yEdge</span>
@@ -155,6 +152,7 @@
     <span class="n">minLevelCell</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
     <span class="n">maxLevelCell</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
     <span class="n">bottomDepth</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepth</span>
+    <span class="n">nVertLevels</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
 
     <span class="n">areaCellMatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">areaCell</span><span class="p">,</span> <span class="p">(</span><span class="n">nVertLevels</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
     <span class="n">bottomMax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
@@ -173,23 +171,22 @@
     <span class="p">)</span>
     <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">output_filenames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
-        <span class="n">nt</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span>
-        <span class="n">xtime</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">nt</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">ds_outputs</span><span class="p">)</span>
+    <span class="n">rpe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">num_files</span><span class="p">,</span> <span class="n">nt</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
-    <span class="n">rpe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">num_files</span><span class="p">,</span> <span class="n">nt</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">file_index</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ds_outputs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">nt</span><span class="p">:</span>
+            <span class="n">days</span> <span class="o">=</span> <span class="n">get_days_since_start</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+        <span class="n">hFull</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="s1">&#39;density&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">densityFull</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="s1">&#39;SpecVol&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">densityFull</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">file_index</span><span class="p">,</span> <span class="n">out_filename</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">output_filenames</span><span class="p">):</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">out_filename</span><span class="p">)</span>
-
-        <span class="n">xtime</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">hFull</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span>
-        <span class="n">densityFull</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">density</span>
-
-        <span class="k">for</span> <span class="n">time_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nt</span><span class="p">):</span>
-            <span class="n">h</span> <span class="o">=</span> <span class="n">hFull</span><span class="p">[</span><span class="n">time_index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">for</span> <span class="n">time_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]):</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">hFull</span><span class="p">[</span><span class="n">time_index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
             <span class="n">vol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">areaCellMatrix</span><span class="p">)</span>
-            <span class="n">density</span> <span class="o">=</span> <span class="n">densityFull</span><span class="p">[</span><span class="n">time_index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">density</span> <span class="o">=</span> <span class="n">densityFull</span><span class="p">[</span><span class="n">time_index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
             <span class="n">density_1D</span> <span class="o">=</span> <span class="n">density</span><span class="p">[</span><span class="n">cell_mask</span><span class="p">]</span>
             <span class="n">vol_1D</span> <span class="o">=</span> <span class="n">vol</span><span class="p">[</span><span class="n">cell_mask</span><span class="p">]</span>
 
@@ -209,8 +206,6 @@
 
             <span class="n">rpe</span><span class="p">[</span><span class="n">file_index</span><span class="p">,</span> <span class="n">time_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rpe1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">areaCell</span><span class="p">)</span>
 
-        <span class="n">ds</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;rpe.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
         <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">)</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
@@ -218,7 +213,7 @@
         <span class="p">]</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">headers</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">time_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nt</span><span class="p">):</span>
-            <span class="n">time</span> <span class="o">=</span> <span class="n">xtime</span><span class="p">[</span><span class="n">time_index</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+            <span class="n">time</span> <span class="o">=</span> <span class="n">days</span><span class="p">[</span><span class="n">time_index</span><span class="p">]</span>
             <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">time</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">rpe_val</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">rpe_val</span> <span class="ow">in</span> <span class="n">rpe</span><span class="p">[:,</span> <span class="n">time_index</span><span class="p">]]</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
 
