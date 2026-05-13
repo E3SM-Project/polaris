@@ -96,7 +96,7 @@ class Viz(OceanIOStep):
             plot_horiz_field(
                 ds_mesh,
                 ds['normalVelocity'],
-                f'normalVelocity_{t_index}.png',
+                f'normalVelocity_{t_index:04}.png',
                 t_index=t_index,
                 vmin=-max_velocity,
                 vmax=max_velocity,
@@ -133,7 +133,7 @@ class Viz(OceanIOStep):
                 ds_transect=ds_transect,
                 mpas_field=mpas_field,
                 title=f'{field_name} at x={1e-3 * x_mid:.1f} km',
-                out_filename=f'{field_name}_section_{t_index}.png',
+                out_filename=f'{field_name}_section_{t_index:04}.png',
                 vmin=vmin,
                 vmax=vmax,
                 cmap='cmo.thermal',
@@ -144,7 +144,7 @@ class Viz(OceanIOStep):
             plot_horiz_field(
                 ds_mesh,
                 ds['temperature'],
-                f'temperature_{t_index}.png',
+                f'temperature_{t_index:04}.png',
                 t_index=t_index,
                 vmin=vmin,
                 vmax=vmax,
