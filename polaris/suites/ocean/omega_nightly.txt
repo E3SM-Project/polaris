@@ -8,6 +8,7 @@ ocean/planar/manufactured_solution/convergence_both/del4
 ocean/planar/merry_go_round/default
 ocean/planar/merry_go_round/convergence_both_order2
 ocean/planar/merry_go_round/convergence_both_order4
+ocean/planar/seamount/default
 ocean/spherical/qu/rotation_2d
 ocean/spherical/icos/rotation_2d
 ocean/spherical/icos/cosine_bell/decomp
