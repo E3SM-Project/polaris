@@ -15,7 +15,7 @@ model.
 
 ## suppported models
 
-These tasks support only MPAS-Ocean.
+These tasks support both Omega and MPAS-Ocean.
 
 ## mesh
 
@@ -184,6 +184,21 @@ safely modify `dt_per_km` and `btr_dt_per_km` to control the time step for any
 other baroclinic channel tests.
 
 All units are mks, with temperature in degrees Celsius and salinity in PSU.
+
+The `long_forward` test has the following additional options:
+
+```cfg
+[baroclinic_channel_long]
+
+# Number of days to run the long_forward case
+run_duration = 30.0
+
+# Ouput interval
+output_interval = 2 
+
+# Units assocaited with output interval
+output_interval_units = hours
+```
 
 ## default
 
