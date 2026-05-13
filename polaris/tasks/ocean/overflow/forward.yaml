@@ -107,6 +107,8 @@ Omega:
     History:
       UsePointerFile: false
       Filename: output.nc
+      FileFreq: 9999
+      FileFreqUnits: years
       Mode: write
       IfExists: append
       Precision: double
