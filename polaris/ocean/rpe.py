@@ -4,9 +4,10 @@ import numpy as np
 import xarray as xr
 
 from polaris.constants import get_constant
+from polaris.ocean.model import get_days_since_start
 
 
-def compute_rpe(mesh_filename, initial_state_filename, output_filenames):
+def compute_rpe(ds_mesh, ds_init, ds_outputs, config=None):
     """
     Computes the reference (resting) potential energy for the whole domain
 
@@ -26,15 +27,11 @@ def compute_rpe(mesh_filename, initial_state_filename, output_filenames):
     rpe : numpy.ndarray
         the reference potential energy of size ``Time`` x ``len(output_files)``
     """
-    num_files = len(output_filenames)
+    num_files = len(ds_outputs)
     if num_files == 0:
         raise ValueError('Must provide at least one output filename')
 
     gravity = get_constant('standard_acceleration_of_gravity')
-
-    ds_mesh = xr.open_dataset(mesh_filename)
-    ds_init = xr.open_dataset(initial_state_filename)
-    nVertLevels = ds_init.sizes['nVertLevels']
 
     xEdge = ds_mesh.xEdge
     yEdge = ds_mesh.yEdge
@@ -42,6 +39,7 @@ def compute_rpe(mesh_filename, initial_state_filename, output_filenames):
     minLevelCell = ds_init.minLevelCell - 1
     maxLevelCell = ds_init.maxLevelCell - 1
     bottomDepth = ds_init.bottomDepth
+    nVertLevels = ds_init.sizes['nVertLevels']
 
     areaCellMatrix = np.tile(areaCell, (nVertLevels, 1)).transpose()
     bottomMax = np.max(bottomDepth.values)
@@ -60,23 +58,22 @@ def compute_rpe(mesh_filename, initial_state_filename, output_filenames):
     )
     cell_mask = np.swapaxes(cell_mask, 0, 1)
 
-    with xr.open_dataset(output_filenames[0]) as ds:
-        nt = ds.sizes['Time']
-        xtime = ds.xtime.values
+    nt = max(ds.sizes['Time'] for ds in ds_outputs)
+    rpe = np.ones((num_files, nt)) * np.nan
 
-    rpe = np.ones((num_files, nt))
+    for file_index, ds in enumerate(ds_outputs):
+        if ds.sizes['Time'] == nt:
+            days = get_days_since_start(ds)
+        hFull = ds.layerThickness.values
+        if 'density' in ds:
+            densityFull = ds.density.values
+        if 'SpecVol' in ds:
+            densityFull = np.divide(1.0, ds.SpecVol.values)
 
-    for file_index, out_filename in enumerate(output_filenames):
-        ds = xr.open_dataset(out_filename)
-
-        xtime = ds.xtime.values
-        hFull = ds.layerThickness
-        densityFull = ds.density
-
-        for time_index in range(nt):
-            h = hFull[time_index, :, :].values
+        for time_index in range(ds.sizes['Time']):
+            h = hFull[time_index, :, :]
             vol = np.multiply(h, areaCellMatrix)
-            density = densityFull[time_index, :, :].values
+            density = densityFull[time_index, :, :]
             density_1D = density[cell_mask]
             vol_1D = vol[cell_mask]
 
@@ -96,8 +93,6 @@ def compute_rpe(mesh_filename, initial_state_filename, output_filenames):
 
             rpe[file_index, time_index] = np.sum(rpe1) / np.sum(areaCell)
 
-        ds.close()
-
     with open('rpe.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         headers = ['time'] + [
@@ -105,7 +100,7 @@ def compute_rpe(mesh_filename, initial_state_filename, output_filenames):
         ]
         writer.writerow(headers)
         for time_index in range(nt):
-            time = xtime[time_index].astype(str)
+            time = days[time_index]
             row = [time] + [f'{rpe_val:g}' for rpe_val in rpe[:, time_index]]
             writer.writerow(row)
 

@@ -1,3 +1,6 @@
+from typing import Dict as Dict
+
+from polaris import Step as Step
 from polaris import Task as Task
 from polaris.tasks.ocean.overflow.forward import Forward as Forward
 from polaris.tasks.ocean.overflow.viz import Viz as Viz
@@ -37,6 +40,13 @@ class Default(Task):
             indir=self.subdir,
         )
         self.add_step(forward_step)
-        self.add_step(
-            Viz(component=component, indir=self.subdir), run_by_default=False
+
+        viz_dependencies: Dict[str, Step] = dict(
+            mesh=init, init=init, forward=forward_step
         )
+        viz_step = Viz(
+            component=component,
+            dependencies=viz_dependencies,
+            taskdir=self.subdir,
+        )
+        self.add_step(viz_step, run_by_default=False)

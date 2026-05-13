@@ -1,21 +1,32 @@
-mpas-ocean:
+ocean:
   time_management:
     config_stop_time: none
     config_run_duration: {{ run_duration }}
   time_integration:
     config_dt: {{ dt }}
-    config_time_integrator: split_explicit_ab2
-  io:
-    config_write_output_on_startup: false
+    config_time_integrator: {{ time_integrator }}
   hmix_del2:
     config_use_mom_del2: true
     config_mom_del2: {{ nu }}
-  bottom_drag:
-    config_implicit_bottom_drag_type: constant
-    config_implicit_constant_bottom_drag_coeff: 0.01
+    config_use_tracer_del2: false
+  hmix_del4:
+    config_use_mom_del4: false
+    config_use_tracer_del4: false
   cvmix:
-    config_cvmix_background_scheme: none
-    config_use_cvmix_convection: true
+    config_use_cvmix_convection: false
+    config_use_cvmix_shear: false
+    config_cvmix_background_diffusion: 0.0
+    config_cvmix_background_viscosity: 0.0
+  bottom_drag:
+    config_explicit_bottom_drag_coeff: 0.01
+
+mpas-ocean:
+  io:
+    config_write_output_on_startup: false
+  bottom_drag:
+    config_bottom_drag_mode: explicit
+  cvmix:
+    config_use_cvmix: false
   split_explicit_ts:
     config_btr_dt: {{ btr_dt }}
   streams:
@@ -40,3 +51,74 @@ mpas-ocean:
       - density
       - daysSinceStartOfSim
       - relativeVorticity
+
+Omega:
+  Tendencies:
+    SSHTendencyEnable: false
+  Tracers:
+    Base: [Temperature, Salinity]
+  IOStreams:
+    InitialVertCoord:
+      UsePointerFile: false
+      Filename: initial_state.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+        - InitVertCoord
+    InitialState:
+      UsePointerFile: false
+      Filename: initial_state.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+        - State
+        - Base
+        - Tracers
+    RestartRead:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: true
+      StartTime: 0001-01-01_00:00:01
+      EndTime: 99999-12-31_00:00:00
+      Contents:
+        - Restart
+    RestartWrite:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: 1
+      FreqUnits: day
+      UseStartEnd: false
+      Contents:
+        - Restart
+    History:
+      UsePointerFile: false
+      Filename: output.nc
+      FileFreq: 9999
+      FileFreqUnits: years
+      Mode: write
+      IfExists: append
+      Precision: double
+      Freq: {{ output_freq }}
+      FreqUnits: {{ output_freq_units }}
+      UseStartEnd: false
+      Contents:
+        - Tracers
+        - State
+        - KineticEnergyCell
+        - SpecVol
+        - BottomDepth
+        - SshCell

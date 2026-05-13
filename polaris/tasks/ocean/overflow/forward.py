@@ -105,6 +105,19 @@ class Forward(OceanModelStep):
             ],
         )
 
+    def setup(self):
+        """
+        TEMP: symlink initial condition to name hard-coded in Omega
+        """
+        super().setup()
+        config = self.config
+        model = config.get('ocean', 'model')
+        # TODO: remove as soon as Omega no longer hard-codes this file
+        if model == 'omega':
+            self.add_input_file(
+                filename='OmegaMesh.nc', target='initial_state.nc'
+            )
+
     def dynamic_model_config(self, at_setup):
         super().dynamic_model_config(at_setup=at_setup)
 
@@ -118,26 +131,58 @@ class Forward(OceanModelStep):
         )
         section = config[f'overflow_{self.task_name}']
         run_duration = section.getfloat('run_duration')
+        run_duration_units = section.get('run_duration_units')
         output_interval = section.getfloat('output_interval')
-        if self.task_name == 'rpe':
+        output_units = section.get('output_interval_units')
+        output_freq = int(output_interval)
+        if run_duration_units == 'days':
             run_duration_str = get_time_interval_string(days=run_duration)
+        elif run_duration_units == 'hours':
+            run_duration_str = get_time_interval_string(
+                seconds=run_duration * 3600.0
+            )
+        elif run_duration_units == 'minutes':
+            run_duration_str = get_time_interval_string(
+                seconds=run_duration * 60.0
+            )
+        elif run_duration_units == 'seconds':
+            run_duration_str = get_time_interval_string(seconds=run_duration)
+        else:
+            raise ValueError(
+                f'Unknown run duration units: {run_duration_units}'
+            )
+        if self.task_name == 'rpe':
             output_interval_str = get_time_interval_string(
                 days=output_interval
             )
         else:
-            run_duration_str = get_time_interval_string(
-                seconds=run_duration * 60.0
-            )
             output_interval_str = get_time_interval_string(
                 seconds=output_interval
             )
 
+        time_integrator = config.get('overflow', 'time_integrator')
+        time_integrator_map = dict([('RK4', 'RungeKutta4')])
+        model = config.get('ocean', 'model')
+        if model == 'omega':
+            if time_integrator in time_integrator_map.keys():
+                time_integrator = time_integrator_map[time_integrator]
+            else:
+                print(
+                    'Warning: mapping from time integrator '
+                    f'{time_integrator} to omega not found, '
+                    'retaining name given in config'
+                )
+
         replacements = dict(
+            time_integrator=time_integrator,
             dt=dt_str,
             btr_dt=btr_dt_str,
             run_duration=run_duration_str,
+            run_duration_units=run_duration_units,
             output_interval=output_interval_str,
             nu=self.nu,
+            output_freq=f'{output_freq}',
+            output_freq_units=output_units,
         )
         self.add_yaml_file(
             'polaris.tasks.ocean.overflow',
