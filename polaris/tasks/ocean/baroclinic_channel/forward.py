@@ -173,8 +173,23 @@ class Forward(OceanModelStep):
             output_freq = 1
             output_freq_units = 'minutes'
 
+        time_integrator = config.get('baroclinic_channel', 'time_integrator')
+        time_integrator_map = dict([('RK4', 'RungeKutta4')])
+        model = config.get('ocean', 'model')
+        if model == 'omega':
+            if time_integrator in time_integrator_map.keys():
+                time_integrator = time_integrator_map[time_integrator]
+            else:
+                print(
+                    'Warning: mapping from time integrator '
+                    f'{time_integrator} to omega not found, '
+                    'retaining name given in config'
+                )
+
         replacements = dict(
-            output_freq=f'{output_freq}', output_freq_units=output_freq_units
+            output_freq=f'{output_freq}',
+            output_freq_units=output_freq_units,
+            time_integrator=time_integrator,
         )
 
         self.add_yaml_file(
