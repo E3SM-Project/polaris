@@ -173,10 +173,15 @@
             <span class="s1">&#39;divergent_2d&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
             <span class="s1">&#39;correlated_tracers_2d&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="n">namelist_options</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;config_transport_tests_flow_id&#39;</span><span class="p">:</span> <span class="n">flow_id</span><span class="p">[</span><span class="n">case_name</span><span class="p">]</span>
-            <span class="p">}</span>
+        <span class="n">flow_type</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;rotation_2d&#39;</span><span class="p">:</span> <span class="s1">&#39;Init&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;nondivergent_2d&#39;</span><span class="p">:</span> <span class="s1">&#39;NonDivergent&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;divergent_2d&#39;</span><span class="p">:</span> <span class="s1">&#39;Divergent&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;correlated_tracers_2d&#39;</span><span class="p">:</span> <span class="s1">&#39;NonDivergent&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;flow_id&#39;</span><span class="p">:</span> <span class="n">flow_id</span><span class="p">[</span><span class="n">case_name</span><span class="p">],</span>
+            <span class="s1">&#39;flow_type&#39;</span><span class="p">:</span> <span class="n">flow_type</span><span class="p">[</span><span class="n">case_name</span><span class="p">],</span>
         <span class="p">}</span>
         <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer2&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer3&#39;</span><span class="p">]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -191,7 +196,7 @@
             <span class="n">output_filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
             <span class="n">check_properties</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mass conservation&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer conservation&#39;</span><span class="p">],</span>
-            <span class="n">options</span><span class="o">=</span><span class="n">namelist_options</span><span class="p">,</span>
+            <span class="n">replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
             <span class="n">update_eos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/graph.info&#39;</span><span class="p">,</span>
             <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
