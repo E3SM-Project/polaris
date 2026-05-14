@@ -172,19 +172,22 @@ class Ocean(Component):
         filename : str
             The path for the NetCDF file to write
         """
-        if (
-            self.model == 'omega'
-            and 'layerThickness' in ds.keys()
-            and 'PseudoThickness' not in ds.keys()
-            and config is not None
-        ):
-            pseudothickness, spec_vol = pseudothickness_from_ds(
-                ds, config=config
-            )
-            if pseudothickness is not None and spec_vol is not None:
-                ds['PseudoThickness'] = pseudothickness
-                ds['SpecVol'] = spec_vol
-                ds['layerThickness'] = ds['PseudoThickness'].copy()
+        if self.model == 'omega' and config is not None:
+            # fields to be converted from geometric to pseudo thickness
+            mpas_to_omega_vars = {
+                'layerThickness': 'PseudoThickness',
+                'restingThickness': 'RefPseudoThickness',
+            }
+            for mpas_var, omega_var in mpas_to_omega_vars.items():
+                if mpas_var in ds.keys() and omega_var not in ds.keys():
+                    pseudothickness, spec_vol = pseudothickness_from_ds(
+                        ds, config=config, src_var_name=mpas_var
+                    )
+                    if pseudothickness is not None and spec_vol is not None:
+                        ds[omega_var] = pseudothickness
+                        if mpas_var == 'layerThickness':
+                            ds['SpecVol'] = spec_vol
+                            ds['layerThickness'] = ds['PseudoThickness'].copy()
 
         # After map_to_native_model_vars, the dataset contains
         # LayerThickness and PseudoThickness which are both

@@ -27,6 +27,7 @@ variables:
   maxLevelCell: MaxLayerCell
   # currently hard-coded in horizontal mesh
   # bottomDepth: BottomDepth
+  vertCoordMovementWeights: VertCoordMovementWeights
 
   # tracers
   temperature: Temperature

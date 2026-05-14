@@ -46,7 +46,9 @@ def geom_thickness_from_ds(ds, config):
         )
 
 
-def pseudothickness_from_ds(ds, config):
+def pseudothickness_from_ds(
+    ds, config, src_var_name='layerThickness', iter_count=None
+):
     """
     Compute pseudothickness from temperature and salinity in dataset.
 
@@ -54,11 +56,20 @@ def pseudothickness_from_ds(ds, config):
     ----------
     ds : xarray.Dataset
         An ocean dataset containing 'temperature', 'salinity',
-        'layerThickness', and 'ssh'
+        src_var_name, and 'ssh'
 
     config : polaris.config.PolarisConfigParser
         Configuration options for the test case, including
         'vertical_grid:surface_pressure'
+
+    src_var_name : str, optional
+        The name of the variable in ds to use as the source for the
+        geometric thickness, by default 'layerThickness'.
+
+    iter_count : int, optional
+        The number of iterations to use when computing pressure and
+        specific volume, by default ``pseudothickness_iter_count`` for teos-10
+        and 1 for linear or constant EOS.
 
     Returns
     -------
@@ -78,14 +89,25 @@ def pseudothickness_from_ds(ds, config):
         )
         return None, None
 
+    if iter_count is None:
+        eos_type = config.get('ocean', 'eos_type')
+        if eos_type in ['constant', 'linear']:
+            iter_count = 1
+        elif eos_type == 'teos-10':
+            iter_count = config.getint(
+                'vertical_grid', 'pseudothickness_iter_count'
+            )
+        else:
+            raise ValueError(f'Unsupported equation of state type: {eos_type}')
+
     surface_pressure = config.getfloat('vertical_grid', 'surface_pressure')
     p_interface, _, spec_vol = pressure_and_spec_vol_from_state_at_geom_height(
         config,
-        ds.layerThickness,
+        ds[src_var_name],
         ds.temperature,
         ds.salinity,
         surface_pressure * xr.ones_like(ds.ssh),
-        iter_count=1,
+        iter_count=iter_count,
     )
 
     pseudothickness = pseudothickness_from_pressure(p_interface)

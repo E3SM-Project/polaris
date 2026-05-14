@@ -561,6 +561,16 @@ class Init(OceanIOStep):
             attrs = ds_cell_vars[var].attrs
             ds[var] = ds_cell_vars[var]
             ds[var].attrs = attrs
+
+        # add missing vertical-only variable
+        ds['vertCoordMovementWeights'] = xr.DataArray(
+            data=np.ones(ds.sizes['nVertLevels'], dtype=float),
+            dims=['nVertLevels'],
+            attrs={
+                'long_name': 'vertical coordinate movement weights',
+                'units': '1',
+            },
+        )
         return ds
 
     def _get_z_tilde_t_s_nodes(
