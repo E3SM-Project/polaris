@@ -296,19 +296,22 @@
 <span class="sd">        filename : str</span>
 <span class="sd">            The path for the NetCDF file to write</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span>
-            <span class="ow">and</span> <span class="s1">&#39;layerThickness&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">&#39;PseudoThickness&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">):</span>
-            <span class="n">pseudothickness</span><span class="p">,</span> <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">pseudothickness_from_ds</span><span class="p">(</span>
-                <span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">pseudothickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spec_vol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;PseudoThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pseudothickness</span>
-                <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SpecVol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_vol</span>
-                <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;PseudoThickness&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="ow">and</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># fields to be converted from geometric to pseudo thickness</span>
+            <span class="n">mpas_to_omega_vars</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;layerThickness&#39;</span><span class="p">:</span> <span class="s1">&#39;PseudoThickness&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;restingThickness&#39;</span><span class="p">:</span> <span class="s1">&#39;RefPseudoThickness&#39;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">mpas_var</span><span class="p">,</span> <span class="n">omega_var</span> <span class="ow">in</span> <span class="n">mpas_to_omega_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">mpas_var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">omega_var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">pseudothickness</span><span class="p">,</span> <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">pseudothickness_from_ds</span><span class="p">(</span>
+                        <span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">src_var_name</span><span class="o">=</span><span class="n">mpas_var</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">pseudothickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spec_vol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">ds</span><span class="p">[</span><span class="n">omega_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">pseudothickness</span>
+                        <span class="k">if</span> <span class="n">mpas_var</span> <span class="o">==</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">:</span>
+                            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SpecVol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_vol</span>
+                            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;PseudoThickness&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="c1"># After map_to_native_model_vars, the dataset contains</span>
         <span class="c1"># LayerThickness and PseudoThickness which are both</span>

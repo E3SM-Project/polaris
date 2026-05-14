@@ -139,15 +139,20 @@
 <h1>polaris.ocean.vertical.diagnostics.pseudothickness_from_ds<a class="headerlink" href="#polaris-ocean-vertical-diagnostics-pseudothickness-from-ds" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.ocean.vertical.diagnostics.pseudothickness_from_ds">
-<span class="sig-prename descclassname"><span class="pre">polaris.ocean.vertical.diagnostics.</span></span><span class="sig-name descname"><span class="pre">pseudothickness_from_ds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/vertical/diagnostics.html#pseudothickness_from_ds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.vertical.diagnostics.pseudothickness_from_ds" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">polaris.ocean.vertical.diagnostics.</span></span><span class="sig-name descname"><span class="pre">pseudothickness_from_ds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_var_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'layerThickness'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iter_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/vertical/diagnostics.html#pseudothickness_from_ds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.vertical.diagnostics.pseudothickness_from_ds" title="Link to this definition"></a></dt>
 <dd><p>Compute pseudothickness from temperature and salinity in dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.4.0)"><em>xarray.Dataset</em></a>) – An ocean dataset containing ‘temperature’, ‘salinity’,
-‘layerThickness’, and ‘ssh’</p></li>
+src_var_name, and ‘ssh’</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="../../generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration options for the test case, including
 ‘vertical_grid:surface_pressure’</p></li>
+<li><p><strong>src_var_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the variable in ds to use as the source for the
+geometric thickness, by default ‘layerThickness’.</p></li>
+<li><p><strong>iter_count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The number of iterations to use when computing pressure and
+specific volume, by default <code class="docutils literal notranslate"><span class="pre">pseudothickness_iter_count</span></code> for teos-10
+and 1 for linear or constant EOS.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
