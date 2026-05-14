@@ -160,22 +160,39 @@ class Forward(OceanModelStep):
         super().dynamic_model_config(at_setup)
 
         config = self.config
+        model = config.get('ocean', 'model')
 
         if self.name == 'long_forward':
-            output_interval = config.get(
+            output_freq = config.get(
                 'baroclinic_channel_long', 'output_interval'
             )
             output_freq_units = config.get(
                 'baroclinic_channel_long', 'output_interval_units'
             )
-            output_freq = int(output_interval)
+            output_freq = int(output_freq)
         else:
             output_freq = 1
             output_freq_units = 'minutes'
 
+        # Get output interval for mpas-ocean
+        output_interval = '0000-00-00_00:00:01'
+        if model == 'mpas-ocean':
+            if output_freq_units == 'minutes':
+                seconds = output_freq * 60.0
+            elif output_freq_units == 'hours':
+                seconds = output_freq * 3600.00
+            else:
+                print(
+                    'Warning: ouput freqency units '
+                    f'{output_freq_units} not supported'
+                    'using default value'
+                )
+                seconds = 1.0
+
+            output_interval = get_time_interval_string(seconds=seconds)
+
         time_integrator = config.get('baroclinic_channel', 'time_integrator')
         time_integrator_map = dict([('RK4', 'RungeKutta4')])
-        model = config.get('ocean', 'model')
         if model == 'omega':
             if time_integrator in time_integrator_map.keys():
                 time_integrator = time_integrator_map[time_integrator]
@@ -190,6 +207,7 @@ class Forward(OceanModelStep):
             output_freq=f'{output_freq}',
             output_freq_units=output_freq_units,
             time_integrator=time_integrator,
+            output_interval=output_interval,
         )
 
         self.add_yaml_file(
