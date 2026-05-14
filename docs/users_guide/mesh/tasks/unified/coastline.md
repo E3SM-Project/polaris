@@ -9,9 +9,7 @@ coastline products that later unified-mesh workflows (such as
 {ref}`users-mesh-unified-river`) can reuse.
 
 Current coastline products are derived only from the combined topography
-fields produced by the `e3sm/init/topo/combine` workflow (see
-{ref}`e3sm-init-topo-tasks`). Alternate coastline sources such
-as Natural Earth are not implemented yet.
+fields produced by the `e3sm/init/topo/combine` workflow.
 
 ## Available tasks
 
