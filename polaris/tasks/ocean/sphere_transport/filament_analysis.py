@@ -1,16 +1,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import xarray as xr
 
-from polaris import Step
-from polaris.mpas import time_index_from_xtime
 from polaris.ocean.convergence import get_resolution_for_task
+from polaris.ocean.model import OceanIOStep, get_days_since_start
 from polaris.resolution import resolution_to_string
 from polaris.viz import use_mplstyle
 
 
-class FilamentAnalysis(Step):
+class FilamentAnalysis(OceanIOStep):
     """
     A step for analyzing the output from sphere transport test cases
 
@@ -110,14 +108,18 @@ class FilamentAnalysis(Step):
         fig, ax = plt.subplots()
         for i, refinement_factor in enumerate(self.refinement_factors):
             mesh_name = resolution_to_string(resolutions[i])
-            ds = xr.open_dataset(f'output_r{refinement_factor:02g}.nc')
-            tidx = time_index_from_xtime(
-                ds.xtime.values, eval_time * s_per_day
+            ds_mesh = self.open_model_dataset(
+                f'mesh_r{refinement_factor:02g}.nc'
+            )
+            ds = self.open_model_dataset(f'output_r{refinement_factor:02g}.nc')
+            t_days = get_days_since_start(ds)
+            time_index = np.argmin(
+                np.abs(np.subtract(t_days, eval_time * s_per_day))
             )
             tracer = ds[variable_name]
-            area_cell = ds['areaCell']
+            area_cell = ds_mesh['areaCell']
             for j, tau in enumerate(filament_tau):
-                cells_above_tau = tracer[tidx, :, zidx] >= tau
+                cells_above_tau = tracer[time_index, :, zidx] >= tau
                 cells_above_tau0 = tracer[0, :, zidx] >= tau
                 if np.sum(cells_above_tau0 * area_cell) == 0.0:
                     filament_norm[i, j] = np.nan

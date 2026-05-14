@@ -3,9 +3,12 @@ import xarray as xr
 from mpas_tools.transects import lon_lat_to_cartesian
 from numpy import cos, pi, sin
 
+from polaris.constants import get_constant
 from polaris.mesh.spherical import (
     calc_vector_east_north,
 )
+
+earth_radius = get_constant('mean_radius')
 
 
 def flow_nondivergent(t, lon, lat, u_0, tau):
@@ -40,10 +43,10 @@ def flow_nondivergent(t, lon, lat, u_0, tau):
     lon_p = lon - 2.0 * pi * t / tau
     coslat = cos(lat)
     cost = cos(pi * t / tau)
-    u = (1 / tau) * (
-        u_0 * (sin(lon_p) ** 2) * sin(2 * lat) * cost + 2.0 * pi * coslat
+    u = (earth_radius / tau) * (
+        u_0 * (sin(lon_p) ** 2) * sin(2 * -lat) * cost + 2.0 * pi * coslat
     )
-    v = (u_0 / tau) * sin(2 * lon_p) * coslat * cost
+    v = (u_0 * earth_radius / tau) * sin(2 * lon_p + pi) * coslat * cost
     return u, v
 
 
@@ -79,15 +82,15 @@ def flow_divergent(t, lon, lat, u_0, tau):
     lon_p = lon - 2.0 * pi * t / tau
     coslat = cos(lat)
     cost = cos(pi * t / tau)
-    u = (1 / tau) * (
+    u = (earth_radius / tau) * (
         -u_0 * (sin(lon_p / 2) ** 2) * sin(2 * lat) * (coslat**2) * cost
         + 2.0 * pi * coslat
     )
-    v = (u_0 / (2 * tau)) * sin(lon_p) * (coslat**3) * cost
+    v = (u_0 * earth_radius / (2 * tau)) * (sin(lon_p) * (coslat**3) * cost)
     return u, v
 
 
-def flow_rotation(lon, lat, omega, tau, sphere_radius):
+def flow_rotation(lon, lat, omega, tau):
     """
     Compute a rotational velocity field
 
@@ -106,9 +109,6 @@ def flow_rotation(lon, lat, omega, tau, sphere_radius):
     tau : float
         time in seconds for the flow to circumnavigate the sphere
 
-    sphere_radius : float
-        radius of the sphere
-
     Returns
     -------
     u : np.ndarray of type float
@@ -118,7 +118,7 @@ def flow_rotation(lon, lat, omega, tau, sphere_radius):
        meridional velocity
     """
     omega = (2.0 * pi / tau) * (omega / np.linalg.norm(omega))
-    x, y, z = lon_lat_to_cartesian(lon, lat, sphere_radius, degrees=False)
+    x, y, z = lon_lat_to_cartesian(lon, lat, earth_radius, degrees=False)
     xyz = np.stack((x, y, z), axis=1)
     vel = np.cross(omega, np.transpose(xyz), axis=0)
     east, north = calc_vector_east_north(x, y, z)
