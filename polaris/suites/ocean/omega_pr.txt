@@ -5,13 +5,8 @@ ocean/planar/manufactured_solution/convergence_both/del2
 ocean/planar/manufactured_solution/convergence_both/del4
 ocean/planar/merry_go_round/default
 ocean/planar/overflow/default
-ocean/spherical/icos/correlated_tracers_2d
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
-ocean/spherical/icos/divergent_2d
-ocean/spherical/icos/nondivergent_2d
-ocean/spherical/icos/rotation_2d
-ocean/spherical/qu/rotation_2d
 
 # Supported but fails
 #ocean/planar/barotropic_channel/default
