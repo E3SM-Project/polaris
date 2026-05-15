@@ -130,6 +130,9 @@ All 5 test cases share the same set of config options:
 # config options for baroclinic channel testcases
 [baroclinic_channel]
 
+# Time integration scheme
+time_integrator = RK4
+
 # the size of the domain in km in the x and y directions
 lx = 160.0
 ly = 500.0
