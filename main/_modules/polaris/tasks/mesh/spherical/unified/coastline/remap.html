@@ -1,0 +1,426 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.mesh.spherical.unified.coastline.remap</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../../search.html" />
+    <link href="../../../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.mesh.spherical.unified.coastline.remap</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.mesh.spherical.unified.coastline.remap</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.coastline</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CONVENTIONS</span><span class="p">,</span>
+    <span class="n">_write_netcdf_with_fill_values</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.unified.resolutions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FINEST_RESOLUTION</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;RemapCoastlineStep&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="RemapCoastlineStep">
+<a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RemapCoastlineStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remap coastline products from the finest lat-lon grid to a coarser one.</span>
+
+<span class="sd">    The ocean mask is remapped conservatively (block average) and thresholded.</span>
+<span class="sd">    Connectivity is inherited from the flood-filled finest-resolution mask, so</span>
+<span class="sd">    no second flood fill is performed.  The signed distance is remapped</span>
+<span class="sd">    bilinearly (as an unsigned magnitude) and then re-signed using the</span>
+<span class="sd">    remapped ocean mask.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RemapCoastlineStep.__init__">
+<a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">fine_coastline_step</span><span class="p">,</span>
+        <span class="n">coarse_resolution</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new step.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        fine_coastline_step : ComputeCoastlineStep</span>
+<span class="sd">            The shared highest-resolution coastline step whose outputs are</span>
+<span class="sd">            remapped to the coarser grid</span>
+
+<span class="sd">        coarse_resolution : float</span>
+<span class="sd">            The target coarser lat-lon resolution in degrees</span>
+
+<span class="sd">        subdir : str</span>
+<span class="sd">            The subdirectory within the component&#39;s work directory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;coastline_remap&#39;</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_cached</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fine_coastline_step</span> <span class="o">=</span> <span class="n">fine_coastline_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fine_resolution</span> <span class="o">=</span> <span class="n">FINEST_RESOLUTION</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coarse_resolution</span> <span class="o">=</span> <span class="n">coarse_resolution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_filenames</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">convention</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;coastline_</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1">.nc&#39;</span>
+            <span class="k">for</span> <span class="n">convention</span> <span class="ow">in</span> <span class="n">CONVENTIONS</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="RemapCoastlineStep.setup">
+<a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.setup.html#polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.setup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set up the step in the work directory, including linking inputs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fine_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fine_coastline_step</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">fine_step</span><span class="o">.</span><span class="n">output_filenames</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;fine_</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fine_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_filenames</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RemapCoastlineStep.run">
+<a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.run.html#polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run this step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;coastline&#39;</span><span class="p">]</span>
+        <span class="n">mask_threshold</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;mask_threshold&#39;</span><span class="p">)</span>
+        <span class="n">fine_resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fine_resolution</span>
+        <span class="n">coarse_resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coarse_resolution</span>
+
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">_compute_scale</span><span class="p">(</span>
+            <span class="n">fine_resolution</span><span class="o">=</span><span class="n">fine_resolution</span><span class="p">,</span>
+            <span class="n">coarse_resolution</span><span class="o">=</span><span class="n">coarse_resolution</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">fine_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fine_coastline_step</span>
+        <span class="k">for</span> <span class="n">convention</span><span class="p">,</span> <span class="n">out_filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_filenames</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">in_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;fine_</span><span class="si">{</span><span class="n">fine_step</span><span class="o">.</span><span class="n">output_filenames</span><span class="p">[</span><span class="n">convention</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">ds_fine</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">in_filename</span><span class="p">)</span>
+            <span class="n">ds_coarse</span> <span class="o">=</span> <span class="n">_coastline_remap_dataset</span><span class="p">(</span>
+                <span class="n">ds_fine</span><span class="o">=</span><span class="n">ds_fine</span><span class="p">,</span>
+                <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
+                <span class="n">mask_threshold</span><span class="o">=</span><span class="n">mask_threshold</span><span class="p">,</span>
+                <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
+                <span class="n">fine_resolution</span><span class="o">=</span><span class="n">fine_resolution</span><span class="p">,</span>
+                <span class="n">coarse_resolution</span><span class="o">=</span><span class="n">coarse_resolution</span><span class="p">,</span>
+                <span class="n">fine_step_subdir</span><span class="o">=</span><span class="n">fine_step</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">_write_netcdf_with_fill_values</span><span class="p">(</span><span class="n">ds_coarse</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_scale</span><span class="p">(</span><span class="n">fine_resolution</span><span class="p">,</span> <span class="n">coarse_resolution</span><span class="p">):</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">coarse_resolution</span> <span class="o">/</span> <span class="n">fine_resolution</span>
+    <span class="n">scale_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">scale</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">scale</span> <span class="o">-</span> <span class="n">scale_int</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-6</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Coarse resolution </span><span class="si">{</span><span class="n">coarse_resolution</span><span class="si">}</span><span class="s1">° is not an integer &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;multiple of fine resolution </span><span class="si">{</span><span class="n">fine_resolution</span><span class="si">}</span><span class="s1">°.&#39;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">scale_int</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_coastline_remap_dataset</span><span class="p">(</span>
+    <span class="n">ds_fine</span><span class="p">,</span>
+    <span class="n">scale</span><span class="p">,</span>
+    <span class="n">mask_threshold</span><span class="p">,</span>
+    <span class="n">convention</span><span class="p">,</span>
+    <span class="n">fine_resolution</span><span class="p">,</span>
+    <span class="n">coarse_resolution</span><span class="p">,</span>
+    <span class="n">fine_step_subdir</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">fine_mask</span> <span class="o">=</span> <span class="n">ds_fine</span><span class="p">[</span><span class="s1">&#39;ocean_mask&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">fine_dist</span> <span class="o">=</span> <span class="n">ds_fine</span><span class="p">[</span><span class="s1">&#39;signed_distance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="n">ocean_fraction</span> <span class="o">=</span> <span class="n">_block_average</span><span class="p">(</span><span class="n">fine_mask</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+    <span class="n">ocean_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">ocean_fraction</span> <span class="o">&gt;=</span> <span class="n">mask_threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+
+    <span class="n">abs_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fine_dist</span><span class="p">)</span>
+    <span class="n">coarse_abs_dist</span> <span class="o">=</span> <span class="n">_bilinear_zoom</span><span class="p">(</span><span class="n">abs_dist</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+    <span class="n">signed_distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ocean_mask</span><span class="p">,</span> <span class="n">coarse_abs_dist</span><span class="p">,</span> <span class="o">-</span><span class="n">coarse_abs_dist</span><span class="p">)</span>
+
+    <span class="n">coarse_lat</span> <span class="o">=</span> <span class="n">_coarsen_coordinate</span><span class="p">(</span><span class="n">ds_fine</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+    <span class="n">coarse_lon</span> <span class="o">=</span> <span class="n">_coarsen_coordinate</span><span class="p">(</span><span class="n">ds_fine</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+
+    <span class="n">ds_coarse</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="n">coords</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">coarse_lat</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,)),</span>
+            <span class="n">lon</span><span class="o">=</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">coarse_lon</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;lon&#39;</span><span class="p">,)),</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span>
+    <span class="n">ds_coarse</span><span class="p">[</span><span class="s1">&#39;ocean_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">ocean_mask</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">)</span>
+    <span class="n">ds_coarse</span><span class="p">[</span><span class="s1">&#39;signed_distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">signed_distance</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span>
+    <span class="p">)</span>
+
+    <span class="n">ds_coarse</span><span class="p">[</span><span class="s1">&#39;ocean_mask&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Ocean mask remapped from finest resolution and thresholded&#39;</span>
+    <span class="p">)</span>
+    <span class="n">ds_coarse</span><span class="p">[</span><span class="s1">&#39;signed_distance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Signed distance to the nearest coastline sample&#39;</span>
+    <span class="p">)</span>
+    <span class="n">ds_coarse</span><span class="p">[</span><span class="s1">&#39;signed_distance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+
+    <span class="n">ds_coarse</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">coastline_convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
+            <span class="n">target_grid</span><span class="o">=</span><span class="s1">&#39;lat_lon&#39;</span><span class="p">,</span>
+            <span class="n">target_grid_resolution_degrees</span><span class="o">=</span><span class="n">coarse_resolution</span><span class="p">,</span>
+            <span class="n">coastline_source</span><span class="o">=</span><span class="s1">&#39;remapped_from_fine_grid&#39;</span><span class="p">,</span>
+            <span class="n">mask_threshold</span><span class="o">=</span><span class="n">mask_threshold</span><span class="p">,</span>
+            <span class="n">flood_fill_seed_strategy</span><span class="o">=</span><span class="s1">&#39;inherited_from_finest_resolution&#39;</span><span class="p">,</span>
+            <span class="n">sign_convention</span><span class="o">=</span><span class="s1">&#39;negative_over_land_positive_over_ocean&#39;</span><span class="p">,</span>
+            <span class="n">coastline_edge_definition</span><span class="o">=</span><span class="p">(</span>
+                <span class="s1">&#39;east and north cell-edge transitions on the &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">fine_resolution</span><span class="si">}</span><span class="s1">° source grid&#39;</span>
+            <span class="p">),</span>
+            <span class="n">coastline_distance_definition</span><span class="o">=</span><span class="p">(</span>
+                <span class="s1">&#39;bilinearly remapped unsigned distance from &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">fine_resolution</span><span class="si">}</span><span class="s1">° grid, re-signed by remapped ocean mask&#39;</span>
+            <span class="p">),</span>
+            <span class="n">source_resolution_degrees</span><span class="o">=</span><span class="n">fine_resolution</span><span class="p">,</span>
+            <span class="n">source_coastline_step</span><span class="o">=</span><span class="n">fine_step_subdir</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds_coarse</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_block_average</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Conservatively remap a 2-D array by averaging scale×scale blocks.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    arr : numpy.ndarray</span>
+<span class="sd">        Fine-grid array with shape (n_lat_fine, n_lon_fine)</span>
+
+<span class="sd">    scale : int</span>
+<span class="sd">        Integer downscaling factor</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        Coarse-grid array with shape (n_lat_fine // scale, n_lon_fine // scale)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_lat</span><span class="p">,</span> <span class="n">n_lon</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">return</span> <span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_lat</span> <span class="o">//</span> <span class="n">scale</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">n_lon</span> <span class="o">//</span> <span class="n">scale</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+        <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_bilinear_zoom</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Bilinearly remap a 2-D fine-grid array to the coarser grid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    arr : numpy.ndarray</span>
+<span class="sd">        Fine-grid array with shape (n_lat_fine, n_lon_fine)</span>
+
+<span class="sd">    scale : int</span>
+<span class="sd">        Integer downscaling factor (zoom = 1/scale)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        Coarse-grid array with shape (n_lat_fine // scale, n_lon_fine // scale)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+        <span class="n">ndimage</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">zoom</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">scale</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">prefilter</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_coarsen_coordinate</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the coarse-grid coordinate by block-averaging the fine coordinate.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    coord : numpy.ndarray</span>
+<span class="sd">        Fine-grid 1-D coordinate array of length n</span>
+
+<span class="sd">    scale : int</span>
+<span class="sd">        Integer downscaling factor</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        Coarse coordinate array of length n // scale</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">size</span>
+    <span class="k">return</span> <span class="n">coord</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span> <span class="o">//</span> <span class="n">scale</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

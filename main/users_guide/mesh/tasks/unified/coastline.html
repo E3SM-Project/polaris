@@ -1,0 +1,388 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coastline tasks</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="E3SM Initial Condition Component" href="../../../e3sm/init/index.html" />
+    <link rel="prev" title="Tasks" href="../index.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../suites.html">Suites</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Mesh component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../index.html#base-mesh-tasks">Base Mesh Tasks</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#unified-mesh-tasks">Unified Mesh Tasks</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Coastline tasks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Mesh component</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">Coastline tasks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/users_guide/mesh/tasks/unified/coastline.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="coastline-tasks">
+<span id="users-mesh-unified-coastline"></span><h1>Coastline tasks<a class="headerlink" href="#coastline-tasks" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">mesh/spherical/unified/coastline</span></code> tasks build coastline masks and
+signed-distance fields from the shared combined-topography products on
+latitude-longitude grids. These tasks are intended for inspecting and caching
+coastline products that later unified-mesh workflows
+can reuse.</p>
+<p>Current coastline products are derived only from the combined topography
+fields produced by the <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine</span></code> workflow.</p>
+<section id="available-tasks">
+<h2>Available tasks<a class="headerlink" href="#available-tasks" title="Link to this heading"></a></h2>
+<p>Polaris provides one standalone coastline task for each supported
+latitude-longitude target grid:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh/spherical/unified/coastline/0.03125_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh/spherical/unified/coastline/0.06250_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh/spherical/unified/coastline/0.12500_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh/spherical/unified/coastline/0.25000_degree/task</span></code></p></li>
+</ul>
+<p>Current testing suggests <code class="docutils literal notranslate"><span class="pre">0.25000_degree</span></code> is still useful for lower-cost
+inspection but is too coarse for scientifically valid coastline products.
+Prefer <code class="docutils literal notranslate"><span class="pre">0.12500_degree</span></code>, <code class="docutils literal notranslate"><span class="pre">0.06250_degree</span></code>, or <code class="docutils literal notranslate"><span class="pre">0.03125_degree</span></code> when coastline
+fidelity matters.</p>
+<p>The tasks use a two-tier design described in the next section.</p>
+</section>
+<section id="two-tier-design-prepare-and-remap">
+<h2>Two-tier design: prepare and remap<a class="headerlink" href="#two-tier-design-prepare-and-remap" title="Link to this heading"></a></h2>
+<p>The coastline is computed once at the finest supported resolution
+(0.03125°) and then remapped to coarser resolutions. This ensures that the
+highest-fidelity information—including narrow channels, fjords, and
+connectivity decisions made by the flood fill—is preserved at all resolution
+tiers.</p>
+<p>Every task (at any resolution) includes a shared <code class="docutils literal notranslate"><span class="pre">coastline_final</span></code> step
+that contains the highest-fidelity coastline available at the task’s
+resolution. Coarser-resolution tasks additionally include a <code class="docutils literal notranslate"><span class="pre">coastline_compute</span></code>
+step for the underlying 0.03125° computation.</p>
+<p><strong>Finest resolution (0.03125°):</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">combine_topo_lat_lon_0.03125_degree</span></code> — the shared topography-combine step
+at 0.03125°;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coastline_final</span></code> — the shared compute step that builds convention-specific
+ocean masks and signed-distance fields at 0.03125°; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">viz_coastline</span></code> — writes diagnostic PNG images and a text summary.</p></li>
+</ul>
+<p><strong>Coarser resolutions (0.06250°, 0.12500°, 0.25000°):</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">combine_topo_lat_lon_0.03125_degree</span></code> — the same shared topography-combine
+step at 0.03125° (the finest combine step is always used by the compute step);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coastline_compute</span></code> — the same shared 0.03125° compute step;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coastline_final</span></code> — a remap step that maps the 0.03125° output to the target
+coarser grid; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">viz_coastline</span></code> — writes diagnostic PNG images and a text summary of the
+remapped coastline.</p></li>
+</ul>
+</section>
+<section id="coastline-conventions">
+<h2>Coastline conventions<a class="headerlink" href="#coastline-conventions" title="Link to this heading"></a></h2>
+<p>Each run writes three convention-specific NetCDF files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">coastline_calving_front.nc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coastline_grounding_line.nc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coastline_bedrock_zero.nc</span></code></p></li>
+</ul>
+<p>These correspond to three ways of handling Antarctic floating and grounded
+ice when defining the ocean mask:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">calving_front</span></code>: cells below sea level are ocean only where <code class="docutils literal notranslate"><span class="pre">ice_mask</span></code>
+indicates they are ice free;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grounding_line</span></code>: cells below sea level are ocean where <code class="docutils literal notranslate"><span class="pre">grounded_mask</span></code>
+indicates they are not grounded ice; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bedrock_zero</span></code>: all cells below sea level are candidate ocean.</p></li>
+</ul>
+</section>
+<section id="how-the-coastline-is-derived-at-0-03125">
+<h2>How the coastline is derived at 0.03125°<a class="headerlink" href="#how-the-coastline-is-derived-at-0-03125" title="Link to this heading"></a></h2>
+<p>For each convention, Polaris builds the coastline fields in four stages at the
+finest resolution:</p>
+<ol class="arabic simple">
+<li><p>It classifies each raster cell as candidate ocean or not candidate ocean
+using <code class="docutils literal notranslate"><span class="pre">base_elevation</span></code>, <code class="docutils literal notranslate"><span class="pre">ice_mask</span></code>, and <code class="docutils literal notranslate"><span class="pre">grounded_mask</span></code>.</p></li>
+<li><p>It keeps only the connected ocean by labeling four-neighbor connected
+components on the latitude-longitude grid, merging components that meet
+across the antimeridian, and retaining only components that touch the
+northernmost latitude row.</p></li>
+<li><p>It marks coastline transitions on east and north cell edges wherever the
+final ocean mask changes from ocean to land.</p></li>
+<li><p>It computes signed distance to the nearest raster coastline sample from
+those edge transitions.</p></li>
+</ol>
+<p>The flood-fill step removes disconnected inland basins. A cell can be
+below sea level and still be classified as land if it belongs to a component
+that never connects to the northern boundary of the grid through candidate
+ocean cells.</p>
+<p>The raster flood fill uses four-neighbor connectivity rather than diagonal
+connectivity. North-south and east-west neighbors count as connected, but
+cells that touch only at a corner do not. Longitudinal periodicity is handled
+explicitly, so ocean that crosses the antimeridian remains connected.</p>
+<p>The signed-distance calculation is also raster-based. Polaris places sample
+points at the midpoints of coastline edges, converts both those samples and
+all grid-cell centers from longitude/latitude to Cartesian coordinates on the
+sphere, and builds a <code class="docutils literal notranslate"><span class="pre">scipy.spatial.cKDTree</span></code> from the coastline samples. The
+nearest-neighbor search is performed in latitude chunks controlled by
+<code class="docutils literal notranslate"><span class="pre">distance_chunk_size</span></code>, then the Cartesian chord distance is converted to a
+spherical arc distance in meters. The result is positive in ocean cells and
+negative in land cells.</p>
+<p>Because the distance is measured to raster coastline samples rather than to an
+exact vector shoreline, the answer is tied to the chosen latitude-longitude
+resolution. Finer grids produce a more detailed coastline and a more accurate
+approximation to the continuous shoreline.</p>
+</section>
+<section id="how-the-coastline-is-remapped-to-coarser-resolutions">
+<h2>How the coastline is remapped to coarser resolutions<a class="headerlink" href="#how-the-coastline-is-remapped-to-coarser-resolutions" title="Link to this heading"></a></h2>
+<p>For each convention, the <code class="docutils literal notranslate"><span class="pre">coastline_final</span></code> (remap) step reads the 0.03125°
+<code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code> and <code class="docutils literal notranslate"><span class="pre">signed_distance</span></code> fields and produces the corresponding
+fields at the coarser grid in two steps:</p>
+<ol class="arabic simple">
+<li><p><strong>Ocean mask.</strong> The 0.03125° <code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code> (treated as a float) is
+block-averaged onto the coarser grid by averaging each N×N block of fine
+cells (N = 2, 4, or 8 for 0.0625°, 0.125°, and 0.25°, respectively),
+yielding an ocean fraction in [0, 1]. That fraction is then thresholded
+at <code class="docutils literal notranslate"><span class="pre">mask_threshold</span></code> (default 0.5) to give the coarser binary <code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code>.
+Because the 0.03125° mask already reflects the flood fill and critical
+transects, the coarser mask inherits that connectivity without repeating
+those steps.</p></li>
+<li><p><strong>Signed distance.</strong> The absolute value of the 0.03125° <code class="docutils literal notranslate"><span class="pre">signed_distance</span></code>
+is bilinearly remapped to the coarser grid. The sign is then restored from
+the remapped <code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code>: positive in ocean cells, negative in land cells.
+This preserves the fidelity of the 0.03125° coastline geometry for distance
+magnitudes while keeping the sign self-consistent with the coarser mask.</p></li>
+</ol>
+<p>The all-ocean-is-connected guarantee from the 0.03125° flood fill is inherited
+by the coarser grids. A narrow channel that is ocean at 0.03125° may fall
+below <code class="docutils literal notranslate"><span class="pre">mask_threshold</span></code> after block averaging if fewer than half of the
+contributing fine cells are ocean; this is expected behavior at resolutions
+that cannot represent the channel.</p>
+</section>
+<section id="output-fields">
+<h2>Output fields<a class="headerlink" href="#output-fields" title="Link to this heading"></a></h2>
+<p>For each convention, the coastline file contains:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">signed_distance</span></code></p></li>
+</ul>
+<p>These fields have the following interpretation:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code>: candidate ocean cells that remain after the flood fill (at
+0.03125°) or after remapping and thresholding (at coarser resolutions);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">signed_distance</span></code>: signed nearest-coastline distance in meters, negative
+over land and positive over ocean.</p></li>
+</ul>
+<p>The 0.03125° output files also record provenance attributes such as
+<code class="docutils literal notranslate"><span class="pre">coastline_edge_definition</span></code> and <code class="docutils literal notranslate"><span class="pre">flood_fill_seed_strategy</span></code>. The coarser
+output files record <code class="docutils literal notranslate"><span class="pre">source_resolution_degrees</span></code> and <code class="docutils literal notranslate"><span class="pre">source_coastline_step</span></code>
+so the remapping origin is traceable.</p>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<p>All coastline tasks share a single config file named <code class="docutils literal notranslate"><span class="pre">coastline.cfg</span></code>. The main
+options are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">[coastline].include_critical_transects</span></code>: whether to apply the
+shared <code class="docutils literal notranslate"><span class="pre">geometric_features</span></code> critical land blockages and critical passages
+before flood filling at 0.03125°. Coarser resolutions inherit these
+decisions via remapping. The default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[coastline].mask_threshold</span></code>: threshold for two purposes:
+converting remapped <code class="docutils literal notranslate"><span class="pre">ice_mask</span></code> and <code class="docutils literal notranslate"><span class="pre">grounded_mask</span></code> fields to binary masks
+(at 0.03125°), and converting remapped ocean fraction to a binary
+<code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code> (at coarser resolutions). The default is <code class="docutils literal notranslate"><span class="pre">0.5</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[coastline].sea_level_elevation</span></code>: elevation threshold for
+identifying below-sea-level cells. The default is <code class="docutils literal notranslate"><span class="pre">0.0</span></code> m.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[coastline].distance_chunk_size</span></code>: number of latitude rows
+processed at a time when computing signed distance at 0.03125°. This
+changes memory use and query batching, not the definition of the distance.
+The default is <code class="docutils literal notranslate"><span class="pre">64</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[viz_coastline].antarctic_max_latitude</span></code>: northern extent of
+Antarctic stereographic plots. The default is <code class="docutils literal notranslate"><span class="pre">-45.0</span></code> degrees.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[viz_coastline].dpi</span></code>: output resolution for diagnostic plots. The
+default is <code class="docutils literal notranslate"><span class="pre">200</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[viz_coastline].signed_distance_limit</span></code>: symmetric colorbar limit
+for signed-distance plots. The default is <code class="docutils literal notranslate"><span class="pre">500000.0</span></code> m.</p></li>
+</ul>
+</section>
+<section id="diagnostics">
+<h2>Diagnostics<a class="headerlink" href="#diagnostics" title="Link to this heading"></a></h2>
+<p>The visualization step writes global and Antarctic binary plots of the final
+<code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code> for each convention, along with matching signed-distance plots.</p>
+<p>When critical transects are enabled, the flood fill at 0.03125° honors the
+same shared critical land blockages and critical passages from
+<code class="docutils literal notranslate"><span class="pre">geometric_features</span></code> that are used in E3SM topography culling. This changes
+connectivity in the final <code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code> and derived <code class="docutils literal notranslate"><span class="pre">signed_distance</span></code> fields at
+all resolution tiers without changing the output schema.</p>
+<p>The file <code class="docutils literal notranslate"><span class="pre">debug_summary.txt</span></code> records convention-specific counts such as the
+number of ocean and land cells, along with the minimum and maximum signed
+distance.</p>
+</section>
+<section id="running-a-task">
+<h2>Running a task<a class="headerlink" href="#running-a-task" title="Link to this heading"></a></h2>
+<p>You can set up one of the coastline tasks with standard polaris commands, for
+example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>mesh/spherical/unified/coastline/0.12500_degree/task<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-w<span class="w"> </span>coastline_0125
+</pre></div>
+</div>
+<p>After setup, the work directory for the 0.03125° task contains symlinks to the
+shared <code class="docutils literal notranslate"><span class="pre">combine_topo_lat_lon_0.03125_degree</span></code>, <code class="docutils literal notranslate"><span class="pre">coastline_final</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">viz_coastline</span></code> steps, along with the shared <code class="docutils literal notranslate"><span class="pre">coastline.cfg</span></code> file. The
+coarser-resolution work directories additionally contain a <code class="docutils literal notranslate"><span class="pre">coastline_compute</span></code>
+symlink pointing to the shared 0.03125° compute step.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../../e3sm/init/index.html" class="btn btn-neutral float-right" title="E3SM Initial Condition Component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

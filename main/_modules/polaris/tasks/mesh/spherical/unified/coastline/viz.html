@@ -1,0 +1,673 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.mesh.spherical.unified.coastline.viz</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../../search.html" />
+    <link href="../../../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.mesh.spherical.unified.coastline.viz</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.mesh.spherical.unified.coastline.viz</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">isclose</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">cartopy.crs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ccrs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">TwoSlopeNorm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line2D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyremap.descriptor.utility</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp_extrap_corner</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.critical_transects</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">load_default_critical_transects</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.unified.resolutions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FINEST_RESOLUTION</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh.spherical.unified.coastline.compute</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CONVENTIONS</span><span class="p">,</span>
+    <span class="n">ComputeCoastlineStep</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh.spherical.unified.coastline.remap</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RemapCoastlineStep</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
+
+<span class="n">CoastlineStep</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">ComputeCoastlineStep</span><span class="p">,</span> <span class="n">RemapCoastlineStep</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="VizCoastlineStep">
+<a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VizCoastlineStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A step for visualizing coastline diagnostics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="VizCoastlineStep.__init__">
+<a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">coastline_step</span><span class="p">:</span> <span class="n">CoastlineStep</span><span class="p">,</span> <span class="n">subdir</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new step.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        coastline_step : CoastlineStep</span>
+<span class="sd">            The coastline step to visualize</span>
+
+<span class="sd">        subdir : str</span>
+<span class="sd">            The subdirectory within the component&#39;s work directory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz_coastline&#39;</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span> <span class="o">=</span> <span class="n">coastline_step</span></div>
+
+
+<div class="viewcode-block" id="VizCoastlineStep.setup">
+<a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.setup.html#polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.setup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set up the step in the work directory, including linking inputs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">convention</span> <span class="ow">in</span> <span class="n">CONVENTIONS</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">output_filenames</span><span class="p">[</span><span class="n">convention</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span>
+                <span class="p">),</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VizCoastlineStep.run">
+<a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.run.html#polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run this step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">use_mplstyle</span><span class="p">()</span>
+
+        <span class="n">viz_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;viz_coastline&#39;</span><span class="p">]</span>
+        <span class="n">prepare_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;coastline&#39;</span><span class="p">]</span>
+        <span class="n">dpi</span> <span class="o">=</span> <span class="n">viz_section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;dpi&#39;</span><span class="p">)</span>
+        <span class="n">antarctic_max_latitude</span> <span class="o">=</span> <span class="n">viz_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;antarctic_max_latitude&#39;</span><span class="p">)</span>
+        <span class="n">finest_plot_stride</span> <span class="o">=</span> <span class="n">viz_section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;finest_plot_stride&#39;</span><span class="p">)</span>
+        <span class="n">signed_distance_limit</span> <span class="o">=</span> <span class="n">viz_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;signed_distance_limit&#39;</span><span class="p">)</span>
+        <span class="n">plot_info</span> <span class="o">=</span> <span class="n">_get_plot_info_from_file</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">output_filenames</span><span class="p">[</span><span class="n">CONVENTIONS</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+            <span class="n">finest_plot_stride</span><span class="o">=</span><span class="n">finest_plot_stride</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">line_overlays</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">prepare_section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;include_critical_transects&#39;</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">line_overlays</span> <span class="o">=</span> <span class="n">_get_critical_transect_overlays</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pragma: no cover - diagnostic fallback</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s1">&#39;Could not load critical transects for coastline &#39;</span>
+                    <span class="s1">&#39;overlays.&#39;</span><span class="p">,</span>
+                    <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;debug_summary.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">summary</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">convention</span> <span class="ow">in</span> <span class="n">CONVENTIONS</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">output_filenames</span><span class="p">[</span><span class="n">convention</span><span class="p">]</span>
+                <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_coastline</span><span class="p">:</span>
+                    <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">ocean_mask</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                    <span class="n">signed_distance</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">signed_distance</span><span class="o">.</span><span class="n">values</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_plot_binary_field</span><span class="p">(</span>
+                    <span class="n">plot_info</span><span class="o">=</span><span class="n">plot_info</span><span class="p">,</span>
+                    <span class="n">field</span><span class="o">=</span><span class="n">ocean_mask</span><span class="p">,</span>
+                    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1"> ocean mask&#39;</span><span class="p">,</span>
+                    <span class="n">out_prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1">_ocean_mask&#39;</span><span class="p">,</span>
+                    <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span>
+                    <span class="n">antarctic_max_latitude</span><span class="o">=</span><span class="n">antarctic_max_latitude</span><span class="p">,</span>
+                    <span class="n">line_overlays</span><span class="o">=</span><span class="n">line_overlays</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_plot_signed_distance</span><span class="p">(</span>
+                    <span class="n">plot_info</span><span class="o">=</span><span class="n">plot_info</span><span class="p">,</span>
+                    <span class="n">signed_distance</span><span class="o">=</span><span class="n">signed_distance</span><span class="p">,</span>
+                    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1"> signed distance&#39;</span><span class="p">,</span>
+                    <span class="n">out_prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1">_signed_distance&#39;</span><span class="p">,</span>
+                    <span class="n">distance_limit</span><span class="o">=</span><span class="n">signed_distance_limit</span><span class="p">,</span>
+                    <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span>
+                    <span class="n">antarctic_max_latitude</span><span class="o">=</span><span class="n">antarctic_max_latitude</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_convention_summary</span><span class="p">(</span>
+                    <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span>
+                    <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
+                    <span class="n">ocean_mask</span><span class="o">=</span><span class="n">ocean_mask</span><span class="p">,</span>
+                    <span class="n">signed_distance</span><span class="o">=</span><span class="n">signed_distance</span><span class="p">,</span>
+                <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_binary_field</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">plot_info</span><span class="p">,</span>
+        <span class="n">field</span><span class="p">,</span>
+        <span class="n">title</span><span class="p">,</span>
+        <span class="n">out_prefix</span><span class="p">,</span>
+        <span class="n">dpi</span><span class="p">,</span>
+        <span class="n">antarctic_max_latitude</span><span class="p">,</span>
+        <span class="n">line_overlays</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot a binary diagnostic field for both global and Antarctic views.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_scalar_field</span><span class="p">(</span>
+            <span class="n">plot_info</span><span class="o">=</span><span class="n">plot_info</span><span class="p">,</span>
+            <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_prefix</span><span class="si">}</span><span class="s1">_global.png&#39;</span><span class="p">,</span>
+            <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span>
+            <span class="n">antarctic_max_latitude</span><span class="o">=</span><span class="n">antarctic_max_latitude</span><span class="p">,</span>
+            <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greys&#39;</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">line_overlays</span><span class="o">=</span><span class="n">line_overlays</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_scalar_field</span><span class="p">(</span>
+            <span class="n">plot_info</span><span class="o">=</span><span class="n">plot_info</span><span class="p">,</span>
+            <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_prefix</span><span class="si">}</span><span class="s1">_antarctic.png&#39;</span><span class="p">,</span>
+            <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span>
+            <span class="n">antarctic_max_latitude</span><span class="o">=</span><span class="n">antarctic_max_latitude</span><span class="p">,</span>
+            <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;antarctic&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greys&#39;</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">line_overlays</span><span class="o">=</span><span class="n">line_overlays</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_signed_distance</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">plot_info</span><span class="p">,</span>
+        <span class="n">signed_distance</span><span class="p">,</span>
+        <span class="n">title</span><span class="p">,</span>
+        <span class="n">out_prefix</span><span class="p">,</span>
+        <span class="n">distance_limit</span><span class="p">,</span>
+        <span class="n">dpi</span><span class="p">,</span>
+        <span class="n">antarctic_max_latitude</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot signed distance for both global and Antarctic views.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="mf">1.0e-3</span> <span class="o">*</span> <span class="n">signed_distance</span>
+        <span class="n">limit_km</span> <span class="o">=</span> <span class="mf">1.0e-3</span> <span class="o">*</span> <span class="n">distance_limit</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">TwoSlopeNorm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=-</span><span class="n">limit_km</span><span class="p">,</span> <span class="n">vcenter</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">limit_km</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_scalar_field</span><span class="p">(</span>
+            <span class="n">plot_info</span><span class="o">=</span><span class="n">plot_info</span><span class="p">,</span>
+            <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1"> (km)&#39;</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_prefix</span><span class="si">}</span><span class="s1">_global.png&#39;</span><span class="p">,</span>
+            <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span>
+            <span class="n">antarctic_max_latitude</span><span class="o">=</span><span class="n">antarctic_max_latitude</span><span class="p">,</span>
+            <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdBu_r&#39;</span><span class="p">,</span>
+            <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_scalar_field</span><span class="p">(</span>
+            <span class="n">plot_info</span><span class="o">=</span><span class="n">plot_info</span><span class="p">,</span>
+            <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1"> (km)&#39;</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_prefix</span><span class="si">}</span><span class="s1">_antarctic.png&#39;</span><span class="p">,</span>
+            <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span>
+            <span class="n">antarctic_max_latitude</span><span class="o">=</span><span class="n">antarctic_max_latitude</span><span class="p">,</span>
+            <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;antarctic&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdBu_r&#39;</span><span class="p">,</span>
+            <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_scalar_field</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">plot_info</span><span class="p">,</span>
+        <span class="n">field</span><span class="p">,</span>
+        <span class="n">title</span><span class="p">,</span>
+        <span class="n">out_filename</span><span class="p">,</span>
+        <span class="n">dpi</span><span class="p">,</span>
+        <span class="n">antarctic_max_latitude</span><span class="p">,</span>
+        <span class="n">projection</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">norm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">line_overlays</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot a scalar field with pcolormesh.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ref_projection</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
+        <span class="n">ax_projection</span> <span class="o">=</span> <span class="n">_get_projection</span><span class="p">(</span><span class="n">projection</span><span class="p">)</span>
+        <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span> <span class="k">if</span> <span class="n">projection</span> <span class="o">==</span> <span class="s1">&#39;global&#39;</span> <span class="k">else</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+
+        <span class="n">plot_field</span> <span class="o">=</span> <span class="n">_get_plot_field</span><span class="p">(</span>
+            <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span> <span class="n">plot_stride</span><span class="o">=</span><span class="n">plot_info</span><span class="p">[</span><span class="s1">&#39;plot_stride&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">ordered_field</span> <span class="o">=</span> <span class="n">plot_field</span><span class="p">[:,</span> <span class="n">plot_info</span><span class="p">[</span><span class="s1">&#39;center_order&#39;</span><span class="p">]]</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">ax_projection</span><span class="p">)</span>
+        <span class="n">_configure_axes</span><span class="p">(</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">,</span>
+            <span class="n">antarctic_max_latitude</span><span class="o">=</span><span class="n">antarctic_max_latitude</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span>
+            <span class="n">plot_info</span><span class="p">[</span><span class="s1">&#39;lon_corner&#39;</span><span class="p">],</span>
+            <span class="n">plot_info</span><span class="p">[</span><span class="s1">&#39;lat_corner&#39;</span><span class="p">],</span>
+            <span class="n">ordered_field</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+            <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">ref_projection</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">line_overlays</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_plot_line_overlays</span><span class="p">(</span>
+                <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+                <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">,</span>
+                <span class="n">line_overlays</span><span class="o">=</span><span class="n">line_overlays</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_convention_summary</span><span class="p">(</span>
+        <span class="n">summary</span><span class="p">,</span>
+        <span class="n">convention</span><span class="p">,</span>
+        <span class="n">ocean_mask</span><span class="p">,</span>
+        <span class="n">signed_distance</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write convention-specific ocean-mask counts to the summary file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">total_cells</span> <span class="o">=</span> <span class="n">ocean_mask</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1">]</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;total_cells: </span><span class="si">{</span><span class="n">total_cells</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;connected_ocean_cells: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">ocean_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;land_cells: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">total_cells</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ocean_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;min_signed_distance_m: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">signed_distance</span><span class="p">))</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+        <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;max_signed_distance_m: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">signed_distance</span><span class="p">))</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+        <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_plot_info</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">plot_stride</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get longitude and latitude arrays for plotting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plot_lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">lon</span> <span class="o">&gt;</span> <span class="mf">180.0</span><span class="p">,</span> <span class="n">lon</span> <span class="o">-</span> <span class="mf">360.0</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
+    <span class="n">center_order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">plot_lon</span><span class="p">)</span>
+    <span class="n">plot_lon</span> <span class="o">=</span> <span class="n">plot_lon</span><span class="p">[</span><span class="n">center_order</span><span class="p">]</span>
+    <span class="n">lon_corner</span> <span class="o">=</span> <span class="n">interp_extrap_corner</span><span class="p">(</span><span class="n">plot_lon</span><span class="p">)</span>
+    <span class="n">lat_corner</span> <span class="o">=</span> <span class="n">interp_extrap_corner</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">center_order</span><span class="o">=</span><span class="n">center_order</span><span class="p">,</span>
+        <span class="n">lon</span><span class="o">=</span><span class="n">plot_lon</span><span class="p">,</span>
+        <span class="n">lon_corner</span><span class="o">=</span><span class="n">lon_corner</span><span class="p">,</span>
+        <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+        <span class="n">lat_corner</span><span class="o">=</span><span class="n">lat_corner</span><span class="p">,</span>
+        <span class="n">plot_stride</span><span class="o">=</span><span class="n">plot_stride</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_plot_info_from_dataset</span><span class="p">(</span><span class="n">ds_coastline</span><span class="p">,</span> <span class="n">finest_plot_stride</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build plot metadata, decimating only the finest-resolution diagnostics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lon</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">resolution</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target_grid_resolution_degrees&#39;</span><span class="p">)</span>
+    <span class="n">plot_stride</span> <span class="o">=</span> <span class="n">_get_plot_stride</span><span class="p">(</span>
+        <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+        <span class="n">finest_plot_stride</span><span class="o">=</span><span class="n">finest_plot_stride</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_get_plot_info</span><span class="p">(</span>
+        <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">[::</span><span class="n">plot_stride</span><span class="p">],</span>
+        <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">[::</span><span class="n">plot_stride</span><span class="p">],</span>
+        <span class="n">plot_stride</span><span class="o">=</span><span class="n">plot_stride</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_plot_info_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">finest_plot_stride</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read grid coordinates from a coastline file and build plot metadata.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_coastline</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_get_plot_info_from_dataset</span><span class="p">(</span>
+            <span class="n">ds_coastline</span><span class="o">=</span><span class="n">ds_coastline</span><span class="p">,</span>
+            <span class="n">finest_plot_stride</span><span class="o">=</span><span class="n">finest_plot_stride</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_plot_stride</span><span class="p">(</span><span class="n">resolution</span><span class="p">,</span> <span class="n">finest_plot_stride</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine the plotting stride for a coastline dataset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_finest_resolution</span><span class="p">(</span><span class="n">resolution</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">finest_plot_stride</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_finest_resolution</span><span class="p">(</span><span class="n">resolution</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Whether a resolution matches the finest supported lat-lon grid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">resolution</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="n">isclose</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">resolution</span><span class="p">),</span> <span class="n">FINEST_RESOLUTION</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_plot_field</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">plot_stride</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Downsample a field for plotting while leaving diagnostics untouched.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">plot_stride</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">field</span>
+
+    <span class="k">return</span> <span class="n">field</span><span class="p">[::</span><span class="n">plot_stride</span><span class="p">,</span> <span class="p">::</span><span class="n">plot_stride</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_projection</span><span class="p">(</span><span class="n">projection</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the requested Cartopy projection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">projection</span> <span class="o">==</span> <span class="s1">&#39;global&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">projection</span> <span class="o">==</span> <span class="s1">&#39;antarctic&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">SouthPolarStereo</span><span class="p">()</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected projection: </span><span class="si">{</span><span class="n">projection</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_critical_transect_overlays</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build line overlays for critical passages and land blockages.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">critical_transects</span> <span class="o">=</span> <span class="n">load_default_critical_transects</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Critical passages&#39;</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:blue&#39;</span><span class="p">,</span>
+            <span class="n">segments</span><span class="o">=</span><span class="n">_get_feature_segments</span><span class="p">(</span><span class="n">critical_transects</span><span class="o">.</span><span class="n">passages</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Critical blockages&#39;</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:red&#39;</span><span class="p">,</span>
+            <span class="n">segments</span><span class="o">=</span><span class="n">_get_feature_segments</span><span class="p">(</span><span class="n">critical_transects</span><span class="o">.</span><span class="n">land_blockages</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_configure_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">projection</span><span class="p">,</span> <span class="n">antarctic_max_latitude</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configure common map settings for coastline diagnostics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ref_projection</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">projection</span> <span class="o">==</span> <span class="s1">&#39;global&#39;</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_global</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">projection</span> <span class="o">==</span> <span class="s1">&#39;antarctic&#39;</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span>
+            <span class="p">[</span><span class="o">-</span><span class="mf">180.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">90.0</span><span class="p">,</span> <span class="n">antarctic_max_latitude</span><span class="p">],</span>
+            <span class="n">crs</span><span class="o">=</span><span class="n">ref_projection</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected projection: </span><span class="si">{</span><span class="n">projection</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">gridlines</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;0.8&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot_line_overlays</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">projection</span><span class="p">,</span> <span class="n">line_overlays</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot optional line overlays and add a legend when present.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ref_projection</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
+    <span class="n">line_width</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">projection</span> <span class="o">==</span> <span class="s1">&#39;antarctic&#39;</span> <span class="k">else</span> <span class="mf">1.3</span>
+    <span class="n">legend_handles</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">overlay</span> <span class="ow">in</span> <span class="n">line_overlays</span><span class="p">:</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="n">overlay</span><span class="p">[</span><span class="s1">&#39;segments&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">for</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">lon</span><span class="p">,</span>
+                <span class="n">lat</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">overlay</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">],</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="n">line_width</span><span class="p">,</span>
+                <span class="n">transform</span><span class="o">=</span><span class="n">ref_projection</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">legend_handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Line2D</span><span class="p">(</span>
+                <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">overlay</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">],</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">overlay</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">legend_handles</span><span class="p">:</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="s1">&#39;lower left&#39;</span> <span class="k">if</span> <span class="n">projection</span> <span class="o">==</span> <span class="s1">&#39;global&#39;</span> <span class="k">else</span> <span class="s1">&#39;upper left&#39;</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+            <span class="n">handles</span><span class="o">=</span><span class="n">legend_handles</span><span class="p">,</span>
+            <span class="n">loc</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_feature_segments</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert feature-collection line geometries into plot-ready segments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">feature_collection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">segments</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">feature_collection</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+        <span class="n">geometry</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">geometry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">geometry_type</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">geometry_type</span> <span class="o">==</span> <span class="s1">&#39;LineString&#39;</span><span class="p">:</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">geometry</span><span class="p">[</span><span class="s1">&#39;coordinates&#39;</span><span class="p">]]</span>
+        <span class="k">elif</span> <span class="n">geometry_type</span> <span class="o">==</span> <span class="s1">&#39;MultiLineString&#39;</span><span class="p">:</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">geometry</span><span class="p">[</span><span class="s1">&#39;coordinates&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Unsupported critical transect geometry type: </span><span class="si">{</span><span class="n">geometry_type</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">coordinates</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+            <span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">coordinates</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">180.0</span><span class="p">,</span>
+                <span class="n">coordinates</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">360.0</span><span class="p">,</span>
+                <span class="n">coordinates</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="n">coordinates</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">lon</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">segments</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

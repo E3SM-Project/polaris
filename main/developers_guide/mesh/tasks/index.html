@@ -19,7 +19,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Base Mesh Task" href="base.html" />
+    <link rel="next" title="Coastline Steps and Tasks" href="unified/coastline.html" />
     <link rel="prev" title="Mesh component" href="../index.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -65,7 +65,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Mesh component</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Tasks</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="base.html">Base Mesh Task</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#base-mesh-task">Base Mesh Task</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unified-mesh-preparation-tasks">Unified Mesh Preparation Tasks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="unified/coastline.html">Coastline Steps and Tasks</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Mesh Framework</a></li>
@@ -121,11 +125,26 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="tasks">
 <span id="dev-mesh-tasks"></span><h1>Tasks<a class="headerlink" href="#tasks" title="Link to this heading"></a></h1>
+<section id="base-mesh-task">
+<span id="dev-mesh-base-mesh-task"></span><h2>Base Mesh Task<a class="headerlink" href="#base-mesh-task" title="Link to this heading"></a></h2>
+<p>The the base mesh tasks defined by <a class="reference internal" href="../generated/polaris.tasks.mesh.base.BaseMeshTask.html#polaris.tasks.mesh.base.BaseMeshTask" title="polaris.tasks.mesh.base.BaseMeshTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.mesh.base.BaseMeshTask</span></code></a>
+can be used to generate quasi-uniform (<code class="docutils literal notranslate"><span class="pre">qu</span></code>) and subdivided icosahedral
+(<code class="docutils literal notranslate"><span class="pre">icos</span></code>) spherical meshes at quasi-uniform resolutions ranging from 30 to 480
+km.  These “base” meshes cover the full sphere (include both continents and
+ocean regions).</p>
+</section>
+<section id="unified-mesh-preparation-tasks">
+<h2>Unified Mesh Preparation Tasks<a class="headerlink" href="#unified-mesh-preparation-tasks" title="Link to this heading"></a></h2>
+<p>This section covers the shared task families that prepare reusable coastline
+and river products for named global unified meshes. These workflows are
+intended to be reused by downstream sizing-field and base-mesh tasks rather
+than implemented separately inside each consumer.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="base.html">Base Mesh Task</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unified/coastline.html">Coastline Steps and Tasks</a></li>
 </ul>
 </div>
+</section>
 </section>
 
 
@@ -133,7 +152,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../index.html" class="btn btn-neutral float-left" title="Mesh component" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="base.html" class="btn btn-neutral float-right" title="Base Mesh Task" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="unified/coastline.html" class="btn btn-neutral float-right" title="Coastline Steps and Tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

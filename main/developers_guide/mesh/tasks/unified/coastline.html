@@ -1,0 +1,409 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coastline Steps and Tasks</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Mesh Framework" href="../../framework/index.html" />
+    <link rel="prev" title="Tasks" href="../index.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Mesh component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../index.html#base-mesh-task">Base Mesh Task</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#unified-mesh-preparation-tasks">Unified Mesh Preparation Tasks</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Coastline Steps and Tasks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../framework/index.html">Mesh Framework</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Mesh component</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">Coastline Steps and Tasks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/developers_guide/mesh/tasks/unified/coastline.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="coastline-steps-and-tasks">
+<span id="dev-mesh-unified-coastline"></span><h1>Coastline Steps and Tasks<a class="headerlink" href="#coastline-steps-and-tasks" title="Link to this heading"></a></h1>
+<p>This section of the Developer’s guide covers the code for the coastline
+extraction workflow.  The <a class="reference internal" href="../../../../users_guide/mesh/tasks/unified/coastline.html#users-mesh-unified-coastline"><span class="std std-ref">Coastline tasks</span></a> section describes
+the user-facing aspects of the workflow such as the conventions,
+algorithms, and config options.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.coastline</span></code> module provides a
+raster-first coastline workflow on latitude-longitude grids. It computes the
+full coastline at the finest supported resolution (0.03125°) and remaps the
+results to coarser resolutions rather than repeating the expensive computation
+at each resolution tier.</p>
+<section id="available-tasks">
+<h2>Available tasks<a class="headerlink" href="#available-tasks" title="Link to this heading"></a></h2>
+<p>The helper
+<a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.coastline.add_coastline_tasks.html#polaris.tasks.mesh.spherical.unified.coastline.add_coastline_tasks" title="polaris.tasks.mesh.spherical.unified.coastline.add_coastline_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.coastline.add_coastline_tasks()</span></code></a>
+registers one standalone task for each supported latitude-longitude target
+grid:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh/spherical/unified/coastline/0.03125_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh/spherical/unified/coastline/0.06250_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh/spherical/unified/coastline/0.12500_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh/spherical/unified/coastline/0.25000_degree/task</span></code></p></li>
+</ul>
+<p>Each task is an instance of
+<a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.coastline.LatLonCoastlineTask.html#polaris.tasks.mesh.spherical.unified.coastline.LatLonCoastlineTask" title="polaris.tasks.mesh.spherical.unified.coastline.LatLonCoastlineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.coastline.LatLonCoastlineTask</span></code></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">add_coastline_tasks</span></code> iterates over <code class="docutils literal notranslate"><span class="pre">LAT_LON_TARGET_GRID_RESOLUTIONS</span></code> in
+sorted (ascending) order so that the finest-resolution task is registered
+first.  This ensures the shared
+<a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep" title="polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep</span></code></a>
+is created before coarser tasks retrieve it via
+<code class="docutils literal notranslate"><span class="pre">component.get_or_create_shared_step</span></code>.</p>
+</section>
+<section id="task-structure-and-shared-steps">
+<h2>Task structure and shared steps<a class="headerlink" href="#task-structure-and-shared-steps" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">LatLonCoastlineTask</span></code> has a uniform structure at all resolutions:</p>
+<ol class="arabic simple">
+<li><p>Calls
+<a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.coastline.get_unified_mesh_coastline_steps.html#polaris.tasks.mesh.spherical.unified.coastline.get_unified_mesh_coastline_steps" title="polaris.tasks.mesh.spherical.unified.coastline.get_unified_mesh_coastline_steps"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.coastline.get_unified_mesh_coastline_steps()</span></code></a>
+with <code class="docutils literal notranslate"><span class="pre">resolution</span></code>, <code class="docutils literal notranslate"><span class="pre">cached=False</span></code>, and <code class="docutils literal notranslate"><span class="pre">include_viz=True</span></code>.  That factory
+obtains the shared topography-combine step from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> internally,
+always creates or retrieves the shared
+<a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep" title="polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep</span></code></a>
+at the finest supported resolution (0.03125°), and for coarser-resolution
+tasks additionally creates a
+<a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep" title="polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep</span></code></a>.</p></li>
+<li><p>Sets the shared <code class="docutils literal notranslate"><span class="pre">coastline.cfg</span></code> and adds all returned steps, using the
+dict keys returned by the factory as symlink names in the task workdir.</p></li>
+</ol>
+<p><strong>Finest resolution (0.03125°)</strong></p>
+<p>The task workdir contains symlinks to:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">combine_topo_lat_lon_0.03125_degree</span></code> — the shared topography-combine step
+at 0.03125°</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coastline_final</span></code> — the shared <code class="docutils literal notranslate"><span class="pre">ComputeCoastlineStep</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">viz_coastline</span></code> — the shared <code class="docutils literal notranslate"><span class="pre">VizCoastlineStep</span></code></p></li>
+</ul>
+<p><strong>Coarser resolutions (0.06250°, 0.12500°, 0.25000°)</strong></p>
+<p>The task workdir contains:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">combine_topo_lat_lon_0.03125_degree</span></code> — the same shared topography-combine
+step at 0.03125° (the finest combine step is always used by
+<code class="docutils literal notranslate"><span class="pre">ComputeCoastlineStep</span></code> regardless of which task instantiates it)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coastline_compute</span></code> — the shared <code class="docutils literal notranslate"><span class="pre">ComputeCoastlineStep</span></code> at 0.03125°</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coastline_final</span></code> — a <code class="docutils literal notranslate"><span class="pre">RemapCoastlineStep</span></code> at the task’s resolution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">viz_coastline</span></code> — a <code class="docutils literal notranslate"><span class="pre">VizCoastlineStep</span></code> for the remapped output</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">ComputeCoastlineStep</span></code> is created once (by the finest-resolution task) and
+shared via <code class="docutils literal notranslate"><span class="pre">component.get_or_create_shared_step</span></code>.  Coarser tasks retrieve the
+existing instance; the <code class="docutils literal notranslate"><span class="pre">combine_topo_step</span></code> argument passed by a coarser task
+has no effect once the step has already been created.</p>
+</section>
+<section id="implementation-map">
+<h2>Implementation map<a class="headerlink" href="#implementation-map" title="Link to this heading"></a></h2>
+<section id="computecoastlinestep-0-03125">
+<h3>ComputeCoastlineStep (0.03125°)<a class="headerlink" href="#computecoastlinestep-0-03125" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">ComputeCoastlineStep.run()</span></code> reads <code class="docutils literal notranslate"><span class="pre">coastline.cfg</span></code>, opens <code class="docutils literal notranslate"><span class="pre">topography.nc</span></code>, and
+dispatches the numerical work to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.coastline.compute.build_coastline_datasets()</span></code>.
+That helper operates on <code class="docutils literal notranslate"><span class="pre">(lat,</span> <span class="pre">lon)</span></code> NumPy arrays and, for each convention:</p>
+<ul class="simple">
+<li><p>builds a candidate ocean mask from <code class="docutils literal notranslate"><span class="pre">base_elevation</span></code>, <code class="docutils literal notranslate"><span class="pre">ice_mask</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">grounded_mask</span></code>;</p></li>
+<li><p>calls <code class="docutils literal notranslate"><span class="pre">_flood_fill_ocean</span></code> to retain only the connected ocean;</p></li>
+<li><p>calls <code class="docutils literal notranslate"><span class="pre">_coastline_edges</span></code> to derive the raster edge diagnostics used for
+coastline sampling; and</p></li>
+<li><p>calls <code class="docutils literal notranslate"><span class="pre">_signed_distance_from_mask</span></code> to compute the signed-distance field.</p></li>
+</ul>
+<p>The results are assembled by <code class="docutils literal notranslate"><span class="pre">_build_single_coastline_dataset</span></code> into one raster
+dataset per convention with metadata that records the thresholds, flood-fill
+seed strategy, and sign convention.</p>
+<p>The core numerical functions live in <code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.coastline</span></code>;
+<code class="docutils literal notranslate"><span class="pre">ComputeCoastlineStep</span></code> is responsible only for task-level configuration,
+shared critical-transect loading, and writing outputs.</p>
+</section>
+<section id="remapcoastlinestep-coarser-resolutions">
+<h3>RemapCoastlineStep (coarser resolutions)<a class="headerlink" href="#remapcoastlinestep-coarser-resolutions" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">RemapCoastlineStep.run()</span></code> reads <code class="docutils literal notranslate"><span class="pre">coastline.cfg</span></code>, then for each convention:</p>
+<ol class="arabic simple">
+<li><p>Reads the 0.03125° <code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code> (linked as <code class="docutils literal notranslate"><span class="pre">fine_coastline_{convention}.nc</span></code>)
+and <code class="docutils literal notranslate"><span class="pre">signed_distance</span></code>.</p></li>
+<li><p>Block-averages the fine <code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code> onto the coarser grid
+(<code class="docutils literal notranslate"><span class="pre">_block_average</span></code>), yielding an ocean fraction in [0, 1], then thresholds
+at <code class="docutils literal notranslate"><span class="pre">mask_threshold</span></code> to produce a binary <code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code>.  No second flood fill
+is performed; connectivity is inherited from the 0.03125° result.</p></li>
+<li><p>Bilinearly remaps the absolute value of the fine <code class="docutils literal notranslate"><span class="pre">signed_distance</span></code>
+(<code class="docutils literal notranslate"><span class="pre">_bilinear_zoom</span></code>) and re-signs using the coarser <code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code>.</p></li>
+<li><p>Writes the output with provenance attributes that record the source
+resolution and source step path.</p></li>
+</ol>
+<p>Because all four grids are perfectly nested (each coarser resolution is an
+exact 2ⁿ multiple of 0.03125°), block averaging is exact conservative
+remapping with no ESMF or pyremap dependency.</p>
+</section>
+</section>
+<section id="visualization">
+<h2>Visualization<a class="headerlink" href="#visualization" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">VizCoastlineStep</span></code> reads the coastline files and writes:</p>
+<ul class="simple">
+<li><p>global and Antarctic binary plots of the final <code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code> for each
+convention; and</p></li>
+<li><p>global and Antarctic signed-distance plots for each convention.</p></li>
+</ul>
+<p>It also writes <code class="docutils literal notranslate"><span class="pre">debug_summary.txt</span></code>, which records convention-specific counts
+such as ocean and land cells and the min/max signed distance.</p>
+<p><code class="docutils literal notranslate"><span class="pre">VizCoastlineStep</span></code> is duck-typed on <code class="docutils literal notranslate"><span class="pre">output_filenames</span></code> and <code class="docutils literal notranslate"><span class="pre">path</span></code>, so it
+works with both <code class="docutils literal notranslate"><span class="pre">ComputeCoastlineStep</span></code> (0.03125°) and <code class="docutils literal notranslate"><span class="pre">RemapCoastlineStep</span></code>
+(coarser resolutions) as its <code class="docutils literal notranslate"><span class="pre">coastline_step</span></code>.</p>
+</section>
+<section id="extension-points">
+<h2>Extension points<a class="headerlink" href="#extension-points" title="Link to this heading"></a></h2>
+<p>The current implementation is intentionally narrow: lat-lon target grids,
+three coastline conventions, and raster outputs. Common developer changes are:</p>
+<ul class="simple">
+<li><p><strong>Adding a new target resolution.</strong> Add the resolution to
+<code class="docutils literal notranslate"><span class="pre">LAT_LON_TARGET_GRID_RESOLUTIONS</span></code> in
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified.resolutions</span></code>. The new resolution must be an
+exact 2ⁿ multiple of 0.03125° so that <code class="docutils literal notranslate"><span class="pre">RemapCoastlineStep</span></code> can block-average
+from the finest grid. Also add the resolution to the <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine</span></code>
+tasks if combined topography at that resolution will be needed by other
+workflows.</p></li>
+<li><p><strong>Adding a new convention.</strong> Extend <code class="docutils literal notranslate"><span class="pre">CONVENTIONS</span></code> and the <code class="docutils literal notranslate"><span class="pre">candidate_masks</span></code>
+dictionary in <code class="docutils literal notranslate"><span class="pre">build_coastline_datasets()</span></code>, then update the visualization
+step and the associated tests.</p></li>
+<li><p><strong>Extending the output contract.</strong> Update <code class="docutils literal notranslate"><span class="pre">_build_single_coastline_dataset()</span></code>
+and <code class="docutils literal notranslate"><span class="pre">_coastline_remap_dataset()</span></code> in parallel so both the prepare and remap
+paths produce the new variable, then update the plotting code in <code class="docutils literal notranslate"><span class="pre">viz.py</span></code>
+and the tests.</p></li>
+</ul>
+</section>
+<section id="configuration-plumbing">
+<h2>Configuration plumbing<a class="headerlink" href="#configuration-plumbing" title="Link to this heading"></a></h2>
+<p>The coastline workflow is configured through a single shared <code class="docutils literal notranslate"><span class="pre">coastline.cfg</span></code>
+that covers all resolution tiers.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ComputeCoastlineStep</span></code> consumes <code class="docutils literal notranslate"><span class="pre">[coastline]</span></code> options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">include_critical_transects</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mask_threshold</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sea_level_elevation</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distance_chunk_size</span></code></p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">RemapCoastlineStep</span></code> consumes <code class="docutils literal notranslate"><span class="pre">[coastline]</span></code> options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mask_threshold</span></code> — applied to the block-averaged ocean fraction</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">VizCoastlineStep</span></code> consumes <code class="docutils literal notranslate"><span class="pre">[viz_coastline]</span></code> options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">antarctic_max_latitude</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dpi</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">signed_distance_limit</span></code></p></li>
+</ul>
+<p>The <a class="reference internal" href="../../../../users_guide/mesh/tasks/unified/coastline.html#users-mesh-unified-coastline"><span class="std std-ref">Coastline tasks</span></a> page explains how these options affect the
+user-visible behavior of the workflow.</p>
+</section>
+<section id="example-usage">
+<h2>Example usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
+<p>To register the default coastline tasks for the <code class="docutils literal notranslate"><span class="pre">mesh</span></code> component:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh.spherical.unified.coastline</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_coastline_tasks</span>
+
+<span class="n">add_coastline_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To reuse the shared finest-resolution <code class="docutils literal notranslate"><span class="pre">ComputeCoastlineStep</span></code> inside another
+workflow that needs the 0.03125° coastline products:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh.spherical.unified.coastline</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_unified_mesh_coastline_steps</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">steps</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="n">get_unified_mesh_coastline_steps</span><span class="p">(</span>
+    <span class="n">resolution</span><span class="o">=</span><span class="mf">0.03125</span><span class="p">,</span>
+    <span class="n">cached</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fine_coastline_step</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="s1">&#39;coastline_final&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>To get coastline steps at a coarser resolution:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh.spherical.unified.coastline</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_unified_mesh_coastline_steps</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">steps</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="n">get_unified_mesh_coastline_steps</span><span class="p">(</span>
+    <span class="n">resolution</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+    <span class="n">cached</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># steps[&#39;coastline_compute&#39;] is the shared ComputeCoastlineStep at 0.03125°</span>
+<span class="c1"># steps[&#39;coastline_final&#39;] is the RemapCoastlineStep at 0.25°</span>
+<span class="n">coarse_coastline_step</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="s1">&#39;coastline_final&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">get_unified_mesh_coastline_steps</span></code> returns a 2-tuple <code class="docutils literal notranslate"><span class="pre">(steps,</span> <span class="pre">config)</span></code>.  The
+combine step is obtained internally by the factory; callers do not need to
+provide it.  The <code class="docutils literal notranslate"><span class="pre">cached</span></code> parameter controls whether the returned steps have
+their <code class="docutils literal notranslate"><span class="pre">cached</span></code> flag set (default <code class="docutils literal notranslate"><span class="pre">True</span></code> for use in downstream tasks; <code class="docutils literal notranslate"><span class="pre">False</span></code>
+for standalone coastline tasks that run the steps unconditionally).</p>
+</section>
+<section id="test-coverage">
+<h2>Test coverage<a class="headerlink" href="#test-coverage" title="Link to this heading"></a></h2>
+<p>Unit tests in <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_coastline.py</span></code> validate the
+public coastline dataset contract, convention-specific Antarctic behavior,
+exclusion of disconnected inland water, and the use of the northernmost
+latitude row for flood-fill seeding.</p>
+<p>Unit tests in <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_coastline_remap.py</span></code> validate
+the remap helpers (<code class="docutils literal notranslate"><span class="pre">_block_average</span></code>, <code class="docutils literal notranslate"><span class="pre">_bilinear_zoom</span></code>, <code class="docutils literal notranslate"><span class="pre">_coarsen_coordinate</span></code>,
+<code class="docutils literal notranslate"><span class="pre">_compute_scale</span></code>), the thresholding and sign convention of
+<code class="docutils literal notranslate"><span class="pre">_coastline_remap_dataset</span></code>, end-to-end execution of <code class="docutils literal notranslate"><span class="pre">RemapCoastlineStep.run()</span></code>,
+and that <code class="docutils literal notranslate"><span class="pre">get_unified_mesh_coastline_steps</span></code> creates a <code class="docutils literal notranslate"><span class="pre">RemapCoastlineStep</span></code> when
+<code class="docutils literal notranslate"><span class="pre">resolution</span></code> differs from <code class="docutils literal notranslate"><span class="pre">FINEST_RESOLUTION</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../framework/index.html" class="btn btn-neutral float-right" title="Mesh Framework" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

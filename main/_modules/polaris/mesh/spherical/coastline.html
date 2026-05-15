@@ -1,0 +1,753 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.mesh.spherical.coastline</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../spherical.html">polaris.mesh.spherical</a></li>
+      <li class="breadcrumb-item active">polaris.mesh.spherical.coastline</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.mesh.spherical.coastline</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">netCDF4</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">cKDTree</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.critical_transects</span><span class="w"> </span><span class="kn">import</span> <span class="n">CriticalTransects</span>
+
+<span class="n">CONVENTIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;calving_front&#39;</span><span class="p">,</span> <span class="s1">&#39;grounding_line&#39;</span><span class="p">,</span> <span class="s1">&#39;bedrock_zero&#39;</span><span class="p">)</span>
+<span class="n">EARTH_RADIUS</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;mean_radius&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="build_coastline_datasets">
+<a class="viewcode-back" href="../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.build_coastline_datasets.html#polaris.tasks.mesh.spherical.unified.coastline.build_coastline_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_coastline_datasets</span><span class="p">(</span>
+    <span class="n">ds_topo</span><span class="p">,</span>
+    <span class="n">resolution</span><span class="p">,</span>
+    <span class="n">mask_threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">sea_level_elevation</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">distance_chunk_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+    <span class="n">workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">critical_transects</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build coastline datasets from combined topography.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_topo : xr.Dataset</span>
+<span class="sd">        Combined topography on a lat-lon grid</span>
+
+<span class="sd">    resolution : float</span>
+<span class="sd">        The target lat-lon resolution in degrees</span>
+
+<span class="sd">    mask_threshold : float, optional</span>
+<span class="sd">        Threshold for converting remapped mask fields to binary masks</span>
+
+<span class="sd">    sea_level_elevation : float, optional</span>
+<span class="sd">        Elevation threshold used to classify below-sea-level cells</span>
+
+<span class="sd">    distance_chunk_size : int, optional</span>
+<span class="sd">        Number of latitude rows per signed-distance query chunk</span>
+
+<span class="sd">    workers : int, optional</span>
+<span class="sd">        Number of workers to use in KD-tree queries</span>
+
+<span class="sd">    critical_transects : CriticalTransects, optional</span>
+<span class="sd">        Critical land blockages and passages to rasterize before flood fill</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds_coastlines : dict[str, xr.Dataset]</span>
+<span class="sd">        Coastline datasets keyed by coastline convention</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lon</span> <span class="o">=</span> <span class="n">ds_topo</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="n">ds_topo</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">base_elevation</span> <span class="o">=</span> <span class="n">ds_topo</span><span class="o">.</span><span class="n">base_elevation</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">ice_mask</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">ds_topo</span><span class="o">.</span><span class="n">ice_mask</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="n">mask_threshold</span>
+    <span class="p">)</span>
+    <span class="n">grounded_mask</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">ds_topo</span><span class="o">.</span><span class="n">grounded_mask</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="n">mask_threshold</span>
+    <span class="p">)</span>
+    <span class="n">below_sea_level</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">base_elevation</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
+        <span class="n">base_elevation</span> <span class="o">&lt;</span> <span class="n">sea_level_elevation</span>
+    <span class="p">)</span>
+
+    <span class="n">candidate_masks</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;calving_front&#39;</span><span class="p">:</span> <span class="n">below_sea_level</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">ice_mask</span><span class="p">),</span>
+        <span class="s1">&#39;grounding_line&#39;</span><span class="p">:</span> <span class="n">below_sea_level</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">grounded_mask</span><span class="p">),</span>
+        <span class="s1">&#39;bedrock_zero&#39;</span><span class="p">:</span> <span class="n">below_sea_level</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">land_blockages</span><span class="p">,</span> <span class="n">passages</span> <span class="o">=</span> <span class="n">_rasterize_critical_transects</span><span class="p">(</span>
+        <span class="n">critical_transects</span><span class="o">=</span><span class="n">critical_transects</span><span class="p">,</span>
+        <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+        <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">ds_coastlines</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">convention</span> <span class="ow">in</span> <span class="n">CONVENTIONS</span><span class="p">:</span>
+        <span class="n">candidate_ocean</span> <span class="o">=</span> <span class="n">candidate_masks</span><span class="p">[</span><span class="n">convention</span><span class="p">]</span>
+        <span class="n">candidate_ocean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+            <span class="n">candidate_ocean</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">land_blockages</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">candidate_ocean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">candidate_ocean</span><span class="p">,</span> <span class="n">passages</span><span class="p">)</span>
+
+        <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">_flood_fill_ocean</span><span class="p">(</span><span class="n">candidate_ocean</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+        <span class="n">edge_east</span><span class="p">,</span> <span class="n">edge_north</span> <span class="o">=</span> <span class="n">_coastline_edges</span><span class="p">(</span><span class="n">ocean_mask</span><span class="p">)</span>
+        <span class="n">signed_distance</span> <span class="o">=</span> <span class="n">_signed_distance_from_mask</span><span class="p">(</span>
+            <span class="n">ocean_mask</span><span class="o">=</span><span class="n">ocean_mask</span><span class="p">,</span>
+            <span class="n">edge_east</span><span class="o">=</span><span class="n">edge_east</span><span class="p">,</span>
+            <span class="n">edge_north</span><span class="o">=</span><span class="n">edge_north</span><span class="p">,</span>
+            <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+            <span class="n">chunk_size</span><span class="o">=</span><span class="n">distance_chunk_size</span><span class="p">,</span>
+            <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">ds_coastlines</span><span class="p">[</span><span class="n">convention</span><span class="p">]</span> <span class="o">=</span> <span class="n">_build_single_coastline_dataset</span><span class="p">(</span>
+            <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
+            <span class="n">ds_topo</span><span class="o">=</span><span class="n">ds_topo</span><span class="p">,</span>
+            <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+            <span class="n">mask_threshold</span><span class="o">=</span><span class="n">mask_threshold</span><span class="p">,</span>
+            <span class="n">sea_level_elevation</span><span class="o">=</span><span class="n">sea_level_elevation</span><span class="p">,</span>
+            <span class="n">ocean_mask</span><span class="o">=</span><span class="n">ocean_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span>
+            <span class="n">signed_distance</span><span class="o">=</span><span class="n">signed_distance</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds_coastlines</span></div>
+
+
+
+<div class="viewcode-block" id="build_coastline_dataset">
+<a class="viewcode-back" href="../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.build_coastline_dataset.html#polaris.tasks.mesh.spherical.unified.coastline.build_coastline_dataset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_coastline_dataset</span><span class="p">(</span>
+    <span class="n">ds_topo</span><span class="p">,</span>
+    <span class="n">resolution</span><span class="p">,</span>
+    <span class="n">convention</span><span class="p">,</span>
+    <span class="n">mask_threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">sea_level_elevation</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">distance_chunk_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+    <span class="n">workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">critical_transects</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build a coastline dataset for one coastline convention.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ds_coastlines</span> <span class="o">=</span> <span class="n">build_coastline_datasets</span><span class="p">(</span>
+        <span class="n">ds_topo</span><span class="o">=</span><span class="n">ds_topo</span><span class="p">,</span>
+        <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+        <span class="n">mask_threshold</span><span class="o">=</span><span class="n">mask_threshold</span><span class="p">,</span>
+        <span class="n">sea_level_elevation</span><span class="o">=</span><span class="n">sea_level_elevation</span><span class="p">,</span>
+        <span class="n">distance_chunk_size</span><span class="o">=</span><span class="n">distance_chunk_size</span><span class="p">,</span>
+        <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">,</span>
+        <span class="n">critical_transects</span><span class="o">=</span><span class="n">critical_transects</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds_coastlines</span><span class="p">[</span><span class="n">convention</span><span class="p">]</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_single_coastline_dataset</span><span class="p">(</span>
+    <span class="n">convention</span><span class="p">,</span>
+    <span class="n">ds_topo</span><span class="p">,</span>
+    <span class="n">resolution</span><span class="p">,</span>
+    <span class="n">mask_threshold</span><span class="p">,</span>
+    <span class="n">sea_level_elevation</span><span class="p">,</span>
+    <span class="n">ocean_mask</span><span class="p">,</span>
+    <span class="n">signed_distance</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build one convention-specific coastline dataset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ds_coastline</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="n">coords</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">ds_topo</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span>
+            <span class="n">lon</span><span class="o">=</span><span class="n">ds_topo</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span>
+    <span class="n">data_vars</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;ocean_mask&#39;</span><span class="p">:</span> <span class="n">ocean_mask</span><span class="p">,</span>
+        <span class="s1">&#39;signed_distance&#39;</span><span class="p">:</span> <span class="n">signed_distance</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">ds_coastline</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">)</span>
+
+    <span class="n">ds_coastline</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">coastline_convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
+            <span class="n">target_grid</span><span class="o">=</span><span class="s1">&#39;lat_lon&#39;</span><span class="p">,</span>
+            <span class="n">target_grid_resolution_degrees</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+            <span class="n">coastline_source</span><span class="o">=</span><span class="s1">&#39;combined_topography&#39;</span><span class="p">,</span>
+            <span class="n">mask_threshold</span><span class="o">=</span><span class="n">mask_threshold</span><span class="p">,</span>
+            <span class="n">sea_level_elevation</span><span class="o">=</span><span class="n">sea_level_elevation</span><span class="p">,</span>
+            <span class="n">flood_fill_seed_strategy</span><span class="o">=</span><span class="s1">&#39;candidate_ocean_on_northernmost_row&#39;</span><span class="p">,</span>
+            <span class="n">sign_convention</span><span class="o">=</span><span class="s1">&#39;negative_over_land_positive_over_ocean&#39;</span><span class="p">,</span>
+            <span class="n">coastline_edge_definition</span><span class="o">=</span><span class="p">(</span>
+                <span class="s1">&#39;east and north cell-edge transitions on the target grid&#39;</span>
+            <span class="p">),</span>
+            <span class="n">coastline_distance_definition</span><span class="o">=</span><span class="p">(</span>
+                <span class="s1">&#39;spherical nearest-sample distance from raster coastline&#39;</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">ds_coastline</span><span class="p">[</span><span class="s1">&#39;ocean_mask&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Exclusive ocean mask after flood fill&#39;</span>
+    <span class="p">)</span>
+    <span class="n">ds_coastline</span><span class="p">[</span><span class="s1">&#39;signed_distance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Signed distance to the nearest coastline sample&#39;</span>
+    <span class="p">)</span>
+    <span class="n">ds_coastline</span><span class="p">[</span><span class="s1">&#39;signed_distance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+
+    <span class="k">return</span> <span class="n">ds_coastline</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_flood_fill_ocean</span><span class="p">(</span><span class="n">candidate_ocean</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Flood fill candidate ocean regions from the northernmost latitude row.</span>
+
+<span class="sd">    Periodicity is enforced in longitude by merging labels on the eastern and</span>
+<span class="sd">    western boundaries before selecting connected components.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+    <span class="n">labels</span><span class="p">,</span> <span class="n">label_count</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">candidate_ocean</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">label_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">candidate_ocean</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+    <span class="n">seed_row</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">lat</span><span class="p">))</span>
+
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">label_count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">find</span><span class="p">(</span><span class="n">label</span><span class="p">):</span>
+        <span class="k">while</span> <span class="n">parent</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">!=</span> <span class="n">label</span><span class="p">:</span>
+            <span class="n">parent</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">parent</span><span class="p">[</span><span class="n">parent</span><span class="p">[</span><span class="n">label</span><span class="p">]]</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">parent</span><span class="p">[</span><span class="n">label</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">label</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">union</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+        <span class="n">left_root</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+        <span class="n">right_root</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">left_root</span> <span class="o">!=</span> <span class="n">right_root</span><span class="p">:</span>
+            <span class="n">parent</span><span class="p">[</span><span class="n">right_root</span><span class="p">]</span> <span class="o">=</span> <span class="n">left_root</span>
+
+    <span class="n">wrap_rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">candidate_ocean</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">candidate_ocean</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">wrap_rows</span><span class="p">:</span>
+        <span class="n">union</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">seed_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">seed_row</span><span class="p">,</span> <span class="n">candidate_ocean</span><span class="p">[</span><span class="n">seed_row</span><span class="p">,</span> <span class="p">:]])</span>
+    <span class="n">seed_roots</span> <span class="o">=</span> <span class="p">{</span><span class="n">find</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">seed_labels</span> <span class="k">if</span> <span class="n">label</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">seed_roots</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">candidate_ocean</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+    <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">candidate_ocean</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">label_count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">find</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seed_roots</span><span class="p">:</span>
+            <span class="n">ocean_mask</span> <span class="o">|=</span> <span class="n">labels</span> <span class="o">==</span> <span class="n">label</span>
+
+    <span class="k">return</span> <span class="n">ocean_mask</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_coastline_edges</span><span class="p">(</span><span class="n">ocean_mask</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build east and north coastline edge diagnostics from an ocean mask.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">edge_east</span> <span class="o">=</span> <span class="n">ocean_mask</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">ocean_mask</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">edge_north</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ocean_mask</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">edge_north</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">ocean_mask</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">!=</span> <span class="n">ocean_mask</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:]</span>
+    <span class="k">return</span> <span class="n">edge_east</span><span class="p">,</span> <span class="n">edge_north</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_signed_distance_from_mask</span><span class="p">(</span>
+    <span class="n">ocean_mask</span><span class="p">,</span>
+    <span class="n">edge_east</span><span class="p">,</span>
+    <span class="n">edge_north</span><span class="p">,</span>
+    <span class="n">lon</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">,</span>
+    <span class="n">chunk_size</span><span class="p">,</span>
+    <span class="n">workers</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute signed distance to the nearest raster coastline sample.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sample_points</span> <span class="o">=</span> <span class="n">_coastline_sample_xyz</span><span class="p">(</span>
+        <span class="n">edge_east</span><span class="o">=</span><span class="n">edge_east</span><span class="p">,</span> <span class="n">edge_north</span><span class="o">=</span><span class="n">edge_north</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">lat</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">sample_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ocean_mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">sample_points</span><span class="p">)</span>
+    <span class="n">lon_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+    <span class="n">cos_lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon_rad</span><span class="p">)</span>
+    <span class="n">sin_lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon_rad</span><span class="p">)</span>
+
+    <span class="n">distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">ocean_mask</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lat</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">):</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">lat</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">lat_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">lat</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">])</span>
+        <span class="n">cos_lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat_rad</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">sin_lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat_rad</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="n">lon</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">xyz</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos_lat</span> <span class="o">*</span> <span class="n">cos_lon</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">xyz</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos_lat</span> <span class="o">*</span> <span class="n">sin_lon</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">xyz</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">sin_lat</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">xyz</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">chord_distance</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_tree_query</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">workers</span><span class="p">)</span>
+        <span class="n">chord_distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">chord_distance</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">chord_distance</span><span class="p">)</span>
+        <span class="n">distance</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">angle</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="n">lon</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+
+    <span class="n">signed_distance</span> <span class="o">=</span> <span class="n">EARTH_RADIUS</span> <span class="o">*</span> <span class="n">distance</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ocean_mask</span><span class="p">,</span> <span class="n">signed_distance</span><span class="p">,</span> <span class="o">-</span><span class="n">signed_distance</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_coastline_sample_xyz</span><span class="p">(</span><span class="n">edge_east</span><span class="p">,</span> <span class="n">edge_north</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert coastline edge midpoints into Cartesian coordinates.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">east_rows</span><span class="p">,</span> <span class="n">east_cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">edge_east</span><span class="p">)</span>
+    <span class="n">north_rows</span><span class="p">,</span> <span class="n">north_cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">edge_north</span><span class="p">)</span>
+
+    <span class="n">sample_xyz</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">east_rows</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">east_lon</span> <span class="o">=</span> <span class="n">_angular_midpoint</span><span class="p">(</span>
+            <span class="n">lon</span><span class="p">[</span><span class="n">east_cols</span><span class="p">],</span> <span class="n">lon</span><span class="p">[(</span><span class="n">east_cols</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">lon</span><span class="o">.</span><span class="n">size</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">east_lat</span> <span class="o">=</span> <span class="n">lat</span><span class="p">[</span><span class="n">east_rows</span><span class="p">]</span>
+        <span class="n">sample_xyz</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_lon_lat_to_xyz</span><span class="p">(</span><span class="n">east_lon</span><span class="p">,</span> <span class="n">east_lat</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">north_rows</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">north_lon</span> <span class="o">=</span> <span class="n">lon</span><span class="p">[</span><span class="n">north_cols</span><span class="p">]</span>
+        <span class="n">north_lat</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">lat</span><span class="p">[</span><span class="n">north_rows</span><span class="p">]</span> <span class="o">+</span> <span class="n">lat</span><span class="p">[</span><span class="n">north_rows</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">sample_xyz</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_lon_lat_to_xyz</span><span class="p">(</span><span class="n">north_lon</span><span class="p">,</span> <span class="n">north_lat</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sample_xyz</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">sample_xyz</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_angular_midpoint</span><span class="p">(</span><span class="n">lon_a</span><span class="p">,</span> <span class="n">lon_b</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the midpoint between longitudes, respecting antimeridian wrap.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lon_a_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">lon_a</span><span class="p">)</span>
+    <span class="n">lon_b_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">lon_b</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon_a_rad</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon_b_rad</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon_a_rad</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon_b_rad</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_lon_lat_to_xyz</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert lon/lat coordinates in degrees to Cartesian coordinates.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lon_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+    <span class="n">lat_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+    <span class="n">cos_lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat_rad</span><span class="p">)</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">lon_rad</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">xyz</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos_lat</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon_rad</span><span class="p">)</span>
+    <span class="n">xyz</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos_lat</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon_rad</span><span class="p">)</span>
+    <span class="n">xyz</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat_rad</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">xyz</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_tree_query</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">workers</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Query a KD-tree with SciPy-version-compatible worker support.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_netcdf_with_fill_values</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;NETCDF4&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write an xarray Dataset with NetCDF4 fill values where needed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">fill_values</span> <span class="o">=</span> <span class="n">netCDF4</span><span class="o">.</span><span class="n">default_fillvals</span>
+    <span class="n">encoding</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">vars_and_coords</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">vars_and_coords</span><span class="p">:</span>
+        <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;_FillValue&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">is_numeric</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_numeric</span><span class="p">:</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="k">for</span> <span class="n">fill_type</span><span class="p">,</span> <span class="n">fill_value</span> <span class="ow">in</span> <span class="n">fill_values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">fill_type</span><span class="p">):</span>
+                    <span class="n">encoding</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;_FillValue&#39;</span><span class="p">:</span> <span class="n">fill_value</span><span class="p">}</span>
+                    <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">encoding</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;_FillValue&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rasterize_critical_transects</span><span class="p">(</span>
+    <span class="n">critical_transects</span><span class="p">:</span> <span class="n">CriticalTransects</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lon</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rasterize critical land blockages and passages onto a lat-lon grid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">lat</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">lon</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">critical_transects</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="n">land_blockages</span> <span class="o">=</span> <span class="n">_rasterize_feature_collection</span><span class="p">(</span>
+        <span class="n">feature_collection</span><span class="o">=</span><span class="n">critical_transects</span><span class="o">.</span><span class="n">land_blockages</span><span class="p">,</span>
+        <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+        <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">passages</span> <span class="o">=</span> <span class="n">_rasterize_feature_collection</span><span class="p">(</span>
+        <span class="n">feature_collection</span><span class="o">=</span><span class="n">critical_transects</span><span class="o">.</span><span class="n">passages</span><span class="p">,</span>
+        <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+        <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">land_blockages</span><span class="p">,</span> <span class="n">passages</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rasterize_feature_collection</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rasterize a transect feature collection to a 4-connected cell mask.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">lat</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">lon</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">feature_collection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mask</span>
+
+    <span class="n">lon_spacing</span> <span class="o">=</span> <span class="n">_representative_spacing</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+    <span class="n">lat_spacing</span> <span class="o">=</span> <span class="n">_representative_spacing</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">coordinates</span> <span class="ow">in</span> <span class="n">_iter_feature_coordinates</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">):</span>
+        <span class="n">_rasterize_linestring</span><span class="p">(</span>
+            <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+            <span class="n">coordinates</span><span class="o">=</span><span class="n">coordinates</span><span class="p">,</span>
+            <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+            <span class="n">lon_spacing</span><span class="o">=</span><span class="n">lon_spacing</span><span class="p">,</span>
+            <span class="n">lat_spacing</span><span class="o">=</span><span class="n">lat_spacing</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mask</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_iter_feature_coordinates</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Yield the coordinates for each line geometry in a feature collection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">feature_collection</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+        <span class="n">geometry</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">geometry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">geometry_type</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">geometry_type</span> <span class="o">==</span> <span class="s1">&#39;LineString&#39;</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">geometry</span><span class="p">[</span><span class="s1">&#39;coordinates&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">geometry_type</span> <span class="o">==</span> <span class="s1">&#39;MultiLineString&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">coordinates</span> <span class="ow">in</span> <span class="n">geometry</span><span class="p">[</span><span class="s1">&#39;coordinates&#39;</span><span class="p">]:</span>
+                <span class="k">yield</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Unsupported critical transect geometry type: </span><span class="si">{</span><span class="n">geometry_type</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rasterize_linestring</span><span class="p">(</span>
+    <span class="n">mask</span><span class="p">,</span>
+    <span class="n">coordinates</span><span class="p">,</span>
+    <span class="n">lon</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">,</span>
+    <span class="n">lon_spacing</span><span class="p">,</span>
+    <span class="n">lat_spacing</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rasterize one line string by densifying and connecting nearest cells.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">grid_path</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">coordinates</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">coordinates</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">dense_points</span> <span class="o">=</span> <span class="n">_densify_segment</span><span class="p">(</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
+            <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span>
+            <span class="n">lon_spacing</span><span class="o">=</span><span class="n">lon_spacing</span><span class="p">,</span>
+            <span class="n">lat_spacing</span><span class="o">=</span><span class="n">lat_spacing</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">dense_points</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">_nearest_lat_index</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lat</span><span class="p">)</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="n">_nearest_lon_index</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lon</span><span class="p">)</span>
+            <span class="n">cell</span> <span class="o">=</span> <span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">grid_path</span> <span class="ow">or</span> <span class="n">grid_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">cell</span><span class="p">:</span>
+                <span class="n">grid_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">grid_path</span><span class="p">:</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">grid_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">_nearest_lat_index</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lat</span><span class="p">),</span>
+                <span class="n">_nearest_lon_index</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lon</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">start_row</span><span class="p">,</span> <span class="n">start_col</span> <span class="o">=</span> <span class="n">grid_path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">mask</span><span class="p">[</span><span class="n">start_row</span><span class="p">,</span> <span class="n">start_col</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">for</span> <span class="n">previous</span><span class="p">,</span> <span class="n">current</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">grid_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">grid_path</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">_mark_grid_connection</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">previous</span><span class="p">,</span> <span class="n">current</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_densify_segment</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">lon_spacing</span><span class="p">,</span> <span class="n">lat_spacing</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Densify a segment enough to avoid gaps when mapping to cell centers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">delta_lon</span> <span class="o">=</span> <span class="n">_wrap_longitude_delta</span><span class="p">(</span><span class="n">stop</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">delta_lat</span> <span class="o">=</span> <span class="n">stop</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">n_lon</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">lon_spacing</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="nb">abs</span><span class="p">(</span><span class="n">delta_lon</span><span class="p">)</span> <span class="o">/</span> <span class="n">lon_spacing</span>
+    <span class="n">n_lat</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">lat_spacing</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="nb">abs</span><span class="p">(</span><span class="n">delta_lat</span><span class="p">)</span> <span class="o">/</span> <span class="n">lat_spacing</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">n_lon</span><span class="p">,</span> <span class="n">n_lat</span><span class="p">))))</span>
+    <span class="n">fractions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">segments</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">dense</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">segments</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">dense</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">fractions</span> <span class="o">*</span> <span class="n">delta_lon</span>
+    <span class="n">dense</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">fractions</span> <span class="o">*</span> <span class="n">delta_lat</span>
+    <span class="k">return</span> <span class="n">dense</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_representative_spacing</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimate a typical grid spacing from a one-dimensional coordinate.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">values</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">1.0</span>
+
+    <span class="n">spacing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
+    <span class="n">spacing</span> <span class="o">=</span> <span class="n">spacing</span><span class="p">[</span><span class="n">spacing</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">spacing</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">1.0</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">spacing</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_nearest_lat_index</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the nearest latitude index for a point.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">lat</span> <span class="o">-</span> <span class="n">value</span><span class="p">)))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_nearest_lon_index</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">lon</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the nearest longitude index for a point with periodic wrap.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">_wrap_longitude_delta</span><span class="p">(</span><span class="n">lon</span> <span class="o">-</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">delta</span><span class="p">)))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_wrap_longitude_delta</span><span class="p">(</span><span class="n">delta</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrap longitude differences to the shortest path on the sphere.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">delta</span> <span class="o">+</span> <span class="mf">180.0</span><span class="p">,</span> <span class="mf">360.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">180.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mark_grid_connection</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">previous</span><span class="p">,</span> <span class="n">current</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mark a 4-connected path between two raster cells.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">row</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">previous</span>
+    <span class="n">stop_row</span><span class="p">,</span> <span class="n">stop_col</span> <span class="o">=</span> <span class="n">current</span>
+    <span class="n">n_lon</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">while</span> <span class="n">row</span> <span class="o">!=</span> <span class="n">stop_row</span> <span class="ow">or</span> <span class="n">col</span> <span class="o">!=</span> <span class="n">stop_col</span><span class="p">:</span>
+        <span class="n">lon_delta</span> <span class="o">=</span> <span class="n">_periodic_index_delta</span><span class="p">(</span><span class="n">stop_col</span> <span class="o">-</span> <span class="n">col</span><span class="p">,</span> <span class="n">n_lon</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lon_delta</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="p">(</span><span class="n">col</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">lon_delta</span><span class="p">)))</span> <span class="o">%</span> <span class="n">n_lon</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">lat_delta</span> <span class="o">=</span> <span class="n">stop_row</span> <span class="o">-</span> <span class="n">row</span>
+        <span class="k">if</span> <span class="n">lat_delta</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">lat_delta</span><span class="p">))</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_periodic_index_delta</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the shortest signed periodic index delta.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">half_size</span> <span class="o">=</span> <span class="n">size</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;</span> <span class="n">half_size</span><span class="p">:</span>
+        <span class="n">delta</span> <span class="o">-=</span> <span class="n">size</span>
+    <span class="k">elif</span> <span class="n">delta</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">half_size</span><span class="p">:</span>
+        <span class="n">delta</span> <span class="o">+=</span> <span class="n">size</span>
+    <span class="k">return</span> <span class="n">delta</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

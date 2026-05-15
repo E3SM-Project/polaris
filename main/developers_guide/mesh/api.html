@@ -150,6 +150,58 @@
 </tbody>
 </table>
 </section>
+<section id="unified-coastline-tasks">
+<h3>Unified Coastline Tasks<a class="headerlink" href="#unified-coastline-tasks" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.CONVENTIONS.html#polaris.tasks.mesh.spherical.unified.coastline.CONVENTIONS" title="polaris.tasks.mesh.spherical.unified.coastline.CONVENTIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CONVENTIONS</span></code></a></p></td>
+<td><p>Built-in immutable sequence.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep" title="polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputeCoastlineStep</span></code></a>(component, ...)</p></td>
+<td><p>Prepare coastline masks and signed-distance fields on a lat-lon grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.setup.html#polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.setup" title="polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputeCoastlineStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including linking inputs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.run.html#polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.run" title="polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputeCoastlineStep.run</span></code></a>()</p></td>
+<td><p>Run this step.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep" title="polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapCoastlineStep</span></code></a>(component, ...)</p></td>
+<td><p>Remap coastline products from the finest lat-lon grid to a coarser one.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.setup.html#polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.setup" title="polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapCoastlineStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including linking inputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.run.html#polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.run" title="polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapCoastlineStep.run</span></code></a>()</p></td>
+<td><p>Run this step.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.build_coastline_datasets.html#polaris.tasks.mesh.spherical.unified.coastline.build_coastline_datasets" title="polaris.tasks.mesh.spherical.unified.coastline.build_coastline_datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_coastline_datasets</span></code></a>(ds_topo, resolution)</p></td>
+<td><p>Build coastline datasets from combined topography.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.build_coastline_dataset.html#polaris.tasks.mesh.spherical.unified.coastline.build_coastline_dataset" title="polaris.tasks.mesh.spherical.unified.coastline.build_coastline_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_coastline_dataset</span></code></a>(ds_topo, resolution, ...)</p></td>
+<td><p>Build a coastline dataset for one coastline convention.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.get_unified_mesh_coastline_steps.html#polaris.tasks.mesh.spherical.unified.coastline.get_unified_mesh_coastline_steps" title="polaris.tasks.mesh.spherical.unified.coastline.get_unified_mesh_coastline_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unified_mesh_coastline_steps</span></code></a>(resolution)</p></td>
+<td><p>Get shared coastline-preparation steps for a lat-lon target grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.LatLonCoastlineTask.html#polaris.tasks.mesh.spherical.unified.coastline.LatLonCoastlineTask" title="polaris.tasks.mesh.spherical.unified.coastline.LatLonCoastlineTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LatLonCoastlineTask</span></code></a>(component, resolution)</p></td>
+<td><p>A task for preparing coastline products on a latitude-longitude grid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.add_coastline_tasks.html#polaris.tasks.mesh.spherical.unified.coastline.add_coastline_tasks" title="polaris.tasks.mesh.spherical.unified.coastline.add_coastline_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_coastline_tasks</span></code></a>(component)</p></td>
+<td><p>Add standalone coastline tasks for each supported lat-lon target grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep" title="polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizCoastlineStep</span></code></a>(component, coastline_step, ...)</p></td>
+<td><p>A step for visualizing coastline diagnostics.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.setup.html#polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.setup" title="polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizCoastlineStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including linking inputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.run.html#polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.run" title="polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizCoastlineStep.run</span></code></a>()</p></td>
+<td><p>Run this step.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 </section>
 
