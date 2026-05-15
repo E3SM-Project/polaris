@@ -150,8 +150,8 @@ Omega:
       Contents:
         - Tracers
         - State
-        - VerticalVelocity
-        - TotalVerticalVelocity
+        - VerticalPseudoVelocity
+        - TotalVerticalPseudoVelocity
     Highfreq:
       UsePointerFile: false
       Filename: ocn.hifreq.$Y-$M

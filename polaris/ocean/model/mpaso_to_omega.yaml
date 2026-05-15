@@ -39,7 +39,7 @@ variables:
   layerThickness: GeomLayerThickness
   normalVelocity: NormalVelocity
 
-  vertVelocityTop: VerticalVelocity
+  vertVelocityTop: VerticalPseudoVelocity
 
   # auxiliary state
   ssh: SshCell
