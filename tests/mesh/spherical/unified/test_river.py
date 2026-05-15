@@ -23,6 +23,7 @@ from polaris.tasks.mesh.spherical.unified.river.simplify import (
     _convert_hydrorivers_shapefile_to_geojson,
     _unpack_hydrorivers_archive,
     read_river_segments_from_feature_collection,
+    river_segments_to_feature_collection,
 )
 
 
@@ -106,6 +107,18 @@ def test_simplify_river_network_traverses_all_terminal_segments():
         ]
         for feature in simplified_fc['features']
     }
+    outlet_area_by_id = {
+        feature['properties']['hyriv_id']: feature['properties'][
+            'outlet_drainage_area'
+        ]
+        for feature in simplified_fc['features']
+    }
+    network_rank_by_id = {
+        feature['properties']['hyriv_id']: feature['properties'][
+            'river_network_rank'
+        ]
+        for feature in simplified_fc['features']
+    }
 
     assert simplified_ids == {10, 11, 12, 20, 30, 31}
     assert outlet_hyriv_id_by_id[10] == 10
@@ -114,6 +127,38 @@ def test_simplify_river_network_traverses_all_terminal_segments():
     assert outlet_hyriv_id_by_id[20] == 20
     assert outlet_hyriv_id_by_id[30] == 30
     assert outlet_hyriv_id_by_id[31] == 31
+    assert outlet_area_by_id[10] == 100.0e6
+    assert outlet_area_by_id[11] == 100.0e6
+    assert outlet_area_by_id[12] == 100.0e6
+    assert outlet_area_by_id[20] == 90.0e6
+    assert outlet_area_by_id[30] == 25.0e6
+    assert outlet_area_by_id[31] == 20.0e6
+    assert network_rank_by_id[10] == 1
+    assert network_rank_by_id[11] == 1
+    assert network_rank_by_id[12] == 1
+    assert network_rank_by_id[20] == 2
+    assert network_rank_by_id[30] == 3
+    assert network_rank_by_id[31] == 4
+
+    roundtrip_segments = read_river_segments_from_feature_collection(
+        simplified_fc
+    )
+    roundtrip_fc = river_segments_to_feature_collection(roundtrip_segments)
+    roundtrip_rank_by_id = {
+        feature['properties']['hyriv_id']: feature['properties'][
+            'river_network_rank'
+        ]
+        for feature in roundtrip_fc['features']
+    }
+    roundtrip_area_by_id = {
+        feature['properties']['hyriv_id']: feature['properties'][
+            'outlet_drainage_area'
+        ]
+        for feature in roundtrip_fc['features']
+    }
+
+    assert roundtrip_rank_by_id == network_rank_by_id
+    assert roundtrip_area_by_id == outlet_area_by_id
 
 
 def test_simplify_river_network_handles_deep_main_stem():
@@ -376,6 +421,8 @@ def test_condition_base_mesh_river_segments_clips_then_simplifies():
                 drainage_area=100.0e6,
                 endorheic=0,
                 outlet_hyriv_id=10,
+                outlet_drainage_area=100.0e6,
+                river_network_rank=1,
             )
         ],
     )
@@ -394,6 +441,8 @@ def test_condition_base_mesh_river_segments_clips_then_simplifies():
     assert coords[0, 0] == 0.0
     assert 8.0 < coords[-1, 0] < 16.0
     assert segments[0].outlet_hyriv_id == 10
+    assert segments[0].outlet_drainage_area == 100.0e6
+    assert segments[0].river_network_rank == 1
 
 
 def test_condition_base_mesh_river_segments_drops_short_fragments():
@@ -616,18 +665,26 @@ def _line_feature(
     drainage_area,
     endorheic,
     outlet_hyriv_id=None,
+    outlet_drainage_area=None,
+    river_network_rank=None,
     ord_stra=1,
 ):
+    properties = dict(
+        hyriv_id=hyriv_id,
+        main_riv=hyriv_id,
+        ord_stra=ord_stra,
+        drainage_area=drainage_area,
+        next_down=next_down,
+        endorheic=endorheic,
+        outlet_hyriv_id=outlet_hyriv_id,
+    )
+    if outlet_drainage_area is not None:
+        properties['outlet_drainage_area'] = outlet_drainage_area
+    if river_network_rank is not None:
+        properties['river_network_rank'] = river_network_rank
+
     return dict(
         type='Feature',
-        properties=dict(
-            hyriv_id=hyriv_id,
-            main_riv=hyriv_id,
-            ord_stra=ord_stra,
-            drainage_area=drainage_area,
-            next_down=next_down,
-            endorheic=endorheic,
-            outlet_hyriv_id=outlet_hyriv_id,
-        ),
+        properties=properties,
         geometry=dict(type='LineString', coordinates=coords),
     )
