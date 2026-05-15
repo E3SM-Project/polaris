@@ -17,7 +17,6 @@ from polaris.tasks.mesh.spherical.unified.river import (
     simplify_river_network_feature_collection,
 )
 from polaris.tasks.mesh.spherical.unified.river.clip import (
-    clip_outlet_feature_collection,
     condition_base_mesh_river_segments,
 )
 from polaris.tasks.mesh.spherical.unified.river.simplify import (
@@ -27,7 +26,7 @@ from polaris.tasks.mesh.spherical.unified.river.simplify import (
 )
 
 
-def test_simplify_river_network_filters_outlets_and_minor_tributaries():
+def test_simplify_river_network_traverses_all_terminal_segments():
     feature_collection = dict(
         type='FeatureCollection',
         features=[
@@ -89,10 +88,10 @@ def test_simplify_river_network_filters_outlets_and_minor_tributaries():
         ],
     )
 
-    simplified_fc, outlets_fc = simplify_river_network_feature_collection(
+    simplified_fc = simplify_river_network_feature_collection(
         feature_collection=feature_collection,
         drainage_area_threshold=5.0e6,
-        outlet_distance_tolerance=30.0e3,
+        branch_distance_tolerance=30.0e3,
         # ratio relative to the BASIN OUTLET (100e6): 35e6 >= 0.3*100e6=30e6
         tributary_area_ratio=0.3,
     )
@@ -101,12 +100,20 @@ def test_simplify_river_network_filters_outlets_and_minor_tributaries():
         feature['properties']['hyriv_id']
         for feature in simplified_fc['features']
     }
-    outlet_ids = {
-        feature['properties']['hyriv_id'] for feature in outlets_fc['features']
+    outlet_hyriv_id_by_id = {
+        feature['properties']['hyriv_id']: feature['properties'][
+            'outlet_hyriv_id'
+        ]
+        for feature in simplified_fc['features']
     }
 
-    assert simplified_ids == {10, 11, 12, 30, 31}
-    assert outlet_ids == {10, 30, 31}
+    assert simplified_ids == {10, 11, 12, 20, 30, 31}
+    assert outlet_hyriv_id_by_id[10] == 10
+    assert outlet_hyriv_id_by_id[11] == 10
+    assert outlet_hyriv_id_by_id[12] == 10
+    assert outlet_hyriv_id_by_id[20] == 20
+    assert outlet_hyriv_id_by_id[30] == 30
+    assert outlet_hyriv_id_by_id[31] == 31
 
 
 def test_simplify_river_network_handles_deep_main_stem():
@@ -127,10 +134,10 @@ def test_simplify_river_network_handles_deep_main_stem():
             )
         )
 
-    simplified_fc, outlets_fc = simplify_river_network_feature_collection(
+    simplified_fc = simplify_river_network_feature_collection(
         feature_collection=dict(type='FeatureCollection', features=features),
         drainage_area_threshold=1.0,
-        outlet_distance_tolerance=1.0,
+        branch_distance_tolerance=1.0,
         tributary_area_ratio=0.05,
     )
 
@@ -138,12 +145,14 @@ def test_simplify_river_network_handles_deep_main_stem():
         feature['properties']['hyriv_id']
         for feature in simplified_fc['features']
     }
-    outlet_ids = {
-        feature['properties']['hyriv_id'] for feature in outlets_fc['features']
-    }
 
     assert len(simplified_ids) == n_segments
-    assert outlet_ids == {1}
+    root_segment = next(
+        feature
+        for feature in simplified_fc['features']
+        if feature['properties']['hyriv_id'] == 1
+    )
+    assert root_segment['properties']['outlet_hyriv_id'] == 1
 
 
 def test_simplify_river_network_rejects_next_down_cycles():
@@ -171,7 +180,7 @@ def test_simplify_river_network_rejects_next_down_cycles():
         simplify_river_network_feature_collection(
             feature_collection=feature_collection,
             drainage_area_threshold=1.0,
-            outlet_distance_tolerance=1.0,
+            branch_distance_tolerance=1.0,
             tributary_area_ratio=0.05,
         )
 
@@ -235,10 +244,10 @@ def test_simplify_river_network_preserves_branch_traversal_order():
         ],
     )
 
-    simplified_fc, _ = simplify_river_network_feature_collection(
+    simplified_fc = simplify_river_network_feature_collection(
         feature_collection=feature_collection,
         drainage_area_threshold=1.0,
-        outlet_distance_tolerance=20.0e3,
+        branch_distance_tolerance=20.0e3,
         tributary_area_ratio=0.4,
     )
 
@@ -250,7 +259,7 @@ def test_simplify_river_network_preserves_branch_traversal_order():
     assert simplified_ids == {10, 11, 12, 21, 22}
 
 
-def test_build_river_network_dataset_contract_and_snapped_outlets():
+def test_build_river_network_dataset_contract_and_channel_mask():
     river_fc = dict(
         type='FeatureCollection',
         features=[
@@ -260,7 +269,6 @@ def test_build_river_network_dataset_contract_and_snapped_outlets():
                 next_down=0,
                 drainage_area=100.0e6,
                 endorheic=0,
-                outlet_type='ocean',
                 outlet_hyriv_id=10,
             ),
             _line_feature(
@@ -269,44 +277,11 @@ def test_build_river_network_dataset_contract_and_snapped_outlets():
                 next_down=0,
                 drainage_area=20.0e6,
                 endorheic=1,
-                outlet_type='inland_sink',
                 outlet_hyriv_id=30,
             ),
         ],
     )
-    outlet_fc = dict(
-        type='FeatureCollection',
-        features=[
-            _point_feature(
-                hyriv_id=10,
-                coords=(-46.0, 1.0),
-                drainage_area=100.0e6,
-                endorheic=0,
-                outlet_type='ocean',
-            ),
-            _point_feature(
-                hyriv_id=30,
-                coords=(46.0, 1.0),
-                drainage_area=20.0e6,
-                endorheic=1,
-                outlet_type='inland_sink',
-            ),
-        ],
-    )
     ds_coastline = xr.Dataset(
-        data_vars=dict(
-            ocean_mask=(
-                ('lat', 'lon'),
-                np.array(
-                    [
-                        [0, 0, 0, 0, 0],
-                        [0, 1, 0, 0, 0],
-                        [0, 0, 0, 0, 0],
-                    ],
-                    dtype=np.int8,
-                ),
-            ),
-        ),
         coords=dict(
             lat=xr.DataArray(np.array([10.0, 0.0, -10.0]), dims=('lat',)),
             lon=xr.DataArray(
@@ -315,38 +290,17 @@ def test_build_river_network_dataset_contract_and_snapped_outlets():
         ),
     )
 
-    ds_river, snapped_outlets = build_river_network_dataset(
+    ds_river = build_river_network_dataset(
         river_feature_collection=river_fc,
-        outlet_feature_collection=outlet_fc,
         ds_coastline=ds_coastline,
         resolution=45.0,
-        outlet_match_tolerance=200.0e3,
         channel_subsegment_fraction=0.5,
     )
 
-    expected_vars = {
-        'river_channel_mask',
-        'river_outlet_mask',
-        'river_ocean_outlet_mask',
-        'river_inland_sink_mask',
-    }
+    expected_vars = {'river_channel_mask'}
     assert expected_vars.issubset(set(ds_river.data_vars))
-    assert ds_river.attrs['matched_ocean_outlets'] == 1
-    assert ds_river.attrs['unmatched_ocean_outlets'] == 0
 
     assert ds_river.river_channel_mask.sum() > 0
-    assert ds_river.river_ocean_outlet_mask.sel(lat=0.0, lon=-45.0) == 1
-    assert ds_river.river_inland_sink_mask.sel(lat=0.0, lon=45.0) == 1
-
-    snapped_by_id = {
-        feature['properties']['hyriv_id']: feature
-        for feature in snapped_outlets['features']
-    }
-    assert snapped_by_id[10]['properties']['snapped_lon'] == -45.0
-    assert snapped_by_id[10]['properties']['snapped_lat'] == 0.0
-    assert snapped_by_id[30]['properties']['snapped_lon'] == 45.0
-    assert snapped_by_id[30]['properties']['snapped_lat'] == 0.0
-    assert snapped_by_id[10]['properties']['matched_to_ocean']
 
 
 def test_build_river_network_dataset_applies_physical_channel_buffer():
@@ -377,12 +331,10 @@ def test_build_river_network_dataset_applies_physical_channel_buffer():
         ),
     )
 
-    ds_river, _ = build_river_network_dataset(
+    ds_river = build_river_network_dataset(
         river_feature_collection=river_fc,
-        outlet_feature_collection=dict(type='FeatureCollection', features=[]),
         ds_coastline=ds_coastline,
         resolution=1.0,
-        outlet_match_tolerance=200.0e3,
         channel_subsegment_fraction=0.5,
         channel_buffer_km=80.0,
     )
@@ -393,57 +345,6 @@ def test_build_river_network_dataset_applies_physical_channel_buffer():
     assert ds_river.river_channel_mask.sel(lat=60.0, lon=1.0) == 1
     assert ds_river.river_channel_mask.sel(lat=60.0, lon=-2.0) == 0
     assert ds_river.river_channel_mask.sel(lat=60.0, lon=2.0) == 0
-
-
-def test_build_river_network_dataset_derives_land_mask_from_ocean_mask():
-    river_fc = dict(type='FeatureCollection', features=[])
-    outlet_fc = dict(
-        type='FeatureCollection',
-        features=[
-            _point_feature(
-                hyriv_id=30,
-                coords=(46.0, 1.0),
-                drainage_area=20.0e6,
-                endorheic=1,
-                outlet_type='inland_sink',
-            ),
-        ],
-    )
-    ds_coastline = xr.Dataset(
-        data_vars=dict(
-            ocean_mask=(
-                ('lat', 'lon'),
-                np.array(
-                    [
-                        [1, 1, 1, 1, 1],
-                        [1, 1, 1, 0, 1],
-                        [1, 1, 1, 1, 1],
-                    ],
-                    dtype=np.int8,
-                ),
-            ),
-        ),
-        coords=dict(
-            lat=xr.DataArray(np.array([10.0, 0.0, -10.0]), dims=('lat',)),
-            lon=xr.DataArray(
-                np.array([-90.0, -45.0, 0.0, 45.0, 90.0]), dims=('lon',)
-            ),
-        ),
-    )
-
-    ds_river, snapped_outlets = build_river_network_dataset(
-        river_feature_collection=river_fc,
-        outlet_feature_collection=outlet_fc,
-        ds_coastline=ds_coastline,
-        resolution=45.0,
-        outlet_match_tolerance=200.0e3,
-        channel_subsegment_fraction=0.5,
-    )
-
-    assert ds_river.river_inland_sink_mask.sel(lat=0.0, lon=45.0) == 1
-    snapped_feature = snapped_outlets['features'][0]
-    assert snapped_feature['properties']['snapped_lon'] == 45.0
-    assert snapped_feature['properties']['snapped_lat'] == 0.0
 
 
 def test_condition_base_mesh_river_segments_clips_then_simplifies():
@@ -474,7 +375,6 @@ def test_condition_base_mesh_river_segments_clips_then_simplifies():
                 next_down=0,
                 drainage_area=100.0e6,
                 endorheic=0,
-                outlet_type='ocean',
                 outlet_hyriv_id=10,
             )
         ],
@@ -493,8 +393,7 @@ def test_condition_base_mesh_river_segments_clips_then_simplifies():
     assert coords.shape[0] == 2
     assert coords[0, 0] == 0.0
     assert 8.0 < coords[-1, 0] < 16.0
-    assert segments[0].outlet_type is None
-    assert segments[0].outlet_hyriv_id is None
+    assert segments[0].outlet_hyriv_id == 10
 
 
 def test_condition_base_mesh_river_segments_drops_short_fragments():
@@ -538,111 +437,6 @@ def test_condition_base_mesh_river_segments_drops_short_fragments():
     )
 
     assert segments == []
-
-
-def test_clip_outlet_feature_collection_removes_ocean_outlets():
-    ds_coastline = xr.Dataset(
-        data_vars=dict(
-            ocean_mask=(('lat', 'lon'), np.zeros((2, 2), dtype=np.int8)),
-            signed_distance=(
-                ('lat', 'lon'),
-                np.array(
-                    [
-                        [-2.0e5, 1.0e5],
-                        [-2.0e5, 1.0e5],
-                    ]
-                ),
-            ),
-        ),
-        coords=dict(
-            lat=xr.DataArray(np.array([-5.0, 5.0]), dims=('lat',)),
-            lon=xr.DataArray(np.array([0.0, 10.0]), dims=('lon',)),
-        ),
-    )
-    outlet_fc = dict(
-        type='FeatureCollection',
-        features=[
-            _point_feature(
-                hyriv_id=10,
-                coords=(9.0, 0.0),
-                drainage_area=100.0e6,
-                endorheic=0,
-                outlet_type='ocean',
-            ),
-            _point_feature(
-                hyriv_id=20,
-                coords=(1.0, 0.0),
-                drainage_area=50.0e6,
-                endorheic=1,
-                outlet_type='inland_sink',
-            ),
-        ],
-    )
-
-    clipped = clip_outlet_feature_collection(
-        outlet_feature_collection=outlet_fc,
-        ds_coastline=ds_coastline,
-        clip_distance_m=50.0e3,
-    )
-
-    clipped_ids = {
-        feature['properties']['hyriv_id'] for feature in clipped['features']
-    }
-    assert clipped_ids == {20}
-
-
-def test_build_river_network_dataset_marks_distant_ocean_outlet_unmatched():
-    river_fc = dict(type='FeatureCollection', features=[])
-    outlet_fc = dict(
-        type='FeatureCollection',
-        features=[
-            _point_feature(
-                hyriv_id=10,
-                coords=(-46.0, 1.0),
-                drainage_area=100.0e6,
-                endorheic=0,
-                outlet_type='ocean',
-            ),
-        ],
-    )
-    ds_coastline = xr.Dataset(
-        data_vars=dict(
-            ocean_mask=(
-                ('lat', 'lon'),
-                np.array(
-                    [
-                        [0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 1],
-                        [0, 0, 0, 0, 0],
-                    ],
-                    dtype=np.int8,
-                ),
-            ),
-        ),
-        coords=dict(
-            lat=xr.DataArray(np.array([10.0, 0.0, -10.0]), dims=('lat',)),
-            lon=xr.DataArray(
-                np.array([-90.0, -45.0, 0.0, 45.0, 90.0]), dims=('lon',)
-            ),
-        ),
-    )
-
-    ds_river, snapped_outlets = build_river_network_dataset(
-        river_feature_collection=river_fc,
-        outlet_feature_collection=outlet_fc,
-        ds_coastline=ds_coastline,
-        resolution=45.0,
-        outlet_match_tolerance=200.0e3,
-        channel_subsegment_fraction=0.5,
-    )
-
-    assert ds_river.attrs['matched_ocean_outlets'] == 0
-    assert ds_river.attrs['unmatched_ocean_outlets'] == 1
-
-    snapped_feature = snapped_outlets['features'][0]
-    assert not snapped_feature['properties']['matched_to_ocean']
-    assert snapped_feature['properties']['snapped_lon'] == -45.0
-    assert snapped_feature['properties']['snapped_lat'] == 0.0
 
 
 def test_unpack_hydrorivers_archive(tmp_path):
@@ -789,12 +583,15 @@ def test_drainage_area_threshold_auto_derived_from_config():
     assert land_background_km**2 * multiplier * 1e6 == pytest.approx(5.76e11)
 
 
-def test_outlet_distance_tolerance_auto_derived_from_config():
+def test_branch_distance_tolerance_auto_derived_from_config():
     # 10 km river channel → 10 000 m tolerance
     _, config_10km = get_unified_mesh_river_steps(
         mesh_name='u.oi30.lr10', include_viz=False
     )
     river_channel_km = config_10km.getfloat('sizing_field', 'river_channel_km')
+    assert config_10km.getfloat(
+        'river_network', 'branch_distance_tolerance'
+    ) == pytest.approx(-1.0)
     assert river_channel_km == pytest.approx(10.0)
     assert river_channel_km * 1000.0 == pytest.approx(10_000.0)
 
@@ -805,6 +602,9 @@ def test_outlet_distance_tolerance_auto_derived_from_config():
     river_channel_km = config_240km.getfloat(
         'sizing_field', 'river_channel_km'
     )
+    assert config_240km.getfloat(
+        'river_network', 'branch_distance_tolerance'
+    ) == pytest.approx(-1.0)
     assert river_channel_km == pytest.approx(240.0)
     assert river_channel_km * 1000.0 == pytest.approx(240_000.0)
 
@@ -815,7 +615,6 @@ def _line_feature(
     next_down,
     drainage_area,
     endorheic,
-    outlet_type=None,
     outlet_hyriv_id=None,
     ord_stra=1,
 ):
@@ -828,28 +627,7 @@ def _line_feature(
             drainage_area=drainage_area,
             next_down=next_down,
             endorheic=endorheic,
-            outlet_type=outlet_type,
             outlet_hyriv_id=outlet_hyriv_id,
         ),
         geometry=dict(type='LineString', coordinates=coords),
-    )
-
-
-def _point_feature(
-    hyriv_id,
-    coords,
-    drainage_area,
-    endorheic,
-    outlet_type,
-):
-    return dict(
-        type='Feature',
-        properties=dict(
-            hyriv_id=hyriv_id,
-            main_riv=hyriv_id,
-            drainage_area=drainage_area,
-            endorheic=endorheic,
-            outlet_type=outlet_type,
-        ),
-        geometry=dict(type='Point', coordinates=coords),
     )
