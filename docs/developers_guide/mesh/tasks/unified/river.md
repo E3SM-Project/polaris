@@ -74,21 +74,22 @@ task families:
 
 `SimplifyRiverNetworkStep.setup()` registers the HydroRIVERS archive as an input
 file through `add_input_file()` using the public URL from `river_network.cfg`.
-`SimplifyRiverNetworkStep.run()` unpacks the archive, converts the shapefile to
-GeoJSON, simplifies the source network, and writes:
+`SimplifyRiverNetworkStep.run()` unpacks the archive, simplifies the source
+network, and writes:
 
-- `source_river_network.geojson`
 - `simplified_river_network.geojson`
-- `retained_outlets.geojson`
 
 The public helper
 {py:func}`polaris.tasks.mesh.spherical.unified.river.simplify_river_network_feature_collection`
 contains the source-level retention logic. It builds canonical segments,
-validates downstream topology, filters outlet candidates, and traverses
-retained basins while preserving main stems and significant tributaries.
+validates downstream topology, and traverses upstream from all retained
+HydroRIVERS terminal segments while preserving main stems and significant
+tributaries. The resulting segment metadata keeps `outlet_hyriv_id` as
+basin-root provenance for future catchment grouping, but the step does not
+write separate outlet products.
 
 The tributary-selection logic compares each non-primary tributary's drainage
-area against the **basin outlet's** drainage area (not the primary upstream
+area against the **terminal root's** drainage area (not the primary upstream
 tributary's area), matching the reference point used by the standalone
 implementation. Strahler stream-order-1 headwater tributaries skip the
 drainage-area check entirely and proceed directly to the distance-based
@@ -100,19 +101,18 @@ public API.
 
 ### `rasterize.py`
 
-`RasterizeRiverLatLonStep.setup()` links the simplified source products and the
+`RasterizeRiverLatLonStep.setup()` links the simplified source product and the
 selected coastline NetCDF file. `RasterizeRiverLatLonStep.run()` reads those
 inputs, calls
 {py:func}`polaris.tasks.mesh.spherical.unified.river.build_river_network_dataset`,
 and writes:
 
 - `river_network.nc`
-- `river_outlets.geojson`
 
 `build_river_network_dataset()` is the public target-grid helper. It rasterizes
-river channels, snaps ocean outlets against coastline ocean cells, snaps inland
-sinks to land cells, and writes a clean mask split between channels, all
-outlets, ocean outlets, and inland sinks.
+river channels and writes `river_channel_mask` on the shared lat-lon grid.
+Outlet snapping and coastline reconciliation are deferred until after an MPAS
+base mesh exists.
 
 ### `clip.py`
 
@@ -126,17 +126,17 @@ then conditions the retained geometry for direct base-mesh use by:
 - clipping segments inland of the selected coastline by the configured clip
   distance;
 - simplifying clipped geometry and removing degenerate or too-short pieces;
-- dropping outlets that do not remain inland after clipping; and
 - regenerating a diagnostic lat-lon mask product from the conditioned river
   geometry.
 
-This step writes `clipped_river_network.geojson`, `clipped_outlets.geojson`,
-and `clipped_river_network.nc`.
+This step writes `clipped_river_network.geojson` and
+`clipped_river_network.nc`.
 
 ### `viz.py`
 
 `VizRiverStep` is a pure diagnostic consumer of the shared source, coastline,
-and lat-lon river products. It writes `river_network_overview.png` and
+lat-lon river, and clipped river products. It writes
+`river_network_overlay.png`, `rasterized_river_network.png`, and
 `debug_summary.txt`, and keeps visualization logic out of the numerical steps.
 
 ## Configuration plumbing
@@ -150,7 +150,7 @@ combines:
 - the selected named-mesh config file.
 
 `SimplifyRiverNetworkStep` consumes `[river_network]` options and, when
-`drainage_area_threshold` or `outlet_distance_tolerance` is set to the sentinel
+`drainage_area_threshold` or `branch_distance_tolerance` is set to the sentinel
 value `-1`, reads `land_background_km` and `river_channel_km` from
 `[sizing_field]` to derive the threshold values automatically.
 
@@ -189,10 +189,10 @@ without breaking downstream callers.
 
 Unit tests in `tests/mesh/spherical/unified/test_river.py` currently cover:
 
-- source-level outlet filtering, deep main-stem traversal, tributary
+- source-level terminal-root traversal, deep main-stem traversal, tributary
   retention, and cycle detection;
 - HydroRIVERS archive unpacking and shapefile-to-GeoJSON conversion helpers;
-- target-grid raster and snapped-outlet contracts;
+- target-grid river-channel raster contracts;
 - coastline-aware base-mesh conditioning helpers and shared-step factories;
 - and task registration for all named unified meshes.
 
