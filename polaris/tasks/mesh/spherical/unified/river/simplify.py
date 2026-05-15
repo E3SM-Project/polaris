@@ -68,6 +68,14 @@ class RiverSegment:
     outlet_hyriv_id : int or None, optional
         The HydroRIVERS identifier of the outlet for the basin this
         segment belongs to
+
+    outlet_drainage_area : float or None, optional
+        The upstream drainage area of the outlet for the basin this segment
+        belongs to, in square meters
+
+    river_network_rank : int or None, optional
+        The 1-based size rank of this segment's basin, with 1 denoting the
+        largest retained outlet drainage area
     """
 
     geometry: LineString
@@ -79,6 +87,8 @@ class RiverSegment:
     endorheic: int
     river_name: str | None = None
     outlet_hyriv_id: int | None = None
+    outlet_drainage_area: float | None = None
+    river_network_rank: int | None = None
 
     @property
     def endpoint(self) -> tuple[float, float]:
@@ -387,13 +397,14 @@ def simplify_river_network_feature_collection(
 
     print(f'  basin traversal: {time.time() - t0:.1f} s', flush=True)
 
-    outlet_area_by_id = {
-        root.hyriv_id: root.drainage_area for root in terminal_segments
-    }
+    annotated_segments = _annotate_river_networks(
+        segments=retained_segments.values(),
+        terminal_segments=terminal_segments,
+    )
     simplified_segments = sorted(
-        retained_segments.values(),
+        annotated_segments,
         key=lambda segment: (
-            -outlet_area_by_id.get(_get_outlet_hyriv_id(segment), 0.0),
+            -_get_outlet_drainage_area(segment),
             -segment.drainage_area,
             segment.hyriv_id,
         ),
@@ -473,6 +484,10 @@ def river_segments_to_feature_collection(segments):
             endorheic=segment.endorheic,
             outlet_hyriv_id=segment.outlet_hyriv_id,
         )
+        if segment.outlet_drainage_area is not None:
+            properties['outlet_drainage_area'] = segment.outlet_drainage_area
+        if segment.river_network_rank is not None:
+            properties['river_network_rank'] = segment.river_network_rank
         if segment.river_name is not None:
             properties['river_name'] = segment.river_name
         features.append(
@@ -506,13 +521,41 @@ def _process_basin_root(root):
     return retained
 
 
-def _get_outlet_hyriv_id(segment):
+def _get_outlet_drainage_area(segment):
     """
-    Get a sortable basin-root identifier for a river segment.
+    Get a sortable outlet drainage area for a river segment.
     """
-    if segment.outlet_hyriv_id is None:
-        return 0
-    return segment.outlet_hyriv_id
+    if segment.outlet_drainage_area is None:
+        return 0.0
+    return segment.outlet_drainage_area
+
+
+def _annotate_river_networks(segments, terminal_segments):
+    """
+    Add size-rank metadata to retained river-network segments.
+    """
+    roots = sorted(
+        terminal_segments,
+        key=lambda root: (-root.drainage_area, root.hyriv_id),
+    )
+    outlet_area_by_id = {
+        root.hyriv_id: root.drainage_area for root in terminal_segments
+    }
+    rank_by_outlet_id = {
+        root.hyriv_id: index + 1 for index, root in enumerate(roots)
+    }
+
+    annotated_segments = []
+    for segment in segments:
+        outlet_hyriv_id = segment.outlet_hyriv_id
+        annotated_segments.append(
+            replace(
+                segment,
+                outlet_drainage_area=outlet_area_by_id.get(outlet_hyriv_id),
+                river_network_rank=rank_by_outlet_id.get(outlet_hyriv_id),
+            )
+        )
+    return annotated_segments
 
 
 def _retain_basin_segments(
@@ -709,6 +752,14 @@ def _segment_from_feature(feature):
     outlet_hyriv_id = _get_optional_int_property(
         properties, ('outlet_hyriv_id', 'OUTLET_HYRIV_ID')
     )
+    outlet_drainage_area = _get_float_property(
+        properties,
+        ('outlet_drainage_area', 'OUTLET_DRAINAGE_AREA'),
+        default=None,
+    )
+    river_network_rank = _get_optional_int_property(
+        properties, ('river_network_rank', 'RIVER_NETWORK_RANK')
+    )
 
     return RiverSegment(
         geometry=geometry,
@@ -720,6 +771,8 @@ def _segment_from_feature(feature):
         endorheic=endorheic,
         river_name=river_name,
         outlet_hyriv_id=outlet_hyriv_id,
+        outlet_drainage_area=outlet_drainage_area,
+        river_network_rank=river_network_rank,
     )
 
 

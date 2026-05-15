@@ -245,6 +245,8 @@ def _conditioned_segment_from_geometry(segment, geometry):
         endorheic=segment.endorheic,
         river_name=segment.river_name,
         outlet_hyriv_id=segment.outlet_hyriv_id,
+        outlet_drainage_area=segment.outlet_drainage_area,
+        river_network_rank=segment.river_network_rank,
     )
 
 
