@@ -6,7 +6,7 @@ from dataclasses import dataclass, replace
 import numpy as np
 import shapefile
 from shapely import line_merge, unary_union
-from shapely.geometry import LineString, Point, box, mapping, shape
+from shapely.geometry import LineString, box, mapping, shape
 from shapely.strtree import STRtree
 
 from polaris.archive import extract_zip_subdir
@@ -65,10 +65,6 @@ class RiverSegment:
     river_name : str or None, optional
         The river name, if available
 
-    outlet_type : str or None, optional
-        The outlet type (``'ocean'`` or ``'inland_sink'``), set when the
-        segment has been assigned to a basin
-
     outlet_hyriv_id : int or None, optional
         The HydroRIVERS identifier of the outlet for the basin this
         segment belongs to
@@ -82,7 +78,6 @@ class RiverSegment:
     next_down: int
     endorheic: int
     river_name: str | None = None
-    outlet_type: str | None = None
     outlet_hyriv_id: int | None = None
 
     @property
@@ -119,7 +114,6 @@ class SimplifyRiverNetworkStep(Step):
             min_cpus_per_task=1,
         )
         self.simplified_filename = 'simplified_river_network.geojson'
-        self.outlets_filename = 'retained_outlets.geojson'
 
     def setup(self):
         """
@@ -135,7 +129,6 @@ class SimplifyRiverNetworkStep(Step):
             database='river_network',
         )
         self.add_output_file(filename=self.simplified_filename)
-        self.add_output_file(filename=self.outlets_filename)
 
     def run(self):
         """
@@ -163,14 +156,14 @@ class SimplifyRiverNetworkStep(Step):
                 land_background_km**2 * drainage_area_multiplier * KM2_TO_M2
             )
 
-        outlet_distance_tolerance = section.getfloat(
-            'outlet_distance_tolerance'
+        branch_distance_tolerance = section.getfloat(
+            'branch_distance_tolerance'
         )
-        if outlet_distance_tolerance < 0:
+        if branch_distance_tolerance < 0:
             river_channel_km = self.config.getfloat(
                 'sizing_field', 'river_channel_km'
             )
-            outlet_distance_tolerance = river_channel_km * 1000.0
+            branch_distance_tolerance = river_channel_km * 1000.0
 
         t0 = time.time()
         feature_collection = _read_filtered_shapefile_feature_collection(
@@ -183,10 +176,10 @@ class SimplifyRiverNetworkStep(Step):
         )
 
         t0 = time.time()
-        simplified_fc, outlets_fc = simplify_river_network_feature_collection(
+        simplified_fc = simplify_river_network_feature_collection(
             feature_collection=feature_collection,
             drainage_area_threshold=drainage_area_threshold,
-            outlet_distance_tolerance=outlet_distance_tolerance,
+            branch_distance_tolerance=branch_distance_tolerance,
             tributary_area_ratio=section.getfloat('tributary_area_ratio'),
             n_cpus=self.cpus_per_task,
         )
@@ -201,13 +194,11 @@ class SimplifyRiverNetworkStep(Step):
             hydrorivers_shp_directory=shp_directory,
             hydrorivers_shp_filename=shp_filename,
             drainage_area_threshold=drainage_area_threshold,
-            outlet_distance_tolerance=outlet_distance_tolerance,
+            branch_distance_tolerance=branch_distance_tolerance,
             tributary_area_ratio=section.getfloat('tributary_area_ratio'),
         )
-        outlets_fc['metadata'] = dict(simplified_fc['metadata'])
         t0 = time.time()
         write_geojson(simplified_fc, self.simplified_filename)
-        write_geojson(outlets_fc, self.outlets_filename)
         print(f'write outputs: {time.time() - t0:.1f} s', flush=True)
 
 
@@ -276,7 +267,7 @@ def _convert_hydrorivers_shapefile_to_geojson(shp_filename, output_filename):
 def simplify_river_network_feature_collection(
     feature_collection,
     drainage_area_threshold,
-    outlet_distance_tolerance,
+    branch_distance_tolerance,
     tributary_area_ratio=0.05,
     n_cpus=1,
 ):
@@ -291,8 +282,8 @@ def simplify_river_network_feature_collection(
     drainage_area_threshold : float
         Minimum retained drainage area in square meters
 
-    outlet_distance_tolerance : float
-        Minimum retained spacing between non-endorheic outlets in meters
+    branch_distance_tolerance : float
+        Minimum retained spacing between nearby upstream branches in meters
 
     tributary_area_ratio : float, optional
         The minimum tributary-to-main-stem drainage-area ratio for retaining
@@ -307,8 +298,6 @@ def simplify_river_network_feature_collection(
     simplified_fc : dict
         A GeoJSON feature collection for the simplified river network
 
-    outlets_fc : dict
-        A GeoJSON feature collection for retained outlet points
     """
     import time
 
@@ -339,15 +328,11 @@ def simplify_river_network_feature_collection(
         if segment.next_down != 0:
             upstream_map[segment.next_down].append(segment)
 
-    outlet_candidates = [
+    terminal_segments = [
         segment for segment in segments if segment.next_down == 0
     ]
-    retained_outlets = _filter_outlets(
-        outlet_candidates, outlet_distance_tolerance
-    )
     print(
-        f'  outlet candidates: {len(outlet_candidates)}, '
-        f'retained: {len(retained_outlets)}',
+        f'  terminal basin roots: {len(terminal_segments)}',
         flush=True,
     )
 
@@ -360,7 +345,7 @@ def simplify_river_network_feature_collection(
     )
 
     retained_segments: dict[int, RiverSegment] = {}
-    n_workers = min(n_cpus, len(retained_outlets))
+    n_workers = min(n_cpus, len(terminal_segments))
     print(f'  basin traversal: n_workers={n_workers}', flush=True)
     t0 = time.time()
     if n_workers > 1:
@@ -369,13 +354,13 @@ def simplify_river_network_feature_collection(
         global _WORKER_SEG_TREE, _WORKER_SEG_LIST
         _WORKER_UPSTREAM_MAP = upstream_map
         _WORKER_SEGMENT_BY_ID = segment_by_id
-        _WORKER_DISTANCE_TOLERANCE = outlet_distance_tolerance
+        _WORKER_DISTANCE_TOLERANCE = branch_distance_tolerance
         _WORKER_TRIBUTARY_AREA_RATIO = tributary_area_ratio
         _WORKER_SEG_TREE = seg_tree
         _WORKER_SEG_LIST = seg_list
         ctx = multiprocessing.get_context('fork')
         with ctx.Pool(processes=n_workers) as pool:
-            results = pool.map(_process_outlet, retained_outlets)
+            results = pool.map(_process_basin_root, terminal_segments)
         _WORKER_UPSTREAM_MAP = None
         _WORKER_SEGMENT_BY_ID = None
         _WORKER_DISTANCE_TOLERANCE = None
@@ -385,21 +370,16 @@ def simplify_river_network_feature_collection(
         for result in results:
             retained_segments.update(result)
     else:
-        for outlet in retained_outlets:
-            if outlet.endorheic == 1:
-                outlet_type = 'inland_sink'
-            else:
-                outlet_type = 'ocean'
+        for root in terminal_segments:
             _retain_basin_segments(
                 segment=replace(
-                    outlet,
-                    outlet_type=outlet_type,
-                    outlet_hyriv_id=outlet.hyriv_id,
+                    root,
+                    outlet_hyriv_id=root.hyriv_id,
                 ),
                 upstream_map=upstream_map,
                 segment_by_id=segment_by_id,
                 retained_segments=retained_segments,
-                distance_tolerance=outlet_distance_tolerance,
+                distance_tolerance=branch_distance_tolerance,
                 tributary_area_ratio=tributary_area_ratio,
                 seg_tree=seg_tree,
                 seg_list=seg_list,
@@ -408,25 +388,18 @@ def simplify_river_network_feature_collection(
     print(f'  basin traversal: {time.time() - t0:.1f} s', flush=True)
 
     outlet_area_by_id = {
-        outlet.hyriv_id: outlet.drainage_area for outlet in retained_outlets
+        root.hyriv_id: root.drainage_area for root in terminal_segments
     }
     simplified_segments = sorted(
         retained_segments.values(),
         key=lambda segment: (
-            -outlet_area_by_id.get(segment.outlet_hyriv_id, 0.0),
+            -outlet_area_by_id.get(_get_outlet_hyriv_id(segment), 0.0),
             -segment.drainage_area,
             segment.hyriv_id,
         ),
     )
-    outlet_segments = sorted(
-        [segment for segment in retained_outlets],
-        key=lambda segment: (-segment.drainage_area, segment.hyriv_id),
-    )
 
-    return (
-        river_segments_to_feature_collection(simplified_segments),
-        outlet_segments_to_feature_collection(outlet_segments),
-    )
+    return river_segments_to_feature_collection(simplified_segments)
 
 
 def read_river_segments_from_feature_collection(
@@ -498,7 +471,6 @@ def river_segments_to_feature_collection(segments):
             upland_skm=segment.drainage_area / KM2_TO_M2,
             next_down=segment.next_down,
             endorheic=segment.endorheic,
-            outlet_type=segment.outlet_type,
             outlet_hyriv_id=segment.outlet_hyriv_id,
         )
         if segment.river_name is not None:
@@ -513,58 +485,15 @@ def river_segments_to_feature_collection(segments):
     return dict(type='FeatureCollection', features=features)
 
 
-def outlet_segments_to_feature_collection(segments):
+def _process_basin_root(root):
     """
-    Convert retained outlet segments to a GeoJSON feature collection.
-
-    Parameters
-    ----------
-    segments : list of RiverSegment
-        Retained outlet segments
-
-    Returns
-    -------
-    dict
-        A GeoJSON feature collection of outlet point features
+    Process one terminal-root basin in a fork-based worker process.
     """
-    features = []
-    for segment in segments:
-        lon, lat = segment.endpoint
-        if segment.endorheic == 1:
-            outlet_type = 'inland_sink'
-        else:
-            outlet_type = 'ocean'
-        features.append(
-            dict(
-                type='Feature',
-                properties=dict(
-                    hyriv_id=segment.hyriv_id,
-                    main_riv=segment.main_riv,
-                    drainage_area=segment.drainage_area,
-                    upland_skm=segment.drainage_area / KM2_TO_M2,
-                    endorheic=segment.endorheic,
-                    outlet_type=outlet_type,
-                ),
-                geometry=mapping(Point(lon, lat)),
-            )
-        )
-    return dict(type='FeatureCollection', features=features)
-
-
-def _process_outlet(outlet):
-    """
-    Process one outlet basin in a fork-based worker process.
-    """
-    if outlet.endorheic == 1:
-        outlet_type = 'inland_sink'
-    else:
-        outlet_type = 'ocean'
     retained: dict[int, RiverSegment] = {}
     _retain_basin_segments(
         segment=replace(
-            outlet,
-            outlet_type=outlet_type,
-            outlet_hyriv_id=outlet.hyriv_id,
+            root,
+            outlet_hyriv_id=root.hyriv_id,
         ),
         upstream_map=_WORKER_UPSTREAM_MAP,
         segment_by_id=_WORKER_SEGMENT_BY_ID,
@@ -575,6 +504,15 @@ def _process_outlet(outlet):
         seg_list=_WORKER_SEG_LIST,
     )
     return retained
+
+
+def _get_outlet_hyriv_id(segment):
+    """
+    Get a sortable basin-root identifier for a river segment.
+    """
+    if segment.outlet_hyriv_id is None:
+        return 0
+    return segment.outlet_hyriv_id
 
 
 def _retain_basin_segments(
@@ -616,7 +554,6 @@ def _retain_basin_segments(
         for upstream in reversed(keep_segments):
             annotated = replace(
                 upstream,
-                outlet_type=current.outlet_type,
                 outlet_hyriv_id=current.outlet_hyriv_id,
             )
             stack.append(annotated)
@@ -745,36 +682,6 @@ def _distance_to_basin(
     return min_dist
 
 
-def _filter_outlets(outlet_candidates, outlet_distance_tolerance):
-    """
-    Retain large, well-separated outlets while preserving inland sinks.
-    """
-    retained_outlets: list[RiverSegment] = []
-    for candidate in sorted(
-        outlet_candidates,
-        key=lambda outlet: (
-            outlet.drainage_area,
-            outlet.ord_stra,
-            outlet.hyriv_id,
-        ),
-        reverse=True,
-    ):
-        keep = True
-        lon, lat = candidate.endpoint
-        for retained in retained_outlets:
-            if candidate.endorheic == 1 and retained.endorheic == 1:
-                continue
-            retained_lon, retained_lat = retained.endpoint
-            distance = haversine_distance(lon, lat, retained_lon, retained_lat)
-            if float(distance) < outlet_distance_tolerance:
-                keep = False
-                break
-        if keep:
-            retained_outlets.append(candidate)
-
-    return retained_outlets
-
-
 def _segment_from_feature(feature):
     """
     Parse one GeoJSON feature into a canonical river segment.
@@ -799,6 +706,9 @@ def _segment_from_feature(feature):
     river_name = _get_str_property(
         properties, ('river_name', 'RIVER_NAME', 'RIV_NAME', 'NAME')
     )
+    outlet_hyriv_id = _get_optional_int_property(
+        properties, ('outlet_hyriv_id', 'OUTLET_HYRIV_ID')
+    )
 
     return RiverSegment(
         geometry=geometry,
@@ -809,6 +719,7 @@ def _segment_from_feature(feature):
         next_down=next_down,
         endorheic=endorheic,
         river_name=river_name,
+        outlet_hyriv_id=outlet_hyriv_id,
     )
 
 
@@ -835,6 +746,16 @@ def _get_int_property(properties, keys):
     Read an integer property using one of several candidate keys.
     """
     value = _get_property(properties, keys)
+    return int(value)
+
+
+def _get_optional_int_property(properties, keys):
+    """
+    Read an optional integer property using one of several candidate keys.
+    """
+    value = _get_property(properties, keys, default=None)
+    if value is None:
+        return None
     return int(value)
 
 

@@ -2,15 +2,12 @@ import os
 
 import numpy as np
 import xarray as xr
-from scipy.spatial import cKDTree
-from shapely.geometry import Point, mapping, shape
 
 from polaris.mesh.spherical.unified.river.distance import (
     haversine_distance,
 )
 from polaris.mesh.spherical.unified.river.geojson import (
     read_geojson,
-    write_geojson,
 )
 from polaris.step import Step
 from polaris.tasks.mesh.spherical.unified.river.simplify import (
@@ -52,7 +49,6 @@ class RasterizeRiverLatLonStep(Step):
         self.simplify_step = simplify_step
         self.coastline_step = coastline_step
         self.masks_filename = 'river_network.nc'
-        self.outlets_filename = 'river_outlets.geojson'
 
     def setup(self):
         """
@@ -68,12 +64,6 @@ class RasterizeRiverLatLonStep(Step):
             ),
         )
         self.add_input_file(
-            filename='retained_outlets.geojson',
-            work_dir_target=os.path.join(
-                self.simplify_step.path, self.simplify_step.outlets_filename
-            ),
-        )
-        self.add_input_file(
             filename='coastline.nc',
             work_dir_target=os.path.join(
                 self.coastline_step.path,
@@ -81,24 +71,20 @@ class RasterizeRiverLatLonStep(Step):
             ),
         )
         self.add_output_file(filename=self.masks_filename)
-        self.add_output_file(filename=self.outlets_filename)
 
     def run(self):
         """
-        Build target-grid river masks and snapped outlet diagnostics.
+        Build the target-grid river-channel mask.
         """
         section = self.config['river_rasterize']
         river_fc = read_geojson('simplified_river_network.geojson')
-        outlet_fc = read_geojson('retained_outlets.geojson')
         ds_coastline = xr.open_dataset('coastline.nc')
-        ds_river, snapped_outlets = build_river_network_dataset(
+        ds_river = build_river_network_dataset(
             river_feature_collection=river_fc,
-            outlet_feature_collection=outlet_fc,
             ds_coastline=ds_coastline,
             resolution=self.config.getfloat(
                 'unified_mesh', 'resolution_latlon'
             ),
-            outlet_match_tolerance=section.getfloat('outlet_match_tolerance'),
             channel_subsegment_fraction=section.getfloat(
                 'channel_subsegment_fraction'
             ),
@@ -113,15 +99,12 @@ class RasterizeRiverLatLonStep(Step):
             'spherical_mesh', 'antarctic_boundary_convention'
         )
         ds_river.to_netcdf(self.masks_filename)
-        write_geojson(snapped_outlets, self.outlets_filename)
 
 
 def build_river_network_dataset(
     river_feature_collection,
-    outlet_feature_collection,
     ds_coastline,
     resolution,
-    outlet_match_tolerance,
     channel_subsegment_fraction=0.5,
     channel_buffer_km=0.0,
 ):
@@ -133,20 +116,11 @@ def build_river_network_dataset(
     river_feature_collection : dict
         A GeoJSON feature collection of simplified river line segments
 
-    outlet_feature_collection : dict
-        A GeoJSON feature collection of outlet points
-
     ds_coastline : xarray.Dataset
-        Coastline dataset with ``lat``, ``lon``, and ``ocean_mask``
-        variables
+        Coastline dataset with ``lat`` and ``lon`` variables
 
     resolution : float
         The target grid resolution in degrees
-
-    outlet_match_tolerance : float
-        Maximum distance in meters within which an ocean outlet is
-        snapped to the nearest ocean cell; outlets beyond this distance
-        fall back to the nearest grid cell
 
     channel_subsegment_fraction : float, optional
         Fraction of the target resolution used as the maximum
@@ -160,13 +134,7 @@ def build_river_network_dataset(
     Returns
     -------
     ds_river : xarray.Dataset
-        Dataset with ``river_channel_mask``, ``river_outlet_mask``,
-        ``river_ocean_outlet_mask``, and ``river_inland_sink_mask``
-        on the target lat-lon grid
-
-    snapped_outlets : dict
-        A GeoJSON feature collection of snapped outlet points with
-        diagnostic snapping properties
+        Dataset with ``river_channel_mask`` on the target lat-lon grid
     """
     river_segments = read_river_segments_from_feature_collection(
         river_feature_collection
@@ -176,9 +144,6 @@ def build_river_network_dataset(
     shape_2d = (lat.size, lon.size)
 
     river_channel_mask = np.zeros(shape_2d, dtype=np.int8)
-    river_outlet_mask = np.zeros(shape_2d, dtype=np.int8)
-    river_ocean_outlet_mask = np.zeros(shape_2d, dtype=np.int8)
-    river_inland_sink_mask = np.zeros(shape_2d, dtype=np.int8)
     channel_buffer_m = channel_buffer_km * 1.0e3
 
     for segment in river_segments:
@@ -197,77 +162,6 @@ def build_river_network_dataset(
                 buffer_m=channel_buffer_m,
             )
 
-    snapped_features = []
-    ocean_outlets = 0
-    unmatched_ocean_outlets = 0
-    ocean_mask = _mask_from_dataset(ds_coastline, 'ocean_mask')
-    land_mask = _get_land_mask(ds_coastline)
-    ocean_kdtree, ocean_indices_arr = _build_cell_kdtree(ocean_mask, lon, lat)
-    land_kdtree, land_indices_arr = _build_cell_kdtree(land_mask, lon, lat)
-    for feature in outlet_feature_collection['features']:
-        properties = dict(feature['properties'])
-        source_point = shape(feature['geometry'])
-        source_lon = float(source_point.x)
-        source_lat = float(source_point.y)
-        outlet_type = properties['outlet_type']
-        if outlet_type == 'ocean':
-            ocean_outlets += 1
-            (
-                lat_index,
-                lon_index,
-                snapped_lon,
-                snapped_lat,
-                matched_to_ocean,
-                snapping_distance,
-            ) = _match_ocean_outlet(
-                source_lon=source_lon,
-                source_lat=source_lat,
-                lon=lon,
-                lat=lat,
-                ocean_kdtree=ocean_kdtree,
-                ocean_indices_arr=ocean_indices_arr,
-                outlet_match_tolerance=outlet_match_tolerance,
-            )
-            if not matched_to_ocean:
-                unmatched_ocean_outlets += 1
-            river_ocean_outlet_mask[lat_index, lon_index] = 1
-        else:
-            (
-                lat_index,
-                lon_index,
-                snapped_lon,
-                snapped_lat,
-                snapping_distance,
-            ) = _match_land_point(
-                source_lon=source_lon,
-                source_lat=source_lat,
-                lon=lon,
-                lat=lat,
-                land_kdtree=land_kdtree,
-                land_indices_arr=land_indices_arr,
-            )
-            matched_to_ocean = False
-            river_inland_sink_mask[lat_index, lon_index] = 1
-
-        river_outlet_mask[lat_index, lon_index] = 1
-        properties.update(
-            source_lon=source_lon,
-            source_lat=source_lat,
-            snapped_lon=snapped_lon,
-            snapped_lat=snapped_lat,
-            snapped_lat_index=int(lat_index),
-            snapped_lon_index=int(lon_index),
-            snapping_distance_m=snapping_distance,
-            matched_to_ocean=matched_to_ocean,
-        )
-        snapped_features.append(
-            dict(
-                type='Feature',
-                properties=properties,
-                geometry=mapping(Point(snapped_lon, snapped_lat)),
-            )
-        )
-
     ds_river = xr.Dataset(
         coords=dict(lat=ds_coastline.lat, lon=ds_coastline.lon)
     )
@@ -275,88 +169,17 @@ def build_river_network_dataset(
     ds_river['river_channel_mask'] = xr.DataArray(
         river_channel_mask, dims=dims
     )
-    ds_river['river_outlet_mask'] = xr.DataArray(river_outlet_mask, dims=dims)
-    ds_river['river_ocean_outlet_mask'] = xr.DataArray(
-        river_ocean_outlet_mask, dims=dims
-    )
-    ds_river['river_inland_sink_mask'] = xr.DataArray(
-        river_inland_sink_mask, dims=dims
-    )
     ds_river.attrs.update(
         dict(
             target_grid='lat_lon',
             target_grid_resolution_degrees=resolution,
-            outlet_match_tolerance_m=outlet_match_tolerance,
             channel_buffer_m=channel_buffer_m,
-            unmatched_ocean_outlets=unmatched_ocean_outlets,
-            matched_ocean_outlets=ocean_outlets - unmatched_ocean_outlets,
         )
     )
     ds_river['river_channel_mask'].attrs['long_name'] = (
         'Lat-lon mask for retained river channels'
     )
-    ds_river['river_outlet_mask'].attrs['long_name'] = (
-        'Lat-lon mask for all retained river outlets and inland sinks'
-    )
-    ds_river['river_ocean_outlet_mask'].attrs['long_name'] = (
-        'Lat-lon mask for retained ocean-draining river outlets'
-    )
-    ds_river['river_inland_sink_mask'].attrs['long_name'] = (
-        'Lat-lon mask for retained inland sinks'
-    )
-
-    snapped_outlets = dict(
-        type='FeatureCollection',
-        features=snapped_features,
-        metadata=dict(
-            mesh_name=ds_river.attrs.get('mesh_name'),
-            target_grid='lat_lon',
-            target_grid_resolution_degrees=resolution,
-            outlet_match_tolerance_m=outlet_match_tolerance,
-            channel_buffer_m=channel_buffer_m,
-            unmatched_ocean_outlets=unmatched_ocean_outlets,
-        ),
-    )
-    return ds_river, snapped_outlets
-
-
-def _mask_from_dataset(ds_coastline, variable_name):
-    """
-    Read an integer mask from a coastline dataset if available.
-    """
-    if variable_name not in ds_coastline:
-        return None
-    return ds_coastline[variable_name].values.astype(bool)
-
-
-def _get_land_mask(ds_coastline):
-    """
-    Derive the land mask from ocean_mask.
-    """
-    return np.logical_not(ds_coastline.ocean_mask.values.astype(bool))
-
-
-def _build_cell_kdtree(mask, lon, lat):
-    """
-    Build a 3-D spherical KD-tree from grid cells where mask is True.
-
-    Converts lon/lat to unit-sphere Cartesian coordinates so that the
-    nearest neighbour in Euclidean 3-D space equals the nearest neighbour
-    by great-circle distance.  Returns (None, None) when the mask is empty.
-    """
-    if mask is None or not np.any(mask):
-        return None, None
-    indices = np.argwhere(mask)
-    cell_lon_rad = np.deg2rad(lon[indices[:, 1]])
-    cell_lat_rad = np.deg2rad(lat[indices[:, 0]])
-    xyz = np.column_stack(
-        [
-            np.cos(cell_lat_rad) * np.cos(cell_lon_rad),
-            np.cos(cell_lat_rad) * np.sin(cell_lon_rad),
-            np.sin(cell_lat_rad),
-        ]
-    )
-    return cKDTree(xyz), indices
+    return ds_river
 
 
 def _sample_line(geometry, resolution, subsegment_fraction):
@@ -467,119 +290,6 @@ def _coordinate_window(value, coord, delta, periodic=False):
     start = max(0, center - half_width)
     stop = min(coord.size, center + half_width + 1)
     return np.arange(start, stop, dtype=int)
-
-
-def _match_ocean_outlet(
-    source_lon,
-    source_lat,
-    lon,
-    lat,
-    ocean_kdtree,
-    ocean_indices_arr,
-    outlet_match_tolerance,
-):
-    """
-    Match an ocean outlet to the nearest ocean cell.
-    """
-    if ocean_kdtree is not None:
-        lon_rad = np.deg2rad(source_lon)
-        lat_rad = np.deg2rad(source_lat)
-        source_xyz = [
-            np.cos(lat_rad) * np.cos(lon_rad),
-            np.cos(lat_rad) * np.sin(lon_rad),
-            np.sin(lat_rad),
-        ]
-        _, tree_idx = ocean_kdtree.query(source_xyz)
-        lat_index = int(ocean_indices_arr[tree_idx, 0])
-        lon_index = int(ocean_indices_arr[tree_idx, 1])
-        snapped_lon = float(lon[lon_index])
-        snapped_lat = float(lat[lat_index])
-        snapping_distance = float(
-            haversine_distance(
-                source_lon, source_lat, snapped_lon, snapped_lat
-            )
-        )
-        matched_to_ocean = snapping_distance <= outlet_match_tolerance
-        if matched_to_ocean:
-            return (
-                lat_index,
-                lon_index,
-                snapped_lon,
-                snapped_lat,
-                True,
-                snapping_distance,
-            )
-
-    lat_index, lon_index = _nearest_grid_index(
-        sample_lon=source_lon,
-        sample_lat=source_lat,
-        lon=lon,
-        lat=lat,
-    )
-    snapped_lon = float(lon[lon_index])
-    snapped_lat = float(lat[lat_index])
-    snapping_distance = float(
-        haversine_distance(source_lon, source_lat, snapped_lon, snapped_lat)
-    )
-    return (
-        lat_index,
-        lon_index,
-        snapped_lon,
-        snapped_lat,
-        False,
-        snapping_distance,
-    )
-
-
-def _match_land_point(
-    source_lon,
-    source_lat,
-    lon,
-    lat,
-    land_kdtree,
-    land_indices_arr,
-):
-    """
-    Match an inland sink to the nearest land cell.
-    """
-    if land_kdtree is not None:
-        lon_rad = np.deg2rad(source_lon)
-        lat_rad = np.deg2rad(source_lat)
-        source_xyz = [
-            np.cos(lat_rad) * np.cos(lon_rad),
-            np.cos(lat_rad) * np.sin(lon_rad),
-            np.sin(lat_rad),
-        ]
-        _, tree_idx = land_kdtree.query(source_xyz)
-        lat_index = int(land_indices_arr[tree_idx, 0])
-        lon_index = int(land_indices_arr[tree_idx, 1])
-        snapped_lon = float(lon[lon_index])
-        snapped_lat = float(lat[lat_index])
-        snapping_distance = float(
-            haversine_distance(
-                source_lon, source_lat, snapped_lon, snapped_lat
-            )
-        )
-        return (
-            lat_index,
-            lon_index,
-            snapped_lon,
-            snapped_lat,
-            snapping_distance,
-        )
-
-    lat_index, lon_index = _nearest_grid_index(
-        sample_lon=source_lon,
-        sample_lat=source_lat,
-        lon=lon,
-        lat=lat,
-    )
-    snapped_lon = float(lon[lon_index])
-    snapped_lat = float(lat[lat_index])
-    snapping_distance = float(
-        haversine_distance(source_lon, source_lat, snapped_lon, snapped_lat)
-    )
-    return lat_index, lon_index, snapped_lon, snapped_lat, snapping_distance
 
 
 def _wrapped_longitude_difference(delta_lon):

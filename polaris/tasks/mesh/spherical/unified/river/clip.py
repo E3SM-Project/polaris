@@ -1,5 +1,4 @@
 import os
-from typing import Any
 
 import numpy as np
 import xarray as xr
@@ -57,7 +56,6 @@ class ClipRiverNetworkStep(Step):
         self.simplify_step = simplify_step
         self.coastline_step = coastline_step
         self.clipped_filename = 'clipped_river_network.geojson'
-        self.clipped_outlets_filename = 'clipped_outlets.geojson'
         self.masks_filename = 'clipped_river_network.nc'
 
     def setup(self):
@@ -74,12 +72,6 @@ class ClipRiverNetworkStep(Step):
             ),
         )
         self.add_input_file(
-            filename='retained_outlets.geojson',
-            work_dir_target=os.path.join(
-                self.simplify_step.path, self.simplify_step.outlets_filename
-            ),
-        )
-        self.add_input_file(
             filename='coastline.nc',
             work_dir_target=os.path.join(
                 self.coastline_step.path,
@@ -87,7 +79,6 @@ class ClipRiverNetworkStep(Step):
             ),
         )
         self.add_output_file(filename=self.clipped_filename)
-        self.add_output_file(filename=self.clipped_outlets_filename)
         self.add_output_file(filename=self.masks_filename)
 
     def run(self):
@@ -96,7 +87,6 @@ class ClipRiverNetworkStep(Step):
         """
         section = self.config['river_network']
         river_fc = read_geojson('simplified_river_network.geojson')
-        outlet_fc = read_geojson('retained_outlets.geojson')
         with xr.open_dataset('coastline.nc') as ds_coastline:
             segments = read_river_segments_from_feature_collection(river_fc)
             clipped_segments = condition_base_mesh_river_segments(
@@ -109,25 +99,13 @@ class ClipRiverNetworkStep(Step):
                 ),
                 min_segment_length_m=1.0e3
                 * section.getfloat('base_mesh_min_segment_length_km'),
-                preserve_outlet_stub_m=1.0e3
-                * section.getfloat('base_mesh_preserve_outlet_stub_km'),
             )
             clipped_fc = river_segments_to_feature_collection(clipped_segments)
-            clipped_outlets_fc = clip_outlet_feature_collection(
-                outlet_feature_collection=outlet_fc,
-                ds_coastline=ds_coastline,
-                clip_distance_m=1.0e3
-                * section.getfloat('base_mesh_clip_distance_km'),
-            )
-            ds_river, _ = build_river_network_dataset(
+            ds_river = build_river_network_dataset(
                 river_feature_collection=clipped_fc,
-                outlet_feature_collection=clipped_outlets_fc,
                 ds_coastline=ds_coastline,
                 resolution=self.config.getfloat(
                     'unified_mesh', 'resolution_latlon'
-                ),
-                outlet_match_tolerance=self.config['river_rasterize'].getfloat(
-                    'outlet_match_tolerance'
                 ),
                 channel_subsegment_fraction=self.config[
                     'river_rasterize'
@@ -152,15 +130,10 @@ class ClipRiverNetworkStep(Step):
             min_segment_length_km=section.getfloat(
                 'base_mesh_min_segment_length_km'
             ),
-            preserve_outlet_stub_km=section.getfloat(
-                'base_mesh_preserve_outlet_stub_km'
-            ),
         )
         clipped_fc['metadata'] = metadata
-        clipped_outlets_fc['metadata'] = dict(metadata)
         ds_river.attrs.update(metadata)
         write_geojson(clipped_fc, self.clipped_filename)
-        write_geojson(clipped_outlets_fc, self.clipped_outlets_filename)
         ds_river.to_netcdf(self.masks_filename)
 
 
@@ -170,7 +143,6 @@ def condition_base_mesh_river_segments(
     clip_distance_m,
     simplify_tolerance_deg,
     min_segment_length_m,
-    preserve_outlet_stub_m=0.0,
 ):
     """
     Clip, simplify, and clean river segments for base-mesh use.
@@ -194,11 +166,6 @@ def condition_base_mesh_river_segments(
 
     min_segment_length_m : float
         Minimum retained segment length after simplification, in meters
-
-    preserve_outlet_stub_m : float, optional
-        If positive, a stub of at least this length is kept for outlet
-        segments that would otherwise be fully clipped, preserving the
-        outlet location
 
     Returns
     -------
@@ -237,7 +204,6 @@ def condition_base_mesh_river_segments(
             coords=coords,
             point_signed_distance=point_signed_distance,
             threshold_m=threshold_m,
-            preserve_outlet_stub_m=preserve_outlet_stub_m,
         )
         for geometry in clipped_geometries:
             simplified = geometry.simplify(
@@ -260,7 +226,7 @@ def condition_base_mesh_river_segments(
     return sorted(
         clipped_segments,
         key=lambda segment: (
-            -outlet_area_by_id.get(segment.outlet_hyriv_id, 0.0),
+            -outlet_area_by_id.get(_get_outlet_hyriv_id(segment), 0.0),
             -segment.drainage_area,
             segment.hyriv_id,
             tuple(segment.geometry.coords[-1]),
@@ -268,67 +234,7 @@ def condition_base_mesh_river_segments(
     )
 
 
-def clip_outlet_feature_collection(
-    outlet_feature_collection,
-    ds_coastline,
-    clip_distance_m,
-) -> dict[str, Any]:
-    """
-    Retain only outlets that remain inland after base-mesh clipping.
-
-    Parameters
-    ----------
-    outlet_feature_collection : dict
-        A GeoJSON feature collection of outlet points
-
-    ds_coastline : xarray.Dataset
-        Coastline dataset with ``signed_distance``, ``lon``, and ``lat``
-        variables
-
-    clip_distance_m : float
-        Distance inland from the coastline beyond which outlets are
-        removed, in meters
-
-    Returns
-    -------
-    dict
-        A GeoJSON feature collection containing only the outlets whose
-        signed distance remains within the clipping threshold
-    """
-    lon = ds_coastline.lon.values.astype(float)
-    lat = ds_coastline.lat.values.astype(float)
-    signed_distance = ds_coastline.signed_distance.values.astype(float)
-    threshold_m = -float(clip_distance_m)
-    all_features = outlet_feature_collection['features']
-
-    if not all_features:
-        return dict(type='FeatureCollection', features=[])
-
-    coords = np.array(
-        [feature['geometry']['coordinates'] for feature in all_features],
-        dtype=float,
-    )
-    distances = _interpolate_signed_distance(
-        coords=coords,
-        lon=lon,
-        lat=lat,
-        signed_distance=signed_distance,
-    )
-    features = [
-        feature
-        for feature, dist in zip(all_features, distances, strict=True)
-        if dist <= threshold_m
-    ]
-    return dict(type='FeatureCollection', features=features)
-
-
 def _conditioned_segment_from_geometry(segment, geometry):
-    outlet_type = segment.outlet_type
-    outlet_hyriv_id = segment.outlet_hyriv_id
-    if geometry.coords[-1] != segment.geometry.coords[-1]:
-        outlet_type = None
-        outlet_hyriv_id = None
-
     return RiverSegment(
         geometry=geometry,
         hyriv_id=segment.hyriv_id,
@@ -338,9 +244,17 @@ def _conditioned_segment_from_geometry(segment, geometry):
         next_down=segment.next_down,
         endorheic=segment.endorheic,
         river_name=segment.river_name,
-        outlet_type=outlet_type,
-        outlet_hyriv_id=outlet_hyriv_id,
+        outlet_hyriv_id=segment.outlet_hyriv_id,
     )
+
+
+def _get_outlet_hyriv_id(segment):
+    """
+    Get a sortable basin-root identifier for a river segment.
+    """
+    if segment.outlet_hyriv_id is None:
+        return 0
+    return segment.outlet_hyriv_id
 
 
 def _clean_conditioned_geometry(geometry, min_segment_length_m):
@@ -373,52 +287,14 @@ def _clip_line_string_with_distances(
     coords,
     point_signed_distance,
     threshold_m,
-    preserve_outlet_stub_m,
 ):
     clipped_coords = _clip_coords_by_threshold(
         coords=coords,
         point_signed_distance=point_signed_distance,
         threshold_m=threshold_m,
     )
-    if len(clipped_coords) == 0 and preserve_outlet_stub_m > 0.0:
-        stub = _build_outlet_stub(
-            coords=coords,
-            point_signed_distance=point_signed_distance,
-            threshold_m=threshold_m,
-            preserve_outlet_stub_m=preserve_outlet_stub_m,
-        )
-        if stub is not None:
-            clipped_coords = [stub]
 
     return [LineString(line) for line in clipped_coords if len(line) >= 2]
-
-
-def _build_outlet_stub(
-    coords,
-    point_signed_distance,
-    threshold_m,
-    preserve_outlet_stub_m,
-):
-    for start_index in range(coords.shape[0] - 1, 0, -1):
-        start_point = coords[start_index - 1]
-        end_point = coords[start_index]
-        start_distance = float(point_signed_distance[start_index - 1])
-        end_distance = float(point_signed_distance[start_index])
-        if start_distance <= threshold_m or end_distance <= threshold_m:
-            continue
-
-        crossing = _interpolate_threshold_crossing(
-            start_point=start_point,
-            end_point=end_point,
-            start_distance=start_distance,
-            end_distance=end_distance,
-            threshold_m=threshold_m,
-        )
-        stub = LineString([crossing, end_point])
-        if _line_string_length_m(stub) >= preserve_outlet_stub_m:
-            return np.vstack([crossing, end_point])
-
-    return None
 
 
 def _clip_coords_by_threshold(coords, point_signed_distance, threshold_m):

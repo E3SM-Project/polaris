@@ -17,10 +17,9 @@ CONUS_EXTENT = (-128.0, -65.0, 22.0, 52.0)
 COAST_COLOR = '#222222'
 LAND_COLOR = '#c8ced6'
 OCEAN_COLOR = '#e7f0f7'
-RIVER_COLOR = '#0a6ba8'
-MATCHED_COLOR = '#c43c39'
-UNMATCHED_COLOR = '#7a2cb8'
-INLAND_SINK_COLOR = '#c97800'
+SIMPLIFIED_COLOR = '#0a6ba8'
+CLIPPED_COLOR = '#c43c39'
+CHANNEL_COLOR = '#0f766e'
 
 
 class VizRiverStep(Step):
@@ -28,7 +27,9 @@ class VizRiverStep(Step):
     A step for visualizing river-network diagnostics.
     """
 
-    def __init__(self, component, simplify_step, rasterize_step, subdir):
+    def __init__(
+        self, component, simplify_step, rasterize_step, clip_step, subdir
+    ):
         """
         Create a new step.
 
@@ -43,6 +44,9 @@ class VizRiverStep(Step):
         rasterize_step : polaris.tasks.mesh.spherical.unified.river.rasterize.RasterizeRiverLatLonStep
             The shared lat-lon river step to visualize
 
+        clip_step : polaris.tasks.mesh.spherical.unified.river.clip.ClipRiverNetworkStep
+            The shared clipped river-network step
+
         subdir : str
             The subdirectory within the component's work directory
         """  # noqa: E501
@@ -55,8 +59,10 @@ class VizRiverStep(Step):
         )
         self.simplify_step = simplify_step
         self.rasterize_step = rasterize_step
+        self.clip_step = clip_step
         self.output_filenames = [
-            'river_network_overview.png',
+            'river_network_overlay.png',
+            'rasterized_river_network.png',
             'debug_summary.txt',
         ]
 
@@ -74,21 +80,15 @@ class VizRiverStep(Step):
             ),
         )
         self.add_input_file(
-            filename='retained_outlets.geojson',
+            filename='clipped_river_network.geojson',
             work_dir_target=os.path.join(
-                self.simplify_step.path, self.simplify_step.outlets_filename
+                self.clip_step.path, self.clip_step.clipped_filename
             ),
         )
         self.add_input_file(
             filename='river_network.nc',
             work_dir_target=os.path.join(
                 self.rasterize_step.path, self.rasterize_step.masks_filename
-            ),
-        )
-        self.add_input_file(
-            filename='river_outlets.geojson',
-            work_dir_target=os.path.join(
-                self.rasterize_step.path, self.rasterize_step.outlets_filename
             ),
         )
         self.add_input_file(
@@ -112,66 +112,55 @@ class VizRiverStep(Step):
         dpi = self.config['viz_river_network'].getint('dpi')
 
         simplified_fc = read_geojson('simplified_river_network.geojson')
-        retained_outlets_fc = read_geojson('retained_outlets.geojson')
-        snapped_outlets_fc = read_geojson('river_outlets.geojson')
+        clipped_fc = read_geojson('clipped_river_network.geojson')
 
         with xr.open_dataset('river_network.nc') as ds_river:
             lon = ds_river.lon.values
             lat = ds_river.lat.values
             river_channel_mask = ds_river.river_channel_mask.values > 0
-            river_outlet_mask = ds_river.river_outlet_mask.values > 0
-            river_ocean_outlet_mask = (
-                ds_river.river_ocean_outlet_mask.values > 0
-            )
-            river_inland_sink_mask = ds_river.river_inland_sink_mask.values > 0
-            matched_ocean_outlets = int(
-                ds_river.attrs['matched_ocean_outlets']
-            )
-            unmatched_ocean_outlets = int(
-                ds_river.attrs['unmatched_ocean_outlets']
-            )
 
         with xr.open_dataset('coastline.nc') as ds_coastline:
             ocean_mask = ds_coastline.ocean_mask.values > 0
             land_mask = _get_land_mask(ds_coastline)
 
-        self._plot_network_overview(
+        self._plot_network_overlay(
             lon=lon,
             lat=lat,
             land_mask=land_mask,
             ocean_mask=ocean_mask,
             simplified_fc=simplified_fc,
-            snapped_outlets_fc=snapped_outlets_fc,
+            clipped_fc=clipped_fc,
             dpi=dpi,
-            out_filename='river_network_overview.png',
+            out_filename='river_network_overlay.png',
+        )
+        self._plot_rasterized_network(
+            lon=lon,
+            lat=lat,
+            river_channel_mask=river_channel_mask,
+            dpi=dpi,
+            out_filename='rasterized_river_network.png',
         )
 
         _write_summary(
             filename='debug_summary.txt',
             simplified_fc=simplified_fc,
-            retained_outlets_fc=retained_outlets_fc,
-            snapped_outlets_fc=snapped_outlets_fc,
+            clipped_fc=clipped_fc,
             river_channel_mask=river_channel_mask,
-            river_outlet_mask=river_outlet_mask,
-            river_ocean_outlet_mask=river_ocean_outlet_mask,
-            river_inland_sink_mask=river_inland_sink_mask,
-            matched_ocean_outlets=matched_ocean_outlets,
-            unmatched_ocean_outlets=unmatched_ocean_outlets,
         )
 
-    def _plot_network_overview(
+    def _plot_network_overlay(
         self,
         lon,
         lat,
         land_mask,
         ocean_mask,
         simplified_fc,
-        snapped_outlets_fc,
+        clipped_fc,
         dpi,
         out_filename,
     ):
         """
-        Plot the simplified river network and snapped outlet classes.
+        Plot simplified and clipped river networks together.
         """
         fig, ax, inset_ax = _setup_axes_with_inset(dpi=dpi)
         for current_ax in (ax, inset_ax):
@@ -185,16 +174,49 @@ class VizRiverStep(Step):
             _plot_lines(
                 ax=current_ax,
                 feature_collection=simplified_fc,
-                color=RIVER_COLOR,
+                color=SIMPLIFIED_COLOR,
                 lw=0.9,
+                alpha=0.7,
+                zorder=2,
             )
-            _plot_snapped_points(
+            _plot_lines(
                 ax=current_ax,
-                feature_collection=snapped_outlets_fc,
-                size=38,
+                feature_collection=clipped_fc,
+                color=CLIPPED_COLOR,
+                lw=0.9,
+                alpha=0.95,
+                zorder=3,
             )
-        _add_figure_legend(fig=fig, handles=_get_overview_legend_handles())
-        ax.set_title('Simplified river network and snapped outlets')
+        _add_figure_legend(fig=fig, handles=_get_overlay_legend_handles())
+        ax.set_title('Simplified and clipped river networks')
+        fig.savefig(out_filename, bbox_inches='tight')
+        plt.close(fig)
+
+    def _plot_rasterized_network(
+        self,
+        lon,
+        lat,
+        river_channel_mask,
+        dpi,
+        out_filename,
+    ):
+        """
+        Plot the rasterized river-channel mask.
+        """
+        fig = plt.figure(figsize=(11.0, 5.0), dpi=dpi)
+        ax = plt.axes(projection=ccrs.PlateCarree())
+        ax.set_global()
+        channel = np.where(river_channel_mask, 1.0, np.nan)
+        ax.imshow(
+            channel,
+            origin='lower',
+            extent=_get_extent(lon=lon, lat=lat),
+            transform=ccrs.PlateCarree(),
+            cmap=mcolors.ListedColormap([CHANNEL_COLOR]),
+            interpolation='nearest',
+        )
+        ax.coastlines(linewidth=0.45, color=COAST_COLOR)
+        ax.set_title('Rasterized river-channel mask')
         fig.savefig(out_filename, bbox_inches='tight')
         plt.close(fig)
 
@@ -285,7 +307,7 @@ def _plot_ocean_mask(ax, lon, lat, ocean_mask):
     )
 
 
-def _plot_lines(ax, feature_collection, color, lw):
+def _plot_lines(ax, feature_collection, color, lw, alpha, zorder):
     """
     Plot river lines from a GeoJSON feature collection.
     """
@@ -304,88 +326,30 @@ def _plot_lines(ax, feature_collection, color, lw):
                 coords[:, 1],
                 color=color,
                 linewidth=lw,
-                alpha=0.95,
+                alpha=alpha,
                 transform=ccrs.PlateCarree(),
-                zorder=2,
+                zorder=zorder,
             )
 
 
-def _plot_snapped_points(ax, feature_collection, size):
+def _get_overlay_legend_handles():
     """
-    Plot snapped outlet points with colors by outlet type and match status.
-    """
-    for feature in feature_collection['features']:
-        props = feature['properties']
-        geom = shape(feature['geometry'])
-        color, marker = _get_outlet_style(
-            outlet_type=props['outlet_type'],
-            matched=props['matched_to_ocean'],
-        )
-        ax.scatter(
-            [float(geom.x)],
-            [float(geom.y)],
-            color=color,
-            marker=marker,
-            s=size,
-            edgecolors='white',
-            linewidths=0.4,
-            transform=ccrs.PlateCarree(),
-            zorder=5,
-        )
-
-
-def _get_outlet_style(outlet_type, matched):
-    """
-    Get marker styling for a snapped outlet.
-    """
-    if outlet_type == 'inland_sink':
-        return INLAND_SINK_COLOR, '^'
-    if matched:
-        return MATCHED_COLOR, 'o'
-    return UNMATCHED_COLOR, 's'
-
-
-def _get_overview_legend_handles():
-    """
-    Build legend handles for the overview figure.
+    Build legend handles for the overlay figure.
     """
     return [
         Line2D(
             [0],
             [0],
-            color=RIVER_COLOR,
+            color=SIMPLIFIED_COLOR,
             linewidth=1.4,
             label='Simplified river network',
         ),
         Line2D(
             [0],
             [0],
-            marker='o',
-            linestyle='None',
-            color=MATCHED_COLOR,
-            markerfacecolor=MATCHED_COLOR,
-            markersize=8,
-            label='Matched ocean outlet',
-        ),
-        Line2D(
-            [0],
-            [0],
-            marker='s',
-            linestyle='None',
-            color=UNMATCHED_COLOR,
-            markerfacecolor=UNMATCHED_COLOR,
-            markersize=8,
-            label='Unmatched ocean outlet',
-        ),
-        Line2D(
-            [0],
-            [0],
-            marker='^',
-            linestyle='None',
-            color=INLAND_SINK_COLOR,
-            markerfacecolor=INLAND_SINK_COLOR,
-            markersize=8,
-            label='Inland sink outlet',
+            color=CLIPPED_COLOR,
+            linewidth=1.4,
+            label='Clipped river network',
         ),
     ]
 
@@ -429,60 +393,33 @@ def _compute_edges(values):
 def _write_summary(
     filename,
     simplified_fc,
-    retained_outlets_fc,
-    snapped_outlets_fc,
+    clipped_fc,
     river_channel_mask,
-    river_outlet_mask,
-    river_ocean_outlet_mask,
-    river_inland_sink_mask,
-    matched_ocean_outlets,
-    unmatched_ocean_outlets,
 ):
     """
     Write a compact text summary of river-network diagnostics.
     """
+    simplified_segments = len(simplified_fc['features'])
+    clipped_segments = len(clipped_fc['features'])
     drainage_areas = [
         feature['properties']['drainage_area']
         for feature in simplified_fc['features']
     ]
-    snapping_distances = [
-        feature['properties']['snapping_distance_m']
-        for feature in snapped_outlets_fc['features']
-    ]
     with open(filename, 'w', encoding='utf-8') as summary:
         summary.write('River Network Diagnostics\n')
         summary.write('=========================\n\n')
+        summary.write(f'Simplified segments: {simplified_segments}\n')
+        summary.write(f'Clipped segments: {clipped_segments}\n')
         summary.write(
-            f'Simplified segments: {len(simplified_fc["features"])}\n'
-        )
-        summary.write(
-            f'Retained outlets: {len(retained_outlets_fc["features"])}\n'
+            'Segments removed by clipping: '
+            f'{simplified_segments - clipped_segments}\n'
         )
         summary.write(
             f'Rasterized channel cells: {int(np.sum(river_channel_mask))}\n'
         )
-        summary.write(
-            f'Rasterized outlet cells: {int(np.sum(river_outlet_mask))}\n'
-        )
-        summary.write(
-            'Rasterized ocean-outlet cells: '
-            f'{int(np.sum(river_ocean_outlet_mask))}\n'
-        )
-        summary.write(
-            'Rasterized inland-sink cells: '
-            f'{int(np.sum(river_inland_sink_mask))}\n'
-        )
-        summary.write(f'Matched ocean outlets: {matched_ocean_outlets}\n')
-        summary.write(f'Unmatched ocean outlets: {unmatched_ocean_outlets}\n')
         if len(drainage_areas) > 0:
             summary.write(
                 'Drainage area range (km^2): '
                 f'{min(drainage_areas) / 1.0e6:.1f} to '
                 f'{max(drainage_areas) / 1.0e6:.1f}\n'
-            )
-        if len(snapping_distances) > 0:
-            summary.write(
-                'Snapping distance range (km): '
-                f'{min(snapping_distances) / 1.0e3:.1f} to '
-                f'{max(snapping_distances) / 1.0e3:.1f}\n'
             )

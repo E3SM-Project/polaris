@@ -118,6 +118,7 @@ def get_unified_mesh_river_steps(
             config_filename=config_filename,
             simplify_step=simplify_step,
             rasterize_step=rasterize_step,
+            clip_step=prepare_clip_step,
         )
         steps[viz_step.name] = viz_step
 
