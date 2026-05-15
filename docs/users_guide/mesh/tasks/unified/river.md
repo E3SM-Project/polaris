@@ -4,8 +4,7 @@
 
 The unified-mesh river-network tasks simplify HydroRIVERS source data,
 build target-grid channel masks, and prepare clipped base-mesh geometry that
-downstream sizing-field and base-mesh workflows (see
-{ref}`users-mesh-unified-sizing-field` and {ref}`mesh-base-mesh-task`) can
+downstream sizing-field and base-mesh workflows can
 consume directly.
 
 The standalone task runs the full river workflow in one place: source
