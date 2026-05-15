@@ -4,6 +4,7 @@ from typing import Dict as Dict
 
 from polaris import Step, Task
 from polaris.config import PolarisConfigParser
+from polaris.constants import get_constant
 from polaris.ocean.convergence import (
     get_resolution_for_task,
     get_timestep_for_task,
@@ -28,9 +29,18 @@ def add_merry_go_round_tasks(component):
     config_filename = 'merry_go_round.cfg'
     filepath = os.path.join(component.name, basedir, config_filename)
     config = PolarisConfigParser(filepath=filepath)
+    config.add_from_package('polaris.ocean.eos', 'constant.cfg')
     config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
     config.add_from_package(
         'polaris.tasks.ocean.merry_go_round', config_filename
+    )
+    # Set rhoref to the PCD value only at setup so that if the
+    # user wants to run with a different value by changing the cfg
+    # before runtime, they can
+    config.set(
+        'ocean',
+        'eos_constant_rhoref',
+        value=f'{get_constant("seawater_density_reference"):02g}',
     )
 
     base_resolution = get_resolution_for_task(config, 1.0, refinement='both')
