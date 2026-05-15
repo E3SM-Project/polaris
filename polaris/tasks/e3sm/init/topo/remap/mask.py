@@ -3,6 +3,7 @@ import os
 import xarray as xr
 
 from polaris import Step
+from polaris.mesh.spherical.coastline import CONVENTIONS
 
 
 class MaskTopoStep(Step):
@@ -63,11 +64,11 @@ class MaskTopoStep(Step):
         and 1, where 1 indicates the cell is fully covered by land or ocean,
         respectively.
 
-        The default implementation sets the ocean mask to locations where the
-        base elevation is less than 0 and the Antarctic ice sheet is not
-        grounded, and the land mask to locations where the base elevation is
-        greater than 0 or the Antarctic ice sheet is present.  The two overlap
-        for Antarctic ice shelves, which are included in both masks.
+        The default implementation sets the ocean mask based on
+        ``antarctic_boundary_convention`` and the land mask to locations where
+        the base elevation is greater than 0 or the Antarctic ice sheet is
+        present. The two overlap for Antarctic ice shelves, which are included
+        in both masks.
 
         Parameters
         ----------
@@ -83,11 +84,7 @@ class MaskTopoStep(Step):
             The mask array with the same shape as the topography fields
         """
         config = self.config
-        section = config['mask_topography']
-        ocean_includes_grounded_ice = section.getboolean(
-            'ocean_includes_grounded_ice'
-        )
-        # Default implementation
+        convention = self._get_antarctic_boundary_convention(config)
         base_elevation = ds.base_elevation
         ice_mask = ds.ice_mask
 
@@ -97,15 +94,65 @@ class MaskTopoStep(Step):
         # above sea level or below sea leve but part of Antarcica
         land_mask = above_sea_level + below_sea_level * ice_mask
 
-        if ocean_includes_grounded_ice:
-            ocean_mask = below_sea_level
-        else:
-            grounded_mask = ds.grounded_mask
-            not_grounded = 1.0 - grounded_mask
-            # below sea level and not under grounded Antarctic ice
-            ocean_mask = below_sea_level * not_grounded
+        ocean_mask = self._get_ocean_mask(
+            base_elevation=base_elevation,
+            ice_mask=ice_mask,
+            grounded_mask=ds.grounded_mask,
+            convention=convention,
+        )
 
         return ocean_mask, land_mask
+
+    @staticmethod
+    def _get_antarctic_boundary_convention(config):
+        """
+        Get and validate the Antarctic boundary convention from config.
+        """
+        if not config.has_option(
+            'spherical_mesh', 'antarctic_boundary_convention'
+        ):
+            raise ValueError(
+                'Missing spherical_mesh.antarctic_boundary_convention '
+                'in remap topography config.'
+            )
+
+        convention = config.get(
+            'spherical_mesh', 'antarctic_boundary_convention'
+        )
+        if convention not in CONVENTIONS:
+            valid = ', '.join(CONVENTIONS)
+            raise ValueError(
+                f'Unexpected antarctic_boundary_convention {convention!r}. '
+                f'Valid options are: {valid}'
+            )
+        return convention
+
+    @staticmethod
+    def _get_ocean_mask(
+        base_elevation,
+        ice_mask,
+        grounded_mask,
+        convention,
+    ):
+        """
+        Get the ocean mask before remapping.
+        """
+        below_sea_level = (base_elevation < 0.0).astype(float)
+
+        if convention == 'calving_front':
+            return below_sea_level * (1.0 - ice_mask)
+
+        if convention == 'grounding_line':
+            return below_sea_level * (1.0 - grounded_mask)
+
+        if convention == 'bedrock_zero':
+            return below_sea_level
+
+        valid = ', '.join(CONVENTIONS)
+        raise ValueError(
+            f'Unexpected antarctic_boundary_convention {convention!r}. '
+            f'Valid options are: {valid}'
+        )
 
     def run(self):
         in_filename = 'topography.nc'
