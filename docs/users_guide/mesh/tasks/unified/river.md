@@ -53,8 +53,35 @@ The source-level workflow follows a staged simplification strategy:
 5. It identifies terminal basin roots from segments with `next_down == 0`.
 6. It traverses upstream from each terminal root to keep main stems and
    significant tributaries, preserving basin connectivity and confluence
-   structure. The retained segment metadata includes `outlet_hyriv_id` as
-   basin-root provenance for later catchment grouping.
+   structure. The retained segment metadata includes `outlet_hyriv_id`,
+   `outlet_drainage_area`, and `river_network_rank` for later catchment
+   grouping.
+
+The `river_simplify` step is not a line-geometry simplification step in the
+Douglas-Peucker sense. It is a graph simplification step: it keeps or prunes
+whole HydroRIVERS segments while preserving the retained `next_down`
+relationships. The algorithm builds an upstream adjacency map from the
+HydroRIVERS `next_down` field, validates that the retained graph is acyclic,
+and then traverses every terminal basin root. At each confluence, the upstream
+segment with the largest drainage area is kept as the primary branch. Other
+upstream branches are kept when they are large enough relative to that
+confluence's primary branch, or when they are farther than
+`branch_distance_tolerance` from the already-retained basin skeleton.
+
+This differs from the greedy reverse-search simplification in the standalone
+[`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh) reference
+workflow that is the inspiration for the Polaris implementation. The standalone
+workflow reconstructs one
+basin at a time with `pyrivergraph`, rebuilds stream segments and stream order,
+then mutates a per-basin R-tree of retained flowlines as it recursively searches
+upstream from each outlet. Nearby candidates are accepted, rejected, or in some
+cases replace smaller already-retained branches as that greedy search proceeds.
+Polaris instead uses the HydroRIVERS `next_down` topology directly, processes
+terminal basins independently, and applies a deterministic confluence-local
+selection rule without removing retained segments later in the traversal. This
+makes the implementation simpler to test and parallelize while preserving the
+same intent: retain the dominant main stems and significant, geographically
+separated tributaries at the mesh scale.
 
 The lat-lon workflow then turns the simplified network into target-grid
 products:
@@ -70,7 +97,13 @@ The source task writes:
 
 - `simplified_river_network.geojson`, the retained river segments and their
   basin-root metadata, with networks sorted largest-first by terminal-root
-  drainage area.
+  drainage area. Each feature includes:
+  - `outlet_hyriv_id`, the HydroRIVERS ID of the terminal-root segment for
+    that river network;
+  - `outlet_drainage_area`, the terminal-root drainage area in square meters;
+    and
+  - `river_network_rank`, a 1-based rank with `1` denoting the largest
+    retained river network for the current task configuration.
 
 The lat-lon task writes:
 
@@ -88,11 +121,55 @@ also writes:
 These clipped products are intended for the unified base-mesh workflow rather
 than the standalone inspection tasks.
 
+## Selecting individual river networks
+
+`simplified_river_network.geojson` contains all retained river networks in one
+GeoJSON feature collection. To inspect or export one network at a time, filter
+features by `river_network_rank` or by the stable `outlet_hyriv_id`.
+
+For example, this snippet writes the largest retained network to its own
+GeoJSON file:
+
+```python
+import json
+
+rank = 1
+
+with open('simplified_river_network.geojson', encoding='utf-8') as infile:
+    river_fc = json.load(infile)
+
+features = [
+    feature
+    for feature in river_fc['features']
+    if feature['properties']['river_network_rank'] == rank
+]
+
+network_fc = dict(
+    type='FeatureCollection',
+    features=features,
+    metadata=river_fc.get('metadata', {}),
+)
+
+with open(
+    f'river_network_rank_{rank:04d}.geojson',
+    'w',
+    encoding='utf-8',
+) as outfile:
+    json.dump(network_fc, outfile, indent=2, sort_keys=True)
+```
+
+To export the N largest networks as one combined file, use
+`feature['properties']['river_network_rank'] <= n`. To create one file per
+network, loop over the desired ranks and update the output filename in the
+example above.
+
 ## Configuration
 
 Each task links the shared `river_network.cfg` file and inherits the selected
-mesh's `unified_mesh` settings, including the target-grid resolution and
-coastline convention (see {ref}`users-mesh-unified-coastline`).
+mesh's `unified_mesh` settings, including the target-grid resolution. It also
+uses the shared `[spherical_mesh]` setting
+`antarctic_boundary_convention` when selecting the coastline product (see
+{ref}`users-mesh-unified-coastline`).
 
 The `[sizing_field]` section in each per-mesh config provides the resolution
 parameters used to auto-derive thresholds:
@@ -115,13 +192,17 @@ simplification:
 - `drainage_area_threshold`: minimum drainage area in square meters for
   retaining a source segment. The default value of `-1` signals
   auto-derivation from the `[sizing_field]` land resolution:
-  `drainage_area_threshold = land_background_km² × 1×10⁸ m²`
-  (100 grid cells at land resolution). For example, the 30 km ocean /
-  10 km land mesh uses `1.0×10¹⁰ m²` and the 240 km mesh uses
-  `5.76×10¹²  m²`. Override this in a per-mesh config to fix the
+  `drainage_area_threshold = land_background_km² ×`
+  `drainage_area_multiplier × 1×10⁶ m²`. For example, with the default
+  multiplier of 100, the 30 km ocean / 10 km land mesh uses
+  `1.0×10¹⁰ m²`; with its per-mesh multiplier of 10, the 240 km mesh uses
+  `5.76×10¹¹ m²`. Override this in a per-mesh config to fix the
   threshold explicitly. Reducing this value retains finer tributaries at
   the cost of a much larger, denser network; increasing it produces a
   sparser network containing only the largest river systems.
+- `drainage_area_multiplier`: number of land-grid-cell areas that must drain
+  to a point for auto-derived channel retention. This option is only used
+  when `drainage_area_threshold = -1`.
 - `branch_distance_tolerance`: geographic fallback distance used during
   upstream traversal. The default value of `-1` signals auto-derivation from
   the `[sizing_field]` river-channel resolution:
@@ -133,16 +214,16 @@ simplification:
   value, preserving geographically isolated branches that would otherwise
   be pruned on drainage-area grounds alone.
 - `tributary_area_ratio`: minimum ratio of tributary drainage area to
-  terminal-root drainage area for retaining a nearby tributary. At each
+  the primary branch drainage area at the current confluence. At each
   confluence, the upstream branch with the largest drainage area is
   always retained as the main stem. Each additional upstream branch is
   retained if its drainage area is at least this fraction of the
-  **terminal root's** drainage area. Strahler stream-order-1 headwater
-  tributaries skip this area check entirely and go straight to the
-  distance-based fallback (see `branch_distance_tolerance` above).
-  Branches that fail both tests are pruned. Lowering this ratio retains
-  more tributaries; raising it prunes all but the most significant
-  branches.
+  primary branch's drainage area. Branches that fail this area test are
+  still retained if they are far enough from the already-retained basin
+  skeleton to satisfy the distance-based fallback (see
+  `branch_distance_tolerance` above). Branches that fail both tests are
+  pruned. Lowering this ratio retains more tributaries; raising it prunes
+  all but the most significant branches.
 - `base_mesh_clip_distance_km`: inland clip distance in km applied when
   preparing base-mesh river products. The coastline dataset stores a
   signed-distance field that is negative inland and positive over the

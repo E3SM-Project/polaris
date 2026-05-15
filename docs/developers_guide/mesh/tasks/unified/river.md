@@ -85,8 +85,9 @@ contains the source-level retention logic. It builds canonical segments,
 validates downstream topology, and traverses upstream from all retained
 HydroRIVERS terminal segments while preserving main stems and significant
 tributaries. The resulting segment metadata keeps `outlet_hyriv_id` as
-basin-root provenance for future catchment grouping, but the step does not
-write separate outlet products.
+basin-root provenance for future catchment grouping, and adds
+`outlet_drainage_area` and `river_network_rank` so individual networks can be
+selected from the single GeoJSON output without default per-network files.
 
 The tributary-selection logic compares each non-primary tributary's drainage
 area against the **terminal root's** drainage area (not the primary upstream
@@ -97,7 +98,10 @@ fallback, consistent with the standalone's more aggressive headwater pruning.
 
 The internal `RiverSegment` dataclass is the canonical representation used by
 the simplification helpers. It is intentionally not exported as part of the
-public API.
+public API. `read_river_segments_from_feature_collection()` and
+`river_segments_to_feature_collection()` preserve `outlet_hyriv_id`,
+`outlet_drainage_area`, and `river_network_rank` during GeoJSON round trips,
+and `ClipRiverNetworkStep` carries these fields through coastline conditioning.
 
 ### `rasterize.py`
 
@@ -154,13 +158,15 @@ combines:
 value `-1`, reads `land_background_km` and `river_channel_km` from
 `[sizing_field]` to derive the threshold values automatically.
 
-`RasterizeRiverLatLonStep` consumes `[river_rasterize]` options and also reads the
-selected `unified_mesh` settings such as `mesh_name`, `resolution_latlon`,
-and `coastline_convention`.
+`RasterizeRiverLatLonStep` consumes `[river_rasterize]` options and also reads
+the selected `unified_mesh` settings such as `mesh_name` and
+`resolution_latlon`.
+It reads `antarctic_boundary_convention` from `[spherical_mesh]` when selecting
+the coastline product.
 
 `ClipRiverNetworkStep` consumes `[river_network]` and `unified_mesh`
-settings, and currently reads the Antarctic coastline convention from the
-`[spherical_mesh]` section when selecting the coastline product for clipping.
+settings, and also reads `antarctic_boundary_convention` from
+`[spherical_mesh]` when selecting the coastline product for clipping.
 
 `VizRiverStep` consumes `[viz_river_network].dpi`.
 
