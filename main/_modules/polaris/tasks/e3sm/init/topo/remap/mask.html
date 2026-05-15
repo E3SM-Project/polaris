@@ -114,6 +114,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.coastline</span><span class="w"> </span><span class="kn">import</span> <span class="n">CONVENTIONS</span>
 
 
 <div class="viewcode-block" id="MaskTopoStep">
@@ -184,11 +185,11 @@
 <span class="sd">        and 1, where 1 indicates the cell is fully covered by land or ocean,</span>
 <span class="sd">        respectively.</span>
 
-<span class="sd">        The default implementation sets the ocean mask to locations where the</span>
-<span class="sd">        base elevation is less than 0 and the Antarctic ice sheet is not</span>
-<span class="sd">        grounded, and the land mask to locations where the base elevation is</span>
-<span class="sd">        greater than 0 or the Antarctic ice sheet is present.  The two overlap</span>
-<span class="sd">        for Antarctic ice shelves, which are included in both masks.</span>
+<span class="sd">        The default implementation sets the ocean mask based on</span>
+<span class="sd">        ``antarctic_boundary_convention`` and the land mask to locations where</span>
+<span class="sd">        the base elevation is greater than 0 or the Antarctic ice sheet is</span>
+<span class="sd">        present. The two overlap for Antarctic ice shelves, which are included</span>
+<span class="sd">        in both masks.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -204,11 +205,7 @@
 <span class="sd">            The mask array with the same shape as the topography fields</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;mask_topography&#39;</span><span class="p">]</span>
-        <span class="n">ocean_includes_grounded_ice</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
-            <span class="s1">&#39;ocean_includes_grounded_ice&#39;</span>
-        <span class="p">)</span>
-        <span class="c1"># Default implementation</span>
+        <span class="n">convention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_antarctic_boundary_convention</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="n">base_elevation</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">base_elevation</span>
         <span class="n">ice_mask</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">ice_mask</span>
 
@@ -218,16 +215,66 @@
         <span class="c1"># above sea level or below sea leve but part of Antarcica</span>
         <span class="n">land_mask</span> <span class="o">=</span> <span class="n">above_sea_level</span> <span class="o">+</span> <span class="n">below_sea_level</span> <span class="o">*</span> <span class="n">ice_mask</span>
 
-        <span class="k">if</span> <span class="n">ocean_includes_grounded_ice</span><span class="p">:</span>
-            <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">below_sea_level</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">grounded_mask</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">grounded_mask</span>
-            <span class="n">not_grounded</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">grounded_mask</span>
-            <span class="c1"># below sea level and not under grounded Antarctic ice</span>
-            <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">below_sea_level</span> <span class="o">*</span> <span class="n">not_grounded</span>
+        <span class="n">ocean_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ocean_mask</span><span class="p">(</span>
+            <span class="n">base_elevation</span><span class="o">=</span><span class="n">base_elevation</span><span class="p">,</span>
+            <span class="n">ice_mask</span><span class="o">=</span><span class="n">ice_mask</span><span class="p">,</span>
+            <span class="n">grounded_mask</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">grounded_mask</span><span class="p">,</span>
+            <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">ocean_mask</span><span class="p">,</span> <span class="n">land_mask</span></div>
 
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_antarctic_boundary_convention</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get and validate the Antarctic boundary convention from config.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span>
+            <span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;antarctic_boundary_convention&#39;</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Missing spherical_mesh.antarctic_boundary_convention &#39;</span>
+                <span class="s1">&#39;in remap topography config.&#39;</span>
+            <span class="p">)</span>
+
+        <span class="n">convention</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;antarctic_boundary_convention&#39;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">convention</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">CONVENTIONS</span><span class="p">:</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CONVENTIONS</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Unexpected antarctic_boundary_convention </span><span class="si">{</span><span class="n">convention</span><span class="si">!r}</span><span class="s1">. &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;Valid options are: </span><span class="si">{</span><span class="n">valid</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">convention</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_ocean_mask</span><span class="p">(</span>
+        <span class="n">base_elevation</span><span class="p">,</span>
+        <span class="n">ice_mask</span><span class="p">,</span>
+        <span class="n">grounded_mask</span><span class="p">,</span>
+        <span class="n">convention</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the ocean mask before remapping.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">below_sea_level</span> <span class="o">=</span> <span class="p">(</span><span class="n">base_elevation</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">convention</span> <span class="o">==</span> <span class="s1">&#39;calving_front&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">below_sea_level</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">ice_mask</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">convention</span> <span class="o">==</span> <span class="s1">&#39;grounding_line&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">below_sea_level</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">grounded_mask</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">convention</span> <span class="o">==</span> <span class="s1">&#39;bedrock_zero&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">below_sea_level</span>
+
+        <span class="n">valid</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CONVENTIONS</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Unexpected antarctic_boundary_convention </span><span class="si">{</span><span class="n">convention</span><span class="si">!r}</span><span class="s1">. &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;Valid options are: </span><span class="si">{</span><span class="n">valid</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="MaskTopoStep.run">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.run.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.run">[docs]</a>

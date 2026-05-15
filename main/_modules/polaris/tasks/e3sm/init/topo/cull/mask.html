@@ -661,20 +661,17 @@
 
         <span class="n">ds_topo</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;topography_unsmoothed.nc&#39;</span><span class="p">)</span>
         <span class="n">land_ice_frac</span> <span class="o">=</span> <span class="n">ds_topo</span><span class="o">.</span><span class="n">ice_frac</span>
-        <span class="n">land_ice_present</span> <span class="o">=</span> <span class="n">land_ice_frac</span> <span class="o">&gt;</span> <span class="n">land_ice_min_fraction</span>
 
         <span class="n">ds_ocean_cull_mask</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;ocean_cull_mask.nc&#39;</span><span class="p">)</span>
         <span class="n">ocean_cull_mask</span> <span class="o">=</span> <span class="n">ds_ocean_cull_mask</span><span class="o">.</span><span class="n">oceanCullMask</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
-        <span class="n">lat_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">ds_base_mesh</span><span class="o">.</span><span class="n">latCell</span><span class="p">)</span>
-        <span class="n">antarctic_not_ocean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
-            <span class="n">ocean_cull_mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">lat_cell</span> <span class="o">&lt;</span> <span class="n">land_ice_max_latitude</span>
+        <span class="n">land_ice_present</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_antarctic_land_ice_ownership</span><span class="p">(</span>
+            <span class="n">ds_topo</span><span class="o">=</span><span class="n">ds_topo</span><span class="p">,</span>
+            <span class="n">ocean_cull_mask</span><span class="o">=</span><span class="n">ocean_cull_mask</span><span class="p">,</span>
+            <span class="n">lat_cell</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">ds_base_mesh</span><span class="o">.</span><span class="n">latCell</span><span class="p">),</span>
+            <span class="n">land_ice_max_latitude</span><span class="o">=</span><span class="n">land_ice_max_latitude</span><span class="p">,</span>
+            <span class="n">land_ice_min_fraction</span><span class="o">=</span><span class="n">land_ice_min_fraction</span><span class="p">,</span>
         <span class="p">)</span>
-
-        <span class="c1"># include areas we&#39;re culling from the ocean that are south of</span>
-        <span class="c1"># land_ice_max_latitude -- if it&#39;s not ocean, it&#39;s land ice.  This</span>
-        <span class="c1"># should also take care of critical transects</span>
-        <span class="n">land_ice_present</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">land_ice_present</span><span class="p">,</span> <span class="n">antarctic_not_ocean</span><span class="p">)</span>
 
         <span class="c1"># flood fill the land ice mask from the south pole</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Flood filling land ice mask from south pole.&#39;</span><span class="p">)</span>
@@ -822,7 +819,24 @@
         <span class="n">ds_masks</span><span class="p">[</span><span class="s1">&#39;landIceMask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_land_ice_mask</span><span class="o">.</span><span class="n">landIceMask</span>
 
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_masks</span><span class="p">,</span> <span class="s1">&#39;cull_masks.nc&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Wrote cull_masks.nc.&#39;</span><span class="p">)</span></div>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Wrote cull_masks.nc.&#39;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_antarctic_land_ice_ownership</span><span class="p">(</span>
+        <span class="n">ds_topo</span><span class="p">,</span>
+        <span class="n">ocean_cull_mask</span><span class="p">,</span>
+        <span class="n">lat_cell</span><span class="p">,</span>
+        <span class="n">land_ice_max_latitude</span><span class="p">,</span>
+        <span class="n">land_ice_min_fraction</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine Antarctic cells that should be owned by land ice.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">land_ice_present</span> <span class="o">=</span> <span class="n">ds_topo</span><span class="o">.</span><span class="n">ice_frac</span> <span class="o">&gt;</span> <span class="n">land_ice_min_fraction</span>
+        <span class="n">antarctic_not_ocean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+            <span class="n">ocean_cull_mask</span><span class="p">,</span> <span class="n">lat_cell</span> <span class="o">&lt;</span> <span class="n">land_ice_max_latitude</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">land_ice_present</span><span class="p">,</span> <span class="n">antarctic_not_ocean</span><span class="p">)</span></div>
 
 </pre></div>
 

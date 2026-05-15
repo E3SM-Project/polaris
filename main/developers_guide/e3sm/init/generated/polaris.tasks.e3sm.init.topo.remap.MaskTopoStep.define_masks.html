@@ -137,11 +137,11 @@ with the same shape as <code class="docutils literal notranslate"><span class="p
 fields.  The masks are floating point arrays with values between 0
 and 1, where 1 indicates the cell is fully covered by land or ocean,
 respectively.</p>
-<p>The default implementation sets the ocean mask to locations where the
-base elevation is less than 0 and the Antarctic ice sheet is not
-grounded, and the land mask to locations where the base elevation is
-greater than 0 or the Antarctic ice sheet is present.  The two overlap
-for Antarctic ice shelves, which are included in both masks.</p>
+<p>The default implementation sets the ocean mask based on
+<code class="docutils literal notranslate"><span class="pre">antarctic_boundary_convention</span></code> and the land mask to locations where
+the base elevation is greater than 0 or the Antarctic ice sheet is
+present. The two overlap for Antarctic ice shelves, which are included
+in both masks.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.4.0)"><em>xarray.Dataset</em></a>) – The dataset containing the topography fields</p>

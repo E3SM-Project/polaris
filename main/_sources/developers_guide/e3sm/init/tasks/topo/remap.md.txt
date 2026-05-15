@@ -31,20 +31,32 @@ The typical dependency chain is:
 
 ## Configuration Options
 
-The remapping steps are configured through the `[remap_topography]` section in
-the configuration file. Key options include:
+The remapping steps are configured through the shared `[spherical_mesh]`
+section and the `[remap_topography]` section in the configuration file. Key
+options include:
 
+- `antarctic_boundary_convention`: Antarctic boundary convention used when
+  masking the combined topography before remapping. Supported values are
+  `calving_front`, `grounding_line`, and `bedrock_zero`.
 - `ntasks` and `min_tasks`: Number of MPI tasks for remapping.
 - `renorm_threshold`: Fractional threshold for renormalizing elevation variables.
 - `expand_distance` and `expand_factor`: Smoothing parameters (set to 0 and 1 for no smoothing).
 - Additional options for visualization colormaps and normalization.
+
+The Antarctic boundary convention controls which below-sea-level Antarctic
+cells are treated as ocean before remapping. `calving_front` excludes all
+ice-covered cells from the ocean mask, `grounding_line` excludes grounded ice
+but includes ice shelves, and `bedrock_zero` treats all below-sea-level
+bedrock as ocean.
 
 For the low-resolution version, additional configuration options are provided
 in the `remap_low_res.cfg` file.
 
 ## Workflow
 
-1. **Masking**: The `MaskTopoStep` applies land and ocean masks to the combined topography dataset, producing masked fields and fractional coverage variables.
+1. **Masking**: The `MaskTopoStep` applies convention-aware land and ocean
+   masks to the combined topography dataset, producing masked fields and
+   fractional coverage variables.
 2. **Remapping**: The `RemapTopoStep` remaps the masked topography fields to the MPAS mesh. If smoothing is enabled, both unsmoothed and smoothed steps are created, with the smoothed step depending on the unsmoothed output.
 3. **Smoothing**: Smoothing parameters are controlled via configuration. If no smoothing is requested, the smoothed step simply symlinks the unsmoothed results.
 4. **Visualization**: The `VizRemappedTopoStep` can be added to plot each remapped field using configuration-driven colormaps and normalization.

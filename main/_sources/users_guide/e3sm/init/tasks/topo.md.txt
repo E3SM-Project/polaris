@@ -78,12 +78,13 @@ normalization settings.
 
 ### Remap Tasks
 
-Remap tasks use the `[mask_topography]` and `[remap_topography]` sections.
+Remap tasks use the shared `[spherical_mesh]` section together with
+`[remap_topography]`.
 
 Common user-tunable options are:
 
-- `ocean_includes_grounded_ice`: Whether grounded Antarctic ice is treated as
-	part of the ocean mask.
+- `antarctic_boundary_convention`: Antarctic coastline convention used to
+	mask topography before remapping.
 - `description`: Metadata description written to the remapped product.
 - `ntasks` and `min_tasks`: Target and minimum MPI task counts for remapping.
 - `renorm_threshold`: Minimum land or ocean area fraction required before

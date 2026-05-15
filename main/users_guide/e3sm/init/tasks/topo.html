@@ -195,11 +195,12 @@ normalization settings.</p>
 </section>
 <section id="remap-tasks">
 <h3>Remap Tasks<a class="headerlink" href="#remap-tasks" title="Link to this heading"></a></h3>
-<p>Remap tasks use the <code class="docutils literal notranslate"><span class="pre">[mask_topography]</span></code> and <code class="docutils literal notranslate"><span class="pre">[remap_topography]</span></code> sections.</p>
+<p>Remap tasks use the shared <code class="docutils literal notranslate"><span class="pre">[spherical_mesh]</span></code> section together with
+<code class="docutils literal notranslate"><span class="pre">[remap_topography]</span></code>.</p>
 <p>Common user-tunable options are:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">ocean_includes_grounded_ice</span></code>: Whether grounded Antarctic ice is treated as
-part of the ocean mask.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">antarctic_boundary_convention</span></code>: Antarctic coastline convention used to
+mask topography before remapping.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">description</span></code>: Metadata description written to the remapped product.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>: Target and minimum MPI task counts for remapping.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">renorm_threshold</span></code>: Minimum land or ocean area fraction required before

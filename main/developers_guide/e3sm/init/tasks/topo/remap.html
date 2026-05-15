@@ -155,21 +155,32 @@ simulations.</p>
 </section>
 <section id="configuration-options">
 <h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Link to this heading"></a></h2>
-<p>The remapping steps are configured through the <code class="docutils literal notranslate"><span class="pre">[remap_topography]</span></code> section in
-the configuration file. Key options include:</p>
+<p>The remapping steps are configured through the shared <code class="docutils literal notranslate"><span class="pre">[spherical_mesh]</span></code>
+section and the <code class="docutils literal notranslate"><span class="pre">[remap_topography]</span></code> section in the configuration file. Key
+options include:</p>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">antarctic_boundary_convention</span></code>: Antarctic boundary convention used when
+masking the combined topography before remapping. Supported values are
+<code class="docutils literal notranslate"><span class="pre">calving_front</span></code>, <code class="docutils literal notranslate"><span class="pre">grounding_line</span></code>, and <code class="docutils literal notranslate"><span class="pre">bedrock_zero</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>: Number of MPI tasks for remapping.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">renorm_threshold</span></code>: Fractional threshold for renormalizing elevation variables.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">expand_distance</span></code> and <code class="docutils literal notranslate"><span class="pre">expand_factor</span></code>: Smoothing parameters (set to 0 and 1 for no smoothing).</p></li>
 <li><p>Additional options for visualization colormaps and normalization.</p></li>
 </ul>
+<p>The Antarctic boundary convention controls which below-sea-level Antarctic
+cells are treated as ocean before remapping. <code class="docutils literal notranslate"><span class="pre">calving_front</span></code> excludes all
+ice-covered cells from the ocean mask, <code class="docutils literal notranslate"><span class="pre">grounding_line</span></code> excludes grounded ice
+but includes ice shelves, and <code class="docutils literal notranslate"><span class="pre">bedrock_zero</span></code> treats all below-sea-level
+bedrock as ocean.</p>
 <p>For the low-resolution version, additional configuration options are provided
 in the <code class="docutils literal notranslate"><span class="pre">remap_low_res.cfg</span></code> file.</p>
 </section>
 <section id="workflow">
 <h2>Workflow<a class="headerlink" href="#workflow" title="Link to this heading"></a></h2>
 <ol class="arabic simple">
-<li><p><strong>Masking</strong>: The <code class="docutils literal notranslate"><span class="pre">MaskTopoStep</span></code> applies land and ocean masks to the combined topography dataset, producing masked fields and fractional coverage variables.</p></li>
+<li><p><strong>Masking</strong>: The <code class="docutils literal notranslate"><span class="pre">MaskTopoStep</span></code> applies convention-aware land and ocean
+masks to the combined topography dataset, producing masked fields and
+fractional coverage variables.</p></li>
 <li><p><strong>Remapping</strong>: The <code class="docutils literal notranslate"><span class="pre">RemapTopoStep</span></code> remaps the masked topography fields to the MPAS mesh. If smoothing is enabled, both unsmoothed and smoothed steps are created, with the smoothed step depending on the unsmoothed output.</p></li>
 <li><p><strong>Smoothing</strong>: Smoothing parameters are controlled via configuration. If no smoothing is requested, the smoothed step simply symlinks the unsmoothed results.</p></li>
 <li><p><strong>Visualization</strong>: The <code class="docutils literal notranslate"><span class="pre">VizRemappedTopoStep</span></code> can be added to plot each remapped field using configuration-driven colormaps and normalization.</p></li>

@@ -51,6 +51,10 @@ The culling steps are configured through the `[cull_mesh]` section in the config
 
 See `cull.cfg` for the full set of options.
 
+The Antarctic land-ice ownership mask also includes southern cells that have
+already been removed from the open-ocean cull mask, so the cull workflow
+remains consistent with the remapped topography masks.
+
 ## Workflow
 
 1. **Mask Generation**: The `CullMaskStep` creates masks for ocean, ocean
