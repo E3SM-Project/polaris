@@ -120,5 +120,5 @@ Omega:
         - State
         - KineticEnergyCell
         - SpecVol
-        - BottomDepth
+        - BottomGeomDepth
         - SshCell

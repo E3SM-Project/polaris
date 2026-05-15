@@ -43,6 +43,6 @@ Omega:
       - SpecVol
       - GeopotentialMid
       - NormalVelocityTend
-      - BottomDepth
+      - BottomGeomDepth
       - MinLayerCell
       - MaxLayerCell
