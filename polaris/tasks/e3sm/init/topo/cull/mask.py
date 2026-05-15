@@ -524,20 +524,17 @@ class CullMaskStep(Step):
 
         ds_topo = xr.open_dataset('topography_unsmoothed.nc')
         land_ice_frac = ds_topo.ice_frac
-        land_ice_present = land_ice_frac > land_ice_min_fraction
 
         ds_ocean_cull_mask = xr.open_dataset('ocean_cull_mask.nc')
         ocean_cull_mask = ds_ocean_cull_mask.oceanCullMask > 0
 
-        lat_cell = np.degrees(ds_base_mesh.latCell)
-        antarctic_not_ocean = np.logical_and(
-            ocean_cull_mask > 0, lat_cell < land_ice_max_latitude
+        land_ice_present = self._antarctic_land_ice_ownership(
+            ds_topo=ds_topo,
+            ocean_cull_mask=ocean_cull_mask,
+            lat_cell=np.degrees(ds_base_mesh.latCell),
+            land_ice_max_latitude=land_ice_max_latitude,
+            land_ice_min_fraction=land_ice_min_fraction,
         )
-
-        # include areas we're culling from the ocean that are south of
-        # land_ice_max_latitude -- if it's not ocean, it's land ice.  This
-        # should also take care of critical transects
-        land_ice_present = np.logical_or(land_ice_present, antarctic_not_ocean)
 
         # flood fill the land ice mask from the south pole
         logger.info('Flood filling land ice mask from south pole.')
@@ -686,3 +683,20 @@ class CullMaskStep(Step):
 
         write_netcdf(ds_masks, 'cull_masks.nc')
         logger.info('Wrote cull_masks.nc.')
+
+    @staticmethod
+    def _antarctic_land_ice_ownership(
+        ds_topo,
+        ocean_cull_mask,
+        lat_cell,
+        land_ice_max_latitude,
+        land_ice_min_fraction,
+    ):
+        """
+        Determine Antarctic cells that should be owned by land ice.
+        """
+        land_ice_present = ds_topo.ice_frac > land_ice_min_fraction
+        antarctic_not_ocean = np.logical_and(
+            ocean_cull_mask, lat_cell < land_ice_max_latitude
+        )
+        return np.logical_or(land_ice_present, antarctic_not_ocean)

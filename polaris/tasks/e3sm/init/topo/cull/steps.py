@@ -48,6 +48,16 @@ def get_default_cull_topo_steps(
     )
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package('polaris.tasks.e3sm.init.topo.cull', 'cull.cfg')
+    config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
+    convention = base_mesh_step.config.get(
+        'spherical_mesh', 'antarctic_boundary_convention'
+    )
+    config.set(
+        'spherical_mesh',
+        'antarctic_boundary_convention',
+        convention,
+    )
+
     steps: dict[str, Step] = {}
 
     step_name = 'cull_mask'
