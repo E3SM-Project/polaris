@@ -445,7 +445,7 @@ def test_condition_base_mesh_river_segments_clips_then_simplifies():
     assert segments[0].river_network_rank == 1
 
 
-def test_condition_base_mesh_river_segments_drops_short_fragments():
+def test_condition_base_mesh_river_segments_keeps_short_fragments():
     ds_coastline = xr.Dataset(
         data_vars=dict(
             ocean_mask=(('lat', 'lon'), np.zeros((2, 3), dtype=np.int8)),
@@ -453,8 +453,8 @@ def test_condition_base_mesh_river_segments_drops_short_fragments():
                 ('lat', 'lon'),
                 np.array(
                     [
-                        [1.0e5, -1.0e4, 1.0e5],
-                        [1.0e5, -1.0e4, 1.0e5],
+                        [1.0e5, -1.0e5, 1.0e5],
+                        [1.0e5, -1.0e5, 1.0e5],
                     ]
                 ),
             ),
@@ -485,7 +485,144 @@ def test_condition_base_mesh_river_segments_drops_short_fragments():
         min_segment_length_m=200.0e3,
     )
 
-    assert segments == []
+    assert len(segments) == 1
+    coords = np.asarray(segments[0].geometry.coords)
+    assert 0.0 < coords[0, 0] < 1.0
+    assert 1.0 < coords[-1, 0] < 2.0
+
+
+def test_condition_base_mesh_river_segments_keeps_reentry_pieces():
+    ds_coastline = xr.Dataset(
+        data_vars=dict(
+            ocean_mask=(('lat', 'lon'), np.zeros((2, 6), dtype=np.int8)),
+            signed_distance=(
+                ('lat', 'lon'),
+                np.array(
+                    [
+                        [-1.0e5, 1.0e5, -1.0e5, 1.0e5, -1.0e5, -1.0e5],
+                        [-1.0e5, 1.0e5, -1.0e5, 1.0e5, -1.0e5, -1.0e5],
+                    ]
+                ),
+            ),
+        ),
+        coords=dict(
+            lat=xr.DataArray(np.array([-5.0, 5.0]), dims=('lat',)),
+            lon=xr.DataArray(
+                np.array([0.0, 1.0, 2.0, 3.0, 4.0, 5.0]),
+                dims=('lon',),
+            ),
+        ),
+    )
+    river_fc = dict(
+        type='FeatureCollection',
+        features=[
+            _line_feature(
+                hyriv_id=10,
+                coords=[(0.0, 0.0), (5.0, 0.0)],
+                next_down=0,
+                drainage_area=100.0e6,
+                endorheic=0,
+            )
+        ],
+    )
+
+    segments = condition_base_mesh_river_segments(
+        segments=read_river_segments_from_feature_collection(river_fc),
+        ds_coastline=ds_coastline,
+        clip_distance_m=20.0e3,
+        simplify_tolerance_deg=0.0,
+        min_segment_length_m=1.0e9,
+    )
+
+    assert len(segments) == 3
+    assert {segment.hyriv_id for segment in segments} == {10}
+
+
+def test_condition_base_mesh_river_segments_densifies_before_clipping():
+    ds_coastline = xr.Dataset(
+        data_vars=dict(
+            ocean_mask=(('lat', 'lon'), np.zeros((2, 5), dtype=np.int8)),
+            signed_distance=(
+                ('lat', 'lon'),
+                np.array(
+                    [
+                        [1.0e5, 1.0e5, -1.0e5, 1.0e5, 1.0e5],
+                        [1.0e5, 1.0e5, -1.0e5, 1.0e5, 1.0e5],
+                    ]
+                ),
+            ),
+        ),
+        coords=dict(
+            lat=xr.DataArray(np.array([-5.0, 5.0]), dims=('lat',)),
+            lon=xr.DataArray(
+                np.array([0.0, 1.0, 2.0, 3.0, 4.0]), dims=('lon',)
+            ),
+        ),
+    )
+    river_fc = dict(
+        type='FeatureCollection',
+        features=[
+            _line_feature(
+                hyriv_id=20,
+                coords=[(0.0, 0.0), (4.0, 0.0)],
+                next_down=0,
+                drainage_area=100.0e6,
+                endorheic=0,
+            )
+        ],
+    )
+
+    segments = condition_base_mesh_river_segments(
+        segments=read_river_segments_from_feature_collection(river_fc),
+        ds_coastline=ds_coastline,
+        clip_distance_m=20.0e3,
+        simplify_tolerance_deg=0.0,
+        min_segment_length_m=1.0e9,
+    )
+
+    assert len(segments) == 1
+    coords = np.asarray(segments[0].geometry.coords)
+    assert 1.0 < coords[0, 0] < 2.0
+    assert 2.0 < coords[-1, 0] < 3.0
+
+
+def test_condition_base_mesh_river_segments_simplify_fallback_keeps_geometry():
+    ds_coastline = xr.Dataset(
+        data_vars=dict(
+            ocean_mask=(('lat', 'lon'), np.zeros((2, 3), dtype=np.int8)),
+            signed_distance=(
+                ('lat', 'lon'),
+                np.full((2, 3), -1.0e5),
+            ),
+        ),
+        coords=dict(
+            lat=xr.DataArray(np.array([-5.0, 5.0]), dims=('lat',)),
+            lon=xr.DataArray(np.array([0.0, 0.1, 0.2]), dims=('lon',)),
+        ),
+    )
+    river_fc = dict(
+        type='FeatureCollection',
+        features=[
+            _line_feature(
+                hyriv_id=30,
+                coords=[(0.0, 0.0), (0.1, 0.01), (0.2, 0.0)],
+                next_down=0,
+                drainage_area=100.0e6,
+                endorheic=0,
+            )
+        ],
+    )
+
+    segments = condition_base_mesh_river_segments(
+        segments=read_river_segments_from_feature_collection(river_fc),
+        ds_coastline=ds_coastline,
+        clip_distance_m=20.0e3,
+        simplify_tolerance_deg=10.0,
+        min_segment_length_m=1.0e9,
+    )
+
+    assert len(segments) == 1
+    assert len(segments[0].geometry.coords) >= 2
 
 
 def test_unpack_hydrorivers_archive(tmp_path):
