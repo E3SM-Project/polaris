@@ -8,6 +8,9 @@ import xarray as xr
 from matplotlib.lines import Line2D
 from shapely.geometry import LineString, MultiLineString, box, shape
 
+from polaris.mesh.spherical.unified.river.distance import (
+    haversine_distance,
+)
 from polaris.mesh.spherical.unified.river.geojson import read_geojson
 from polaris.step import Step
 from polaris.viz import use_mplstyle
@@ -108,8 +111,10 @@ class VizRiverStep(Step):
         Run this step.
         """
         use_mplstyle()
+        config = self.config
 
-        dpi = self.config['viz_river_network'].getint('dpi')
+        dpi = config['viz_river_network'].getint('dpi')
+        mesh_name = config['unified_mesh'].get('mesh_name')
 
         simplified_fc = read_geojson('simplified_river_network.geojson')
         clipped_fc = read_geojson('clipped_river_network.geojson')
@@ -130,6 +135,7 @@ class VizRiverStep(Step):
             ocean_mask=ocean_mask,
             simplified_fc=simplified_fc,
             clipped_fc=clipped_fc,
+            mesh_name=mesh_name,
             dpi=dpi,
             out_filename='river_network_overlay.png',
         )
@@ -137,6 +143,7 @@ class VizRiverStep(Step):
             lon=lon,
             lat=lat,
             river_channel_mask=river_channel_mask,
+            mesh_name=mesh_name,
             dpi=dpi,
             out_filename='rasterized_river_network.png',
         )
@@ -156,6 +163,7 @@ class VizRiverStep(Step):
         ocean_mask,
         simplified_fc,
         clipped_fc,
+        mesh_name,
         dpi,
         out_filename,
     ):
@@ -183,12 +191,12 @@ class VizRiverStep(Step):
                 ax=current_ax,
                 feature_collection=clipped_fc,
                 color=CLIPPED_COLOR,
-                lw=0.9,
-                alpha=0.95,
+                lw=1.1,
+                alpha=1.0,
                 zorder=3,
             )
         _add_figure_legend(fig=fig, handles=_get_overlay_legend_handles())
-        ax.set_title('Simplified and clipped river networks')
+        ax.set_title(f'{mesh_name}: Simplified and clipped river networks')
         fig.savefig(out_filename, bbox_inches='tight')
         plt.close(fig)
 
@@ -197,6 +205,7 @@ class VizRiverStep(Step):
         lon,
         lat,
         river_channel_mask,
+        mesh_name,
         dpi,
         out_filename,
     ):
@@ -206,7 +215,8 @@ class VizRiverStep(Step):
         fig = plt.figure(figsize=(11.0, 5.0), dpi=dpi)
         ax = plt.axes(projection=ccrs.PlateCarree())
         ax.set_global()
-        channel = np.where(river_channel_mask, 1.0, np.nan)
+        plot_mask, stride = _aggregate_mask_for_plot(river_channel_mask)
+        channel = np.where(plot_mask, 1.0, np.nan)
         ax.imshow(
             channel,
             origin='lower',
@@ -216,7 +226,10 @@ class VizRiverStep(Step):
             interpolation='nearest',
         )
         ax.coastlines(linewidth=0.45, color=COAST_COLOR)
-        ax.set_title('Rasterized river-channel mask')
+        title = f'{mesh_name}: Rasterized river mask'
+        if stride > 1:
+            title = f'{title} (max-aggregated {stride}x)'
+        ax.set_title(title)
         fig.savefig(out_filename, bbox_inches='tight')
         plt.close(fig)
 
@@ -231,7 +244,7 @@ def _setup_axes_with_inset(dpi):
     ax.coastlines(linewidth=0.45, color=COAST_COLOR)
 
     inset_ax = fig.add_axes(
-        [0.73, 0.17, 0.24, 0.28], projection=ccrs.PlateCarree()
+        [0.63, 0.17, 0.34, 0.38], projection=ccrs.PlateCarree()
     )
     inset_ax.set_extent(CONUS_EXTENT, crs=ccrs.PlateCarree())
     inset_ax.coastlines(linewidth=0.45, color=COAST_COLOR)
@@ -341,14 +354,15 @@ def _get_overlay_legend_handles():
             [0],
             [0],
             color=SIMPLIFIED_COLOR,
-            linewidth=1.4,
+            linewidth=1.0,
+            alpha=0.5,
             label='Simplified river network',
         ),
         Line2D(
             [0],
             [0],
             color=CLIPPED_COLOR,
-            linewidth=1.4,
+            linewidth=1.8,
             label='Clipped river network',
         ),
     ]
@@ -390,6 +404,66 @@ def _compute_edges(values):
     return np.concatenate(([first], midpoints, [last]))
 
 
+def _aggregate_mask_for_plot(mask, max_rows=1000, max_cols=2200):
+    """
+    Max-aggregate a dense mask so thin channels survive PNG downsampling.
+    """
+    row_stride = int(np.ceil(mask.shape[0] / max_rows))
+    col_stride = int(np.ceil(mask.shape[1] / max_cols))
+    stride = max(1, row_stride, col_stride)
+    if stride == 1:
+        return mask, stride
+
+    n_rows = int(np.ceil(mask.shape[0] / stride))
+    n_cols = int(np.ceil(mask.shape[1] / stride))
+    padded = np.zeros((n_rows * stride, n_cols * stride), dtype=bool)
+    padded[: mask.shape[0], : mask.shape[1]] = mask
+    aggregated = padded.reshape(n_rows, stride, n_cols, stride).max(
+        axis=(1, 3)
+    )
+    return aggregated, stride
+
+
+def _get_feature_ids(feature_collection):
+    """
+    Get HydroRIVERS IDs from a feature collection.
+    """
+    return {
+        feature['properties'].get('hyriv_id')
+        for feature in feature_collection['features']
+    }
+
+
+def _get_total_length_km(feature_collection):
+    """
+    Get total line length in a feature collection in kilometres.
+    """
+    total_length_m = 0.0
+    for feature in feature_collection['features']:
+        geom = shape(feature['geometry'])
+        if isinstance(geom, LineString):
+            line_geometries = [geom]
+        elif isinstance(geom, MultiLineString):
+            line_geometries = list(geom.geoms)
+        else:
+            continue
+        for line in line_geometries:
+            coords = np.asarray(line.coords, dtype=float)
+            if coords.shape[0] < 2:
+                continue
+            total_length_m += float(
+                np.sum(
+                    haversine_distance(
+                        coords[:-1, 0],
+                        coords[:-1, 1],
+                        coords[1:, 0],
+                        coords[1:, 1],
+                    )
+                )
+            )
+    return 1.0e-3 * total_length_m
+
+
 def _write_summary(
     filename,
     simplified_fc,
@@ -401,6 +475,9 @@ def _write_summary(
     """
     simplified_segments = len(simplified_fc['features'])
     clipped_segments = len(clipped_fc['features'])
+    simplified_ids = _get_feature_ids(simplified_fc)
+    clipped_ids = _get_feature_ids(clipped_fc)
+    dropped_ids = simplified_ids - clipped_ids
     drainage_areas = [
         feature['properties']['drainage_area']
         for feature in simplified_fc['features']
@@ -410,9 +487,20 @@ def _write_summary(
         summary.write('=========================\n\n')
         summary.write(f'Simplified segments: {simplified_segments}\n')
         summary.write(f'Clipped segments: {clipped_segments}\n')
+        summary.write(f'Simplified unique hyriv_id: {len(simplified_ids)}\n')
+        summary.write(f'Clipped unique hyriv_id: {len(clipped_ids)}\n')
+        summary.write(f'Dropped unique hyriv_id: {len(dropped_ids)}\n')
         summary.write(
             'Segments removed by clipping: '
             f'{simplified_segments - clipped_segments}\n'
+        )
+        summary.write(
+            'Simplified total length (km): '
+            f'{_get_total_length_km(simplified_fc):.1f}\n'
+        )
+        summary.write(
+            'Clipped total length (km): '
+            f'{_get_total_length_km(clipped_fc):.1f}\n'
         )
         summary.write(
             f'Rasterized channel cells: {int(np.sum(river_channel_mask))}\n'

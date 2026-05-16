@@ -5,9 +5,6 @@ import xarray as xr
 from mpas_tools.mesh.interpolation import interp_bilin
 from shapely.geometry import LineString
 
-from polaris.mesh.spherical.unified.river.distance import (
-    haversine_distance,
-)
 from polaris.mesh.spherical.unified.river.geojson import (
     read_geojson,
     write_geojson,
@@ -165,7 +162,8 @@ def condition_base_mesh_river_segments(
         in degrees
 
     min_segment_length_m : float
-        Minimum retained segment length after simplification, in meters
+        Deprecated. Valid inland geometry is retained regardless of length;
+        only degenerate geometries are dropped.
 
     Returns
     -------
@@ -179,9 +177,14 @@ def condition_base_mesh_river_segments(
     lat = ds_coastline.lat.values.astype(float)
     signed_distance = ds_coastline.signed_distance.values.astype(float)
     threshold_m = -float(clip_distance_m)
+    max_spacing_deg = _get_sample_spacing_deg(lon=lon, lat=lat)
 
     all_coords = [
-        np.asarray(seg.geometry.coords, dtype=float) for seg in segments
+        _densify_line_coords(
+            coords=np.asarray(seg.geometry.coords, dtype=float),
+            max_spacing_deg=max_spacing_deg,
+        )
+        for seg in segments
     ]
     seg_sizes = [len(c) for c in all_coords]
     if seg_sizes:
@@ -209,9 +212,9 @@ def condition_base_mesh_river_segments(
             simplified = geometry.simplify(
                 simplify_tolerance_deg, preserve_topology=False
             )
-            cleaned = _clean_conditioned_geometry(
-                simplified, min_segment_length_m
-            )
+            cleaned = _clean_conditioned_geometry(simplified)
+            if cleaned is None:
+                cleaned = _clean_conditioned_geometry(geometry)
             if cleaned is None:
                 continue
             clipped_segments.append(
@@ -259,9 +262,9 @@ def _get_outlet_hyriv_id(segment):
     return segment.outlet_hyriv_id
 
 
-def _clean_conditioned_geometry(geometry, min_segment_length_m):
+def _clean_conditioned_geometry(geometry):
     """
-    Drop degenerate or too-short conditioned geometries.
+    Drop degenerate conditioned geometries.
     """
     if not isinstance(geometry, LineString):
         return None
@@ -279,10 +282,54 @@ def _clean_conditioned_geometry(geometry, min_segment_length_m):
         return None
 
     cleaned = LineString(np.asarray(deduped))
-    if _line_string_length_m(cleaned) < min_segment_length_m:
-        return None
-
     return cleaned
+
+
+def _get_sample_spacing_deg(lon, lat):
+    """
+    Get a clipping sample spacing from the coastline grid.
+    """
+    spacings = []
+    if lon.size > 1:
+        lon_spacing = np.abs(np.diff(lon))
+        lon_spacing = lon_spacing[lon_spacing > 0.0]
+        if lon_spacing.size > 0:
+            spacings.append(float(np.median(lon_spacing)))
+    if lat.size > 1:
+        lat_spacing = np.abs(np.diff(lat))
+        lat_spacing = lat_spacing[lat_spacing > 0.0]
+        if lat_spacing.size > 0:
+            spacings.append(float(np.median(lat_spacing)))
+    if len(spacings) == 0:
+        return 1.0
+    return min(spacings)
+
+
+def _densify_line_coords(coords, max_spacing_deg):
+    """
+    Densify a line so coastline-distance clipping is geometry-local.
+    """
+    if coords.shape[0] < 2:
+        return coords
+
+    dense_coords = [coords[0]]
+    for start, end in zip(coords[:-1], coords[1:], strict=True):
+        delta_lon = _wrapped_longitude_difference(end[0] - start[0])
+        delta_lat = end[1] - start[1]
+        segment_extent = max(abs(delta_lon), abs(delta_lat))
+        n_steps = max(1, int(np.ceil(segment_extent / max_spacing_deg)))
+        for index in range(1, n_steps + 1):
+            fraction = index / n_steps
+            point = np.array(
+                [
+                    _wrap_longitude(start[0] + fraction * delta_lon),
+                    start[1] + fraction * delta_lat,
+                ],
+                dtype=float,
+            )
+            _append_point_if_distinct(dense_coords, point)
+
+    return np.vstack(dense_coords)
 
 
 def _clip_line_string_with_distances(
@@ -351,20 +398,6 @@ def _clip_coords_by_threshold(coords, point_signed_distance, threshold_m):
         clipped_lines.append(np.vstack(current_points))
 
     return clipped_lines
-
-
-def _line_string_length_m(geometry):
-    coords = np.asarray(geometry.coords, dtype=float)
-    if coords.shape[0] < 2:
-        return 0.0
-
-    segment_lengths = haversine_distance(
-        coords[:-1, 0],
-        coords[:-1, 1],
-        coords[1:, 0],
-        coords[1:, 1],
-    )
-    return float(np.sum(segment_lengths))
 
 
 def _km_to_equatorial_degrees(distance_km):
@@ -450,3 +483,17 @@ def _append_point_if_distinct(points, point):
     point = np.asarray(point, dtype=np.float64)
     if len(points) == 0 or not np.allclose(points[-1], point):
         points.append(point)
+
+
+def _wrapped_longitude_difference(delta_lon):
+    """
+    Wrap a longitude difference into the [-180, 180) interval.
+    """
+    return (delta_lon + 180.0) % 360.0 - 180.0
+
+
+def _wrap_longitude(lon):
+    """
+    Wrap a longitude into the [-180, 180) interval.
+    """
+    return _wrapped_longitude_difference(lon)
