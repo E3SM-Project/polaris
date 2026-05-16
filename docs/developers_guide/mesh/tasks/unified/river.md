@@ -127,14 +127,26 @@ base-mesh consumers.
 Its `run()` method reads the simplified river network and coastline products,
 then conditions the retained geometry for direct base-mesh use by:
 
-- clipping segments inland of the selected coastline by the configured clip
-  distance;
-- simplifying clipped geometry and removing degenerate or too-short pieces;
+- densifying each river line at the coastline-grid scale before evaluating the
+  selected coastline signed-distance field;
+- clipping only the line portions that fall inside the configured coastal
+  exclusion band, with threshold-crossing points interpolated along each
+  sampled line interval;
+- preserving all valid inland pieces, including multiple pieces from one
+  HydroRIVERS feature when the line exits and re-enters the exclusion band;
+- simplifying clipped geometry and falling back to the unsimplified clipped
+  piece if simplification would make it degenerate;
+- removing only degenerate pieces with fewer than two distinct points;
 - regenerating a diagnostic lat-lon mask product from the conditioned river
   geometry.
 
 This step writes `clipped_river_network.geojson` and
 `clipped_river_network.nc`.
+
+The `min_segment_length_m` helper argument and
+`base_mesh_min_segment_length_km` config option are retained for compatibility,
+but they no longer prune valid inland river geometry. This avoids artificial
+gaps far inland from the coastline.
 
 ### `viz.py`
 
@@ -199,7 +211,9 @@ Unit tests in `tests/mesh/spherical/unified/test_river.py` currently cover:
   retention, and cycle detection;
 - HydroRIVERS archive unpacking and shapefile-to-GeoJSON conversion helpers;
 - target-grid river-channel raster contracts;
-- coastline-aware base-mesh conditioning helpers and shared-step factories;
+- coastline-aware base-mesh conditioning helpers, including local clipping,
+  re-entry through the exclusion band, densification before signed-distance
+  sampling, preservation of short inland pieces, and shared-step factories;
 - and task registration for all named unified meshes.
 
 There is not yet a full task-level integration test that runs the end-to-end

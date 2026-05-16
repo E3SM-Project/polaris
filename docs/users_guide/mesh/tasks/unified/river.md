@@ -226,30 +226,28 @@ simplification:
 - `base_mesh_clip_distance_km`: inland clip distance in km applied when
   preparing base-mesh river products. The coastline dataset stores a
   signed-distance field that is negative inland and positive over the
-  ocean. River-segment coordinates that lie within this distance of the
-  coastline — or seaward of it — are trimmed away, removing the
-  near-shore portions of river segments that would potentially affect
-  resolution too close to the ocean-sea ice portion of the base mesh
-  and thus could result in smaller-than-acceptable cells in the culled
-  ocean-sea ice mesh. Linear interpolation is used to
-  find the exact crossing point along each segment edge. Increase this
-  value to push the clip boundary farther inland; reduce it to preserve
-  more of each river's lower reach.
+  ocean. The clip operation is local to each river line: Polaris densifies the
+  line at the coastline-grid scale, samples the signed-distance field, and
+  trims only the portions that lie within this distance of the coastline or
+  seaward of it. Inland portions of the same HydroRIVERS feature are preserved,
+  even when clipping splits one feature into multiple pieces. Linear
+  interpolation is used to find the crossing point along each sampled line
+  interval. Increase this value to push the clip boundary farther inland;
+  reduce it to preserve more of each river's lower reach.
 - `base_mesh_simplify_tolerance_km`: Douglas-Peucker simplification
   tolerance in km applied to each clipped segment. The tolerance is
   converted to degrees using the equatorial approximation
   (km ÷ 111), so the default 2 km corresponds to roughly 0.018°.
   Simplification reduces vertex count while preserving overall river
   shape, making the geometry more suitable for mesh-generation tools that
-  operate at coarser scales. Increasing this value produces simpler,
-  smoother geometry; decreasing it preserves finer bends at the cost of
-  higher vertex count.
-- `base_mesh_min_segment_length_km`: minimum arc-length in km that a
-  segment must have after clipping and simplification in order to be
-  retained. Clipping near the coastline often leaves short stubs that
-  are numerically harmless but visually noisy; this threshold discards
-  them. Arc-length is computed along the sphere using the haversine
-  formula.
+  operate at coarser scales. If simplification would collapse a valid clipped
+  piece into a degenerate geometry, Polaris keeps the unsimplified piece
+  instead. Increasing this value produces simpler, smoother geometry;
+  decreasing it preserves finer bends at the cost of higher vertex count.
+- `base_mesh_min_segment_length_km`: deprecated for river clipping. This
+  option is retained for configuration compatibility, but valid inland clipped
+  river pieces are no longer discarded based on length. Polaris drops only
+  degenerate geometries with fewer than two distinct points.
 The `[river_rasterize]` section controls the target-grid products:
 
 - `channel_subsegment_fraction`: fraction of one target-grid cell used to set
@@ -265,9 +263,19 @@ The `[viz_river_network]` section currently contains:
 
 `river_network_overlay.png` overlays the simplified and clipped river networks
 on the selected coastline background, with a global view and a CONUS inset.
+The simplified network is drawn faintly under the clipped network so gaps in
+the clipped product can be distinguished from plotting order. The clipped
+network should match the simplified network except where geometry falls inside
+the configured coastal exclusion band.
+
 `rasterized_river_network.png` shows the channel mask on the shared lat-lon
-grid. `debug_summary.txt` records counts of simplified segments, clipped
-segments, and rasterized channel cells.
+grid. For high-resolution grids, the plot uses max aggregation for display so
+one-cell-wide river channels remain visible in the PNG; this aggregation does
+not change `river_network.nc`.
+
+`debug_summary.txt` records counts of simplified and clipped features, unique
+retained and dropped `hyriv_id` values, total simplified and clipped lengths,
+and rasterized channel cells.
 
 The lat-lon NetCDF product also records target-grid metadata such as
 `target_grid_resolution_degrees` and `channel_buffer_m`.
