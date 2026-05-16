@@ -35,8 +35,8 @@ Polaris design should preserve the
 river algorithms as closely as is practical.
 
 The implementation aligns `prepare_river_network` with the shared target-grid
-tier and coastline interpretation chosen for the workflow, so that river
-outlets and coastal refinement can be made consistent.
+tier and coastline interpretation chosen for the workflow, while deferring
+river-outlet reconciliation until after an MPAS base mesh exists.
 
 Success means that Polaris gains a documented, reusable river-network
 preprocessing workflow that preserves the major hydrographic controls relevant
@@ -61,7 +61,7 @@ The downstream unified-mesh workflow designs are:
 
 ### Requirement: Downstream-Ready River Network Products
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/15
 
 Contributors:
 
@@ -74,23 +74,25 @@ mesh-conditioned river products that can be consumed directly by
 
 The shared products shall retain the major river-network information needed for
 mesh refinement and direct cell-center placement, including channel locations
-and outlet locations.
+and basin-root provenance.
 
 The downstream sizing-field and base-mesh steps shall not need to rerun
-HydroRIVERS filtering, network reconstruction, outlet discovery, or
-coastline-aware river clipping and simplification.
+HydroRIVERS filtering, network reconstruction, or coastline-aware river clipping
+and simplification.
 
 ### Requirement: Hydrologically Meaningful Simplification
 
-Date last modified: 2026/04/10
+Date last modified: 2026/05/15
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-The first implementation shall preserve the dominant global river outlets,
-main stems, and major tributaries needed to inform mesh resolution.
+The first implementation shall preserve the dominant global river main stems and
+major tributaries needed to inform mesh resolution. Terminal river segments
+shall be retained as basin roots for traversal and grouping, not as
+coastline-reconciled outlet products.
 
 The design shall support filtering by drainage area and by proximity so the
 retained network reflects the target mesh scale rather than the full source
@@ -103,27 +105,28 @@ Where practical, the first Polaris design shall preserve the existing
 [`mpas_land_mesh`](https://github.com/changliao1025/mpas_land_mesh)
 river-network algorithms rather than redesigning them.
 
-### Requirement: Coastline-Consistent Outlets and Explicit Inland Sinks
+### Requirement: Deferred Outlet Reconciliation
 
-Date last modified: 2026/04/10
+Date last modified: 2026/05/15
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
 
-River outlets that drain to the ocean shall be made consistent with the
-coastline interpretation selected in `prepare_coastline`.
+The pre-base-mesh river workflow shall not snap river outlets to the coastline,
+write separate outlet products, or refine the sizing field based on outlet mask
+cells.
 
-Endorheic basins and other inland sinks shall remain explicit rather than
-being folded into the ocean-outlet logic.
-
-The workflow shall not assume that raw river-source outlet locations are
-already perfectly consistent with the preferred coastline source.
+The workflow shall preserve enough basin-root provenance, through
+`outlet_hyriv_id`, `outlet_drainage_area`, and `river_network_rank`, for
+downstream workflows to identify, select, and optionally write per-catchment
+products without rerunning HydroRIVERS simplification. Outlet/coastline
+reconciliation shall still occur after the MPAS base mesh exists.
 
 ### Requirement: Standalone River-Network Task
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/15
 
 Contributors:
 
@@ -133,13 +136,13 @@ Contributors:
 
 Polaris shall provide a standalone task per named unified mesh that runs the
 full shared river-network workflow for that mesh, including HydroRIVERS
-simplification, coastline-consistent rasterization, and coastline-aware
+simplification, channel rasterization, and coastline-aware
 clipping, together with the shared upstream steps it depends on (for example
 `e3sm/init/topo/combine` and `prepare_coastline`).
 
 The standalone task shall make it practical to inspect retained basins,
-outlets, target-grid river masks, and outlet-snapping diagnostics without
-running the full unified mesh workflow.
+target-grid river-channel masks, and clipped river geometry without running the
+full unified mesh workflow.
 
 The same shared steps and configuration shall be reusable from the full unified
 workflow when settings match.
@@ -169,7 +172,7 @@ required preprocessing cannot be reproduced robustly within Polaris.
 
 ### Algorithm Design: Downstream-Ready River Network Products
 
-Date last modified: 2026/05/08
+Date last modified: 2026/05/15
 
 Contributors:
 
@@ -184,22 +187,18 @@ reinterpret HydroRIVERS or infer outlet semantics from one overloaded raster.
 
 At the source level, the workflow writes:
 
-- `source_river_network.geojson`, containing the converted HydroRIVERS source;
 - `simplified_river_network.geojson`, containing retained segments with
   `hyriv_id`, `main_riv`, `ord_stra`, `drainage_area`, `next_down`,
-  `endorheic`, `outlet_type`, and `outlet_hyriv_id`; networks are ordered
-  largest-first by outlet drainage area so that downstream tools can select
-  the N largest networks without additional sorting; and
-- `retained_outlets.geojson`, containing the retained outlet points and their
-  basic classification.
+  `endorheic`, `outlet_hyriv_id`, `outlet_drainage_area`, and
+  `river_network_rank`; networks are ordered largest-first by terminal-root
+  drainage area, and the rank field makes the N largest networks directly
+  selectable without relying on feature order alone. The `outlet_hyriv_id`
+  field is retained as basin-root provenance for future catchment grouping,
+  not as a coastline-reconciled outlet product.
 
 At the target-grid level, the workflow writes:
 
-- `river_network.nc`, with `river_channel_mask`, `river_outlet_mask`,
-  `river_ocean_outlet_mask`, and `river_inland_sink_mask`; and
-- `river_outlets.geojson`, containing the snapped outlet points together with
-  source coordinates, snapped coordinates, snapped grid indices, snapping
-  distance, and `matched_to_ocean`.
+- `river_network.nc`, with `river_channel_mask`.
 
 This is intentionally clearer than the standalone workflow's mixed raster
 semantics. The present implementation does not yet add stream-order rasters or
@@ -211,9 +210,7 @@ set:
 
 - `clipped_river_network.geojson`, containing river segments clipped inland of
   the coastline and simplified for direct JIGSAW geometry use, with networks
-  ordered largest-first by outlet drainage area;
-- `clipped_outlets.geojson`, containing only outlets that remain relevant after
-  that conditioning; and
+  ordered largest-first by terminal-root drainage area; and
 - `clipped_river_network.nc`, containing masks regenerated from the clipped
   network for diagnostics.
 
@@ -224,18 +221,17 @@ geometry.
 
 Generating the clipped products requires evaluating the coastline's
 `signed_distance` field at each river coordinate.  Rather than calling
-`interp_bilin()` once per segment or outlet feature, the implementation batches
-all coordinates from all segments into a single array, performs one vectorised
+`interp_bilin()` once per segment, the implementation batches all coordinates
+from all segments into a single array, performs one vectorised
 bilinear-interpolation call over the entire network, and then splits the
-resulting distance values back to the corresponding per-segment slices.  The
-same batching is applied to outlet coordinates in `clip_outlet_feature_collection`.
-This makes the coastline-distance interpolation cost proportional to the total
-number of river vertices rather than to the number of segments, which can be
+resulting distance values back to the corresponding per-segment slices.  This
+makes the coastline-distance interpolation cost proportional to the total number
+of river vertices rather than to the number of segments, which can be
 significant for globally dense simplified networks.
 
 ### Algorithm Design: Hydrologically Meaningful Simplification
 
-Date last modified: 2026/04/22
+Date last modified: 2026/05/15
 
 Contributors:
 
@@ -252,22 +248,20 @@ HydroRIVERS attributes such as `HYRIV_ID`, `MAIN_RIV`, `ORD_STRA`,
    segment when needed.
 3. Validate that the retained `NEXT_DOWN` graph is acyclic before attempting
    basin traversal.
-4. Identify candidate outlets from segments with `next_down == 0`, then retain
-   large, well-separated outlets based on geodesic distance while preserving
-   distinct inland sinks.
-5. Traverse upstream iteratively from each retained outlet, keeping the
+4. Identify terminal basin roots from segments with `next_down == 0`.
+5. Traverse upstream iteratively from each terminal root, keeping the
    largest upstream segment at each confluence as the main stem.
 6. Retain additional tributaries when either their drainage area exceeds a
    configurable fraction of the main stem or their minimum distance from the
-   already retained basin skeleton exceeds the outlet-distance tolerance.
+   already retained basin skeleton exceeds the branch-distance tolerance.
 
 The key point is that simplification should be basin-aware and topology-aware.
 The Polaris design should preserve connectivity and confluences, not just apply
 independent Douglas-Peucker style simplification to each source feature.
 
-### Algorithm Design: Coastline-Consistent Outlets and Explicit Inland Sinks
+### Algorithm Design: Deferred Outlet Reconciliation
 
-Date last modified: 2026/05/08
+Date last modified: 2026/05/15
 
 Contributors:
 
@@ -275,41 +269,24 @@ Contributors:
 - Codex
 - Claude
 
-The simplified network is finalized in two phases: source-level retention and
-target-grid reconciliation. The source-level step identifies retained outlet
-points, and the lat-lon step then reconciles those points against the shared
-coastline product.
+Outlet and coastline reconciliation is intentionally deferred until after an
+MPAS base mesh exists. Before that point, snapping HydroRIVERS terminal points
+to coastline cells and refining outlet mask cells adds complexity without a
+clear benefit because the base-mesh workflow clips near-coast river geometry
+and the sizing-field workflow blends land resolution toward ocean resolution
+near the coastline.
 
-For ocean-draining basins, the current implementation identifies the nearest
-ocean cell in `coastline.nc` using a KD tree built once over all ocean cells
-before the outlet loop begins.  Each ocean cell's lat/lon is converted to a
-unit-sphere Cartesian coordinate (the 3-D point on the surface of the unit
-sphere), so that the nearest neighbour in 3-D Euclidean space equals the nearest
-neighbour by great-circle distance.  A single `query()` call on the pre-built
-tree returns the closest ocean cell in O(log n) time rather than requiring a
-linear scan over the full grid.  The haversine distance to that cell is then
-computed, and the outlet is marked as matched only if the distance is within the
-configured `outlet_match_tolerance`. If no ocean cell is close enough, the outlet
-is still snapped to the nearest grid cell but is recorded as
-`matched_to_ocean = false` with the snapping distance preserved for diagnostics.
-
-Endorheic basins bypass ocean matching and are snapped to the nearest land cell
-derived from the coastline `ocean_mask`, using a KD tree built once over all land
-cells with the same unit-sphere Cartesian approach.  They retain the explicit
-`inland_sink` classification in both the vector outlet metadata and the target-
-grid masks.
-
-If an ocean-draining outlet cannot be matched within tolerance, the workflow
-flags that basin through per-feature metadata and through the dataset attribute
-`unmatched_ocean_outlets`.
-
-Once outlet reconciliation is complete, the simplified river network can be
-rasterized onto the shared target grid. Rasterization should produce separate
-channel and outlet masks rather than a single overloaded integer raster.
+The pre-base-mesh river workflow therefore keeps terminal-root provenance on
+retained river segments through `outlet_hyriv_id`, `outlet_drainage_area`, and
+`river_network_rank`. Rasterization produces the channel mask needed by the
+sizing field, and clipped vector products provide the river geometry needed by
+JIGSAW. Downstream workflows that need outlet locations or catchment-specific
+files can group segments by `outlet_hyriv_id`, select the largest basins by
+`river_network_rank`, and perform outlet/coastline reconciliation later.
 
 ### Algorithm Design: Standalone River-Network Task
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/15
 
 Contributors:
 
@@ -345,9 +322,9 @@ The file naming and class layout are now concrete. The river implementation is
 organized under `polaris/tasks/mesh/spherical/unified/river/` as:
 
 - `simplify.py` (`SimplifyRiverNetworkStep`) for HydroRIVERS download,
-  unpacking, shapefile conversion, and source-level simplification;
+  unpacking and source-level simplification;
 - `rasterize.py` (`RasterizeRiverLatLonStep`) for target-grid rasterization
-  and outlet reconciliation;
+  of retained river channels;
 - `clip.py` (`ClipRiverNetworkStep`) for coastline-aware clipping and
   conditioning of retained river geometry for final mesh generation;
 - `viz.py` (`VizRiverStep`) for diagnostic plotting and text summaries;
@@ -356,27 +333,31 @@ organized under `polaris/tasks/mesh/spherical/unified/river/` as:
 - the configuration sections are loaded from the unified mesh config.
 
 This implementation prioritizes a clean output contract over carrying forward
-the standalone workflow's mixed raster conventions.
+the standalone workflow's mixed raster conventions or writing default
+per-catchment GeoJSON files. A single ranked GeoJSON keeps the authoritative
+simplified network in one file while still allowing scripts to reproduce the
+standalone workflow's "largest N basins" exports by filtering on
+`river_network_rank`.
 
 The simplification step obtains HydroRIVERS through `add_input_file()` using
 the public archive URL in the river network config section, with the Polaris
 database still available as a fallback cache location. The rasterization step
-then consumes the shared coastline dataset for the selected convention. The
-`ClipRiverNetworkStep` consumes the simplified network together with the
-selected coastline product and writes the clipped river geometry consumed by
-the unified base-mesh step.
+then consumes the shared coastline grid for the selected convention and writes a
+channel-only mask. The `ClipRiverNetworkStep` consumes the simplified network
+together with the selected coastline product and writes the clipped river
+geometry consumed by the unified base-mesh step.
 
 The coastline-aware clipping in `condition_base_mesh_river_segments()` and
-`clip_outlet_feature_collection()` uses a single batched call to `interp_bilin()`
-rather than one call per segment or outlet.  All vertex coordinates are stacked
-into one array, `_interpolate_signed_distance()` is called once, and the
-resulting signed-distance values are split back to per-segment slices with
-`np.split()`.  This keeps bilinear-interpolation overhead proportional to the
-total vertex count rather than to the number of segments.
+the channel-only raster products use a single batched call to `interp_bilin()`
+rather than one call per segment. All vertex coordinates are stacked into one
+array, `_interpolate_signed_distance()` is called once, and the resulting
+signed-distance values are split back to per-segment slices with `np.split()`.
+This keeps bilinear-interpolation overhead proportional to the total vertex
+count rather than to the number of segments.
 
 ### Implementation: Hydrologically Meaningful Simplification
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/15
 
 Contributors:
 
@@ -388,7 +369,15 @@ The current simplification logic lives in
 `simplify_river_network_feature_collection()` in
 `polaris/tasks/mesh/spherical/unified/river/simplify.py`. It uses small focused
 helpers for canonicalizing segments, validating downstream topology, filtering
-outlets, and traversing retained basin structure.
+by drainage area, and traversing retained basin structure from all terminal
+roots.
+
+After basin traversal, the implementation annotates each retained segment with
+`outlet_drainage_area` and `river_network_rank`. The rank is 1-based, with
+rank 1 assigned to the retained terminal basin with the largest outlet drainage
+area. These properties are preserved by the canonical `RiverSegment` read/write
+helpers and are carried through coastline conditioning so downstream products do
+not silently drop the network-selection metadata.
 
 The implementation favors a compact Polaris-native reimplementation over a
 direct migration of
@@ -397,9 +386,9 @@ helper layers. No clear defect emerged from the current unit tests, but this
 remains an area where additional comparison against real HydroRIVERS output
 would strengthen confidence.
 
-### Implementation: Coastline-Consistent Outlets and Explicit Inland Sinks
+### Implementation: Deferred Outlet Reconciliation
 
-Date last modified: 2026/05/08
+Date last modified: 2026/05/15
 
 Contributors:
 
@@ -407,18 +396,12 @@ Contributors:
 - Codex
 - Claude
 
-The current implementation keeps coastline matching and inland-sink treatment
-explicit in both NetCDF and GeoJSON outputs. `river_network.nc` separates
-channel cells, all outlet cells, ocean outlets, and inland sinks, and
-`river_outlets.geojson` records both source and snapped positions together with
-match status and snapping distance.
-
-The nearest-ocean-cell and nearest-land-cell lookups are implemented in
-`_build_cell_kdtree()` and the `_match_ocean_outlet()` / `_match_land_point()`
-helpers in `rasterize.py`.  `_build_cell_kdtree()` uses `scipy.spatial.cKDTree`
-on unit-sphere Cartesian coordinates derived from the grid cell lat/lon values.
-Both trees are built once before iterating over outlet features, so the total
-lookup cost is O(n_outlets · log n_cells) rather than O(n_outlets · n_cells).
+The current implementation removes coastline matching and inland-sink treatment
+from the pre-base-mesh river products. `river_network.nc` contains
+`river_channel_mask` only, and the simplified/clipped GeoJSON products keep
+basin-root provenance and network-selection metadata but no coastline-snapped
+outlet products. Outlet snapping and catchment-specific outlet products are
+deferred to downstream workflows that operate after the MPAS base mesh exists.
 
 ### Implementation: Standalone River-Network Task
 
@@ -455,12 +438,9 @@ Contributors:
 Unit tests in `tests/mesh/spherical/unified/test_river.py` verify the
 target-grid product contract. Specifically:
 
-- `test_build_river_network_dataset_contract_and_snapped_outlets` verifies
-  that `build_river_network_dataset()` writes the expected mask variables
-  (`river_channel_mask`, `river_outlet_mask`, `river_ocean_outlet_mask`,
-  `river_inland_sink_mask`), matched-outlet attributes
-  (`matched_ocean_outlets`, `unmatched_ocean_outlets`), and snapped-outlet
-  GeoJSON with `snapped_lon`, `snapped_lat`, and `matched_to_ocean`.
+- `test_build_river_network_dataset_contract_and_channel_mask` verifies
+  that `build_river_network_dataset()` writes the expected channel-only mask
+  variable (`river_channel_mask`) without outlet-matching attributes.
 - `test_mesh_river_step_factories_use_mesh_subdirs` verifies that
   `get_unified_mesh_river_steps()` creates `SimplifyRiverNetworkStep`,
   `RasterizeRiverLatLonStep`, and `ClipRiverNetworkStep` with the expected
@@ -469,10 +449,10 @@ target-grid product contract. Specifically:
   config identity across multiple calls to `get_unified_mesh_river_steps()`.
 
 The coastline-aware conditioning tests in the same file verify
-`condition_base_mesh_river_segments()` and `clip_outlet_feature_collection()`.
-The `test_base_mesh.py` tests then verify that `UnifiedBaseMeshStep` converts
-the prepared `clipped_river_network.geojson` product into JIGSAW line
-constraints rather than raw river geometry.
+`condition_base_mesh_river_segments()`. The `test_base_mesh.py` tests then
+verify that `UnifiedBaseMeshStep` converts the prepared
+`clipped_river_network.geojson` product into JIGSAW line constraints rather
+than raw river geometry.
 
 `build_sizing_field` unit tests consume the target-grid river masks. There is
 still not a task-level integration test showing the full river workflow feeding
@@ -480,7 +460,7 @@ either the sizing-field task or the final base-mesh task on real data.
 
 ### Testing and Validation: Hydrologically Meaningful Simplification
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/15
 
 Contributors:
 
@@ -491,9 +471,10 @@ Contributors:
 Unit tests in `tests/mesh/spherical/unified/test_river.py` validate
 simplification behavior on synthetic networks:
 
-- `test_simplify_river_network_filters_outlets_and_minor_tributaries` verifies
-  that major outlets and tributaries exceeding the area ratio are retained while
-  nearby headwaters within the distance tolerance are filtered.
+- `test_simplify_river_network_traverses_all_terminal_segments` verifies that
+  all retained terminal segments are traversed and that `outlet_hyriv_id`,
+  `outlet_drainage_area`, and `river_network_rank` are preserved as
+  basin-root provenance and network-selection metadata.
 - `test_simplify_river_network_handles_deep_main_stem` confirms correctness for
   a 1500-segment chain without Python recursion limits.
 - `test_simplify_river_network_rejects_next_down_cycles` verifies that cyclic
@@ -503,16 +484,16 @@ simplification behavior on synthetic networks:
 - `test_convert_hydrorivers_shapefile_to_geojson` verifies shapefile conversion.
 - `test_unpack_hydrorivers_archive` verifies archive unpacking.
 - `test_drainage_area_threshold_auto_derived_from_config` and
-  `test_outlet_distance_tolerance_auto_derived_from_config` verify that
+  `test_branch_distance_tolerance_auto_derived_from_config` verify that
   simplification thresholds are derived correctly from mesh configs.
 
 What is still missing is validation against real HydroRIVERS subsets to ensure
 the present heuristics retain scientifically appropriate networks across
 different hydrographic settings.
 
-### Testing and Validation: Coastline-Consistent Outlets and Explicit Inland Sinks
+### Testing and Validation: Deferred Outlet Reconciliation
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/15
 
 Contributors:
 
@@ -520,27 +501,21 @@ Contributors:
 - Codex
 - Claude
 
-Unit tests in `tests/mesh/spherical/unified/test_river.py` cover outlet
-matching and inland-sink treatment:
+Unit tests in `tests/mesh/spherical/unified/test_river.py` cover the
+channel-only pre-base-mesh products:
 
-- `test_build_river_network_dataset_contract_and_snapped_outlets` verifies
-  matched ocean-outlet snapping and inland-sink classification.
-- `test_build_river_network_dataset_marks_distant_ocean_outlet_unmatched`
-  verifies that an outlet beyond the tolerance is flagged `matched_to_ocean =
-  false` and counted in `unmatched_ocean_outlets`.
-- `test_build_river_network_dataset_derives_land_mask_from_ocean_mask` verifies
-  that inland sinks are snapped to land cells derived from `ocean_mask`.
+- `test_build_river_network_dataset_contract_and_channel_mask` verifies the
+  channel-only raster contract.
 - `test_build_river_network_dataset_applies_physical_channel_buffer` verifies
   the physical buffer applied to rasterized channel cells.
 - `test_condition_base_mesh_river_segments_clips_then_simplifies` and
   `test_condition_base_mesh_river_segments_drops_short_fragments` verify the
   coastline clipping applied before base-mesh conditioning.
-- `test_clip_outlet_feature_collection_removes_ocean_outlets` verifies that
-  ocean outlets within the clip zone are removed.
 
-The visualization step writes `river_network_overview.png` and
-`debug_summary.txt`, making outlet-matching diagnostics straightforward to
-inspect in task runs.
+The visualization step writes `river_network_overlay.png`,
+`rasterized_river_network.png`, and `debug_summary.txt`, making the simplified,
+clipped, and rasterized channel products straightforward to inspect in task
+runs.
 
 ### Testing and Validation: Standalone River-Network Task
 
