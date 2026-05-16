@@ -61,7 +61,7 @@ The downstream unified-mesh workflow designs are:
 
 ### Requirement: Downstream-Ready River Network Products
 
-Date last modified: 2026/05/15
+Date last modified: 2026/05/16
 
 Contributors:
 
@@ -79,6 +79,11 @@ and basin-root provenance.
 The downstream sizing-field and base-mesh steps shall not need to rerun
 HydroRIVERS filtering, network reconstruction, or coastline-aware river clipping
 and simplification.
+
+Coastline-aware river clipping shall be local to river-line geometry. It shall
+remove only the portions of each retained river line that fall inside the
+coastal exclusion band, preserving valid inland pieces rather than pruning
+whole trees or short inland fragments.
 
 ### Requirement: Hydrologically Meaningful Simplification
 
@@ -172,7 +177,7 @@ required preprocessing cannot be reproduced robustly within Polaris.
 
 ### Algorithm Design: Downstream-Ready River Network Products
 
-Date last modified: 2026/05/15
+Date last modified: 2026/05/16
 
 Contributors:
 
@@ -209,8 +214,10 @@ For base-mesh consumers, the workflow also writes a mesh-conditioned product
 set:
 
 - `clipped_river_network.geojson`, containing river segments clipped inland of
-  the coastline and simplified for direct JIGSAW geometry use, with networks
-  ordered largest-first by terminal-root drainage area; and
+  the coastline and simplified for direct JIGSAW geometry use, with valid
+  inland pieces preserved even when one source feature is split by the coastal
+  exclusion band, and with networks ordered largest-first by terminal-root
+  drainage area; and
 - `clipped_river_network.nc`, containing masks regenerated from the clipped
   network for diagnostics.
 
@@ -220,14 +227,16 @@ target-grid masks, while `create_base_mesh` consumes the conditioned vector
 geometry.
 
 Generating the clipped products requires evaluating the coastline's
-`signed_distance` field at each river coordinate.  Rather than calling
-`interp_bilin()` once per segment, the implementation batches all coordinates
-from all segments into a single array, performs one vectorised
-bilinear-interpolation call over the entire network, and then splits the
-resulting distance values back to the corresponding per-segment slices.  This
-makes the coastline-distance interpolation cost proportional to the total number
-of river vertices rather than to the number of segments, which can be
-significant for globally dense simplified networks.
+`signed_distance` field along each retained river line. The implementation
+first densifies each line at the coastline-grid scale, then batches all sampled
+coordinates from all segments into a single array, performs one vectorised
+bilinear-interpolation call over the entire network, and splits the resulting
+distance values back to the corresponding per-segment slices. The clipped
+geometry is then built by retaining sampled intervals farther inland than the
+configured clip distance and linearly interpolating exact threshold crossings.
+This makes clipping local to the geometry near the coastline while avoiding
+artificial inland gaps. Short retained inland pieces are preserved; only
+degenerate pieces with fewer than two distinct points are removed.
 
 ### Algorithm Design: Hydrologically Meaningful Simplification
 
@@ -331,7 +340,7 @@ mesh configuration.
 
 ### Implementation: Downstream-Ready River Network Products
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/16
 
 Contributors:
 
@@ -368,13 +377,17 @@ channel-only mask. The `ClipRiverNetworkStep` consumes the simplified network
 together with the selected coastline product and writes the clipped river
 geometry consumed by the unified base-mesh step.
 
-The coastline-aware clipping in `condition_base_mesh_river_segments()` and
-the channel-only raster products use a single batched call to `interp_bilin()`
-rather than one call per segment. All vertex coordinates are stacked into one
-array, `_interpolate_signed_distance()` is called once, and the resulting
+The coastline-aware clipping in `condition_base_mesh_river_segments()` uses
+coastline-grid-scale line densification before signed-distance sampling, so a
+river line with endpoints inside the coastal exclusion band can still retain an
+inland middle portion. All sampled coordinates are stacked into one array,
+`_interpolate_signed_distance()` is called once, and the resulting
 signed-distance values are split back to per-segment slices with `np.split()`.
-This keeps bilinear-interpolation overhead proportional to the total vertex
-count rather than to the number of segments.
+The helper then retains only intervals outside the coastal exclusion band,
+interpolates boundary crossings, preserves all valid inland fragments, and
+falls back to unsimplified clipped geometry if Douglas-Peucker simplification
+would make a piece degenerate. The historical minimum-length option is retained
+for configuration compatibility but no longer removes valid inland pieces.
 
 ### Implementation: Hydrologically Meaningful Simplification
 
@@ -455,7 +468,7 @@ mesh.
 
 ### Testing and Validation: Downstream-Ready River Network Products
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/16
 
 Contributors:
 
@@ -477,10 +490,12 @@ target-grid product contract. Specifically:
   config identity across multiple calls to `get_unified_mesh_river_steps()`.
 
 The coastline-aware conditioning tests in the same file verify
-`condition_base_mesh_river_segments()`. The `test_base_mesh.py` tests then
-verify that `UnifiedBaseMeshStep` converts the prepared
-`clipped_river_network.geojson` product into JIGSAW line constraints rather
-than raw river geometry.
+`condition_base_mesh_river_segments()`, including local clipping through
+multiple entries and exits from the coastal exclusion band, densification before
+signed-distance sampling, preservation of short inland pieces, and safe
+simplification fallback. The `test_base_mesh.py` tests then verify that
+`UnifiedBaseMeshStep` converts the prepared `clipped_river_network.geojson`
+product into JIGSAW line constraints rather than raw river geometry.
 
 `build_sizing_field` unit tests consume the target-grid river masks. There is
 still not a task-level integration test showing the full river workflow feeding
@@ -521,7 +536,7 @@ different hydrographic settings.
 
 ### Testing and Validation: Deferred Outlet Reconciliation
 
-Date last modified: 2026/05/15
+Date last modified: 2026/05/16
 
 Contributors:
 
@@ -536,9 +551,12 @@ channel-only pre-base-mesh products:
   channel-only raster contract.
 - `test_build_river_network_dataset_applies_physical_channel_buffer` verifies
   the physical buffer applied to rasterized channel cells.
-- `test_condition_base_mesh_river_segments_clips_then_simplifies` and
-  `test_condition_base_mesh_river_segments_drops_short_fragments` verify the
-  coastline clipping applied before base-mesh conditioning.
+- `test_condition_base_mesh_river_segments_clips_then_simplifies`,
+  `test_condition_base_mesh_river_segments_keeps_short_fragments`,
+  `test_condition_base_mesh_river_segments_keeps_reentry_pieces`,
+  `test_condition_base_mesh_river_segments_densifies_before_clipping`, and
+  `test_condition_base_mesh_river_segments_simplify_fallback_keeps_geometry`
+  verify the coastline clipping applied before base-mesh conditioning.
 
 The visualization step writes `river_network_overlay.png`,
 `rasterized_river_network.png`, and `debug_summary.txt`, making the simplified,
