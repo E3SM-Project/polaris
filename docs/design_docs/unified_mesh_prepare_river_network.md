@@ -231,7 +231,7 @@ significant for globally dense simplified networks.
 
 ### Algorithm Design: Hydrologically Meaningful Simplification
 
-Date last modified: 2026/05/15
+Date last modified: 2026/05/16
 
 Contributors:
 
@@ -252,12 +252,33 @@ HydroRIVERS attributes such as `HYRIV_ID`, `MAIN_RIV`, `ORD_STRA`,
 5. Traverse upstream iteratively from each terminal root, keeping the
    largest upstream segment at each confluence as the main stem.
 6. Retain additional tributaries when either their drainage area exceeds a
-   configurable fraction of the main stem or their minimum distance from the
-   already retained basin skeleton exceeds the branch-distance tolerance.
+   configurable fraction of the largest upstream branch at the current
+   confluence or their minimum distance from the already retained basin
+   skeleton exceeds the branch-distance tolerance.
 
 The key point is that simplification should be basin-aware and topology-aware.
 The Polaris design should preserve connectivity and confluences, not just apply
 independent Douglas-Peucker style simplification to each source feature.
+
+The Polaris implementation intentionally differs from the standalone
+`mpas_land_mesh` simplification algorithm in the mechanics of basin
+construction. The standalone workflow performs a greedy reverse search for each
+individual basin: it rebuilds a `pyrivergraph`, updates headwater stream order,
+merges and defines stream segments, and recursively grows an R-tree of retained
+flowlines from the outlet upstream. At each step, nearby branches can be kept,
+rejected, or replaced by a larger branch depending on the order in which the
+greedy search encounters them.
+
+Polaris keeps the same design intent but uses a smaller algorithm tied directly
+to HydroRIVERS. It uses the `NEXT_DOWN` attributes as the authoritative
+downstream graph, validates that the retained graph is acyclic, constructs an
+upstream adjacency map, and processes each terminal root independently. Branch
+selection is deterministic and local to each confluence: keep the largest
+upstream branch, then keep other upstream branches that pass the area-ratio
+test or the distance-tolerance fallback. The retained set is not later mutated
+by replacing smaller branches with larger nearby ones. This makes the step
+easier to test, allows basin traversal to run in parallel, and avoids importing
+the broader `mpas_land_mesh`/`pyflowline` helper stack into Polaris.
 
 ### Algorithm Design: Deferred Outlet Reconciliation
 
@@ -357,7 +378,7 @@ count rather than to the number of segments.
 
 ### Implementation: Hydrologically Meaningful Simplification
 
-Date last modified: 2026/05/15
+Date last modified: 2026/05/16
 
 Contributors:
 
@@ -371,6 +392,13 @@ The current simplification logic lives in
 helpers for canonicalizing segments, validating downstream topology, filtering
 by drainage area, and traversing retained basin structure from all terminal
 roots.
+
+The traversal is iterative rather than recursive, so very deep main stems do
+not depend on Python recursion limits. When multiple CPUs are available,
+terminal basins are distributed across forked worker processes that share the
+read-only HydroRIVERS segment map, upstream adjacency map, and spatial index.
+Each worker returns the retained segments for one basin root, and the parent
+process merges those basin-local results before annotating network rank.
 
 After basin traversal, the implementation annotates each retained segment with
 `outlet_drainage_area` and `river_network_rank`. The rank is 1-based, with
