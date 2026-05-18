@@ -11,6 +11,7 @@ ocean:
   cvmix:
     config_cvmix_background_diffusion: 1.e-5
     config_cvmix_background_viscosity: 1.e-4
+    config_cvmix_num_ri_smooth_loops: 0
   eos:
     config_eos_type: linear
   eos_linear:
@@ -33,8 +34,8 @@ mpas-ocean:
     config_use_activeTracers_interior_restoring: false
   cvmix:
     config_use_cvmix_kpp: false
-    config_cvmix_shear_mixing_scheme: PP
-    config_cvmix_num_ri_smooth_loops: 0
+    config_cvmix_background_scheme: constant
+    config_cvmix_shear_mixing_scheme: KPP
   debug:
     config_disable_vel_vmix: false
     config_disable_tr_vmix: false
