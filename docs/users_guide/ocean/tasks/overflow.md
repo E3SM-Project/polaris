@@ -18,7 +18,7 @@ continental slope, ending up along a deep, flat seafloor. This test case is
 generally used for evaluating spurious mixing associated with different
 vertical coordinate systems in the presence of bottom topography.
 
-```{image} images/overflow-Petersen-et-al-2015-fig4.png
+```{image} images/overflow-sections-1h.png
 :align: center
 :width: 500 px
 ```
