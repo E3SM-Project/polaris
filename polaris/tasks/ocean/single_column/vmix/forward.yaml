@@ -11,7 +11,7 @@ ocean:
   cvmix:
     config_cvmix_background_diffusion: 1.e-5
     config_cvmix_background_viscosity: 1.e-4
-    config_cvmix_num_ri_smooth_loops: 0
+    config_cvmix_num_ri_smooth_loops: 2
   eos:
     config_eos_type: linear
   eos_linear:
