@@ -28,13 +28,15 @@ mpas-ocean:
     config_use_activeTracers_surface_restoring: false
     config_use_activeTracers_interior_restoring: false
   streams:
-    mesh:
-      filename_template: mesh.nc
-    input:
+    forcing_data:
+      type: input
       filename_template: init.nc
-    restart: {}
-    KPP_testing: {}
+      input_interval: initial_only
+      contents:
+      - windStressZonal
+      - windStressMeridional
     mixedLayerDepthsOutput:
+      type: output
       contents:
       - xtime
       - dThreshMLD
@@ -42,7 +44,7 @@ mpas-ocean:
     output:
       type: output
       filename_template: output.nc
-      output_interval: 0000_00:00:01
+      output_interval: 0001_00:00:00
       clobber_mode: truncate
       contents:
       - tracers
@@ -57,10 +59,17 @@ mpas-ocean:
       - layerThickness
       - kineticEnergyCell
       - relativeVorticityCell
-    forcing_data:
-      type: input
-      filename_template: forcing.nc
-      input_interval: initial_only
-      contents:
-      - windStressZonal
-      - windStressMeridional
+
+Omega:
+  IOStreams:
+    History:
+      Filename: output.nc
+      Freq: 1
+      FreqUnits: Days
+      IfExists: append
+      # effectively never
+      FileFreq: 9999
+      FileFreqUnits: years
+      Contents:
+      - State
+      - GeomZMid
