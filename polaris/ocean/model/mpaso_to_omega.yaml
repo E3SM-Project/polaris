@@ -36,9 +36,9 @@ variables:
   tracer3: Debug3
 
   # state
-  layerThickness: GeomLayerThickness
+  # Note: layerThickness in MPAS-Ocean has no Omega equivalent and
+  #       PseudoThickness in Omega has no MPAS-Ocean equivalent
   normalVelocity: NormalVelocity
-
   vertVelocityTop: VerticalPseudoVelocity
 
   # auxiliary state

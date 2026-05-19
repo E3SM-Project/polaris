@@ -302,14 +302,12 @@ class Ocean(Component):
         ds = xr.open_dataset(filename, **kwargs)
         if (
             self.model == 'omega'
-            and 'GeomLayerThickness' not in ds.keys()
+            and 'layerThickness' not in ds.keys()
             and 'PseudoThickness' in ds.keys()
             and 'SpecVol' in ds.keys()
             and config is not None
         ):
-            ds['GeomLayerThickness'] = geom_thickness_from_ds(
-                ds, config=config
-            )
+            ds['layerThickness'] = geom_thickness_from_ds(ds, config=config)
         ds = self.map_from_native_model_vars(ds)
         ds = _add_reconstructed_variables_to_dataset(
             ds, reconstruct_variables, mesh_filename, coeffs_filename
