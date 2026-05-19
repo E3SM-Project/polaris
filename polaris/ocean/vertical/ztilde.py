@@ -510,7 +510,7 @@ def _compute_min_max_level_cell(
     ).transpose('nCells', 'nVertLevels')
     cell_mask = np.logical_and(above_bot_mask, valid)
 
-    # nonzero top index isn't supporeted at least for now
+    # nonzero top index isn't supported at least for now
     min_level_cell = xr.zeros_like(pseudo_column_thickness).astype(int)
     max_level_cell = (cell_mask.sum(dim='nVertLevels') - 1).where(valid, 0)
     max_level_cell = np.maximum(
