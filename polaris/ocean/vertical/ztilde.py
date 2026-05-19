@@ -447,6 +447,16 @@ def init_z_tilde_vertical_coord(config, ds):
         config, pseudo_column_thickness, ref_pseudo_depth_bot, max_level_cell
     )
 
+    # Recompute pseudo_bottom_depth from the adjusted column thickness so
+    # ZTildeInterface is anchored at the correct (post-snap) pseudo-height, and
+    # update BottomPressure so downstream callers see the effective value.
+    pseudo_bottom_depth = (
+        ds.SurfacePressure / (RhoSw * Gravity) + pseudo_column_thickness
+    )
+    ds['BottomPressure'] = ds.SurfacePressure + pseudo_column_thickness * (
+        RhoSw * Gravity
+    )
+
     pseudo_thickness = _compute_pseudo_thickness(
         ref_pseudo_depth_top,
         ref_pseudo_depth_bot,

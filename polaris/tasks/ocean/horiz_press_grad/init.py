@@ -166,9 +166,31 @@ class Init(OceanIOStep):
             )
 
         prev_geom_water_column_thickness: xr.DataArray | None = None
+        prev_adjusted_bottom_pressure: xr.DataArray | None = None
 
         for iter in range(pseudothickness_iter_count):
             ds = self._init_z_tilde_vert_coord(ds_mesh, bottom_pressure, x)
+            # ds.BottomPressure reflects the post-partial-cell-adjustment value
+            adjusted_bottom_pressure = ds.BottomPressure
+
+            # When partial_cell_type == 'full', the snap constrains the column
+            # to a fixed reference level regardless of the raw bottom_pressure.
+            # Detect this by checking if the adjusted pressure is unchanged.
+            if (
+                prev_adjusted_bottom_pressure is not None
+                and (
+                    adjusted_bottom_pressure == prev_adjusted_bottom_pressure
+                ).all()
+            ):
+                logger.warning(
+                    f'Iteration {iter}: full-cell snap is holding '
+                    'BottomPressure constant — stopping early to avoid '
+                    'non-convergence. bottomDepth will reflect the actual '
+                    'cell bottom rather than the target bathymetry.'
+                )
+                break
+
+            prev_adjusted_bottom_pressure = adjusted_bottom_pressure
 
             z_tilde_mid = ds.ZTildeMid
             h_tilde = ds.PseudoThickness
@@ -270,7 +292,9 @@ class Init(OceanIOStep):
                 f'max scaling factor = {max_scaling_factor:.6f}'
             )
 
-            bottom_pressure = bottom_pressure * scaling_factor
+            # Scale from the post-adjustment pressure so we move relative to
+            # the effective (snapped) bottom, not the raw input.
+            bottom_pressure = adjusted_bottom_pressure * scaling_factor
 
             logger.info(
                 f'Iteration {iter}: bottom pressures = '
@@ -292,9 +316,10 @@ class Init(OceanIOStep):
             },
         )
 
-        # bottomDepth needs to be the geometric bottom depth of the bathymetry,
-        # not the pseudo-bottom depth used for the vertical coordinate
-        ds['bottomDepth'] = -geom_z_bot
+        # Use the actual per-cell geometric water column at convergence so that
+        # SSH == 0 holds exactly at initialization even when partial cells push
+        # the effective bathymetry shallower than the target.
+        ds['bottomDepth'] = geom_water_column_thickness
         ds.bottomDepth.attrs['long_name'] = 'seafloor geometric height'
         ds.bottomDepth.attrs['units'] = 'm'
 
