@@ -15,12 +15,6 @@ mpas-ocean:
     config_bulk_wind_stress_interp_isotropic: true
     config_use_bulk_thickness_flux: true
   streams:
-    mesh:
-      filename_template: mesh.nc
-    vert:
-      filename_template: vert_coord.nc
-    input:
-      filename_template: init.nc
     restart: {}
     mixedLayerDepthsOutput:
       contents:
@@ -72,54 +66,3 @@ mpas-ocean:
       - icebergFreshWaterFlux
       - riverRunoffFlux
       - iceRunoffFlux
-
-Omega:
-  IOStreams:
-    InitialVertCoord:
-      Filename: init.nc
-    InitialState:
-      UsePointerFile: false
-      Filename: init.nc
-      Contents:
-      - State
-      - Tracers
-      - WindStressZonal
-      - WindStressMeridional
-    History:
-      Filename: output.nc
-      Freq: 1
-      FreqUnits: Seconds
-      IfExists: append
-      # effectively never
-      FileFreq: 9999
-      FileFreqUnits: years
-      Contents:
-      - AuxiliaryState
-      - State
-      - ZMid
-      - Tracers
-      - SshCell
-    RestartRead:
-      UsePointerFile: true
-      PointerFilename: ocn.pointer
-      Mode: read
-      Precision: double
-      Freq: 1
-      FreqUnits: OnStartup
-      UseStartEnd: true
-      StartTime: 0001-01-01_00:00:01
-      EndTime: 99999-12-31_00:00:00
-      Contents:
-      - Restart
-    RestartWrite:
-      UsePointerFile: true
-      PointerFilename: ocn.pointer
-      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
-      Mode: write
-      IfExists: replace
-      Precision: double
-      Freq: 6
-      FreqUnits: months
-      UseStartEnd: false
-      Contents:
-      - Restart

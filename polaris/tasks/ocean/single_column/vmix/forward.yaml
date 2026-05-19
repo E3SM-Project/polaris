@@ -24,10 +24,13 @@ ocean:
   debug:
     config_disable_vel_explicit_bottom_drag: true
     config_disable_tr_adv: false
+    config_disable_vel_pgrad: true
+  tracer_forcing_activeTracers:
+    config_salinity_restoring_constant_piston_velocity: 1.585e-5
 
 mpas-ocean:
   frazil_ice:
-    config_use_frazil_ice_formation: true
+    config_use_frazil_ice_formation: false
   tracer_forcing_activeTracers:
     config_use_activeTracers_surface_bulk_forcing: true
     config_use_activeTracers_surface_restoring: false
@@ -39,18 +42,62 @@ mpas-ocean:
   debug:
     config_disable_vel_vmix: false
     config_disable_tr_vmix: false
+    config_disable_vel_hadv: true
+    config_disable_vel_coriolis: true
   streams:
-    output:
-      output_interval: 0000_01:00:00
+    forcing_data:
+      type: input
+      filename_template: init.nc
+      input_interval: initial_only
       contents:
-      - layerThickness
-      - tracers
-      - vertNonLocalFlux
+      - tracersSurfaceRestoringFields
+      - tracersInteriorRestoringFields
+      - tracersExponentialDecayFields
+      - tracersIdealAgeFields
+      - tracersTTDFields
+      - windStressZonal
+      - windStressMeridional
+      - landIceSurfaceTemperature
+      - atmosphericPressure
+      - latentHeatFlux
+      - sensibleHeatFlux
+      - shortWaveHeatFlux
+      - evaporationFlux
+      - rainFlux
+      - seaIceFreshWaterFlux
+      - icebergFreshWaterFlux
+      - riverRunoffFlux
+      - iceRunoffFlux
+    KPP_testing: {}
+    mixedLayerDepthsOutput:
+      type: output
+      contents:
       - xtime
+      - dThreshMLD
+      - tThreshMLD
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: 0001_00:00:00
+      clobber_mode: truncate
+      contents:
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
       - zMid
       - zTop
+      - normalVelocity
       - velocityZonal
       - velocityMeridional
+      - layerThickness
+      - kineticEnergyCell
+      - relativeVorticityCell
+      - accumulatedFrazilIceMass
+      - accumulatedFrazilIceSalinity
+      - frazilLayerThicknessTendency
+      - frazilTemperatureTendency
+      - frazilSalinityTendency
+      - vertNonLocalFlux
       - bulkRichardsonNumber
       - bulkRichardsonNumberBuoy
       - potentialDensity
@@ -58,8 +105,6 @@ mpas-ocean:
       - boundaryLayerDepth
       - surfaceFrictionVelocity
       - surfaceBuoyancyForcing
-      - windStressZonal
-      - windStressMeridional
       - transportVelocityZonal
       - transportVelocityMeridional
       - RiTopOfCell
@@ -68,18 +113,26 @@ mpas-ocean:
       - vertDiffTopOfCell
 
 Omega:
+  # This is needed for consistency with MPAS-O
+  SurfaceRestoring:
+    TracersToRestore: [Salinity]
   Tendencies:
-    ThicknessFluxTendencyEnable: true
-    PVTendencyEnable: false
-    KETendencyEnable: false
-    SSHTendencyEnable: false
-    PressureGradTendencyEnable: false
+    # This makes it inconsistent with MPAS-O, which cannot turn off hadv
+    # without also turning off vadv
+    TracerHorzAdvTendencyEnable: true
   IOStreams:
     History:
+      Filename: output.nc
+      Freq: 1
+      FreqUnits: Days
+      IfExists: append
+      # effectively never
+      FileFreq: 9999
+      FileFreqUnits: years
       Contents:
       - AuxiliaryState
       - State
-      - ZMid
+      - GeomZMid
       - Tracers
       - SshCell
       - Eos
