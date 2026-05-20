@@ -81,7 +81,7 @@ class Viz(OceanIOStep):
             central_longitude=180.0,
         )
 
-        ds_out = self.open_model_dataset('output.nc')
+        ds_out = self.open_model_dataset('output.nc', config)
         da = ds_out['tracer1'].isel(Time=-1, nVertLevels=0)
 
         plot_global_mpas_field(

@@ -375,7 +375,7 @@ class Init(OceanIOStep):
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
-        self.write_model_dataset(ds, 'initial_state.nc')
+        self.write_model_dataset(ds, 'initial_state.nc', config)
 
     def _compute_montgomery_and_hpga(
         self,

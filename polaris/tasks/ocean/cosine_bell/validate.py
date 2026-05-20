@@ -67,6 +67,7 @@ class Validate(OceanIOStep):
                 filename1=filename1,
                 filename2=filename2,
                 logger=logger,
+                config=self.config,
                 ds1=ds1,
                 ds2=ds2,
             )

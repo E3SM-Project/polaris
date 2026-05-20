@@ -48,8 +48,10 @@ class VizTransect(OceanIOStep):
         x = xr.DataArray(data=[x_start, x_end])
         y = xr.DataArray(data=[y_start, y_end])
 
-        ds_mesh = self.open_model_dataset(self.mesh_file)
-        ds = self.open_model_dataset(self.input_file, decode_timedelta=False)
+        ds_mesh = self.open_model_dataset(self.mesh_file, self.config)
+        ds = self.open_model_dataset(
+            self.input_file, self.config, decode_timedelta=False
+        )
         # TODO support time selection from config file
         if 'Time' in ds.dims:
             t_index = 0

@@ -55,6 +55,7 @@ class Validate(Step):
             filename1=self.inputs[0],
             filename2=self.inputs[1],
             logger=self.logger,
+            config=self.config,
         )
         if not all_pass:
             raise ValueError(

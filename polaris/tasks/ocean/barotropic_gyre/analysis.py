@@ -62,9 +62,9 @@ class Analysis(OceanIOStep):
 
     def run(self):
         logger = self.logger
-        ds_mesh = self.open_model_dataset('mesh.nc')
-        ds_init = self.open_model_dataset('init.nc')
-        ds = self.open_model_dataset('output.nc')
+        ds_mesh = self.open_model_dataset('mesh.nc', self.config)
+        ds_init = self.open_model_dataset('init.nc', self.config)
+        ds = self.open_model_dataset('output.nc', self.config)
 
         field_mpas = compute_barotropic_streamfunction(
             ds_init.isel(Time=0), ds, prefix='', time_index=-1

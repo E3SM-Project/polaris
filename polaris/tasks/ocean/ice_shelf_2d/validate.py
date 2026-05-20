@@ -94,6 +94,7 @@ class Validate(Step):
             filename1=self.inputs[0],
             filename2=self.inputs[3],
             logger=self.logger,
+            config=self.config,
         )
         land_ice_pass = compare_variables(
             component=self.component,
@@ -101,6 +102,7 @@ class Validate(Step):
             filename1=self.inputs[1],
             filename2=self.inputs[4],
             logger=self.logger,
+            config=self.config,
         )
         frazil_pass = compare_variables(
             component=self.component,
@@ -108,6 +110,7 @@ class Validate(Step):
             filename1=self.inputs[2],
             filename2=self.inputs[5],
             logger=self.logger,
+            config=self.config,
         )
         if not output_pass:
             raise ValueError(

@@ -350,7 +350,7 @@ class Reference(OceanIOStep):
             },
         )
 
-        self.write_model_dataset(ds, 'reference_solution.nc')
+        self.write_model_dataset(ds, 'reference_solution.nc', config)
 
     def _get_ssh_z_bot(
         self, x: np.ndarray

@@ -134,7 +134,7 @@ class Analysis(OceanIOStep):
             'must be set in the "horiz_press_grad" section.'
         )
 
-        ds_ref = self.open_model_dataset('reference_solution.nc')
+        ds_ref = self.open_model_dataset('reference_solution.nc', self.config)
         if ds_ref.sizes.get('nCells', 0) <= 2:
             raise ValueError(
                 'The reference solution requires at least 3 columns so that '
@@ -149,9 +149,13 @@ class Analysis(OceanIOStep):
         py_errors = []
 
         for resolution in horiz_resolutions:
-            ds_init = self.open_model_dataset(f'init_r{resolution:02g}.nc')
+            ds_init = self.open_model_dataset(
+                f'init_r{resolution:02g}.nc', self.config
+            )
             ds_out = self.open_model_dataset(
-                f'output_r{resolution:02g}.nc', decode_times=False
+                f'output_r{resolution:02g}.nc',
+                self.config,
+                decode_times=False,
             )
 
             edge_index, cells_on_edge = _get_internal_edge(ds_init)

@@ -72,7 +72,7 @@ class VizHorizField(OceanIOStep):
         descriptor = None
 
         ds_mesh = self.open_model_dataset(
-            self.mesh_file, decode_timedelta=False
+            self.mesh_file, self.config, decode_timedelta=False
         )
         min_latitude = section.getfloat('min_latitude')
         max_latitude = section.getfloat('max_latitude')
@@ -138,7 +138,9 @@ class VizHorizField(OceanIOStep):
             else:
                 z_index = 0
 
-        ds = self.open_model_dataset(self.input_file, decode_timedelta=False)
+        ds = self.open_model_dataset(
+            self.input_file, self.config, decode_timedelta=False
+        )
 
         if 'Time' in ds.sizes:
             t_index = 0

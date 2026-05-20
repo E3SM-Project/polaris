@@ -69,13 +69,13 @@ class Init(OceanIOStep):
         ds_mesh = make_planar_hex_mesh(
             nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=False
         )
-        self.write_model_dataset(ds_mesh, 'base_mesh.nc')
+        self.write_model_dataset(ds_mesh, 'base_mesh.nc', config)
 
         ds_mesh = cull(ds_mesh, logger=logger)
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        self.write_model_dataset(ds_mesh, 'culled_mesh.nc')
+        self.write_model_dataset(ds_mesh, 'culled_mesh.nc', config)
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
 
