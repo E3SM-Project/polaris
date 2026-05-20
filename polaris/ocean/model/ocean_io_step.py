@@ -32,7 +32,7 @@ class OceanIOStep(Step):
         """
         return self.component.map_to_native_model_vars(ds)
 
-    def write_model_dataset(self, ds, filename, config=None):
+    def write_model_dataset(self, ds, filename, config):
         """
         Write out the given dataset, mapping dimension and variable names from
         MPAS-Ocean to Omega names if appropriate
@@ -44,6 +44,9 @@ class OceanIOStep(Step):
 
         filename : str
             The path for the NetCDF file to write
+
+        config : polaris.config.PolarisConfigParser
+            Configuration for the task; forwarded to the Ocean component.
         """
         self.component.write_model_dataset(ds, filename, config=config)
 
@@ -65,7 +68,7 @@ class OceanIOStep(Step):
         """
         return self.component.map_from_native_model_vars(ds)
 
-    def open_model_dataset(self, filename, config=None, **kwargs):
+    def open_model_dataset(self, filename, config, **kwargs):
         """
         Open the given dataset, mapping variable and dimension names from Omega
         to MPAS-Ocean names if appropriate
@@ -74,6 +77,9 @@ class OceanIOStep(Step):
         ----------
         filename : str
             The path for the NetCDF file to open
+
+        config : polaris.config.PolarisConfigParser
+            Configuration for the task; forwarded to the Ocean component.
 
         kwargs
             keyword arguments passed to `xarray.open_dataset()`

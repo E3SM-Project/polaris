@@ -431,8 +431,10 @@ class OceanModelStep(ModelStep):
             filename = str(filename)
             mesh_filename = os.path.join(self.work_dir, 'mesh.nc')
             this_filename = os.path.join(self.work_dir, filename)
-            ds_mesh = self.component.open_model_dataset(mesh_filename)
-            ds = self.component.open_model_dataset(this_filename)
+            ds_mesh = self.component.open_model_dataset(
+                mesh_filename, self.config
+            )
+            ds = self.component.open_model_dataset(this_filename, self.config)
             if 'tracer conservation' in properties:
                 # All tracers in mpaso_to_omega.yaml
                 tracers_to_check = [

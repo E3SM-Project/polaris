@@ -159,7 +159,7 @@ class Ocean(Component):
             ]
         return renamed_vars
 
-    def write_model_dataset(self, ds, filename, config=None):
+    def write_model_dataset(self, ds, filename, config):
         """
         Write out the given dataset, mapping dimension and variable names from
         MPAS-Ocean to Omega names if appropriate
@@ -171,8 +171,13 @@ class Ocean(Component):
 
         filename : str
             The path for the NetCDF file to write
+
+        config : polaris.config.PolarisConfigParser
+            Configuration for the task; used when the model is Omega to
+            convert geometric layer thickness to pseudo-thickness before
+            writing.
         """
-        if self.model == 'omega' and config is not None:
+        if self.model == 'omega':
             # fields to be converted from geometric to pseudo thickness
             mpas_to_omega_vars = {
                 'layerThickness': 'PseudoThickness',
@@ -261,7 +266,7 @@ class Ocean(Component):
     def open_model_dataset(
         self,
         filename,
-        config=None,
+        config,
         mesh_filename=None,
         reconstruct_variables=None,
         coeffs_filename=None,
@@ -276,17 +281,15 @@ class Ocean(Component):
         filename : str
             The path for the NetCDF file to open
 
-        config : polaris.Config, optional
-            The configuration object for the simulation.
+        config : polaris.config.PolarisConfigParser
+            Configuration for the task; used when the model is Omega to
+            compute geometric layer thickness from pseudo-thickness.
 
         mesh_filename : str, optional
             Path to the mesh NetCDF file.
 
         reconstruct_variables : list of str, optional
             List of variable names to reconstruct in the dataset.
-
-        coeffs_reconstruct : xarray.DataArray, optional
-            Coefficients used for reconstructing variables.
 
         coeffs_filename : str, optional
             Path to the coefficients NetCDF file.
@@ -305,7 +308,6 @@ class Ocean(Component):
             and 'layerThickness' not in ds.keys()
             and 'PseudoThickness' in ds.keys()
             and 'SpecVol' in ds.keys()
-            and config is not None
         ):
             ds['layerThickness'] = geom_thickness_from_ds(ds, config=config)
         ds = self.map_from_native_model_vars(ds)
