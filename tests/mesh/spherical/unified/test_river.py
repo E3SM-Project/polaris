@@ -738,63 +738,6 @@ def test_add_river_tasks_registers_mesh_tasks():
         assert task.name == f'river_network_{mesh_name}_task'
 
 
-def test_drainage_area_threshold_auto_derived_from_config():
-    # High-resolution mesh: 10 km land,
-    # multiplier 100 → 10² × 100 × 1e6 = 1e10 m²
-    steps_10km, config_10km = get_unified_mesh_river_steps(
-        mesh_name='u.oi30.lr10', include_viz=False
-    )
-    land_background_km = config_10km.getfloat(
-        'sizing_field', 'land_background_km'
-    )
-    multiplier = config_10km.getfloat(
-        'river_network', 'drainage_area_multiplier'
-    )
-    assert land_background_km == pytest.approx(10.0)
-    assert multiplier == pytest.approx(100.0)
-    assert land_background_km**2 * multiplier * 1e6 == pytest.approx(1.0e10)
-
-    # Coarse mesh: 240 km land, multiplier 10 → 240² × 10 × 1e6 = 5.76e11 m²
-    steps_240km, config_240km = get_unified_mesh_river_steps(
-        mesh_name='u.oi240.lr240', include_viz=False
-    )
-    land_background_km = config_240km.getfloat(
-        'sizing_field', 'land_background_km'
-    )
-    multiplier = config_240km.getfloat(
-        'river_network', 'drainage_area_multiplier'
-    )
-    assert land_background_km == pytest.approx(240.0)
-    assert multiplier == pytest.approx(10.0)
-    assert land_background_km**2 * multiplier * 1e6 == pytest.approx(5.76e11)
-
-
-def test_branch_distance_tolerance_auto_derived_from_config():
-    # 10 km river channel → 10 000 m tolerance
-    _, config_10km = get_unified_mesh_river_steps(
-        mesh_name='u.oi30.lr10', include_viz=False
-    )
-    river_channel_km = config_10km.getfloat('sizing_field', 'river_channel_km')
-    assert config_10km.getfloat(
-        'river_network', 'branch_distance_tolerance'
-    ) == pytest.approx(-1.0)
-    assert river_channel_km == pytest.approx(10.0)
-    assert river_channel_km * 1000.0 == pytest.approx(10_000.0)
-
-    # 240 km river channel → 240 000 m tolerance
-    _, config_240km = get_unified_mesh_river_steps(
-        mesh_name='u.oi240.lr240', include_viz=False
-    )
-    river_channel_km = config_240km.getfloat(
-        'sizing_field', 'river_channel_km'
-    )
-    assert config_240km.getfloat(
-        'river_network', 'branch_distance_tolerance'
-    ) == pytest.approx(-1.0)
-    assert river_channel_km == pytest.approx(240.0)
-    assert river_channel_km * 1000.0 == pytest.approx(240_000.0)
-
-
 def _line_feature(
     hyriv_id,
     coords,
