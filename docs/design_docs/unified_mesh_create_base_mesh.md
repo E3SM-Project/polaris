@@ -452,12 +452,13 @@ linked as the upstream mesh input.
 
 ### Implementation: River-Geometry Influence on Final Cell Placement
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/20
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The current implementation reads the conditioned river geometry produced by
 `prepare_river_network` and applies it during final mesh creation.
@@ -476,6 +477,33 @@ To keep river snapping from distorting coastal ocean resolution, the coastline-
 aware clipping now happens upstream in `PrepareRiverForBaseMeshStep`. The final
 base-mesh step consumes the already conditioned `clipped_river_network`
 product and converts those line features into JIGSAW `edge2` constraints.
+
+**Degenerate-polygon prevention.** When JIGSAW creates a Constrained Delaunay
+Triangulation on the ellipsoid with `vert2`/`edge2` constraints, nearly-parallel
+constraint edges that are separated by less than the mesh cell size create thin
+sliver triangles.  The circumcenters of those slivers (which become MPAS mesh
+vertices) can coincide exactly, producing MPAS cell polygons with zero-length
+edges.  Observed in the `u.oi6to18.lr6to10` mesh near the Amazon basin
+(lat=-7.06°S, lon=-64.63°W), where closely spaced river-channel segments from
+different HydroRIVERS features were just outside the previous 1.5 km snap
+tolerance.
+
+The `_read_geojson_line_mesh()` function applies a three-layer pre-processing
+strategy before handing constraints to JIGSAW:
+
+1. A first-pass union-find snap (using `_union_find`) merges raw constraint
+   vertices within `snap_tolerance_km` = `base_mesh_simplify_tolerance_km`.
+   Using the full simplify tolerance (previously half of it) ensures all
+   inter-feature separations below the mesh's spatial resolution are collapsed.
+2. A second-pass centroid snap (`_merge_close_centroids`) re-runs union-find
+   on the resulting cluster centroids, catching cases where centroid displacement
+   brings two clusters within the tolerance after the first pass.
+3. Duplicate constraint edges (same cluster pair regardless of direction) are
+   removed before building the `edge2` array.
+
+The earth radius used for the radian snap tolerance always comes from
+`get_constant('mean_radius')` (Physical Constants Dictionary); it is never
+hard-coded.
 
 ### Implementation: Shared Final Step and Per-Mesh Standalone Tasks
 
