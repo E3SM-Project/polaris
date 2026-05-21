@@ -27,7 +27,7 @@ ocean:
 
 mpas-ocean:
   frazil_ice:
-    config_use_frazil_ice_formation: true
+    config_use_frazil_ice_formation: false
   tracer_forcing_activeTracers:
     config_use_activeTracers_surface_bulk_forcing: true
     config_use_activeTracers_surface_restoring: false
