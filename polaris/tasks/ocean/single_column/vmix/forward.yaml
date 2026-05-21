@@ -41,7 +41,7 @@ mpas-ocean:
     config_disable_tr_vmix: false
   streams:
     output:
-      output_interval: 0000_01:00:00
+      output_interval: 0001_00:00:00
       contents:
       - layerThickness
       - tracers
@@ -126,7 +126,7 @@ Omega:
     History:
       Filename: output.nc
       Freq: 1
-      FreqUnits: Seconds
+      FreqUnits: Days
       IfExists: append
       # effectively never
       FileFreq: 9999
