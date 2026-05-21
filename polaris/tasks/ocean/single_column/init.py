@@ -4,10 +4,7 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
-<<<<<<< HEAD
 from polaris.ocean.coriolis import add_coriolis_to_dataset
-=======
->>>>>>> e6fbe7b59e4 (Use write_model_state for IC in single_column tests)
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
