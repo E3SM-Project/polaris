@@ -3,6 +3,20 @@ import shutil
 import zipfile
 
 
+def extract_zip_subdir(zip_filename, member_prefix, out_dir='.'):
+    with zipfile.ZipFile(zip_filename) as archive:
+        member_names = _find_zip_subdir_members(archive, member_prefix)
+        for member_name in member_names:
+            member_path = pathlib.PurePosixPath(member_name)
+            out_filename = pathlib.Path(out_dir).joinpath(*member_path.parts)
+            out_filename.parent.mkdir(parents=True, exist_ok=True)
+            with (
+                archive.open(member_name) as src,
+                open(out_filename, 'wb') as dst,
+            ):
+                shutil.copyfileobj(src, dst)
+
+
 def extract_zip_member(zip_filename, member_name, out_filename):
     with zipfile.ZipFile(zip_filename) as archive:
         member_name = find_zip_member(archive, member_name)
@@ -27,3 +41,19 @@ def find_zip_member(archive, member_name):
         f'Could not find ZIP member {member_name!r} in archive '
         f'{archive.filename!r}'
     )
+
+
+def _find_zip_subdir_members(archive, member_prefix):
+    prefix = pathlib.PurePosixPath(member_prefix).as_posix().rstrip('/')
+    prefix = f'{prefix}/'
+    matches = [
+        name
+        for name in archive.namelist()
+        if name.startswith(prefix) and not name.endswith('/')
+    ]
+    if len(matches) == 0:
+        raise ValueError(
+            f'Could not find ZIP subdirectory {member_prefix!r} in archive '
+            f'{archive.filename!r}'
+        )
+    return matches

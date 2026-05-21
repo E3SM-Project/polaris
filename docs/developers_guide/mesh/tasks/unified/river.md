@@ -1,0 +1,221 @@
+(dev-mesh-unified-river)=
+
+# River-Network Steps and Tasks
+
+This section of the Developer's guide covers the code for the unified-mesh
+river workflow. The {ref}`users-mesh-unified-river` section describes the
+user-facing behavior, configuration options, algorithms, and output products.
+
+The `polaris.tasks.mesh.spherical.unified.river` package separates the river
+workflow into source-level simplification, target-grid rasterization, optional
+diagnostics, and downstream base-mesh conditioning. The package makes available
+functions that return a dict of shared steps and thin task wrappers so the same
+implementation can be reused by standalone inspection tasks and by downstream
+unified-mesh tasks.
+
+## Available tasks
+
+The helper
+{py:func}`polaris.tasks.mesh.spherical.unified.river.add_river_tasks`
+registers one standalone task for each mesh name in
+`polaris.mesh.spherical.unified.UNIFIED_MESH_NAMES`:
+
+- {py:class}`polaris.tasks.mesh.spherical.unified.river.UnifiedRiverNetworkTask` at
+  `mesh/spherical/unified/<mesh_name>/river/task`.
+
+{py:func}`polaris.tasks.mesh.add_tasks.add_mesh_tasks` wires these tasks into
+the `mesh` component after the generic base-mesh tasks (see
+{ref}`dev-mesh-base-mesh-task`) and the shared coastline tasks (see
+{ref}`dev-mesh-unified-coastline`).
+
+## Task structure and shared steps
+
+`UnifiedRiverNetworkTask` layers shared dependencies in a fixed order:
+
+1. It requests the shared lat-lon topography step (see
+   {ref}`dev-e3sm-init-topo-combine-tasks`) from
+   {py:func}`polaris.tasks.e3sm.init.topo.combine.steps.get_lat_lon_topo_steps`
+   and exposes it as `combine_topo`.
+2. It requests the shared coastline steps (see {ref}`dev-mesh-unified-coastline`)
+   from
+   {py:func}`polaris.tasks.mesh.spherical.unified.coastline.get_unified_mesh_coastline_steps`
+   and exposes them as `coastline_compute` and the optional
+   `viz_coastline_compute`.
+3. It requests the full set of shared river steps from
+   {py:func}`polaris.tasks.mesh.spherical.unified.river.get_unified_mesh_river_steps`
+   and exposes {py:class}`polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep`
+   as `river_simplify`,
+   {py:class}`polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep`
+   as `river_rasterize`,
+   {py:class}`polaris.tasks.mesh.spherical.unified.river.VizRiverStep` as
+   `viz_river_network`, and
+   {py:class}`polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep`
+   as `river_clip`.
+
+This ordering keeps the river implementation dependent only on the explicit
+products it consumes: simplified HydroRIVERS geometry and the selected
+coastline dataset.
+
+The shared-step factory in `steps.py` is the main extension point for other
+task families:
+
+- {py:func}`polaris.tasks.mesh.spherical.unified.river.get_unified_mesh_river_steps`
+  builds or reuses the full chain of shared river steps —
+  {py:class}`polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep`,
+  {py:class}`polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep`,
+  optional {py:class}`polaris.tasks.mesh.spherical.unified.river.VizRiverStep`,
+  and {py:class}`polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep`
+  — returning them as a dict keyed by step name along with the lat-lon mesh
+  config.
+
+## Implementation map
+
+### `simplify.py`
+
+`SimplifyRiverNetworkStep.setup()` registers the HydroRIVERS archive as an input
+file through `add_input_file()` using the public URL from `river_network.cfg`.
+`SimplifyRiverNetworkStep.run()` unpacks the archive, simplifies the source
+network, and writes:
+
+- `simplified_river_network.geojson`
+
+The public helper
+{py:func}`polaris.tasks.mesh.spherical.unified.river.simplify_river_network_feature_collection`
+contains the source-level retention logic. It builds canonical segments,
+validates downstream topology, and traverses upstream from all retained
+HydroRIVERS terminal segments while preserving main stems and significant
+tributaries. The resulting segment metadata keeps `outlet_hyriv_id` as
+basin-root provenance for future catchment grouping, and adds
+`outlet_drainage_area` and `river_network_rank` so individual networks can be
+selected from the single GeoJSON output without default per-network files.
+
+The tributary-selection logic compares each non-primary tributary's drainage
+area against the **terminal root's** drainage area (not the primary upstream
+tributary's area), matching the reference point used by the standalone
+implementation. Strahler stream-order-1 headwater tributaries skip the
+drainage-area check entirely and proceed directly to the distance-based
+fallback, consistent with the standalone's more aggressive headwater pruning.
+
+The internal `RiverSegment` dataclass is the canonical representation used by
+the simplification helpers. It is intentionally not exported as part of the
+public API. `read_river_segments_from_feature_collection()` and
+`river_segments_to_feature_collection()` preserve `outlet_hyriv_id`,
+`outlet_drainage_area`, and `river_network_rank` during GeoJSON round trips,
+and `ClipRiverNetworkStep` carries these fields through coastline conditioning.
+
+### `rasterize.py`
+
+`RasterizeRiverLatLonStep.setup()` links the simplified source product and the
+selected coastline NetCDF file. `RasterizeRiverLatLonStep.run()` reads those
+inputs, calls
+{py:func}`polaris.tasks.mesh.spherical.unified.river.build_river_network_dataset`,
+and writes:
+
+- `river_network.nc`
+
+`build_river_network_dataset()` is the public target-grid helper. It rasterizes
+river channels and writes `river_channel_mask` on the shared lat-lon grid.
+Outlet snapping and coastline reconciliation are deferred until after an MPAS
+base mesh exists.
+
+### `clip.py`
+
+`ClipRiverNetworkStep` is produced through `get_unified_mesh_river_steps()`
+and is included in `UnifiedRiverNetworkTask` as well as downstream unified
+base-mesh consumers.
+
+Its `run()` method reads the simplified river network and coastline products,
+then conditions the retained geometry for direct base-mesh use by:
+
+- densifying each river line at the coastline-grid scale before evaluating the
+  selected coastline signed-distance field;
+- clipping only the line portions that fall inside the configured coastal
+  exclusion band, with threshold-crossing points interpolated along each
+  sampled line interval;
+- preserving all valid inland pieces, including multiple pieces from one
+  HydroRIVERS feature when the line exits and re-enters the exclusion band;
+- simplifying clipped geometry and falling back to the unsimplified clipped
+  piece if simplification would make it degenerate;
+- removing only degenerate pieces with fewer than two distinct points;
+- regenerating a diagnostic lat-lon mask product from the conditioned river
+  geometry.
+
+This step writes `clipped_river_network.geojson` and
+`clipped_river_network.nc`.
+
+The `min_segment_length_m` helper argument and
+`base_mesh_min_segment_length_km` config option are retained for compatibility,
+but they no longer prune valid inland river geometry. This avoids artificial
+gaps far inland from the coastline.
+
+### `viz.py`
+
+`VizRiverStep` is a pure diagnostic consumer of the shared source, coastline,
+lat-lon river, and clipped river products. It writes
+`river_network_overlay.png`, `rasterized_river_network.png`, and
+`debug_summary.txt`, and keeps visualization logic out of the numerical steps.
+
+## Configuration plumbing
+
+All shared river steps use mesh-specific configs built through
+`polaris.mesh.spherical.unified.get_unified_mesh_config()`. That loader
+combines:
+
+- the generic `unified_mesh.cfg` defaults;
+- the shared `river_network.cfg` file; and
+- the selected named-mesh config file.
+
+`SimplifyRiverNetworkStep` consumes `[river_network]` options and, when
+`drainage_area_threshold` or `branch_distance_tolerance` is set to the sentinel
+value `-1`, reads `land_background_km` and `river_channel_km` from
+`[sizing_field]` to derive the threshold values automatically.
+
+`RasterizeRiverLatLonStep` consumes `[river_rasterize]` options and also reads
+the selected `unified_mesh` settings such as `mesh_name` and
+`resolution_latlon`.
+It reads `antarctic_boundary_convention` from `[spherical_mesh]` when selecting
+the coastline product.
+
+`ClipRiverNetworkStep` consumes `[river_network]` and `unified_mesh`
+settings, and also reads `antarctic_boundary_convention` from
+`[spherical_mesh]` when selecting the coastline product for clipping.
+
+`VizRiverStep` consumes `[viz_river_network].dpi`.
+
+## Extension points
+
+Common extension paths for future development are:
+
+- adding a new named unified mesh by creating a new config file under
+  `polaris.mesh.spherical.unified`; task registration discovers mesh names
+  from those config files automatically;
+- extending source-level metadata or retention rules in
+  `simplify_river_network_feature_collection()` and the associated GeoJSON
+  property builders;
+- extending the target-grid output contract in
+  `build_river_network_dataset()` and the visualization step; and
+- adjusting downstream coastline-aware conditioning in
+  `ClipRiverNetworkStep` without creating a separate river-processing
+  code path for base meshes.
+
+The public API in this package is intentionally narrow: task wrappers,
+shared-step factories, step classes, and the two reusable dataset-building
+helpers. Most geometry and graph utilities remain private so they can evolve
+without breaking downstream callers.
+
+## Test coverage
+
+Unit tests in `tests/mesh/spherical/unified/test_river.py` currently cover:
+
+- source-level terminal-root traversal, deep main-stem traversal, tributary
+  retention, and cycle detection;
+- HydroRIVERS archive unpacking and shapefile-to-GeoJSON conversion helpers;
+- target-grid river-channel raster contracts;
+- coastline-aware base-mesh conditioning helpers, including local clipping,
+  re-entry through the exclusion band, densification before signed-distance
+  sampling, preservation of short inland pieces, and shared-step factories;
+- and task registration for all named unified meshes.
+
+There is not yet a full task-level integration test that runs the end-to-end
+river workflow on real HydroRIVERS data inside the documentation build or unit
+test suite.

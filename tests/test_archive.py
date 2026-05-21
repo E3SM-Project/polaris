@@ -7,7 +7,7 @@ import pytest
 
 def _load_archive_module():
     module_path = (
-        Path(__file__).resolve().parents[4] / 'polaris' / 'archive.py'
+        Path(__file__).resolve().parents[1] / 'polaris' / 'archive.py'
     )
     spec = importlib.util.spec_from_file_location(
         'polaris_archive', module_path
@@ -46,3 +46,22 @@ def test_find_zip_member_raises_on_ambiguous_basename(tmp_path):
     with zipfile.ZipFile(zip_path) as archive:
         with pytest.raises(ValueError, match='Multiple ZIP members'):
             archive_module.find_zip_member(archive, 'GEBCO_2023.nc')
+
+
+def test_extract_zip_subdir_extracts_matching_members(tmp_path):
+    archive_module = _load_archive_module()
+    zip_path = tmp_path / 'HydroRIVERS_v10_shp.zip'
+
+    with zipfile.ZipFile(zip_path, 'w') as archive:
+        archive.writestr('HydroRIVERS_TechDoc_v10.pdf', b'pdf')
+        archive.writestr('HydroRIVERS_v10_shp/HydroRIVERS_v10.shp', b'shp')
+        archive.writestr('HydroRIVERS_v10_shp/HydroRIVERS_v10.dbf', b'dbf')
+
+    archive_module.extract_zip_subdir(
+        str(zip_path), 'HydroRIVERS_v10_shp', out_dir=str(tmp_path)
+    )
+
+    shp_dir = tmp_path / 'HydroRIVERS_v10_shp'
+    assert (shp_dir / 'HydroRIVERS_v10.shp').read_bytes() == b'shp'
+    assert (shp_dir / 'HydroRIVERS_v10.dbf').read_bytes() == b'dbf'
+    assert not (tmp_path / 'HydroRIVERS_TechDoc_v10.pdf').exists()

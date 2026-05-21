@@ -1,0 +1,306 @@
+import os
+
+import numpy as np
+import xarray as xr
+
+from polaris.mesh.spherical.unified.river.distance import (
+    haversine_distance,
+)
+from polaris.mesh.spherical.unified.river.geojson import (
+    read_geojson,
+)
+from polaris.step import Step
+from polaris.tasks.mesh.spherical.unified.river.simplify import (
+    EARTH_RADIUS,
+    read_river_segments_from_feature_collection,
+)
+
+
+class RasterizeRiverLatLonStep(Step):
+    """
+    Rasterize a simplified river network onto a shared lat-lon target grid.
+    """
+
+    def __init__(self, component, simplify_step, coastline_step, subdir):
+        """
+        Create a new step.
+
+        Parameters
+        ----------
+        component : polaris.Component
+            The component the step belongs to
+
+        simplify_step : polaris.tasks.mesh.spherical.unified.river.simplify.SimplifyRiverNetworkStep
+            The shared simplify river network step
+
+        coastline_step : polaris.Step
+            The shared coastline step
+
+        subdir : str
+            The subdirectory within the component's work directory
+        """  # noqa: E501
+        super().__init__(
+            component=component,
+            name='river_rasterize',
+            subdir=subdir,
+            cpus_per_task=1,
+            min_cpus_per_task=1,
+        )
+        self.simplify_step = simplify_step
+        self.coastline_step = coastline_step
+        self.masks_filename = 'river_network.nc'
+
+    def setup(self):
+        """
+        Link shared source and coastline inputs and declare outputs.
+        """
+        convention = self.config.get(
+            'spherical_mesh', 'antarctic_boundary_convention'
+        )
+        self.add_input_file(
+            filename='simplified_river_network.geojson',
+            work_dir_target=os.path.join(
+                self.simplify_step.path, self.simplify_step.simplified_filename
+            ),
+        )
+        self.add_input_file(
+            filename='coastline.nc',
+            work_dir_target=os.path.join(
+                self.coastline_step.path,
+                self.coastline_step.output_filenames[convention],
+            ),
+        )
+        self.add_output_file(filename=self.masks_filename)
+
+    def run(self):
+        """
+        Build the target-grid river-channel mask.
+        """
+        section = self.config['river_rasterize']
+        river_fc = read_geojson('simplified_river_network.geojson')
+        ds_coastline = xr.open_dataset('coastline.nc')
+        ds_river = build_river_network_dataset(
+            river_feature_collection=river_fc,
+            ds_coastline=ds_coastline,
+            resolution=self.config.getfloat(
+                'unified_mesh', 'resolution_latlon'
+            ),
+            channel_subsegment_fraction=section.getfloat(
+                'channel_subsegment_fraction'
+            ),
+            channel_buffer_km=section.getfloat('channel_buffer_km'),
+        )
+        ds_river.attrs['source_river_step'] = self.simplify_step.subdir
+        ds_river.attrs['source_coastline_step'] = self.coastline_step.subdir
+        ds_river.attrs['mesh_name'] = self.config.get(
+            'unified_mesh', 'mesh_name'
+        )
+        ds_river.attrs['antarctic_boundary_convention'] = self.config.get(
+            'spherical_mesh', 'antarctic_boundary_convention'
+        )
+        ds_river.to_netcdf(self.masks_filename)
+
+
+def build_river_network_dataset(
+    river_feature_collection,
+    ds_coastline,
+    resolution,
+    channel_subsegment_fraction=0.5,
+    channel_buffer_km=0.0,
+):
+    """
+    Rasterize a simplified river network onto a regular lat-lon grid.
+
+    Parameters
+    ----------
+    river_feature_collection : dict
+        A GeoJSON feature collection of simplified river line segments
+
+    ds_coastline : xarray.Dataset
+        Coastline dataset with ``lat`` and ``lon`` variables
+
+    resolution : float
+        The target grid resolution in degrees
+
+    channel_subsegment_fraction : float, optional
+        Fraction of the target resolution used as the maximum
+        inter-sample spacing when densifying river channels for
+        rasterization
+
+    channel_buffer_km : float, optional
+        Physical buffer radius in kilometres around each sampled channel
+        point within which additional grid cells are marked
+
+    Returns
+    -------
+    ds_river : xarray.Dataset
+        Dataset with ``river_channel_mask`` on the target lat-lon grid
+    """
+    river_segments = read_river_segments_from_feature_collection(
+        river_feature_collection
+    )
+    lat = ds_coastline.lat.values
+    lon = ds_coastline.lon.values
+    shape_2d = (lat.size, lon.size)
+
+    river_channel_mask = np.zeros(shape_2d, dtype=np.int8)
+    channel_buffer_m = channel_buffer_km * 1.0e3
+
+    for segment in river_segments:
+        sample_points = _sample_line(
+            segment.geometry,
+            resolution=resolution,
+            subsegment_fraction=channel_subsegment_fraction,
+        )
+        for sample_lon, sample_lat in sample_points:
+            _mark_channel_sample(
+                mask=river_channel_mask,
+                sample_lon=sample_lon,
+                sample_lat=sample_lat,
+                lon=lon,
+                lat=lat,
+                buffer_m=channel_buffer_m,
+            )
+
+    ds_river = xr.Dataset(
+        coords=dict(lat=ds_coastline.lat, lon=ds_coastline.lon)
+    )
+    dims = ('lat', 'lon')
+    ds_river['river_channel_mask'] = xr.DataArray(
+        river_channel_mask, dims=dims
+    )
+    ds_river.attrs.update(
+        dict(
+            target_grid='lat_lon',
+            target_grid_resolution_degrees=resolution,
+            channel_buffer_m=channel_buffer_m,
+        )
+    )
+    ds_river['river_channel_mask'].attrs['long_name'] = (
+        'Lat-lon mask for retained river channels'
+    )
+    return ds_river
+
+
+def _sample_line(geometry, resolution, subsegment_fraction):
+    """
+    Sample a line densely enough to rasterize it onto a regular grid.
+    """
+    coords = np.asarray(geometry.coords)
+    sample_points = [tuple(coords[0])]
+    max_step = resolution * subsegment_fraction
+    for start, end in zip(coords[:-1], coords[1:], strict=True):
+        lon0, lat0 = start
+        lon1, lat1 = end
+        delta_lon = _wrapped_longitude_difference(lon1 - lon0)
+        delta_lat = lat1 - lat0
+        segment_extent = max(abs(delta_lon), abs(delta_lat))
+        n_steps = max(1, int(np.ceil(segment_extent / max_step)))
+        for index in range(1, n_steps + 1):
+            fraction = index / n_steps
+            sample_points.append(
+                (
+                    _wrap_longitude(lon0 + fraction * delta_lon),
+                    lat0 + fraction * delta_lat,
+                )
+            )
+    return sample_points
+
+
+def _nearest_grid_index(sample_lon, sample_lat, lon, lat):
+    """
+    Find the nearest lat-lon grid-cell center.
+    """
+    lon_index = _nearest_periodic_index(sample_lon, lon)
+    lat_index = _nearest_bounded_index(sample_lat, lat)
+    return lat_index, lon_index
+
+
+def _mark_channel_sample(mask, sample_lon, sample_lat, lon, lat, buffer_m):
+    """
+    Mark grid cells within a physical buffer of a sampled river point.
+    """
+    lat_index, lon_index = _nearest_grid_index(
+        sample_lon=sample_lon,
+        sample_lat=sample_lat,
+        lon=lon,
+        lat=lat,
+    )
+    mask[lat_index, lon_index] = 1
+    if buffer_m <= 0.0:
+        return
+
+    angular_buffer = buffer_m / EARTH_RADIUS
+    lat_delta = np.rad2deg(angular_buffer)
+    cos_lat = max(np.cos(np.deg2rad(sample_lat)), 1.0e-6)
+    lon_delta = min(180.0, np.rad2deg(angular_buffer / cos_lat))
+    lat_indices = _coordinate_window(sample_lat, lat, lat_delta)
+    lon_indices = _coordinate_window(sample_lon, lon, lon_delta, periodic=True)
+
+    candidate_lat = lat[lat_indices][:, np.newaxis]
+    candidate_lon = lon[lon_indices][np.newaxis, :]
+    distances = haversine_distance(
+        sample_lon, sample_lat, candidate_lon, candidate_lat
+    )
+    buffered_mask = distances <= buffer_m
+    mask[np.ix_(lat_indices, lon_indices)] |= buffered_mask.astype(np.int8)
+
+
+def _nearest_bounded_index(value, coord):
+    """
+    Find the nearest index in a regular coordinate array.
+    """
+    if coord.size == 1:
+        return 0
+
+    step = coord[1] - coord[0]
+    raw_index = int(np.rint((value - coord[0]) / step))
+    return int(np.clip(raw_index, 0, coord.size - 1))
+
+
+def _nearest_periodic_index(value, coord):
+    """
+    Find the nearest index in a regular periodic coordinate array.
+    """
+    if coord.size == 1:
+        return 0
+
+    step = coord[1] - coord[0]
+    raw_index = int(np.rint((value - coord[0]) / step))
+    return raw_index % coord.size
+
+
+def _coordinate_window(value, coord, delta, periodic=False):
+    """
+    Find candidate coordinate indices within one regular-grid window.
+    """
+    if coord.size == 1:
+        return np.array([0], dtype=int)
+
+    spacing = abs(coord[1] - coord[0])
+    half_width = int(np.ceil(delta / spacing)) + 1
+    if periodic:
+        center = _nearest_periodic_index(value, coord)
+        indices = np.arange(
+            center - half_width, center + half_width + 1, dtype=int
+        )
+        return np.unique(indices % coord.size)
+
+    center = _nearest_bounded_index(value, coord)
+    start = max(0, center - half_width)
+    stop = min(coord.size, center + half_width + 1)
+    return np.arange(start, stop, dtype=int)
+
+
+def _wrapped_longitude_difference(delta_lon):
+    """
+    Wrap a longitude difference into the [-180, 180) interval.
+    """
+    return (delta_lon + 180.0) % 360.0 - 180.0
+
+
+def _wrap_longitude(lon):
+    """
+    Wrap a longitude into the [-180, 180) interval.
+    """
+    return _wrapped_longitude_difference(lon)
