@@ -64,7 +64,7 @@ with Intel and OpenMPI):
 ## Omega: Running CTests and `omega_pr` Suite
 
 For each machine, compiler, and MPI combination (for example, on Chrysalis
-with Intel and OpenMPI):
+with `oneapi-ifx` and OpenMPI):
 
 1. **Start a Clean Environment**
 
@@ -73,7 +73,7 @@ with Intel and OpenMPI):
 2. **Source the Load Script**
 
    ```bash
-   source load_polaris_chrysalis_intel_openmpi.sh
+   source load_polaris_chrysalis_oneapi-ifx_openmpi.sh
    ```
 
    *(Replace as appropriate for your configuration.)*
@@ -100,7 +100,7 @@ with Intel and OpenMPI):
 
     ```bash
     polaris suite -c ocean -t omega_pr --model omega \
-          -w /path/to/polaris_scratch/omega_pr_intel_openmpi \
+          -w /path/to/polaris_scratch/omega_pr_oneapi_openmpi \
           -p /path/to/polaris_branch/build_omega/build_<machine>_<compiler>
     ```
 
@@ -116,7 +116,7 @@ with Intel and OpenMPI):
 6. **Run the Suite**
 
    ```bash
-   cd /path/to/polaris_scratch/omega_pr_intel_openmpi
+   cd /path/to/polaris_scratch/omega_pr_oneapi_openmpi
    sbatch job_script_omega_pr.sh
    ```
 
