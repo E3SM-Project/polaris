@@ -202,6 +202,64 @@
 </tbody>
 </table>
 </section>
+<section id="unified-river-tasks">
+<h3>Unified River Tasks<a class="headerlink" href="#unified-river-tasks" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.html#polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep" title="polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimplifyRiverNetworkStep</span></code></a>(component, subdir)</p></td>
+<td><p>Prepare a simplified, source-grid-independent river network.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.setup.html#polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.setup" title="polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimplifyRiverNetworkStep.setup</span></code></a>()</p></td>
+<td><p>Add the HydroRIVERS shapefile archive input and declare outputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.run.html#polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.run" title="polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimplifyRiverNetworkStep.run</span></code></a>()</p></td>
+<td><p>Download, unpack, convert, and simplify HydroRIVERS source data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.simplify_river_network_feature_collection.html#polaris.tasks.mesh.spherical.unified.river.simplify_river_network_feature_collection" title="polaris.tasks.mesh.spherical.unified.river.simplify_river_network_feature_collection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simplify_river_network_feature_collection</span></code></a>(...)</p></td>
+<td><p>Simplify a HydroRIVERS-style feature collection.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.html#polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep" title="polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RasterizeRiverLatLonStep</span></code></a>(component, ...)</p></td>
+<td><p>Rasterize a simplified river network onto a shared lat-lon target grid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.setup.html#polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.setup" title="polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RasterizeRiverLatLonStep.setup</span></code></a>()</p></td>
+<td><p>Link shared source and coastline inputs and declare outputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.run.html#polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.run" title="polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RasterizeRiverLatLonStep.run</span></code></a>()</p></td>
+<td><p>Build the target-grid river-channel mask.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.build_river_network_dataset.html#polaris.tasks.mesh.spherical.unified.river.build_river_network_dataset" title="polaris.tasks.mesh.spherical.unified.river.build_river_network_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_river_network_dataset</span></code></a>(...[, ...])</p></td>
+<td><p>Rasterize a simplified river network onto a regular lat-lon grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.html#polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep" title="polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ClipRiverNetworkStep</span></code></a>(component, ...)</p></td>
+<td><p>Prepare clipped river products for base-mesh consumers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.setup.html#polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.setup" title="polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ClipRiverNetworkStep.setup</span></code></a>()</p></td>
+<td><p>Link simplified river and coastline products and declare outputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.run.html#polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.run" title="polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ClipRiverNetworkStep.run</span></code></a>()</p></td>
+<td><p>Clip and simplify the retained river network for base-mesh use.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.get_unified_mesh_river_steps.html#polaris.tasks.mesh.spherical.unified.river.get_unified_mesh_river_steps" title="polaris.tasks.mesh.spherical.unified.river.get_unified_mesh_river_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unified_mesh_river_steps</span></code></a>(mesh_name[, ...])</p></td>
+<td><p>Get shared river-network steps for one mesh (source, lat-lon, base-mesh).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.VizRiverStep.html#polaris.tasks.mesh.spherical.unified.river.VizRiverStep" title="polaris.tasks.mesh.spherical.unified.river.VizRiverStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizRiverStep</span></code></a>(component, simplify_step, ...)</p></td>
+<td><p>A step for visualizing river-network diagnostics.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.VizRiverStep.setup.html#polaris.tasks.mesh.spherical.unified.river.VizRiverStep.setup" title="polaris.tasks.mesh.spherical.unified.river.VizRiverStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizRiverStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including linking inputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.VizRiverStep.run.html#polaris.tasks.mesh.spherical.unified.river.VizRiverStep.run" title="polaris.tasks.mesh.spherical.unified.river.VizRiverStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizRiverStep.run</span></code></a>()</p></td>
+<td><p>Run this step.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.UnifiedRiverNetworkTask.html#polaris.tasks.mesh.spherical.unified.river.UnifiedRiverNetworkTask" title="polaris.tasks.mesh.spherical.unified.river.UnifiedRiverNetworkTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnifiedRiverNetworkTask</span></code></a>(component, mesh_name)</p></td>
+<td><p>A standalone task for preparing all river-network products for one mesh.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.add_river_tasks.html#polaris.tasks.mesh.spherical.unified.river.add_river_tasks" title="polaris.tasks.mesh.spherical.unified.river.add_river_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_river_tasks</span></code></a>(component)</p></td>
+<td><p>Add standalone river-network tasks.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 </section>
 

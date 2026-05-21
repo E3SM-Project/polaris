@@ -5,11 +5,12 @@
 The `mesh/spherical/unified/coastline` tasks build coastline masks and
 signed-distance fields from the shared combined-topography products on
 latitude-longitude grids. These tasks are intended for inspecting and caching
-coastline products that later unified-mesh workflows
-can reuse.
+coastline products that later unified-mesh workflows (such as
+{ref}`users-mesh-unified-river`) can reuse.
 
 Current coastline products are derived only from the combined topography
-fields produced by the `e3sm/init/topo/combine` workflow.
+fields produced by the `e3sm/init/topo/combine` workflow (see
+{ref}`e3sm-init-topo-tasks`).
 
 ## Available tasks
 

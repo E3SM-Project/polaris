@@ -19,7 +19,7 @@
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="E3SM Initial Condition Component" href="../../../e3sm/init/index.html" />
+    <link rel="next" title="River-network tasks" href="river.html" />
     <link rel="prev" title="Tasks" href="../index.html" />
     <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -55,6 +55,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../index.html#base-mesh-tasks">Base Mesh Tasks</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#unified-mesh-tasks">Unified Mesh Tasks</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">Coastline tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="river.html">River-network tasks</a></li>
 </ul>
 </li>
 </ul>
@@ -128,10 +129,11 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">mesh/spherical/unified/coastline</span></code> tasks build coastline masks and
 signed-distance fields from the shared combined-topography products on
 latitude-longitude grids. These tasks are intended for inspecting and caching
-coastline products that later unified-mesh workflows
-can reuse.</p>
+coastline products that later unified-mesh workflows (such as
+<a class="reference internal" href="river.html#users-mesh-unified-river"><span class="std std-ref">River-network tasks</span></a>) can reuse.</p>
 <p>Current coastline products are derived only from the combined topography
-fields produced by the <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine</span></code> workflow.</p>
+fields produced by the <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine</span></code> workflow (see
+<a class="reference internal" href="../../../e3sm/init/tasks/topo.html#e3sm-init-topo-tasks"><span class="std std-ref">Topography Tasks</span></a>).</p>
 <section id="available-tasks">
 <h2>Available tasks<a class="headerlink" href="#available-tasks" title="Link to this heading"></a></h2>
 <p>Polaris provides one standalone coastline task for each supported
@@ -339,7 +341,7 @@ symlink pointing to the shared 0.03125° compute step.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../index.html" class="btn btn-neutral float-left" title="Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../../e3sm/init/index.html" class="btn btn-neutral float-right" title="E3SM Initial Condition Component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="river.html" class="btn btn-neutral float-right" title="River-network tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.setup
+=========================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.river
+
+.. automethod:: SimplifyRiverNetworkStep.setup

@@ -44,4 +44,5 @@ and river information independently.
 :titlesonly: true
 
 unified/coastline
+unified/river
 ```
