@@ -12,16 +12,16 @@ can be used to generate quasi-uniform (`qu`) and subdivided icosahedral
 km.  These "base" meshes cover the full sphere (include both continents and
 ocean regions).
 
-## Unified Mesh Preparation Tasks
+## Unified Mesh Tasks
 
-This section covers the shared task families that prepare reusable coastline
-and river products for named global unified meshes. These workflows are
-intended to be reused by downstream sizing-field and base-mesh tasks rather
-than implemented separately inside each consumer.
+This section covers the task families for named global unified meshes, from
+the preparatory coastline and river workflows through the sizing-field
+construction.
 
 ```{toctree}
 :titlesonly: true
 
 unified/coastline
 unified/river
+unified/sizing_field
 ```

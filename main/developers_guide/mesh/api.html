@@ -260,6 +260,46 @@
 </tbody>
 </table>
 </section>
+<section id="unified-sizing-field-tasks">
+<h3>Unified Sizing-Field Tasks<a class="headerlink" href="#unified-sizing-field-tasks" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep" title="polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BuildSizingFieldStep</span></code></a>(component, ...)</p></td>
+<td><p>Build a unified sizing field on a shared lat-lon target grid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.setup.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.setup" title="polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BuildSizingFieldStep.setup</span></code></a>()</p></td>
+<td><p>Link coastline and river products, configure the mesh family, and declare outputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.run.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.run" title="polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BuildSizingFieldStep.run</span></code></a>()</p></td>
+<td><p>Build the sizing-field dataset and write it to NetCDF.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset.html#polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset" title="polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sizing_field_dataset</span></code></a>(ds_coastline, ds_river, ...)</p></td>
+<td><p>Build the unified sizing-field dataset from coastline and river products.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.html#polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep" title="polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizSizingFieldStep</span></code></a>(component, sizing_step, ...)</p></td>
+<td><p>Visualize sizing-field diagnostics produced by <a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep" title="polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildSizingFieldStep</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.setup.html#polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.setup" title="polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizSizingFieldStep.setup</span></code></a>()</p></td>
+<td><p>Link the sizing-field dataset and declare outputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.run.html#polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.run" title="polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizSizingFieldStep.run</span></code></a>()</p></td>
+<td><p>Create simple global diagnostic plots and a text summary.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask.html#polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask" title="polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SizingFieldTask</span></code></a>(component, mesh_name)</p></td>
+<td><p>A standalone task for building one named unified sizing field.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.add_sizing_field_tasks.html#polaris.tasks.mesh.spherical.unified.sizing_field.add_sizing_field_tasks" title="polaris.tasks.mesh.spherical.unified.sizing_field.add_sizing_field_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_sizing_field_tasks</span></code></a>(component)</p></td>
+<td><p>Add standalone sizing-field tasks for all supported unified meshes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.get_unified_mesh_sizing_field_steps.html#polaris.tasks.mesh.spherical.unified.sizing_field.get_unified_mesh_sizing_field_steps" title="polaris.tasks.mesh.spherical.unified.sizing_field.get_unified_mesh_sizing_field_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unified_mesh_sizing_field_steps</span></code></a>(mesh_name)</p></td>
+<td><p>Get shared sizing-field steps for one named mesh.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.get_sizing_field_config.html#polaris.tasks.mesh.spherical.unified.sizing_field.get_sizing_field_config" title="polaris.tasks.mesh.spherical.unified.sizing_field.get_sizing_field_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sizing_field_config</span></code></a>(mesh_name[, filepath])</p></td>
+<td><p>Load one unified mesh config with sizing-field defaults.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 </section>
 

@@ -1,0 +1,306 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sizing-Field Steps and Tasks</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Mesh Framework" href="../../framework/index.html" />
+    <link rel="prev" title="River-Network Steps and Tasks" href="river.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Mesh component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../index.html#base-mesh-task">Base Mesh Task</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#unified-mesh-tasks">Unified Mesh Tasks</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="coastline.html">Coastline Steps and Tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="river.html">River-Network Steps and Tasks</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Sizing-Field Steps and Tasks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../framework/index.html">Mesh Framework</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Mesh component</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">Sizing-Field Steps and Tasks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/developers_guide/mesh/tasks/unified/sizing_field.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="sizing-field-steps-and-tasks">
+<span id="dev-mesh-unified-sizing-field"></span><h1>Sizing-Field Steps and Tasks<a class="headerlink" href="#sizing-field-steps-and-tasks" title="Link to this heading"></a></h1>
+<p>This section of the Developer’s guide covers the code for the unified-mesh
+sizing-field workflow. The <a class="reference internal" href="../../../../users_guide/mesh/tasks/unified/sizing_field.html#users-mesh-unified-sizing-field"><span class="std std-ref">Sizing-field tasks</span></a> section
+describes the user-facing behavior, configuration options, and output products.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.sizing_field</span></code> package assembles a
+cell-width map on a shared lat-lon target grid from the coastline and river
+products produced by the upstream workflows. The sizing-field dataset is the
+key input to the JIGSAW mesh generator in the downstream base-mesh step.</p>
+<section id="available-tasks">
+<h2>Available tasks<a class="headerlink" href="#available-tasks" title="Link to this heading"></a></h2>
+<p>The helper
+<a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.sizing_field.add_sizing_field_tasks.html#polaris.tasks.mesh.spherical.unified.sizing_field.add_sizing_field_tasks" title="polaris.tasks.mesh.spherical.unified.sizing_field.add_sizing_field_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.sizing_field.add_sizing_field_tasks()</span></code></a>
+registers one standalone task for each mesh name in
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified.UNIFIED_MESH_NAMES</span></code>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask.html#polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask" title="polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask</span></code></a>
+at <code class="docutils literal notranslate"><span class="pre">mesh/spherical/unified/&lt;mesh_name&gt;/sizing_field/task</span></code>.</p></li>
+</ul>
+</section>
+<section id="task-structure-and-shared-steps">
+<h2>Task structure and shared steps<a class="headerlink" href="#task-structure-and-shared-steps" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">SizingFieldTask</span></code> calls
+<a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.sizing_field.get_unified_mesh_sizing_field_steps.html#polaris.tasks.mesh.spherical.unified.sizing_field.get_unified_mesh_sizing_field_steps" title="polaris.tasks.mesh.spherical.unified.sizing_field.get_unified_mesh_sizing_field_steps"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.sizing_field.get_unified_mesh_sizing_field_steps()</span></code></a>
+with <code class="docutils literal notranslate"><span class="pre">include_viz=True</span></code>, which in turn calls the river step factory (see
+<a class="reference internal" href="river.html#dev-mesh-unified-river"><span class="std std-ref">River-Network Steps and Tasks</span></a>) to obtain all upstream steps and then creates
+<a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep" title="polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep</span></code></a>.</p>
+<p>The task workdir contains symlinks for all upstream coastline and river steps
+plus:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sizing_field</span></code> — the shared <code class="docutils literal notranslate"><span class="pre">BuildSizingFieldStep</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sizing_field_viz</span></code> — the shared <code class="docutils literal notranslate"><span class="pre">VizSizingFieldStep</span></code> (when
+<code class="docutils literal notranslate"><span class="pre">include_viz=True</span></code>)</p></li>
+</ul>
+</section>
+<section id="implementation-map">
+<h2>Implementation map<a class="headerlink" href="#implementation-map" title="Link to this heading"></a></h2>
+<section id="build-py">
+<h3><code class="docutils literal notranslate"><span class="pre">build.py</span></code><a class="headerlink" href="#build-py" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">BuildSizingFieldStep.setup()</span></code> links the coastline convention file from
+the upstream coastline step and <code class="docutils literal notranslate"><span class="pre">river_network.nc</span></code> from the upstream
+lat-lon rasterize step.  It also calls the mesh-family hook
+<code class="docutils literal notranslate"><span class="pre">setup_sizing_field_step()</span></code> so family-specific inputs (e.g. the Southern
+Ocean high-resolution region GeoJSON for <code class="docutils literal notranslate"><span class="pre">so_region</span></code> meshes) can be
+registered.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BuildSizingFieldStep.run()</span></code> opens <code class="docutils literal notranslate"><span class="pre">coastline.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">river_network.nc</span></code>,
+delegates ocean-background construction to the mesh family via
+<code class="docutils literal notranslate"><span class="pre">build_ocean_background()</span></code>, and calls the public helper
+<a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset.html#polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset" title="polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset()</span></code></a>
+to compose the full sizing field.  The resulting dataset is written to
+<code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>.</p>
+<p>The public helper <code class="docutils literal notranslate"><span class="pre">sizing_field_dataset()</span></code> combines:</p>
+<ul class="simple">
+<li><p>the ocean background from the mesh family (a 2-D cell-width array on the
+lat-lon grid);</p></li>
+<li><p>the land background (<code class="docutils literal notranslate"><span class="pre">land_background_km</span></code>);</p></li>
+<li><p>an optional coastline-proximity refinement controlled by
+<code class="docutils literal notranslate"><span class="pre">enable_coastline_refinement</span></code> and <code class="docutils literal notranslate"><span class="pre">coastline_transition_land_km</span></code>; and</p></li>
+<li><p>optional river-channel refinement controlled by
+<code class="docutils literal notranslate"><span class="pre">enable_river_channel_refinement</span></code> and <code class="docutils literal notranslate"><span class="pre">river_channel_km</span></code>.</p></li>
+</ul>
+<p>The result is a <code class="docutils literal notranslate"><span class="pre">cell_width</span></code> variable on the lat-lon grid, together with
+provenance attributes recording the source coastline and river steps.</p>
+</section>
+<section id="viz-py">
+<h3><code class="docutils literal notranslate"><span class="pre">viz.py</span></code><a class="headerlink" href="#viz-py" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">VizSizingFieldStep</span></code> reads <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code> and writes a global overview
+plot, an active-control diagnostic map (showing which refinement control
+dominates at each grid cell), and a plain-text <code class="docutils literal notranslate"><span class="pre">debug_summary.txt</span></code> with
+min/max cell widths and count statistics.</p>
+</section>
+</section>
+<section id="configuration-plumbing">
+<h2>Configuration plumbing<a class="headerlink" href="#configuration-plumbing" title="Link to this heading"></a></h2>
+<p>All sizing-field steps use mesh-specific configs built through
+<code class="docutils literal notranslate"><span class="pre">get_sizing_field_config(mesh_name)</span></code>, which layers:</p>
+<ul class="simple">
+<li><p>the generic <code class="docutils literal notranslate"><span class="pre">unified_mesh.cfg</span></code> defaults;</p></li>
+<li><p>the shared <code class="docutils literal notranslate"><span class="pre">river_network.cfg</span></code> file;</p></li>
+<li><p>the family-specific config (e.g. <code class="docutils literal notranslate"><span class="pre">default.cfg</span></code> or <code class="docutils literal notranslate"><span class="pre">so_region.cfg</span></code>); and</p></li>
+<li><p>the mesh-specific config file (e.g. <code class="docutils literal notranslate"><span class="pre">u.oi30.lr10.cfg</span></code>).</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">BuildSizingFieldStep</span></code> consumes the <code class="docutils literal notranslate"><span class="pre">[sizing_field]</span></code> section:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ocean_background_mode</span></code> — <code class="docutils literal notranslate"><span class="pre">'constant'</span></code> or <code class="docutils literal notranslate"><span class="pre">'rrs_latitude'</span></code> (or delegated
+to the mesh family)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ocean_background_min_km</span></code> and <code class="docutils literal notranslate"><span class="pre">ocean_background_max_km</span></code> — cell-width bounds
+for the ocean background</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">land_background_km</span></code> — cell width for land cells</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">enable_coastline_refinement</span></code> — toggle coastline-proximity refinement</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coastline_transition_land_km</span></code> — width of the land-side transition zone</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">enable_river_channel_refinement</span></code> — toggle river-channel refinement</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">river_channel_km</span></code> — target cell width along river channels</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">VizSizingFieldStep</span></code> consumes the <code class="docutils literal notranslate"><span class="pre">[sizing_field_viz]</span></code> section:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dpi</span></code> — output resolution for diagnostic plots</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cell_width_cmap</span></code> — colormap for cell-width plots</p></li>
+</ul>
+<p>The <a class="reference internal" href="../../../../users_guide/mesh/tasks/unified/sizing_field.html#users-mesh-unified-sizing-field"><span class="std std-ref">Sizing-field tasks</span></a> page explains how these options
+affect the user-visible behavior of the workflow.</p>
+</section>
+<section id="extension-points">
+<h2>Extension points<a class="headerlink" href="#extension-points" title="Link to this heading"></a></h2>
+<p>Common extension paths for future development are:</p>
+<ul class="simple">
+<li><p><strong>Adding a new named mesh.</strong> Create a new <code class="docutils literal notranslate"><span class="pre">.cfg</span></code> file under
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified</span></code>. Task registration discovers mesh names
+from those config files automatically.</p></li>
+<li><p><strong>Adding a new ocean-background mode.</strong> Implement the mode in
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified.base_mesh</span></code> (or a new mesh family) and
+handle it in <code class="docutils literal notranslate"><span class="pre">build_ocean_background()</span></code>.</p></li>
+<li><p><strong>Adding a new refinement control.</strong> Add parameters to <code class="docutils literal notranslate"><span class="pre">sizing_field_dataset()</span></code>
+and the <code class="docutils literal notranslate"><span class="pre">[sizing_field]</span></code> config section, then update the visualization step
+and the associated tests.</p></li>
+</ul>
+</section>
+<section id="test-coverage">
+<h2>Test coverage<a class="headerlink" href="#test-coverage" title="Link to this heading"></a></h2>
+<p>Unit tests in <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_sizing_field.py</span></code> validate
+the public <code class="docutils literal notranslate"><span class="pre">sizing_field_dataset()</span></code> helper, the ocean-background construction
+for each supported mode, and that <code class="docutils literal notranslate"><span class="pre">get_unified_mesh_sizing_field_steps</span></code>
+creates the expected shared steps for each named mesh.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="river.html" class="btn btn-neutral float-left" title="River-Network Steps and Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../framework/index.html" class="btn btn-neutral float-right" title="Mesh Framework" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

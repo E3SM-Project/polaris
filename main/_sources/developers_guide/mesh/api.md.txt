@@ -75,3 +75,24 @@
    UnifiedRiverNetworkTask
    add_river_tasks
 ```
+
+### Unified Sizing-Field Tasks
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.sizing_field
+
+.. autosummary::
+   :toctree: generated/
+
+   BuildSizingFieldStep
+   BuildSizingFieldStep.setup
+   BuildSizingFieldStep.run
+   sizing_field_dataset
+   VizSizingFieldStep
+   VizSizingFieldStep.setup
+   VizSizingFieldStep.run
+   SizingFieldTask
+   add_sizing_field_tasks
+   get_unified_mesh_sizing_field_steps
+   get_sizing_field_config
+```
