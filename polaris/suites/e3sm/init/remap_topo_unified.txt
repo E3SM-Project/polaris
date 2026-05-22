@@ -1,0 +1,4 @@
+e3sm/init/u.oi.so12to30.lr10/topo/remap
+e3sm/init/u.oi240.lr240/topo/remap
+e3sm/init/u.oi30.lr10/topo/remap
+e3sm/init/u.oi6to18.lr6to10/topo/remap

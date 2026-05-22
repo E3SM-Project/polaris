@@ -1,0 +1,4 @@
+mesh/spherical/unified/u.oi.so12to30.lr10/river/task
+mesh/spherical/unified/u.oi240.lr240/river/task
+mesh/spherical/unified/u.oi30.lr10/river/task
+mesh/spherical/unified/u.oi6to18.lr6to10/river/task
