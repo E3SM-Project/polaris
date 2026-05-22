@@ -175,10 +175,13 @@ class ReferenceForward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_input_file(
-            filename='init.nc',
-            work_dir_target=f'{init.path}/initial_state.nc',
+        self.add_horiz_mesh_input_file(
+            work_dir_target=f'{init.path}/culled_mesh.nc'
         )
+        self.add_vert_coord_input_file(
+            work_dir_target=f'{init.path}/vert_coord.nc'
+        )
+        self.add_init_input_file(work_dir_target=f'{init.path}/init.nc')
 
         if dt_type == 'local':
             self.add_yaml_file(
@@ -272,11 +275,4 @@ class ReferenceForward(OceanModelStep):
         )
 
     def setup(self):
-        """
-        TEMP: symlink initial condition to name hard-coded in Omega
-        """
         super().setup()
-        model = self.config.get('ocean', 'model')
-        # TODO: remove as soon as Omega no longer hard-codes this file
-        if model == 'omega':
-            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')

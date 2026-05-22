@@ -17,7 +17,7 @@ class LTSRegions(Step):
 
     Attributes
     ----------
-    initial_state_step :
+    init_step :
         polaris.ocean.tasks.external_gravity_wave.init.Init
         The initial step containing input files to this step
     """
@@ -42,7 +42,7 @@ class LTSRegions(Step):
         """
         super().__init__(component, name=name, subdir=subdir)
 
-        for file in ['graph.info', 'initial_state.nc']:
+        for file in ['graph.info', 'init.nc']:
             self.add_output_file(filename=file)
 
         self.init_step = init_step
@@ -56,15 +56,28 @@ class LTSRegions(Step):
 
         init_step = self.init_step
 
+        # Pass-through symlinks so forward step can find mesh/vert_coord
         self.add_input_file(
-            filename='init.nc',
-            work_dir_target=f'{init_step.path}/initial_state.nc',
+            filename='culled_mesh.nc',
+            work_dir_target=f'{init_step.path}/culled_mesh.nc',
+        )
+
+        self.add_input_file(
+            filename='init_in.nc',
+            work_dir_target=f'{init_step.path}/init.nc',
         )
 
         self.add_input_file(
             filename='pre_lts_graph.info',
             work_dir_target=f'{init_step.path}/graph.info',
         )
+
+        model = self.config.get('ocean', 'model')
+        if model == 'omega':
+            self.add_input_file(
+                filename='vert_coord.nc',
+                work_dir_target=f'{init_step.path}/vert_coord.nc',
+            )
 
     def run(self):
         """
@@ -78,7 +91,8 @@ class LTSRegions(Step):
 
         use_progress_bar = self.log_filename is None
         label_mesh(
-            mesh='init.nc',
+            mesh='culled_mesh.nc',
+            init='init_in.nc',
             graph_info='pre_lts_graph.info',
             num_interface=2,
             num_interface_adjacent=10,
@@ -92,6 +106,7 @@ class LTSRegions(Step):
 
 def label_mesh(
     mesh,
+    init,
     graph_info,
     num_interface,  # noqa: C901
     num_interface_adjacent,
@@ -134,11 +149,11 @@ def label_mesh(
 
     logger.info('Creating lts_mesh...')
 
-    # open mesh nc file to be copied
+    # copy the init file and add LTSRegion to it
 
-    ds_msh = xr.open_dataset(mesh)
+    ds_msh = xr.open_dataset(init)
     ds_ltsmsh = ds_msh.copy(deep=True)
-    ltsmsh_name = 'initial_state.nc'
+    ltsmsh_name = 'init.nc'
     write_netcdf(ds_ltsmsh, ltsmsh_name)
     mshnc = nc.Dataset(ltsmsh_name, 'a', format='NETCDF4_64BIT_OFFSET')
 
