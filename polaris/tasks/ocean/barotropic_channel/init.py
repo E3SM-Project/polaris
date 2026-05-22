@@ -114,4 +114,4 @@ class Init(OceanIOStep):
         ds_forcing['windStressMeridional'] = (
             wind_stress_meridional.expand_dims(dim='Time', axis=0)
         )
-        self.write_model_dataset(ds_forcing, 'forcing.nc')
+        self.write_model_dataset(ds_forcing, 'forcing.nc', config)

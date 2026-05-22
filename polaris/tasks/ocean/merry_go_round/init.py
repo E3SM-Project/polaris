@@ -83,13 +83,13 @@ class Init(OceanIOStep):
             nonperiodic_x=True,
             nonperiodic_y=False,
         )
-        self.write_model_dataset(ds_mesh, 'base_mesh.nc')
+        self.write_model_dataset(ds_mesh, 'base_mesh.nc', config)
 
         ds_mesh = cull(ds_mesh, logger=logger)
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        self.write_model_dataset(ds_mesh, 'culled_mesh.nc')
+        self.write_model_dataset(ds_mesh, 'culled_mesh.nc', config)
 
         ds = ds_mesh.copy()
 
@@ -130,7 +130,7 @@ class Init(OceanIOStep):
         temperature = temperature.expand_dims(dim='Time', axis=0)
         ds['temperature'] = temperature
 
-        # Initialize temperature
+        # Initialize salinity
         ds['salinity'] = salinity_background * xr.ones_like(temperature)
 
         # Initialize normalVelocity
@@ -171,4 +171,4 @@ class Init(OceanIOStep):
         ds['tracer2'] = tracer2_background * xr.ones_like(temperature)
         ds['tracer3'] = tracer3_background * xr.ones_like(temperature)
 
-        self.write_model_dataset(ds, 'initial_state.nc')
+        self.write_model_dataset(ds, 'initial_state.nc', config=config)

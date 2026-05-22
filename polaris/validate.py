@@ -10,6 +10,7 @@ def compare_variables(
     filename1,
     filename2,
     logger,
+    config,
     l1_norm=0.0,
     l2_norm=0.0,
     linf_norm=0.0,
@@ -41,6 +42,11 @@ def compare_variables(
 
     logger: logging.Logger
         The logger to log validation output to
+
+    config : polaris.config.PolarisConfigParser
+        Configuration for the task; forwarded to
+        ``component.open_model_dataset()`` when datasets are not pre-loaded
+        via ``ds1``/``ds2``.
 
     l1_norm : float, optional
         The maximum allowed L1 norm difference between the variables in
@@ -83,10 +89,10 @@ def compare_variables(
             return False
 
     if ds1 is None:
-        ds1 = component.open_model_dataset(filename1)
+        ds1 = component.open_model_dataset(filename1, config)
 
     if ds2 is None:
-        ds2 = component.open_model_dataset(filename2)
+        ds2 = component.open_model_dataset(filename2, config)
 
     all_pass = True
 

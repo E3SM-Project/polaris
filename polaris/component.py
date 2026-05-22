@@ -265,7 +265,7 @@ class Component:
         self.add_step(step)
         return step
 
-    def open_model_dataset(self, filename, **kwargs):
+    def open_model_dataset(self, filename, config, **kwargs):
         """
         Open the given dataset, mapping variable and dimension names from Omega
         to MPAS-Ocean names if appropriate
@@ -274,6 +274,11 @@ class Component:
         ----------
         filename : str
             The path for the NetCDF file to open
+
+        config : polaris.config.PolarisConfigParser
+            Configuration for the task; passed to model-specific subclasses
+            that need it (e.g. to compute layer thickness from pseudo-thickness
+            for Omega). The base implementation ignores it.
 
         kwargs
             keyword arguments passed to `xarray.open_dataset()`
@@ -286,7 +291,7 @@ class Component:
         ds = xr.open_dataset(filename, **kwargs)
         return ds
 
-    def write_model_dataset(self, ds, filename):
+    def write_model_dataset(self, ds, filename, config):
         """
         Write out the given dataset, mapping dimension and variable names from
         MPAS-Ocean to Omega names if appropriate
@@ -298,6 +303,11 @@ class Component:
 
         filename : str
             The path for the NetCDF file to write
+
+        config : polaris.config.PolarisConfigParser
+            Configuration for the task; passed to model-specific subclasses
+            that need it (e.g. to convert layer thickness to pseudo-thickness
+            for Omega). The base implementation ignores it.
         """
         write_netcdf(ds=ds, fileName=filename)
 

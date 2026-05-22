@@ -653,6 +653,7 @@ class Step:
                     this_filename,
                     baseline_filename,
                     logger=logger,
+                    config=self.config,
                 )
                 success = success and result
                 compared = True

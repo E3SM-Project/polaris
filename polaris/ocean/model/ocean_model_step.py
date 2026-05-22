@@ -9,7 +9,6 @@ from polaris.model_step import ModelStep
 from polaris.ocean.conservation import (
     compute_total_energy,
     compute_total_mass,
-    # compute_total_mass_nonboussinesq, # Add when Omega EOS is used
     compute_total_salt,
     compute_total_tracer,
 )
@@ -432,8 +431,10 @@ class OceanModelStep(ModelStep):
             filename = str(filename)
             mesh_filename = os.path.join(self.work_dir, 'mesh.nc')
             this_filename = os.path.join(self.work_dir, filename)
-            ds_mesh = self.component.open_model_dataset(mesh_filename)
-            ds = self.component.open_model_dataset(this_filename)
+            ds_mesh = self.component.open_model_dataset(
+                mesh_filename, self.config
+            )
+            ds = self.component.open_model_dataset(this_filename, self.config)
             if 'tracer conservation' in properties:
                 # All tracers in mpaso_to_omega.yaml
                 tracers_to_check = [
@@ -457,12 +458,6 @@ class OceanModelStep(ModelStep):
                     tol = self.config.getfloat(
                         'ocean', 'mass_conservation_tolerance'
                     )
-                    # Add when Omega EOS is used
-                    # if self.config.get('ocean', 'model') == 'omega':
-                    # relative_error  = self._compute_rel_err(
-                    #    compute_total_mass_nonboussinesq, ds_mesh, ds
-                    # )
-                    # else:
                     relative_error = self._compute_rel_err(
                         compute_total_mass, ds_mesh=ds_mesh, ds=ds
                     )

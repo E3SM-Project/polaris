@@ -93,9 +93,9 @@ class Viz(OceanIOStep):
         s_per_hour = 3600.0
         time = eval_time * s_per_hour
 
-        ds_mesh = self.open_model_dataset('mesh.nc')
-        ds_init = self.open_model_dataset('init.nc')
-        ds = self.open_model_dataset('output.nc', decode_times=False)
+        ds_mesh = self.open_model_dataset('mesh.nc', config)
+        ds_init = self.open_model_dataset('init.nc', config)
+        ds = self.open_model_dataset('output.nc', config, decode_times=False)
 
         x_min = ds_mesh.xVertex.min().values
         x_max = ds_mesh.xVertex.max().values

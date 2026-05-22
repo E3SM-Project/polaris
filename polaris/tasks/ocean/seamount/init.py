@@ -56,13 +56,13 @@ class Init(OceanIOStep):
         ds_mesh = make_planar_hex_mesh(
             nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=False
         )
-        self.write_model_dataset(ds_mesh, 'base_mesh.nc')
+        self.write_model_dataset(ds_mesh, 'base_mesh.nc', config)
 
         ds_mesh = cull(ds_mesh, logger=logger)
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        self.write_model_dataset(ds_mesh, 'culled_mesh.nc')
+        self.write_model_dataset(ds_mesh, 'culled_mesh.nc', config)
 
         # from overflow. Delete when not needed.
         max_bottom_depth = section.getfloat('max_bottom_depth')
@@ -159,7 +159,7 @@ class Init(OceanIOStep):
         ds.attrs['dc'] = dc
 
         # finalize and write file
-        self.write_model_dataset(ds, 'init.nc')
+        self.write_model_dataset(ds, 'init.nc', config)
         # May not be needed.
 
 

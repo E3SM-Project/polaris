@@ -33,16 +33,16 @@ Omega:
       FileFreq: 9999
       FileFreqUnits: years
       Contents:
-      - ZMid
-      - ZInterface
+      - GeomZMid
+      - GeomZInterface
       - PressureMid
       - PressureInterface
-      - LayerThickness
+      - PseudoThickness
       - Temperature
       - Salinity
       - SpecVol
       - GeopotentialMid
       - NormalVelocityTend
-      - BottomDepth
+      - BottomGeomDepth
       - MinLayerCell
       - MaxLayerCell

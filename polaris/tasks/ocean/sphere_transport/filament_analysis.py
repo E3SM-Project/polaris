@@ -109,9 +109,11 @@ class FilamentAnalysis(OceanIOStep):
         for i, refinement_factor in enumerate(self.refinement_factors):
             mesh_name = resolution_to_string(resolutions[i])
             ds_mesh = self.open_model_dataset(
-                f'mesh_r{refinement_factor:02g}.nc'
+                f'mesh_r{refinement_factor:02g}.nc', self.config
             )
-            ds = self.open_model_dataset(f'output_r{refinement_factor:02g}.nc')
+            ds = self.open_model_dataset(
+                f'output_r{refinement_factor:02g}.nc', self.config
+            )
             t_days = get_days_since_start(ds)
             time_index = np.argmin(
                 np.abs(np.subtract(t_days, eval_time * s_per_day))

@@ -3,6 +3,7 @@ import xarray as xr
 
 from polaris.constants import get_constant
 from polaris.ocean.vertical.ztilde import (
+    get_iter_count_for_eos,
     pressure_and_spec_vol_from_state_at_geom_height,
     pseudothickness_from_pressure,
 )
@@ -41,8 +42,8 @@ def geom_thickness_from_ds(ds, config):
     else:
         raise ValueError(
             'Geometric layerThickness is not present in the '
-            'initial condition and SpecVol is not present '
-            'to compute it'
+            'initial condition and PseudoThickness and SpecVol are not '
+            'present to compute it'
         )
 
 
@@ -90,20 +91,16 @@ def pseudothickness_from_ds(
         return None, None
 
     if iter_count is None:
-        eos_type = config.get('ocean', 'eos_type')
-        if eos_type in ['constant', 'linear']:
-            iter_count = 1
-        elif eos_type == 'teos-10':
-            iter_count = config.getint(
-                'vertical_grid', 'pseudothickness_iter_count'
-            )
-        else:
-            raise ValueError(f'Unsupported equation of state type: {eos_type}')
+        iter_count = get_iter_count_for_eos(config)
 
     surface_pressure = config.getfloat('vertical_grid', 'surface_pressure')
+    src_var = ds[src_var_name]
+    src_has_time = 'Time' in src_var.dims
+    if not src_has_time:
+        src_var = src_var.expand_dims(dim='Time', axis=0)
     p_interface, _, spec_vol = pressure_and_spec_vol_from_state_at_geom_height(
         config,
-        ds[src_var_name],
+        src_var,
         ds.temperature,
         ds.salinity,
         surface_pressure * xr.ones_like(ds.ssh),
@@ -111,6 +108,10 @@ def pseudothickness_from_ds(
     )
 
     pseudothickness = pseudothickness_from_pressure(p_interface)
+
+    if not src_has_time:
+        pseudothickness = pseudothickness.squeeze(dim='Time')
+        spec_vol = spec_vol.squeeze(dim='Time')
 
     return pseudothickness, spec_vol
 

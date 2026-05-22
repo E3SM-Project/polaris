@@ -134,7 +134,7 @@ class Analysis(OceanIOStep):
             'must be set in the "horiz_press_grad" section.'
         )
 
-        ds_ref = self.open_model_dataset('reference_solution.nc')
+        ds_ref = self.open_model_dataset('reference_solution.nc', self.config)
         if ds_ref.sizes.get('nCells', 0) <= 2:
             raise ValueError(
                 'The reference solution requires at least 3 columns so that '
@@ -149,9 +149,13 @@ class Analysis(OceanIOStep):
         py_errors = []
 
         for resolution in horiz_resolutions:
-            ds_init = self.open_model_dataset(f'init_r{resolution:02g}.nc')
+            ds_init = self.open_model_dataset(
+                f'init_r{resolution:02g}.nc', self.config
+            )
             ds_out = self.open_model_dataset(
-                f'output_r{resolution:02g}.nc', decode_times=False
+                f'output_r{resolution:02g}.nc',
+                self.config,
+                decode_times=False,
             )
 
             edge_index, cells_on_edge = _get_internal_edge(ds_init)
@@ -358,7 +362,7 @@ def _get_forward_z_tilde_edge_mid(
     Compute edge-centered pseudo-height at layer midpoints from Omega output
     pressure.
     """
-    pressure_mid = ds_out.PressureMid.isel(Time=0)
+    pressure_mid = ds_out.pressure.isel(Time=0)
     pressure_edge_mid = 0.5 * (
         pressure_mid.isel(nCells=cell0) + pressure_mid.isel(nCells=cell1)
     )

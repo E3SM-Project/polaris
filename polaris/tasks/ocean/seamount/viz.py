@@ -39,7 +39,7 @@ class Viz(OceanIOStep):
         """
         Run this step of the task
         """
-        ds_mesh = self.open_model_dataset('mesh.nc')
+        ds_mesh = self.open_model_dataset('mesh.nc', self.config)
         ds_init = self.open_model_dataset('init.nc', self.config)
         ds = self.open_model_dataset(
             'output.nc', self.config, decode_times=True

@@ -119,7 +119,9 @@ class MixingAnalysis(OceanIOStep):
             _init_triplot_axes(ax)
             mesh_name = resolution_to_string(resolutions[i])
             ax.set(title=mesh_name)
-            ds = self.open_model_dataset(f'output_r{refinement_factor:02g}.nc')
+            ds = self.open_model_dataset(
+                f'output_r{refinement_factor:02g}.nc', self.config
+            )
             if i % 2 == 0:
                 ax.set_ylabel('tracer3')
             if int(i / 2) == nrows - 1:

@@ -25,8 +25,7 @@ variables:
   # vertical coordinate
   minLevelCell: MinLayerCell
   maxLevelCell: MaxLayerCell
-  # currently hard-coded in horizontal mesh
-  # bottomDepth: BottomDepth
+  bottomDepth: BottomGeomDepth
   vertCoordMovementWeights: VertCoordMovementWeights
 
   # tracers
@@ -37,16 +36,23 @@ variables:
   tracer3: Debug3
 
   # state
-  layerThickness: LayerThickness
+  # Note: layerThickness in MPAS-Ocean has no Omega equivalent and
+  #       PseudoThickness in Omega has no MPAS-Ocean equivalent
   normalVelocity: NormalVelocity
-
-  vertVelocityTop: VerticalVelocity
+  # Note: vertVelocityTop in MPAS-Ocean has no Omega equivalent and
+  #       VerticalPseudoVelocity in Omega has no MPAS-Ocean equivalent
 
   # auxiliary state
   ssh: SshCell
   windStressZonal: WindStressZonal
   windStressMeridional: WindStressMeridional
   relativeVorticity: RelVortVertex
+
+  # vertical coordinate
+  zMid: GeomZMid
+  zInterface: GeomZInterface
+  pressure: PressureMid
+
 
 config:
 - section:

@@ -9,8 +9,6 @@ import numpy as np
 import xarray as xr
 
 from polaris.ocean.model import OceanIOStep
-
-# temporary until we can get this for GCD
 from polaris.ocean.vertical.ztilde import Gravity, RhoSw
 from polaris.tasks.ocean.horiz_press_grad.column import (
     get_array_from_mid_grad,
@@ -352,7 +350,7 @@ class Reference(OceanIOStep):
             },
         )
 
-        self.write_model_dataset(ds, 'reference_solution.nc')
+        self.write_model_dataset(ds, 'reference_solution.nc', config)
 
     def _get_ssh_z_bot(
         self, x: np.ndarray
@@ -444,12 +442,12 @@ class Reference(OceanIOStep):
             'The "reference_quadrature_method" configuration option must be '
             'set in the "horiz_press_grad" section.'
         )
-        water_col_adjust_iter_count = section.getint(
-            'water_col_adjust_iter_count'
+        pseudothickness_iter_count = config.getint(
+            'vertical_grid', 'pseudothickness_iter_count'
         )
-        assert water_col_adjust_iter_count is not None, (
-            'The "water_col_adjust_iter_count" configuration option must be '
-            'set in the "horiz_press_grad" section.'
+        assert pseudothickness_iter_count is not None, (
+            'The "pseudothickness_iter_count" configuration option must be '
+            'set in the "vertical_grid" section.'
         )
 
         goal_geom_water_column_thickness = geom_ssh - geom_z_bot
@@ -463,7 +461,7 @@ class Reference(OceanIOStep):
             f'{goal_geom_water_column_thickness:.12f}'
         )
 
-        for iter in range(water_col_adjust_iter_count):
+        for iter in range(pseudothickness_iter_count):
             z_tilde_inter, max_layer, uniform_layer_mask_inter = (
                 self._init_z_tilde_interface(
                     pseudo_bottom_depth=pseudo_bottom_depth,

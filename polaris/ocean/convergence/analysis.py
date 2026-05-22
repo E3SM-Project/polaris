@@ -365,8 +365,10 @@ class ConvergenceAnalysis(OceanIOStep):
             The error of the variable given by variable_name
         """
         norm_type = {'l2': None, 'inf': np.inf}
-        ds_mesh = self.open_model_dataset(f'mesh_r{refinement_factor:02g}.nc')
         config = self.config
+        ds_mesh = self.open_model_dataset(
+            f'mesh_r{refinement_factor:02g}.nc', config
+        )
         section = config['convergence']
         eval_time = section.getfloat('convergence_eval_time')
         s_per_hour = 3600.0
