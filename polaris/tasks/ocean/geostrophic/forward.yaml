@@ -27,10 +27,6 @@ mpas-ocean:
     config_AM_globalStats_compute_on_startup: true
     config_AM_globalStats_write_on_startup: true
   streams:
-    mesh:
-      filename_template: init.nc
-    input:
-      filename_template: init.nc
     restart: {}
     output:
       type: output
