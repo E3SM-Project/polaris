@@ -11,3 +11,7 @@ mpas-ocean:
     config_disable_vel_vmix: true
   pressure_gradient:
     config_pressure_gradient_type: ssh_gradient
+
+Omega:
+  Tendencies:
+      SSHTendencyEnable: true

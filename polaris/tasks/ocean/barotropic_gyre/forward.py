@@ -148,9 +148,8 @@ class Forward(OceanModelStep):
         config = self.config
         logger = self.logger
 
-        model = config.get('ocean', 'model')
         vert_levels = config.getfloat('vertical_grid', 'vert_levels')
-        if model == 'mpas-ocean' and vert_levels == 1:
+        if vert_levels == 1:
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
         resolution = config.getfloat('barotropic_gyre', 'resolution')
@@ -204,6 +203,7 @@ class Forward(OceanModelStep):
                 f'maximum value is {nu_max} or decrease the time step'
             )
 
+        model = config.get('ocean', 'model')
         if self.run_time_steps is not None:
             output_interval_units = 'Seconds'
             run_duration = ceil(self.run_time_steps * dt)
@@ -256,7 +256,6 @@ class Forward(OceanModelStep):
             # slip_factor=f'{slip_factor_dict[self.boundary_condition]:02g}',  # noqa: E501 Uncomment this when free-slip BCs are supported
         )
 
-        # make sure output is double precision
         self.add_yaml_file(
             self.package,
             self.yaml_filename,
