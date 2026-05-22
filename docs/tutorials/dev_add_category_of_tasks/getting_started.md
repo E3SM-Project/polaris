@@ -33,12 +33,12 @@ Miniforge, Micromamba and Miniconda are no longer required for Polaris
 deployment. If pixi is not already available, `./deploy.py` can install it.
 ```
 
-After setup, you should have a file named `load_dev_polaris_*.sh`, where `*`
+After setup, you should have a file named `load_polaris_*.sh`, where `*`
 depends on your Polaris version, machine, and compilers. For example, on
-Chrysalis, you might have `load_dev_polaris_0.1.0-alpha.3_chrysalis_intel_openmpi.sh`:
+Chrysalis, you might have `load_polaris_chrysalis_oneapi-ifx_openmpi.sh`:
 
 ```bash
-source load_polaris_chrysalis_intel_openmpi.sh
+source load_polaris_chrysalis_oneapi-ifx_openmpi.sh
 ```
 
 Now, get the E3SM source code (used by Polaris to build MPAS-Ocean) via the

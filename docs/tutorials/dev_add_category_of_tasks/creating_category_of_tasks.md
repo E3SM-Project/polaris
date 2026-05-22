@@ -105,7 +105,7 @@ polaris list
 If you don't have access to the `polaris` command, you probably need to source
 the load script, something like:
 ``` bash
-source load_polaris_chrysalis_intel_openmpi.sh
+source load_polaris_chrysalis_oneapi-ifx_openmpi.sh
 ```
 
 If `polaris list` gives you import errors, something isn't quite hooked up

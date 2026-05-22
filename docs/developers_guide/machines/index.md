@@ -20,7 +20,7 @@ Omega or an MPAS component and work with polaris.  Just source the script that
 should appear in the base of your polaris branch, e.g.:
 
 ```bash
-source load_polaris_chrysalis_intel_openmpi.sh
+source load_polaris_chrysalis_oneapi-ifx_openmpi.sh
 ```
 
 After loading this environment, you can set up tasks or suites, and
@@ -84,9 +84,11 @@ E3SM default for the given machine an compiler.
 +==============+==================+===========+
 | aurora       | oneapi-ifx       | mpich     |
 +--------------+------------------+-----------+
-| chrysalis    | intel            | openmpi   |
+| chrysalis    | oneapi-ifx       | openmpi   |
 |              +------------------+-----------+
 |              | gnu              | openmpi   |
+|              +------------------+-----------+
+|              | intel            | openmpi   |
 +--------------+------------------+-----------+
 | frontier     | craygnu          | mpich     |
 |              +------------------+-----------+
