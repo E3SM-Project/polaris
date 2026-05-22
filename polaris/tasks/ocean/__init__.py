@@ -29,6 +29,14 @@ class Ocean(Component):
 
     mpaso_to_omega_var_map : dict
         A map from MPAS-Ocean variable names to their Omega equivalents
+
+    horiz_mesh_vars : list of str
+        Variables that belong in the horizontal mesh file rather than the
+        initial condition file
+
+    vert_coord_vars : list of str
+        Variables that belong in the vertical coordinate file (Omega only)
+        rather than the initial condition file
     """
 
     def __init__(self):
@@ -39,6 +47,8 @@ class Ocean(Component):
         self.model: Union[None, str] = None
         self.mpaso_to_omega_dim_map: Union[None, Dict[str, str]] = None
         self.mpaso_to_omega_var_map: Union[None, Dict[str, str]] = None
+        self.horiz_mesh_vars: Union[None, list[str]] = None
+        self.vert_coord_vars: Union[None, list[str]] = None
 
     def configure(self, config, tasks):
         """
@@ -200,6 +210,129 @@ class Ocean(Component):
 
         write_netcdf(ds=ds, fileName=filename)
 
+    def remove_horiz_mesh_vars(self, ds):
+        """
+        Remove horizontal mesh variables from a dataset.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean variable names
+
+        Returns
+        -------
+        ds : xarray.Dataset
+            The same dataset without horizontal mesh variables
+        """
+        if self.horiz_mesh_vars is None:
+            self._read_var_map()
+
+        assert self.horiz_mesh_vars is not None
+        drop = [v for v in self.horiz_mesh_vars if v in ds]
+        if drop:
+            ds = ds.drop_vars(drop)
+        return ds
+
+    def remove_vert_coord_vars(self, ds):
+        """
+        Remove vertical coordinate variables from a dataset.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean variable names
+
+        Returns
+        -------
+        ds : xarray.Dataset
+            The same dataset without vertical coordinate variables
+        """
+        if self.vert_coord_vars is None:
+            self._read_var_map()
+
+        assert self.vert_coord_vars is not None
+        drop = [v for v in self.vert_coord_vars if v in ds]
+        if drop:
+            ds = ds.drop_vars(drop)
+        return ds
+
+    def write_initial_state_dataset(self, ds, filename, config):
+        """
+        Write an initial-state dataset, omitting horizontal mesh fields and
+        (for Omega) vertical coordinate fields.
+
+        For MPAS-Ocean the vertical coordinate variables remain in the initial
+        state file.  For Omega they are written separately via
+        :py:meth:`write_vert_coord_dataset`.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean variable names
+
+        filename : str
+            The path for the NetCDF file to write
+
+        config : polaris.config.PolarisConfigParser
+            Configuration for the task; forwarded to
+            :py:meth:`write_model_dataset`.
+        """
+        ds = self.remove_horiz_mesh_vars(ds)
+        if self.model == 'omega':
+            ds = self.remove_vert_coord_vars(ds)
+        self.write_model_dataset(ds, filename, config)
+
+    def write_vert_coord_dataset(self, ds, filename, config):
+        """
+        Write a vertical-coordinate dataset for Omega's ``InitialVertCoord``
+        stream.  This is a no-op for MPAS-Ocean (vertical coordinate fields
+        stay in the initial state file).
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean variable names, including the
+            vertical coordinate variables and the temperature/salinity/ssh
+            fields needed for pseudo-thickness conversion.
+
+        filename : str
+            The path for the NetCDF file to write
+
+        config : polaris.config.PolarisConfigParser
+            Configuration for the task; used when converting
+            ``restingThickness`` to ``RefPseudoThickness``.
+        """
+        if self.model != 'omega':
+            return
+
+        if self.vert_coord_vars is None:
+            self._read_var_map()
+        assert self.vert_coord_vars is not None
+
+        ds_vc = ds.copy()
+
+        # Convert restingThickness (geometric) to RefPseudoThickness (pseudo)
+        if 'restingThickness' in ds_vc and 'RefPseudoThickness' not in ds_vc:
+            pseudothickness, _ = pseudothickness_from_ds(
+                ds_vc, config=config, src_var_name='restingThickness'
+            )
+            if pseudothickness is not None:
+                ds_vc['RefPseudoThickness'] = pseudothickness
+
+        # Collect the vert coord variables (excluding restingThickness since
+        # we have the converted RefPseudoThickness)
+        vc_keep = [
+            v
+            for v in self.vert_coord_vars
+            if v != 'restingThickness' and v in ds_vc
+        ]
+        if 'RefPseudoThickness' in ds_vc:
+            vc_keep.append('RefPseudoThickness')
+
+        ds_vc = ds_vc[vc_keep]
+        ds_vc = self.map_to_native_model_vars(ds_vc)
+        write_netcdf(ds=ds_vc, fileName=filename)
+
     def map_from_native_model_vars(self, ds):
         """
         If the model is Omega, rename dimensions and variables in a dataset
@@ -350,6 +483,8 @@ class Ocean(Component):
         nested_dict = yaml_data.load(text)
         self.mpaso_to_omega_dim_map = nested_dict['dimensions']
         self.mpaso_to_omega_var_map = nested_dict['variables']
+        self.horiz_mesh_vars = nested_dict['horiz_mesh_variables']
+        self.vert_coord_vars = nested_dict['vert_coord_variables']
 
     def _detect_model(self, config) -> str:
         """

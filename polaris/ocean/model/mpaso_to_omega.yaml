@@ -12,7 +12,7 @@ dimensions:
   nVertLevelsP1: NVertLayersP1
 
 variables:
-  # mesh
+  # mesh topology
   cellsOnCell: CellsOnCell
   edgesOnCell: EdgesOnCell
   verticesOnCell: VerticesOnCell
@@ -22,11 +22,43 @@ variables:
   cellsOnVertex: CellsOnVertex
   edgesOnVertex: EdgesOnVertex
 
+  # mesh coordinates
+  xCell: XCell
+  yCell: YCell
+  zCell: ZCell
+  latCell: LatCell
+  lonCell: LonCell
+  xEdge: XEdge
+  yEdge: YEdge
+  zEdge: ZEdge
+  latEdge: LatEdge
+  lonEdge: LonEdge
+  xVertex: XVertex
+  yVertex: YVertex
+  zVertex: ZVertex
+  latVertex: LatVertex
+  lonVertex: LonVertex
+  areaCell: AreaCell
+  meshDensity: MeshDensity
+  areaTriangle: AreaTriangle
+  dvEdge: DvEdge
+  dcEdge: DcEdge
+  angleEdge: AngleEdge
+  kiteAreasOnVertex: KiteAreasOnVertex
+  weightsOnEdge: WeightsOnEdge
+
+  # Coriolis
+  fCell: FCell
+  fEdge: FEdge
+  fVertex: FVertex
+
   # vertical coordinate
   minLevelCell: MinLayerCell
   maxLevelCell: MaxLayerCell
   bottomDepth: BottomGeomDepth
   vertCoordMovementWeights: VertCoordMovementWeights
+  # Note: restingThickness in MPAS-Ocean requires conversion to
+  #       RefPseudoThickness in Omega (handled in write_vert_coord_dataset)
 
   # tracers
   temperature: Temperature
@@ -36,8 +68,8 @@ variables:
   tracer3: Debug3
 
   # state
-  # Note: layerThickness in MPAS-Ocean has no Omega equivalent and
-  #       PseudoThickness in Omega has no MPAS-Ocean equivalent
+  # Note: layerThickness in MPAS-Ocean requires conversion to
+  #       PseudoThickness in Omega (handled in write_model_dataset)
   normalVelocity: NormalVelocity
   # Note: vertVelocityTop in MPAS-Ocean has no Omega equivalent and
   #       VerticalPseudoVelocity in Omega has no MPAS-Ocean equivalent
@@ -48,10 +80,59 @@ variables:
   windStressMeridional: WindStressMeridional
   relativeVorticity: RelVortVertex
 
-  # vertical coordinate
+  # vertical coordinate diagnostics
   zMid: GeomZMid
   zInterface: GeomZInterface
   pressure: PressureMid
+
+
+horiz_mesh_variables:
+  - indexToCellID
+  - indexToEdgeID
+  - indexToVertexID
+  - cellsOnCell
+  - nEdgesOnCell
+  - edgesOnCell
+  - verticesOnCell
+  - cellsOnEdge
+  - edgesOnEdge
+  - nEdgesOnEdge
+  - verticesOnEdge
+  - cellsOnVertex
+  - edgesOnVertex
+  - xCell
+  - yCell
+  - zCell
+  - latCell
+  - lonCell
+  - xEdge
+  - yEdge
+  - zEdge
+  - latEdge
+  - lonEdge
+  - xVertex
+  - yVertex
+  - zVertex
+  - latVertex
+  - lonVertex
+  - areaCell
+  - meshDensity
+  - areaTriangle
+  - dvEdge
+  - dcEdge
+  - angleEdge
+  - kiteAreasOnVertex
+  - weightsOnEdge
+  - fCell
+  - fEdge
+  - fVertex
+
+vert_coord_variables:
+  - minLevelCell
+  - maxLevelCell
+  - bottomDepth
+  - restingThickness
+  - vertCoordMovementWeights
 
 
 config:
