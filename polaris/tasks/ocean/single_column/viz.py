@@ -30,7 +30,7 @@ class Viz(Step):
         super().__init__(component=component, name='viz', indir=indir)
         self.ideal_age = ideal_age
         self.add_input_file(
-            filename='initial_state.nc', target='../init/initial_state.nc'
+            filename='initial_state.nc', target='../init/init.nc'
         )
         self.add_input_file(
             filename='output.nc', target='../forward/output.nc'

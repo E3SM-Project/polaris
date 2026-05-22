@@ -14,10 +14,6 @@ mpas-ocean:
     config_use_activeTracers_surface_restoring: true
     config_use_activeTracers_interior_restoring: true
   streams:
-    mesh:
-      filename_template: initial_state.nc
-    input:
-      filename_template: initial_state.nc
     restart: {}
     mixedLayerDepthsOutput:
       contents:

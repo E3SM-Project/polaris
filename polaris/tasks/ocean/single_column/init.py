@@ -4,11 +4,12 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris import Step
+from polaris.ocean.coriolis import add_coriolis_to_dataset
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for creating a mesh and initial condition for single column
     test cases
@@ -32,14 +33,15 @@ class Init(Step):
         """
         super().__init__(component=component, name='init', indir=indir)
         self.ideal_age = ideal_age
-        for file in [
-            'base_mesh.nc',
-            'culled_mesh.nc',
-            'culled_graph.info',
-            'initial_state.nc',
-            'forcing.nc',
-        ]:
-            self.add_output_file(file)
+
+    def setup(self):
+        super().setup()
+        self.add_output_files_for_ocean_model_input(
+            horiz_mesh_filename='culled_mesh.nc',
+            base_mesh_filename='base_mesh.nc',
+            graph_filename='culled_graph.info',
+        )
+        self.add_output_file(filename='forcing.nc')
 
     def run(self):
         """
@@ -61,7 +63,8 @@ class Init(Step):
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        write_netcdf(ds_mesh, 'culled_mesh.nc')
+        ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
+        self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)
 
         ds = ds_mesh.copy()
         x_cell = ds_mesh.xCell
@@ -97,7 +100,6 @@ class Init(Step):
         mixed_layer_depth_salinity = section.getfloat(
             'mixed_layer_depth_salinity'
         )
-        coriolis_parameter = section.getfloat('coriolis_parameter')
         u = section.getfloat('zonal_velocity')
         v = section.getfloat('meridional_velocity')
 
@@ -146,14 +148,13 @@ class Init(Step):
         ds['temperature'] = temperature
         ds['salinity'] = salinity
         ds['normalVelocity'] = normal_velocity
-        ds['fCell'] = coriolis_parameter * xr.ones_like(x_cell)
-        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
-        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
 
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
-        write_netcdf(ds, 'initial_state.nc')
+
+        self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
+        self.write_initial_state_dataset(ds, 'init.nc', config)
 
         # create forcing stream
         ds_forcing = xr.Dataset()

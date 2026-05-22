@@ -44,7 +44,7 @@ class Analysis(Step):
         use_mplstyle()
 
         config = self.config
-        f = config.getfloat('single_column', 'coriolis_parameter')
+        f = config.getfloat('coriolis', 'constant_f')
         tol = config.getfloat(
             'single_column_inertial', 'period_tolerance_fraction'
         )
