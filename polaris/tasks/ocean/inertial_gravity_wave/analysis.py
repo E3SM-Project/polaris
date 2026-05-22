@@ -74,8 +74,8 @@ class Analysis(ConvergenceAnalysis):
         solution : xarray.DataArray
             The exact solution as derived from the initial condition
         """
-        init = xr.open_dataset(f'init_r{refinement_factor:02g}.nc')
-        exact = ExactSolution(init, self.config)
+        ds_mesh = xr.open_dataset(f'mesh_r{refinement_factor:02g}.nc')
+        exact = ExactSolution(ds_mesh, self.config)
         if field_name != 'ssh':
             raise ValueError(f'{field_name} is not currently supported')
         return exact.ssh(time)
