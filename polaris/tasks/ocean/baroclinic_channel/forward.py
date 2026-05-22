@@ -98,9 +98,9 @@ class Forward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_input_file(
-            filename='initial_state.nc', target='../../init/initial_state.nc'
-        )
+        self.add_horiz_mesh_input_file(target='../../init/culled_mesh.nc')
+        self.add_vert_coord_input_file(target='../../init/vert_coord.nc')
+        self.add_init_input_file(target='../../init/init.nc')
 
         self.add_yaml_file(
             'polaris.tasks.ocean.baroclinic_channel', 'forward.yaml'
