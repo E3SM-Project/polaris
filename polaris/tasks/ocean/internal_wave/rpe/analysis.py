@@ -41,9 +41,7 @@ class Analysis(Step):
             filename='mesh.nc', target='../../../init/culled_mesh.nc'
         )
 
-        self.add_input_file(
-            filename='init.nc', target='../../../init/initial_state.nc'
-        )
+        self.add_input_file(filename='init.nc', target='../../../init/init.nc')
 
         for nu in nus:
             self.add_input_file(
