@@ -28,9 +28,7 @@ class Viz(OceanIOStep):
         self.add_input_file(
             filename='mesh.nc', target='../init/culled_mesh.nc'
         )
-        self.add_input_file(
-            filename='init.nc', target='../init/initial_state.nc'
-        )
+        self.add_input_file(filename='init.nc', target='../init/init.nc')
         self.add_input_file(
             filename='output.nc', target='../forward/output.nc'
         )
