@@ -35,10 +35,6 @@ mpas-ocean:
     config_use_frazil_ice_formation: true
     config_frazil_maximum_depth: 2000.0
   streams:
-    mesh:
-      filename_template: init.nc
-    input:
-      filename_template: init.nc
     restart:
       output_interval: 0000_00:00:01
       filename_template: ../forward/restarts/restart.$Y-$M-$D_$h.$m.$s.nc

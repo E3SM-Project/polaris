@@ -29,6 +29,7 @@ class SshForward(OceanModelStep):
         init_filename,
         graph_target,
         subdir,
+        mesh_filename,
         name='ssh_forward',
         package=None,
         yaml_filename='ssh_forward.yaml',
@@ -57,6 +58,9 @@ class SshForward(OceanModelStep):
 
         subdir : str
             the subdirectory for the step
+
+        mesh_filename : str
+            the mesh filename (relative to the base work directory)
 
         name : str, optional
             the name of the task
@@ -101,6 +105,7 @@ class SshForward(OceanModelStep):
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
+        self.add_input_file(filename='mesh.nc', work_dir_target=mesh_filename)
         self.add_input_file(filename='init.nc', work_dir_target=init_filename)
         self.add_input_file(
             filename='graph.info', work_dir_target=graph_target
