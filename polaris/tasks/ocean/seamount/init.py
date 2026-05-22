@@ -4,6 +4,7 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.coriolis import add_coriolis_to_dataset
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
@@ -32,12 +33,11 @@ class Init(OceanIOStep):
 
     def setup(self):
         super().setup()
-        output_filenames = ['base_mesh.nc', 'culled_mesh.nc', 'init.nc']
-        model = self.config.get('ocean', 'model')
-        if model == 'mpas-ocean':
-            output_filenames.append('culled_graph.info')
-        for filename in output_filenames:
-            self.add_output_file(filename=filename)
+        self.add_output_files_for_ocean_model_input(
+            horiz_mesh_filename='culled_mesh.nc',
+            base_mesh_filename='base_mesh.nc',
+            graph_filename='culled_graph.info',
+        )
 
     def run(self):
         """
@@ -62,7 +62,8 @@ class Init(OceanIOStep):
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        self.write_model_dataset(ds_mesh, 'culled_mesh.nc', config)
+        ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
+        self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)
 
         # from overflow. Delete when not needed.
         max_bottom_depth = section.getfloat('max_bottom_depth')
@@ -94,7 +95,6 @@ class Init(OceanIOStep):
         seamount_height = section.getfloat('seamount_height')
         seamount_width = section.getfloat('seamount_width')
         constant_salinity = section.getfloat('constant_salinity')
-        coriolis_parameter = section.getfloat('coriolis_parameter')
 
         ds = ds_mesh.copy()
 
@@ -149,18 +149,9 @@ class Init(OceanIOStep):
             ),
             np.zeros([1, ds.sizes['nEdges'], ds.sizes['nVertLevels']]),
         )
-        ds['fCell'] = coriolis_parameter * xr.ones_like(ds.xCell)
-        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds.xEdge)
-        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds.xVertex)
-
-        # this was in internal wave but not overflow. Is it needed?
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
 
-        # finalize and write file
-        self.write_model_dataset(ds, 'init.nc', config)
-        # May not be needed.
-
-
-# from internal wave:write_netcdf(ds, 'initial_state.nc')
+        self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
+        self.write_initial_state_dataset(ds, 'init.nc', config)

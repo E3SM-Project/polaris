@@ -19,10 +19,6 @@ mpas-ocean:
   split_explicit_ts:
     config_btr_dt: {{ btr_dt }}
   streams:
-    mesh:
-      filename_template: initial_state.nc
-    input:
-      filename_template: initial_state.nc
     restart:
       output_interval: 0010_00:00:00
     output:
