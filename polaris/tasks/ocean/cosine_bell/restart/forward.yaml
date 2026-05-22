@@ -19,8 +19,6 @@ mpas-ocean:
 
 Omega:
   IOStreams:
-    InitialVertCoord:
-      Filename: init.nc
     InitialState:
       FreqUnits: {{ init_freq_units }}
     RestartRead:

@@ -31,7 +31,7 @@ class ConvergenceAnalysis(OceanIOStep):
             init : dict of polaris.Steps
                 Keys of the dict correspond to `resolutions`
                 Values of the dict are polaris.Steps, which must have the
-                attribute `path`, the path to `initial_state.nc` of that
+                attribute `path`, the path to `init.nc` of that
                 resolution
             forward : dict of polaris.Steps
                 Keys of the dict correspond to `resolutions`
@@ -94,7 +94,7 @@ class ConvergenceAnalysis(OceanIOStep):
                 init : dict of polaris.Steps
                     Keys of the dict correspond to `refinement_factors`
                     Values of the dict are polaris.Steps, which must have the
-                    attribute `path`, the path to `initial_state.nc` of that
+                    attribute `path`, the path to `init.nc` of that
                     resolution
                 forward : dict of polaris.Steps
                     Keys of the dict correspond to `refinement_factors`
@@ -157,7 +157,7 @@ class ConvergenceAnalysis(OceanIOStep):
             )
             self.add_input_file(
                 filename=f'init_r{refinement_factor:02g}.nc',
-                work_dir_target=f'{init.path}/initial_state.nc',
+                work_dir_target=f'{init.path}/init.nc',
             )
             self.add_input_file(
                 filename=f'output_r{refinement_factor:02g}.nc',

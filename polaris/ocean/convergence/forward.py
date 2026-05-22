@@ -35,7 +35,6 @@ class ConvergenceForward(OceanModelStep):
         package,
         update_eos=False,
         yaml_filename='forward.yaml',
-        mesh_input_filename='mesh.nc',
         options=None,
         replacements=None,
         graph_target=None,
@@ -67,11 +66,6 @@ class ConvergenceForward(OceanModelStep):
 
         yaml_filename : str, optional
             A YAML file that is a Jinja2 template with model config options
-
-        mesh_input_filename : str, optional
-            The filename of the mesh produced by the ``mesh`` step.  This file
-            will be symlinked into the work directory as ``mesh.nc`` for the
-            ocean model to use.
 
         options : dict, optional
             A nested dictionary of options and value for each ``config_model``
@@ -116,13 +110,13 @@ class ConvergenceForward(OceanModelStep):
                     options=options[config_model], config_model=config_model
                 )
 
-        self.add_input_file(
-            filename='init.nc', work_dir_target=f'{init.path}/initial_state.nc'
+        self.add_horiz_mesh_input_file(
+            work_dir_target=f'{init.path}/culled_mesh.nc'
         )
-        self.add_input_file(
-            filename='mesh.nc',
-            work_dir_target=f'{mesh.path}/{mesh_input_filename}',
+        self.add_vert_coord_input_file(
+            work_dir_target=f'{init.path}/vert_coord.nc'
         )
+        self.add_init_input_file(work_dir_target=f'{init.path}/init.nc')
 
         self.add_output_file(
             filename=output_filename,

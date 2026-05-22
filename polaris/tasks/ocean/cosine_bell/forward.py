@@ -1,4 +1,3 @@
-from polaris.mesh.base import parse_mesh_filepath
 from polaris.ocean.convergence.spherical import SphericalConvergenceForward
 
 
@@ -64,7 +63,6 @@ class Forward(SphericalConvergenceForward):
             init=init,
             package=package,
             yaml_filename='forward.yaml',
-            mesh_input_filename='base_mesh.nc',
             output_filename='output.nc',
             validate_vars=validate_vars,
             check_properties=['mass conservation', 'tracer conservation'],
@@ -77,14 +75,11 @@ class Forward(SphericalConvergenceForward):
         self.mesh_path = mesh.path
 
     def setup(self):
-        """
-        TEMP: symlink initial condition to name hard-coded in Omega
-        """
         super().setup()
+        from polaris.mesh.base import parse_mesh_filepath
+
         model = self.config.get('ocean', 'model')
-        # TODO: remove as soon as Omega no longer hard-codes this file
         if model == 'omega':
-            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
             component, database, mesh_name = parse_mesh_filepath(
                 self.mesh_path
             )

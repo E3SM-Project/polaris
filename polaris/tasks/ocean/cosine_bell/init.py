@@ -3,6 +3,7 @@ import xarray as xr
 from mpas_tools.transects import lon_lat_to_cartesian
 from mpas_tools.vector import Vector
 
+from polaris.ocean.coriolis import add_coriolis_to_dataset
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
@@ -37,7 +38,11 @@ class Init(OceanIOStep):
             work_dir_target=f'{base_mesh.path}/base_mesh.nc',
         )
 
-        self.add_output_file(filename='initial_state.nc')
+    def setup(self):
+        super().setup()
+        self.add_output_files_for_ocean_model_input(
+            horiz_mesh_filename='culled_mesh.nc',
+        )
 
     def run(self):
         """
@@ -64,17 +69,23 @@ class Init(OceanIOStep):
         lonCell = ds_mesh.lonCell
         sphere_radius = ds_mesh.sphere_radius
 
+        ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
+        self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)
+
         ds = ds_mesh.copy()
 
         ds['bottomDepth'] = bottom_depth * xr.ones_like(latCell)
         ds['ssh'] = xr.zeros_like(latCell)
 
         init_vertical_coord(config, ds)
-
         temperature_array = temperature * xr.ones_like(ds_mesh.latCell)
         temperature_array, _ = xr.broadcast(temperature_array, ds.refZMid)
         ds['temperature'] = temperature_array.expand_dims(dim='Time', axis=0)
         ds['salinity'] = salinity * xr.ones_like(ds.temperature)
+        # temperature and salinity must be set before this call:
+        # write_vert_coord_dataset converts restingThickness to
+        # RefPseudoThickness via pseudothickness_from_ds, which requires T/S
+        self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
 
         x_center, y_center, z_center = lon_lat_to_cartesian(
             lon_center, lat_center, sphere_radius, degrees=False
@@ -108,11 +119,7 @@ class Init(OceanIOStep):
         velocity_array, _ = xr.broadcast(velocity, ds.refZMid)
         ds['normalVelocity'] = velocity_array.expand_dims(dim='Time', axis=0)
 
-        ds['fCell'] = xr.zeros_like(ds_mesh.xCell)
-        ds['fEdge'] = xr.zeros_like(ds_mesh.xEdge)
-        ds['fVertex'] = xr.zeros_like(ds_mesh.xVertex)
-
-        self.write_model_dataset(ds, 'initial_state.nc', config)
+        self.write_initial_state_dataset(ds, 'init.nc', config)
 
 
 def cosine_bell(max_value, ri, r):

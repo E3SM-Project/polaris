@@ -75,7 +75,6 @@ class Forward(SphericalConvergenceForward):
             init=init,
             package=package,
             yaml_filename='forward.yaml',
-            mesh_input_filename='base_mesh.nc',
             output_filename='output.nc',
             validate_vars=validate_vars,
             check_properties=['mass conservation', 'tracer conservation'],
