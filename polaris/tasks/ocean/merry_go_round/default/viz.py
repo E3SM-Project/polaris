@@ -61,7 +61,7 @@ class Viz(OceanIOStep):
         )
         self.add_input_file(
             filename='init.nc',
-            work_dir_target=f'{init.path}/initial_state.nc',
+            work_dir_target=f'{init.path}/init.nc',
         )
         self.add_input_file(
             filename='output.nc',

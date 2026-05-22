@@ -4,6 +4,7 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.coriolis import add_coriolis_to_dataset
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
@@ -38,13 +39,11 @@ class Init(OceanIOStep):
 
     def setup(self):
         super().setup()
-        output_filenames = ['culled_mesh.nc', 'initial_state.nc']
-        model = self.config.get('ocean', 'model')
-        if model == 'mpas-ocean':
-            output_filenames.append('culled_graph.info')
-
-        for file in output_filenames:
-            self.add_output_file(file)
+        self.add_output_files_for_ocean_model_input(
+            horiz_mesh_filename='culled_mesh.nc',
+            base_mesh_filename='base_mesh.nc',
+            graph_filename='culled_graph.info',
+        )
 
     def run(self):
         """
@@ -89,16 +88,13 @@ class Init(OceanIOStep):
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        self.write_model_dataset(ds_mesh, 'culled_mesh.nc', config)
+        ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
+        self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)
 
         ds = ds_mesh.copy()
 
         ds['ssh'] = xr.zeros_like(ds.xCell)
         ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell)
-
-        ds['fCell'] = xr.zeros_like(ds.xCell)
-        ds['fEdge'] = xr.zeros_like(ds.xEdge)
-        ds['fVertex'] = xr.zeros_like(ds.xVertex)
 
         config.set('vertical_grid', 'vert_levels', str(nz))
         init_vertical_coord(config, ds)
@@ -171,4 +167,5 @@ class Init(OceanIOStep):
         ds['tracer2'] = tracer2_background * xr.ones_like(temperature)
         ds['tracer3'] = tracer3_background * xr.ones_like(temperature)
 
-        self.write_model_dataset(ds, 'initial_state.nc', config=config)
+        self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
+        self.write_initial_state_dataset(ds, 'init.nc', config)

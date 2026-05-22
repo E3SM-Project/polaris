@@ -93,21 +93,13 @@ class Forward(ConvergenceForward):
         self.del4 = del4
 
     def setup(self):
-        """
-        TEMP: symlink initial condition to name hard-coded in Omega
-        """
         super().setup()
-        config = self.config
-        model = config.get('ocean', 'model')
-        # TODO: remove as soon as Omega no longer hard-codes this file
-        if model == 'omega':
-            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
-            mesh_name = self.init.path.split('/')[-1]
-            self.add_input_file(
-                target=f'{mesh_name}_coeffs.nc',
-                filename='coeffs.nc',
-                database='manufactured_solution',
-            )
+        mesh_name = self.init.path.split('/')[-1]
+        self.add_input_file(
+            target=f'{mesh_name}_coeffs.nc',
+            filename='coeffs.nc',
+            database='manufactured_solution',
+        )
 
     def compute_cell_count(self):
         """

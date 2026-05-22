@@ -112,7 +112,7 @@ class Viz(OceanIOStep):
             )
             self.add_input_file(
                 filename=f'init_r{refinement_factor:02g}.nc',
-                work_dir_target=f'{init.path}/initial_state.nc',
+                work_dir_target=f'{init.path}/init.nc',
             )
             self.add_input_file(
                 filename=f'output_r{refinement_factor:02g}.nc',
