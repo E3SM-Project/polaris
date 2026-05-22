@@ -124,7 +124,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">_reduce_dataset_time_dim</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="n">area_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">areaCell</span>
-    <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span>
+    <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">_get_layer_thickness</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="n">total_mass</span> <span class="o">=</span> <span class="n">rho_sw</span> <span class="o">*</span> <span class="p">(</span>
         <span class="n">area_cell</span> <span class="o">*</span> <span class="n">layer_thickness</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
     <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nCells&#39;</span><span class="p">)</span>
@@ -136,11 +136,11 @@
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.conservation.compute_total_energy.html#polaris.ocean.conservation.compute_total_energy">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_total_energy</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the total heat content an ocean model output file</span>
+<span class="sd">    Compute the total heat content in an ocean model output file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">_reduce_dataset_time_dim</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="n">area_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">areaCell</span>
-    <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span>
+    <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">_get_layer_thickness</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="n">temperature</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span>
     <span class="n">total_energy</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">rho_sw</span>
@@ -159,7 +159,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">_reduce_dataset_time_dim</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="n">area_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">areaCell</span>
-    <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span>
+    <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">_get_layer_thickness</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="n">tracer</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">tracer_name</span><span class="p">]</span>
     <span class="n">total_tracer</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">area_cell</span> <span class="o">*</span> <span class="p">(</span><span class="n">layer_thickness</span> <span class="o">*</span> <span class="n">tracer</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
@@ -188,6 +188,18 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time_dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ds</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_layer_thickness</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s1">&#39;PseudoThickness&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span>
+    <span class="k">elif</span> <span class="s1">&#39;layerThickness&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;compute_total_energy requires either PseudoThickness or &#39;</span>
+            <span class="s1">&#39;layerThickness to be present in the dataset&#39;</span>
+        <span class="p">)</span>
 </pre></div>
 
            </div>

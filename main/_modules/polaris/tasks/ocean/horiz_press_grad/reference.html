@@ -122,8 +122,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
-
-<span class="c1"># temporary until we can get this for GCD</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gravity</span><span class="p">,</span> <span class="n">RhoSw</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.horiz_press_grad.column</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_array_from_mid_grad</span><span class="p">,</span>
@@ -472,7 +470,7 @@
             <span class="p">},</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;reference_solution.nc&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;reference_solution.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_ssh_z_bot</span><span class="p">(</span>
@@ -565,12 +563,12 @@
             <span class="s1">&#39;The &quot;reference_quadrature_method&quot; configuration option must be &#39;</span>
             <span class="s1">&#39;set in the &quot;horiz_press_grad&quot; section.&#39;</span>
         <span class="p">)</span>
-        <span class="n">water_col_adjust_iter_count</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
-            <span class="s1">&#39;water_col_adjust_iter_count&#39;</span>
+        <span class="n">pseudothickness_iter_count</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
+            <span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;pseudothickness_iter_count&#39;</span>
         <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">water_col_adjust_iter_count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
-            <span class="s1">&#39;The &quot;water_col_adjust_iter_count&quot; configuration option must be &#39;</span>
-            <span class="s1">&#39;set in the &quot;horiz_press_grad&quot; section.&#39;</span>
+        <span class="k">assert</span> <span class="n">pseudothickness_iter_count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s1">&#39;The &quot;pseudothickness_iter_count&quot; configuration option must be &#39;</span>
+            <span class="s1">&#39;set in the &quot;vertical_grid&quot; section.&#39;</span>
         <span class="p">)</span>
 
         <span class="n">goal_geom_water_column_thickness</span> <span class="o">=</span> <span class="n">geom_ssh</span> <span class="o">-</span> <span class="n">geom_z_bot</span>
@@ -584,7 +582,7 @@
             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">goal_geom_water_column_thickness</span><span class="si">:</span><span class="s1">.12f</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="p">)</span>
 
-        <span class="k">for</span> <span class="nb">iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">water_col_adjust_iter_count</span><span class="p">):</span>
+        <span class="k">for</span> <span class="nb">iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pseudothickness_iter_count</span><span class="p">):</span>
             <span class="n">z_tilde_inter</span><span class="p">,</span> <span class="n">max_layer</span><span class="p">,</span> <span class="n">uniform_layer_mask_inter</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_init_z_tilde_interface</span><span class="p">(</span>
                     <span class="n">pseudo_bottom_depth</span><span class="o">=</span><span class="n">pseudo_bottom_depth</span><span class="p">,</span>

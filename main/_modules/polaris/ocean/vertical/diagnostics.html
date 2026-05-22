@@ -115,6 +115,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_iter_count_for_eos</span><span class="p">,</span>
     <span class="n">pressure_and_spec_vol_from_state_at_geom_height</span><span class="p">,</span>
     <span class="n">pseudothickness_from_pressure</span><span class="p">,</span>
 <span class="p">)</span>
@@ -155,8 +156,8 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s1">&#39;Geometric layerThickness is not present in the &#39;</span>
-            <span class="s1">&#39;initial condition and SpecVol is not present &#39;</span>
-            <span class="s1">&#39;to compute it&#39;</span>
+            <span class="s1">&#39;initial condition and PseudoThickness and SpecVol are not &#39;</span>
+            <span class="s1">&#39;present to compute it&#39;</span>
         <span class="p">)</span></div>
 
 
@@ -207,20 +208,16 @@
         <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="n">iter_count</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">eos_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_type&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">eos_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;linear&#39;</span><span class="p">]:</span>
-            <span class="n">iter_count</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">&#39;teos-10&#39;</span><span class="p">:</span>
-            <span class="n">iter_count</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
-                <span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;pseudothickness_iter_count&#39;</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported equation of state type: </span><span class="si">{</span><span class="n">eos_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">iter_count</span> <span class="o">=</span> <span class="n">get_iter_count_for_eos</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
     <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;surface_pressure&#39;</span><span class="p">)</span>
+    <span class="n">src_var</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">src_var_name</span><span class="p">]</span>
+    <span class="n">src_has_time</span> <span class="o">=</span> <span class="s1">&#39;Time&#39;</span> <span class="ow">in</span> <span class="n">src_var</span><span class="o">.</span><span class="n">dims</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">src_has_time</span><span class="p">:</span>
+        <span class="n">src_var</span> <span class="o">=</span> <span class="n">src_var</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">p_interface</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">pressure_and_spec_vol_from_state_at_geom_height</span><span class="p">(</span>
         <span class="n">config</span><span class="p">,</span>
-        <span class="n">ds</span><span class="p">[</span><span class="n">src_var_name</span><span class="p">],</span>
+        <span class="n">src_var</span><span class="p">,</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="p">,</span>
         <span class="n">surface_pressure</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="p">),</span>
@@ -228,6 +225,10 @@
     <span class="p">)</span>
 
     <span class="n">pseudothickness</span> <span class="o">=</span> <span class="n">pseudothickness_from_pressure</span><span class="p">(</span><span class="n">p_interface</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">src_has_time</span><span class="p">:</span>
+        <span class="n">pseudothickness</span> <span class="o">=</span> <span class="n">pseudothickness</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+        <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">spec_vol</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">pseudothickness</span><span class="p">,</span> <span class="n">spec_vol</span></div>
 

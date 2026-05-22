@@ -120,7 +120,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.conservation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">compute_total_energy</span><span class="p">,</span>
     <span class="n">compute_total_mass</span><span class="p">,</span>
-    <span class="c1"># compute_total_mass_nonboussinesq, # Add when Omega EOS is used</span>
     <span class="n">compute_total_salt</span><span class="p">,</span>
     <span class="n">compute_total_tracer</span><span class="p">,</span>
 <span class="p">)</span>
@@ -565,8 +564,10 @@
             <span class="n">filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
             <span class="n">mesh_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;mesh.nc&#39;</span><span class="p">)</span>
             <span class="n">this_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-            <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">)</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
+            <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+                <span class="n">mesh_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+            <span class="p">)</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">this_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
             <span class="k">if</span> <span class="s1">&#39;tracer conservation&#39;</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
                 <span class="c1"># All tracers in mpaso_to_omega.yaml</span>
                 <span class="n">tracers_to_check</span> <span class="o">=</span> <span class="p">[</span>
@@ -590,12 +591,6 @@
                     <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
                         <span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;mass_conservation_tolerance&#39;</span>
                     <span class="p">)</span>
-                    <span class="c1"># Add when Omega EOS is used</span>
-                    <span class="c1"># if self.config.get(&#39;ocean&#39;, &#39;model&#39;) == &#39;omega&#39;:</span>
-                    <span class="c1"># relative_error  = self._compute_rel_err(</span>
-                    <span class="c1">#    compute_total_mass_nonboussinesq, ds_mesh, ds</span>
-                    <span class="c1"># )</span>
-                    <span class="c1"># else:</span>
                     <span class="n">relative_error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_rel_err</span><span class="p">(</span>
                         <span class="n">compute_total_mass</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="o">=</span><span class="n">ds</span>
                     <span class="p">)</span>
