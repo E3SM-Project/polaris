@@ -155,10 +155,10 @@ if you need a custom environment.</p>
 <p>Miniforge, Micromamba and Miniconda are no longer required for Polaris
 deployment. If pixi is not already available, <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> can install it.</p>
 </div>
-<p>After setup, you should have a file named <code class="docutils literal notranslate"><span class="pre">load_dev_polaris_*.sh</span></code>, where <code class="docutils literal notranslate"><span class="pre">*</span></code>
+<p>After setup, you should have a file named <code class="docutils literal notranslate"><span class="pre">load_polaris_*.sh</span></code>, where <code class="docutils literal notranslate"><span class="pre">*</span></code>
 depends on your Polaris version, machine, and compilers. For example, on
-Chrysalis, you might have <code class="docutils literal notranslate"><span class="pre">load_dev_polaris_0.1.0-alpha.3_chrysalis_intel_openmpi.sh</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_chrysalis_intel_openmpi.sh
+Chrysalis, you might have <code class="docutils literal notranslate"><span class="pre">load_polaris_chrysalis_oneapi-ifx_openmpi.sh</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_chrysalis_oneapi-ifx_openmpi.sh
 </pre></div>
 </div>
 <p>Now, get the E3SM source code (used by Polaris to build MPAS-Ocean) via the

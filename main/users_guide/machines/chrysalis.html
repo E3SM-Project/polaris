@@ -151,16 +151,19 @@ suite:</p>
 <span class="k">[deploy]</span>
 
 <span class="c1"># the compiler set to use for system libraries and MPAS builds</span>
-<span class="na">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">intel</span>
+<span class="na">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">oneapi-ifx</span>
 
 <span class="c1"># the compiler to use to build software (e.g. ESMF and MOAB) with spack</span>
-<span class="na">software_compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">intel</span>
+<span class="na">software_compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">oneapi-ifx</span>
 
 <span class="c1"># the system MPI library to use for intel compiler</span>
 <span class="na">mpi_intel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">openmpi</span>
 
 <span class="c1"># the system MPI library to use for gnu compiler</span>
 <span class="na">mpi_gnu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">openmpi</span>
+
+<span class="c1"># the system MPI library to use for oneapi-ifx compiler</span>
+<span class="na">mpi_oneapi_ifx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">openmpi</span>
 
 <span class="c1"># the base path for spack environments used by polaris</span>
 <span class="na">spack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/lcrc/soft/climate/polaris/chrysalis/spack</span>

@@ -71,8 +71,9 @@
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#supported-machines">Supported Machines</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="aurora.html">Aurora</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Chrysalis</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#intel">intel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#oneapi-ifx">oneapi-ifx</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#gnu">gnu</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#intel">intel</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="frontier.html">Frontier</a></li>
@@ -131,17 +132,14 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="chrysalis">
 <span id="dev-machine-chrysalis"></span><h1>Chrysalis<a class="headerlink" href="#chrysalis" title="Link to this heading"></a></h1>
-<section id="intel">
-<h2>intel<a class="headerlink" href="#intel" title="Link to this heading"></a></h2>
+<section id="oneapi-ifx">
+<h2>oneapi-ifx<a class="headerlink" href="#oneapi-ifx" title="Link to this heading"></a></h2>
 <p>This is the default polaris compiler on Chrysalis.  If the environment has
 been set up properly (see <a class="reference internal" href="../quick_start.html#dev-conda-env"><span class="std std-ref">Polaris pixi and spack environments, compilers and system modules</span></a>), you should be able to source:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_chrysalis_intel_openmpi.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_chrysalis_oneapi-ifx_openmpi.sh
 </pre></div>
 </div>
-<p>Then, you can build the MPAS model with</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span><span class="o">[</span><span class="nv">DEBUG</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="nv">OPENMP</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span>ifort
-</pre></div>
-</div>
+<p>You cannot build standalone MPAS components with this compiler at this time.</p>
 </section>
 <section id="gnu">
 <h2>gnu<a class="headerlink" href="#gnu" title="Link to this heading"></a></h2>
@@ -151,6 +149,17 @@ been set up properly (see <a class="reference internal" href="../quick_start.htm
 </div>
 <p>Then, you can build the MPAS model with</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span><span class="o">[</span><span class="nv">DEBUG</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="nv">OPENMP</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="nv">ALBANY</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span>gfortran
+</pre></div>
+</div>
+</section>
+<section id="intel">
+<h2>intel<a class="headerlink" href="#intel" title="Link to this heading"></a></h2>
+<p>If the environment has been set up properly, you should be able to source:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_chrysalis_intel_openmpi.sh
+</pre></div>
+</div>
+<p>Then, you can build the MPAS model with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span><span class="o">[</span><span class="nv">DEBUG</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="nv">OPENMP</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span>ifort
 </pre></div>
 </div>
 </section>

@@ -193,13 +193,13 @@ PR description.</p>
 <section id="omega-running-ctests-and-omega-pr-suite">
 <h2>Omega: Running CTests and <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> Suite<a class="headerlink" href="#omega-running-ctests-and-omega-pr-suite" title="Link to this heading"></a></h2>
 <p>For each machine, compiler, and MPI combination (for example, on Chrysalis
-with Intel and OpenMPI):</p>
+with <code class="docutils literal notranslate"><span class="pre">oneapi-ifx</span></code> and OpenMPI):</p>
 <ol class="arabic">
 <li><p><strong>Start a Clean Environment</strong></p>
 <p>Open a fresh terminal or run <code class="docutils literal notranslate"><span class="pre">bash</span></code> to ensure a clean shell environment.</p>
 </li>
 <li><p><strong>Source the Load Script</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_chrysalis_intel_openmpi.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_chrysalis_oneapi-ifx_openmpi.sh
 </pre></div>
 </div>
 <p><em>(Replace as appropriate for your configuration.)</em></p>
@@ -221,7 +221,7 @@ checkbox in the PR description.</p>
 <a class="reference internal" href="../../framework/build.html#dev-build"><span class="std std-ref">Build utilities</span></a>).  To reuse that build when setting up the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code>
 suite, point <code class="docutils literal notranslate"><span class="pre">--component_path</span></code> at this directory, for example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>omega_pr<span class="w"> </span>--model<span class="w"> </span>omega<span class="w"> </span><span class="se">\</span>
-<span class="w">      </span>-w<span class="w"> </span>/path/to/polaris_scratch/omega_pr_intel_openmpi<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>-w<span class="w"> </span>/path/to/polaris_scratch/omega_pr_oneapi_openmpi<span class="w"> </span><span class="se">\</span>
 <span class="w">      </span>-p<span class="w"> </span>/path/to/polaris_branch/build_omega/build_&lt;machine&gt;_&lt;compiler&gt;
 </pre></div>
 </div>
@@ -236,7 +236,7 @@ automatically.</p></li>
 </ul>
 </li>
 <li><p><strong>Run the Suite</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/path/to/polaris_scratch/omega_pr_intel_openmpi
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/path/to/polaris_scratch/omega_pr_oneapi_openmpi
 sbatch<span class="w"> </span>job_script_omega_pr.sh
 </pre></div>
 </div>
