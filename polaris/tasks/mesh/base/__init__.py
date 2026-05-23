@@ -1,7 +1,10 @@
 import os
 
-from polaris.mesh.base import get_base_mesh_steps
+from polaris.mesh.base import get_base_mesh_step_names
 from polaris.task import Task
+from polaris.tasks.mesh.base.steps import (
+    get_base_mesh_steps as get_shared_base_mesh_steps,
+)
 
 
 def add_base_mesh_tasks(component):
@@ -11,8 +14,11 @@ def add_base_mesh_tasks(component):
     component : polaris.Component
         the mesh component that the tasks will be added to
     """
-    base_mesh_steps = get_base_mesh_steps()
-    for base_mesh_step in base_mesh_steps:
+    for mesh_name in get_base_mesh_step_names():
+        steps, _ = get_shared_base_mesh_steps(
+            mesh_name=mesh_name,
+        )
+        base_mesh_step = steps['base_mesh']
         task = BaseMeshTask(component=component, base_mesh_step=base_mesh_step)
         component.add_task(task)
 
@@ -46,3 +52,6 @@ class BaseMeshTask(Task):
             link=f'{base_mesh_step.mesh_name}.cfg',
         )
         self.add_step(base_mesh_step)
+
+
+get_base_mesh_steps = get_shared_base_mesh_steps

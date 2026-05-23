@@ -10,4 +10,5 @@ and other E3SM workflows.
 :titlesonly: true
 
 tasks/index
+suites
 ```

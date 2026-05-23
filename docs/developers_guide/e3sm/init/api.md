@@ -52,6 +52,7 @@
 
    CombineStep
    CombineStep.get_subdir
+   CombineStep.get_name
    CombineStep.setup
    CombineStep.constrain_resources
    CombineStep.run
@@ -88,6 +89,9 @@
 
    VizRemappedTopoStep
    VizRemappedTopoStep.run
+
+   get_remap_topo_steps
+   add_remap_topo_tasks
 ```
 
 
@@ -114,5 +118,8 @@
    CullMeshStep.run
 
    CullTopoTask
+
+   get_cull_topo_steps
+   add_cull_topo_tasks
 ```
 

@@ -36,7 +36,8 @@ currents along isocontours of resolution.
 ## Unified Mesh Tasks
 
 These tasks cover the full unified-mesh workflow for named global meshes:
-coastline and river preprocessing, and sizing-field construction.
+coastline and river preprocessing, sizing-field construction, and final
+MPAS base-mesh generation.
 
 ```{toctree}
 :titlesonly: true
@@ -44,4 +45,5 @@ coastline and river preprocessing, and sizing-field construction.
 unified/coastline
 unified/river
 unified/sizing_field
+unified/base_mesh
 ```

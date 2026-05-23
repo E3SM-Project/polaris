@@ -1,3 +1,9 @@
+from polaris.tasks.mesh.spherical.unified.base_mesh import (
+    BaseMeshTask,
+    VizBaseMeshStep,
+    add_unified_base_mesh_tasks,
+    get_unified_base_mesh_steps,
+)
 from polaris.tasks.mesh.spherical.unified.sizing_field import (
     BuildSizingFieldStep,
     SizingFieldTask,
@@ -9,11 +15,15 @@ from polaris.tasks.mesh.spherical.unified.sizing_field import (
 )
 
 __all__ = [
+    'BaseMeshTask',
     'BuildSizingFieldStep',
+    'VizBaseMeshStep',
+    'add_unified_base_mesh_tasks',
     'SizingFieldTask',
     'VizSizingFieldStep',
     'add_sizing_field_tasks',
     'sizing_field_dataset',
+    'get_unified_base_mesh_steps',
     'get_unified_mesh_sizing_field_steps',
     'get_sizing_field_config',
 ]

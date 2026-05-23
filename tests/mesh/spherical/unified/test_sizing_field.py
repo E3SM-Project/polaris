@@ -8,7 +8,7 @@ import xarray as xr
 from polaris.component import Component
 from polaris.mesh.spherical.unified import (
     UNIFIED_MESH_NAMES,
-    UnifiedCellWidthMeshStep,
+    UnifiedBaseMeshStep,
     get_unified_mesh_family,
 )
 from polaris.mesh.spherical.unified.families.default import (
@@ -56,6 +56,9 @@ def test_sizing_field_mesh_outputs_and_active_control():
     assert ds_uniform.attrs['mesh_name'] == 'u.oi240.lr240'
     assert 'profile_name' not in ds_uniform.attrs
     np.testing.assert_allclose(ds_uniform.cellWidth.values, 240.0)
+    np.testing.assert_allclose(
+        ds_uniform.signed_distance.values, ds_coastline.signed_distance.values
+    )
     assert np.all(ds_uniform.active_control.values == 0)
 
     ds_split = sizing_field_dataset(
@@ -238,8 +241,8 @@ def test_sizing_field_coastline_overrides_finer_land_and_river_controls():
     )
 
 
-def test_unified_cell_width_mesh_step_reads_sizing_field(tmp_path):
-    step = UnifiedCellWidthMeshStep(
+def test_unified_base_mesh_step_reads_sizing_field(tmp_path):
+    step = UnifiedBaseMeshStep(
         component=Component(name='mesh'),
         subdir='spherical/unified/base_mesh/test',
     )

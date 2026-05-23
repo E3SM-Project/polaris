@@ -96,3 +96,19 @@
    get_unified_mesh_sizing_field_steps
    get_sizing_field_config
 ```
+
+### Unified Base-Mesh Tasks
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.base_mesh
+
+.. autosummary::
+   :toctree: generated/
+
+   BaseMeshTask
+   VizBaseMeshStep
+   VizBaseMeshStep.setup
+   VizBaseMeshStep.run
+   add_unified_base_mesh_tasks
+   get_unified_base_mesh_steps
+```

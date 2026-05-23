@@ -265,6 +265,7 @@ def sizing_field_dataset(
     )
     data_vars = {
         'cellWidth': final_cell_width.astype(np.float32),
+        'signed_distance': signed_distance.astype(np.float32),
         'background_cell_width': background.astype(np.float32),
         'ocean_background_cell_width': ocean_background.astype(np.float32),
         'land_river_cell_width': land_river_cell_width.astype(np.float32),
@@ -297,6 +298,7 @@ def sizing_field_dataset(
         background=land_background,
     )
     ds_sizing.cellWidth.attrs['units'] = 'km'
+    ds_sizing.signed_distance.attrs['units'] = 'm'
     ds_sizing.background_cell_width.attrs['units'] = 'km'
     ds_sizing.ocean_background_cell_width.attrs['units'] = 'km'
     ds_sizing.land_river_cell_width.attrs['units'] = 'km'
@@ -306,6 +308,9 @@ def sizing_field_dataset(
     ds_sizing.river_channel_cell_width.attrs['units'] = 'km'
     ds_sizing.active_control.attrs['long_name'] = (
         'Index of the active sizing control'
+    )
+    ds_sizing.signed_distance.attrs['long_name'] = (
+        'Signed distance to the coastline from the source coastline field'
     )
 
     return ds_sizing

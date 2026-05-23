@@ -16,7 +16,7 @@ ocean regions).
 
 This section covers the task families for named global unified meshes, from
 the preparatory coastline and river workflows through the sizing-field
-construction.
+construction and final base-mesh generation.
 
 ```{toctree}
 :titlesonly: true
@@ -24,4 +24,5 @@ construction.
 unified/coastline
 unified/river
 unified/sizing_field
+unified/base_mesh
 ```

@@ -44,6 +44,17 @@ Standalone tasks are available to create each combined topography product:
 The remap and cull tasks reuse these shared products when generating inputs
 for MPAS base meshes.
 
+Remap and cull tasks are available for both simple (quasi-uniform and
+icosahedral) base meshes and for named unified meshes (see
+{ref}`users-mesh-unified-base-mesh`).  For a unified mesh named
+`u.oi30.lr10`, the task paths are:
+
+- `e3sm/init/u.oi30.lr10/topo/remap`
+- `e3sm/init/u.oi30.lr10/topo/cull`
+
+The supported unified mesh names are the same as those listed in
+{ref}`users-mesh-unified-base-mesh`.
+
 ## Configuration Options
 
 These tasks create shared config files in their work directories:

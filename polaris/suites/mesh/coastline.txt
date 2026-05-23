@@ -1,0 +1,4 @@
+mesh/spherical/unified/coastline/0.03125_degree/task
+mesh/spherical/unified/coastline/0.06250_degree/task
+mesh/spherical/unified/coastline/0.12500_degree/task
+mesh/spherical/unified/coastline/0.25000_degree/task

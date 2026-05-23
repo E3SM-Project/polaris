@@ -1,4 +1,7 @@
 from polaris.tasks.mesh.base import add_base_mesh_tasks
+from polaris.tasks.mesh.spherical.unified.base_mesh import (
+    add_unified_base_mesh_tasks,
+)
 from polaris.tasks.mesh.spherical.unified.coastline import (
     add_coastline_tasks,
 )
@@ -15,8 +18,9 @@ def add_mesh_tasks(component):
     component : polaris.Component
         the mesh component that the tasks will be added to
     """
-    # add tasks alphabetically
+    # add tasks alphabetically (by name in work directory)
     add_base_mesh_tasks(component=component)
+    add_unified_base_mesh_tasks(component=component)
     add_coastline_tasks(component=component)
     add_river_tasks(component=component)
     add_sizing_field_tasks(component=component)

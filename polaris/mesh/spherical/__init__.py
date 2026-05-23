@@ -8,7 +8,6 @@ from jigsawpy.savejig import savejig
 from mpas_tools.io import write_netcdf
 from mpas_tools.logging import check_call
 from mpas_tools.mesh.creation.jigsaw_to_netcdf import jigsaw_to_netcdf
-from mpas_tools.mesh.interpolation import interp_bilin
 from mpas_tools.ocean.inject_meshDensity import inject_spherical_meshDensity
 from mpas_tools.transects import lon_lat_to_cartesian
 from mpas_tools.viz.colormaps import register_sci_viz_colormaps
@@ -16,6 +15,7 @@ from mpas_tools.viz.paraview_extractor import extract_vtk
 
 from polaris import Step
 from polaris.constants import get_constant
+from polaris.mesh.spherical.quality import check_cell_polygon_quality
 from polaris.model_step import make_graph_file
 
 
@@ -128,10 +128,11 @@ class SphericalBaseStep(Step):
         # open the mesh and rewrite it in the desired NetCDF format
         ds_mesh = xr.open_dataset(tmp_mesh_filename)
 
-        self._add_cell_width_to_mesh(ds_mesh)
         angle_edge = recompute_angle_edge(ds_mesh)
         ds_mesh.angleEdge.values = angle_edge.values
         write_netcdf(ds_mesh, mpas_mesh_filename)
+
+        self._check_cell_polygon_quality(ds_mesh=ds_mesh)
 
         if section.getboolean('add_mesh_density'):
             logger.info('Add meshDensity into the mesh file')
@@ -163,6 +164,36 @@ class SphericalBaseStep(Step):
 
         make_graph_file(
             mesh_filename=mpas_mesh_filename, graph_filename='graph.info'
+        )
+
+    def _check_cell_polygon_quality(self, ds_mesh):
+        """
+        Check the generated MPAS mesh for degenerate cell polygons.
+
+        Parameters
+        ----------
+        ds_mesh : xarray.Dataset
+            MPAS mesh dataset
+        """
+        section = self.config['spherical_mesh_quality']
+        if not section.getboolean('check_cell_geometry'):
+            return
+
+        diagnostics = check_cell_polygon_quality(
+            ds_mesh=ds_mesh,
+            minimum_edge_length_ratio=section.getfloat(
+                'minimum_edge_length_ratio'
+            ),
+            minimum_corner_sine=section.getfloat('minimum_corner_sine'),
+            max_bad_cells_to_report=section.getint('max_bad_cells_to_report'),
+        )
+
+        self.logger.info(
+            'Spherical mesh cell-polygon quality check passed. '
+            f'Minimum edge-length ratio: '
+            f'{diagnostics["minimum_edge_length_ratio"]:.3e}; '
+            f'minimum corner sine: '
+            f'{diagnostics["minimum_corner_sine"]:.3e}.'
         )
 
     def _plot_cell_width(self, cell_width):
@@ -213,32 +244,6 @@ class SphericalBaseStep(Step):
         plt.tight_layout()
         plt.savefig(image_filename, bbox_inches='tight')
         plt.close()
-
-    def _add_cell_width_to_mesh(self, ds_mesh):
-        """
-        Interpolate the cell width from a lon/lat grid to the MPAS mesh and
-        add it to the mesh file
-        """
-        config = self.config
-        section = config['spherical_mesh']
-        cell_width_filename = section.get('cell_width_filename')
-        ds_cell_width = xr.open_dataset(cell_width_filename)
-
-        lon_cell = np.degrees(ds_mesh.lonCell)
-        # Convert lon_cell to be between -180 and 180 using np.mod
-        lon_cell = np.mod(lon_cell + 180.0, 360.0) - 180.0
-        lat_cell = np.degrees(ds_mesh.latCell)
-
-        cell_width = interp_bilin(
-            x=ds_cell_width.lon.values,
-            y=ds_cell_width.lat.values,
-            field=ds_cell_width.cellWidth.values,
-            xCell=lon_cell,
-            yCell=lat_cell,
-        )
-
-        # interpolate the cell width to the MPAS mesh
-        ds_mesh['cellWidth'] = (('nCells'), cell_width)
 
 
 class QuasiUniformSphericalMeshStep(SphericalBaseStep):
