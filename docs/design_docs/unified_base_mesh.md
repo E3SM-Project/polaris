@@ -650,7 +650,7 @@ algorithm.
 
 ### Testing and Validation: Global Spherical MPAS Base Mesh
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -671,12 +671,14 @@ In `tests/mesh/spherical/unified/test_base_mesh_tasks.py`,
 standalone task per named mesh, and `test_add_unified_base_mesh_task_includes_dependencies`
 verifies the expected full step chain.
 
-There is not yet an integration test that runs JIGSAW and verifies
-`base_mesh.nc` and `graph.info` are produced.
+Standalone base-mesh tasks have been run for all four named unified meshes,
+producing `base_mesh.nc` and `graph.info` via JIGSAW. The resulting meshes
+were inspected visually and verified to be consistent with the requested
+resolution designs.
 
 ### Testing and Validation: Downstream E3SM Interoperability
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -700,12 +702,14 @@ In `tests/e3sm/init/topo/test_unified_tasks.py`:
   `test_unified_cull_topo_task_includes_base_mesh_dependencies` verify that
   remap and cull tasks include upstream base mesh steps.
 
-End-to-end execution through `e3sm/init/topo/cull` on all four supported
-unified meshes is planned but not yet performed.
+End-to-end execution through `e3sm/init/topo/cull` has been performed for all
+four supported unified meshes. The resulting culled ocean and land meshes were
+inspected and verified to look reasonable, with no ocean cells showing `dcEdge`
+substantially smaller than the finest requested ocean resolution.
 
 ### Testing and Validation: Feature-Aware Resolution Control
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -724,15 +728,14 @@ disconnected basin flood-fill, northernmost-row seeding, critical land
 blockage and passage handling, and the `get_unified_mesh_coastline_steps()`
 factory wiring.
 
-In `tests/mesh/spherical/unified/test_river.py`, tests verify river output
-masks (`river_channel_mask`, `river_outlet_mask`, `river_ocean_outlet_mask`,
-`river_inland_sink_mask`), outlet snapping, coastline-aware clipping, and
-`UnifiedRiverNetworkTask` registration per mesh name.
+In `tests/mesh/spherical/unified/test_river.py`, tests verify the
+channel-only river mask (`river_channel_mask`), coastline-aware clipping,
+and `UnifiedRiverNetworkTask` registration per mesh name.
 
 In `tests/mesh/spherical/unified/test_sizing_field.py`, tests verify that
 `build_sizing_field_dataset()` composes constant and latitude-dependent ocean
-backgrounds with land, coastline, river-channel and river-outlet controls,
-that mesh-specific subdirectories and config reuse are correct, and that
+backgrounds with land, coastline, and river-channel controls, that
+mesh-specific subdirectories and config reuse are correct, and that
 `UnifiedBaseMeshStep` can read `sizing_field.nc`.
 
 In `tests/mesh/spherical/unified/test_base_mesh.py` and
@@ -740,13 +743,14 @@ In `tests/mesh/spherical/unified/test_base_mesh.py` and
 converted to JIGSAW line constraints and that one standalone base-mesh task
 is registered per named unified mesh.
 
-The remaining gap is end-to-end coverage: the current automated tests are
-unit-level and do not yet include a smoke test that runs the full shared-step
-chain through JIGSAW and downstream remap or cull steps.
+Standalone tasks for all four stages have been run for all four named unified
+meshes. Visual inspection of the sizing-field diagnostics, base-mesh plots,
+river overlays, and culled ocean and land meshes confirmed the expected
+behavior at each stage.
 
 ### Testing and Validation: Shared Target-Grid Tiers and Cacheable Preprocessing
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -768,14 +772,13 @@ Current unit tests verify several parts of this contract. In
 - `test_add_sizing_field_tasks_registers_named_meshes` verifies that the named
   mesh configs provide the required configuration.
 
-Tests should still verify that all supported target-grid tiers produce the
-expected lon/lat dimensions, that dependent shared steps reuse cached outputs
-when the same tier is selected, and that switching tiers produces separate
-products rather than silently reusing incompatible cached artifacts.
+Standalone tasks for all four named unified meshes have been run, exercising
+all four supported target-grid tiers (0.25, 0.125, 0.0625, and 0.03125 degree)
+end to end.
 
 ### Testing and Validation: Polaris-Native Configuration and Execution
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -789,9 +792,9 @@ The `test_base_mesh_step_factory_includes_dependencies` and
 `test_sizing_field.py` verify that configuration is expressed through Polaris
 config files and that shared steps are linked by the factory functions.
 
-Full validation through standard Polaris setup and run commands, including
-verifying work-directory layout and shared-step cache reuse, is still needed
-for all four supported unified meshes.
+Standalone tasks for all four named unified meshes have been set up and run
+through standard Polaris setup and run commands, confirming the expected
+work-directory layout and shared-step reuse.
 
 ### Testing and Validation: Selective Migration and Maintainability
 

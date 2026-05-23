@@ -313,12 +313,13 @@ near the dateline are handled consistently with those elsewhere on the globe.
 
 ### Algorithm Design: Shared Final Step and Per-Mesh Standalone Tasks
 
-Date last modified: 2026/04/26
+Date last modified: 2026/05/23
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The final stage should follow the same pattern as the new coastline, river,
 and sizing-field stages: one shared implementation plus thin standalone task
@@ -329,10 +330,10 @@ code that registers standalone tasks should iterate over the named mesh configs 
 `polaris.mesh.spherical.unified` and register one standalone task per mesh.
 With the current configs, that means one standalone task each for:
 
-- `ocn_240km_lnd_240km_riv_240km`;
-- `ocn_30km_lnd_10km_riv_10km`; and
-- `ocn_rrs_6to18km_lnd_12km_riv_6km`; and
-- `ocn_so_12to30km_lnd_10km_riv_10km`.
+- `u.oi240.lr240`;
+- `u.oi30.lr10`;
+- `u.oi6to18.lr6to10`; and
+- `u.oi.so12to30.lr10`.
 
 Each standalone task should compose the shared prerequisite steps in the same
 workflow instance: coastline preparation, river-network preparation,
@@ -507,19 +508,22 @@ hard-coded.
 
 ### Implementation: Shared Final Step and Per-Mesh Standalone Tasks
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/23
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The standalone task registration follows the same mesh-config discovery pattern
 already used by the unified sizing-field and river tasks.
 
 In practice, `add_unified_base_mesh_tasks()` iterates over `UNIFIED_MESH_NAMES`
 from `polaris.mesh.spherical.unified.configs` and registers one standalone
-`base_mesh_<mesh_name>_task` per mesh.
+`base_mesh_<mesh_name>_task` per mesh. The current named meshes are
+`u.oi240.lr240`, `u.oi30.lr10`, `u.oi6to18.lr6to10`, and
+`u.oi.so12to30.lr10`.
 
 The standalone tasks include the visualization step by default. Other
 workflows that reuse the shared final step depend only on the build step unless
@@ -579,7 +583,7 @@ part of the same planned capability keeps the workflow boundary honest.
 
 ### Testing and Validation: Final JIGSAW-to-MPAS Unified Base Mesh
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -601,12 +605,14 @@ In `tests/mesh/spherical/unified/test_base_mesh.py`:
   `test_get_regional_extent_uses_conus_example_for_global_bounds` verify the
   viz helper functions.
 
-There is not yet a coarse end-to-end smoke test that runs JIGSAW and produces
-`base_mesh.nc` and `graph.info`.
+Standalone base-mesh tasks have been run for all four named unified meshes,
+producing `base_mesh.nc` and `graph.info` via JIGSAW. The resulting meshes
+were inspected visually and verified to be consistent with the requested
+resolution designs.
 
 ### Testing and Validation: Explicit Consumption of Shared Unified-Mesh Products
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -617,19 +623,23 @@ Contributors:
 In `tests/mesh/spherical/unified/test_base_mesh_tasks.py`:
 
 - `test_add_unified_base_mesh_task_includes_dependencies` verifies that the
-  standalone task links only the expected shared step keys
-  (`combine_topo_lat_lon_0.03125_degree`, `coastline_compute`,
-  `coastline_final`, `river_simplify`, `river_rasterize`, `river_clip`,
-  `sizing_field`, `base_mesh`, `base_mesh_viz`).
+  standalone task's step keys are
+  `combine_topo_bedmap3_gebco2023_lat_lon_0.03125_degree`, `coastline_compute`,
+  `coastline_remap`, `river_simplify`, `river_rasterize`, `river_clip`,
+  `sizing_field`, `base_mesh`, and `base_mesh_viz`. Note that the task step
+  keys differ slightly from the factory symlink keys returned by
+  `get_unified_base_mesh_steps()`, which uses `combine_topo_lat_lon_0.03125_degree`
+  and `coastline_final` for the same steps.
 - `test_base_mesh_step_factory_includes_dependencies` verifies that the factory
   wiring links only the shared upstream products.
 
-Task-level execution tests should still verify that the remap and cull variants
-accept the produced unified base mesh through standard task interfaces.
+Remap and cull task variants have been exercised through full end-to-end runs
+for all four unified meshes (see downstream remap and culling testing section
+below).
 
 ### Testing and Validation: River-Geometry Influence on Final Cell Placement
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -642,14 +652,13 @@ Contributors:
   `tests/mesh/spherical/unified/test_base_mesh.py` verify that the clipped
   river geometry is converted to JIGSAW line constraints.
 
-A more precise mesh-quality check is still needed. Examples include a
-comparison against a raster-only control mesh, a diagnostic that measures mesh
-alignment near retained channels, or a small regression case that verifies a
-known outlet or main-stem placement pattern.
+The resulting base meshes for all four named unified meshes have been inspected
+visually and verified to show river-aligned cell placement consistent with
+the retained channel geometry.
 
 ### Testing and Validation: River Snapping Shall Not Refine Coastal Ocean Resolution
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -658,13 +667,14 @@ Contributors:
 - Claude
 
 In `tests/mesh/spherical/unified/test_river.py`, tests cover inland clipping
-of retained river segments and outlet removal near the coastline. These verify
-that `ClipRiverNetworkStep` correctly removes river geometry within the coastal
+of retained river segments near the coastline. These verify that
+`ClipRiverNetworkStep` correctly removes river geometry within the coastal
 clipping zone before it reaches `create_base_mesh`.
 
-What is still missing is a realized-ocean-mesh regression that checks `dcEdge`
-after ocean culling to confirm that no band of over-refined coastal ocean
-resolution was introduced by river snapping.
+Manual inspection of `dcEdge` on culled ocean meshes for all four unified meshes
+confirmed that no band of over-refined coastal ocean resolution was introduced
+by river snapping. No ocean cells with `dcEdge` substantially smaller than the
+finest requested ocean resolution were observed.
 
 ### Testing and Validation: Shared Final Step and Per-Mesh Standalone Tasks
 
@@ -689,7 +699,7 @@ In `tests/mesh/spherical/unified/test_base_mesh_tasks.py`:
 
 ### Testing and Validation: Standalone Visualization for Mesh and Inputs
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -702,13 +712,13 @@ Contributors:
   `tests/mesh/spherical/unified/test_base_mesh.py` verify the viz helper
   functions used by the visualization step.
 
-There is not yet an automated test that verifies that visualization artifact
-files are produced at the task level (e.g. that output PNG figures exist after
-the viz step runs).
+Visualization outputs (global and regional mesh plots, sizing-field plots, and
+river overlay figures) have been inspected for all four named unified meshes
+and found to be consistent with expectations.
 
 ### Testing and Validation: Downstream Remap and Culling Variants for Unified Meshes
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -735,5 +745,7 @@ In `tests/e3sm/init/topo/test_unified_tasks.py`:
   `test_unified_cull_topo_task_includes_base_mesh_dependencies` verify that
   remap and cull tasks include the upstream base mesh shared steps.
 
-Full end-to-end execution through `e3sm/init/topo/cull` on all four supported
-unified meshes is planned but not yet performed.
+End-to-end execution through `e3sm/init/topo/cull` has been performed for all
+four supported unified meshes. The resulting culled ocean and land meshes were
+inspected and verified to look reasonable, with no ocean cells showing `dcEdge`
+substantially smaller than the finest requested ocean resolution.

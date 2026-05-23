@@ -468,7 +468,7 @@ mesh.
 
 ### Testing and Validation: Downstream-Ready River Network Products
 
-Date last modified: 2026/05/16
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -497,13 +497,13 @@ simplification fallback. The `test_base_mesh.py` tests then verify that
 `UnifiedBaseMeshStep` converts the prepared `clipped_river_network.geojson`
 product into JIGSAW line constraints rather than raw river geometry.
 
-`build_sizing_field` unit tests consume the target-grid river masks. There is
-still not a task-level integration test showing the full river workflow feeding
-either the sizing-field task or the final base-mesh task on real data.
+`build_sizing_field` unit tests consume the target-grid river masks. The full
+river workflow feeding the sizing-field task and the final base-mesh task has
+been run on real data for all four named unified meshes.
 
 ### Testing and Validation: Hydrologically Meaningful Simplification
 
-Date last modified: 2026/05/15
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -530,9 +530,10 @@ simplification behavior on synthetic networks:
   `test_branch_distance_tolerance_auto_derived_from_config` verify that
   simplification thresholds are derived correctly from mesh configs.
 
-What is still missing is validation against real HydroRIVERS subsets to ensure
-the present heuristics retain scientifically appropriate networks across
-different hydrographic settings.
+The simplification has been exercised on the full global HydroRIVERS dataset
+for all four named unified meshes, and the resulting river networks were
+inspected visually and found to reflect the major hydrographic controls at
+each resolution.
 
 ### Testing and Validation: Deferred Outlet Reconciliation
 
@@ -565,7 +566,7 @@ runs.
 
 ### Testing and Validation: Standalone River-Network Task
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -586,9 +587,9 @@ standalone task structure:
   and config instances are shared across multiple `get_unified_mesh_river_steps()`
   calls for the same mesh.
 
-Standalone smoke tests for each of the supported unified meshes have been run
-on Frontier, showing the expected rasterized river networks at each resolution.
-Specific parameter choices still need to be fine-tuned.
-
-Full end-to-end execution of the river workflow feeding the sizing-field and
-base-mesh tasks on real data is planned but not yet performed.
+Standalone river tasks have been run for all four named unified meshes, showing
+the expected rasterized river networks and visualization overlays at each
+resolution. The full end-to-end workflow through sizing-field construction,
+base-mesh generation, topography remap, and mesh culling has been completed
+for all four meshes. The resulting culled ocean and land meshes were visually
+verified to be consistent with expectations.

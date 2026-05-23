@@ -91,12 +91,13 @@ or raw HydroRIVERS source datasets in the standard workflow.
 
 ### Requirement: Composable Feature-Based Resolution Controls
 
-Date last modified: 2026/04/10
+Date last modified: 2026/05/23
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The workflow shall support a baseline resolution pattern together with local
 refinement controls for coastline and river features.
@@ -106,7 +107,13 @@ The first design shall support separate control of at least:
 - background ocean resolution;
 - background land resolution;
 - coastline refinement and transition zones; and
-- river-channel and river-outlet refinement.
+- river-channel refinement.
+
+River-outlet refinement was considered but intentionally removed. Because the
+retained river geometry is clipped to stay outside the coastal exclusion band
+(at least two ocean cells wide at the coarsest resolution), river features
+never reach the coastline, making a separate outlet-mask raster control
+redundant.
 
 The design shall allow additional feature classes such as watershed
 boundaries, lakes, or dams to be added later without redesigning the full
@@ -197,12 +204,13 @@ retain the existing standalone use of river geometry in the final mesh step.
 
 ### Algorithm Design: Composable Feature-Based Resolution Controls
 
-Date last modified: 2026/04/26
+Date last modified: 2026/05/23
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The first sizing-field algorithm should be framed as a set of candidate fields
 combined into a final mesh-spacing field.
@@ -220,11 +228,16 @@ Feature refinement should then be expressed as additional candidate fields:
 
 - a coastline candidate derived from the signed coastal-distance field, with
   configurable transition widths and potentially different treatment on the
-  land and ocean sides;
+  land and ocean sides; and
 - a river candidate derived from distance to the simplified river-channel
-  network or, in the simplest first pass, from the channel mask itself; and
-- an outlet candidate derived from the river-outlet mask, since outlets may
-  merit stronger or separate refinement.
+  network or, in the simplest first pass, from the channel mask itself.
+
+An outlet candidate was considered but intentionally removed. Because the
+retained river geometry is clipped to stay outside the coastal exclusion band
+before it reaches `create_base_mesh`, river features never reach the
+coastline. A separate outlet-mask raster control inside `build_sizing_field`
+would therefore have no meaningful effect and was removed to keep the sizing
+field simpler.
 
 The final sizing field should be the pointwise minimum of the background field
 and all active feature candidates. This is a clearer design than sequential
@@ -241,11 +254,10 @@ Because that behavior is the least well-understood part of the workflow,
 Polaris should preserve that division of labor as much as practical in the
 early implementation.
 
-In that formulation, `build_sizing_field` still owns the raster candidate
-fields associated with rivers and outlets. The final `unified_base_mesh` step
-may additionally pass simplified river geometry to JIGSAW to preserve existing
-cell-placement behavior, but that is not part of the implemented
-`build_sizing_field` workflow yet.
+In that formulation, `build_sizing_field` owns the raster candidate fields
+associated with river channels. The final `unified_base_mesh` step additionally
+passes simplified river geometry to JIGSAW to drive cell-center placement along
+retained channels.
 
 If abrupt changes remain after candidate-field composition, the first design
 may include a light regularization or smoothing stage, but that should be a
@@ -295,12 +307,13 @@ configuration choices match.
 
 ### Implementation: JIGSAW-Ready Global Sizing Field
 
-Date last modified: 2026/04/27
+Date last modified: 2026/05/23
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The current implementation is organized under
 `polaris/tasks/mesh/spherical/unified/sizing_field/` as:
@@ -323,7 +336,8 @@ diagnostic fields:
 - `coastline_cell_width`;
 - `coastal_transition_delta`;
 - `river_channel_cell_width`;
-- `river_outlet_cell_width`; and
+- `signed_distance` (the signed coastal-distance field passed through from
+  `prepare_coastline`); and
 - `active_control`.
 
 The downstream base-mesh implementation now uses `UnifiedBaseMeshStep` in
@@ -356,12 +370,13 @@ HydroRIVERS data.
 
 ### Implementation: Composable Feature-Based Resolution Controls
 
-Date last modified: 2026/04/26
+Date last modified: 2026/05/23
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The implementation builds the final field from explicit candidate fields.
 `build_sizing_field_dataset()` now composes a precomputed ocean background
@@ -375,15 +390,18 @@ error if requested. More complex ocean backgrounds are handled by
 mesh-family implementations selected from the unified-mesh config.
 
 The first concrete specialized path is
-`ocn_so_12to30km_lnd_10km_riv_10km`, which uses the `so_region`
+`u.oi.so12to30.lr10`, which uses the `so_region`
 mesh family. That family reuses the existing Southern Ocean
 `high_res_region.geojson` and the shared Southern Ocean background helper from
 `polaris.mesh.base.so` to build a 12 km to 30 km regional ocean profile on
 the unified target grid. Land starts from a configurable constant background.
 
-River channel and river outlet candidates are mask-based. They are controlled
-separately with `enable_river_channel_refinement`, `river_channel_km`,
-`enable_river_outlet_refinement`, and `river_outlet_km`.
+The river channel candidate is mask-based and controlled by
+`enable_river_channel_refinement` and `river_channel_km`. A separate river
+outlet candidate was considered but intentionally removed: because the retained
+river geometry is clipped to stay outside the coastal exclusion band, outlet
+raster refinement inside the sizing field would have no effect near the coast
+and was therefore dropped.
 
 Coastline refinement uses the signed-distance field from `prepare_coastline`.
 The current algorithm composes land and river controls first, then applies a
@@ -393,27 +411,28 @@ background, so the coastal buffer can either coarsen or refine nearby land
 and river controls depending on the adjacent ocean resolution.
 
 `active_control` records the winning control with
-`0=background 1=coastline 2=river_channel 3=river_outlet`. Dataset attributes
-also count how many river-channel and river-outlet mask cells are finer than,
-equal to, or coarser than the background.
+`0=background 1=coastline 2=river_channel`. Dataset attributes also count how
+many river-channel mask cells are finer than, equal to, or coarser than the
+background.
 
 ### Implementation: Compatibility with Shared Target-Grid Tiers
 
-Date last modified: 2026/04/26
+Date last modified: 2026/05/23
 
 Contributors:
 
 - Xylar Asay-Davis
 - Codex
+- Claude
 
 The implementation uses the named unified-mesh configs in
 `polaris/mesh/spherical/unified/` to select the shared target-grid tier.
 The currently implemented named meshes are:
 
-- `ocn_240km_lnd_240km_riv_240km`, using 0.25 degree;
-- `ocn_30km_lnd_10km_riv_10km`, using 0.125 degree; and
-- `ocn_rrs_6to18km_lnd_12km_riv_6km`, using 0.03125 degree; and
-- `ocn_so_12to30km_lnd_10km_riv_10km`, using 0.0625 degree.
+- `u.oi240.lr240`, using 0.25 degree;
+- `u.oi30.lr10`, using 0.125 degree;
+- `u.oi6to18.lr6to10`, using 0.03125 degree; and
+- `u.oi.so12to30.lr10`, using 0.0625 degree.
 
 The sizing-field shared-step subdirectory includes the mesh name:
 `spherical/unified/<mesh_name>/sizing_field/build`. This makes the mesh
@@ -451,7 +470,7 @@ named mesh. The task-specific path is
 
 ### Testing and Validation: JIGSAW-Ready Global Sizing Field
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -468,12 +487,16 @@ In `tests/mesh/spherical/unified/test_sizing_field.py`:
   `UnifiedBaseMeshStep` reads `cellWidth`, `lon`, and `lat` from
   `sizing_field.nc`.
 
-There is not yet an end-to-end task-level test that passes this sizing field
-through JIGSAW and verifies `base_mesh.nc` and `graph.info`.
+Standalone sizing-field tasks have been run for all four named unified meshes,
+producing `sizing_field.nc` from real combined-topography, coastline, and river
+products. Sizing-field diagnostics were inspected and found to be consistent
+with expectations. Standalone base-mesh tasks subsequently passed those sizing
+fields through JIGSAW to produce `base_mesh.nc` and `graph.info` for each
+mesh.
 
 ### Testing and Validation: Explicit Consumption of Shared Coastline and River Products
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -491,13 +514,13 @@ inputs are outside the sizing-field interface.
   `build_sizing_field_dataset()`, confirming that the sizing-field step does
   not attempt to re-read raw source data.
 
-The remaining validation gap is task-level: the full standalone sizing-field
-task should be run on real shared coastline and river outputs for each named
-mesh.
+Standalone sizing-field tasks have also been run on real shared coastline and
+river outputs for all four named unified meshes, confirming that the step
+correctly consumes those upstream products without re-reading raw source data.
 
 ### Testing and Validation: Composable Feature-Based Resolution Controls
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -512,7 +535,7 @@ Current unit tests in `tests/mesh/spherical/unified/test_sizing_field.py` check:
   verifying `active_control` values for representative cells.
 - `test_sizing_field_coastline_transition_on_land`: coastline transition
   composition using the signed-distance field from the coastline step.
-- `test_sizing_field_rivers_composed_before_coastline_transition`: river outlet
+- `test_sizing_field_rivers_composed_before_coastline_transition`: river channel
   controls composed before coastline transitions.
 - `test_sizing_field_coastline_overrides_finer_land_and_river_controls`:
   coastline coarsening that overrides finer land and river controls.
@@ -526,13 +549,14 @@ Current unit tests in `tests/mesh/spherical/unified/test_sizing_field.py` check:
   Ocean specialized sizing-field step linking the shared GeoJSON and producing
   a nonuniform ocean background that is finer in the Southern Ocean.
 
-There is not yet validation on full global products showing that coastline,
-river-channel, and outlet controls influence the intended real-world regions
-with the intended relative strengths.
+Sizing-field outputs for all four named unified meshes have been inspected
+visually on the full global domain and found to show coastline and river-channel
+controls influencing the intended real-world regions with the expected relative
+strengths.
 
 ### Testing and Validation: Compatibility with Shared Target-Grid Tiers
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -553,12 +577,12 @@ In `tests/mesh/spherical/unified/test_sizing_field.py`:
 - `test_sizing_field_step_factory_reuses_shared_config_for_viz` verifies config
   reuse across multiple requests for the same mesh.
 
-There is not yet a full run validating all supported target-grid dimensions or
-cache reuse across setup/run workflows.
+Standalone sizing-field tasks have been run for all four named unified meshes,
+exercising all four supported target-grid tiers.
 
 ### Testing and Validation: Standalone Sizing-Field Task
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -576,5 +600,6 @@ workflow.
 
 The visualization step writes `sizing_field_overview.png`.
 
-Smoke tests for the full sizing-field workflow are being performed on Frontier.
-An update will follow once satisfactory results are available.
+Standalone sizing-field tasks have been run for all four named unified meshes.
+The resulting sizing-field diagnostics were inspected and found to be consistent
+with expectations for each mesh's resolution design.

@@ -527,7 +527,7 @@ later unified workflow.
 
 ### Testing and Validation: Raster-First Coastline Products for Downstream Steps
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -561,14 +561,13 @@ In `tests/mesh/spherical/unified/test_remap_coastline.py`:
   `coastline_compute` pointing to the compute step and `coastline_final` to the
   remap step) and no remap step at the finest resolution.
 
-There is not yet automated validation that compares different target-grid tiers.
-Downstream contract coverage exists at the unit-test level in the river and
-sizing-field tests, but there is not yet a task-level integration test that runs
-the full coastline-to-river-to-sizing-field chain.
+All four target-grid tiers have been exercised through the full pipeline for all
+four named unified meshes. The coastline products feed downstream river, sizing-
+field, and base-mesh tasks that have all been run and verified end to end.
 
 ### Testing and Validation: Topography-Consistent and Explicit Coastline Definition
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -599,12 +598,14 @@ grid datasets rather than full global products. In
 - `test_coastline_step_configures_critical_transects` verifies that the step
   correctly configures the critical transect behavior.
 
-The current tests do not yet include dedicated threshold-sensitivity cases or
-full-resolution comparisons against realistic global datasets.
+The coastline workflow has been run on the full global topography dataset for
+all four target-grid tiers. Visual inspection of the resulting coastline masks
+and signed-distance fields confirmed the expected behavior, including correct
+treatment of the three Antarctic conventions.
 
 ### Testing and Validation: Global Coastal Distance on the Sphere
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -628,14 +629,13 @@ In `tests/mesh/spherical/unified/test_remap_coastline.py`:
 
 There is an antimeridian-specific automated test
 (`test_antimeridian_transect_rasterization_uses_periodic_longitude`) for
-critical-transect rasterization, but not yet for the signed-distance field
-itself. There is also not yet a task-level baseline that checks the smoothness
-of the signed-distance field on realistic global products. Manual inspection is
-still needed for those cases.
+critical-transect rasterization. The signed-distance field on realistic global
+products has been inspected manually for all four target-grid tiers and found
+to be smooth and consistent with the intended coastline conventions.
 
 ### Testing and Validation: Standalone Coastline Task
 
-Date last modified: 2026/05/11
+Date last modified: 2026/05/23
 
 Contributors:
 
@@ -649,9 +649,9 @@ The `test_get_unified_mesh_coastline_steps_reuses_shared_config_for_viz` and
 `test_coastline.py` verify the step factory wiring, including that
 `get_unified_mesh_coastline_steps()` produces the correct set of steps for both
 finest and coarser resolutions and that the viz step can be optionally included.
-There is not yet an automated task-level smoke test.
 
-A test has been performed on Frontier, showing the expected behavior:
+Standalone coastline tasks have been run for all four target-grid tiers,
+showing the expected behavior:
 
 - comparing 0.25, 0.125, 0.0625, and 0.03125 degree coastline fidelity;
 - comparing the three Antarctic coastline conventions;
