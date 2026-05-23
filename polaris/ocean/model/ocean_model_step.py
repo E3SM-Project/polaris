@@ -67,7 +67,7 @@ class OceanModelStep(ModelStep):
 
     def __init__(
         self,
-        component: Ocean,
+        component: 'Ocean',
         name: str,
         subdir: Optional[str] = None,
         indir: Optional[str] = None,
