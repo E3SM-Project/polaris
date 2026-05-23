@@ -68,6 +68,7 @@ class Analysis(OceanIOStep):
             work_dir_target=f'{reference.path}/reference_solution.nc',
         )
 
+        model = self.config.get('ocean', 'model')
         init_steps = self.dependencies_dict['init']
         forward_steps = self.dependencies_dict['forward']
         for resolution in horiz_resolutions:
@@ -75,12 +76,21 @@ class Analysis(OceanIOStep):
             forward = forward_steps[resolution]
             self.add_input_file(
                 filename=f'init_r{resolution:02g}.nc',
-                work_dir_target=f'{init.path}/initial_state.nc',
+                work_dir_target=f'{init.path}/init.nc',
             )
             self.add_input_file(
                 filename=f'output_r{resolution:02g}.nc',
                 work_dir_target=f'{forward.path}/output.nc',
             )
+            self.add_input_file(
+                filename=f'culled_mesh_r{resolution:02g}.nc',
+                work_dir_target=f'{init.path}/culled_mesh.nc',
+            )
+            if model == 'omega':
+                self.add_input_file(
+                    filename=f'vert_coord_r{resolution:02g}.nc',
+                    work_dir_target=f'{init.path}/vert_coord.nc',
+                )
 
     def run(self):
         """
@@ -145,6 +155,7 @@ class Analysis(OceanIOStep):
         ref_hpga = ds_ref.HPGAInter.isel(Time=0).values
         ref_valid_grad_mask = ds_ref.ValidGradInterMask.isel(Time=0).values
 
+        model = self.config.get('ocean', 'model')
         ref_errors = []
         py_errors = []
 
@@ -152,13 +163,16 @@ class Analysis(OceanIOStep):
             ds_init = self.open_model_dataset(
                 f'init_r{resolution:02g}.nc', self.config
             )
+            ds_mesh = self.open_model_dataset(
+                f'culled_mesh_r{resolution:02g}.nc', self.config
+            )
             ds_out = self.open_model_dataset(
                 f'output_r{resolution:02g}.nc',
                 self.config,
                 decode_times=False,
             )
 
-            edge_index, cells_on_edge = _get_internal_edge(ds_init)
+            edge_index, cells_on_edge = _get_internal_edge(ds_mesh)
             cell0, cell1 = cells_on_edge
 
             z_tilde_forward = _get_forward_z_tilde_edge_mid(
@@ -173,9 +187,17 @@ class Analysis(OceanIOStep):
             # maxLevelCell is one-based (Fortran indexing), convert to
             # zero-based and use the shallowest valid bottom among the two
             # cells that bound the internal edge.
-            max_level_cells = ds_init.maxLevelCell.isel(
-                nCells=[cell0, cell1]
-            ).values.astype(int)
+            if model == 'omega':
+                ds_vc = self.open_model_dataset(
+                    f'vert_coord_r{resolution:02g}.nc', self.config
+                )
+                max_level_cells = ds_vc.maxLevelCell.isel(
+                    nCells=[cell0, cell1]
+                ).values.astype(int)
+            else:
+                max_level_cells = ds_init.maxLevelCell.isel(
+                    nCells=[cell0, cell1]
+                ).values.astype(int)
             max_level_index = int(np.min(max_level_cells) - 1)
             if max_level_index < 0:
                 raise ValueError(
@@ -326,15 +348,15 @@ class Analysis(OceanIOStep):
             )
 
 
-def _get_internal_edge(ds_init: xr.Dataset) -> tuple[int, tuple[int, int]]:
+def _get_internal_edge(ds_mesh: xr.Dataset) -> tuple[int, tuple[int, int]]:
     """
     Determine the edge that connects the two valid cells in the two-column
     mesh.
     """
-    if 'cellsOnEdge' not in ds_init:
-        raise ValueError('cellsOnEdge is required in initial_state.nc')
+    if 'cellsOnEdge' not in ds_mesh:
+        raise ValueError('cellsOnEdge is required in culled_mesh.nc')
 
-    cells_on_edge = ds_init.cellsOnEdge.values.astype(int)
+    cells_on_edge = ds_mesh.cellsOnEdge.values.astype(int)
     if cells_on_edge.ndim != 2 or cells_on_edge.shape[1] != 2:
         raise ValueError('cellsOnEdge must have shape (nEdges, 2).')
 

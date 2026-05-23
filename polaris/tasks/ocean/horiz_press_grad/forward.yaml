@@ -19,11 +19,6 @@ Omega:
     ManufacturedSolutionTendency: false
     PressureGradTendencyEnable: true
   IOStreams:
-    InitialVertCoord:
-      Filename: initial_state.nc
-    InitialState:
-      UsePointerFile: false
-      Filename: initial_state.nc
     History:
       Filename: output.nc
       Freq: 1

@@ -4,6 +4,7 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
+from polaris.ocean.coriolis import add_coriolis_to_dataset
 from polaris.ocean.eos import compute_specvol
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.ztilde import (
@@ -57,11 +58,12 @@ class Init(OceanIOStep):
         self.vert_res = vert_res
         name = f'init_{resolution_to_string(horiz_res)}'
         super().__init__(component=component, name=name, indir=indir)
-        for file in [
-            'culled_mesh.nc',
-            'initial_state.nc',
-        ]:
-            self.add_output_file(file)
+
+    def setup(self):
+        super().setup()
+        self.add_output_files_for_ocean_model_input(
+            horiz_mesh_filename='culled_mesh.nc',
+        )
 
     def run(self):
         """
@@ -121,7 +123,8 @@ class Init(OceanIOStep):
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        write_netcdf(ds_mesh, 'culled_mesh.nc')
+        ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
+        self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)
 
         ncells = ds_mesh.sizes['nCells']
         if ncells != 2:
@@ -368,14 +371,11 @@ class Init(OceanIOStep):
                 'units': 'm s-1',
             },
         )
-        ds['fCell'] = xr.zeros_like(ds_mesh.xCell)
-        ds['fEdge'] = xr.zeros_like(ds_mesh.xEdge)
-        ds['fVertex'] = xr.zeros_like(ds_mesh.xVertex)
-
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
-        self.write_model_dataset(ds, 'initial_state.nc', config)
+        self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
+        self.write_initial_state_dataset(ds, 'init.nc', config)
 
     def _compute_montgomery_and_hpga(
         self,
