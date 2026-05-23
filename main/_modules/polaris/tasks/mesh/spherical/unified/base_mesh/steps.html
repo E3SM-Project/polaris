@@ -1,0 +1,328 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.mesh.spherical.unified.base_mesh.steps</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../../search.html" />
+    <link href="../../../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.mesh.spherical.unified.base_mesh.steps</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.mesh.spherical.unified.base_mesh.steps</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.unified</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_unified_mesh_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.unified.base_mesh</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">UnifiedBaseMeshStep</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh.spherical.unified.base_mesh.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">VizBaseMeshStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh.spherical.unified.sizing_field.steps</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_unified_mesh_sizing_field_steps</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_unified_base_mesh_config</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load one unified mesh config with spherical-mesh and viz defaults.</span>
+
+<span class="sd">    mesh_name : str</span>
+<span class="sd">        The name of the unified mesh.</span>
+
+<span class="sd">    filepath : str, optional</span>
+<span class="sd">        The config filepath relative to the component&#39;s work directory.</span>
+<span class="sd">        If the config is already registered under this path it is returned</span>
+<span class="sd">        unchanged.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The shared config options for the named unified base mesh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">component</span> <span class="o">=</span> <span class="n">_get_mesh_component</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">configs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">component</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">get_unified_mesh_config</span><span class="p">(</span><span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+        <span class="s1">&#39;polaris.tasks.mesh.spherical.unified.base_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;base_mesh.cfg&#39;</span>
+    <span class="p">)</span>
+
+    <span class="n">min_cell_width</span><span class="p">,</span> <span class="n">max_cell_width</span> <span class="o">=</span> <span class="n">_get_mesh_cell_width_bounds</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;prefix&#39;</span><span class="p">,</span> <span class="s1">&#39;UN&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;min_cell_width&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">min_cell_width</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;max_cell_width&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">max_cell_width</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span>
+
+
+<div class="viewcode-block" id="get_unified_base_mesh_steps">
+<a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.base_mesh.get_unified_base_mesh_steps.html#polaris.tasks.mesh.spherical.unified.base_mesh.get_unified_base_mesh_steps">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_unified_base_mesh_steps</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get shared steps for building one named unified base mesh.</span>
+
+<span class="sd">    Calls the upstream step factories for combined topography, coastline,</span>
+<span class="sd">    river network, and sizing field, then creates the base-mesh build step.</span>
+<span class="sd">    All upstream factories return dicts keyed by step name; the returned</span>
+<span class="sd">    dict preserves insertion order: combine-topo, coastline, river-source,</span>
+<span class="sd">    river-lat-lon, river-base-mesh, sizing-field, base-mesh build, and</span>
+<span class="sd">    optionally visualization.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh_name : str</span>
+<span class="sd">        The name of the unified mesh.</span>
+
+<span class="sd">    include_viz : bool, optional</span>
+<span class="sd">        Whether to include the visualization step.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    steps : dict of str to polaris.Step</span>
+<span class="sd">        All steps needed to build the base mesh, keyed by step name.</span>
+
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The shared config options for the named unified base mesh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">component</span> <span class="o">=</span> <span class="n">_get_mesh_component</span><span class="p">()</span>
+    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;base_mesh.cfg&#39;</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s1">&#39;spherical&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;unified&#39;</span><span class="p">,</span>
+        <span class="n">mesh_name</span><span class="p">,</span>
+        <span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span>
+        <span class="n">config_filename</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">get_unified_base_mesh_config</span><span class="p">(</span>
+        <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span>
+    <span class="p">)</span>
+
+    <span class="n">sizing_steps</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_unified_mesh_sizing_field_steps</span><span class="p">(</span>
+        <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
+        <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">river_clip_step</span> <span class="o">=</span> <span class="n">sizing_steps</span><span class="p">[</span><span class="s1">&#39;river_clip&#39;</span><span class="p">]</span>
+    <span class="n">sizing_step</span> <span class="o">=</span> <span class="n">sizing_steps</span><span class="p">[</span><span class="s1">&#39;sizing_field&#39;</span><span class="p">]</span>
+
+    <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="s1">&#39;spherical&#39;</span><span class="p">,</span> <span class="s1">&#39;unified&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span>
+    <span class="p">)</span>
+    <span class="n">build_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+        <span class="n">step_cls</span><span class="o">=</span><span class="n">UnifiedBaseMeshStep</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+        <span class="n">sizing_field_step</span><span class="o">=</span><span class="n">sizing_step</span><span class="p">,</span>
+        <span class="n">river_clip_step</span><span class="o">=</span><span class="n">river_clip_step</span><span class="p">,</span>
+        <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">steps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sizing_steps</span><span class="p">)</span>
+    <span class="n">steps</span><span class="p">[</span><span class="n">build_step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">build_step</span>
+
+    <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
+        <span class="n">viz_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="s1">&#39;spherical&#39;</span><span class="p">,</span> <span class="s1">&#39;unified&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;viz&#39;</span>
+        <span class="p">)</span>
+        <span class="n">viz_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+            <span class="n">step_cls</span><span class="o">=</span><span class="n">VizBaseMeshStep</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">viz_subdir</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+            <span class="n">base_mesh_step</span><span class="o">=</span><span class="n">build_step</span><span class="p">,</span>
+            <span class="n">sizing_step</span><span class="o">=</span><span class="n">sizing_step</span><span class="p">,</span>
+            <span class="n">river_clip_step</span><span class="o">=</span><span class="n">river_clip_step</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">steps</span><span class="p">[</span><span class="n">viz_step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">viz_step</span>
+
+    <span class="k">return</span> <span class="n">steps</span><span class="p">,</span> <span class="n">config</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_mesh_component</span><span class="p">():</span>
+    <span class="c1"># Import lazily to avoid a circular import through polaris.tasks.mesh.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">mesh</span> <span class="k">as</span> <span class="n">mesh_component</span>
+
+    <span class="k">return</span> <span class="n">mesh_component</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_mesh_cell_width_bounds</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get representative min and max cell widths from unified mesh settings.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The unified mesh config containing a ``sizing_field`` section with</span>
+<span class="sd">        background and optional refinement cell-width options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    min_width : float</span>
+<span class="sd">        The minimum cell width in km across all active sizing-field options.</span>
+
+<span class="sd">    max_width : float</span>
+<span class="sd">        The maximum cell width in km across all active sizing-field options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;sizing_field&#39;</span><span class="p">]</span>
+    <span class="n">widths</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean_background_min_km&#39;</span><span class="p">),</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean_background_max_km&#39;</span><span class="p">),</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;land_background_km&#39;</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;enable_river_channel_refinement&#39;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">widths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;river_channel_km&#39;</span><span class="p">))</span>
+
+    <span class="n">widths</span> <span class="o">=</span> <span class="p">[</span><span class="n">width</span> <span class="k">for</span> <span class="n">width</span> <span class="ow">in</span> <span class="n">widths</span> <span class="k">if</span> <span class="n">width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">widths</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">widths</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

@@ -187,21 +187,24 @@ fractional coverage variables.</p></li>
 <li><p><strong>Output</strong>: The final remapped topography is saved as <code class="docutils literal notranslate"><span class="pre">topography_remapped.nc</span></code> for each mesh and smoothing option.</p></li>
 </ol>
 </section>
+<section id="supported-mesh-types">
+<h2>Supported Mesh Types<a class="headerlink" href="#supported-mesh-types" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">add_remap_topo_tasks</span></code> registers tasks for all supported base meshes,
+including both simple (quasi-uniform and icosahedral) base meshes and
+named unified meshes (see <a class="reference internal" href="../../../../../users_guide/mesh/tasks/unified/base_mesh.html#users-mesh-unified-base-mesh"><span class="std std-ref">Unified base-mesh tasks</span></a>). The set
+of mesh names is the union of <code class="docutils literal notranslate"><span class="pre">get_base_mesh_step_names()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">UNIFIED_MESH_NAMES</span></code>.</p>
+</section>
 <section id="example-usage">
 <h2>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
-<p>Below is an example of how the remapping steps can be added to a Polaris task:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.remap</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_default_remap_topo_steps</span>
+<p>To get the shared remap steps for a specific mesh:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.remap</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_remap_topo_steps</span>
 
-<span class="n">steps</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="n">get_default_remap_topo_steps</span><span class="p">(</span>
-    <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-    <span class="n">base_mesh_step</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
-    <span class="n">combine_topo_step</span><span class="o">=</span><span class="n">combine_topo_step</span><span class="p">,</span>
-    <span class="n">low_res</span><span class="o">=</span><span class="n">low_res</span><span class="p">,</span>
+<span class="n">steps</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="n">get_remap_topo_steps</span><span class="p">(</span>
+    <span class="n">mesh_name</span><span class="o">=</span><span class="s1">&#39;u.oi30.lr10&#39;</span><span class="p">,</span>
     <span class="n">smoothing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">include_viz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-    <span class="n">component</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To add the full remapping workflow as a task for each supported mesh:</p>

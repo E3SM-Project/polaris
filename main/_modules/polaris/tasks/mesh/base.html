@@ -111,8 +111,11 @@
   <h1>Source code for polaris.tasks.mesh.base</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_base_mesh_steps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_base_mesh_step_names</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh.base.steps</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_base_mesh_steps</span> <span class="k">as</span> <span class="n">get_shared_base_mesh_steps</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="add_base_mesh_tasks">
@@ -124,8 +127,11 @@
 <span class="sd">    component : polaris.Component</span>
 <span class="sd">        the mesh component that the tasks will be added to</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">base_mesh_steps</span> <span class="o">=</span> <span class="n">get_base_mesh_steps</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">base_mesh_step</span> <span class="ow">in</span> <span class="n">base_mesh_steps</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">mesh_name</span> <span class="ow">in</span> <span class="n">get_base_mesh_step_names</span><span class="p">():</span>
+        <span class="n">steps</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_shared_base_mesh_steps</span><span class="p">(</span>
+            <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">base_mesh_step</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">]</span>
         <span class="n">task</span> <span class="o">=</span> <span class="n">BaseMeshTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">base_mesh_step</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">)</span>
         <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span></div>
 
@@ -166,6 +172,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">base_mesh_step</span><span class="p">)</span></div>
 </div>
 
+
+
+<span class="n">get_base_mesh_steps</span> <span class="o">=</span> <span class="n">get_shared_base_mesh_steps</span>
 </pre></div>
 
            </div>

@@ -19,7 +19,7 @@
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="Ocean component" href="../../../ocean/index.html" />
+    <link rel="next" title="Suites" href="../suites.html" />
     <link rel="prev" title="Tasks" href="index.html" />
     <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -59,6 +59,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../ocean/index.html">Ocean component</a></li>
@@ -162,6 +163,16 @@ explicitly.</p>
 </ul>
 <p>The remap and cull tasks reuse these shared products when generating inputs
 for MPAS base meshes.</p>
+<p>Remap and cull tasks are available for both simple (quasi-uniform and
+icosahedral) base meshes and for named unified meshes (see
+<a class="reference internal" href="../../../mesh/tasks/unified/base_mesh.html#users-mesh-unified-base-mesh"><span class="std std-ref">Unified base-mesh tasks</span></a>).  For a unified mesh named
+<code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code>, the task paths are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/u.oi30.lr10/topo/remap</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/u.oi30.lr10/topo/cull</span></code></p></li>
+</ul>
+<p>The supported unified mesh names are the same as those listed in
+<a class="reference internal" href="../../../mesh/tasks/unified/base_mesh.html#users-mesh-unified-base-mesh"><span class="std std-ref">Unified base-mesh tasks</span></a>.</p>
 <section id="configuration-options">
 <h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Link to this heading"></a></h2>
 <p>These tasks create shared config files in their work directories:</p>
@@ -238,7 +249,7 @@ filling for the land-ice mask.</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../../ocean/index.html" class="btn btn-neutral float-right" title="Ocean component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../suites.html" class="btn btn-neutral float-right" title="Suites" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

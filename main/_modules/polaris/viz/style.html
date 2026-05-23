@@ -112,6 +112,9 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.viz.colormaps</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_sci_viz_colormaps</span>
+
+<span class="n">_SCI_VIZ_COLORMAPS_REGISTERED</span> <span class="o">=</span> <span class="kc">False</span>
 
 
 <div class="viewcode-block" id="use_mplstyle">
@@ -120,6 +123,12 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Use the Polaris matplotlib style file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_SCI_VIZ_COLORMAPS_REGISTERED</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCI_VIZ_COLORMAPS_REGISTERED</span><span class="p">:</span>
+        <span class="n">register_sci_viz_colormaps</span><span class="p">()</span>
+        <span class="n">_SCI_VIZ_COLORMAPS_REGISTERED</span> <span class="o">=</span> <span class="kc">True</span>
+
     <span class="n">style_filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;polaris.viz&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;polaris.mplstyle&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="n">style_filename</span><span class="p">)</span></div>
 

@@ -390,6 +390,7 @@
     <span class="p">)</span>
     <span class="n">data_vars</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;cellWidth&#39;</span><span class="p">:</span> <span class="n">final_cell_width</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="s1">&#39;signed_distance&#39;</span><span class="p">:</span> <span class="n">signed_distance</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
         <span class="s1">&#39;background_cell_width&#39;</span><span class="p">:</span> <span class="n">background</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
         <span class="s1">&#39;ocean_background_cell_width&#39;</span><span class="p">:</span> <span class="n">ocean_background</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
         <span class="s1">&#39;land_river_cell_width&#39;</span><span class="p">:</span> <span class="n">land_river_cell_width</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
@@ -422,6 +423,7 @@
         <span class="n">background</span><span class="o">=</span><span class="n">land_background</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">ds_sizing</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;km&#39;</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">signed_distance</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
     <span class="n">ds_sizing</span><span class="o">.</span><span class="n">background_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;km&#39;</span>
     <span class="n">ds_sizing</span><span class="o">.</span><span class="n">ocean_background_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;km&#39;</span>
     <span class="n">ds_sizing</span><span class="o">.</span><span class="n">land_river_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;km&#39;</span>
@@ -431,6 +433,9 @@
     <span class="n">ds_sizing</span><span class="o">.</span><span class="n">river_channel_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;km&#39;</span>
     <span class="n">ds_sizing</span><span class="o">.</span><span class="n">active_control</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s1">&#39;Index of the active sizing control&#39;</span>
+    <span class="p">)</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">signed_distance</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Signed distance to the coastline from the source coastline field&#39;</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ds_sizing</span></div>

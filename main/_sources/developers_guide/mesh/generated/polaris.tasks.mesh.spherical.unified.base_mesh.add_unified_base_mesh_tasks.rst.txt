@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.base\_mesh.add\_unified\_base\_mesh\_tasks
+===============================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.base_mesh
+
+.. autofunction:: add_unified_base_mesh_tasks

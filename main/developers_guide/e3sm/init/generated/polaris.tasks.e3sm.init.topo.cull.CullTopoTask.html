@@ -19,7 +19,7 @@
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="mesh" href="../../../mesh/api.html" />
+    <link rel="next" title="polaris.tasks.e3sm.init.topo.cull.get_cull_topo_steps" href="polaris.tasks.e3sm.init.topo.cull.get_cull_topo_steps.html" />
     <link rel="prev" title="polaris.tasks.e3sm.init.topo.cull.CullMeshStep.run" href="polaris.tasks.e3sm.init.topo.cull.CullMeshStep.run.html" />
     <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -131,7 +131,7 @@
 <h1>polaris.tasks.e3sm.init.topo.cull.CullTopoTask<a class="headerlink" href="#polaris-tasks-e3sm-init-topo-cull-culltopotask" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.cull.CullTopoTask">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.cull.</span></span><span class="sig-name descname"><span class="pre">CullTopoTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mesh_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combine_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remap_mask_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsmoothed_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_viz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/cull/task.html#CullTopoTask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.cull.CullTopoTask" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.cull.</span></span><span class="sig-name descname"><span class="pre">CullTopoTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_viz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/cull/task.html#CullTopoTask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.cull.CullTopoTask" title="Link to this definition"></a></dt>
 <dd><p>A task for culling a topography dataset to land and ocea regions (the
 latter both with and without ice-shelf cavities)</p>
 <dl class="field-list simple">
@@ -142,21 +142,13 @@ sphere grid</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.cull.CullTopoTask.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mesh_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combine_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remap_mask_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsmoothed_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_viz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/cull/task.html#CullTopoTask.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.cull.CullTopoTask.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_viz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/cull/task.html#CullTopoTask.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.cull.CullTopoTask.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create a new task</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>component</strong> (<a class="reference internal" href="../../../generated/polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – The component the task belongs to</p></li>
-<li><p><strong>base_mesh_step</strong> (<a class="reference internal" href="../../../generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.spherical.SphericalBaseStep" title="polaris.mesh.spherical.SphericalBaseStep"><em>polaris.mesh.spherical.SphericalBaseStep</em></a>) – The base mesh step containing input files to this step</p></li>
-<li><p><strong>combine_topo_step</strong> (<em>polaris.tasks.e3sm.init.topo.CombineStep</em>) – The step for combining global and Antarctic topography on a cubed
-sphere grid</p></li>
-<li><p><strong>unsmoothed_topo_step</strong> (<a class="reference internal" href="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep"><em>polaris.tasks.e3sm.init.topo.remap.RemapTopoStep</em></a>) – The step for remapping the unsmoothed topography</p></li>
-<li><p><strong>low_res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether the base mesh is low resolution (120km or coarser), so that
-a set of config options for low resolution and a lower resolution
-source topography should be used</p></li>
-<li><p><strong>smoothing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to create a step with smoothing in addition to the step
-without smoothing</p></li>
+<li><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the base mesh to cull topography onto</p></li>
 <li><p><strong>include_viz</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to include visualization steps</p></li>
 </ul>
 </dd>
@@ -166,14 +158,14 @@ without smoothing</p></li>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.tasks.e3sm.init.topo.cull.CullTopoTask.__init__" title="polaris.tasks.e3sm.init.topo.cull.CullTopoTask.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, base_mesh_step, ...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.tasks.e3sm.init.topo.cull.CullTopoTask.__init__" title="polaris.tasks.e3sm.init.topo.cull.CullTopoTask.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, mesh_name[, include_viz])</p></td>
 <td><p>Create a new task</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_step</span></code>([step, subdir, symlink, run_by_default])</p></td>
 <td><p>Add a step to the task and component (if not already present)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code>()</p></td>
-<td><p>Set the combine_topo_step to be cached</p></td>
+<td><p>Modify the configuration options for this task.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_step</span></code>(step)</p></td>
 <td><p>Remove the given step from this task and the component</p></td>
@@ -192,7 +184,7 @@ without smoothing</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.tasks.e3sm.init.topo.cull.CullMeshStep.run.html" class="btn btn-neutral float-left" title="polaris.tasks.e3sm.init.topo.cull.CullMeshStep.run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../../mesh/api.html" class="btn btn-neutral float-right" title="mesh" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.tasks.e3sm.init.topo.cull.get_cull_topo_steps.html" class="btn btn-neutral float-right" title="polaris.tasks.e3sm.init.topo.cull.get_cull_topo_steps" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

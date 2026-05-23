@@ -110,6 +110,9 @@
              
   <h1>Source code for polaris.tasks.mesh.add_tasks</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_base_mesh_tasks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh.spherical.unified.base_mesh</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">add_unified_base_mesh_tasks</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh.spherical.unified.coastline</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_coastline_tasks</span><span class="p">,</span>
 <span class="p">)</span>
@@ -128,8 +131,9 @@
 <span class="sd">    component : polaris.Component</span>
 <span class="sd">        the mesh component that the tasks will be added to</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># add tasks alphabetically</span>
+    <span class="c1"># add tasks alphabetically (by name in work directory)</span>
     <span class="n">add_base_mesh_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
+    <span class="n">add_unified_base_mesh_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
     <span class="n">add_coastline_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
     <span class="n">add_river_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
     <span class="n">add_sizing_field_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span></div>

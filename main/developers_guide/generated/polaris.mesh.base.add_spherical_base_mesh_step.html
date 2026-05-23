@@ -150,26 +150,11 @@
 <h1>polaris.mesh.base.add_spherical_base_mesh_step<a class="headerlink" href="#polaris-mesh-base-add-spherical-base-mesh-step" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.mesh.base.add_spherical_base_mesh_step">
-<span class="sig-prename descclassname"><span class="pre">polaris.mesh.base.</span></span><span class="sig-name descname"><span class="pre">add_spherical_base_mesh_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/mesh/base/add.html#add_spherical_base_mesh_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mesh.base.add_spherical_base_mesh_step" title="Link to this definition"></a></dt>
-<dd><p>Add a shared step for creating spherical base mesh with the given
-resolution to the mesh component (if one has not already been added)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prefix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The prefix for the mesh type (e.g. ‘icos’, ‘qu’, ‘so’)</p></li>
-<li><p><strong>min_res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The minimum resolution in km of the mesh</p></li>
-<li><p><strong>max_res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – The maximum resolution in km of the mesh. If not provided, it will
-default to the minimum resolution.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>base_mesh</strong> (<em>polaris.Step</em>) – The base mesh step</p></li>
-<li><p><strong>res_str</strong> (<em>str</em>) – The resolution of the mesh as a string (e.g. ‘240km’ or ‘12to30km)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
+<span class="sig-prename descclassname"><span class="pre">polaris.mesh.base.</span></span><span class="sig-name descname"><span class="pre">add_spherical_base_mesh_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/mesh/base.html#add_spherical_base_mesh_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mesh.base.add_spherical_base_mesh_step" title="Link to this definition"></a></dt>
+<dd><p>Add one supported spherical base mesh step to a component.</p>
+<p>This compatibility wrapper preserves the historic
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.base.add_spherical_base_mesh_step</span></code> API while importing
+the lower-level implementation lazily to avoid circular imports.</p>
 </dd></dl>
 
 </section>

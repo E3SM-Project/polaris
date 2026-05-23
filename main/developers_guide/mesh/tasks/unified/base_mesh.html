@@ -1,0 +1,313 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unified Base-Mesh Steps and Tasks</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Mesh Framework" href="../../framework/index.html" />
+    <link rel="prev" title="Sizing-Field Steps and Tasks" href="sizing_field.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Mesh component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../index.html#base-mesh-task">Base Mesh Task</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#unified-mesh-tasks">Unified Mesh Tasks</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="coastline.html">Coastline Steps and Tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="river.html">River-Network Steps and Tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sizing_field.html">Sizing-Field Steps and Tasks</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Unified Base-Mesh Steps and Tasks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../framework/index.html">Mesh Framework</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Mesh component</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">Unified Base-Mesh Steps and Tasks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/developers_guide/mesh/tasks/unified/base_mesh.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="unified-base-mesh-steps-and-tasks">
+<span id="dev-mesh-unified-base-mesh"></span><h1>Unified Base-Mesh Steps and Tasks<a class="headerlink" href="#unified-base-mesh-steps-and-tasks" title="Link to this heading"></a></h1>
+<p>This section of the Developer’s guide covers the code for creating the final
+MPAS base mesh in the unified-mesh workflow.  The mesh is generated by JIGSAW
+using a cell-width (sizing) field and retained river polylines as geometric
+constraints, so that river channels are aligned with mesh edges.</p>
+<section id="available-tasks">
+<h2>Available tasks<a class="headerlink" href="#available-tasks" title="Link to this heading"></a></h2>
+<p>The helper
+<a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.base_mesh.add_unified_base_mesh_tasks.html#polaris.tasks.mesh.spherical.unified.base_mesh.add_unified_base_mesh_tasks" title="polaris.tasks.mesh.spherical.unified.base_mesh.add_unified_base_mesh_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.base_mesh.add_unified_base_mesh_tasks()</span></code></a>
+registers one standalone task for each mesh name in
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified.UNIFIED_MESH_NAMES</span></code>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.base_mesh.BaseMeshTask.html#polaris.tasks.mesh.spherical.unified.base_mesh.BaseMeshTask" title="polaris.tasks.mesh.spherical.unified.base_mesh.BaseMeshTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.base_mesh.BaseMeshTask</span></code></a> at
+<code class="docutils literal notranslate"><span class="pre">mesh/spherical/unified/&lt;mesh_name&gt;/base_mesh/task</span></code>.</p></li>
+</ul>
+</section>
+<section id="task-structure-and-shared-steps">
+<h2>Task structure and shared steps<a class="headerlink" href="#task-structure-and-shared-steps" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">BaseMeshTask</span></code> calls
+<a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.base_mesh.get_unified_base_mesh_steps.html#polaris.tasks.mesh.spherical.unified.base_mesh.get_unified_base_mesh_steps" title="polaris.tasks.mesh.spherical.unified.base_mesh.get_unified_base_mesh_steps"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.base_mesh.get_unified_base_mesh_steps()</span></code></a>
+with <code class="docutils literal notranslate"><span class="pre">include_viz=True</span></code>, which calls the sizing-field step factory (see
+<a class="reference internal" href="sizing_field.html#dev-mesh-unified-sizing-field"><span class="std std-ref">Sizing-Field Steps and Tasks</span></a>) to obtain all upstream steps and then
+creates the base-mesh build step.</p>
+<p>The task workdir contains symlinks for all upstream coastline, river, and
+sizing-field steps plus:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">base_mesh</span></code> — the shared
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified.UnifiedBaseMeshStep</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">base_mesh_viz</span></code> — the shared <code class="docutils literal notranslate"><span class="pre">VizBaseMeshStep</span></code> (when <code class="docutils literal notranslate"><span class="pre">include_viz=True</span></code>)</p></li>
+</ul>
+</section>
+<section id="implementation-map">
+<h2>Implementation map<a class="headerlink" href="#implementation-map" title="Link to this heading"></a></h2>
+<section id="polaris-mesh-spherical-unified-unifiedbasemeshstep">
+<h3><code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified.UnifiedBaseMeshStep</span></code><a class="headerlink" href="#polaris-mesh-spherical-unified-unifiedbasemeshstep" title="Link to this heading"></a></h3>
+<p>The core mesh-generation step lives in the reusable <code class="docutils literal notranslate"><span class="pre">polaris.mesh</span></code> layer (not
+under <code class="docutils literal notranslate"><span class="pre">polaris.tasks</span></code>) so it can be imported by downstream component tasks
+without depending on the task-tree structure.</p>
+<p><code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep.setup()</span></code> links the sizing field and clipped river network
+from the upstream steps, and sets <code class="docutils literal notranslate"><span class="pre">self.cell_width</span></code> to the finest configured
+cell width (used by the parent class for JIGSAW parameter setup).</p>
+<p><code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep.build_cell_width_lat_lon()</span></code> reads <code class="docutils literal notranslate"><span class="pre">lon</span></code>, <code class="docutils literal notranslate"><span class="pre">lat</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">cell_width</span></code> directly from <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code> rather than computing a uniform
+value, so the full variable-resolution field drives the mesh generation.</p>
+<p><code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep.make_jigsaw_mesh()</span></code> overrides the parent class to
+additionally pass <code class="docutils literal notranslate"><span class="pre">clipped_river_network.geojson</span></code> to JIGSAW as polyline
+geometric constraints, ensuring that mesh edges align with retained river
+centerlines.</p>
+<p>The snap tolerance used to pre-process these constraints is read directly from
+the <code class="docutils literal notranslate"><span class="pre">base_mesh_simplify_tolerance_km</span></code> option in the <code class="docutils literal notranslate"><span class="pre">[river_network]</span></code> config
+section (no fallback).  Using the full simplify tolerance (rather than a
+fraction of it) ensures that constraint vertices closer than the mesh’s
+spatial resolution are merged before reaching JIGSAW, preventing thin-sliver
+Delaunay triangles that would otherwise produce degenerate MPAS cell polygons.</p>
+</section>
+<section id="steps-py-and-viz-py-task-layer">
+<h3><code class="docutils literal notranslate"><span class="pre">steps.py</span></code> and <code class="docutils literal notranslate"><span class="pre">viz.py</span></code> (task layer)<a class="headerlink" href="#steps-py-and-viz-py-task-layer" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">get_unified_base_mesh_steps()</span></code> in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.base_mesh</span></code>
+calls the sizing-field step factory, creates or retrieves the
+<code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep</span></code> via <code class="docutils literal notranslate"><span class="pre">component.get_or_create_shared_step</span></code>, and
+optionally creates <code class="docutils literal notranslate"><span class="pre">VizBaseMeshStep</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">VizBaseMeshStep</span></code> reads the MPAS mesh, the sizing field, and the clipped river
+network, and writes:</p>
+<ul class="simple">
+<li><p>a global resolution map on the MPAS mesh;</p></li>
+<li><p>a <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> map on the MPAS mesh;</p></li>
+<li><p>a sizing-field map on the lat-lon source grid; and</p></li>
+<li><p>a river-alignment figure showing the retained river geometry overlaid on
+the mesh resolution.</p></li>
+</ul>
+<p>A plain-text <code class="docutils literal notranslate"><span class="pre">debug_summary.txt</span></code> records key scalar diagnostics such as cell
+count and min/max resolution.</p>
+</section>
+<section id="vertex-snapping-and-degenerate-polygon-prevention">
+<h3>Vertex-snapping and degenerate-polygon prevention<a class="headerlink" href="#vertex-snapping-and-degenerate-polygon-prevention" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">_read_geojson_line_mesh()</span></code> applies a three-layer strategy to prevent JIGSAW
+from receiving constraint geometry that would produce degenerate MPAS Voronoi
+cells (circumcenters of Delaunay triangles that coincide exactly):</p>
+<ol class="arabic simple">
+<li><p><strong>First-pass union-find snap</strong> (via <code class="docutils literal notranslate"><span class="pre">_union_find</span></code>): raw constraint vertices
+from all polylines within <code class="docutils literal notranslate"><span class="pre">snap_tolerance_km</span></code> of each other are merged into
+a single cluster; the cluster centroid becomes the representative vertex.
+<code class="docutils literal notranslate"><span class="pre">snap_tolerance_km</span></code> equals <code class="docutils literal notranslate"><span class="pre">base_mesh_simplify_tolerance_km</span></code>.</p></li>
+<li><p><strong>Second-pass centroid snap</strong> (via <code class="docutils literal notranslate"><span class="pre">_merge_close_centroids</span></code>): after the
+first pass, cluster centroids are re-checked at the same tolerance.  A
+multi-vertex cluster whose centroid drifted toward a neighbouring cluster
+will be merged in this pass.</p></li>
+<li><p><strong>Edge deduplication</strong>: after both snapping passes, constraint edges where
+the start and end vertex map to the same cluster are removed (consecutive
+same-cluster entries), and any pair of edges that connect the same two
+clusters regardless of direction are deduplicated.</p></li>
+</ol>
+<p>The earth radius used for the radian snap tolerance always comes from
+<code class="docutils literal notranslate"><span class="pre">get_constant('mean_radius')</span></code> in the Physical Constants Dictionary; it is
+never hard-coded.</p>
+</section>
+</section>
+<section id="configuration-plumbing">
+<h2>Configuration plumbing<a class="headerlink" href="#configuration-plumbing" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">get_unified_base_mesh_steps()</span></code> loads the mesh config with
+<code class="docutils literal notranslate"><span class="pre">get_unified_base_mesh_config(mesh_name)</span></code>, which extends the standard unified
+mesh config with <code class="docutils literal notranslate"><span class="pre">base_mesh.cfg</span></code> defaults and sets the <code class="docutils literal notranslate"><span class="pre">[spherical_mesh]</span></code>
+<code class="docutils literal notranslate"><span class="pre">prefix</span></code>, <code class="docutils literal notranslate"><span class="pre">min_cell_width</span></code>, and <code class="docutils literal notranslate"><span class="pre">max_cell_width</span></code> fields derived from the
+sizing-field settings.</p>
+<p><code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep</span></code> inherits all JIGSAW options from
+<a class="reference internal" href="../../../generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.spherical.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.spherical.QuasiUniformSphericalMeshStep</span></code></a> and the
+<code class="docutils literal notranslate"><span class="pre">[spherical_mesh]</span></code> section of the config.</p>
+</section>
+<section id="extension-points">
+<h2>Extension points<a class="headerlink" href="#extension-points" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Adding a new named mesh.</strong> Create a <code class="docutils literal notranslate"><span class="pre">.cfg</span></code> file under
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified</span></code>.  The mesh name is inferred from the
+filename; <code class="docutils literal notranslate"><span class="pre">UNIFIED_MESH_NAMES</span></code> is populated automatically.</p></li>
+<li><p><strong>Customizing river alignment.</strong> Override <code class="docutils literal notranslate"><span class="pre">make_jigsaw_mesh()</span></code> in a subclass
+of <code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep</span></code> to add additional JIGSAW geometry constraints.</p></li>
+<li><p><strong>Changing the sizing field.</strong> Modify the <code class="docutils literal notranslate"><span class="pre">[sizing_field]</span></code> options in the
+mesh-specific config or override <code class="docutils literal notranslate"><span class="pre">BuildSizingFieldStep.run()</span></code> in the sizing
+field package.</p></li>
+</ul>
+</section>
+<section id="test-coverage">
+<h2>Test coverage<a class="headerlink" href="#test-coverage" title="Link to this heading"></a></h2>
+<p>Unit tests in <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_base_mesh.py</span></code> validate the
+<code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep</span></code> setup and JIGSAW geometry construction.</p>
+<p>Unit tests in <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_base_mesh_tasks.py</span></code> validate
+task registration for all named unified meshes and that <code class="docutils literal notranslate"><span class="pre">get_unified_base_mesh_steps</span></code>
+creates the expected shared steps.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sizing_field.html" class="btn btn-neutral float-left" title="Sizing-Field Steps and Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../framework/index.html" class="btn btn-neutral float-right" title="Mesh Framework" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

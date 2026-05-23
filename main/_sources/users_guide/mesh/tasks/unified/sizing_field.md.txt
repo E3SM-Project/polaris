@@ -6,7 +6,7 @@ The `mesh/spherical/unified/<mesh_name>/sizing_field` tasks build a
 cell-width map on a shared latitude-longitude grid for each named unified
 mesh. The sizing field combines the coastline and river products from the
 upstream workflows into a single target cell-width dataset that the
-downstream base-mesh step passes
+downstream base-mesh step (see {ref}`users-mesh-unified-base-mesh`) passes
 to the JIGSAW mesh generator.
 
 Running these tasks is most useful when you want to inspect or tune the
