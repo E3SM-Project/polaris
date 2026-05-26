@@ -5,6 +5,8 @@ ocean:
   time_integration:
     config_dt: {{ dt }}
     config_time_integrator: {{ time_integrator }}
+  debug:
+    config_disable_vel_pgrad: true
 
 mpas-ocean:
   run_modes:
@@ -18,7 +20,6 @@ mpas-ocean:
     config_disable_thick_sflux: true
     config_disable_vel_all_tend: true
     config_disable_vel_coriolis: true
-    config_disable_vel_pgrad: true
     config_disable_vel_hmix: true
     config_disable_vel_surface_stress: true
     config_disable_vel_explicit_bottom_drag: true
@@ -75,7 +76,6 @@ Omega:
     TracerHorzAdvTendencyEnable : true
     TracerDiffTendencyEnable : false
     TracerHyperDiffTendencyEnable : false
-    PressureGradTendencyEnable : false
   IOStreams:
     InitialState:
       Contents:
