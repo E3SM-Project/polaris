@@ -177,6 +177,11 @@ config:
     config_disable_thick_vadv: not ThicknessVertAdvTendencyEnable
 
 - section:
+    debug: Tendencies
+  options:
+    config_disable_vel_pgrad: not PressureGradTendencyEnable
+
+- section:
     bottom_drag: Tendencies
   options:
     config_explicit_bottom_drag_coeff: BottomDragCoeff
