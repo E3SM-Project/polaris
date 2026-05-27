@@ -39,6 +39,10 @@ should be added to the `variables` section in the
 [mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
 file.
 
+For standalone conversion of an existing MPAS-Ocean initial-condition file to
+Omega format outside a Polaris task, see
+{ref}`dev-ocean-convert-mpaso-ic-to-omega`.
+
 ### Running an E3SM component
 
 Steps that run either Omega or MPAS-Ocean should descend from the

@@ -6,6 +6,7 @@ from pathlib import Path
 import gsw
 import numpy as np
 import xarray as xr
+from mpas_tools.io import write_netcdf
 from ruamel.yaml import YAML
 
 from polaris.constants import get_constant
@@ -42,31 +43,32 @@ def parse_args():
             '(potential temperature and practical salinity).'
         ),
     )
+    parser.add_argument(
+        '--visualization',
+        action='store_true',
+        help=(
+            'Generate temperature/salinity percent-difference slice '
+            'figures and save next to the output NetCDF file.'
+        ),
+    )
     return parser.parse_args()
 
 
-def convert_to_omega(input_file, output_file, eos_type):
+def convert_to_omega(input_file, output_file, eos_type, visualization=False):
     with xr.open_dataset(input_file, decode_times=False) as ds_in:
-        ds = ds_in.load()
+        ds_input = ds_in.load()
 
     output_file = _append_eos_suffix(output_file, eos_type)
 
     input_path = Path(input_file)
     zero_velocity_mpas_file = str(input_path.with_suffix('')) + '.mpas.nc'
 
-    ds_mpas_zero = ds.copy(deep=True)
+    ds_mpas_zero = ds_input.copy(deep=True)
     mpas_velocity_fields = _zero_velocity_fields(ds_mpas_zero)
     _rescale_sphere_radius(ds_mpas_zero)
     _keep_selected_global_attrs(ds_mpas_zero)
 
-    # Remove unlimited dimensions that don't exist in the current dataset
-    if 'unlimited_dims' in ds_mpas_zero.encoding:
-        ds_mpas_zero.encoding['unlimited_dims'] = [
-            d
-            for d in ds_mpas_zero.encoding['unlimited_dims']
-            if d in ds_mpas_zero.dims
-        ]
-    ds_mpas_zero.to_netcdf(zero_velocity_mpas_file)
+    write_netcdf(ds_mpas_zero, zero_velocity_mpas_file)
     print(f'Wrote {zero_velocity_mpas_file}')
     print(
         'Rescaled MPAS earth radius, coordinates, and areas based on '
@@ -79,28 +81,47 @@ def convert_to_omega(input_file, output_file, eos_type):
     print('Removed unnecessary global attributes')
 
     required_vars = ['layerThickness']
-    missing = [name for name in required_vars if name not in ds.variables]
+    missing = [
+        name for name in required_vars if name not in ds_input.variables
+    ]
     if missing:
         raise ValueError(f'Missing required variables: {missing}')
 
-    valid = ds['layerThickness'].values > 0.0
+    # Keep the original input dataset untouched; all Omega transforms
+    # happen on a separate working copy.
+    ds_omega = ds_input.copy(deep=True)
+
+    # Create valid mask with shape (Time, nCells, nVertLevels)
+    layer_thickness_valid = ds_omega['layerThickness'].values > 0.0
+    if layer_thickness_valid.ndim == 2:
+        # Broadcast (nCells, nVertLevels) to (nTime, nCells, nVertLevels)
+        valid = np.tile(
+            layer_thickness_valid[np.newaxis, :, :],
+            (ds_omega.sizes['Time'], 1, 1),
+        )
+    else:
+        valid = layer_thickness_valid
+
     if eos_type == 'teos10':
-        spec_vol = _convert_teos10_tracers(ds, valid)
+        spec_vol = _convert_teos10_tracers(ds_omega, valid)
     elif eos_type == 'linear':
-        spec_vol = _compute_linear_spec_vol(ds, valid)
+        spec_vol = _compute_linear_spec_vol(ds_omega, valid)
 
-    _add_pseudo_thickness(ds, valid, spec_vol)
-    velocity_fields = _zero_velocity_fields(ds)
-    _rescale_sphere_radius(ds)
-    ds = _map_mpaso_to_omega(ds)
-    _keep_selected_global_attrs(ds)
+    _add_pseudo_thickness(ds_omega, valid, spec_vol)
+    velocity_fields = _zero_velocity_fields(ds_omega)
+    _rescale_sphere_radius(ds_omega)
 
-    # Remove unlimited dimensions that don't exist in the current dataset
-    if 'unlimited_dims' in ds.encoding:
-        ds.encoding['unlimited_dims'] = [
-            d for d in ds.encoding['unlimited_dims'] if d in ds.dims
-        ]
-    ds.to_netcdf(output_file)
+    if visualization:
+        _save_percent_difference_visualizations(
+            ds_original=ds_mpas_zero,
+            ds_omega=ds_omega,
+            output_file=output_file,
+        )
+
+    ds_omega = _map_mpaso_to_omega(ds_omega)
+    _keep_selected_global_attrs(ds_omega)
+
+    write_netcdf(ds_omega, output_file)
 
     print(f'Wrote {output_file}')
     if eos_type == 'teos10':
@@ -126,6 +147,8 @@ def convert_to_omega(input_file, output_file, eos_type):
         'Renamed variables to Omega names based on mpaso_to_omega.yaml mapping'
     )
     print('Removed unnecessary global attributes')
+    if visualization:
+        print('Saved temperature/salinity percent-difference visualizations')
 
 
 def _to_degrees(angle):
@@ -473,12 +496,218 @@ def _map_mpaso_to_omega(ds):
     return ds.rename(rename)
 
 
+def _select_visualization_levels(ds_original, count=5):
+    n_levels = ds_original.sizes['nVertLevels']
+    if n_levels <= 1:
+        return np.array([0], dtype=int), np.array([0.0])
+
+    raw = np.array(
+        [
+            0,
+            max(1, n_levels // 4),
+            max(1, n_levels // 2),
+            max(1, (3 * n_levels) // 4),
+            n_levels - 1,
+        ],
+        dtype=int,
+    )
+    levels = np.unique(np.clip(raw, 0, n_levels - 1))
+    if levels.size < count:
+        levels = np.unique(
+            np.round(np.linspace(0, n_levels - 1, count)).astype(int)
+        )
+
+    layer_thickness = ds_original['layerThickness'].isel(Time=0).values
+    valid = layer_thickness > 0.0
+    z_interface = np.zeros(
+        (ds_original.sizes['nCells'], ds_original.sizes['nVertLevels'] + 1)
+    )
+    z_interface[:, 1:] = np.cumsum(layer_thickness, axis=1)
+    z_mid = 0.5 * (z_interface[:, :-1] + z_interface[:, 1:])
+    ref_z = np.nanmedian(np.where(valid, z_mid, np.nan), axis=0)
+
+    return levels, ref_z[levels]
+
+
+def _save_percent_difference_visualizations(
+    ds_original, ds_omega, output_file
+):
+    try:
+        import cartopy.crs as ccrs
+        import cartopy.feature as cfeature
+        import cmocean
+        import matplotlib.colors as mcolors
+        import matplotlib.pyplot as plt
+        import mosaic
+    except ImportError as exc:
+        raise ImportError(
+            'Visualization requires cartopy, cmocean, matplotlib, and mosaic.'
+        ) from exc
+
+    transform = ccrs.Geodetic()
+
+    ds_mesh = ds_original.copy(deep=False)
+    ds_mesh.attrs['is_periodic'] = 'NO'
+    salinity_projection = ccrs.PlateCarree(central_longitude=0.0)
+    temperature_projection = ccrs.PlateCarree(central_longitude=180.0)
+    salinity_descriptor = mosaic.Descriptor(
+        ds_mesh,
+        projection=salinity_projection,
+        transform=transform,
+        use_latlon=True,
+    )
+    temperature_descriptor = mosaic.Descriptor(
+        ds_mesh,
+        projection=temperature_projection,
+        transform=transform,
+        use_latlon=True,
+    )
+
+    levels, depths = _select_visualization_levels(ds_original, count=5)
+    valid_original = ds_original['layerThickness'].isel(Time=0).values > 0.0
+    valid_omega = ds_omega['layerThickness'].isel(Time=0).values > 0.0
+    output_path = Path(output_file)
+
+    def _plot_variable(var_name, label):
+        diff_slices = []
+        for level in levels:
+            original = (
+                ds_original[var_name].isel(Time=0, nVertLevels=level).values
+            )
+            omega = ds_omega[var_name].isel(Time=0, nVertLevels=level).values
+            valid = (
+                valid_original[:, level]
+                & valid_omega[:, level]
+                & np.isfinite(original)
+                & np.isfinite(omega)
+                & (np.abs(omega) > 1.0e-12)
+            )
+            diff_field = np.full(original.shape, np.nan)
+            if var_name == 'temperature':
+                diff_field[valid] = original[valid] - omega[valid]
+            else:
+                diff_field[valid] = (
+                    100.0 * (omega[valid] - original[valid]) / omega[valid]
+                )
+            diff_slices.append(diff_field)
+
+        all_values = np.concatenate(
+            [values[np.isfinite(values)] for values in diff_slices]
+        )
+        max_abs = (
+            float(np.nanpercentile(np.abs(all_values), 99))
+            if all_values.size > 0
+            else 1.0
+        )
+        if max_abs <= 0.0:
+            max_abs = 1.0
+
+        if var_name == 'temperature':
+            projection = temperature_projection
+            descriptor = temperature_descriptor
+        else:
+            projection = salinity_projection
+            descriptor = salinity_descriptor
+
+        fig, axes = plt.subplots(
+            len(levels),
+            1,
+            figsize=(10, 4.5 * len(levels)),
+            subplot_kw=dict(projection=projection),
+            constrained_layout=True,
+        )
+        if len(levels) == 1:
+            axes = [axes]
+
+        if var_name == 'temperature':
+            fig.suptitle(
+                f'{label} absolute difference: MPAS-Ocean - Omega',
+                fontsize=12,
+                y=1.01,
+            )
+        else:
+            fig.suptitle(
+                f'{label} percent difference: 100*(Omega - MPAS-Ocean)/Omega',
+                fontsize=12,
+                y=1.01,
+            )
+
+        for ax, level, depth, diff_field in zip(
+            axes, levels, depths, diff_slices, strict=True
+        ):
+            da = xr.DataArray(diff_field, dims=['nCells'])
+            if var_name == 'salinity':
+                norm = mcolors.Normalize(vmin=0.47, vmax=0.496)
+                pc = mosaic.polypcolor(
+                    ax,
+                    descriptor,
+                    da,
+                    cmap='jet',  # cmocean.cm.thermal,
+                    norm=norm,
+                    antialiased=False,
+                    zorder=2,
+                )
+            else:
+                norm = mcolors.TwoSlopeNorm(vmin=-0.2, vcenter=0.0, vmax=0.15)
+                pc = mosaic.polypcolor(
+                    ax,
+                    descriptor,
+                    da,
+                    cmap=cmocean.cm.balance,
+                    norm=norm,
+                    antialiased=False,
+                    zorder=2,
+                )
+
+            ax.add_feature(cfeature.LAND, facecolor='lightgray', zorder=3)
+            ax.add_feature(cfeature.COASTLINE, linewidth=0.4, zorder=4)
+            ax.add_feature(
+                cfeature.BORDERS, linewidth=0.2, linestyle=':', zorder=4
+            )
+            ax.gridlines(
+                color='gray',
+                linestyle=':',
+                linewidth=0.4,
+                draw_labels=False,
+                zorder=5,
+            )
+            ax.set_global()
+            ax.set_title(
+                f'Level {int(level)} | ~{float(depth):.0f} m', fontsize=9
+            )
+
+            plt.colorbar(
+                pc,
+                ax=ax,
+                orientation='vertical',
+                label='%' if var_name == 'salinity' else '\u00b0C',
+                shrink=0.7,
+                pad=0.02,
+            )
+
+        suffix = (
+            'absolute_difference'
+            if var_name == 'temperature'
+            else 'percent_difference'
+        )
+        figure_path = output_path.with_name(
+            f'{output_path.stem}_{var_name}_{suffix}.png'
+        )
+        fig.savefig(figure_path, dpi=150, bbox_inches='tight')
+        plt.close(fig)
+        print(f'Wrote {figure_path}')
+
+    _plot_variable('temperature', 'Temperature')
+    _plot_variable('salinity', 'Salinity')
+
+
 def main():
     args = parse_args()
     convert_to_omega(
         args.input_file,
         args.output_file,
         args.eos_type,
+        args.visualization,
     )
 
 
