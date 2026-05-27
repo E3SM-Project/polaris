@@ -65,7 +65,9 @@ def convert_to_omega(input_file, output_file, eos_type, visualization=False):
 
     ds_mpas_zero = ds_input.copy(deep=True)
     mpas_velocity_fields = _zero_velocity_fields(ds_mpas_zero)
-    _rescale_sphere_radius(ds_mpas_zero)
+    # if ds_mpas_zero['sphere_radius'].attrs.get('value', 0.0) > 0.0:
+    if ds_mpas_zero.attrs['sphere_radius'] > 0.0:
+        _rescale_sphere_radius(ds_mpas_zero)
     _keep_selected_global_attrs(ds_mpas_zero)
 
     write_netcdf(ds_mpas_zero, zero_velocity_mpas_file)
@@ -109,7 +111,8 @@ def convert_to_omega(input_file, output_file, eos_type, visualization=False):
 
     _add_pseudo_thickness(ds_omega, valid, spec_vol)
     velocity_fields = _zero_velocity_fields(ds_omega)
-    _rescale_sphere_radius(ds_omega)
+    if ds_omega.attrs['sphere_radius'] > 0.0:
+        _rescale_sphere_radius(ds_omega)
 
     if visualization:
         _save_percent_difference_visualizations(
