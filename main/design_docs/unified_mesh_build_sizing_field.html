@@ -1,0 +1,773 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unified Mesh: Sizing-Field Construction</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Unified Mesh: Base-Mesh Creation and Downstream Integration" href="unified_mesh_create_base_mesh.html" />
+    <link rel="prev" title="Unified Mesh: River Network Preparation" href="unified_mesh_prepare_river_network.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Unified Mesh: Sizing-Field Construction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#workflow-context">Workflow Context</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-jigsaw-ready-global-sizing-field">Requirement: JIGSAW-Ready Global Sizing Field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-explicit-consumption-of-shared-coastline-and-river-products">Requirement: Explicit Consumption of Shared Coastline and River Products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-composable-feature-based-resolution-controls">Requirement: Composable Feature-Based Resolution Controls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-compatibility-with-shared-target-grid-tiers">Requirement: Compatibility with Shared Target-Grid Tiers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-standalone-sizing-field-task">Requirement: Standalone Sizing-Field Task</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-jigsaw-ready-global-sizing-field">Algorithm Design: JIGSAW-Ready Global Sizing Field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-explicit-consumption-of-shared-coastline-and-river-products">Algorithm Design: Explicit Consumption of Shared Coastline and River Products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-composable-feature-based-resolution-controls">Algorithm Design: Composable Feature-Based Resolution Controls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-compatibility-with-shared-target-grid-tiers">Algorithm Design: Compatibility with Shared Target-Grid Tiers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-standalone-sizing-field-task">Algorithm Design: Standalone Sizing-Field Task</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-jigsaw-ready-global-sizing-field">Implementation: JIGSAW-Ready Global Sizing Field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-explicit-consumption-of-shared-coastline-and-river-products">Implementation: Explicit Consumption of Shared Coastline and River Products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-composable-feature-based-resolution-controls">Implementation: Composable Feature-Based Resolution Controls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-compatibility-with-shared-target-grid-tiers">Implementation: Compatibility with Shared Target-Grid Tiers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-standalone-sizing-field-task">Implementation: Standalone Sizing-Field Task</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-jigsaw-ready-global-sizing-field">Testing and Validation: JIGSAW-Ready Global Sizing Field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-explicit-consumption-of-shared-coastline-and-river-products">Testing and Validation: Explicit Consumption of Shared Coastline and River Products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-composable-feature-based-resolution-controls">Testing and Validation: Composable Feature-Based Resolution Controls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-compatibility-with-shared-target-grid-tiers">Testing and Validation: Compatibility with Shared Target-Grid Tiers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-standalone-sizing-field-task">Testing and Validation: Standalone Sizing-Field Task</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Unified Mesh: Sizing-Field Construction</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/unified_mesh_build_sizing_field.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="unified-mesh-sizing-field-construction">
+<h1>Unified Mesh: Sizing-Field Construction<a class="headerlink" href="#unified-mesh-sizing-field-construction" title="Link to this heading"></a></h1>
+<p>date: 2026/04/13</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>This design describes the shared <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> step and associated task
+that can run that shared step on its own for the unified global base-mesh
+workflow. The purpose of the step is to combine baseline mesh-resolution
+choices with coastline and river controls into a single global lon/lat sizing
+field that can be passed directly to the final spherical JIGSAW mesh step.</p>
+<p>The shared sizing-field workflow is implemented in Polaris pull request
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/561">https://github.com/E3SM-Project/polaris/pull/561</a>.</p>
+<p>The design assumes that <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code> and <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> have
+already converted raw source datasets into shared products with explicit
+interfaces. Those stages are implemented in Polaris pull requests
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/545">https://github.com/E3SM-Project/polaris/pull/545</a> and
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/556">https://github.com/E3SM-Project/polaris/pull/556</a>. <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>
+consumes those products directly rather than mixing raw-data interpretation,
+feature preprocessing, and mesh-sizing logic in one place.</p>
+<p>Feature refinement is expressed as clearly as practical in the sizing field
+itself. For coastline refinement, this points strongly toward explicit raster
+candidate fields. For rivers, the current implementation uses target-grid
+river masks to drive sizing-field refinement. The separate direct use of river
+geometry in final mesh generation is now handled downstream by the
+mesh-conditioned river products from <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> and by
+<code class="docutils literal notranslate"><span class="pre">create_base_mesh</span></code>. <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> continues to own only the raster river
+controls.</p>
+<p>Success means that Polaris gains a documented, reusable sizing-field workflow
+whose inputs from earlier steps are clear, whose outputs are directly usable by
+the final mesh step, and whose diagnostics make it easy to see why a given
+region is refined.</p>
+</section>
+<section id="workflow-context">
+<h2>Workflow Context<a class="headerlink" href="#workflow-context" title="Link to this heading"></a></h2>
+<p>The overall unified-mesh workflow is described in
+<a class="reference internal" href="unified_base_mesh.html"><span class="std std-doc">Unified Mesh: Global Base Mesh Workflow</span></a>.</p>
+<p>The upstream unified-mesh workflow designs are:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="unified_mesh_prepare_coastline.html"><span class="std std-doc">Unified Mesh: Coastline Preparation</span></a></p></li>
+<li><p><a class="reference internal" href="unified_mesh_prepare_river_network.html"><span class="std std-doc">Unified Mesh: River Network Preparation</span></a></p></li>
+</ul>
+<p>The downstream unified-mesh workflow design is:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="unified_mesh_create_base_mesh.html"><span class="std std-doc">Unified Mesh: Base-Mesh Creation and Downstream Integration</span></a></p></li>
+</ul>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-jigsaw-ready-global-sizing-field">
+<h3>Requirement: JIGSAW-Ready Global Sizing Field<a class="headerlink" href="#requirement-jigsaw-ready-global-sizing-field" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> shall produce a global sizing field on a regular lon/lat
+grid that can be consumed directly by the final spherical mesh-generation
+step.</p>
+<p>The sizing field shall encode the raster part of the requested spatial
+variation in target mesh resolution and shall interoperate cleanly with any
+retained feature geometry that the final mesh step uses directly.</p>
+</section>
+<section id="requirement-explicit-consumption-of-shared-coastline-and-river-products">
+<h3>Requirement: Explicit Consumption of Shared Coastline and River Products<a class="headerlink" href="#requirement-explicit-consumption-of-shared-coastline-and-river-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> shall consume the outputs of <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code> and
+<code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> through explicit interfaces.</p>
+<p>The sizing-field step shall not need to re-read raw coastline, raw topography,
+or raw HydroRIVERS source datasets in the standard workflow.</p>
+</section>
+<section id="requirement-composable-feature-based-resolution-controls">
+<h3>Requirement: Composable Feature-Based Resolution Controls<a class="headerlink" href="#requirement-composable-feature-based-resolution-controls" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The workflow shall support a baseline resolution pattern together with local
+refinement controls for coastline and river features.</p>
+<p>The first design shall support separate control of at least:</p>
+<ul class="simple">
+<li><p>background ocean resolution;</p></li>
+<li><p>background land resolution;</p></li>
+<li><p>coastline refinement and transition zones; and</p></li>
+<li><p>river-channel refinement.</p></li>
+</ul>
+<p>River-outlet refinement was considered but intentionally removed. Because the
+retained river geometry is clipped to stay outside the coastal exclusion band
+(at least two ocean cells wide at the coarsest resolution), river features
+never reach the coastline, making a separate outlet-mask raster control
+redundant.</p>
+<p>The design shall allow additional feature classes such as watershed
+boundaries, lakes, or dams to be added later without redesigning the full
+sizing-field logic.</p>
+</section>
+<section id="requirement-compatibility-with-shared-target-grid-tiers">
+<h3>Requirement: Compatibility with Shared Target-Grid Tiers<a class="headerlink" href="#requirement-compatibility-with-shared-target-grid-tiers" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The sizing field shall be defined on the same supported target-grid tier used
+by the upstream shared preprocessing steps.</p>
+<p>The first design shall work with a small discrete set of supported target-grid
+resolutions rather than assuming arbitrary default resolutions.</p>
+</section>
+<section id="requirement-standalone-sizing-field-task">
+<h3>Requirement: Standalone Sizing-Field Task<a class="headerlink" href="#requirement-standalone-sizing-field-task" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>Polaris shall provide a task that runs the shared <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> step
+and the shared steps it depends on (e.g. <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code> and
+<code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code>).</p>
+<p>The standalone task shall make it practical to inspect candidate refinement
+fields and the final sizing field without running the full unified mesh
+workflow.</p>
+<p>The same shared step and configuration shall be reusable from the full unified
+workflow when settings match.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-jigsaw-ready-global-sizing-field">
+<h3>Algorithm Design: JIGSAW-Ready Global Sizing Field<a class="headerlink" href="#algorithm-design-jigsaw-ready-global-sizing-field" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The sizing field should be built on a regular lon/lat grid using the shared
+target-grid tier selected for the workflow. The resulting field should be in
+the same basic form already expected by Polaris spherical mesh generation:
+<code class="docutils literal notranslate"><span class="pre">cellWidth(lat,</span> <span class="pre">lon)</span></code> or an equivalent gridded <code class="docutils literal notranslate"><span class="pre">h(x)</span></code> product.</p>
+<p>The output should therefore be a directly inspectable and cacheable artifact
+rather than an implicit side effect of JIGSAW geometry handling. This makes
+the final <code class="docutils literal notranslate"><span class="pre">unified_base_mesh</span></code> step simpler because it only needs to consume the
+finished sizing field and convert it into a JIGSAW mesh and then an MPAS mesh.</p>
+</section>
+<section id="algorithm-design-explicit-consumption-of-shared-coastline-and-river-products">
+<h3>Algorithm Design: Explicit Consumption of Shared Coastline and River Products<a class="headerlink" href="#algorithm-design-explicit-consumption-of-shared-coastline-and-river-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The intended input contract should be explicit:</p>
+<ul class="simple">
+<li><p>from <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code>: a land/ocean mask on the selected target grid and
+a signed coastal-distance field, together with any needed coastline-edge
+diagnostics; and</p></li>
+<li><p>from <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code>: a simplified vector river network suitable for
+downstream geometry use, plus target-grid river-channel and river-outlet
+masks, together with outlet metadata.</p></li>
+</ul>
+<p>With this contract, <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> can focus on mesh-resolution logic
+rather than source-data interpretation.</p>
+<p>The first design should avoid making <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> responsible for
+the full river-refinement policy. If <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> needs a river
+distance field, it can derive that distance from the simplified river products
+it consumes. At the same time, the first Polaris design should explicitly
+retain the existing standalone use of river geometry in the final mesh step.</p>
+</section>
+<section id="algorithm-design-composable-feature-based-resolution-controls">
+<h3>Algorithm Design: Composable Feature-Based Resolution Controls<a class="headerlink" href="#algorithm-design-composable-feature-based-resolution-controls" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The first sizing-field algorithm should be framed as a set of candidate fields
+combined into a final mesh-spacing field.</p>
+<p>The background field should be constructed first. A reasonable first design is
+to use the land/ocean mask from <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code> to choose between:</p>
+<ul class="simple">
+<li><p>an ocean background, which may be constant or may reuse existing Polaris
+latitude-dependent functions such as <code class="docutils literal notranslate"><span class="pre">RRS_CellWidthVsLat()</span></code>, or may be
+delegated to a mesh-specific sizing-field step for more complex regional
+ocean profiles; and</p></li>
+<li><p>a land background, which may be constant at first.</p></li>
+</ul>
+<p>Feature refinement should then be expressed as additional candidate fields:</p>
+<ul class="simple">
+<li><p>a coastline candidate derived from the signed coastal-distance field, with
+configurable transition widths and potentially different treatment on the
+land and ocean sides; and</p></li>
+<li><p>a river candidate derived from distance to the simplified river-channel
+network or, in the simplest first pass, from the channel mask itself.</p></li>
+</ul>
+<p>An outlet candidate was considered but intentionally removed. Because the
+retained river geometry is clipped to stay outside the coastal exclusion band
+before it reaches <code class="docutils literal notranslate"><span class="pre">create_base_mesh</span></code>, river features never reach the
+coastline. A separate outlet-mask raster control inside <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>
+would therefore have no meaningful effect and was removed to keep the sizing
+field simpler.</p>
+<p>The final sizing field should be the pointwise minimum of the background field
+and all active feature candidates. This is a clearer design than sequential
+overwrites because it makes each contribution explicit and guarantees that
+adding a new feature control cannot accidentally coarsen the mesh.</p>
+<p>For coastline refinement, this is also where the Polaris design can diverge
+most clearly from the current standalone workflow by favoring explicit raster
+candidate fields. For rivers, however, the first Polaris design should be more
+conservative. In
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>, river
+influence is split between raster products and separate geometry handling.
+Because that behavior is the least well-understood part of the workflow,
+Polaris should preserve that division of labor as much as practical in the
+early implementation.</p>
+<p>In that formulation, <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> owns the raster candidate fields
+associated with river channels. The final <code class="docutils literal notranslate"><span class="pre">unified_base_mesh</span></code> step additionally
+passes simplified river geometry to JIGSAW to drive cell-center placement along
+retained channels.</p>
+<p>If abrupt changes remain after candidate-field composition, the first design
+may include a light regularization or smoothing stage, but that should be a
+small post-processing step on the final field, not a substitute for clear
+feature definitions.</p>
+</section>
+<section id="algorithm-design-compatibility-with-shared-target-grid-tiers">
+<h3>Algorithm Design: Compatibility with Shared Target-Grid Tiers<a class="headerlink" href="#algorithm-design-compatibility-with-shared-target-grid-tiers" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> should not choose its own grid resolution independently.
+Instead, it should consume the selected workflow target-grid tier and produce
+its output on that same grid.</p>
+<p>The first design should therefore support a small discrete set of target-grid
+tiers shared with <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code> and <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code>. This keeps
+the interfaces between stages simple and makes cached reuse of expensive
+preprocessing products practical.</p>
+</section>
+<section id="algorithm-design-standalone-sizing-field-task">
+<h3>Algorithm Design: Standalone Sizing-Field Task<a class="headerlink" href="#algorithm-design-standalone-sizing-field-task" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The standalone task should be a thin wrapper around the shared
+<code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> step rather than a separate implementation path.</p>
+<p>The task should depend on the selected coastline and river products and should
+write diagnostics that make the sizing-field composition easy to inspect, for
+example the background field, coastline candidate, river candidate, outlet
+candidate, and final field.</p>
+<p>Because the task wraps the shared step, the same sizing-field products can
+later be reused by the final mesh step and the full unified workflow when
+configuration choices match.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-jigsaw-ready-global-sizing-field">
+<h3>Implementation: JIGSAW-Ready Global Sizing Field<a class="headerlink" href="#implementation-jigsaw-ready-global-sizing-field" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The current implementation is organized under
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/mesh/spherical/unified/sizing_field/</span></code> as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">build.py</span></code> for the shared <code class="docutils literal notranslate"><span class="pre">BuildSizingFieldStep</span></code> and
+<code class="docutils literal notranslate"><span class="pre">build_sizing_field_dataset()</span></code> composition function;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">steps.py</span></code> for shared-step construction;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">task.py</span></code> and <code class="docutils literal notranslate"><span class="pre">tasks.py</span></code> for standalone task registration;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">configs.py</span></code> for unified-mesh config loading; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">viz.py</span></code> for diagnostic plots.</p></li>
+</ul>
+<p>The shared step writes <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>. The main output is <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code> on the
+shared <code class="docutils literal notranslate"><span class="pre">lat</span></code>/<code class="docutils literal notranslate"><span class="pre">lon</span></code> grid, with units of km. The dataset also includes
+diagnostic fields:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">background_cell_width</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ocean_background_cell_width</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">land_river_cell_width</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pre_coastline_cell_width</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coastline_cell_width</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coastal_transition_delta</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">river_channel_cell_width</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">signed_distance</span></code> (the signed coastal-distance field passed through from
+<code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code>); and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">active_control</span></code>.</p></li>
+</ul>
+<p>The downstream base-mesh implementation now uses <code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep</span></code> in
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified.base_mesh</span></code>. That step reads <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code>,
+<code class="docutils literal notranslate"><span class="pre">lon</span></code>, and <code class="docutils literal notranslate"><span class="pre">lat</span></code> from <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>, links mesh-conditioned river geometry,
+and then reuses the existing spherical mesh-generation machinery.</p>
+</section>
+<section id="implementation-explicit-consumption-of-shared-coastline-and-river-products">
+<h3>Implementation: Explicit Consumption of Shared Coastline and River Products<a class="headerlink" href="#implementation-explicit-consumption-of-shared-coastline-and-river-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The implementation keeps step interfaces explicit and avoids reintroducing
+raw-dataset dependencies inside <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>.</p>
+<p>The sibling <code class="docutils literal notranslate"><span class="pre">add-lat-lon-topo-combine</span></code> branch already implements the shared
+lat-lon <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine</span></code> tasks at 1.0, 0.25, 0.125, 0.0625 and
+0.03125 degree and the associated <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> support. That branch provides
+the upstream target-grid topography path assumed by this design. See Polaris
+pull request <a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/526">https://github.com/E3SM-Project/polaris/pull/526</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BuildSizingFieldStep.setup()</span></code> links only two upstream data products:
+<code class="docutils literal notranslate"><span class="pre">coastline.nc</span></code> from the selected coastline convention and <code class="docutils literal notranslate"><span class="pre">river_network.nc</span></code>
+from the corresponding river lat-lon step. It does not read raw topography or
+HydroRIVERS data.</p>
+</section>
+<section id="implementation-composable-feature-based-resolution-controls">
+<h3>Implementation: Composable Feature-Based Resolution Controls<a class="headerlink" href="#implementation-composable-feature-based-resolution-controls" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The implementation builds the final field from explicit candidate fields.
+<code class="docutils literal notranslate"><span class="pre">build_sizing_field_dataset()</span></code> now composes a precomputed ocean background
+with land, river, coastline, and active-control products rather than deciding
+which ocean algorithm to use itself.</p>
+<p>The generic <code class="docutils literal notranslate"><span class="pre">BuildSizingFieldStep</span></code> supports only two built-in ocean
+backgrounds: <code class="docutils literal notranslate"><span class="pre">constant</span></code> and <code class="docutils literal notranslate"><span class="pre">rrs_latitude</span></code>. The previous <code class="docutils literal notranslate"><span class="pre">ec_latitude</span></code>
+branch has been removed from the unified-mesh path and now raises a clear
+error if requested. More complex ocean backgrounds are handled by
+mesh-family implementations selected from the unified-mesh config.</p>
+<p>The first concrete specialized path is
+<code class="docutils literal notranslate"><span class="pre">u.oi.so12to30.lr10</span></code>, which uses the <code class="docutils literal notranslate"><span class="pre">so_region</span></code>
+mesh family. That family reuses the existing Southern Ocean
+<code class="docutils literal notranslate"><span class="pre">high_res_region.geojson</span></code> and the shared Southern Ocean background helper from
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.base.so</span></code> to build a 12 km to 30 km regional ocean profile on
+the unified target grid. Land starts from a configurable constant background.</p>
+<p>The river channel candidate is mask-based and controlled by
+<code class="docutils literal notranslate"><span class="pre">enable_river_channel_refinement</span></code> and <code class="docutils literal notranslate"><span class="pre">river_channel_km</span></code>. A separate river
+outlet candidate was considered but intentionally removed: because the retained
+river geometry is clipped to stay outside the coastal exclusion band, outlet
+raster refinement inside the sizing field would have no effect near the coast
+and was therefore dropped.</p>
+<p>Coastline refinement uses the signed-distance field from <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code>.
+The current algorithm composes land and river controls first, then applies a
+linear coastline transition on the land side using
+<code class="docutils literal notranslate"><span class="pre">coastline_transition_land_km</span></code>. The coastline target is the local ocean
+background, so the coastal buffer can either coarsen or refine nearby land
+and river controls depending on the adjacent ocean resolution.</p>
+<p><code class="docutils literal notranslate"><span class="pre">active_control</span></code> records the winning control with
+<code class="docutils literal notranslate"><span class="pre">0=background</span> <span class="pre">1=coastline</span> <span class="pre">2=river_channel</span></code>. Dataset attributes also count how
+many river-channel mask cells are finer than, equal to, or coarser than the
+background.</p>
+</section>
+<section id="implementation-compatibility-with-shared-target-grid-tiers">
+<h3>Implementation: Compatibility with Shared Target-Grid Tiers<a class="headerlink" href="#implementation-compatibility-with-shared-target-grid-tiers" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The implementation uses the named unified-mesh configs in
+<code class="docutils literal notranslate"><span class="pre">polaris/mesh/spherical/unified/</span></code> to select the shared target-grid tier.
+The currently implemented named meshes are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">u.oi240.lr240</span></code>, using 0.25 degree;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code>, using 0.125 degree;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code>, using 0.03125 degree; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u.oi.so12to30.lr10</span></code>, using 0.0625 degree.</p></li>
+</ul>
+<p>The sizing-field shared-step subdirectory includes the mesh name:
+<code class="docutils literal notranslate"><span class="pre">spherical/unified/&lt;mesh_name&gt;/sizing_field/build</span></code>. This makes the mesh
+configuration part of the work-directory layout and cache key.</p>
+</section>
+<section id="implementation-standalone-sizing-field-task">
+<h3>Implementation: Standalone Sizing-Field Task<a class="headerlink" href="#implementation-standalone-sizing-field-task" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/26</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The implementation adds <code class="docutils literal notranslate"><span class="pre">SizingFieldTask</span></code>, a lightweight task wrapper around
+the shared steps. For each named mesh, the standalone task links:</p>
+<ul class="simple">
+<li><p>the shared lat-lon topography combine step;</p></li>
+<li><p>the shared coastline step and an optional coastline visualization step;</p></li>
+<li><p>the mesh-specific shared river source step;</p></li>
+<li><p>the mesh-specific shared river lat-lon step; and</p></li>
+<li><p>the selected sizing-field build step plus its visualization step.</p></li>
+</ul>
+<p>The sizing-field factory remains config-driven. It discovers mesh configs from
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified</span></code>, then reads the <code class="docutils literal notranslate"><span class="pre">mesh_family</span></code> declared in the
+mesh config and lets the generic <code class="docutils literal notranslate"><span class="pre">BuildSizingFieldStep</span></code> delegate ocean
+background construction and any extra inputs to that mesh-family
+implementation.</p>
+<p><code class="docutils literal notranslate"><span class="pre">add_build_sizing_field_tasks()</span></code> registers one standalone sizing-field task per
+named mesh. The task-specific path is
+<code class="docutils literal notranslate"><span class="pre">spherical/unified/&lt;mesh_name&gt;/sizing_field/task</span></code>.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-jigsaw-ready-global-sizing-field">
+<h3>Testing and Validation: JIGSAW-Ready Global Sizing Field<a class="headerlink" href="#testing-and-validation-jigsaw-ready-global-sizing-field" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_sizing_field.py</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_sizing_field_mesh_outputs_and_active_control</span></code> verifies that
+<code class="docutils literal notranslate"><span class="pre">build_sizing_field_dataset()</span></code> writes a <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code> field with expected values
+and correct <code class="docutils literal notranslate"><span class="pre">active_control</span></code> values for representative configurations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_unified_base_mesh_step_reads_sizing_field</span></code> verifies that
+<code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep</span></code> reads <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code>, <code class="docutils literal notranslate"><span class="pre">lon</span></code>, and <code class="docutils literal notranslate"><span class="pre">lat</span></code> from
+<code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>.</p></li>
+</ul>
+<p>Standalone sizing-field tasks have been run for all four named unified meshes,
+producing <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code> from real combined-topography, coastline, and river
+products. Sizing-field diagnostics were inspected and found to be consistent
+with expectations. Standalone base-mesh tasks subsequently passed those sizing
+fields through JIGSAW to produce <code class="docutils literal notranslate"><span class="pre">base_mesh.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">graph.info</span></code> for each
+mesh.</p>
+</section>
+<section id="testing-and-validation-explicit-consumption-of-shared-coastline-and-river-products">
+<h3>Testing and Validation: Explicit Consumption of Shared Coastline and River Products<a class="headerlink" href="#testing-and-validation-explicit-consumption-of-shared-coastline-and-river-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Unit tests build synthetic coastline and river products and pass them directly
+to <code class="docutils literal notranslate"><span class="pre">build_sizing_field_dataset()</span></code>. The step implementation links only
+<code class="docutils literal notranslate"><span class="pre">coastline.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">river_network.nc</span></code>, so raw topography and raw HydroRIVERS
+inputs are outside the sizing-field interface.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_sizing_field_mesh_outputs_and_active_control</span></code> and related tests
+pass synthetic coastline and river datasets directly to
+<code class="docutils literal notranslate"><span class="pre">build_sizing_field_dataset()</span></code>, confirming that the sizing-field step does
+not attempt to re-read raw source data.</p></li>
+</ul>
+<p>Standalone sizing-field tasks have also been run on real shared coastline and
+river outputs for all four named unified meshes, confirming that the step
+correctly consumes those upstream products without re-reading raw source data.</p>
+</section>
+<section id="testing-and-validation-composable-feature-based-resolution-controls">
+<h3>Testing and Validation: Composable Feature-Based Resolution Controls<a class="headerlink" href="#testing-and-validation-composable-feature-based-resolution-controls" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Current unit tests in <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_sizing_field.py</span></code> check:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_sizing_field_mesh_outputs_and_active_control</span></code>: a uniform 240 km case
+with no active refinement and a split 30 km ocean / 10 km land-river case,
+verifying <code class="docutils literal notranslate"><span class="pre">active_control</span></code> values for representative cells.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_sizing_field_coastline_transition_on_land</span></code>: coastline transition
+composition using the signed-distance field from the coastline step.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_sizing_field_rivers_composed_before_coastline_transition</span></code>: river channel
+controls composed before coastline transitions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_sizing_field_coastline_overrides_finer_land_and_river_controls</span></code>:
+coastline coarsening that overrides finer land and river controls.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_generic_ocean_background_modes</span></code>: an RRS latitude-dependent ocean
+background and a constant ocean background.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_constant_ocean_background_requires_equal_min_max</span></code>: validation that
+a constant ocean background requires equal min and max cell widths.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_generic_ocean_background_rejects_ec_latitude</span></code>: rejection of
+<code class="docutils literal notranslate"><span class="pre">ec_latitude</span></code> in the generic unified sizing-field path.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_so_mesh_family_links_shared_region_and_builds_field</span></code>: the Southern
+Ocean specialized sizing-field step linking the shared GeoJSON and producing
+a nonuniform ocean background that is finer in the Southern Ocean.</p></li>
+</ul>
+<p>Sizing-field outputs for all four named unified meshes have been inspected
+visually on the full global domain and found to show coastline and river-channel
+controls influencing the intended real-world regions with the expected relative
+strengths.</p>
+</section>
+<section id="testing-and-validation-compatibility-with-shared-target-grid-tiers">
+<h3>Testing and Validation: Compatibility with Shared Target-Grid Tiers<a class="headerlink" href="#testing-and-validation-compatibility-with-shared-target-grid-tiers" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_sizing_field.py</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_sizing_field_step_factory_uses_mesh_subdir</span></code> verifies that the code
+constructing the sizing-field step uses mesh-specific subdirectories.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_add_sizing_field_tasks_registers_named_meshes</span></code> verifies that the
+registered standalone task count matches the number of named unified-mesh
+configs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_sizing_field_step_factory_uses_mesh_family</span></code> verifies that
+<code class="docutils literal notranslate"><span class="pre">get_sizing_field_config()</span></code> uses the unified mesh configs for mesh-family
+selection.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_sizing_field_step_factory_reuses_shared_config_for_viz</span></code> verifies config
+reuse across multiple requests for the same mesh.</p></li>
+</ul>
+<p>Standalone sizing-field tasks have been run for all four named unified meshes,
+exercising all four supported target-grid tiers.</p>
+</section>
+<section id="testing-and-validation-standalone-sizing-field-task">
+<h3>Testing and Validation: Standalone Sizing-Field Task<a class="headerlink" href="#testing-and-validation-standalone-sizing-field-task" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The standalone task is the primary place to inspect the component refinement
+fields and the final sizing field before they are used in the full unified
+workflow.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_add_sizing_field_tasks_registers_named_meshes</span></code> in
+<code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_sizing_field.py</span></code> verifies that one
+standalone sizing-field task is registered per named unified mesh.</p></li>
+</ul>
+<p>The visualization step writes <code class="docutils literal notranslate"><span class="pre">sizing_field_overview.png</span></code>.</p>
+<p>Standalone sizing-field tasks have been run for all four named unified meshes.
+The resulting sizing-field diagnostics were inspected and found to be consistent
+with expectations for each mesh’s resolution design.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="unified_mesh_prepare_river_network.html" class="btn btn-neutral float-left" title="Unified Mesh: River Network Preparation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="unified_mesh_create_base_mesh.html" class="btn btn-neutral float-right" title="Unified Mesh: Base-Mesh Creation and Downstream Integration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,966 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unified Mesh: Global Base Mesh Workflow</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Unified Mesh: Coastline Preparation" href="unified_mesh_prepare_coastline.html" />
+    <link rel="prev" title="Shared steps" href="shared_steps.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Unified Mesh: Global Base Mesh Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#detailed-stage-designs">Detailed Stage Designs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-global-spherical-mpas-base-mesh">Requirement: Global Spherical MPAS Base Mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-downstream-e3sm-interoperability">Requirement: Downstream E3SM Interoperability</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-feature-aware-resolution-control">Requirement: Feature-Aware Resolution Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-shared-target-grid-tiers-and-cacheable-preprocessing">Requirement: Shared Target-Grid Tiers and Cacheable Preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-polaris-native-configuration-and-execution">Requirement: Polaris-Native Configuration and Execution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-selective-migration-and-maintainability">Requirement: Selective Migration and Maintainability</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-global-spherical-mpas-base-mesh">Algorithm Design: Global Spherical MPAS Base Mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-downstream-e3sm-interoperability">Algorithm Design: Downstream E3SM Interoperability</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-feature-aware-resolution-control">Algorithm Design: Feature-Aware Resolution Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-shared-target-grid-tiers-and-cacheable-preprocessing">Algorithm Design: Shared Target-Grid Tiers and Cacheable Preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-polaris-native-configuration-and-execution">Algorithm Design: Polaris-Native Configuration and Execution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-selective-migration-and-maintainability">Algorithm Design: Selective Migration and Maintainability</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-global-spherical-mpas-base-mesh">Implementation: Global Spherical MPAS Base Mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-downstream-e3sm-interoperability">Implementation: Downstream E3SM Interoperability</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-feature-aware-resolution-control">Implementation: Feature-Aware Resolution Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-polaris-native-configuration-and-execution">Implementation: Polaris-Native Configuration and Execution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-shared-target-grid-tiers-and-cacheable-preprocessing">Implementation: Shared Target-Grid Tiers and Cacheable Preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-selective-migration-and-maintainability">Implementation: Selective Migration and Maintainability</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-global-spherical-mpas-base-mesh">Testing and Validation: Global Spherical MPAS Base Mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-downstream-e3sm-interoperability">Testing and Validation: Downstream E3SM Interoperability</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-feature-aware-resolution-control">Testing and Validation: Feature-Aware Resolution Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-shared-target-grid-tiers-and-cacheable-preprocessing">Testing and Validation: Shared Target-Grid Tiers and Cacheable Preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-polaris-native-configuration-and-execution">Testing and Validation: Polaris-Native Configuration and Execution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-selective-migration-and-maintainability">Testing and Validation: Selective Migration and Maintainability</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Unified Mesh: Global Base Mesh Workflow</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/unified_base_mesh.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="unified-mesh-global-base-mesh-workflow">
+<h1>Unified Mesh: Global Base Mesh Workflow<a class="headerlink" href="#unified-mesh-global-base-mesh-workflow" title="Link to this heading"></a></h1>
+<p>date: 2026/04/13</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>This design proposes a Polaris workflow for creating a global, spherical MPAS
+base mesh for the E3SM land, river, ocean and sea-ice models using JIGSAW. The
+starting point is the work-in-progress
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>
+package, which currently combines geospatial preprocessing, JSON-based
+configuration, JIGSAW setup, mesh generation and ad hoc job creation in a
+single standalone workflow.</p>
+<p>The Polaris implementation should preserve the relevant parts of that workflow
+while translating them into shared steps, Polaris configuration files and
+existing MPAS/JIGSAW infrastructure. In particular, the design should reuse
+existing functionality in <code class="docutils literal notranslate"><span class="pre">polaris.mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">mpas_tools</span></code> and the existing
+<code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> topography remap and cull tasks wherever practical, rather than carrying
+forward the standalone workflow’s JSON configuration system or broad utility
+modules.</p>
+<p>The initial focus is a feature-aware global base mesh whose resolution can be
+informed by coastline and river-network data and whose output is directly
+usable by downstream Polaris tasks such as <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> topography remapping and mesh
+culling. This design began as a first draft because
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>
+is still evolving, but the stage-specific Polaris workflow pieces described
+here are now implemented:</p>
+<ul class="simple">
+<li><p>coastline preparation, Polaris pull request
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/545">https://github.com/E3SM-Project/polaris/pull/545</a>;</p></li>
+<li><p>river-network preparation, Polaris pull request
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/556">https://github.com/E3SM-Project/polaris/pull/556</a>; and</p></li>
+<li><p>sizing-field construction, Polaris pull request
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/561">https://github.com/E3SM-Project/polaris/pull/561</a>.</p></li>
+</ul>
+<p>The document therefore records both the intended workflow interfaces and the
+current implementation state. Polaris now has shared coastline,
+river-network, sizing-field, and base-mesh steps together with standalone
+unified base-mesh tasks and explicit downstream remap and cull task variants.</p>
+<p>This document should be treated as an umbrella design for the overall workflow.
+As the work is refined, we expect to add more focused design documents for
+stages such as <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code>, <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code>,
+<code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>, and the final base-mesh stage. These stage names are
+only working names for now and should not be treated as final task, step, class
+or component names.</p>
+<p>The stage-level shared products should be built on a small set of supported
+regular lon/lat target grids rather than on arbitrary default resolutions. A
+short list of supported target-grid tiers is likely important for caching and
+reuse of expensive shared steps such as coastline preparation,
+river-network preparation, and topography remapping.</p>
+<p>Success means that Polaris gains a documented path to build a global MPAS base
+mesh with feature-aware resolution controls, using Polaris-native setup and run
+machinery, and that the resulting mesh can be consumed by existing downstream
+E3SM workflows without an extra conversion stage.</p>
+</section>
+<section id="detailed-stage-designs">
+<h2>Detailed Stage Designs<a class="headerlink" href="#detailed-stage-designs" title="Link to this heading"></a></h2>
+<p>The four stage-specific unified-mesh design documents provide the detailed
+workflow design that this umbrella document summarizes:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="unified_mesh_prepare_coastline.html"><span class="std std-doc">Unified Mesh: Coastline Preparation</span></a>
+describes the shared coastline-preparation workflow.</p></li>
+<li><p><a class="reference internal" href="unified_mesh_prepare_river_network.html"><span class="std std-doc">Unified Mesh: River Network Preparation</span></a>
+describes the shared river-network preprocessing workflow.</p></li>
+<li><p><a class="reference internal" href="unified_mesh_build_sizing_field.html"><span class="std std-doc">Unified Mesh: Sizing-Field Construction</span></a>
+describes how the upstream shared products are combined into the raster
+sizing field used for final mesh generation.</p></li>
+<li><p><a class="reference internal" href="unified_mesh_create_base_mesh.html"><span class="std std-doc">Unified Mesh: Base-Mesh Creation and Downstream Integration</span></a>
+describes the final base-mesh stage together with downstream topography
+remap and land or ocean culling variants.</p></li>
+</ul>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-global-spherical-mpas-base-mesh">
+<h3>Requirement: Global Spherical MPAS Base Mesh<a class="headerlink" href="#requirement-global-spherical-mpas-base-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>Polaris shall support creation of a global, spherical MPAS base mesh suitable
+for the needs of the E3SM land, river, ocean and sea-ice models.</p>
+<p>The workflow shall support meshes whose resolution varies spatially in response
+to model needs rather than being limited to quasi-uniform meshes.</p>
+<p>The primary output of the workflow shall be an MPAS mesh in standard MPAS form.</p>
+</section>
+<section id="requirement-downstream-e3sm-interoperability">
+<h3>Requirement: Downstream E3SM Interoperability<a class="headerlink" href="#requirement-downstream-e3sm-interoperability" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The generated base mesh shall be usable as input to downstream E3SM and
+Polaris tools, including the existing topography remap and cull workflows.</p>
+<p>The workflow shall not require a separate ad hoc conversion step before the
+mesh can be passed to those downstream tools.</p>
+</section>
+<section id="requirement-feature-aware-resolution-control">
+<h3>Requirement: Feature-Aware Resolution Control<a class="headerlink" href="#requirement-feature-aware-resolution-control" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The workflow shall support resolution control based on geospatial features that
+are important for a unified land-river-ocean mesh. At a minimum, the first
+implementation shall support coastline and river-network information.</p>
+<p>The design shall allow additional feature classes such as watershed
+boundaries, lakes or dams to be added later without redesigning the full
+workflow.</p>
+</section>
+<section id="requirement-shared-target-grid-tiers-and-cacheable-preprocessing">
+<h3>Requirement: Shared Target-Grid Tiers and Cacheable Preprocessing<a class="headerlink" href="#requirement-shared-target-grid-tiers-and-cacheable-preprocessing" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The shared preprocessing stages of the workflow shall operate on a small
+discrete set of supported regular lon/lat target grids rather than on an
+arbitrary default resolution.</p>
+<p>Within a given workflow instance, the same selected target-grid tier shall be
+used consistently by <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code>, <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>.</p>
+<p>The first design should favor a short supported list, likely two or three
+tiers, so shared-step outputs can be cached and reused effectively.</p>
+</section>
+<section id="requirement-polaris-native-configuration-and-execution">
+<h3>Requirement: Polaris-Native Configuration and Execution<a class="headerlink" href="#requirement-polaris-native-configuration-and-execution" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The workflow shall be expressed as Polaris steps and tasks and configured with
+Polaris’ ini-style configuration files.</p>
+<p>The workflow shall support standard Polaris setup, shared-step reuse,
+provenance and machine execution patterns.</p>
+</section>
+<section id="requirement-selective-migration-and-maintainability">
+<h3>Requirement: Selective Migration and Maintainability<a class="headerlink" href="#requirement-selective-migration-and-maintainability" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The Polaris implementation shall prefer existing Polaris, <code class="docutils literal notranslate"><span class="pre">mpas_tools</span></code>,
+JIGSAW and conda-forge capabilities wherever practical.</p>
+<p>Migration from
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>
+shall focus on the specific algorithms and
+helpers needed for the Polaris workflow rather than wholesale reuse of general
+utility modules or standalone workflow infrastructure.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-global-spherical-mpas-base-mesh">
+<h3>Algorithm Design: Global Spherical MPAS Base Mesh<a class="headerlink" href="#algorithm-design-global-spherical-mpas-base-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The existing spherical JIGSAW workflow in <code class="docutils literal notranslate"><span class="pre">polaris.mesh</span></code> should be the starting
+point for the new capability. The current <code class="docutils literal notranslate"><span class="pre">SphericalBaseStep</span></code> already handles
+the parts of the workflow that are generic to MPAS spherical mesh generation:
+writing the JIGSAW inputs, invoking JIGSAW, converting the JIGSAW triangles to
+an MPAS mesh, updating MPAS fields such as <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code>, and creating
+<code class="docutils literal notranslate"><span class="pre">graph.info</span></code>.</p>
+<p>The unified base-mesh workflow should therefore focus on creating the
+feature-aware mesh-spacing description rather than replacing the existing
+JIGSAW-to-MPAS path. In the simplest formulation, the workflow builds a
+global lon/lat-based sizing field and then reuses the existing spherical mesh
+step to convert that sizing field into a JIGSAW mesh and finally into MPAS
+form.</p>
+<p>This keeps the core mesh-generation algorithm close to existing Polaris
+patterns and minimizes the amount of new meshing infrastructure that must be
+maintained on the E3SM timeline.</p>
+</section>
+<section id="algorithm-design-downstream-e3sm-interoperability">
+<h3>Algorithm Design: Downstream E3SM Interoperability<a class="headerlink" href="#algorithm-design-downstream-e3sm-interoperability" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The output contract for the workflow should be aligned with what downstream
+Polaris tasks already consume. The immediate target is the standard MPAS base
+mesh plus associated graph file used by the existing E3SM topography remap and
+cull tasks.</p>
+<p>Because the remap and cull tasks already operate on <code class="docutils literal notranslate"><span class="pre">base_mesh.nc</span></code>, the design
+should treat that file as the primary authoritative output. Any additional
+intermediate products needed for land or river workflows, such as cleaned
+feature vectors or rasterized masks, should remain separate artifacts rather
+than becoming a replacement mesh format.</p>
+<p>This requirement argues for producing a standard base mesh first and layering
+additional land/river products around it, not embedding workflow-specific
+assumptions into the base-mesh format.</p>
+</section>
+<section id="algorithm-design-feature-aware-resolution-control">
+<h3>Algorithm Design: Feature-Aware Resolution Control<a class="headerlink" href="#algorithm-design-feature-aware-resolution-control" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The feature-aware part of the workflow should be decomposed into two stages:
+feature preprocessing and sizing-field construction.</p>
+<p>Feature preprocessing converts raw source datasets into cleaned global inputs
+that are stable enough to drive mesh sizing. Based on the current
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>
+workflow, the first supported sources should be:</p>
+<ul class="simple">
+<li><p>a coastline mask derived from the existing <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo</span></code>
+topography product and its land/ocean masking logic, so the unified mesh
+uses the same coastline interpretation as downstream topography remap and
+cull workflows; and</p></li>
+<li><p>a simplified global river network derived from HydroRIVERS or an equivalent
+source.</p></li>
+</ul>
+<p>Sizing-field construction then combines a baseline resolution with local
+refinement targets derived from those preprocessed features. The precise blend
+function can evolve, but the first implementation should be framed as a global
+sizing field on a regular lon/lat grid because that matches the existing
+Polaris spherical JIGSAW workflow.</p>
+<p>For coastline-driven refinement, a signed-distance formulation on the sphere
+should be considered the preferred first approach. If a coastline curve or
+region can be derived cleanly from the <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo</span></code> land/ocean
+interpretation, <code class="docutils literal notranslate"><span class="pre">mpas_tools.mesh.creation.signed_distance</span></code> or a closely
+related method can be used to build smooth coastal transition zones and inland
+or oceanward buffers directly from spherical geometry. This approach is
+promising because it matches existing Polaris mesh patterns and may avoid some
+of the raster-buffer and antimeridian-complexity present in the standalone
+workflow.</p>
+<p>The design should assume that coastline and river controls are modular inputs
+to the sizing-field builder. Additional controls for watersheds, lakes or dams
+should enter through the same interface rather than through new one-off mesh
+builders.</p>
+</section>
+<section id="algorithm-design-shared-target-grid-tiers-and-cacheable-preprocessing">
+<h3>Algorithm Design: Shared Target-Grid Tiers and Cacheable Preprocessing<a class="headerlink" href="#algorithm-design-shared-target-grid-tiers-and-cacheable-preprocessing" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/22</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The workflow should standardize on a small set of supported regular lon/lat
+target-grid resolutions for all shared preprocessing products. These are:</p>
+<ul class="simple">
+<li><p>0.25 degree;</p></li>
+<li><p>0.125 degree;</p></li>
+<li><p>0.0625 degree; and</p></li>
+<li><p>0.03125 degree.</p></li>
+</ul>
+<p>This range is expected to cover needs from quick testing that is not
+scientifically validated (unified meshes with coarser than ~120 km resolution)
+to our highest resolutions (finer than ~5 km).</p>
+<p>The selected target-grid tier should be a cross-cutting workflow choice. It
+should control the resolution used for shared <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine</span></code>
+lat/lon products, coastline preprocessing, river-network preprocessing, and
+the final sizing field. This avoids mismatched products between stages and
+makes cache reuse straightforward.</p>
+<p>The design should not prevent future support for custom target-grid
+resolutions. However, arbitrary resolutions should not be the default
+workflow path until there is a clear need, because they weaken cache reuse and
+make the shared-step product space harder to manage.</p>
+</section>
+<section id="algorithm-design-polaris-native-configuration-and-execution">
+<h3>Algorithm Design: Polaris-Native Configuration and Execution<a class="headerlink" href="#algorithm-design-polaris-native-configuration-and-execution" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The standalone workflow currently uses JSON templates, repeated key mutation
+and explicit HPC-script generation. Polaris already has suitable
+abstractions: config sections, shared steps, cached outputs, work-directory
+layout and machine-aware job submission.</p>
+<p>The algorithmic structure of the new workflow should therefore be a dependency
+graph of Polaris steps, not a mutable configuration file plus a generated
+driver script. A natural decomposition is:</p>
+<ol class="arabic simple">
+<li><p>preprocess coastline inputs;</p></li>
+<li><p>preprocess river-network inputs;</p></li>
+<li><p>assemble a unified sizing field;</p></li>
+<li><p>generate the spherical JIGSAW mesh and convert it to MPAS form; and</p></li>
+<li><p>optionally pass the base mesh into downstream remap and cull tasks.</p></li>
+</ol>
+<p>This step decomposition matches Polaris’ execution model and supports reuse of
+shared expensive products across multiple tasks.</p>
+</section>
+<section id="algorithm-design-selective-migration-and-maintainability">
+<h3>Algorithm Design: Selective Migration and Maintainability<a class="headerlink" href="#algorithm-design-selective-migration-and-maintainability" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The migration strategy should begin with an audit of
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>
+capabilities grouped into three categories:</p>
+<ul class="simple">
+<li><p>functionality already available in Polaris or <code class="docutils literal notranslate"><span class="pre">mpas_tools</span></code>,</p></li>
+<li><p>functionality available from direct use of conda-forge packages, and</p></li>
+<li><p>functionality that truly requires targeted extraction or reimplementation.</p></li>
+</ul>
+<p>The current standalone package includes broad helper modules such as
+<code class="docutils literal notranslate"><span class="pre">utilities/vector.py</span></code>, JSON configuration managers and job-script generators.
+Those are useful in the standalone context but should not be treated as the
+default implementation strategy in Polaris.</p>
+<p>Instead, new shared helpers should be introduced only when a focused algorithm
+cannot be expressed clearly with existing package APIs or current Polaris
+utilities. This keeps the eventual Polaris implementation smaller, easier to
+review and more adaptable as
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>
+continues to change.</p>
+<p>River-network simplification and river-driven meshing deserve special caution
+in this migration strategy. Because that part of the workflow is the least
+well-understood, the first Polaris design should preserve the corresponding
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>
+algorithms more closely than the coastline path whenever practical.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-global-spherical-mpas-base-mesh">
+<h3>Implementation: Global Spherical MPAS Base Mesh<a class="headerlink" href="#implementation-global-spherical-mpas-base-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/27</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The current implementation uses <code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep</span></code> in
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified.base_mesh</span></code>. This subclass of
+<code class="docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep</span></code> overrides <code class="docutils literal notranslate"><span class="pre">build_cell_width_lat_lon()</span></code> to read
+<code class="docutils literal notranslate"><span class="pre">cellWidth</span></code>, <code class="docutils literal notranslate"><span class="pre">lon</span></code>, and <code class="docutils literal notranslate"><span class="pre">lat</span></code> directly from <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>, and it links the
+upstream <code class="docutils literal notranslate"><span class="pre">clipped_river_network.geojson</span></code> product for direct JIGSAW geometry
+constraints.</p>
+<p>This keeps the implementation on the existing <code class="docutils literal notranslate"><span class="pre">SphericalBaseStep.run()</span></code> path
+for JIGSAW invocation, conversion to MPAS form and graph-file creation. The
+expected output naming remains <code class="docutils literal notranslate"><span class="pre">base_mesh.nc</span></code> as the primary mesh product and
+<code class="docutils literal notranslate"><span class="pre">graph.info</span></code> produced alongside it.</p>
+<p>The task wiring is also now implemented. <code class="docutils literal notranslate"><span class="pre">get_unified_base_mesh_steps()</span></code> builds
+the full shared-step chain for one named unified mesh, and <code class="docutils literal notranslate"><span class="pre">BaseMeshTask</span></code>
+provides the standalone task wrapper that runs that chain end to end.</p>
+</section>
+<section id="implementation-downstream-e3sm-interoperability">
+<h3>Implementation: Downstream E3SM Interoperability<a class="headerlink" href="#implementation-downstream-e3sm-interoperability" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/27</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The new unified base-mesh step is shaped so it can be passed directly to
+existing E3SM tasks that expect a <code class="docutils literal notranslate"><span class="pre">SphericalBaseStep</span></code>-like dependency. In
+practice, this means keeping the same mesh and graph-file outputs and the same
+basic interface expected by the current remap and cull tasks.</p>
+<p>The design should avoid introducing a special mesh post-processing task whose
+only purpose is to translate the new workflow back into the format already
+expected by <code class="docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.remap</span></code> and
+<code class="docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull</span></code>.</p>
+<p>That connection is now implemented. The <code class="docutils literal notranslate"><span class="pre">add_remap_topo_tasks()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">add_cull_topo_tasks()</span></code> factories iterate over the named unified meshes,
+retrieve the shared unified base-mesh steps, and register explicit remap and
+cull tasks without an extra mesh translation stage.</p>
+</section>
+<section id="implementation-feature-aware-resolution-control">
+<h3>Implementation: Feature-Aware Resolution Control<a class="headerlink" href="#implementation-feature-aware-resolution-control" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/11</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The current step decomposition is now implemented:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code>: derive a coastline representation suitable for mesh
+refinement, using the <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo</span></code> coastline as the source;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code>: simplify and filter a global river dataset into
+source-level products, target-grid-ready products, and mesh-conditioned river
+products for final cell-placement control;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>: combine baseline ocean and land resolution choices with
+coastline and river refinement controls on a global lon/lat grid, ideally
+using signed-distance fields where that simplifies the definition of
+transition zones and buffers; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unified_base_mesh</span></code>: consume the sizing field and the mesh-conditioned river
+geometry and create the MPAS base mesh.</p></li>
+</ul>
+<p>Related enabling work is already in place on the sibling
+<code class="docutils literal notranslate"><span class="pre">add-lat-lon-topo-combine</span></code> branch, which adds shared lat-lon
+<code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine</span></code> support and extends <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> accordingly. That
+branch does not implement the unified-mesh workflow itself, but it reduces
+risk for the shared target-grid preprocessing described here. See Polaris pull
+request <a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/526">https://github.com/E3SM-Project/polaris/pull/526</a>.</p>
+<p>The stage-level implementations now make the intended sequence concrete. The
+coastline workflow provides shared lat-lon coastline products on the supported
+target-grid resolutions. The river workflow provides shared source-level,
+target-grid, and mesh-conditioned preprocessing products that can be
+coordinated with those coastline products. The sizing-field workflow consumes
+the target-grid coastline and river products for each named unified mesh and
+writes a JIGSAW-ready <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>. The base-mesh workflow then consumes
+that sizing field together with the mesh-conditioned river geometry. This makes
+the implemented sequence:</p>
+<ol class="arabic simple">
+<li><p>build or reuse shared lat-lon topography products;</p></li>
+<li><p>derive coastline products on the selected shared target grid;</p></li>
+<li><p>prepare river-network products that use the same shared target grid and a
+consistent coastline interpretation, including mesh-conditioned river
+geometry for the final stage;</p></li>
+<li><p>combine coastline and river refinement signals into a unified sizing field;
+and</p></li>
+<li><p>read that sizing field through <code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep</span></code> while passing the
+conditioned river geometry into the final spherical base-mesh generation.</p></li>
+</ol>
+<p>Coastline, river and sizing-field preprocessing now fit the same shared-step
+pattern and exchange products on a common target grid.</p>
+<p>Even if the final implementation uses several shared steps, Polaris should
+present them as one coherent workflow rather than as unrelated utilities. The
+cleanest first implementation is to keep the shared steps together under the
+<code class="docutils literal notranslate"><span class="pre">mesh</span></code> component in one common subtree such as
+<code class="docutils literal notranslate"><span class="pre">mesh/spherical/unified/...</span></code>. That mirrors existing Polaris practice where a
+shared base-mesh step lives in the <code class="docutils literal notranslate"><span class="pre">mesh</span></code> component and tasks provide a thin
+wrapper around it. A separate <code class="docutils literal notranslate"><span class="pre">river</span></code> component would make more sense only if
+Polaris later grows river-focused workflows that stand on their own apart from
+base-mesh generation.</p>
+<p>As this workflow matures, more targeted design documents should be added for
+the stage-level algorithms and interfaces, especially <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code>,
+<code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code>, and <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>. The final stage is now
+covered by the separate <code class="docutils literal notranslate"><span class="pre">unified_mesh_create_base_mesh.md</span></code> design, which
+describes final mesh creation, standalone visualization, and downstream remap
+and culling integration.</p>
+<p>The preprocessing steps write clear intermediate products that are useful for
+debugging and caching, including both source-level vector products and lat-lon
+target-grid products. These intermediate products are explicit enough to
+support shared reuse between stages while still keeping <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> as
+the main integration point.</p>
+<p><code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> now has a concrete contract. It is defined as the step
+that takes:</p>
+<ul class="simple">
+<li><p>the selected target-grid tier;</p></li>
+<li><p>the background land and ocean resolution choices for the mesh;</p></li>
+<li><p>the outputs of <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code>, such as coastline geometry, masks or
+signed-distance fields;</p></li>
+<li><p>the outputs of <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code>, such as retained flowlines, outlet
+information, masks, or other river-refinement products; and</p></li>
+<li><p>configuration controlling how these refinement signals are blended,
+including background cell widths, transition distances and optional feature
+toggles.</p></li>
+</ul>
+<p>Its output is a single regular lon/lat <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code> field in
+<code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>, together with diagnostic candidate fields and active-control
+metadata. Framing it this way makes clear that <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> is not
+another ad hoc resolution option like the current quasi-uniform mesh choices.
+Instead, it is the integration point between shared feature preprocessing and
+the existing <code class="docutils literal notranslate"><span class="pre">SphericalBaseStep</span></code> machinery. The downstream mesh-generation
+step can consume the resulting <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code> field without needing to know
+whether refinement came from coastlines, rivers or later feature classes.</p>
+<p>For coastline processing, the current implementation derives the coastline
+from the same topography inputs used in <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo</span></code>, because that gives
+the strongest consistency with downstream masking and culling. It constructs a
+signed-distance field on the sphere from raster coastline transitions and uses
+that field to define smooth resolution transitions. The implementation also
+applies shared critical passages and land blockages before flood filling the
+candidate ocean mask, which is necessary to keep important connected seas in
+the ocean domain and to close known artificial openings.</p>
+<p>The first implementation targets coastline and river inputs only. The
+configuration and internal APIs should nonetheless leave room for later steps
+that prepare watershed boundaries, lake boundaries or dam data if those prove
+necessary.</p>
+<p>The selected target-grid resolution is now treated as part of this interface.
+The preprocessing and sizing-field steps exchange products on one shared grid,
+not on independently chosen grids.</p>
+</section>
+<section id="implementation-polaris-native-configuration-and-execution">
+<h3>Implementation: Polaris-Native Configuration and Execution<a class="headerlink" href="#implementation-polaris-native-configuration-and-execution" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The standalone JSON configuration files should be translated into Polaris
+config sections, for example:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">[unified_mesh]</span></code> for overall workflow choices, target-grid-tier selection,
+and supported feature toggles;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[coastline]</span></code> for coastline-source selection, fallback behavior and any
+thresholds related to coastline cleaning or simplification, as well as
+signed-distance transition and buffer parameters;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[river_network]</span></code> for river simplification and filtering controls; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[sizing_field]</span></code> for background resolutions and feature-composition
+parameters; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[spherical_mesh]</span></code> for the final JIGSAW and MPAS mesh settings already used
+by Polaris.</p></li>
+</ul>
+<p>The workflow should rely on Polaris work directories and machine support rather
+than carrying forward <code class="docutils literal notranslate"><span class="pre">jigsawcase</span></code>, <code class="docutils literal notranslate"><span class="pre">change_json_key_value()</span></code> or generated
+standalone job scripts.</p>
+<p>For the first implementation, the full shared-step chain should live in the
+existing <code class="docutils literal notranslate"><span class="pre">mesh</span></code> component, because the workflow’s primary public product is a
+base mesh and because Polaris shared steps are organized most clearly when
+their directories live at the highest common level where all consuming tasks
+can find them. In practice, the task that exposes the workflow should be a
+thin wrapper that links together shared steps such as <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code>,
+<code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code>, <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>, and the final
+<code class="docutils literal notranslate"><span class="pre">unified_base_mesh</span></code> step, all under one mesh-oriented subtree.</p>
+<p>This recommendation does not rule out a later <code class="docutils literal notranslate"><span class="pre">river</span></code> or <code class="docutils literal notranslate"><span class="pre">land</span></code> component.
+If Polaris eventually adds reusable river preprocessing, diagnostics or
+standalone river-data products outside this mesh workflow, those could justify
+a separate component. Even in that case, the interface should still make the
+unified base-mesh workflow look like one pipeline, with <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>
+remaining the explicit handoff from feature products to the generic spherical
+mesh generator.</p>
+</section>
+<section id="implementation-shared-target-grid-tiers-and-cacheable-preprocessing">
+<h3>Implementation: Shared Target-Grid Tiers and Cacheable Preprocessing<a class="headerlink" href="#implementation-shared-target-grid-tiers-and-cacheable-preprocessing" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/22</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The current shared implementation exposes target-grid choice through the
+supported lat-lon resolutions in
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified.LAT_LON_TARGET_GRID_RESOLUTIONS</span></code>, currently
+<code class="docutils literal notranslate"><span class="pre">0.25</span></code>, <code class="docutils literal notranslate"><span class="pre">0.125</span></code>, <code class="docutils literal notranslate"><span class="pre">0.0625</span></code>, and <code class="docutils literal notranslate"><span class="pre">0.03125</span></code> degrees.</p>
+<p>The standalone coastline and river task families both iterate over that same
+tuple when constructing per-resolution tasks, and the shared step subdirectory
+layout includes the formatted resolution name. In practice, this means the
+resolution itself is already part of the cache key and of the work-directory
+layout, which is exactly the behavior the design intended.</p>
+</section>
+<section id="implementation-selective-migration-and-maintainability">
+<h3>Implementation: Selective Migration and Maintainability<a class="headerlink" href="#implementation-selective-migration-and-maintainability" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The implementation effort should begin with a short function-by-function audit
+of <a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a> to
+decide what should be:</p>
+<ul class="simple">
+<li><p>reused from Polaris or <code class="docutils literal notranslate"><span class="pre">mpas_tools</span></code>,</p></li>
+<li><p>replaced with direct use of external packages, or</p></li>
+<li><p>extracted into small Polaris helpers.</p></li>
+</ul>
+<p>The following parts of
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a> appear
+unlikely to be appropriate for direct migration:</p>
+<ul class="simple">
+<li><p>JSON configuration management in <code class="docutils literal notranslate"><span class="pre">utilities/config_manager.py</span></code>;</p></li>
+<li><p>standalone case and job infrastructure in <code class="docutils literal notranslate"><span class="pre">classes/jigsawcase.py</span></code>; and</p></li>
+<li><p>broad general-purpose utility layers such as
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>/
+<code class="docutils literal notranslate"><span class="pre">utilities/vector.py</span></code>.</p></li>
+</ul>
+<p>Candidate targeted extractions may still be needed for items such as
+geographic buffering, antimeridian-safe geometry handling or specific river
+network simplification logic if those capabilities are not already available in
+the chosen package stack. If helper code is brought over, it should remain
+small, step-focused and colocated with the consuming workflow unless it quickly
+proves reusable.</p>
+<p>For the river-network path in particular, targeted extraction or close
+reimplementation is likely preferable to an early redesign of the underlying
+algorithm.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-global-spherical-mpas-base-mesh">
+<h3>Testing and Validation: Global Spherical MPAS Base Mesh<a class="headerlink" href="#testing-and-validation-global-spherical-mpas-base-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_base_mesh.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">test_unified_base_mesh_step_writes_river_geometry</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_unified_base_mesh_step_uses_prepared_clipped_river_geometry</span></code> verify that
+<code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep</span></code> correctly reads the sizing field and links river geometry.
+<code class="docutils literal notranslate"><span class="pre">test_read_geojson_line_mesh_deduplicates_shared_endpoints</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_read_geojson_line_mesh_drops_degenerate_edges_after_dedup</span></code> verify the
+<code class="docutils literal notranslate"><span class="pre">_read_geojson_line_mesh()</span></code> helper used by the step.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_base_mesh_tasks.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">test_add_unified_base_mesh_tasks_registers_named_meshes</span></code> verifies one
+standalone task per named mesh, and <code class="docutils literal notranslate"><span class="pre">test_add_unified_base_mesh_task_includes_dependencies</span></code>
+verifies the expected full step chain.</p>
+<p>Standalone base-mesh tasks have been run for all four named unified meshes,
+producing <code class="docutils literal notranslate"><span class="pre">base_mesh.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">graph.info</span></code> via JIGSAW. The resulting meshes
+were inspected visually and verified to be consistent with the requested
+resolution designs.</p>
+</section>
+<section id="testing-and-validation-downstream-e3sm-interoperability">
+<h3>Testing and Validation: Downstream E3SM Interoperability<a class="headerlink" href="#testing-and-validation-downstream-e3sm-interoperability" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/e3sm/init/topo/test_unified_tasks.py</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_add_remap_topo_tasks_includes_unified_meshes</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_add_cull_topo_tasks_includes_unified_meshes</span></code> verify that explicit
+unified-mesh remap and cull task variants are registered for each named mesh.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_get_remap_topo_steps_includes_upstream_base_mesh_steps</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_get_cull_topo_steps_includes_full_remap_workflow</span></code> verify step ordering.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_get_remap_topo_steps_reuses_shared_config_for_viz</span></code> verifies config
+reuse across multiple requests.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_get_remap_topo_steps_uses_mesh_max_cell_width_for_source_topography</span></code>
+and <code class="docutils literal notranslate"><span class="pre">test_coarse_unified_mesh_uses_ne120_topography</span></code> verify that the coarsest
+unified mesh selects the low-resolution topography path.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_unified_remap_topo_task_includes_base_mesh_dependencies</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_unified_cull_topo_task_includes_base_mesh_dependencies</span></code> verify that
+remap and cull tasks include upstream base mesh steps.</p></li>
+</ul>
+<p>End-to-end execution through <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/cull</span></code> has been performed for all
+four supported unified meshes. The resulting culled ocean and land meshes were
+inspected and verified to look reasonable, with no ocean cells showing <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>
+substantially smaller than the finest requested ocean resolution.</p>
+</section>
+<section id="testing-and-validation-feature-aware-resolution-control">
+<h3>Testing and Validation: Feature-Aware Resolution Control<a class="headerlink" href="#testing-and-validation-feature-aware-resolution-control" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Current automated coverage for feature-aware preprocessing spans all four
+stages. Detailed test function lists appear in the per-stage design documents;
+a high-level summary follows here.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_coastline.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_remap_coastline.py</span></code>, tests verify the coastline output contract
+(<code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code>, <code class="docutils literal notranslate"><span class="pre">signed_distance</span></code>), Antarctic convention differences,
+disconnected basin flood-fill, northernmost-row seeding, critical land
+blockage and passage handling, and the <code class="docutils literal notranslate"><span class="pre">get_unified_mesh_coastline_steps()</span></code>
+factory wiring.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_river.py</span></code>, tests verify the
+channel-only river mask (<code class="docutils literal notranslate"><span class="pre">river_channel_mask</span></code>), coastline-aware clipping,
+and <code class="docutils literal notranslate"><span class="pre">UnifiedRiverNetworkTask</span></code> registration per mesh name.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_sizing_field.py</span></code>, tests verify that
+<code class="docutils literal notranslate"><span class="pre">build_sizing_field_dataset()</span></code> composes constant and latitude-dependent ocean
+backgrounds with land, coastline, and river-channel controls, that
+mesh-specific subdirectories and config reuse are correct, and that
+<code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep</span></code> can read <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_base_mesh.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_base_mesh_tasks.py</span></code>, tests verify that conditioned river geometry is
+converted to JIGSAW line constraints and that one standalone base-mesh task
+is registered per named unified mesh.</p>
+<p>Standalone tasks for all four stages have been run for all four named unified
+meshes. Visual inspection of the sizing-field diagnostics, base-mesh plots,
+river overlays, and culled ocean and land meshes confirmed the expected
+behavior at each stage.</p>
+</section>
+<section id="testing-and-validation-shared-target-grid-tiers-and-cacheable-preprocessing">
+<h3>Testing and Validation: Shared Target-Grid Tiers and Cacheable Preprocessing<a class="headerlink" href="#testing-and-validation-shared-target-grid-tiers-and-cacheable-preprocessing" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Current unit tests verify several parts of this contract. In
+<code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_base_mesh_tasks.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_sizing_field.py</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_sizing_field_step_factory_uses_mesh_subdir</span></code>,
+<code class="docutils literal notranslate"><span class="pre">test_base_mesh_step_factory_uses_mesh_subdir_and_viz</span></code>, and related tests
+verify that the river and sizing-field setup helpers use mesh-specific shared
+subdirectories.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_sizing_field_step_factory_reuses_shared_config_for_viz</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_base_mesh_step_factory_reuses_shared_config_for_viz</span></code> verify that shared
+configs are reused when the same product is requested more than once.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_add_sizing_field_tasks_registers_named_meshes</span></code> verifies that the named
+mesh configs provide the required configuration.</p></li>
+</ul>
+<p>Standalone tasks for all four named unified meshes have been run, exercising
+all four supported target-grid tiers (0.25, 0.125, 0.0625, and 0.03125 degree)
+end to end.</p>
+</section>
+<section id="testing-and-validation-polaris-native-configuration-and-execution">
+<h3>Testing and Validation: Polaris-Native Configuration and Execution<a class="headerlink" href="#testing-and-validation-polaris-native-configuration-and-execution" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">test_base_mesh_step_factory_includes_dependencies</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_sizing_field_step_factory_uses_mesh_family</span></code> tests in
+<code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_base_mesh_tasks.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_sizing_field.py</span></code> verify that configuration is expressed through Polaris
+config files and that shared steps are linked by the factory functions.</p>
+<p>Standalone tasks for all four named unified meshes have been set up and run
+through standard Polaris setup and run commands, confirming the expected
+work-directory layout and shared-step reuse.</p>
+</section>
+<section id="testing-and-validation-selective-migration-and-maintainability">
+<h3>Testing and Validation: Selective Migration and Maintainability<a class="headerlink" href="#testing-and-validation-selective-migration-and-maintainability" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/11</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The implemented coastline, river, sizing-field, and base-mesh unit tests each
+cover specific helper functions extracted from
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>
+or reimplemented for Polaris. The stage-specific design documents list the
+precise test functions covering each extracted behavior.</p>
+<p>The first implementation chose <code class="docutils literal notranslate"><span class="pre">scipy</span></code>, <code class="docutils literal notranslate"><span class="pre">shapely</span></code>, <code class="docutils literal notranslate"><span class="pre">networkx</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">rasterio</span></code> in place of direct code migration from the standalone utility
+modules.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="shared_steps.html" class="btn btn-neutral float-left" title="Shared steps" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="unified_mesh_prepare_coastline.html" class="btn btn-neutral float-right" title="Unified Mesh: Coastline Preparation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,905 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unified Mesh: Base-Mesh Creation and Downstream Integration</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Vector Reconstruction at MPAS Cell Centers" href="vector_reconstruction.html" />
+    <link rel="prev" title="Unified Mesh: Sizing-Field Construction" href="unified_mesh_build_sizing_field.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Unified Mesh: Base-Mesh Creation and Downstream Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#workflow-context">Workflow Context</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-final-jigsaw-to-mpas-unified-base-mesh">Requirement: Final JIGSAW-to-MPAS Unified Base Mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-explicit-consumption-of-shared-unified-mesh-products">Requirement: Explicit Consumption of Shared Unified-Mesh Products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-river-geometry-influence-on-final-cell-placement">Requirement: River-Geometry Influence on Final Cell Placement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-river-snapping-shall-not-refine-coastal-ocean-resolution">Requirement: River Snapping Shall Not Refine Coastal Ocean Resolution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-shared-final-step-and-per-mesh-standalone-tasks">Requirement: Shared Final Step and Per-Mesh Standalone Tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-standalone-visualization-for-mesh-and-inputs">Requirement: Standalone Visualization for Mesh and Inputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-downstream-remap-and-culling-variants-for-unified-meshes">Requirement: Downstream Remap and Culling Variants for Unified Meshes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-final-jigsaw-to-mpas-unified-base-mesh">Algorithm Design: Final JIGSAW-to-MPAS Unified Base Mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-explicit-consumption-of-shared-unified-mesh-products">Algorithm Design: Explicit Consumption of Shared Unified-Mesh Products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-river-geometry-influence-on-final-cell-placement">Algorithm Design: River-Geometry Influence on Final Cell Placement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-river-snapping-shall-not-refine-coastal-ocean-resolution">Algorithm Design: River Snapping Shall Not Refine Coastal Ocean Resolution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-shared-final-step-and-per-mesh-standalone-tasks">Algorithm Design: Shared Final Step and Per-Mesh Standalone Tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-standalone-visualization-for-mesh-and-inputs">Algorithm Design: Standalone Visualization for Mesh and Inputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-downstream-remap-and-culling-variants-for-unified-meshes">Algorithm Design: Downstream Remap and Culling Variants for Unified Meshes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-final-jigsaw-to-mpas-unified-base-mesh">Implementation: Final JIGSAW-to-MPAS Unified Base Mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-explicit-consumption-of-shared-unified-mesh-products">Implementation: Explicit Consumption of Shared Unified-Mesh Products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-river-geometry-influence-on-final-cell-placement">Implementation: River-Geometry Influence on Final Cell Placement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-shared-final-step-and-per-mesh-standalone-tasks">Implementation: Shared Final Step and Per-Mesh Standalone Tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-standalone-visualization-for-mesh-and-inputs">Implementation: Standalone Visualization for Mesh and Inputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-downstream-remap-and-culling-variants-for-unified-meshes">Implementation: Downstream Remap and Culling Variants for Unified Meshes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-final-jigsaw-to-mpas-unified-base-mesh">Testing and Validation: Final JIGSAW-to-MPAS Unified Base Mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-explicit-consumption-of-shared-unified-mesh-products">Testing and Validation: Explicit Consumption of Shared Unified-Mesh Products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-river-geometry-influence-on-final-cell-placement">Testing and Validation: River-Geometry Influence on Final Cell Placement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-river-snapping-shall-not-refine-coastal-ocean-resolution">Testing and Validation: River Snapping Shall Not Refine Coastal Ocean Resolution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-shared-final-step-and-per-mesh-standalone-tasks">Testing and Validation: Shared Final Step and Per-Mesh Standalone Tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-standalone-visualization-for-mesh-and-inputs">Testing and Validation: Standalone Visualization for Mesh and Inputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-downstream-remap-and-culling-variants-for-unified-meshes">Testing and Validation: Downstream Remap and Culling Variants for Unified Meshes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Unified Mesh: Base-Mesh Creation and Downstream Integration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/unified_mesh_create_base_mesh.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="unified-mesh-base-mesh-creation-and-downstream-integration">
+<h1>Unified Mesh: Base-Mesh Creation and Downstream Integration<a class="headerlink" href="#unified-mesh-base-mesh-creation-and-downstream-integration" title="Link to this heading"></a></h1>
+<p>date: 2026/04/26</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>This design describes the shared final <code class="docutils literal notranslate"><span class="pre">create_base_mesh</span></code> step for the
+unified global mesh workflow, the standalone tasks that run that step for each
+named unified mesh, and the downstream workflow variants that consume the new
+base meshes for topography remapping and mesh culling.</p>
+<p>The shared <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code>, <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> stages described in the earlier design documents are now
+implemented, and the final stage described here is implemented as a shared
+unified base-mesh step, standalone base-mesh tasks for each named mesh, and
+explicit downstream topography-remap and cull task variants.</p>
+<p>The current implementation provides standalone base-mesh tasks for the
+four currently defined named unified meshes in
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified</span></code>, all of which currently use the
+<code class="docutils literal notranslate"><span class="pre">calving_front</span></code> Antarctic coastline convention. At the same time, the shared
+infrastructure should remain compatible with any supported coastline
+convention, even if only <code class="docutils literal notranslate"><span class="pre">calving_front</span></code> is exercised in the current automated
+tests.</p>
+<p>Success means that Polaris can create each current unified base mesh as a
+standard MPAS mesh, inspect the result together with the input sizing field
+and retained river geometry, and pass the produced mesh directly into explicit
+downstream topography-remap and land or ocean culling task variants without
+an ad hoc conversion stage.</p>
+</section>
+<section id="workflow-context">
+<h2>Workflow Context<a class="headerlink" href="#workflow-context" title="Link to this heading"></a></h2>
+<p>The overall unified-mesh workflow is described in
+<a class="reference internal" href="unified_base_mesh.html"><span class="std std-doc">Unified Mesh: Global Base Mesh Workflow</span></a>.</p>
+<p>The upstream unified-mesh workflow designs are:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="unified_mesh_prepare_coastline.html"><span class="std std-doc">Unified Mesh: Coastline Preparation</span></a></p></li>
+<li><p><a class="reference internal" href="unified_mesh_prepare_river_network.html"><span class="std std-doc">Unified Mesh: River Network Preparation</span></a></p></li>
+<li><p><a class="reference internal" href="unified_mesh_build_sizing_field.html"><span class="std std-doc">Unified Mesh: Sizing-Field Construction</span></a></p></li>
+</ul>
+<p>There are no later stage-specific unified-mesh design documents downstream of
+this one in the current series. This document itself covers the final
+base-mesh stage together with downstream remap and culling integration.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-final-jigsaw-to-mpas-unified-base-mesh">
+<h3>Requirement: Final JIGSAW-to-MPAS Unified Base Mesh<a class="headerlink" href="#requirement-final-jigsaw-to-mpas-unified-base-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>Polaris shall support a final unified-mesh stage that creates a global,
+spherical MPAS base mesh from the shared unified-mesh products.</p>
+<p>The primary output of that stage shall be a standard MPAS base mesh that can
+be consumed directly by existing MPAS and E3SM tooling.</p>
+<p>The final stage shall preserve the spatially varying resolution described by
+the unified sizing field.</p>
+</section>
+<section id="requirement-explicit-consumption-of-shared-unified-mesh-products">
+<h3>Requirement: Explicit Consumption of Shared Unified-Mesh Products<a class="headerlink" href="#requirement-explicit-consumption-of-shared-unified-mesh-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/27</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The final base-mesh stage shall consume the outputs of <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>
+and the mesh-conditioned river products from <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> through
+explicit shared interfaces.</p>
+<p>The standard workflow shall not need to re-read or reinterpret raw topography,
+raw coastline, or raw HydroRIVERS source datasets inside the final mesh
+generation stage, nor should it perform its own coastline-aware river clipping
+inside the final mesh step.</p>
+<p>The downstream remap and culling workflow variants shall likewise consume the
+resulting MPAS base mesh through explicit task interfaces rather than through
+manual work-directory edits.</p>
+</section>
+<section id="requirement-river-geometry-influence-on-final-cell-placement">
+<h3>Requirement: River-Geometry Influence on Final Cell Placement<a class="headerlink" href="#requirement-river-geometry-influence-on-final-cell-placement" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/26</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>Retained river geometry shall influence final mesh generation directly rather
+than only through the raster sizing field.</p>
+<p>The requirement is on the resulting behavior, namely that final cell placement
+can reflect the retained river network, especially along important channels and
+near outlets.</p>
+</section>
+<section id="requirement-river-snapping-shall-not-refine-coastal-ocean-resolution">
+<h3>Requirement: River Snapping Shall Not Refine Coastal Ocean Resolution<a class="headerlink" href="#requirement-river-snapping-shall-not-refine-coastal-ocean-resolution" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/26</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>Snapping cell centers to retained river-network geometry shall not introduce
+finer-than-intended ocean resolution along the coastline.</p>
+<p>In particular, the final workflow shall prevent river-geometry treatment near
+the coast from pulling neighboring ocean cells into a locally over-refined
+state that would constrain the ocean time step relative to the requested mesh
+design.</p>
+<p>This requirement is on the realized ocean mesh, not just on the input sizing
+field. The base-mesh stage shall preserve the intended coastal ocean
+resolution even when river geometry is used to improve inland cell placement.</p>
+</section>
+<section id="requirement-shared-final-step-and-per-mesh-standalone-tasks">
+<h3>Requirement: Shared Final Step and Per-Mesh Standalone Tasks<a class="headerlink" href="#requirement-shared-final-step-and-per-mesh-standalone-tasks" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/26</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>Polaris shall provide one shared final base-mesh step that can be reused by
+multiple workflows.</p>
+<p>Polaris shall also provide one standalone task per named unified mesh defined
+by the config files in <code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified</span></code>.</p>
+<p>The first implementation shall cover the four currently defined named meshes.
+The shared design shall remain compatible with additional named meshes and with
+supported Antarctic coastline conventions without requiring a different code
+path for each one.</p>
+<p>The standalone tasks shall run the shared final step together with the shared
+prerequisite steps they depend on.</p>
+</section>
+<section id="requirement-standalone-visualization-for-mesh-and-inputs">
+<h3>Requirement: Standalone Visualization for Mesh and Inputs<a class="headerlink" href="#requirement-standalone-visualization-for-mesh-and-inputs" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The standalone unified base-mesh task shall include a visualization step that
+makes it practical to inspect the generated mesh together with the main inputs
+that controlled it.</p>
+<p>At a minimum, the standalone visualization shall show the final MPAS mesh, the
+input lat-lon sizing field, and the retained river geometry.</p>
+<p>That visualization step shall run in the standalone base-mesh task but shall
+not run by default in other workflows that reuse the shared final step.</p>
+</section>
+<section id="requirement-downstream-remap-and-culling-variants-for-unified-meshes">
+<h3>Requirement: Downstream Remap and Culling Variants for Unified Meshes<a class="headerlink" href="#requirement-downstream-remap-and-culling-variants-for-unified-meshes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>Polaris shall provide explicit downstream workflow variants that use each
+unified base mesh as input to topography remapping and mesh culling.</p>
+<p>These downstream variants shall cover remapped topography on the unified base
+mesh, land and ocean masks on that base mesh, and the resulting culled land
+and ocean meshes.</p>
+<p>The downstream variants shall be expressed as standard Polaris tasks rather
+than as manual follow-on instructions.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-final-jigsaw-to-mpas-unified-base-mesh">
+<h3>Algorithm Design: Final JIGSAW-to-MPAS Unified Base Mesh<a class="headerlink" href="#algorithm-design-final-jigsaw-to-mpas-unified-base-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The sizing-field stage already defines the main raster contract for the final
+mesh stage: a regular lon/lat <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code> field in <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>. The
+final mesh stage should treat that product as the authoritative raster spacing
+input and should reuse the existing Polaris spherical-mesh path for converting
+JIGSAW output into a standard MPAS mesh.</p>
+<p>In other words, the final stage should add only the logic that is truly new to
+the unified workflow: consuming the shared products, incorporating retained
+river geometry into final mesh generation, and wiring the result into
+standalone and downstream tasks. It should not redesign the existing
+JIGSAW-to-MPAS conversion path already present in <code class="docutils literal notranslate"><span class="pre">SphericalBaseStep</span></code> and
+<code class="docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep</span></code>.</p>
+</section>
+<section id="algorithm-design-explicit-consumption-of-shared-unified-mesh-products">
+<h3>Algorithm Design: Explicit Consumption of Shared Unified-Mesh Products<a class="headerlink" href="#algorithm-design-explicit-consumption-of-shared-unified-mesh-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/27</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The intended final-stage input contract is:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code> from <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> as the authoritative raster
+spacing field;</p></li>
+<li><p>mesh-conditioned vector river geometry and outlet metadata from
+<code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> for direct final-stage geometry use and for
+visualization; and</p></li>
+<li><p>the named unified-mesh configuration, including the selected target-grid
+tier and Antarctic coastline convention, for consistent downstream labeling
+and task selection.</p></li>
+</ul>
+<p>The final stage should not go back to raw source data to infer these products
+again. That keeps the workflow layered in the same way as the earlier design
+documents: source interpretation belongs in shared preprocessing steps, sizing
+policy belongs in <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>, coastline-aware river conditioning
+belongs in <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code>, and final mesh generation belongs in
+<code class="docutils literal notranslate"><span class="pre">create_base_mesh</span></code>.</p>
+<p>The downstream topography-remap and culling variants should then consume the
+generated <code class="docutils literal notranslate"><span class="pre">base_mesh.nc</span></code> through the same standard interfaces used by existing
+Polaris <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> workflows. The design should favor task composition over
+special one-off scripts.</p>
+</section>
+<section id="algorithm-design-river-geometry-influence-on-final-cell-placement">
+<h3>Algorithm Design: River-Geometry Influence on Final Cell Placement<a class="headerlink" href="#algorithm-design-river-geometry-influence-on-final-cell-placement" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/27</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>Retained river geometry must influence final mesh generation directly. The
+sizing field already expresses raster refinement around rivers and outlets, but
+the
+standalone reference workflow suggests that raster refinement alone is not the
+whole story when the goal is to place cell centers well along river channels.</p>
+<p>The design should therefore keep two distinct river signals in the final mesh
+stage:</p>
+<ul class="simple">
+<li><p>a raster resolution signal from <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>; and</p></li>
+<li><p>a vector geometry signal from the conditioned river network prepared for the
+selected mesh.</p></li>
+</ul>
+<p>The design should follow the algorithmic approach used by the standalone
+reference solution in
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>
+for using river-network geometry to place cell centers. We do not require a
+byte-for-byte match to the standalone implementation, but we do want Polaris to
+preserve that reference workflow’s geometry-driven method for river alignment
+and outlet treatment rather than substitute a different first-cut approach.</p>
+<p>Because outlet regions are especially sensitive, the geometry path should also
+leave room for stronger treatment near retained outlets than along the generic
+channel network if later tuning shows that is needed.</p>
+</section>
+<section id="algorithm-design-river-snapping-shall-not-refine-coastal-ocean-resolution">
+<h3>Algorithm Design: River Snapping Shall Not Refine Coastal Ocean Resolution<a class="headerlink" href="#algorithm-design-river-snapping-shall-not-refine-coastal-ocean-resolution" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/27</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The simplest way to satisfy this requirement is to trim or ignore retained
+river geometry before it reaches the final base-mesh stage.</p>
+<p>The design should therefore use the coastal signed-distance field already
+produced on the shared lat-lon grid during river-network preparation to
+evaluate retained river geometry points before they are written to the
+base-mesh-facing river products.</p>
+<p>Any river-network geometry that falls within the configured coastal clipping
+zone should be excluded from the geometry-driven snapping path. In other words,
+the river geometry consumed by <code class="docutils literal notranslate"><span class="pre">create_base_mesh</span></code> should already stop inland of
+the coastline by a configurable clip distance consistent with the intended
+coastal transition treatment.</p>
+<p>The current implementation keeps this cutoff explicit in the river workflow as
+<code class="docutils literal notranslate"><span class="pre">base_mesh_clip_distance_km</span></code> rather than deriving it directly from
+<code class="docutils literal notranslate"><span class="pre">coastline_transition_land_km</span></code>.</p>
+<p>Because the target field is periodic in longitude, the interpolation used for
+this cutoff should account for longitude periodicity so that river features
+near the dateline are handled consistently with those elsewhere on the globe.</p>
+</section>
+<section id="algorithm-design-shared-final-step-and-per-mesh-standalone-tasks">
+<h3>Algorithm Design: Shared Final Step and Per-Mesh Standalone Tasks<a class="headerlink" href="#algorithm-design-shared-final-step-and-per-mesh-standalone-tasks" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The final stage should follow the same pattern as the new coastline, river,
+and sizing-field stages: one shared implementation plus thin standalone task
+wrappers.</p>
+<p>The shared step should be parameterized by the named unified-mesh config. The
+code that registers standalone tasks should iterate over the named mesh configs in
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified</span></code> and register one standalone task per mesh.
+With the current configs, that means one standalone task each for:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">u.oi240.lr240</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code>; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u.oi.so12to30.lr10</span></code>.</p></li>
+</ul>
+<p>Each standalone task should compose the shared prerequisite steps in the same
+workflow instance: coastline preparation, river-network preparation,
+sizing-field construction, final mesh creation, and standalone visualization.
+The design should still permit other workflows to reuse the shared final step
+without paying the cost of standalone diagnostics by default.</p>
+</section>
+<section id="algorithm-design-standalone-visualization-for-mesh-and-inputs">
+<h3>Algorithm Design: Standalone Visualization for Mesh and Inputs<a class="headerlink" href="#algorithm-design-standalone-visualization-for-mesh-and-inputs" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The standalone visualization step should combine the most important views that
+would otherwise require multiple task families to inspect together.</p>
+<p>At a minimum, the visualization should include:</p>
+<ul class="simple">
+<li><p>the generated MPAS mesh, preferably in a way that makes local resolution and
+feature alignment easy to see;</p></li>
+<li><p>the input sizing field on its lat-lon grid, because the sizing-field
+workflow’s own visualization may not be run in the same work directory; and</p></li>
+<li><p>the retained river geometry overlaid with the mesh or with a closely related
+diagnostic view.</p></li>
+</ul>
+<p>The step may also include coastline or mask diagnostics, but those are not the
+core requirement for this design because the dedicated coastline workflow
+already covers them. The important point is that the final-stage standalone
+task must make it possible to see both the requested raster resolution pattern
+and the realized mesh in one place.</p>
+</section>
+<section id="algorithm-design-downstream-remap-and-culling-variants-for-unified-meshes">
+<h3>Algorithm Design: Downstream Remap and Culling Variants for Unified Meshes<a class="headerlink" href="#algorithm-design-downstream-remap-and-culling-variants-for-unified-meshes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>Once a unified base mesh exists as a standard MPAS mesh, the next workflow
+steps are conceptually straightforward. The design should therefore treat them
+as part of the same planned capability even if they are implemented as
+separate task families.</p>
+<p>For each named unified mesh, Polaris should provide downstream task variants
+that:</p>
+<ul class="simple">
+<li><p>remap topography to the new base mesh;</p></li>
+<li><p>derive land and ocean masks on that base mesh using the selected coastline
+interpretation; and</p></li>
+<li><p>produce culled land and ocean meshes.</p></li>
+</ul>
+<p>These downstream variants should reuse as much of the existing <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>
+task machinery as practical. Their main new responsibility should be to wire in
+the unified base mesh and any mesh-specific configuration, not to reimplement
+topography remapping or culling algorithms.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-final-jigsaw-to-mpas-unified-base-mesh">
+<h3>Implementation: Final JIGSAW-to-MPAS Unified Base Mesh<a class="headerlink" href="#implementation-final-jigsaw-to-mpas-unified-base-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/27</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The current implementation uses
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified.base_mesh.UnifiedBaseMeshStep</span></code>. That class
+reads <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code>, <code class="docutils literal notranslate"><span class="pre">lat</span></code>, and <code class="docutils literal notranslate"><span class="pre">lon</span></code> from <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>, links the prepared
+<code class="docutils literal notranslate"><span class="pre">clipped_river_network.geojson</span></code> product, and reuses the existing spherical
+mesh-generation machinery.</p>
+<p>The shared-step factory in
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/mesh/spherical/unified/base_mesh/steps.py</span></code> wires the upstream
+coastline, river source, river lat-lon, river base-mesh, and sizing-field
+steps together for one named mesh, and <code class="docutils literal notranslate"><span class="pre">BaseMeshTask</span></code> exposes that chain as a
+standalone task.</p>
+<p>The important point is to keep the raster sizing-field handoff simple and to
+isolate the new behavior in the final unified-mesh stage.</p>
+</section>
+<section id="implementation-explicit-consumption-of-shared-unified-mesh-products">
+<h3>Implementation: Explicit Consumption of Shared Unified-Mesh Products<a class="headerlink" href="#implementation-explicit-consumption-of-shared-unified-mesh-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/27</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The software layout under <code class="docutils literal notranslate"><span class="pre">polaris/tasks/mesh/spherical/unified/base_mesh/</span></code> is
+now concrete, with modules such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">viz.py</span></code> for standalone visualization;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">steps.py</span></code> for shared-step setup helpers;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">task.py</span></code> and <code class="docutils literal notranslate"><span class="pre">tasks.py</span></code> for standalone task wrappers; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">base_mesh.cfg</span></code> for shared configuration options specific to final mesh
+generation and visualization.</p></li>
+</ul>
+<p>The shared build step should link upstream <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code> and the
+conditioned river vector products from the river workflow, rather than
+re-reading raw source datasets. In practice, <code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep.setup()</span></code> links
+<code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code> from <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> and <code class="docutils literal notranslate"><span class="pre">clipped_river_network.geojson</span></code>
+from <code class="docutils literal notranslate"><span class="pre">PrepareRiverForBaseMeshStep</span></code>. The standalone task composes the already
+established shared prerequisites in the same style as the current sizing-field
+task.</p>
+<p>For downstream workflows, the implementation favors thin task variants around
+existing <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo</span></code> remap and cull machinery, with the unified base mesh
+linked as the upstream mesh input.</p>
+</section>
+<section id="implementation-river-geometry-influence-on-final-cell-placement">
+<h3>Implementation: River-Geometry Influence on Final Cell Placement<a class="headerlink" href="#implementation-river-geometry-influence-on-final-cell-placement" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/20</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The current implementation reads the conditioned river geometry produced by
+<code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> and applies it during final mesh creation.
+<code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep.make_jigsaw_mesh()</span></code> follows the approach in
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>
+for using river-network geometry to influence cell-center placement, while
+building on the existing Polaris raster HFUN workflow and JIGSAW-to-MPAS
+conversion path.</p>
+<p>The implementation should not aim for byte-for-byte parity with the standalone
+reference. However, it should preserve the same basic algorithmic approach,
+with the standalone reference serving as the primary guide for river alignment
+and outlet treatment.</p>
+<p>To keep river snapping from distorting coastal ocean resolution, the coastline-
+aware clipping now happens upstream in <code class="docutils literal notranslate"><span class="pre">PrepareRiverForBaseMeshStep</span></code>. The final
+base-mesh step consumes the already conditioned <code class="docutils literal notranslate"><span class="pre">clipped_river_network</span></code>
+product and converts those line features into JIGSAW <code class="docutils literal notranslate"><span class="pre">edge2</span></code> constraints.</p>
+<p><strong>Degenerate-polygon prevention.</strong> When JIGSAW creates a Constrained Delaunay
+Triangulation on the ellipsoid with <code class="docutils literal notranslate"><span class="pre">vert2</span></code>/<code class="docutils literal notranslate"><span class="pre">edge2</span></code> constraints, nearly-parallel
+constraint edges that are separated by less than the mesh cell size create thin
+sliver triangles.  The circumcenters of those slivers (which become MPAS mesh
+vertices) can coincide exactly, producing MPAS cell polygons with zero-length
+edges.  Observed in the <code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code> mesh near the Amazon basin
+(lat=-7.06°S, lon=-64.63°W), where closely spaced river-channel segments from
+different HydroRIVERS features were just outside the previous 1.5 km snap
+tolerance.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">_read_geojson_line_mesh()</span></code> function applies a three-layer pre-processing
+strategy before handing constraints to JIGSAW:</p>
+<ol class="arabic simple">
+<li><p>A first-pass union-find snap (using <code class="docutils literal notranslate"><span class="pre">_union_find</span></code>) merges raw constraint
+vertices within <code class="docutils literal notranslate"><span class="pre">snap_tolerance_km</span></code> = <code class="docutils literal notranslate"><span class="pre">base_mesh_simplify_tolerance_km</span></code>.
+Using the full simplify tolerance (previously half of it) ensures all
+inter-feature separations below the mesh’s spatial resolution are collapsed.</p></li>
+<li><p>A second-pass centroid snap (<code class="docutils literal notranslate"><span class="pre">_merge_close_centroids</span></code>) re-runs union-find
+on the resulting cluster centroids, catching cases where centroid displacement
+brings two clusters within the tolerance after the first pass.</p></li>
+<li><p>Duplicate constraint edges (same cluster pair regardless of direction) are
+removed before building the <code class="docutils literal notranslate"><span class="pre">edge2</span></code> array.</p></li>
+</ol>
+<p>The earth radius used for the radian snap tolerance always comes from
+<code class="docutils literal notranslate"><span class="pre">get_constant('mean_radius')</span></code> (Physical Constants Dictionary); it is never
+hard-coded.</p>
+</section>
+<section id="implementation-shared-final-step-and-per-mesh-standalone-tasks">
+<h3>Implementation: Shared Final Step and Per-Mesh Standalone Tasks<a class="headerlink" href="#implementation-shared-final-step-and-per-mesh-standalone-tasks" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The standalone task registration follows the same mesh-config discovery pattern
+already used by the unified sizing-field and river tasks.</p>
+<p>In practice, <code class="docutils literal notranslate"><span class="pre">add_unified_base_mesh_tasks()</span></code> iterates over <code class="docutils literal notranslate"><span class="pre">UNIFIED_MESH_NAMES</span></code>
+from <code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified.configs</span></code> and registers one standalone
+<code class="docutils literal notranslate"><span class="pre">base_mesh_&lt;mesh_name&gt;_task</span></code> per mesh. The current named meshes are
+<code class="docutils literal notranslate"><span class="pre">u.oi240.lr240</span></code>, <code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code>, <code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">u.oi.so12to30.lr10</span></code>.</p>
+<p>The standalone tasks include the visualization step by default. Other
+workflows that reuse the shared final step depend only on the build step unless
+they explicitly opt into diagnostics.</p>
+<p>The first implementation should assume the currently defined named meshes use
+<code class="docutils literal notranslate"><span class="pre">calving_front</span></code>, but the shared-step and task-registration code should avoid
+hard-coding that convention so future mesh configs can select others.</p>
+</section>
+<section id="implementation-standalone-visualization-for-mesh-and-inputs">
+<h3>Implementation: Standalone Visualization for Mesh and Inputs<a class="headerlink" href="#implementation-standalone-visualization-for-mesh-and-inputs" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The visualization step should write a small set of durable, easy-to-review
+artifacts rather than relying on interactive inspection alone.</p>
+<p>A reasonable first set is:</p>
+<ul class="simple">
+<li><p>one or more figures of the MPAS mesh at global and regional scales;</p></li>
+<li><p>a figure of the lat-lon <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code> field from <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>; and</p></li>
+<li><p>figures that overlay retained river geometry on top of the mesh or on top of
+a related final-stage diagnostic.</p></li>
+</ul>
+<p>The implementation does not need to duplicate every diagnostic already present
+in the upstream coastline or river workflows. Its job is to make the final
+handoff from requested mesh controls to realized mesh structure easy to assess.</p>
+</section>
+<section id="implementation-downstream-remap-and-culling-variants-for-unified-meshes">
+<h3>Implementation: Downstream Remap and Culling Variants for Unified Meshes<a class="headerlink" href="#implementation-downstream-remap-and-culling-variants-for-unified-meshes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/27</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The downstream work is organized as explicit task variants keyed by the same
+named unified meshes used by the standalone base-mesh tasks.</p>
+<p><code class="docutils literal notranslate"><span class="pre">add_remap_topo_tasks()</span></code> and <code class="docutils literal notranslate"><span class="pre">add_cull_topo_tasks()</span></code> both iterate over
+<code class="docutils literal notranslate"><span class="pre">UNIFIED_MESH_NAMES</span></code>, retrieve the shared unified base-mesh step from the mesh
+component, and register <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> remap and cull tasks that reuse the
+existing topography-remap and cull steps. Where the downstream workflows need
+mesh-specific defaults, those come from the same named unified-mesh configs.</p>
+<p>This design is intentionally broader than “just create the base mesh” because
+the real value of the new mesh appears only when the mesh enters the existing
+topography and culling pipeline. Treating those downstream task variants as
+part of the same planned capability keeps the workflow boundary honest.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-final-jigsaw-to-mpas-unified-base-mesh">
+<h3>Testing and Validation: Final JIGSAW-to-MPAS Unified Base Mesh<a class="headerlink" href="#testing-and-validation-final-jigsaw-to-mpas-unified-base-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_base_mesh.py</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_unified_base_mesh_step_writes_river_geometry</span></code> verifies that
+<code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep</span></code> correctly writes river geometry including LineString and
+MultiLineString features.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_unified_base_mesh_step_uses_prepared_clipped_river_geometry</span></code> verifies
+that the step reads the prepared clipped river geometry product.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_read_geojson_line_mesh_deduplicates_shared_endpoints</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_read_geojson_line_mesh_drops_degenerate_edges_after_dedup</span></code> verify
+<code class="docutils literal notranslate"><span class="pre">_read_geojson_line_mesh()</span></code> behavior.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_estimate_dc_edge_from_area_cell_matches_regular_hexagon</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_get_regional_extent_uses_conus_example_for_global_bounds</span></code> verify the
+viz helper functions.</p></li>
+</ul>
+<p>Standalone base-mesh tasks have been run for all four named unified meshes,
+producing <code class="docutils literal notranslate"><span class="pre">base_mesh.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">graph.info</span></code> via JIGSAW. The resulting meshes
+were inspected visually and verified to be consistent with the requested
+resolution designs.</p>
+</section>
+<section id="testing-and-validation-explicit-consumption-of-shared-unified-mesh-products">
+<h3>Testing and Validation: Explicit Consumption of Shared Unified-Mesh Products<a class="headerlink" href="#testing-and-validation-explicit-consumption-of-shared-unified-mesh-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_base_mesh_tasks.py</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_add_unified_base_mesh_task_includes_dependencies</span></code> verifies that the
+standalone task’s step keys are
+<code class="docutils literal notranslate"><span class="pre">combine_topo_bedmap3_gebco2023_lat_lon_0.03125_degree</span></code>, <code class="docutils literal notranslate"><span class="pre">coastline_compute</span></code>,
+<code class="docutils literal notranslate"><span class="pre">coastline_remap</span></code>, <code class="docutils literal notranslate"><span class="pre">river_simplify</span></code>, <code class="docutils literal notranslate"><span class="pre">river_rasterize</span></code>, <code class="docutils literal notranslate"><span class="pre">river_clip</span></code>,
+<code class="docutils literal notranslate"><span class="pre">sizing_field</span></code>, <code class="docutils literal notranslate"><span class="pre">base_mesh</span></code>, and <code class="docutils literal notranslate"><span class="pre">base_mesh_viz</span></code>. Note that the task step
+keys differ slightly from the factory symlink keys returned by
+<code class="docutils literal notranslate"><span class="pre">get_unified_base_mesh_steps()</span></code>, which uses <code class="docutils literal notranslate"><span class="pre">combine_topo_lat_lon_0.03125_degree</span></code>
+and <code class="docutils literal notranslate"><span class="pre">coastline_final</span></code> for the same steps.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_base_mesh_step_factory_includes_dependencies</span></code> verifies that the factory
+wiring links only the shared upstream products.</p></li>
+</ul>
+<p>Remap and cull task variants have been exercised through full end-to-end runs
+for all four unified meshes (see downstream remap and culling testing section
+below).</p>
+</section>
+<section id="testing-and-validation-river-geometry-influence-on-final-cell-placement">
+<h3>Testing and Validation: River-Geometry Influence on Final Cell Placement<a class="headerlink" href="#testing-and-validation-river-geometry-influence-on-final-cell-placement" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_unified_base_mesh_step_writes_river_geometry</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_unified_base_mesh_step_uses_prepared_clipped_river_geometry</span></code> in
+<code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_base_mesh.py</span></code> verify that the clipped
+river geometry is converted to JIGSAW line constraints.</p></li>
+</ul>
+<p>The resulting base meshes for all four named unified meshes have been inspected
+visually and verified to show river-aligned cell placement consistent with
+the retained channel geometry.</p>
+</section>
+<section id="testing-and-validation-river-snapping-shall-not-refine-coastal-ocean-resolution">
+<h3>Testing and Validation: River Snapping Shall Not Refine Coastal Ocean Resolution<a class="headerlink" href="#testing-and-validation-river-snapping-shall-not-refine-coastal-ocean-resolution" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_river.py</span></code>, tests cover inland clipping
+of retained river segments near the coastline. These verify that
+<code class="docutils literal notranslate"><span class="pre">ClipRiverNetworkStep</span></code> correctly removes river geometry within the coastal
+clipping zone before it reaches <code class="docutils literal notranslate"><span class="pre">create_base_mesh</span></code>.</p>
+<p>Manual inspection of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> on culled ocean meshes for all four unified meshes
+confirmed that no band of over-refined coastal ocean resolution was introduced
+by river snapping. No ocean cells with <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> substantially smaller than the
+finest requested ocean resolution were observed.</p>
+</section>
+<section id="testing-and-validation-shared-final-step-and-per-mesh-standalone-tasks">
+<h3>Testing and Validation: Shared Final Step and Per-Mesh Standalone Tasks<a class="headerlink" href="#testing-and-validation-shared-final-step-and-per-mesh-standalone-tasks" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/11</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_base_mesh_tasks.py</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_add_unified_base_mesh_tasks_registers_named_meshes</span></code> verifies that task
+registration produces one standalone base-mesh task per named unified mesh
+(matching <code class="docutils literal notranslate"><span class="pre">UNIFIED_MESH_NAMES</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_base_mesh_step_factory_uses_mesh_subdir_and_viz</span></code> verifies that the viz
+step is included and that the step factory uses the mesh-specific subdirectory.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_base_mesh_step_factory_reuses_shared_config_for_viz</span></code> verifies that the
+shared final step and config are reused when multiple requests target the same
+mesh product.</p></li>
+</ul>
+</section>
+<section id="testing-and-validation-standalone-visualization-for-mesh-and-inputs">
+<h3>Testing and Validation: Standalone Visualization for Mesh and Inputs<a class="headerlink" href="#testing-and-validation-standalone-visualization-for-mesh-and-inputs" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_estimate_dc_edge_from_area_cell_matches_regular_hexagon</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_get_regional_extent_uses_conus_example_for_global_bounds</span></code> in
+<code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_base_mesh.py</span></code> verify the viz helper
+functions used by the visualization step.</p></li>
+</ul>
+<p>Visualization outputs (global and regional mesh plots, sizing-field plots, and
+river overlay figures) have been inspected for all four named unified meshes
+and found to be consistent with expectations.</p>
+</section>
+<section id="testing-and-validation-downstream-remap-and-culling-variants-for-unified-meshes">
+<h3>Testing and Validation: Downstream Remap and Culling Variants for Unified Meshes<a class="headerlink" href="#testing-and-validation-downstream-remap-and-culling-variants-for-unified-meshes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/e3sm/init/topo/test_unified_tasks.py</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_add_remap_topo_tasks_includes_unified_meshes</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_add_cull_topo_tasks_includes_unified_meshes</span></code> verify that explicit
+unified remap and cull task variants are registered for each named mesh.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_get_remap_topo_steps_includes_upstream_base_mesh_steps</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_get_cull_topo_steps_includes_full_remap_workflow</span></code> verify step ordering
+for remap and cull tasks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_get_remap_topo_steps_reuses_shared_config_for_viz</span></code> verifies config
+reuse across multiple requests.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_get_remap_topo_steps_uses_mesh_max_cell_width_for_source_topography</span></code>
+and <code class="docutils literal notranslate"><span class="pre">test_coarse_unified_mesh_uses_ne120_topography</span></code> verify that the coarsest
+unified mesh selects the expected low-resolution topography path.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_remap_topo_task_uses_factory_symlink_keys</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_cull_topo_task_uses_factory_symlink_keys</span></code> verify step-key wiring.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_unified_remap_topo_task_includes_base_mesh_dependencies</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_unified_cull_topo_task_includes_base_mesh_dependencies</span></code> verify that
+remap and cull tasks include the upstream base mesh shared steps.</p></li>
+</ul>
+<p>End-to-end execution through <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/cull</span></code> has been performed for all
+four supported unified meshes. The resulting culled ocean and land meshes were
+inspected and verified to look reasonable, with no ocean cells showing <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>
+substantially smaller than the finest requested ocean resolution.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="unified_mesh_build_sizing_field.html" class="btn btn-neutral float-left" title="Unified Mesh: Sizing-Field Construction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="vector_reconstruction.html" class="btn btn-neutral float-right" title="Vector Reconstruction at MPAS Cell Centers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

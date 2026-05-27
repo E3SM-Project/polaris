@@ -1,0 +1,764 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unified Mesh: River Network Preparation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Unified Mesh: Sizing-Field Construction" href="unified_mesh_build_sizing_field.html" />
+    <link rel="prev" title="Unified Mesh: Coastline Preparation" href="unified_mesh_prepare_coastline.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Unified Mesh: River Network Preparation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#workflow-context">Workflow Context</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-downstream-ready-river-network-products">Requirement: Downstream-Ready River Network Products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-hydrologically-meaningful-simplification">Requirement: Hydrologically Meaningful Simplification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-deferred-outlet-reconciliation">Requirement: Deferred Outlet Reconciliation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-standalone-river-network-task">Requirement: Standalone River-Network Task</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-reproducible-source-data-access">Requirement: Reproducible Source Data Access</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-downstream-ready-river-network-products">Algorithm Design: Downstream-Ready River Network Products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-hydrologically-meaningful-simplification">Algorithm Design: Hydrologically Meaningful Simplification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-deferred-outlet-reconciliation">Algorithm Design: Deferred Outlet Reconciliation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-standalone-river-network-task">Algorithm Design: Standalone River-Network Task</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-downstream-ready-river-network-products">Implementation: Downstream-Ready River Network Products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-hydrologically-meaningful-simplification">Implementation: Hydrologically Meaningful Simplification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-deferred-outlet-reconciliation">Implementation: Deferred Outlet Reconciliation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-standalone-river-network-task">Implementation: Standalone River-Network Task</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-downstream-ready-river-network-products">Testing and Validation: Downstream-Ready River Network Products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-hydrologically-meaningful-simplification">Testing and Validation: Hydrologically Meaningful Simplification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-deferred-outlet-reconciliation">Testing and Validation: Deferred Outlet Reconciliation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-standalone-river-network-task">Testing and Validation: Standalone River-Network Task</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Unified Mesh: River Network Preparation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/unified_mesh_prepare_river_network.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="unified-mesh-river-network-preparation">
+<h1>Unified Mesh: River Network Preparation<a class="headerlink" href="#unified-mesh-river-network-preparation" title="Link to this heading"></a></h1>
+<p>date: 2026/04/19</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>This design describes the shared <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> step and associated
+tasks that can run the shared river steps on their own for the unified global
+base-mesh workflow. The purpose of the step is to simplify a global river
+dataset into products that can be consumed directly by <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>
+without re-reading or reinterpreting the raw source data.</p>
+<p>The shared river-network workflow is implemented in Polaris pull request
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/556">https://github.com/E3SM-Project/polaris/pull/556</a>.</p>
+<p>The preferred first source is HydroRIVERS or an equivalent global flowline
+dataset. Unlike the standalone
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>
+workflow, the Polaris design makes the downstream interface explicit. In
+particular, the workflow distinguishes between the authoritative simplified
+river network, the target-grid products needed by <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>, and
+the mesh-conditioned products needed by <code class="docutils literal notranslate"><span class="pre">create_base_mesh</span></code>, rather than
+overloading a single raster with mixed semantics.</p>
+<p>Because river-network simplification and river-driven meshing are the parts of
+the workflow where Xylar’s design intuition is currently weakest, the first
+Polaris design should preserve the
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>
+river algorithms as closely as is practical.</p>
+<p>The implementation aligns <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> with the shared target-grid
+tier and coastline interpretation chosen for the workflow, while deferring
+river-outlet reconciliation until after an MPAS base mesh exists.</p>
+<p>Success means that Polaris gains a documented, reusable river-network
+preprocessing workflow that preserves the major hydrographic controls relevant
+for mesh generation and makes its outputs easy to inspect and easy for
+downstream steps to consume.</p>
+</section>
+<section id="workflow-context">
+<h2>Workflow Context<a class="headerlink" href="#workflow-context" title="Link to this heading"></a></h2>
+<p>The overall unified-mesh workflow is described in
+<a class="reference internal" href="unified_base_mesh.html"><span class="std std-doc">Unified Mesh: Global Base Mesh Workflow</span></a>.</p>
+<p>The upstream unified-mesh workflow design is:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="unified_mesh_prepare_coastline.html"><span class="std std-doc">Unified Mesh: Coastline Preparation</span></a></p></li>
+</ul>
+<p>The downstream unified-mesh workflow designs are:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="unified_mesh_build_sizing_field.html"><span class="std std-doc">Unified Mesh: Sizing-Field Construction</span></a></p></li>
+<li><p><a class="reference internal" href="unified_mesh_create_base_mesh.html"><span class="std std-doc">Unified Mesh: Base-Mesh Creation and Downstream Integration</span></a></p></li>
+</ul>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-downstream-ready-river-network-products">
+<h3>Requirement: Downstream-Ready River Network Products<a class="headerlink" href="#requirement-downstream-ready-river-network-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/16</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> shall provide source-level, target-grid, and
+mesh-conditioned river products that can be consumed directly by
+<code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> and <code class="docutils literal notranslate"><span class="pre">create_base_mesh</span></code>.</p>
+<p>The shared products shall retain the major river-network information needed for
+mesh refinement and direct cell-center placement, including channel locations
+and basin-root provenance.</p>
+<p>The downstream sizing-field and base-mesh steps shall not need to rerun
+HydroRIVERS filtering, network reconstruction, or coastline-aware river clipping
+and simplification.</p>
+<p>Coastline-aware river clipping shall be local to river-line geometry. It shall
+remove only the portions of each retained river line that fall inside the
+coastal exclusion band, preserving valid inland pieces rather than pruning
+whole trees or short inland fragments.</p>
+</section>
+<section id="requirement-hydrologically-meaningful-simplification">
+<h3>Requirement: Hydrologically Meaningful Simplification<a class="headerlink" href="#requirement-hydrologically-meaningful-simplification" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/15</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The first implementation shall preserve the dominant global river main stems and
+major tributaries needed to inform mesh resolution. Terminal river segments
+shall be retained as basin roots for traversal and grouping, not as
+coastline-reconciled outlet products.</p>
+<p>The design shall support filtering by drainage area and by proximity so the
+retained network reflects the target mesh scale rather than the full source
+dataset density.</p>
+<p>The simplification shall preserve connectivity and confluence structure rather
+than reducing the product to disconnected local segments.</p>
+<p>Where practical, the first Polaris design shall preserve the existing
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>
+river-network algorithms rather than redesigning them.</p>
+</section>
+<section id="requirement-deferred-outlet-reconciliation">
+<h3>Requirement: Deferred Outlet Reconciliation<a class="headerlink" href="#requirement-deferred-outlet-reconciliation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/15</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The pre-base-mesh river workflow shall not snap river outlets to the coastline,
+write separate outlet products, or refine the sizing field based on outlet mask
+cells.</p>
+<p>The workflow shall preserve enough basin-root provenance, through
+<code class="docutils literal notranslate"><span class="pre">outlet_hyriv_id</span></code>, <code class="docutils literal notranslate"><span class="pre">outlet_drainage_area</span></code>, and <code class="docutils literal notranslate"><span class="pre">river_network_rank</span></code>, for
+downstream workflows to identify, select, and optionally write per-catchment
+products without rerunning HydroRIVERS simplification. Outlet/coastline
+reconciliation shall still occur after the MPAS base mesh exists.</p>
+</section>
+<section id="requirement-standalone-river-network-task">
+<h3>Requirement: Standalone River-Network Task<a class="headerlink" href="#requirement-standalone-river-network-task" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/15</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Polaris shall provide a standalone task per named unified mesh that runs the
+full shared river-network workflow for that mesh, including HydroRIVERS
+simplification, channel rasterization, and coastline-aware
+clipping, together with the shared upstream steps it depends on (for example
+<code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine</span></code> and <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code>).</p>
+<p>The standalone task shall make it practical to inspect retained basins,
+target-grid river-channel masks, and clipped river geometry without running the
+full unified mesh workflow.</p>
+<p>The same shared steps and configuration shall be reusable from the full unified
+workflow when settings match.</p>
+</section>
+<section id="requirement-reproducible-source-data-access">
+<h3>Requirement: Reproducible Source Data Access<a class="headerlink" href="#requirement-reproducible-source-data-access" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/19</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>All source datasets needed by <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> shall be obtained either
+from documented public sources or, if that is not feasible, from the Polaris
+database.</p>
+<p>The preferred implementation shall download raw source data from public
+sources and perform any needed preprocessing within Polaris rather than
+requiring users to provide local input-file paths.</p>
+<p>Adding preprocessed artifacts to the Polaris database should be treated as a
+fallback for cases where the source data are not publicly distributable or the
+required preprocessing cannot be reproduced robustly within Polaris.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-downstream-ready-river-network-products">
+<h3>Algorithm Design: Downstream-Ready River Network Products<a class="headerlink" href="#algorithm-design-downstream-ready-river-network-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/16</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The current implementation separates source-level hydrographic products from
+target-grid products rather than trying to make one step serve both roles.
+This aligns with the design intent that downstream consumers should not need to
+reinterpret HydroRIVERS or infer outlet semantics from one overloaded raster.</p>
+<p>At the source level, the workflow writes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">simplified_river_network.geojson</span></code>, containing retained segments with
+<code class="docutils literal notranslate"><span class="pre">hyriv_id</span></code>, <code class="docutils literal notranslate"><span class="pre">main_riv</span></code>, <code class="docutils literal notranslate"><span class="pre">ord_stra</span></code>, <code class="docutils literal notranslate"><span class="pre">drainage_area</span></code>, <code class="docutils literal notranslate"><span class="pre">next_down</span></code>,
+<code class="docutils literal notranslate"><span class="pre">endorheic</span></code>, <code class="docutils literal notranslate"><span class="pre">outlet_hyriv_id</span></code>, <code class="docutils literal notranslate"><span class="pre">outlet_drainage_area</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">river_network_rank</span></code>; networks are ordered largest-first by terminal-root
+drainage area, and the rank field makes the N largest networks directly
+selectable without relying on feature order alone. The <code class="docutils literal notranslate"><span class="pre">outlet_hyriv_id</span></code>
+field is retained as basin-root provenance for future catchment grouping,
+not as a coastline-reconciled outlet product.</p></li>
+</ul>
+<p>At the target-grid level, the workflow writes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">river_network.nc</span></code>, with <code class="docutils literal notranslate"><span class="pre">river_channel_mask</span></code>.</p></li>
+</ul>
+<p>This is intentionally clearer than the standalone workflow’s mixed raster
+semantics. The present implementation does not yet add stream-order rasters or
+basin IDs, but it does establish a clean product split that the
+<code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> implementation now consumes directly.</p>
+<p>For base-mesh consumers, the workflow also writes a mesh-conditioned product
+set:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">clipped_river_network.geojson</span></code>, containing river segments clipped inland of
+the coastline and simplified for direct JIGSAW geometry use, with valid
+inland pieces preserved even when one source feature is split by the coastal
+exclusion band, and with networks ordered largest-first by terminal-root
+drainage area; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">clipped_river_network.nc</span></code>, containing masks regenerated from the clipped
+network for diagnostics.</p></li>
+</ul>
+<p>These products are where the river workflow becomes aware of the selected
+unified mesh and its direct cell-placement needs. <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> uses the
+target-grid masks, while <code class="docutils literal notranslate"><span class="pre">create_base_mesh</span></code> consumes the conditioned vector
+geometry.</p>
+<p>Generating the clipped products requires evaluating the coastline’s
+<code class="docutils literal notranslate"><span class="pre">signed_distance</span></code> field along each retained river line. The implementation
+first densifies each line at the coastline-grid scale, then batches all sampled
+coordinates from all segments into a single array, performs one vectorised
+bilinear-interpolation call over the entire network, and splits the resulting
+distance values back to the corresponding per-segment slices. The clipped
+geometry is then built by retaining sampled intervals farther inland than the
+configured clip distance and linearly interpolating exact threshold crossings.
+This makes clipping local to the geometry near the coastline while avoiding
+artificial inland gaps. Short retained inland pieces are preserved; only
+degenerate pieces with fewer than two distinct points are removed.</p>
+</section>
+<section id="algorithm-design-hydrologically-meaningful-simplification">
+<h3>Algorithm Design: Hydrologically Meaningful Simplification<a class="headerlink" href="#algorithm-design-hydrologically-meaningful-simplification" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/16</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The current Polaris implementation is a focused reimplementation built around
+HydroRIVERS attributes such as <code class="docutils literal notranslate"><span class="pre">HYRIV_ID</span></code>, <code class="docutils literal notranslate"><span class="pre">MAIN_RIV</span></code>, <code class="docutils literal notranslate"><span class="pre">ORD_STRA</span></code>,
+<code class="docutils literal notranslate"><span class="pre">UPLAND_SKM</span></code>, <code class="docutils literal notranslate"><span class="pre">NEXT_DOWN</span></code>, and <code class="docutils literal notranslate"><span class="pre">ENDORHEIC</span></code>. Its staged logic is:</p>
+<ol class="arabic simple">
+<li><p>Filter source flowlines by a minimum drainage-area threshold tied to the
+intended river-refinement scale.</p></li>
+<li><p>Merge multiple source features with the same <code class="docutils literal notranslate"><span class="pre">hyriv_id</span></code> into one canonical
+segment when needed.</p></li>
+<li><p>Validate that the retained <code class="docutils literal notranslate"><span class="pre">NEXT_DOWN</span></code> graph is acyclic before attempting
+basin traversal.</p></li>
+<li><p>Identify terminal basin roots from segments with <code class="docutils literal notranslate"><span class="pre">next_down</span> <span class="pre">==</span> <span class="pre">0</span></code>.</p></li>
+<li><p>Traverse upstream iteratively from each terminal root, keeping the
+largest upstream segment at each confluence as the main stem.</p></li>
+<li><p>Retain additional tributaries when either their drainage area exceeds a
+configurable fraction of the largest upstream branch at the current
+confluence or their minimum distance from the already retained basin
+skeleton exceeds the branch-distance tolerance.</p></li>
+</ol>
+<p>The key point is that simplification should be basin-aware and topology-aware.
+The Polaris design should preserve connectivity and confluences, not just apply
+independent Douglas-Peucker style simplification to each source feature.</p>
+<p>The Polaris implementation intentionally differs from the standalone
+<code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code> simplification algorithm in the mechanics of basin
+construction. The standalone workflow performs a greedy reverse search for each
+individual basin: it rebuilds a <code class="docutils literal notranslate"><span class="pre">pyrivergraph</span></code>, updates headwater stream order,
+merges and defines stream segments, and recursively grows an R-tree of retained
+flowlines from the outlet upstream. At each step, nearby branches can be kept,
+rejected, or replaced by a larger branch depending on the order in which the
+greedy search encounters them.</p>
+<p>Polaris keeps the same design intent but uses a smaller algorithm tied directly
+to HydroRIVERS. It uses the <code class="docutils literal notranslate"><span class="pre">NEXT_DOWN</span></code> attributes as the authoritative
+downstream graph, validates that the retained graph is acyclic, constructs an
+upstream adjacency map, and processes each terminal root independently. Branch
+selection is deterministic and local to each confluence: keep the largest
+upstream branch, then keep other upstream branches that pass the area-ratio
+test or the distance-tolerance fallback. The retained set is not later mutated
+by replacing smaller branches with larger nearby ones. This makes the step
+easier to test, allows basin traversal to run in parallel, and avoids importing
+the broader <code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code>/<code class="docutils literal notranslate"><span class="pre">pyflowline</span></code> helper stack into Polaris.</p>
+</section>
+<section id="algorithm-design-deferred-outlet-reconciliation">
+<h3>Algorithm Design: Deferred Outlet Reconciliation<a class="headerlink" href="#algorithm-design-deferred-outlet-reconciliation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/15</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Outlet and coastline reconciliation is intentionally deferred until after an
+MPAS base mesh exists. Before that point, snapping HydroRIVERS terminal points
+to coastline cells and refining outlet mask cells adds complexity without a
+clear benefit because the base-mesh workflow clips near-coast river geometry
+and the sizing-field workflow blends land resolution toward ocean resolution
+near the coastline.</p>
+<p>The pre-base-mesh river workflow therefore keeps terminal-root provenance on
+retained river segments through <code class="docutils literal notranslate"><span class="pre">outlet_hyriv_id</span></code>, <code class="docutils literal notranslate"><span class="pre">outlet_drainage_area</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">river_network_rank</span></code>. Rasterization produces the channel mask needed by the
+sizing field, and clipped vector products provide the river geometry needed by
+JIGSAW. Downstream workflows that need outlet locations or catchment-specific
+files can group segments by <code class="docutils literal notranslate"><span class="pre">outlet_hyriv_id</span></code>, select the largest basins by
+<code class="docutils literal notranslate"><span class="pre">river_network_rank</span></code>, and perform outlet/coastline reconciliation later.</p>
+</section>
+<section id="algorithm-design-standalone-river-network-task">
+<h3>Algorithm Design: Standalone River-Network Task<a class="headerlink" href="#algorithm-design-standalone-river-network-task" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/15</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The current standalone task design uses one thin wrapper per named unified
+mesh, <code class="docutils literal notranslate"><span class="pre">UnifiedRiverNetworkTask</span></code>, rather than separate source-level and
+lat-lon tasks. Each task wraps the full shared river-network step chain for
+its mesh — coastline steps, simplification, rasterization, clipping, and
+visualization — so all products can be inspected together without running the
+full unified mesh workflow.</p>
+<p>Organizing by mesh name rather than by resolution keeps the task structure
+consistent with the sizing-field and base-mesh task families and avoids
+creating standalone tasks for resolutions that are not tied to a specific
+mesh configuration.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-downstream-ready-river-network-products">
+<h3>Implementation: Downstream-Ready River Network Products<a class="headerlink" href="#implementation-downstream-ready-river-network-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/16</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The file naming and class layout are now concrete. The river implementation is
+organized under <code class="docutils literal notranslate"><span class="pre">polaris/tasks/mesh/spherical/unified/river/</span></code> as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">simplify.py</span></code> (<code class="docutils literal notranslate"><span class="pre">SimplifyRiverNetworkStep</span></code>) for HydroRIVERS download,
+unpacking and source-level simplification;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rasterize.py</span></code> (<code class="docutils literal notranslate"><span class="pre">RasterizeRiverLatLonStep</span></code>) for target-grid rasterization
+of retained river channels;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">clip.py</span></code> (<code class="docutils literal notranslate"><span class="pre">ClipRiverNetworkStep</span></code>) for coastline-aware clipping and
+conditioning of retained river geometry for final mesh generation;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">viz.py</span></code> (<code class="docutils literal notranslate"><span class="pre">VizRiverStep</span></code>) for diagnostic plotting and text summaries;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">steps.py</span></code> for shared-step setup helpers (<code class="docutils literal notranslate"><span class="pre">get_unified_mesh_river_steps()</span></code>);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">task.py</span></code> and <code class="docutils literal notranslate"><span class="pre">tasks.py</span></code> for standalone task wrappers; and</p></li>
+<li><p>the configuration sections are loaded from the unified mesh config.</p></li>
+</ul>
+<p>This implementation prioritizes a clean output contract over carrying forward
+the standalone workflow’s mixed raster conventions or writing default
+per-catchment GeoJSON files. A single ranked GeoJSON keeps the authoritative
+simplified network in one file while still allowing scripts to reproduce the
+standalone workflow’s “largest N basins” exports by filtering on
+<code class="docutils literal notranslate"><span class="pre">river_network_rank</span></code>.</p>
+<p>The simplification step obtains HydroRIVERS through <code class="docutils literal notranslate"><span class="pre">add_input_file()</span></code> using
+the public archive URL in the river network config section, with the Polaris
+database still available as a fallback cache location. The rasterization step
+then consumes the shared coastline grid for the selected convention and writes a
+channel-only mask. The <code class="docutils literal notranslate"><span class="pre">ClipRiverNetworkStep</span></code> consumes the simplified network
+together with the selected coastline product and writes the clipped river
+geometry consumed by the unified base-mesh step.</p>
+<p>The coastline-aware clipping in <code class="docutils literal notranslate"><span class="pre">condition_base_mesh_river_segments()</span></code> uses
+coastline-grid-scale line densification before signed-distance sampling, so a
+river line with endpoints inside the coastal exclusion band can still retain an
+inland middle portion. All sampled coordinates are stacked into one array,
+<code class="docutils literal notranslate"><span class="pre">_interpolate_signed_distance()</span></code> is called once, and the resulting
+signed-distance values are split back to per-segment slices with <code class="docutils literal notranslate"><span class="pre">np.split()</span></code>.
+The helper then retains only intervals outside the coastal exclusion band,
+interpolates boundary crossings, preserves all valid inland fragments, and
+falls back to unsimplified clipped geometry if Douglas-Peucker simplification
+would make a piece degenerate. The historical minimum-length option is retained
+for configuration compatibility but no longer removes valid inland pieces.</p>
+</section>
+<section id="implementation-hydrologically-meaningful-simplification">
+<h3>Implementation: Hydrologically Meaningful Simplification<a class="headerlink" href="#implementation-hydrologically-meaningful-simplification" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/16</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The current simplification logic lives in
+<code class="docutils literal notranslate"><span class="pre">simplify_river_network_feature_collection()</span></code> in
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/mesh/spherical/unified/river/simplify.py</span></code>. It uses small focused
+helpers for canonicalizing segments, validating downstream topology, filtering
+by drainage area, and traversing retained basin structure from all terminal
+roots.</p>
+<p>The traversal is iterative rather than recursive, so very deep main stems do
+not depend on Python recursion limits. When multiple CPUs are available,
+terminal basins are distributed across forked worker processes that share the
+read-only HydroRIVERS segment map, upstream adjacency map, and spatial index.
+Each worker returns the retained segments for one basin root, and the parent
+process merges those basin-local results before annotating network rank.</p>
+<p>After basin traversal, the implementation annotates each retained segment with
+<code class="docutils literal notranslate"><span class="pre">outlet_drainage_area</span></code> and <code class="docutils literal notranslate"><span class="pre">river_network_rank</span></code>. The rank is 1-based, with
+rank 1 assigned to the retained terminal basin with the largest outlet drainage
+area. These properties are preserved by the canonical <code class="docutils literal notranslate"><span class="pre">RiverSegment</span></code> read/write
+helpers and are carried through coastline conditioning so downstream products do
+not silently drop the network-selection metadata.</p>
+<p>The implementation favors a compact Polaris-native reimplementation over a
+direct migration of
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>
+helper layers. No clear defect emerged from the current unit tests, but this
+remains an area where additional comparison against real HydroRIVERS output
+would strengthen confidence.</p>
+</section>
+<section id="implementation-deferred-outlet-reconciliation">
+<h3>Implementation: Deferred Outlet Reconciliation<a class="headerlink" href="#implementation-deferred-outlet-reconciliation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/15</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The current implementation removes coastline matching and inland-sink treatment
+from the pre-base-mesh river products. <code class="docutils literal notranslate"><span class="pre">river_network.nc</span></code> contains
+<code class="docutils literal notranslate"><span class="pre">river_channel_mask</span></code> only, and the simplified/clipped GeoJSON products keep
+basin-root provenance and network-selection metadata but no coastline-snapped
+outlet products. Outlet snapping and catchment-specific outlet products are
+deferred to downstream workflows that operate after the MPAS base mesh exists.</p>
+</section>
+<section id="implementation-standalone-river-network-task">
+<h3>Implementation: Standalone River-Network Task<a class="headerlink" href="#implementation-standalone-river-network-task" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/11</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The current implementation adds one lightweight task wrapper per named unified
+mesh in <code class="docutils literal notranslate"><span class="pre">polaris/tasks/mesh/spherical/unified/river/task.py</span></code> and avoids any
+separate task-specific river-processing code path. <code class="docutils literal notranslate"><span class="pre">UnifiedRiverNetworkTask</span></code>
+wraps the full shared step chain for its mesh — coastline steps, simplification
+(<code class="docutils literal notranslate"><span class="pre">SimplifyRiverNetworkStep</span></code>), rasterization (<code class="docutils literal notranslate"><span class="pre">RasterizeRiverLatLonStep</span></code>),
+clipping (<code class="docutils literal notranslate"><span class="pre">ClipRiverNetworkStep</span></code>), and visualization — so all products can be
+inspected together. Task registration is handled by <code class="docutils literal notranslate"><span class="pre">add_river_tasks()</span></code> in
+<code class="docutils literal notranslate"><span class="pre">tasks.py</span></code>, which iterates over <code class="docutils literal notranslate"><span class="pre">UNIFIED_MESH_NAMES</span></code> and registers one task per
+mesh.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-downstream-ready-river-network-products">
+<h3>Testing and Validation: Downstream-Ready River Network Products<a class="headerlink" href="#testing-and-validation-downstream-ready-river-network-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Unit tests in <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_river.py</span></code> verify the
+target-grid product contract. Specifically:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_build_river_network_dataset_contract_and_channel_mask</span></code> verifies
+that <code class="docutils literal notranslate"><span class="pre">build_river_network_dataset()</span></code> writes the expected channel-only mask
+variable (<code class="docutils literal notranslate"><span class="pre">river_channel_mask</span></code>) without outlet-matching attributes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_mesh_river_step_factories_use_mesh_subdirs</span></code> verifies that
+<code class="docutils literal notranslate"><span class="pre">get_unified_mesh_river_steps()</span></code> creates <code class="docutils literal notranslate"><span class="pre">SimplifyRiverNetworkStep</span></code>,
+<code class="docutils literal notranslate"><span class="pre">RasterizeRiverLatLonStep</span></code>, and <code class="docutils literal notranslate"><span class="pre">ClipRiverNetworkStep</span></code> with the expected
+mesh-specific subdirectories.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_mesh_river_step_factories_reuse_shared_configs</span></code> verifies step and
+config identity across multiple calls to <code class="docutils literal notranslate"><span class="pre">get_unified_mesh_river_steps()</span></code>.</p></li>
+</ul>
+<p>The coastline-aware conditioning tests in the same file verify
+<code class="docutils literal notranslate"><span class="pre">condition_base_mesh_river_segments()</span></code>, including local clipping through
+multiple entries and exits from the coastal exclusion band, densification before
+signed-distance sampling, preservation of short inland pieces, and safe
+simplification fallback. The <code class="docutils literal notranslate"><span class="pre">test_base_mesh.py</span></code> tests then verify that
+<code class="docutils literal notranslate"><span class="pre">UnifiedBaseMeshStep</span></code> converts the prepared <code class="docutils literal notranslate"><span class="pre">clipped_river_network.geojson</span></code>
+product into JIGSAW line constraints rather than raw river geometry.</p>
+<p><code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> unit tests consume the target-grid river masks. The full
+river workflow feeding the sizing-field task and the final base-mesh task has
+been run on real data for all four named unified meshes.</p>
+</section>
+<section id="testing-and-validation-hydrologically-meaningful-simplification">
+<h3>Testing and Validation: Hydrologically Meaningful Simplification<a class="headerlink" href="#testing-and-validation-hydrologically-meaningful-simplification" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Unit tests in <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_river.py</span></code> validate
+simplification behavior on synthetic networks:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_simplify_river_network_traverses_all_terminal_segments</span></code> verifies that
+all retained terminal segments are traversed and that <code class="docutils literal notranslate"><span class="pre">outlet_hyriv_id</span></code>,
+<code class="docutils literal notranslate"><span class="pre">outlet_drainage_area</span></code>, and <code class="docutils literal notranslate"><span class="pre">river_network_rank</span></code> are preserved as
+basin-root provenance and network-selection metadata.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_simplify_river_network_handles_deep_main_stem</span></code> confirms correctness for
+a 1500-segment chain without Python recursion limits.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_simplify_river_network_rejects_next_down_cycles</span></code> verifies that cyclic
+<code class="docutils literal notranslate"><span class="pre">NEXT_DOWN</span></code> graphs are rejected with a clear error.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_simplify_river_network_preserves_branch_traversal_order</span></code> verifies that
+multi-branch confluence structure is retained correctly.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_convert_hydrorivers_shapefile_to_geojson</span></code> verifies shapefile conversion.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_unpack_hydrorivers_archive</span></code> verifies archive unpacking.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_drainage_area_threshold_auto_derived_from_config</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_branch_distance_tolerance_auto_derived_from_config</span></code> verify that
+simplification thresholds are derived correctly from mesh configs.</p></li>
+</ul>
+<p>The simplification has been exercised on the full global HydroRIVERS dataset
+for all four named unified meshes, and the resulting river networks were
+inspected visually and found to reflect the major hydrographic controls at
+each resolution.</p>
+</section>
+<section id="testing-and-validation-deferred-outlet-reconciliation">
+<h3>Testing and Validation: Deferred Outlet Reconciliation<a class="headerlink" href="#testing-and-validation-deferred-outlet-reconciliation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/16</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Unit tests in <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_river.py</span></code> cover the
+channel-only pre-base-mesh products:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_build_river_network_dataset_contract_and_channel_mask</span></code> verifies the
+channel-only raster contract.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_build_river_network_dataset_applies_physical_channel_buffer</span></code> verifies
+the physical buffer applied to rasterized channel cells.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_condition_base_mesh_river_segments_clips_then_simplifies</span></code>,
+<code class="docutils literal notranslate"><span class="pre">test_condition_base_mesh_river_segments_keeps_short_fragments</span></code>,
+<code class="docutils literal notranslate"><span class="pre">test_condition_base_mesh_river_segments_keeps_reentry_pieces</span></code>,
+<code class="docutils literal notranslate"><span class="pre">test_condition_base_mesh_river_segments_densifies_before_clipping</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">test_condition_base_mesh_river_segments_simplify_fallback_keeps_geometry</span></code>
+verify the coastline clipping applied before base-mesh conditioning.</p></li>
+</ul>
+<p>The visualization step writes <code class="docutils literal notranslate"><span class="pre">river_network_overlay.png</span></code>,
+<code class="docutils literal notranslate"><span class="pre">rasterized_river_network.png</span></code>, and <code class="docutils literal notranslate"><span class="pre">debug_summary.txt</span></code>, making the simplified,
+clipped, and rasterized channel products straightforward to inspect in task
+runs.</p>
+</section>
+<section id="testing-and-validation-standalone-river-network-task">
+<h3>Testing and Validation: Standalone River-Network Task<a class="headerlink" href="#testing-and-validation-standalone-river-network-task" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Unit tests in <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_river.py</span></code> verify the
+standalone task structure:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_add_river_tasks_registers_mesh_tasks</span></code> verifies that <code class="docutils literal notranslate"><span class="pre">add_river_tasks()</span></code>
+registers one <code class="docutils literal notranslate"><span class="pre">UnifiedRiverNetworkTask</span></code> per name in <code class="docutils literal notranslate"><span class="pre">UNIFIED_MESH_NAMES</span></code>,
+that each task subdirectory is <code class="docutils literal notranslate"><span class="pre">spherical/unified/&lt;mesh_name&gt;/river/task</span></code>,
+and that each task name is <code class="docutils literal notranslate"><span class="pre">river_network_&lt;mesh_name&gt;_task</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_mesh_river_step_factories_use_mesh_subdirs</span></code> verifies mesh-specific
+subdirectories for the simplify, rasterize, and clip steps.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_mesh_river_step_factories_reuse_shared_configs</span></code> verifies that step
+and config instances are shared across multiple <code class="docutils literal notranslate"><span class="pre">get_unified_mesh_river_steps()</span></code>
+calls for the same mesh.</p></li>
+</ul>
+<p>Standalone river tasks have been run for all four named unified meshes, showing
+the expected rasterized river networks and visualization overlays at each
+resolution. The full end-to-end workflow through sizing-field construction,
+base-mesh generation, topography remap, and mesh culling has been completed
+for all four meshes. The resulting culled ocean and land meshes were visually
+verified to be consistent with expectations.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="unified_mesh_prepare_coastline.html" class="btn btn-neutral float-left" title="Unified Mesh: Coastline Preparation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="unified_mesh_build_sizing_field.html" class="btn btn-neutral float-right" title="Unified Mesh: Sizing-Field Construction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

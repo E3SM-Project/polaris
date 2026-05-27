@@ -1,0 +1,811 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unified Mesh: Coastline Preparation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Unified Mesh: River Network Preparation" href="unified_mesh_prepare_river_network.html" />
+    <link rel="prev" title="Unified Mesh: Global Base Mesh Workflow" href="unified_base_mesh.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Unified Mesh: Coastline Preparation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#workflow-context">Workflow Context</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-raster-first-coastline-products-for-downstream-steps">Requirement: Raster-First Coastline Products for Downstream Steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-topography-consistent-and-explicit-coastline-definition">Requirement: Topography-Consistent and Explicit Coastline Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-global-coastal-distance-on-the-sphere">Requirement: Global Coastal Distance on the Sphere</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-standalone-coastline-task">Requirement: Standalone Coastline Task</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-raster-first-coastline-products-for-downstream-steps">Algorithm Design: Raster-First Coastline Products for Downstream Steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-topography-consistent-and-explicit-coastline-definition">Algorithm Design: Topography-Consistent and Explicit Coastline Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-global-coastal-distance-on-the-sphere">Algorithm Design: Global Coastal Distance on the Sphere</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-standalone-coastline-task">Algorithm Design: Standalone Coastline Task</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-raster-first-coastline-products-for-downstream-steps">Implementation: Raster-First Coastline Products for Downstream Steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-topography-consistent-and-explicit-coastline-definition">Implementation: Topography-Consistent and Explicit Coastline Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-global-coastal-distance-on-the-sphere">Implementation: Global Coastal Distance on the Sphere</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-standalone-coastline-task">Implementation: Standalone Coastline Task</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-raster-first-coastline-products-for-downstream-steps">Testing and Validation: Raster-First Coastline Products for Downstream Steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-topography-consistent-and-explicit-coastline-definition">Testing and Validation: Topography-Consistent and Explicit Coastline Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-global-coastal-distance-on-the-sphere">Testing and Validation: Global Coastal Distance on the Sphere</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-standalone-coastline-task">Testing and Validation: Standalone Coastline Task</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Unified Mesh: Coastline Preparation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/unified_mesh_prepare_coastline.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="unified-mesh-coastline-preparation">
+<h1>Unified Mesh: Coastline Preparation<a class="headerlink" href="#unified-mesh-coastline-preparation" title="Link to this heading"></a></h1>
+<p>date: 2026/04/13</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>This design describes the shared <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code> step and an associated
+task that can run that shared step on its own for the unified global base-mesh
+workflow. The purpose of the step is to create a single coastline
+interpretation that downstream steps can reuse, especially
+<code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> and <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>.</p>
+<p>The shared coastline workflow is implemented in Polaris pull request
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/545">https://github.com/E3SM-Project/polaris/pull/545</a>.</p>
+<p>The preferred first source for coastline information is the combined
+topography already used in <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo</span></code>, because that gives the strongest
+consistency with downstream topography remapping and culling. The resulting
+coastline products should be defined on the same regular lon/lat grid that
+<code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> will consume.</p>
+<p>The implementation keeps the shared coastline interface raster-first. In
+particular, the public output contract uses target-grid masks and
+coastal-distance fields rather than a persisted polygonal coastline product.
+If temporary contour extraction is ever needed internally, it should remain an
+implementation detail rather than the main workflow artifact.</p>
+<p>Success means that Polaris gains a documented, reusable coastline-preparation
+workflow whose outputs can be consumed directly by downstream steps and whose
+standalone task makes it practical to inspect and iterate on coastline choices
+without running the full unified mesh workflow.</p>
+</section>
+<section id="workflow-context">
+<h2>Workflow Context<a class="headerlink" href="#workflow-context" title="Link to this heading"></a></h2>
+<p>The overall unified-mesh workflow is described in
+<a class="reference internal" href="unified_base_mesh.html"><span class="std std-doc">Unified Mesh: Global Base Mesh Workflow</span></a>.</p>
+<p>There are no earlier stage-specific unified-mesh design documents upstream of
+this coastline workflow in the current series.</p>
+<p>The downstream unified-mesh workflow designs are:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="unified_mesh_prepare_river_network.html"><span class="std std-doc">Unified Mesh: River Network Preparation</span></a></p></li>
+<li><p><a class="reference internal" href="unified_mesh_build_sizing_field.html"><span class="std std-doc">Unified Mesh: Sizing-Field Construction</span></a></p></li>
+<li><p><a class="reference internal" href="unified_mesh_create_base_mesh.html"><span class="std std-doc">Unified Mesh: Base-Mesh Creation and Downstream Integration</span></a></p></li>
+</ul>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-raster-first-coastline-products-for-downstream-steps">
+<h3>Requirement: Raster-First Coastline Products for Downstream Steps<a class="headerlink" href="#requirement-raster-first-coastline-products-for-downstream-steps" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/13</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code> shall provide a shared coastline representation that can
+be consumed directly by both <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> and
+<code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>.</p>
+<p>The shared product shall retain both land/ocean classification and coastal
+proximity information over the global domain.</p>
+<p>The target-grid topography and any coastline-derived sizing inputs shall be
+finer than the local destination mesh resolution whenever coastline fidelity
+matters, rather than merely matching it. In particular, coarse remapped
+topography can produce an unacceptably degraded coastline because of bilinear
+interpolation, so a 1-degree product should not be treated as generally
+adequate for coastline preparation.</p>
+<p>The downstream steps shall not need to reinterpret raw coastline or raw
+topography source datasets independently.</p>
+</section>
+<section id="requirement-topography-consistent-and-explicit-coastline-definition">
+<h3>Requirement: Topography-Consistent and Explicit Coastline Definition<a class="headerlink" href="#requirement-topography-consistent-and-explicit-coastline-definition" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/11</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The preferred coastline definition shall be consistent with the combined
+topography interpretation already used by the existing <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo</span></code>
+workflow.</p>
+<p>The treatment of floating Antarctic ice shall be explicit and reproducible,
+rather than being left implicit in overlapping land and ocean masks.</p>
+<p>The coastline workflow shall derive an exclusive ocean mask by starting from
+the ocean side and flood filling connected ocean regions, so the ocean
+interpretation remains contiguous and disconnected depressions are not
+misidentified as ocean simply because their remapped topography falls below
+sea level.</p>
+<p>The coastline workflow shall support critical ocean passages and critical land
+blockages that are applied before flood fill. Critical passages are needed to
+keep semi-enclosed seas such as the Mediterranean connected to the ocean
+domain when the remapped topography would otherwise close them; critical land
+blockages are needed to close known artificial openings that should remain
+land for the selected coastline interpretation.</p>
+<p>The coastline workflow shall support multiple explicit Antarctic coastline
+definitions within the shared design rather than baking in only the first
+consumer’s needs.</p>
+</section>
+<section id="requirement-global-coastal-distance-on-the-sphere">
+<h3>Requirement: Global Coastal Distance on the Sphere<a class="headerlink" href="#requirement-global-coastal-distance-on-the-sphere" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The coastline product shall support smooth coastal transition zones for mesh
+sizing on the sphere, including across the antimeridian.</p>
+<p>The coastal-distance definition shall be suitable for the regular lon/lat grid
+used by <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code>.</p>
+<p>The first design shall avoid assuming that planar buffering or planar
+Euclidean distance is adequate on a periodic global grid.</p>
+</section>
+<section id="requirement-standalone-coastline-task">
+<h3>Requirement: Standalone Coastline Task<a class="headerlink" href="#requirement-standalone-coastline-task" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/10</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>Polaris shall provide a task that runs the shared <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code> step and
+the shared steps it depends on (e.g. <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine</span></code>).</p>
+<p>The standalone task shall make it practical to inspect coastline outputs and
+compare coastline options without running the full unified mesh workflow.</p>
+<p>The same shared step and configuration shall be reusable from the full unified
+workflow when settings match.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-raster-first-coastline-products-for-downstream-steps">
+<h3>Algorithm Design: Raster-First Coastline Products for Downstream Steps<a class="headerlink" href="#algorithm-design-raster-first-coastline-products-for-downstream-steps" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/14</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The authoritative coastline products should be defined on the same regular
+lon/lat grid that <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> will use. This implies that target-grid
+selection should happen once in shared configuration, not independently inside
+each downstream step.</p>
+<p>The preferred upstream source is the existing <code class="docutils literal notranslate"><span class="pre">e3sm/init/topo/combine</span></code>
+workflow, because <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> already supports <code class="docutils literal notranslate"><span class="pre">target_grid</span> <span class="pre">=</span> <span class="pre">lat_lon</span></code>.
+Rather than inventing a separate remap path, the coastline workflow should
+reuse that capability to obtain combined topography on the target grid.</p>
+<p>The target-grid choice should be constrained by coastline fidelity, not only
+by downstream convenience. Because the coastline is inferred from remapped
+topography, the remapped product and any derived sizing array should be
+meaningfully finer than the local destination mesh spacing. A 0.25-degree
+product is useful as a cheaper inspection tier, but testing shows it is too
+coarse for scientifically valid coastline preparation because semi-enclosed
+basins such as the Mediterranean can disappear. The 1-degree product is
+valuable mainly for very coarse mesh workflows such as smoke-test meshes near
+240 km, but <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code> should support four coastline target-grid
+tiers: 0.25, 0.125, 0.0625, and 0.03125 degree. The shared lat-lon combine
+workflow should support those same four resolutions plus the 1.0-degree
+smoke-test tier.</p>
+<p>The shared output contract should remain raster-first. The first design should
+assume outputs such as:</p>
+<ul class="simple">
+<li><p>combined topography on the target grid, either as a direct dependency or as
+a shared input artifact, not necessarily a new coastline output;</p></li>
+<li><p>one convention-specific coastline product per supported Antarctic
+convention, each containing exclusive land/ocean masks on the shared target
+grid;</p></li>
+<li><p>coastline-cell or coastline-edge indicators for those conventions, plus any
+lightweight boundary-sample diagnostics needed by downstream steps; and</p></li>
+<li><p>signed coastal-distance fields for those conventions.</p></li>
+</ul>
+<p>With this contract, <code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> can use the mask or coastline-edge
+information for the convention chosen by workflow config, while
+<code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> can consume the corresponding signed-distance field
+directly.</p>
+<p>This approach avoids making a polygonal coastline product part of the public
+interface. If temporary contour extraction is ever needed for an internal
+experiment, it should not become the required downstream artifact.</p>
+</section>
+<section id="algorithm-design-topography-consistent-and-explicit-coastline-definition">
+<h3>Algorithm Design: Topography-Consistent and Explicit Coastline Definition<a class="headerlink" href="#algorithm-design-topography-consistent-and-explicit-coastline-definition" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The preferred coastline definition should start from the combined topography
+fields already used downstream, especially <code class="docutils literal notranslate"><span class="pre">base_elevation</span></code>, <code class="docutils literal notranslate"><span class="pre">ice_mask</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">grounded_mask</span></code>.</p>
+<p>Outside Antarctica, or more generally where floating ice is absent, the coast
+can be interpreted as the zero contour of <code class="docutils literal notranslate"><span class="pre">base_elevation</span></code> after remapping to
+the target lon/lat grid.</p>
+<p>Around Antarctica, the existing topography masking logic does not define a
+single exclusive coastline by itself because floating ice contributes to the
+land interpretation while the water below it may still contribute to the ocean
+interpretation. The coastline workflow should therefore define an explicit
+Antarctic convention instead of inheriting that ambiguity.</p>
+<p>The first design should produce three related Antarctic coastline products from
+the same remapped topography inputs and mask-building logic:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">calving_front</span></code>, where floating ice is treated as land for coastline
+purposes, so the ocean excludes Antarctic ice-shelf cavities and the
+coastline follows the calving front;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grounding_line</span></code>, where floating ice is treated as ocean for coastline
+purposes, so the ocean includes Antarctic ice-shelf cavities and the
+coastline follows the grounding line; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bedrock_zero</span></code>, where ocean additionally includes grounded Antarctic ice
+below sea level, so the coastline follows the zero contour of bedrock.</p></li>
+</ul>
+<p>These three products should be generated together and cached together rather
+than treated as separate future workflow branches. Omega may initially consume
+only <code class="docutils literal notranslate"><span class="pre">calving_front</span></code>, but the unified mesh design should preserve the other two
+because static cavities, wetting-and-drying, and dynamic grounding-line work
+are expected downstream use cases.</p>
+<p>The coastline step should expose these variants through separate but
+simultaneously generated products, and downstream steps should explicitly
+choose which convention to consume through workflow configuration. This is
+expected to align naturally with different unified-mesh variants, such as
+meshes that exclude Antarctic ice-shelf cavities and meshes that include them.</p>
+<p>An exclusive ocean mask should not be inferred solely from a local threshold
+such as <code class="docutils literal notranslate"><span class="pre">base_elevation</span> <span class="pre">&lt;</span> <span class="pre">0</span></code>. Instead, each Antarctic convention should first
+define a candidate ocean mask and then perform a flood fill from trusted
+ocean-side seed cells to determine the connected ocean region. Before flood
+fill, default critical transects from <code class="docutils literal notranslate"><span class="pre">geometric_features</span></code> should be
+rasterized onto the target grid. Transects tagged as critical land blockages
+remove cells from the candidate ocean mask, while transects tagged as critical
+passages add cells to it. This gives the flood fill enough connectivity
+information to include major semi-enclosed seas and enough blockage
+information to prevent known false ocean connections.</p>
+<p>The first design should seed from all candidate-ocean cells on the
+northernmost latitude row. Cells that are below sea level but disconnected
+from the global ocean should remain on the land side of the partition unless a
+later workflow explicitly decides otherwise. This flood-fill step is important
+both in Antarctica and elsewhere for preserving a contiguous ocean
+interpretation.</p>
+<p>If one default must be chosen early for existing downstream workflows,
+<code class="docutils literal notranslate"><span class="pre">calving_front</span></code> appears to be the safer first shared product because it gives a
+single land-ocean partition that is more naturally aligned with land and river
+outlet logic. However, the standalone task should make it easy to compare that
+default with the other two shared products before the full workflow commits to
+consumer-specific assumptions.</p>
+</section>
+<section id="algorithm-design-global-coastal-distance-on-the-sphere">
+<h3>Algorithm Design: Global Coastal Distance on the Sphere<a class="headerlink" href="#algorithm-design-global-coastal-distance-on-the-sphere" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/14</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The preferred first algorithm is to compute coastal distance directly from the
+exclusive raster mask on the periodic lon/lat grid, rather than requiring a
+persisted vector geometry product.</p>
+<p>The basic formulation should be:</p>
+<ol class="arabic simple">
+<li><p>For each requested coastline convention, construct a candidate ocean mask
+on the target grid from the remapped topography fields.</p></li>
+<li><p>Flood fill from trusted ocean-side seed cells to obtain an exclusive,
+ocean-connected land/ocean mask.</p></li>
+<li><p>Identify coastline transitions wherever neighboring grid cells switch
+between land and ocean, wrapping in longitude across the antimeridian.</p></li>
+<li><p>Represent each coastline transition by one or more boundary samples located
+on the corresponding grid-cell edges.</p></li>
+<li><p>Convert the boundary samples and all target-grid points to Cartesian
+coordinates on the sphere.</p></li>
+<li><p>Use nearest-neighbor search in Cartesian space to estimate the unsigned
+distance from each grid point to the nearest coastline sample.</p></li>
+<li><p>Apply the sign from the exclusive land/ocean mask.</p></li>
+</ol>
+<p>This formulation has two advantages for the present design. First, it keeps
+the public interface raster-based. Second, it turns antimeridian handling into
+a periodic-neighbor problem on the target grid rather than a vector-topology
+problem.</p>
+<p>The initial distance estimate can follow the same boundary-sample and KD-tree
+style already used in <code class="docutils literal notranslate"><span class="pre">mpas_tools.mesh.creation.signed_distance</span></code>, but with the
+boundary samples extracted from raster coastline transitions instead of from
+vector geometry. If later testing shows that this approximation is too noisy
+or too inaccurate, we can refine the boundary sampling or temporarily extract
+contours internally without changing the external workflow contract.</p>
+<p>The sign convention should be recorded explicitly. For example, the workflow
+can define negative distance over land and positive distance over ocean, or the
+reverse, as long as <code class="docutils literal notranslate"><span class="pre">build_sizing_field</span></code> interprets it consistently.</p>
+</section>
+<section id="algorithm-design-standalone-coastline-task">
+<h3>Algorithm Design: Standalone Coastline Task<a class="headerlink" href="#algorithm-design-standalone-coastline-task" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/11</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The standalone task should be a thin wrapper around the shared
+<code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code> step rather than a separate implementation path.</p>
+<p>The task will likely depend on a shared target-grid topography product, ideally
+reused from the existing <code class="docutils literal notranslate"><span class="pre">combine_topo</span></code> capability on a lat/lon grid. From
+there, the task can run the shared coastline step and any lightweight
+diagnostic or visualization steps that prove useful.</p>
+<p>This standalone task is important for design iteration. It provides a place to
+compare Antarctic conventions and to inspect the target-grid mask and
+signed-distance products without also running river preprocessing,
+sizing-field construction, or mesh generation.</p>
+<p>Because the task wraps the shared step, the same outputs can later be reused
+by the full unified workflow when configuration choices match.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-raster-first-coastline-products-for-downstream-steps">
+<h3>Implementation: Raster-First Coastline Products for Downstream Steps<a class="headerlink" href="#implementation-raster-first-coastline-products-for-downstream-steps" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/11</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The current implementation adds a shared coastline-preparation workflow in
+<code class="docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.coastline</span></code> and reuses the shared lat-lon
+combined-topography steps through <code class="docutils literal notranslate"><span class="pre">get_lat_lon_topo_steps()</span></code> rather than
+adding a separate remap path.</p>
+<p>That enabling work was already put in place by the shared lat-lon combined-
+topography support in Polaris pull request
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/526">https://github.com/E3SM-Project/polaris/pull/526</a>, which added shared lat-lon
+combined-topography tasks and steps at 1.0, 0.25, 0.125, 0.0625, and 0.03125
+degree, with combined outputs including <code class="docutils literal notranslate"><span class="pre">base_elevation</span></code>, <code class="docutils literal notranslate"><span class="pre">ice_draft</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ice_thickness</span></code>, <code class="docutils literal notranslate"><span class="pre">ice_mask</span></code>, and <code class="docutils literal notranslate"><span class="pre">grounded_mask</span></code>. <code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code> now
+treats those shared lat-lon topography products as the authoritative upstream
+inputs for the topo-derived path.</p>
+<p>The implemented coastline workflow supports those same four coastline
+target-grid tiers other than the 1.0-degree smoke-test product. Standalone
+coastline tasks exist for 0.25, 0.125, 0.0625, and 0.03125 degree. The
+expected usage is that 0.25 degree remains the cheaper inspection tier, while
+0.125, 0.0625, and 0.03125 degree are the scientifically credible coastline
+tiers. See Polaris pull request
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/545">https://github.com/E3SM-Project/polaris/pull/545</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ComputeCoastlineStep</span></code> always runs at the finest supported resolution
+(<code class="docutils literal notranslate"><span class="pre">FINEST_RESOLUTION</span> <span class="pre">=</span> <span class="pre">0.03125</span></code> degree) using the finest combined-topography
+step. For coarser target-grid resolutions, <code class="docutils literal notranslate"><span class="pre">RemapCoastlineStep</span></code> remaps the
+finest-resolution coastline products to the requested resolution. The
+shared-step factory <code class="docutils literal notranslate"><span class="pre">get_unified_mesh_coastline_steps()</span></code> in <code class="docutils literal notranslate"><span class="pre">steps.py</span></code>
+creates both steps and returns them keyed as <code class="docutils literal notranslate"><span class="pre">coastline_compute</span></code> (at
+non-finest resolutions) and <code class="docutils literal notranslate"><span class="pre">coastline_final</span></code> (the step whose outputs are
+consumed by downstream workflows). At the finest resolution <code class="docutils literal notranslate"><span class="pre">coastline_final</span></code>
+is the compute step; at coarser resolutions it is the remap step.</p>
+<p>Each <code class="docutils literal notranslate"><span class="pre">ComputeCoastlineStep</span></code> run writes one convention-specific NetCDF file for
+each of <code class="docutils literal notranslate"><span class="pre">calving_front</span></code>, <code class="docutils literal notranslate"><span class="pre">grounding_line</span></code>, and <code class="docutils literal notranslate"><span class="pre">bedrock_zero</span></code>
+(<code class="docutils literal notranslate"><span class="pre">coastline_&lt;convention&gt;.nc</span></code>). Each file currently contains:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code> and <code class="docutils literal notranslate"><span class="pre">signed_distance</span></code>; and</p></li>
+<li><p>metadata including the coastline convention, target-grid type and
+resolution, source type, mask threshold, sea-level threshold, flood-fill
+seed strategy, sign convention, and text descriptions of the coastline-edge
+and distance definitions.</p></li>
+</ul>
+<p>The current implementation also records the source combined-topography file
+and source step in the output attributes. The implementation does not write
+boundary samples as a public product, so any later reuse of those samples by
+<code class="docutils literal notranslate"><span class="pre">prepare_river_network</span></code> remains future work.</p>
+</section>
+<section id="implementation-topography-consistent-and-explicit-coastline-definition">
+<h3>Implementation: Topography-Consistent and Explicit Coastline Definition<a class="headerlink" href="#implementation-topography-consistent-and-explicit-coastline-definition" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/11</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The current implementation always generates all three Antarctic coastline
+products in one run and writes them as separate files that downstream steps
+can select from explicitly.</p>
+<p>The implemented topo-derived path is organized around the following concrete
+operations:</p>
+<ol class="arabic simple">
+<li><p>read <code class="docutils literal notranslate"><span class="pre">base_elevation</span></code>, <code class="docutils literal notranslate"><span class="pre">ice_mask</span></code>, and <code class="docutils literal notranslate"><span class="pre">grounded_mask</span></code> from the shared
+combined-topography dataset on the target lat-lon grid;</p></li>
+<li><p>threshold the remapped <code class="docutils literal notranslate"><span class="pre">ice_mask</span></code> and <code class="docutils literal notranslate"><span class="pre">grounded_mask</span></code> arrays with the
+configurable <code class="docutils literal notranslate"><span class="pre">mask_threshold</span></code> option, whose default is 0.5;</p></li>
+<li><p>build candidate ocean masks for <code class="docutils literal notranslate"><span class="pre">calving_front</span></code>, <code class="docutils literal notranslate"><span class="pre">grounding_line</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">bedrock_zero</span></code>;</p></li>
+<li><p>label connected candidate-ocean regions, merge labels that wrap across the
+eastern and western grid edges, and keep only regions connected to the
+northernmost latitude row;</p></li>
+<li><p>optionally rasterize critical land blockages and passages from
+<code class="docutils literal notranslate"><span class="pre">geometric_features</span></code> and apply them to the candidate ocean masks before
+flood fill;</p></li>
+<li><p>derive the transient coastline-edge diagnostics needed for signed-distance
+sampling; and</p></li>
+<li><p>write one output file per convention.</p></li>
+</ol>
+<p>The current candidate-mask definitions are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">calving_front</span></code>: below sea level and not covered by ice;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grounding_line</span></code>: below sea level and not covered by grounded ice; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bedrock_zero</span></code>: below sea level, regardless of ice state.</p></li>
+</ul>
+<p>Outside Antarctica, where <code class="docutils literal notranslate"><span class="pre">ice_mask</span></code> and <code class="docutils literal notranslate"><span class="pre">grounded_mask</span></code> are effectively zero,
+the three candidate masks reduce to the same open-ocean interpretation.</p>
+<p>The implementation writes diagnostics that make the mask-building process
+auditable through the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step, including final ocean-mask and signed-distance
+plots for each convention.</p>
+<p>The default configuration sets <code class="docutils literal notranslate"><span class="pre">include_critical_transects</span> <span class="pre">=</span> <span class="pre">True</span></code>, so the
+shared critical land blockages and passages are included in normal task runs.</p>
+</section>
+<section id="implementation-global-coastal-distance-on-the-sphere">
+<h3>Implementation: Global Coastal Distance on the Sphere<a class="headerlink" href="#implementation-global-coastal-distance-on-the-sphere" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/18</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+</ul>
+<p>The current implementation starts from the raster land/ocean masks, identifies
+coastline locations where neighboring cells switch between land and ocean, and
+computes spherical distance from each target-grid cell to the nearest such
+coastline sample without introducing a persisted vector coastline product.</p>
+<p>In practice, the implemented workflow:</p>
+<ol class="arabic simple">
+<li><p>derives coastline transitions directly from the exclusive ocean masks;</p></li>
+<li><p>builds transient east-edge and north-edge coastline diagnostics;</p></li>
+<li><p>places coastline samples at east-edge angular midpoints and north-edge
+latitudinal midpoints;</p></li>
+<li><p>converts target-grid cell centers and coastline samples to Cartesian
+coordinates on the sphere;</p></li>
+<li><p>uses <code class="docutils literal notranslate"><span class="pre">scipy.spatial.cKDTree</span></code> to compute nearest-sample chord distances,
+then converts those to spherical arc distance; and</p></li>
+<li><p>applies the sign convention of negative over land and positive over ocean.</p></li>
+</ol>
+<p>Signed-distance fields are currently generated for all three conventions in
+every run.</p>
+<p>The implemented <code class="docutils literal notranslate"><span class="pre">viz</span></code> step writes global and Antarctic binary plots of the
+final <code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code>, signed-distance plots for each convention, and
+<code class="docutils literal notranslate"><span class="pre">debug_summary.txt</span></code>.</p>
+<p>The same rasterization machinery used for critical passages and land blockages
+handles diagonal paths as four-connected raster paths and treats longitude as
+periodic across the antimeridian.</p>
+</section>
+<section id="implementation-standalone-coastline-task">
+<h3>Implementation: Standalone Coastline Task<a class="headerlink" href="#implementation-standalone-coastline-task" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/11</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The current implementation adds a lightweight task wrapper around the shared
+steps and does not introduce a separate task-specific coastline algorithm.</p>
+<p><code class="docutils literal notranslate"><span class="pre">LatLonCoastlineTask</span></code> depends on the selected shared lat-lon combined-
+topography step and then adds the shared coastline step plus the shared <code class="docutils literal notranslate"><span class="pre">viz</span></code>
+step with <code class="docutils literal notranslate"><span class="pre">include_viz=True</span></code>. The shared-step helper for this path is
+<code class="docutils literal notranslate"><span class="pre">get_unified_mesh_coastline_steps()</span></code>.</p>
+<p>The standalone task subdirectories are currently:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">spherical/unified/coastline/0.25000_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spherical/unified/coastline/0.12500_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spherical/unified/coastline/0.06250_degree/task</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spherical/unified/coastline/0.03125_degree/task</span></code></p></li>
+</ul>
+<p>Each task links the shared <code class="docutils literal notranslate"><span class="pre">coastline.cfg</span></code> file and exposes the <code class="docutils literal notranslate"><span class="pre">combine_topo</span></code>,
+<code class="docutils literal notranslate"><span class="pre">prepare</span></code>, and <code class="docutils literal notranslate"><span class="pre">viz</span></code> step directories within the task work directory.</p>
+<p>The task is therefore the current place to inspect whether a target-grid tier
+is adequate for a given intended mesh resolution before using the product in a
+later unified workflow.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-raster-first-coastline-products-for-downstream-steps">
+<h3>Testing and Validation: Raster-First Coastline Products for Downstream Steps<a class="headerlink" href="#testing-and-validation-raster-first-coastline-products-for-downstream-steps" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Automated tests verify the public output contract at the dataset-builder level.
+In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_coastline.py</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_coastline_contract_and_variants</span></code> confirms that the convention-specific
+coastline products expose the expected variables (<code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code>,
+<code class="docutils literal notranslate"><span class="pre">signed_distance</span></code>) and that the conventions are returned together in the
+expected order with correct output metadata.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_get_unified_mesh_coastline_steps_reuses_shared_config_for_viz</span></code> verifies
+that the step factory <code class="docutils literal notranslate"><span class="pre">get_unified_mesh_coastline_steps()</span></code> returns the correct
+step structure and that shared config is reused for the viz step.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_coarse_viz_uses_coastline_final_output</span></code> verifies that at coarser
+resolutions the viz step uses the <code class="docutils literal notranslate"><span class="pre">coastline_final</span></code> (remap) step’s output.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_finest_viz_uses_compute_output</span></code> verifies that at the finest resolution
+the viz step uses the compute step’s output directly.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_task_can_include_shared_coastline_viz_without_default_run</span></code> verifies that
+the viz step can be included without being run by default.</p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_remap_coastline.py</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_coastline_remap_step_writes_all_conventions</span></code> verifies that
+<code class="docutils literal notranslate"><span class="pre">RemapCoastlineStep</span></code> writes one output file per convention.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_get_unified_mesh_coastline_steps_creates_remap_step_for_coarse</span></code>
+verifies that the factory creates a remap step for coarser resolutions (with
+<code class="docutils literal notranslate"><span class="pre">coastline_compute</span></code> pointing to the compute step and <code class="docutils literal notranslate"><span class="pre">coastline_final</span></code> to the
+remap step) and no remap step at the finest resolution.</p></li>
+</ul>
+<p>All four target-grid tiers have been exercised through the full pipeline for all
+four named unified meshes. The coastline products feed downstream river, sizing-
+field, and base-mesh tasks that have all been run and verified end to end.</p>
+</section>
+<section id="testing-and-validation-topography-consistent-and-explicit-coastline-definition">
+<h3>Testing and Validation: Topography-Consistent and Explicit Coastline Definition<a class="headerlink" href="#testing-and-validation-topography-consistent-and-explicit-coastline-definition" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The current automated tests in this area are unit tests on synthetic target-
+grid datasets rather than full global products. In
+<code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_coastline.py</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_coastline_contract_and_variants</span></code> covers a case where <code class="docutils literal notranslate"><span class="pre">calving_front</span></code>,
+<code class="docutils literal notranslate"><span class="pre">grounding_line</span></code>, and <code class="docutils literal notranslate"><span class="pre">bedrock_zero</span></code> differ in Antarctica.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_coastline_excludes_disconnected_inland_water</span></code> verifies that a
+disconnected below-sea-level basin remains on the land side after flood fill.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_coastline_uses_northernmost_latitude_for_seed_row</span></code> confirms that the
+northernmost latitude row is used for flood-fill seeding even when latitude
+values are ordered south to north.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_coastline_none_transects_matches_legacy_behavior</span></code> checks that disabling
+critical transects produces consistent results.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_critical_land_blockage_closes_a_narrow_ocean_connection</span></code> verifies that a
+critical land blockage closes a narrow ocean connection.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_critical_passage_connects_otherwise_disconnected_ocean</span></code> verifies that a
+critical passage connects an otherwise disconnected ocean region.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_diagonal_transect_rasterization_is_four_connected</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_antimeridian_transect_rasterization_uses_periodic_longitude</span></code> verify
+rasterization correctness for diagonal and antimeridian-crossing transects.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_coastline_step_configures_critical_transects</span></code> verifies that the step
+correctly configures the critical transect behavior.</p></li>
+</ul>
+<p>The coastline workflow has been run on the full global topography dataset for
+all four target-grid tiers. Visual inspection of the resulting coastline masks
+and signed-distance fields confirmed the expected behavior, including correct
+treatment of the three Antarctic conventions.</p>
+</section>
+<section id="testing-and-validation-global-coastal-distance-on-the-sphere">
+<h3>Testing and Validation: Global Coastal Distance on the Sphere<a class="headerlink" href="#testing-and-validation-global-coastal-distance-on-the-sphere" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The current automated coverage checks the signed-distance field indirectly in
+synthetic dataset tests. In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_coastline.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">test_coastline_contract_and_variants</span></code> confirms that the <code class="docutils literal notranslate"><span class="pre">signed_distance</span></code> field
+is finite for all tested cases and that the sign matches the intended convention
+of negative over land and positive over ocean.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_remap_coastline.py</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_remap_ocean_mask_threshold</span></code> and <code class="docutils literal notranslate"><span class="pre">test_remap_signed_distance_sign_follows_mask</span></code>
+verify that remapped signed-distance fields have signs consistent with the
+remapped ocean mask.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_remap_mixed_mask_sign_consistency</span></code> and <code class="docutils literal notranslate"><span class="pre">test_remap_dataset_attributes</span></code>
+verify sign consistency and attribute preservation across remapping.</p></li>
+</ul>
+<p>There is an antimeridian-specific automated test
+(<code class="docutils literal notranslate"><span class="pre">test_antimeridian_transect_rasterization_uses_periodic_longitude</span></code>) for
+critical-transect rasterization. The signed-distance field on realistic global
+products has been inspected manually for all four target-grid tiers and found
+to be smooth and consistent with the intended coastline conventions.</p>
+</section>
+<section id="testing-and-validation-standalone-coastline-task">
+<h3>Testing and Validation: Standalone Coastline Task<a class="headerlink" href="#testing-and-validation-standalone-coastline-task" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/05/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Codex</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">test_get_unified_mesh_coastline_steps_reuses_shared_config_for_viz</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_get_unified_mesh_coastline_steps_creates_remap_step_for_coarse</span></code> tests in
+<code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_remap_coastline.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">test_coastline.py</span></code> verify the step factory wiring, including that
+<code class="docutils literal notranslate"><span class="pre">get_unified_mesh_coastline_steps()</span></code> produces the correct set of steps for both
+finest and coarser resolutions and that the viz step can be optionally included.</p>
+<p>Standalone coastline tasks have been run for all four target-grid tiers,
+showing the expected behavior:</p>
+<ul class="simple">
+<li><p>comparing 0.25, 0.125, 0.0625, and 0.03125 degree coastline fidelity;</p></li>
+<li><p>comparing the three Antarctic coastline conventions;</p></li>
+<li><p>inspecting the global and Antarctic coastline and signed-distance plots; and</p></li>
+<li><p>reviewing <code class="docutils literal notranslate"><span class="pre">debug_summary.txt</span></code> for ocean-mask counts and signed-distance
+ranges.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="unified_base_mesh.html" class="btn btn-neutral float-left" title="Unified Mesh: Global Base Mesh Workflow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="unified_mesh_prepare_river_network.html" class="btn btn-neutral float-right" title="Unified Mesh: River Network Preparation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>
