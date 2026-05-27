@@ -24,7 +24,8 @@ This design document describes:
 2. A pluggable interface for supplying conservative temperature (CT) and absolute salinity
    (SA) at each outer iteration step, supporting multiple initialization strategies
    without changes to the core algorithm.
-3. The complete set of variables produced at convergence.
+3. The complete set of variables produced at convergence and their distribution across the
+   separate output files established by the Polaris ocean framework.
 4. The interaction between the proportional-ratio update and full or partial bottom cell
    snapping.
 
@@ -82,13 +83,18 @@ Date last modified: 2026/05/27
 
 Contributors: Xylar Asay-Davis, Claude
 
-The workflow shall produce at convergence a complete dataset including z-tilde coordinate
-fields (pseudo-thickness, pseudo-height at midpoints and interfaces, minimum and maximum
-valid level indices, cell mask, coordinate movement weights), converged tracer fields,
-specific volume, pressure, `bottomDepth` consistent with the converged geometric
-water-column thickness, and geometric height at layer midpoints and interfaces. These
-outputs shall be sufficient for subsequent ocean-model-specific initial-condition assembly
-without re-running the iteration.
+The workflow shall produce at convergence all variables needed to configure the ocean
+model, including z-tilde coordinate fields (pseudo-thickness, pseudo-height at midpoints
+and interfaces, minimum and maximum valid level indices, cell mask, coordinate movement
+weights), converged tracer fields, specific volume, pressure, `bottomDepth` consistent
+with the converged geometric water-column thickness, and geometric height at layer
+midpoints and interfaces.
+
+These outputs shall be distributed across model-specific files according to the Polaris
+ocean framework's split-file convention: vertical coordinate variables shall be written to
+a separate vertical-coordinate file for Omega (where they feed the `InitialVertCoord`
+stream) or kept in the initial-state file for MPAS-Ocean. The outputs shall be sufficient
+for subsequent forward-model steps without re-running the iteration.
 
 ### Requirement: Full and partial bottom cells are handled correctly within the iteration
 
@@ -215,28 +221,46 @@ Date last modified: 2026/05/27
 
 Contributors: Xylar Asay-Davis, Claude
 
-The complete output dataset at convergence shall contain at minimum the following
-variables:
+The Polaris ocean framework separates model inputs into three files. The horizontal mesh
+file (`mesh.nc` or `culled_mesh.nc`) is not produced by the z-tilde initialization step;
+it comes from an upstream mesh-construction or cull step. The z-tilde initialization step
+produces the remaining two files.
 
-| Variable | Description | Key dimensions |
-|---|---|---|
-| `BottomPressure` | Effective (post-snap) seafloor pressure | nCells |
-| `SurfacePressure` | Surface pressure | nCells |
-| `PseudoThickness` | Pseudo-layer thickness | Time, nCells, nVertLevels |
-| `RefPseudoThickness` | Reference pseudo-thickness (no Time dim) | nCells, nVertLevels |
-| `ZTildeMid` | Pseudo-height at layer midpoints | Time, nCells, nVertLevels |
-| `ZTildeInterface` | Pseudo-height at layer interfaces | Time, nCells, nVertLevelsP1 |
-| `minLevelCell` | First valid layer index (1-based) | nCells |
-| `maxLevelCell` | Last valid layer index (1-based) | nCells |
-| `cellMask` | Boolean mask of valid layers | nCells, nVertLevels |
-| `vertCoordMovementWeights` | Weights for coordinate movement | nVertLevels |
-| `temperature` | Conservative temperature (CT) at convergence | Time, nCells, nVertLevels |
-| `salinity` | Absolute salinity (SA) at convergence | Time, nCells, nVertLevels |
-| `SpecVol` | Specific volume at convergence | Time, nCells, nVertLevels |
-| `pressure` | Sea pressure at layer midpoints | Time, nCells, nVertLevels |
-| `bottomDepth` | Actual geometric water-column thickness | nCells |
-| `GeomZMid` | Geometric height at layer midpoints | Time, nCells, nVertLevels |
-| `GeomZInterface` | Geometric height at layer interfaces | Time, nCells, nVertLevelsP1 |
+**Vertical coordinate file** (`vert_coord.nc`, written by `write_vert_coord_dataset`):
+For Omega this file feeds the `InitialVertCoord` stream. For MPAS-Ocean
+`write_vert_coord_dataset` is a no-op and these variables remain in the initial-state
+file instead. Variable names in parentheses are the Omega-native equivalents after the
+framework's variable renaming.
+
+| MPAS-Ocean variable | Omega variable | Description | Key dimensions |
+|---|---|---|---|
+| `minLevelCell` | `MinLayerCell` | First valid layer index (1-based) | nCells |
+| `maxLevelCell` | `MaxLayerCell` | Last valid layer index (1-based) | nCells |
+| `bottomDepth` | `BottomGeomDepth` | Actual geometric water-column thickness | nCells |
+| `RefPseudoThickness` | `RefPseudoThickness` | Reference pseudo-thickness (no Time dim) | nCells, nVertLevels |
+| `vertCoordMovementWeights` | `VertCoordMovementWeights` | Weights for coordinate movement | nVertLevels |
+
+**Initial-state file** (`init.nc`, written by `write_initial_state_dataset`): horizontal
+mesh variables are stripped before writing; for Omega, the vertical coordinate variables
+above are also stripped (they are in `vert_coord.nc` instead).
+
+| MPAS-Ocean variable | Omega variable | Description | Key dimensions |
+|---|---|---|---|
+| `temperature` | `Temperature` | Conservative temperature (CT) at convergence | Time, nCells, nVertLevels |
+| `salinity` | `Salinity` | Absolute salinity (SA) at convergence | Time, nCells, nVertLevels |
+| `normalVelocity` | `NormalVelocity` | Initial velocity (typically zero) | Time, nEdges, nVertLevels |
+| `PseudoThickness` | `PseudoThickness` | Pseudo-layer thickness | Time, nCells, nVertLevels |
+| `ZTildeMid` | `ZTildeMid` | Pseudo-height at layer midpoints | Time, nCells, nVertLevels |
+| `ZTildeInterface` | `ZTildeInterface` | Pseudo-height at layer interfaces | Time, nCells, nVertLevelsP1 |
+| `SurfacePressure` | `SurfacePressure` | Surface pressure | nCells |
+| `BottomPressure` | `BottomPressure` | Effective (post-snap) seafloor pressure | nCells |
+| `cellMask` | `cellMask` | Boolean mask of valid layers | nCells, nVertLevels |
+| `pressure` | `PressureMid` | Sea pressure at layer midpoints | Time, nCells, nVertLevels |
+| `zMid` / `GeomZMid` | `GeomZMid` | Geometric height at layer midpoints | Time, nCells, nVertLevels |
+| `zInterface` / `GeomZInterface` | `GeomZInterface` | Geometric height at layer interfaces | Time, nCells, nVertLevelsP1 |
+
+Additional task-specific diagnostic variables (e.g., `SpecVol`, `Density`, Montgomery
+potential fields) may be included in `init.nc` by concrete subclasses.
 
 ### Algorithm Design: Full and partial bottom cells are handled correctly within the iteration
 
@@ -348,11 +372,23 @@ Contributors: Xylar Asay-Davis, Claude
 
 The base class `run_z_tilde_init` method shall assemble the output dataset from the
 quantities accumulated during the outer loop and return it. The concrete subclass `run`
-method shall then write the dataset using `self.write_model_dataset`, consistent with the
-existing `OceanIOStep` pattern, after adding any model-specific fields (e.g.,
-`normalVelocity`, Coriolis arrays, or pressure-gradient diagnostic variables) that are not
-part of the z-tilde base output. This keeps the base class free of model-specific or
-task-specific logic.
+method shall then write the split output files using the framework helpers:
+
+```python
+self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
+self.write_initial_state_dataset(ds, 'init.nc', config)
+```
+
+`write_vert_coord_dataset` is a no-op for MPAS-Ocean; `write_initial_state_dataset`
+strips horizontal mesh variables and (for Omega) also strips vertical coordinate variables
+before writing. The concrete subclass should register `vert_coord.nc` as an output file
+only for Omega (e.g., using the `setup` override pattern already used by other tasks) or
+unconditionally if the step is Omega-only.
+
+Any model-specific or task-specific fields not part of the z-tilde base output (e.g.,
+`normalVelocity`, pressure-gradient diagnostics) shall be added to `ds` by the concrete
+subclass before calling the write helpers. The horizontal mesh file is written separately
+by the upstream mesh step and is not produced by `ZTildeInitStep`.
 
 ### Implementation: Full and partial bottom cells are handled correctly within the iteration
 
@@ -375,14 +411,19 @@ Contributors: Xylar Asay-Davis, Claude
 The immediate implementation priority is to refactor `horiz_press_grad.Init` onto
 `ZTildeInitStep` and verify that all existing `horiz_press_grad` regression tests pass
 without modification. This confirms the interface is correct before additional subclasses
-are written.
+are written. The refactored `horiz_press_grad.Init` already uses the three-file split
+(`culled_mesh.nc`, `vert_coord.nc`, `init.nc`) introduced by the `split-mesh-and-init`
+changes; the base class must therefore be consistent with this pattern from the start.
 
 The planned realistic initialization step (`ocean/realistic/init`) will then subclass
 `ZTildeInitStep` and implement `init_tracers` to read from the WOA hydrography product
 described in [global_ocean_init.md](global_ocean_init.md). In that context, CT/SA
 initialization at each outer iteration involves sampling a pre-computed hydrography
 product that has been remapped to the MPAS horizontal mesh, then interpolating vertically
-from the source depth levels to the current z-tilde layer midpoints.
+from the source depth levels to the current z-tilde layer midpoints. The mesh file for
+realistic initialization comes from an upstream `e3sm/init` cull step rather than being
+constructed by the init step itself, so only `vert_coord.nc` and `init.nc` are produced
+by `ZTildeInitStep` in that context.
 
 ## Testing
 
