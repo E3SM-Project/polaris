@@ -14,7 +14,7 @@ ocean:
     config_cvmix_background_diffusion: 1.0e-5
     config_cvmix_background_viscosity: 1.0e-4
   advection:
-    config_horiz_tracer_adv_order: 3
+    config_horiz_tracer_adv_order: 2
     config_vert_tracer_adv_flux_order: 3
 
 mpas-ocean:
