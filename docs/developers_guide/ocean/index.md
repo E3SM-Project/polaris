@@ -106,5 +106,6 @@ appropriate for whichever of the {ref}`machines` you are using.
 
 tasks/index
 framework
+convert_mpaso_ic_to_omega
 models/index
 ```
