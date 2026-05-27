@@ -48,7 +48,8 @@ def parse_args():
         action='store_true',
         help=(
             'Generate temperature/salinity percent-difference slice '
-            'figures and save next to the output NetCDF file.'
+            'figures and save next to the output NetCDF file. Figures '
+            'are not generated for planar meshes (i.e., on_a_sphere = 0).'
         ),
     )
     return parser.parse_args()
@@ -113,15 +114,15 @@ def convert_to_omega(input_file, output_file, eos_type, visualization=False):
     velocity_fields = _zero_velocity_fields(ds_omega)
     if ds_omega.attrs['sphere_radius'] > 0.0:
         _rescale_sphere_radius(ds_omega)
-
-    if visualization:
-        _save_percent_difference_visualizations(
-            ds_original=ds_mpas_zero,
-            ds_omega=ds_omega,
-            output_file=output_file,
-        )
+        if visualization:
+            _save_percent_difference_visualizations(
+                ds_original=ds_mpas_zero,
+                ds_omega=ds_omega,
+                output_file=output_file,
+            )
 
     ds_omega = _map_mpaso_to_omega(ds_omega)
+    ds_omega = _rename_resting_thickness_for_omega(ds_omega)
     _keep_selected_global_attrs(ds_omega)
 
     write_netcdf(ds_omega, output_file)
@@ -149,6 +150,7 @@ def convert_to_omega(input_file, output_file, eos_type, visualization=False):
     print(
         'Renamed variables to Omega names based on mpaso_to_omega.yaml mapping'
     )
+    print('Renamed refLayerThickness to RefPseudoThickness for Omega output')
     print('Removed unnecessary global attributes')
     if visualization:
         print('Saved temperature/salinity percent-difference visualizations')
@@ -497,6 +499,12 @@ def _map_mpaso_to_omega(ds):
     rename.update(rename_vars)
 
     return ds.rename(rename)
+
+
+def _rename_resting_thickness_for_omega(ds):
+    if 'restingThickness' in ds.variables:
+        ds = ds.rename({'restingThickness': 'RefPseudoThickness'})
+    return ds
 
 
 def _select_visualization_levels(ds_original, count=5):
