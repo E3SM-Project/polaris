@@ -314,18 +314,18 @@ Date last modified: 2026/05/27
 
 Contributors: Xylar Asay-Davis, Claude
 
-The outer fixed-point loop currently embedded as a private sequence in
-`polaris/tasks/ocean/horiz_press_grad/init.py` shall be extracted into a reusable
-`run_z_tilde_init` method on a new `ZTildeInitStep` base class in
-`polaris/ocean/vertical/ztilde_init.py`. The `horiz_press_grad.Init` class shall then be
-refactored to inherit from `ZTildeInitStep` and implement the `init_tracers` abstract
-method, with all other iteration logic removed from that class.
+The outer fixed-point loop is encapsulated in a `run_z_tilde_init` method on the
+`ZTildeInitStep` base class in `polaris/ocean/vertical/ztilde_init.py`. The method takes
+`ds_mesh`, `geom_z_bot`, and an optional `geom_ssh` (defaulting to zero) as arguments;
+internally it computes the target water-column thickness and the initial `BottomPressure`
+guess. The `horiz_press_grad.Init` class inherits from `ZTildeInitStep`, implements the
+`init_tracers` abstract method, and delegates the entire iteration to `run_z_tilde_init`.
 
-The convergence threshold and maximum iteration count shall be read from the
-`vertical_grid` configuration section. The `pseudothickness_iter_count` option already
-exists in that section. The fractional-change threshold (`water_col_adjust_frac_change_threshold`) is currently in the `horiz_press_grad`
-section and should be moved to `vertical_grid` so that it is available to all users of the
-base class without requiring task-specific configuration.
+The convergence threshold and maximum iteration count are read from the `vertical_grid`
+configuration section. `pseudothickness_iter_count` was already in that section;
+`water_col_adjust_frac_change_threshold` has been moved there from the `horiz_press_grad`
+section so that it is available to all users of the base class without task-specific
+configuration. The default value (`1e-12`) is set in `polaris/ocean/ocean.cfg`.
 
 ### Implementation: CT and SA can be initialized on the z-tilde coordinate through a pluggable interface
 
@@ -333,9 +333,10 @@ Date last modified: 2026/05/27
 
 Contributors: Xylar Asay-Davis, Claude
 
-The CT/SA initialization interface shall be declared using Python's `abc.abstractmethod`
-decorator on the `ZTildeInitStep` base class, which shall itself inherit from
-`OceanIOStep`. The required method signature is:
+The CT/SA initialization interface is declared using Python's `abc.abstractmethod`
+decorator on the `ZTildeInitStep` base class. Because the `Step` base class does not
+include `ABCMeta`, `ZTildeInitStep` inherits from both `OceanIOStep` and `abc.ABC` to
+activate abstract-method enforcement. The required method signature is:
 
 ```python
 @abstractmethod
@@ -360,9 +361,10 @@ def init_tracers(
     """
 ```
 
-The existing `horiz_press_grad.Init._interpolate_t_s` private method becomes the concrete
-`init_tracers` implementation in the refactored `horiz_press_grad.Init` subclass, with no
-change to its logic.
+The former `horiz_press_grad.Init._interpolate_t_s` private method is now the concrete
+`init_tracers` implementation in the refactored `horiz_press_grad.Init` subclass; the
+column-position array `x` is stored on `self` before `run_z_tilde_init` is called so that
+`init_tracers` can access it via the step instance.
 
 ### Implementation: The initialized state includes all z-tilde coordinate variables and derived geometric quantities needed for subsequent steps
 
@@ -370,9 +372,9 @@ Date last modified: 2026/05/27
 
 Contributors: Xylar Asay-Davis, Claude
 
-The base class `run_z_tilde_init` method shall assemble the output dataset from the
-quantities accumulated during the outer loop and return it. The concrete subclass `run`
-method shall then write the split output files using the framework helpers:
+The base class `run_z_tilde_init` method assembles and returns the output dataset from
+the quantities accumulated during the outer loop. The concrete subclass `run` method
+then writes the split output files using the framework helpers:
 
 ```python
 self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
@@ -381,14 +383,13 @@ self.write_initial_state_dataset(ds, 'init.nc', config)
 
 `write_vert_coord_dataset` is a no-op for MPAS-Ocean; `write_initial_state_dataset`
 strips horizontal mesh variables and (for Omega) also strips vertical coordinate variables
-before writing. The concrete subclass should register `vert_coord.nc` as an output file
-only for Omega (e.g., using the `setup` override pattern already used by other tasks) or
-unconditionally if the step is Omega-only.
+before writing. Since `horiz_press_grad` is Omega-only, `vert_coord.nc` is registered
+unconditionally as a step output file.
 
 Any model-specific or task-specific fields not part of the z-tilde base output (e.g.,
-`normalVelocity`, pressure-gradient diagnostics) shall be added to `ds` by the concrete
+`normalVelocity`, pressure-gradient diagnostics) are added to `ds` by the concrete
 subclass before calling the write helpers. The horizontal mesh file is written separately
-by the upstream mesh step and is not produced by `ZTildeInitStep`.
+and is not produced by `ZTildeInitStep`.
 
 ### Implementation: Full and partial bottom cells are handled correctly within the iteration
 
@@ -396,11 +397,12 @@ Date last modified: 2026/05/27
 
 Contributors: Xylar Asay-Davis, Claude
 
-The stagnation-detection logic already present in `horiz_press_grad/init.py` (comparing
-the post-snap `BottomPressure` between consecutive iterations) shall be preserved
-verbatim when moved into the base class. The warning message shall report the iteration
-number, the stagnant `BottomPressure` value, and the residual geometric water-column
-mismatch, to aid debugging on meshes where full-cell behaviour is unexpected.
+The stagnation-detection logic from `horiz_press_grad/init.py` (comparing the post-snap
+`BottomPressure` between consecutive iterations) is preserved in the base class. The
+convergence check (step 8 of the algorithm) is evaluated before the stagnation check
+(step 9), so a perfect initial guess exits via convergence rather than triggering a
+misleading stagnation warning. The warning message reports the iteration number to aid
+debugging on meshes where full-cell behaviour is unexpected.
 
 ### Implementation: The capability is reusable across idealized and realistic initialization tasks
 
@@ -408,14 +410,19 @@ Date last modified: 2026/05/27
 
 Contributors: Xylar Asay-Davis, Claude
 
-The immediate implementation priority is to refactor `horiz_press_grad.Init` onto
-`ZTildeInitStep` and verify that all existing `horiz_press_grad` regression tests pass
-without modification. This confirms the interface is correct before additional subclasses
-are written. The refactored `horiz_press_grad.Init` already uses the three-file split
-(`culled_mesh.nc`, `vert_coord.nc`, `init.nc`) introduced by the `split-mesh-and-init`
-changes; the base class must therefore be consistent with this pattern from the start.
+`horiz_press_grad.Init` is the first concrete subclass of `ZTildeInitStep`. It uses the
+three-file split (`culled_mesh.nc`, `vert_coord.nc`, `init.nc`) and demonstrates that the
+base class is consistent with that pattern.
 
-The planned realistic initialization step (`ocean/realistic/init`) will then subclass
+Because `horiz_press_grad` allows `z_tilde_bot` to vary per cell via a configurable
+gradient, `horiz_press_grad.Init` also overrides the `_build_vert_coord_ds(self,
+ds_mesh, bottom_pressure)` method. The base-class default calls
+`init_z_tilde_vertical_coord` once on the full mesh; `horiz_press_grad.Init` overrides
+it with a per-cell loop that sets a per-cell reference depth in a local config copy before
+constructing each column's coordinate. This override pattern is consistent in style with
+the `init_tracers` interface and keeps the per-cell logic in the subclass.
+
+The planned realistic initialization step (`ocean/realistic/init`) will subclass
 `ZTildeInitStep` and implement `init_tracers` to read from the WOA hydrography product
 described in [global_ocean_init.md](global_ocean_init.md). In that context, CT/SA
 initialization at each outer iteration involves sampling a pre-computed hydrography
@@ -433,18 +440,21 @@ Date last modified: 2026/05/27
 
 Contributors: Xylar Asay-Davis, Claude
 
-The existing `horiz_press_grad` regression tests provide the primary validation: after
-refactoring onto the base class, all three task variants (`salinity_gradient`,
-`temperature_gradient`, `ztilde_gradient`) shall produce the same outputs as before.
-These tests cover convergence against known analytic profiles and therefore implicitly
-validate that the geometric seafloor depth matches the target within the configured
-tolerance.
+Unit tests in `tests/ocean/vertical/test_ztilde_init.py` cover:
 
-Unit tests should additionally cover a single-column case with a constant-density profile
-(where $s^{(k)} = 1$ at the first iteration and the loop terminates immediately) and a
-case with a density gradient (where multiple iterations are required). Each test should
-check that the final `bottomDepth` differs from the target by less than the convergence
-tolerance.
+- `test_constant_density_converges_cleanly`: single-column case with
+  $\rho = \rho_0$ everywhere ($s^{(k)} = 1$ at every iteration). The loop exits via the
+  convergence check on iteration 1 with `bottomDepth` matching the target to within
+  floating-point precision and no stagnation warning.
+- `test_wrong_reference_density_requires_multiple_iterations`: single-column case with
+  a 1% density offset from $\rho_0$, requiring 3 outer iterations before the fractional
+  change in water-column thickness falls below the threshold. The final `bottomDepth`
+  matches the target to within a relative tolerance well below $10^{-10}$.
+
+The `horiz_press_grad` regression tests (all three task variants: `salinity_gradient`,
+`temperature_gradient`, `ztilde_gradient`) provide validation that the refactored
+base class produces the same outputs as the original embedded loop. These tests are
+pending a developer run on an Omega-enabled machine.
 
 ### Testing and Validation: CT and SA can be initialized on the z-tilde coordinate through a pluggable interface
 
@@ -452,10 +462,16 @@ Date last modified: 2026/05/27
 
 Contributors: Xylar Asay-Davis, Claude
 
-A test should confirm that attempting to instantiate `ZTildeInitStep` directly, without
-implementing `init_tracers`, raises `TypeError`. A separate test should confirm that a
-minimal concrete subclass with a constant `init_tracers` implementation completes the
-outer loop without error and produces an output dataset containing all required variables.
+Unit tests in `tests/ocean/vertical/test_ztilde_init.py` cover:
+
+- `test_abstract_class_not_instantiable`: confirms `init_tracers` is in
+  `ZTildeInitStep.__abstractmethods__`, verifying that the abstract-method mechanism
+  is active.
+- `test_subclass_without_init_tracers_not_instantiable`: confirms that a subclass that
+  does not override `init_tracers` also carries the abstract method.
+- `test_minimal_subclass_returns_complete_dataset`: a minimal concrete subclass with a
+  constant `init_tracers` completes the outer loop without error and the returned dataset
+  contains all 17 required base-class output variables with correct dimensions.
 
 ### Testing and Validation: The initialized state includes all z-tilde coordinate variables and derived geometric quantities needed for subsequent steps
 
@@ -463,11 +479,10 @@ Date last modified: 2026/05/27
 
 Contributors: Xylar Asay-Davis, Claude
 
-Regression tests for `horiz_press_grad` shall verify that the output dataset produced by
-the refactored base class contains all variables listed in the algorithm design section,
-with correct dimensions and non-NaN values in valid cells. A consistency check shall
-verify that `GeomZMid` and `GeomZInterface` are internally consistent with
-`PseudoThickness` and `SpecVol` to within floating-point precision.
+The `test_minimal_subclass_returns_complete_dataset` unit test verifies that the output
+dataset contains all variables listed in the algorithm design section tables. Regression
+tests for `horiz_press_grad` will verify correct dimensions and non-NaN values in valid
+cells across the three task variants.
 
 ### Testing and Validation: Full and partial bottom cells are handled correctly within the iteration
 
@@ -475,13 +490,15 @@ Date last modified: 2026/05/27
 
 Contributors: Xylar Asay-Davis, Claude
 
-The `horiz_press_grad` task includes configurations with `partial_cell_type = full` and
-`partial_cell_type = partial`. Regression tests for these configurations shall verify
-that: the full-cell stagnation logic stops the outer loop when `BottomPressure` is pinned
-to a reference level; and that the final `bottomDepth` is within one pseudo-layer
-thickness of the target for partial-cell configurations. A unit test shall directly inject
-a stagnant `BottomPressure` to confirm that the warning is issued and the loop terminates
-after the first stagnation is detected.
+Unit test `test_full_cell_stagnation_warning_and_early_exit` in
+`tests/ocean/vertical/test_ztilde_init.py` overrides `_build_vert_coord_ds` to always
+return a fixed `BottomPressure` regardless of input, simulating full-cell snapping. The
+test confirms that a warning containing `'full-cell snap'` is emitted and that the loop
+terminates without raising an exception, and that the returned dataset still contains
+`bottomDepth`.
+
+The `horiz_press_grad` regression tests for configurations with `partial_cell_type = full`
+and `partial_cell_type = partial` are pending a developer run on an Omega-enabled machine.
 
 ### Testing and Validation: The capability is reusable across idealized and realistic initialization tasks
 
@@ -489,8 +506,9 @@ Date last modified: 2026/05/27
 
 Contributors: Xylar Asay-Davis, Claude
 
+`horiz_press_grad.Init` is refactored onto `ZTildeInitStep` and its existing regression
+tests serve as the first validation that the base class interface is correct and complete.
 Once the realistic initialization task (`ocean/realistic/init`) is implemented, its
-regression tests shall exercise the shared base class with WOA-derived CT/SA on at least
-one small or moderate-resolution global mesh. These tests shall confirm that the outer
-loop converges and that the output dataset is complete, without any modification to the
-base class.
+regression tests will exercise the shared base class with WOA-derived CT/SA on at least
+one small or moderate-resolution global mesh, confirming that the outer loop converges and
+the output dataset is complete without any modification to the base class.
