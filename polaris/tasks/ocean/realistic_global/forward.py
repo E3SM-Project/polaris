@@ -1,4 +1,6 @@
-from polaris.ocean.model import OceanModelStep, get_time_interval_string
+import xarray as xr
+
+from polaris.ocean.model import OceanModelStep
 
 
 class Forward(OceanModelStep):
@@ -19,10 +21,9 @@ class Forward(OceanModelStep):
         mesh_filename='mesh.nc',
         init_filename='init.nc',
         graph_filename='culled_graph.info',
+        output_filename='output.nc',
         options=None,
         replacements=None,
-        graph_target=None,
-        output_filename='output.nc',
         validate_vars=None,
         check_properties=None,
     ):
@@ -41,12 +42,12 @@ class Forward(OceanModelStep):
             The subdirectory for the step
 
         """
-        #validate_vars = [
+        # validate_vars = [
         #    'temperature',
         #    'salinity',
         #    'layerThickness',
         #    'normalVelocity',
-        #]
+        # ]
         self.mesh_filename = mesh_filename
         self.init_filename = init_filename
         self.graph_filename = graph_filename
@@ -57,7 +58,7 @@ class Forward(OceanModelStep):
             subdir=subdir,
             update_eos=update_eos,
             openmp_threads=1,
-            graph_target=graph_target,
+            graph_target=graph_filename,
         )
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
@@ -104,11 +105,10 @@ class Forward(OceanModelStep):
                 database='realistic_global',
             )
             self.add_input_file(
-                target=f'coeffs.nc',
+                target='coeffs.nc',
                 filename='coeffs.nc',
                 database='realistic_global',
             )
-
 
     def compute_cell_count(self):
         """
@@ -122,19 +122,4 @@ class Forward(OceanModelStep):
         """
         ds_mesh = xr.open_dataset('mesh.nc')
         if 'nCells' in ds_mesh.sizes:
-            return ds_mesh.sizes['nCells'] 
-
-    def dynamic_model_config(self, at_setup):
-        """
-        Set the model time step from config options at setup and runtime
-
-        Parameters
-        ----------
-        at_setup : bool
-            Whether this method is being run during setup of the step, as
-            opposed to at runtime
-        """
-        super().dynamic_model_config(at_setup=at_setup)
-
-        config = self.config
-
+            return ds_mesh.sizes['nCells']

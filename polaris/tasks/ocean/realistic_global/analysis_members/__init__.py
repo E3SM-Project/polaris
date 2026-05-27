@@ -1,5 +1,3 @@
-import os
-
 from polaris import (
     Step as Step,
 )
@@ -7,14 +5,15 @@ from polaris import (
     Task as Task,
 )
 from polaris.config import PolarisConfigParser as PolarisConfigParser
-from polaris.constants import get_constant
-#from polaris.tasks.ocean.realistic_global.stats_analysis import StatsAnalysis as StatsAnalysis
+
+# from polaris.tasks.ocean.realistic_global.stats_analysis import (
+#    StatsAnalysis as StatsAnalysis
+# )
 from polaris.tasks.ocean.realistic_global.forward import Forward as Forward
 
 
 class AnalysisMembers(Task):
-    """
-    """
+    """ """
 
     def __init__(
         self,
@@ -40,8 +39,10 @@ class AnalysisMembers(Task):
         config_filename : str
             The name of the configuration file
         """
-        indir = f'{subdir}/{mesh_name}/analysis_members'
-        super().__init__(component=component, name='analysis_test', subdir=indir)
+        subdir = f'{subdir}/analysis_members/{mesh_name}'
+        super().__init__(
+            component=component, name='analysis_test', subdir=subdir
+        )
 
         self.set_shared_config(config, link=config_filename)
 
@@ -49,13 +50,14 @@ class AnalysisMembers(Task):
         forward_step = Forward(
             component=component,
             package=package,
-            indir=indir,
+            indir=subdir,
             mesh_filename='culled_graph.info',
             init_filename='culled_graph.info',
             graph_filename='culled_graph.info',
         )
         forward_step.set_shared_config(config, link=config_filename)
         self.add_step(forward_step)
+
 
 #        stats_analysis = StatsAnalysis(
 #            component=component,

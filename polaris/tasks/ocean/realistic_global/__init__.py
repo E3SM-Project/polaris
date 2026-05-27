@@ -13,16 +13,17 @@ def add_realistic_global_tasks(component):
     component : polaris.tasks.ocean.Ocean
         The ocean component to which the tasks will be added.
     """
-    #subdir=f'{component.name}/spherical'
-    subdir='spherical'
-    config_filename ='analysis_members.cfg'
-    for mesh in ['qu/240km']:
-        filepath=f'{subdir}/{mesh}/realistic_global/analysis_members/{config_filename}'
+    subdir = 'spherical/realistic_global'
+    config_filename = 'analysis_members.cfg'
+    for mesh in ['oQU240km']:
+        filepath = f'{subdir}/analysis_members/{config_filename}'
         config = PolarisConfigParser(filepath=filepath)
-        component.add_task(AnalysisMembers(
-            component=component,
-            subdir=subdir,
-            mesh_name=mesh,
-            config=config,
-            config_filename=config_filename))
-
+        component.add_task(
+            AnalysisMembers(
+                component=component,
+                subdir=subdir,
+                mesh_name=mesh,
+                config=config,
+                config_filename=config_filename,
+            )
+        )
