@@ -24,6 +24,28 @@
    BaseMeshTask
 ```
 
+### Feature-Mask Tasks
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.mesh.spherical.feature_masks
+
+.. autosummary::
+   :toctree: generated/
+
+   ComputeFeatureMasksStep
+   ComputeFeatureMasksStep.setup
+   ComputeFeatureMasksStep.constrain_resources
+   ComputeFeatureMasksStep.run
+   ComputeFeatureMasksStep._open_mesh_dataset
+   ComputeFeatureMasksStep._write_mask_dataset
+   FeatureMasksTask
+   add_feature_mask_tasks
+   build_mask_feature_collection
+   compute_feature_masks
+   get_feature_mask_steps
+   get_feature_object_type
+```
+
 ### Unified Coastline Tasks
 
 ```{eval-rst}
