@@ -1,4 +1,5 @@
 from polaris.tasks.mesh.base import add_base_mesh_tasks
+from polaris.tasks.mesh.spherical.feature_masks import add_feature_mask_tasks
 from polaris.tasks.mesh.spherical.unified.base_mesh import (
     add_unified_base_mesh_tasks,
 )
@@ -22,5 +23,6 @@ def add_mesh_tasks(component):
     add_base_mesh_tasks(component=component)
     add_unified_base_mesh_tasks(component=component)
     add_coastline_tasks(component=component)
+    add_feature_mask_tasks(component=component)
     add_river_tasks(component=component)
     add_sizing_field_tasks(component=component)
