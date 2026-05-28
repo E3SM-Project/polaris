@@ -172,6 +172,21 @@
    VizTransect.run
 ```
 
+### feature_masks
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.feature_masks
+
+.. autosummary::
+   :toctree: generated/
+
+   ComputeOceanFeatureMasksStep
+   ComputeOceanFeatureMasksStep._open_mesh_dataset
+   ComputeOceanFeatureMasksStep._write_mask_dataset
+   OceanFeatureMasksTask
+   add_feature_mask_tasks
+```
+
 ### geostrophic
 
 ```{eval-rst}

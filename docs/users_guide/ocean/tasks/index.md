@@ -12,6 +12,7 @@ correlated_tracers_2d
 cosine_bell
 customizable_viz
 external_gravity_wave
+feature_masks
 geostrophic
 global_ocean
 horiz_press_grad
