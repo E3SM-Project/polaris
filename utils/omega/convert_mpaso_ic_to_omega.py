@@ -8,6 +8,7 @@ import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
 from ruamel.yaml import YAML
+from scipy.interpolate import CubicSpline
 
 from polaris.constants import get_constant
 
@@ -47,9 +48,10 @@ def parse_args():
         '--visualization',
         action='store_true',
         help=(
-            'Generate temperature/salinity percent-difference slice '
-            'figures and save next to the output NetCDF file. Figures '
-            'are not generated for planar meshes (i.e., on_a_sphere = 0).'
+            'Generate temperature/salinity difference slices and '
+            'surface wind stress visualizations figures and save '
+            'next to the output NetCDF file. Figures are not '
+            'generated for planar meshes (i.e., on_a_sphere = 0).'
         ),
     )
     return parser.parse_args()
@@ -66,9 +68,9 @@ def convert_to_omega(input_file, output_file, eos_type, visualization=False):
 
     ds_mpas_zero = ds_input.copy(deep=True)
     mpas_velocity_fields = _zero_velocity_fields(ds_mpas_zero)
-    # if ds_mpas_zero['sphere_radius'].attrs.get('value', 0.0) > 0.0:
     if ds_mpas_zero.attrs['sphere_radius'] > 0.0:
         _rescale_sphere_radius(ds_mpas_zero)
+    _add_wind_stress(ds_mpas_zero)
     _keep_selected_global_attrs(ds_mpas_zero)
 
     write_netcdf(ds_mpas_zero, zero_velocity_mpas_file)
@@ -114,12 +116,13 @@ def convert_to_omega(input_file, output_file, eos_type, visualization=False):
     velocity_fields = _zero_velocity_fields(ds_omega)
     if ds_omega.attrs['sphere_radius'] > 0.0:
         _rescale_sphere_radius(ds_omega)
-        if visualization:
-            _save_percent_difference_visualizations(
-                ds_original=ds_mpas_zero,
-                ds_omega=ds_omega,
-                output_file=output_file,
-            )
+    _add_wind_stress(ds_omega)
+    if visualization and ds_omega.attrs.get('sphere_radius', 0.0) > 0.0:
+        _save_percent_difference_visualizations(
+            ds_original=ds_mpas_zero,
+            ds_omega=ds_omega,
+            output_file=output_file,
+        )
 
     ds_omega = _map_mpaso_to_omega(ds_omega)
     ds_omega = _rename_resting_thickness_for_omega(ds_omega)
@@ -151,6 +154,7 @@ def convert_to_omega(input_file, output_file, eos_type, visualization=False):
         'Renamed variables to Omega names based on mpaso_to_omega.yaml mapping'
     )
     print('Renamed refLayerThickness to RefPseudoThickness for Omega output')
+    print('Added ZonalStressCell and MeridStressCell fields')
     print('Removed unnecessary global attributes')
     if visualization:
         print('Saved temperature/salinity percent-difference visualizations')
@@ -507,6 +511,77 @@ def _rename_resting_thickness_for_omega(ds):
     return ds
 
 
+def _add_wind_stress(ds):
+    """
+    Add a wind stress fields (ZonalStressCell and MeridStressCell).
+    ZonalStressCell varies with latitude using piecewise cubic
+    interpolation, while MeridStressCell is set to zero.
+    This is a simplified representation of typical zonal wind stress
+    patterns.
+
+    The field is added to dimensions (Time, nCells) with values that depend
+    only on latitude, not longitude. Automatically detects whether the dataset
+    uses 'Time' or 'time' and 'NCells' or 'nCells' dimension names.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset to which ZonalStressCell and MeridStressCell will be added.
+        Must contain latCell.
+    """
+    # Fixed latitude-value pairs for cubic interpolation
+    # These can be modified by editing the arrays below
+    fixed_latitudes = np.array(
+        [-70.0, -45.0, -15.0, 0.0, 15.0, 45.0, 70.0]
+    )  # degrees
+    fixed_values = np.array([0.0, 0.2, -0.1, -0.02, -0.1, 0.1, 0.0])  # Pa
+
+    lat = _to_degrees(ds['latCell'].values)
+
+    # Create cubic spline interpolation function
+    cs = CubicSpline(fixed_latitudes, fixed_values, bc_type='natural')
+
+    # Interpolate wind stress zonal values at each cell's latitude
+    wind_stress_zonal_values = cs(lat)
+
+    # Zero out values outside the range of fixed_latitudes
+    outside = (lat < fixed_latitudes[0]) | (lat > fixed_latitudes[-1])
+    wind_stress_zonal_values[outside] = 0.0
+
+    # Detect which time dimension name exists in the dataset
+    ncell_dim = 'NCells' if 'NCells' in ds.dims else 'nCells'
+    time_dim = 'Time' if 'Time' in ds.dims else 'time'
+
+    # Create the field with (time_dim, nCells) dimensions
+    n_time = ds.sizes[time_dim]
+    n_cells = ds.sizes[ncell_dim]
+    wind_stress_zonal = np.tile(
+        wind_stress_zonal_values[np.newaxis, :], (n_time, 1)
+    )
+
+    ds['ZonalStressCell'] = xr.DataArray(
+        data=wind_stress_zonal,
+        dims=[time_dim, ncell_dim],
+        attrs={
+            'long_name': 'zonal wind stress',
+            'units': 'N m^{-2}',
+            'standard_name': '',
+        },
+    )
+
+    # Create meridional wind stress field (set to zero)
+    wind_stress_merid = np.zeros((n_time, n_cells))
+    ds['MeridStressCell'] = xr.DataArray(
+        data=wind_stress_merid,
+        dims=[time_dim, ncell_dim],
+        attrs={
+            'long_name': 'meridional wind stress',
+            'units': 'N m^{-2}',
+            'standard_name': '',
+        },
+    )
+
+
 def _select_visualization_levels(ds_original, count=5):
     n_levels = ds_original.sizes['nVertLevels']
     if n_levels <= 1:
@@ -708,8 +783,70 @@ def _save_percent_difference_visualizations(
         plt.close(fig)
         print(f'Wrote {figure_path}')
 
+    def _plot_surface_variable(var_name, label, ds_omega_local):
+        if var_name not in ds_omega_local.variables:
+            return
+
+        field = ds_omega_local[var_name].isel(Time=0).values
+        valid = np.isfinite(field) & (field != 0.0)
+
+        if not np.any(valid):
+            return
+
+        fig, ax = plt.subplots(
+            1,
+            1,
+            figsize=(14, 8),
+            subplot_kw=dict(projection=salinity_projection),
+            constrained_layout=True,
+        )
+
+        da = xr.DataArray(field, dims=['nCells'])
+        norm = mcolors.TwoSlopeNorm(vmin=-0.2, vcenter=0.0, vmax=0.2)
+        pc = mosaic.polypcolor(
+            ax,
+            salinity_descriptor,
+            da,
+            cmap='coolwarm',
+            norm=norm,
+            antialiased=False,
+            zorder=2,
+        )
+
+        ax.add_feature(cfeature.LAND, facecolor='lightgray', zorder=3)
+        ax.add_feature(cfeature.COASTLINE, linewidth=0.4, zorder=4)
+        ax.add_feature(
+            cfeature.BORDERS, linewidth=0.2, linestyle=':', zorder=4
+        )
+        ax.gridlines(
+            color='gray',
+            linestyle=':',
+            linewidth=0.4,
+            draw_labels=False,
+            zorder=5,
+        )
+        ax.set_global()
+        ax.set_title(f'{label} (surface)', fontsize=12)
+
+        plt.colorbar(
+            pc,
+            ax=ax,
+            orientation='vertical',
+            label=r'N m^{-2}',
+            shrink=0.7,
+            pad=0.02,
+        )
+
+        figure_path = output_path.with_name(
+            f'{output_path.stem}_{var_name}.png'
+        )
+        fig.savefig(figure_path, dpi=150, bbox_inches='tight')
+        plt.close(fig)
+        print(f'Wrote {figure_path}')
+
     _plot_variable('temperature', 'Temperature')
     _plot_variable('salinity', 'Salinity')
+    _plot_surface_variable('ZonalStressCell', 'Zonal Wind Stress', ds_omega)
 
 
 def main():
