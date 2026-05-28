@@ -24,6 +24,7 @@ class VMix(Task):
         self.config.add_from_package(
             'polaris.tasks.ocean.single_column.vmix', config_filename
         )
+        self.config.add_from_package('polaris.ocean.eos', 'linear.cfg')
         self.add_step(init, symlink='init')
 
         validate_vars = [

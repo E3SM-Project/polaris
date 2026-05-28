@@ -28,6 +28,7 @@ class Ekman(Task):
             'polaris.tasks.ocean.single_column', 'single_column.cfg'
         )
         self.set_shared_config(config, link='ekman.cfg')
+        self.config.add_from_package('polaris.ocean.eos', 'linear.cfg')
         self.config.add_from_package(
             'polaris.tasks.ocean.single_column.ekman', 'ekman.cfg'
         )

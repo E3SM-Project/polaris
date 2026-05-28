@@ -25,6 +25,7 @@ class Inertial(Task):
         super().__init__(component=component, name=name, subdir=subdir)
         config_filename = 'inertial.cfg'
         self.set_shared_config(config, link=config_filename)
+        self.config.add_from_package('polaris.ocean.eos', 'linear.cfg')
         self.config.add_from_package(
             'polaris.tasks.ocean.single_column.inertial', config_filename
         )
