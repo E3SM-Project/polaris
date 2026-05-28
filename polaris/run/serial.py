@@ -581,7 +581,7 @@ def _run_task(task, available_resources):
             else:
                 property_str = fail_str
             _print_to_stdout(
-                task, f'          property checks:   {property_str}'
+                task, f'          property checks:  {property_str}'
             )
             property_passed = _accumulate_baselines(property_passed, status)
 
