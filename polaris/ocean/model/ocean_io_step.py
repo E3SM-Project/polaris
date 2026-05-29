@@ -21,6 +21,65 @@ class OceanIOStep(Step):
     def __init__(self, component: 'Ocean', **kwargs):
         super().__init__(component=component, **kwargs)
 
+    def add_output_files_for_ocean_model_input(
+        self,
+        horiz_mesh_filename=None,
+        vert_coord_filename=None,
+        init_filename=None,
+        base_mesh_filename=None,
+        graph_filename=None,
+    ):
+        """
+        Register output files that will be consumed by the ocean model as
+        inputs (horizontal mesh, initial condition, and model-specific files).
+
+        Parameters
+        ----------
+        horiz_mesh_filename : str, optional
+            Local filename for the horizontal mesh output; defaults to the
+            ``horiz_mesh_filename`` option in ``[ocean_model_files]``.
+
+        vert_coord_filename : str, optional
+            Local filename for the vertical-coordinate output (Omega only);
+            defaults to the ``vert_coord_filename`` option in
+            ``[ocean_model_files]``.
+
+        init_filename : str, optional
+            Local filename for the initial-state output; defaults to the
+            ``init_filename`` option in ``[ocean_model_files]``.
+
+        base_mesh_filename : str, optional
+            If provided, also register this filename as an output (used when
+            the step writes both a base and a culled mesh, e.g.
+            ``'base_mesh.nc'``).
+
+        graph_filename : str, optional
+            If provided, register this filename as an output for MPAS-Ocean
+            only (e.g. ``'culled_graph.info'``).  Ignored for Omega.
+        """
+        config = self.config
+        model = config.get('ocean', 'model')
+
+        if horiz_mesh_filename is None:
+            horiz_mesh_filename = config.get(
+                'ocean_model_files', 'horiz_mesh_filename'
+            )
+        if vert_coord_filename is None:
+            vert_coord_filename = config.get(
+                'ocean_model_files', 'vert_coord_filename'
+            )
+        if init_filename is None:
+            init_filename = config.get('ocean_model_files', 'init_filename')
+
+        if base_mesh_filename is not None:
+            self.add_output_file(filename=base_mesh_filename)
+        self.add_output_file(filename=horiz_mesh_filename)
+        self.add_output_file(filename=init_filename)
+        if model == 'omega':
+            self.add_output_file(filename=vert_coord_filename)
+        if model == 'mpas-ocean' and graph_filename is not None:
+            self.add_output_file(filename=graph_filename)
+
     def map_to_native_model_vars(self, ds):
         """
         If the model is Omega, rename dimensions and variables in a dataset
