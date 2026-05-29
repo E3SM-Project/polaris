@@ -1,7 +1,49 @@
 import numpy as np
 import xarray as xr
 
+from polaris.config import PolarisConfigParser
 from polaris.constants import get_constant
+
+
+def add_coriolis_to_dataset(
+    config: PolarisConfigParser, ds_mesh: xr.Dataset
+) -> xr.Dataset:
+    """
+    Add Coriolis fields to a mesh dataset based on the ``type`` option
+    in the ``[coriolis]`` config section.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Configuration object containing ocean parameters.
+
+    ds_mesh : xarray.Dataset
+        The horizontal mesh dataset to update.
+
+    Returns
+    -------
+    xarray.Dataset
+        The updated dataset with ``fCell``, ``fEdge``, and ``fVertex``
+        fields.
+    """
+    section = config['coriolis']
+    coriolis_type = section.get('type').strip()
+    if coriolis_type == 'zero':
+        return add_zero_coriolis(ds_mesh)
+    elif coriolis_type == 'constant':
+        f = section.getfloat('constant_f')
+        return add_constant_coriolis(ds_mesh, f)
+    elif coriolis_type == 'beta_plane':
+        f0 = section.getfloat('beta_plane_f0')
+        beta = section.getfloat('beta_plane_beta')
+        return add_beta_plane_coriolis(ds_mesh, f0, beta)
+    elif coriolis_type == 'spherical':
+        return add_spherical_coriolis(ds_mesh)
+    elif coriolis_type == 'rotated_sphere':
+        alpha = section.getfloat('rotated_sphere_alpha')
+        return add_rotated_sphere_coriolis(ds_mesh, alpha)
+    else:
+        raise ValueError(f'Unsupported Coriolis type: {coriolis_type}')
 
 
 def add_beta_plane_coriolis(
