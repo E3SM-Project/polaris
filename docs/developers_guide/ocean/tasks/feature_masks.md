@@ -32,3 +32,29 @@ setup and run.
 
 Future Omega-friendly output naming or variable filtering should also stay in
 this ocean package, not in {py:mod}`polaris.tasks.mesh.spherical.feature_masks`.
+
+## MOC Basins Extension
+
+`ComputeOceanFeatureMasksStep` overrides two protected hooks to handle the
+`'MOC Basins'` mask group as a special case.
+
+**`_set_output_filenames(mesh_name, mask_group)`** — calls `super()` to set
+the normal filenames and then, for `mask_group == 'MOC Basins'`, replaces
+`output_filename` with `{mesh_name}_mocBasinsAndTransects{date}.nc`.
+`geojson_filename` is left as `mocBasins{date}.geojson` (the intermediate
+GeoJSON used by `compute_mpas_region_masks`).  The renamed output matches the
+convention expected by MPAS-Analysis.
+
+**`_post_process_masks(ds_masks, ds_mesh, mask_group)`** — for
+`mask_group == 'MOC Basins'`, calls
+`mpas_tools.ocean.moc.add_moc_southern_boundary_transects(ds_masks, ds_mesh,
+logger=self.logger)`, which appends southern-boundary transect masks derived
+algorithmically from the basin cell masks.  The string variables `'history'`
+and `'constituents'`, which `add_moc_southern_boundary_transects` may attach
+and which are incompatible with CDF5 output, are dropped if present.  For all
+other mask groups the method is a no-op.
+
+The hook is defined on the model-neutral base class
+{py:class}`polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep`
+as a no-op return; `add_moc_southern_boundary_transects` lives in
+`mpas_tools.ocean` and must not be imported by the mesh package.

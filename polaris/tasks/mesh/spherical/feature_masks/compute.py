@@ -144,17 +144,18 @@ class ComputeFeatureMasksStep(Step):
             section.get('subdivision_resolution')
         )
 
+        if self.mesh_step is None:
+            open_mesh_filename = mesh_filename
+        else:
+            open_mesh_filename = 'mesh.nc'
+        ds_mesh = self._open_mesh_dataset(open_mesh_filename)
+
         pool = None
         try:
             pool = create_mask_pool(
                 process_count=self.cpus_per_task,
                 method=section.get('multiprocessing_method'),
             )
-            if self.mesh_step is None:
-                open_mesh_filename = mesh_filename
-            else:
-                open_mesh_filename = 'mesh.nc'
-            ds_mesh = self._open_mesh_dataset(open_mesh_filename)
             ds_masks = compute_feature_masks(
                 ds_mesh=ds_mesh,
                 fc_mask=fc_mask,
@@ -181,6 +182,7 @@ class ComputeFeatureMasksStep(Step):
         ds_masks.attrs['geometric_features_date'] = date
         ds_masks.attrs['source_mesh_filename'] = source_mesh_filename
 
+        ds_masks = self._post_process_masks(ds_masks, ds_mesh, mask_group)
         self._write_mask_dataset(ds_masks, self.output_filename)
 
     def _open_mesh_dataset(self, filename):
@@ -194,6 +196,13 @@ class ComputeFeatureMasksStep(Step):
         Write a standard MPAS mask dataset.
         """
         write_netcdf(ds_masks, filename, logger=self.logger)
+
+    def _post_process_masks(self, ds_masks, ds_mesh, mask_group):
+        """
+        Post-process computed masks before writing. Default is a no-op.
+        Subclasses may override to augment the dataset.
+        """
+        return ds_masks
 
     def _resolve_runtime_config(self):
         """

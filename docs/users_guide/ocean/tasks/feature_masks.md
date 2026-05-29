@@ -17,6 +17,19 @@ such as `NCells`, `NEdges`, `NRegions`, and `RegionCellMasks`.
 Use the mesh-component task instead when the input file is already a standard
 MPAS mesh and no ocean-model-specific I/O translation is needed.
 
+## MOC Basins
+
+When `mask_group = MOC Basins`, the step performs an extra post-processing pass
+after the normal region-mask computation.
+`mpas_tools.ocean.moc.add_moc_southern_boundary_transects` is called with the
+basin cell masks and the mesh dataset to derive southern-boundary transect masks
+for each MOC basin; these are appended to the output dataset alongside the
+region masks.
+
+The output file is named `{mesh_name}_mocBasinsAndTransects{date}.nc` (instead
+of the normal `{mesh_name}_mocBasins{date}.nc`) so downstream tools such as
+MPAS-Analysis can locate the combined file.
+
 ## Example
 
 ```bash
