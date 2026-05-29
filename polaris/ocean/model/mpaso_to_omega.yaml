@@ -86,55 +86,6 @@ variables:
   pressure: PressureMid
 
 
-horiz_mesh_variables:
-  - indexToCellID
-  - indexToEdgeID
-  - indexToVertexID
-  - cellsOnCell
-  - nEdgesOnCell
-  - edgesOnCell
-  - verticesOnCell
-  - cellsOnEdge
-  - edgesOnEdge
-  - nEdgesOnEdge
-  - verticesOnEdge
-  - cellsOnVertex
-  - edgesOnVertex
-  - xCell
-  - yCell
-  - zCell
-  - latCell
-  - lonCell
-  - xEdge
-  - yEdge
-  - zEdge
-  - latEdge
-  - lonEdge
-  - xVertex
-  - yVertex
-  - zVertex
-  - latVertex
-  - lonVertex
-  - areaCell
-  - meshDensity
-  - areaTriangle
-  - dvEdge
-  - dcEdge
-  - angleEdge
-  - kiteAreasOnVertex
-  - weightsOnEdge
-  - fCell
-  - fEdge
-  - fVertex
-
-vert_coord_variables:
-  - minLevelCell
-  - maxLevelCell
-  - bottomDepth
-  - restingThickness
-  - vertCoordMovementWeights
-
-
 config:
 - section:
     time_management: TimeIntegration

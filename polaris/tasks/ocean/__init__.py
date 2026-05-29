@@ -476,15 +476,20 @@ class Ocean(Component):
         Read the map from MPAS-Ocean to Omega dimension and variable names
         """
         package = 'polaris.ocean.model'
+
         filename = 'mpaso_to_omega.yaml'
         text = imp_res.files(package).joinpath(filename).read_text()
-
         yaml_data = YAML(typ='rt')
         nested_dict = yaml_data.load(text)
         self.mpaso_to_omega_dim_map = nested_dict['dimensions']
         self.mpaso_to_omega_var_map = nested_dict['variables']
-        self.horiz_mesh_vars = nested_dict['horiz_mesh_variables']
-        self.vert_coord_vars = nested_dict['vert_coord_variables']
+
+        filename = 'variables.yaml'
+        text = imp_res.files(package).joinpath(filename).read_text()
+        yaml_data = YAML(typ='rt')
+        nested_dict = yaml_data.load(text)
+        self.horiz_mesh_vars = nested_dict['ocean']['horiz_mesh_variables']
+        self.vert_coord_vars = nested_dict['ocean']['vert_coord_variables']
 
     def _detect_model(self, config) -> str:
         """
