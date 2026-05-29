@@ -58,15 +58,16 @@ class OceanIOStep(Step):
         """
         self.component.write_model_dataset(ds, filename, config=config)
 
-    def write_initial_state_dataset(self, ds, filename, config):
+    def write_horiz_mesh_dataset(self, ds, filename, config):
         """
-        Write an initial-state dataset, omitting horizontal mesh fields and
-        (for Omega) vertical coordinate fields.
+        Write a horizontal mesh dataset, validating that all expected mesh
+        variables are present before writing.
 
         Parameters
         ----------
         ds : xarray.Dataset
-            A dataset containing MPAS-Ocean variable names
+            A dataset containing MPAS-Ocean variable names including all
+            horizontal mesh variables
 
         filename : str
             The path for the NetCDF file to write
@@ -74,7 +75,7 @@ class OceanIOStep(Step):
         config : polaris.config.PolarisConfigParser
             Configuration for the task; forwarded to the Ocean component.
         """
-        self.component.write_initial_state_dataset(ds, filename, config)
+        self.component.write_horiz_mesh_dataset(ds, filename, config)
 
     def write_vert_coord_dataset(self, ds, filename, config):
         """
@@ -93,6 +94,24 @@ class OceanIOStep(Step):
             Configuration for the task; forwarded to the Ocean component.
         """
         self.component.write_vert_coord_dataset(ds, filename, config)
+
+    def write_initial_state_dataset(self, ds, filename, config):
+        """
+        Write an initial-state dataset, omitting horizontal mesh fields and
+        (for Omega) vertical coordinate fields.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean variable names
+
+        filename : str
+            The path for the NetCDF file to write
+
+        config : polaris.config.PolarisConfigParser
+            Configuration for the task; forwarded to the Ocean component.
+        """
+        self.component.write_initial_state_dataset(ds, filename, config)
 
     def map_from_native_model_vars(self, ds):
         """

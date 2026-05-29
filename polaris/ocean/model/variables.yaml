@@ -43,9 +43,12 @@ ocean:
     - minLevelCell
     - maxLevelCell
     - bottomDepth
-    - restingThickness
     - vertCoordMovementWeights
 
 mpas-ocean:
+  vert_coord_variables:
+    - restingThickness
 
 Omega:
+  vert_coord_variables:
+    - RefPseudoThickness

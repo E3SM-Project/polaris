@@ -119,7 +119,11 @@ def test_write_vert_coord_dataset_noop_for_mpas_ocean(tmp_path):
 
     ds = xr.Dataset(
         data_vars=dict(
+            minLevelCell=('nCells', [0, 0]),
+            maxLevelCell=('nCells', [0, 0]),
             bottomDepth=('nCells', [100.0, 200.0]),
+            restingThickness=(('nCells', 'nVertLevels'), [[50.0], [100.0]]),
+            vertCoordMovementWeights=('nVertLevels', [1.0]),
         )
     )
 
@@ -127,6 +131,93 @@ def test_write_vert_coord_dataset_noop_for_mpas_ocean(tmp_path):
     component.write_vert_coord_dataset(ds, str(filename), config)
 
     assert not filename.exists()
+
+
+@pytest.mark.parametrize(
+    'model,missing_var',
+    [
+        ('mpas-ocean', 'restingThickness'),
+        ('omega', 'RefPseudoThickness'),
+    ],
+)
+def test_write_vert_coord_dataset_raises_on_missing_vars(
+    tmp_path, model, missing_var
+):
+    component = Ocean()
+    component.model = model
+    component._read_var_map()
+
+    config = MagicMock()
+
+    # omit the model-specific thickness var and vertCoordMovementWeights
+    ds = xr.Dataset(
+        data_vars=dict(
+            minLevelCell=('nCells', [0, 0]),
+            maxLevelCell=('nCells', [0, 0]),
+            bottomDepth=('nCells', [100.0, 200.0]),
+        )
+    )
+
+    filename = tmp_path / 'vert_coord.nc'
+    with pytest.raises(ValueError, match=missing_var):
+        component.write_vert_coord_dataset(ds, str(filename), config)
+
+
+def _make_horiz_mesh_ds(component):
+    """Build a minimal dataset with all horiz_mesh_vars as dummy data."""
+    return xr.Dataset(
+        data_vars={
+            v: ('nCells', [0.0, 1.0]) for v in component.horiz_mesh_vars
+        }
+    )
+
+
+def test_write_horiz_mesh_dataset_raises_on_missing_vars(tmp_path):
+    component = Ocean()
+    component.model = 'mpas-ocean'
+    component._read_var_map()
+
+    config = MagicMock()
+
+    # dataset is missing most horiz_mesh_vars
+    ds = xr.Dataset(data_vars=dict(xCell=('nCells', [0.0, 1.0])))
+
+    filename = tmp_path / 'mesh.nc'
+    with pytest.raises(ValueError, match='indexToCellID'):
+        component.write_horiz_mesh_dataset(ds, str(filename), config)
+
+
+def test_write_horiz_mesh_dataset_writes_mpas_ocean(tmp_path):
+    component = Ocean()
+    component.model = 'mpas-ocean'
+    component._read_var_map()
+
+    config = MagicMock()
+    ds = _make_horiz_mesh_ds(component)
+
+    filename = tmp_path / 'mesh.nc'
+    component.write_horiz_mesh_dataset(ds, str(filename), config)
+
+    ds_out = xr.open_dataset(filename)
+    assert 'xCell' in ds_out
+    assert 'fCell' in ds_out
+
+
+def test_write_horiz_mesh_dataset_writes_omega(tmp_path):
+    component = Ocean()
+    component.model = 'omega'
+    component._read_var_map()
+
+    config = MagicMock()
+    ds = _make_horiz_mesh_ds(component)
+
+    filename = tmp_path / 'mesh.nc'
+    component.write_horiz_mesh_dataset(ds, str(filename), config)
+
+    ds_out = xr.open_dataset(filename)
+    assert 'XCell' in ds_out
+    assert 'FCell' in ds_out
+    assert 'xCell' not in ds_out
 
 
 def test_process_inputs_and_outputs_resolves_model_input_filenames(
