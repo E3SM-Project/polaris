@@ -1,0 +1,40 @@
+ocean:
+  time_management:
+    config_stop_time: none
+    config_run_duration: {{ run_duration }}
+  time_integration:
+    config_dt: {{ dt }}
+  forcing:
+    config_use_bulk_wind_stress: true
+
+Omega:
+  TimeIntegration:
+    TimeStepper: RungeKutta4
+  Tendencies:
+    PressureGradTendencyEnable : false
+  Tracers:
+    Debug: []
+  IOStreams:
+    InitialVertCoord:
+      Filename: init.nc
+    InitialState:
+      Filename: init.nc
+      Contents:
+        - State
+        - Tracers
+        - Tracers
+        - WindStressZonal
+        - WindStressMeridional
+    History:
+      Filename: output.nc
+      Freq: {{ output_freq }}
+      FreqUnits: {{ output_freq_units }}
+      IfExists: append
+      # effectively never
+      FileFreq: 9999
+      FileFreqUnits: years
+      Contents:
+        - Tracers
+        - PseudoThickness
+        - NormalVelocity
+        - Eos
