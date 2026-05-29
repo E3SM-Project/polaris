@@ -37,4 +37,6 @@ Omega:
         - Tracers
         - PseudoThickness
         - NormalVelocity
+        - SshCell
+        - KineticEnergyCell
         - Eos
