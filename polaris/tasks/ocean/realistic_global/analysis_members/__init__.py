@@ -5,10 +5,9 @@ from polaris import (
     Task as Task,
 )
 from polaris.config import PolarisConfigParser as PolarisConfigParser
-
-# from polaris.tasks.ocean.realistic_global.stats_analysis import (
-#    StatsAnalysis as StatsAnalysis
-# )
+from polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis import (  # noqa: E501
+    StatsAnalysis as StatsAnalysis,
+)
 from polaris.tasks.ocean.realistic_global.forward import Forward as Forward
 
 
@@ -39,7 +38,7 @@ class AnalysisMembers(Task):
         config_filename : str
             The name of the configuration file
         """
-        subdir = f'{subdir}/analysis_members/{mesh_name}'
+        subdir = f'{subdir}/analysis_members_test'
         super().__init__(
             component=component, name='analysis_test', subdir=subdir
         )
@@ -47,22 +46,32 @@ class AnalysisMembers(Task):
         self.set_shared_config(config, link=config_filename)
 
         package = 'polaris.tasks.ocean.realistic_global'
+        replacements = {
+            'run_duration': '0030_00-00-00',
+            'dt': '00:10:00',
+            'output_freq': '1',
+            'output_freq_units': 'seconds',
+        }
         forward_step = Forward(
             component=component,
             package=package,
             indir=subdir,
-            mesh_filename='culled_graph.info',
-            init_filename='culled_graph.info',
-            graph_filename='culled_graph.info',
+            name=f'{mesh_name}_forward',
+            mesh_filename='ocean.QU.240km.151209.omega.teos10eos.nc',
+            init_filename='ocean.QU.240km.151209.omega.teos10eos.nc',
+            output_filename='output.nc',
+            replacements=replacements,
+            resolution_for_cell_count=240,
         )
         forward_step.set_shared_config(config, link=config_filename)
         self.add_step(forward_step)
 
-
-#        stats_analysis = StatsAnalysis(
-#            component=component,
-#            indir=indir,
-#            test_name=test_name,
-#        )
-#        analysis.set_shared_config(config, link=config_filename)
-#        self.add_step(analysis, run_by_default=False)
+        stats_analysis = StatsAnalysis(
+            component=component,
+            name=f'{mesh_name}_global_stats',
+            indir=subdir,
+            output_filename='output.nc',
+            forward_step=forward_step,
+        )
+        stats_analysis.set_shared_config(config, link=config_filename)
+        self.add_step(stats_analysis, run_by_default=False)

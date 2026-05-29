@@ -1,5 +1,3 @@
-import xarray as xr
-
 from polaris.ocean.model import OceanModelStep
 
 
@@ -22,10 +20,13 @@ class Forward(OceanModelStep):
         init_filename='init.nc',
         graph_filename='culled_graph.info',
         output_filename='output.nc',
+        ntasks=None,
+        min_tasks=None,
         options=None,
         replacements=None,
         validate_vars=None,
         check_properties=None,
+        resolution_for_cell_count=None,
     ):
         """
         Create a new step
@@ -42,26 +43,27 @@ class Forward(OceanModelStep):
             The subdirectory for the step
 
         """
-        # validate_vars = [
-        #    'temperature',
-        #    'salinity',
-        #    'layerThickness',
-        #    'normalVelocity',
-        # ]
-        self.mesh_filename = mesh_filename
-        self.init_filename = init_filename
-        self.graph_filename = graph_filename
         super().__init__(
             component=component,
             name=name,
             indir=indir,
             subdir=subdir,
+            ntasks=ntasks,
+            min_tasks=min_tasks,
             update_eos=update_eos,
             openmp_threads=1,
             graph_target=graph_filename,
         )
+        self.mesh_filename = mesh_filename
+        self.init_filename = init_filename
+        self.graph_filename = graph_filename
+        self.resolution = resolution_for_cell_count
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
+
+        # this is set in the yaml file
+        # self.add_yaml_file('polaris.ocean.eos', 'teos10.yaml')
+
         self.add_yaml_file(
             package,
             yaml_filename,
@@ -74,6 +76,7 @@ class Forward(OceanModelStep):
                     options=options[config_model], config_model=config_model
                 )
 
+        # TODO replace validate_vars with all model-specific state vars
         self.add_output_file(
             filename=output_filename,
             validate_vars=validate_vars,
@@ -99,14 +102,18 @@ class Forward(OceanModelStep):
                 filename='init.nc',
                 database='realistic_global',
             )
+            # TODO we need to add this file to input database if we want to
+            # reconstruct zonal, meridional components before Omega has those
+            # capabilities natively
+            # self.add_input_file(
+            #    target='coeffs.nc',
+            #    filename='coeffs.nc',
+            #    database='realistic_global',
+            # )
+        else:
             self.add_input_file(
                 target='culled_graph.info',
                 filename=self.graph_filename,
-                database='realistic_global',
-            )
-            self.add_input_file(
-                target='coeffs.nc',
-                filename='coeffs.nc',
                 database='realistic_global',
             )
 
@@ -120,6 +127,11 @@ class Forward(OceanModelStep):
         cell_count : int or None
             The approximate number of cells in the mesh
         """
-        ds_mesh = xr.open_dataset('mesh.nc')
-        if 'nCells' in ds_mesh.sizes:
-            return ds_mesh.sizes['nCells']
+        # Consider getting ds_mesh.sizes['nCells'] from file in input database
+        if self.resolution is None:
+            raise ValueError(
+                'Resolution for cell count is required for realistic_global '
+                'tests'
+            )
+        cell_count = 4e8 / self.resolution**2
+        return cell_count
