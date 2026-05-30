@@ -68,7 +68,6 @@ class Forward(ConvergenceForward):
             refinement=refinement,
             package='polaris.tasks.ocean.merry_go_round',
             yaml_filename='forward.yaml',
-            mesh_input_filename='culled_mesh.nc',
             graph_target=f'{init.path}/culled_graph.info',
             output_filename='output.nc',
             validate_vars=validate_vars,
@@ -78,20 +77,12 @@ class Forward(ConvergenceForward):
         self.mesh_name = init.path.split('/')[-1]
 
     def setup(self):
-        """
-        TEMP: symlink initial condition to name hard-coded in Omega
-        """
         super().setup()
-        config = self.config
-        model = config.get('ocean', 'model')
-        # TODO: remove as soon as Omega no longer hard-codes this file
-        if model == 'omega':
-            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
-            self.add_input_file(
-                target=f'{self.mesh_name}_coeffs.nc',
-                filename='coeffs.nc',
-                database='merry_go_round',
-            )
+        self.add_input_file(
+            target=f'{self.mesh_name}_coeffs.nc',
+            filename='coeffs.nc',
+            database='merry_go_round',
+        )
 
     def dynamic_model_config(self, at_setup):
         """

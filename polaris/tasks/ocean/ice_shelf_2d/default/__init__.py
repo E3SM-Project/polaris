@@ -90,7 +90,7 @@ class Default(IceShelfTask):
         last_adjust_step = self.setup_ssh_adjustment_steps(
             mesh_filename=f'{init.path}/culled_mesh.nc',
             graph_target=f'{init.path}/culled_graph.info',
-            init_filename=f'{init.path}/output.nc',
+            init_filename=f'{init.path}/init.nc',
             config=config,
             config_filename='ice_shelf_2d.cfg',
             ForwardStep=SshForward,

@@ -1,16 +1,14 @@
-import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
 
-from polaris import Step
-from polaris.constants import get_constant
+from polaris.ocean.coriolis import add_coriolis_to_dataset
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.tasks.ocean.geostrophic.exact_solution import (
     compute_exact_solution,
 )
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for an initial condition for for the geostrophic test case
     """
@@ -45,15 +43,19 @@ class Init(Step):
             work_dir_target=f'{base_mesh.path}/graph.info',
         )
 
-        self.add_output_file(
-            filename='initial_state.nc',
-            validate_vars=[
-                'temperature',
-                'salinity',
-                'layerThickness',
-                'normalVelocity',
-            ],
-        )
+    def setup(self):
+        super().setup()
+        self.add_output_file(filename='culled_mesh.nc')
+        validate_vars = [
+            'temperature',
+            'salinity',
+            'layerThickness',
+            'normalVelocity',
+        ]
+        self.add_output_file(filename='init.nc', validate_vars=validate_vars)
+        model = self.config.get('ocean', 'model')
+        if model == 'omega':
+            self.add_output_file(filename='vert_coord.nc')
 
     def run(self):
         """
@@ -74,18 +76,15 @@ class Init(Step):
             alpha, vel_period, gh_0, mesh_filename
         )
 
-        omega = get_constant('angular_velocity')
-
         section = config['vertical_grid']
         bottom_depth = section.getfloat('bottom_depth')
 
         ds_mesh = xr.open_dataset('mesh.nc')
         latCell = ds_mesh.latCell
-        lonCell = ds_mesh.lonCell
-        latEdge = ds_mesh.latEdge
-        lonEdge = ds_mesh.lonEdge
-        latVertex = ds_mesh.latVertex
-        lonVertex = ds_mesh.lonVertex
+
+        config.set('coriolis', 'rotated_sphere_alpha', str(alpha))
+        ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
+        self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)
 
         ds = ds_mesh.copy()
 
@@ -93,7 +92,6 @@ class Init(Step):
         ds['ssh'] = -ds.bottomDepth + h
 
         init_vertical_coord(config, ds)
-
         temperature_array = temperature * xr.ones_like(ds_mesh.latCell)
         temperature_array, _ = xr.broadcast(temperature_array, ds.refZMid)
         salinity_array = salinity * xr.ones_like(temperature_array)
@@ -103,25 +101,13 @@ class Init(Step):
         ds['temperature'] = temperature_array.expand_dims(dim='Time', axis=0)
         ds['salinity'] = salinity_array.expand_dims(dim='Time', axis=0)
         ds['normalVelocity'] = normalVelocity.expand_dims(dim='Time', axis=0)
-
-        ds['fCell'] = _coriolis(lonCell, latCell, alpha, omega)
-        ds['fEdge'] = _coriolis(lonEdge, latEdge, alpha, omega)
-        ds['fVertex'] = _coriolis(lonVertex, latVertex, alpha, omega)
+        # temperature and salinity must be set before this call:
+        # write_vert_coord_dataset converts restingThickness to
+        # RefPseudoThickness via pseudothickness_from_ds, which requires T/S
+        self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
 
         # for visualization
         ds['velocityZonal'] = u_cell.broadcast_like(ds.temperature)
         ds['velocityMeridional'] = v_cell.broadcast_like(ds.temperature)
 
-        write_netcdf(ds, 'initial_state.nc')
-
-
-def _coriolis(lon, lat, alpha, omega):
-    f = (
-        2
-        * omega
-        * (
-            -np.cos(lon) * np.cos(lat) * np.sin(alpha)
-            + np.sin(lat) * np.cos(alpha)
-        )
-    )
-    return f
+        self.write_initial_state_dataset(ds, 'init.nc', config)

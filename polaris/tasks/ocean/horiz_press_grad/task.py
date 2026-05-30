@@ -109,6 +109,7 @@ class HorizPressGradTask(Task):
             forward_step = Forward(
                 component=self.component,
                 horiz_res=horiz_res,
+                init=init_steps[horiz_res],
                 indir=self.subdir,
             )
             self.add_step(forward_step)

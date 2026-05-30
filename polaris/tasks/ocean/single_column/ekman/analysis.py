@@ -30,7 +30,7 @@ class Analysis(Step):
         """
         super().__init__(component=component, name='analysis', indir=indir)
         self.add_input_file(
-            filename='init.nc', target='../forward/initial_state.nc'
+            filename='mesh.nc', target='../init/culled_mesh.nc'
         )
         self.add_input_file(
             filename='output.nc', target='../forward/output.nc'
@@ -44,13 +44,13 @@ class Analysis(Step):
         use_mplstyle()
 
         config = self.config
-        f = config.getfloat('single_column', 'coriolis_parameter')
+        f = config.getfloat('coriolis', 'constant_f')
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
         tau_x = config.getfloat('single_column_forcing', 'wind_stress_zonal')
         nu = config.getfloat('single_column_ekman', 'vertical_viscosity')
         tol = config.getfloat('single_column_ekman', 'L2_error_norm_max')
 
-        ds_mesh = xr.load_dataset('init.nc')
+        ds_mesh = xr.load_dataset('mesh.nc')
         ds = xr.load_dataset('output.nc')
         t_index = ds.sizes['Time'] - 1
         t = ds.daysSinceStartOfSim[t_index]

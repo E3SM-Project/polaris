@@ -4,8 +4,9 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.coriolis import add_coriolis_to_dataset
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.inertial_gravity_wave.exact_solution import (
@@ -13,7 +14,7 @@ from polaris.tasks.ocean.inertial_gravity_wave.exact_solution import (
 )
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for creating a mesh and initial condition for the
     inertial gravity wave test cases
@@ -44,12 +45,14 @@ class Init(Step):
             component=component, name=f'init_{mesh_name}', subdir=subdir
         )
         self.resolution = resolution
-        for filename in [
-            'culled_mesh.nc',
-            'initial_state.nc',
-            'culled_graph.info',
-        ]:
-            self.add_output_file(filename=filename)
+
+    def setup(self):
+        super().setup()
+        self.add_output_files_for_ocean_model_input(
+            horiz_mesh_filename='culled_mesh.nc',
+            base_mesh_filename='base_mesh.nc',
+            graph_filename='culled_graph.info',
+        )
 
     def run(self):
         """
@@ -63,7 +66,6 @@ class Init(Step):
 
         lx = section.getfloat('lx')
         ly = np.sqrt(3.0) / 2.0 * lx
-        f0 = section.getfloat('coriolis_parameter')
 
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         dc = 1e3 * resolution
@@ -77,7 +79,8 @@ class Init(Step):
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        write_netcdf(ds_mesh, 'culled_mesh.nc')
+        ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
+        self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
 
@@ -87,10 +90,7 @@ class Init(Step):
         ds['bottomDepth'] = bottom_depth * xr.ones_like(ds_mesh.xCell)
 
         init_vertical_coord(config, ds)
-
-        ds['fCell'] = f0 * xr.ones_like(ds_mesh.xCell)
-        ds['fEdge'] = f0 * xr.ones_like(ds_mesh.xEdge)
-        ds['fVertex'] = f0 * xr.ones_like(ds_mesh.xVertex)
+        self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
 
         exact_solution = ExactSolution(ds, config)
 
@@ -111,4 +111,4 @@ class Init(Step):
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
         ds['normalVelocity'] = normal_velocity
 
-        write_netcdf(ds, 'initial_state.nc')
+        self.write_initial_state_dataset(ds, 'init.nc', config)

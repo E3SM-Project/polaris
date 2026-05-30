@@ -4,13 +4,14 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris import Step
 from polaris.constants import get_constant
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.coriolis import add_coriolis_to_dataset
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for creating a mesh and initial condition for ice shelf 2-d tasks
 
@@ -38,12 +39,17 @@ class Init(Step):
         super().__init__(component=component, name='init', indir=indir)
         self.resolution = resolution
 
+    def setup(self):
+        super().setup()
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info']:
             self.add_output_file(file)
         self.add_output_file(
-            'output.nc',
+            'init.nc',
             validate_vars=['temperature', 'salinity', 'layerThickness'],
         )
+        model = self.config.get('ocean', 'model')
+        if model == 'omega':
+            self.add_output_file('vert_coord.nc')
 
     def run(self):
         """
@@ -74,16 +80,18 @@ class Init(Step):
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        write_netcdf(ds_mesh, 'culled_mesh.nc')
-
-        ds = ds_mesh.copy()
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
         section = config['ice_shelf_2d']
+
+        ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
+        self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)
+
+        ds = ds_mesh.copy()
+
         temperature = section.getfloat('temperature')
         surface_salinity = section.getfloat('surface_salinity')
         bottom_salinity = section.getfloat('bottom_salinity')
-        coriolis_parameter = section.getfloat('coriolis_parameter')
 
         # points 1 and 2 are where angles on ice shelf are located.
         # point 3 is at the surface.
@@ -95,7 +103,6 @@ class Init(Step):
         d2 = section.getfloat('y2_water_column_thickness')
         d3 = bottom_depth
 
-        x_cell = ds.xCell
         y_cell = ds.yCell
         ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell)
 
@@ -113,6 +120,16 @@ class Init(Step):
         ds['ssh'] = -bottom_depth + column_thickness
 
         init_vertical_coord(config, ds)
+        salinity = surface_salinity + (
+            (bottom_salinity - surface_salinity) * (ds.zMid / (-bottom_depth))
+        )
+        salinity, _ = xr.broadcast(salinity, ds.layerThickness)
+        ds['salinity'] = salinity.transpose('Time', 'nCells', 'nVertLevels')
+        ds['temperature'] = temperature * xr.ones_like(ds.salinity)
+        # temperature and salinity must be set before this call:
+        # write_vert_coord_dataset converts restingThickness to
+        # RefPseudoThickness via pseudothickness_from_ds, which requires T/S
+        self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
 
         modify_mask = xr.where(y_cell < y3, 1, 0).expand_dims(
             dim='Time', axis=0
@@ -130,14 +147,6 @@ class Init(Step):
             ref_density=ref_density,
         )
 
-        salinity = surface_salinity + (
-            (bottom_salinity - surface_salinity) * (ds.zMid / (-bottom_depth))
-        )
-        salinity, _ = xr.broadcast(salinity, ds.layerThickness)
-        ds['salinity'] = salinity.transpose('Time', 'nCells', 'nVertLevels')
-
-        ds['temperature'] = temperature * xr.ones_like(ds.salinity)
-
         normal_velocity = xr.zeros_like(ds_mesh.xEdge)
         normal_velocity, _ = xr.broadcast(normal_velocity, ds.refBottomDepth)
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
@@ -151,9 +160,6 @@ class Init(Step):
         ds[mask_variable] = mask
 
         ds['normalVelocity'] = normal_velocity
-        ds['fCell'] = coriolis_parameter * xr.ones_like(x_cell)
-        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
-        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
         ds['modifyLandIcePressureMask'] = modify_mask
         ds['landIceFraction'] = landIceFraction
         ds['landIceFloatingFraction'] = landIceFloatingFraction
@@ -166,7 +172,7 @@ class Init(Step):
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
 
-        write_netcdf(ds, 'output.nc')
+        self.write_initial_state_dataset(ds, 'init.nc', config)
 
         # Generate the tidal forcing dataset whether it is used or not
         ds_forcing = xr.Dataset()

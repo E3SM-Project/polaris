@@ -1,16 +1,16 @@
-import cmocean  # noqa: F401
 import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.coriolis import add_coriolis_to_dataset
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for creating a mesh and initial condition for internal wave test
     cases
@@ -30,12 +30,17 @@ class Init(Step):
         """
         super().__init__(component=component, name='init', indir=indir)
 
+    def setup(self):
+        super().setup()
         for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info']:
             self.add_output_file(file)
         self.add_output_file(
-            'initial_state.nc',
+            'init.nc',
             validate_vars=['temperature', 'salinity', 'layerThickness'],
         )
+        model = self.config.get('ocean', 'model')
+        if model == 'omega':
+            self.add_output_file('vert_coord.nc')
 
     def run(self):
         """
@@ -55,7 +60,6 @@ class Init(Step):
         surface_temperature = section.getfloat('surface_temperature')
         temperature_difference = section.getfloat('temperature_difference')
         salinity = section.getfloat('salinity')
-        coriolis_parameter = section.getfloat('coriolis_parameter')
 
         section = config['vertical_grid']
         vert_levels = section.getint('vert_levels')
@@ -72,7 +76,8 @@ class Init(Step):
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
         )
-        write_netcdf(ds_mesh, 'culled_mesh.nc')
+        ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
+        self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)
 
         ds = ds_mesh.copy()
 
@@ -126,12 +131,10 @@ class Init(Step):
         ds['temperature'] = temperature
         ds['salinity'] = salinity * xr.ones_like(temperature)
         ds['normalVelocity'] = normal_velocity
-        ds['fCell'] = coriolis_parameter * xr.ones_like(y_cell)
-        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
-        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
 
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
 
-        write_netcdf(ds, 'initial_state.nc')
+        self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
+        self.write_initial_state_dataset(ds, 'init.nc', config)

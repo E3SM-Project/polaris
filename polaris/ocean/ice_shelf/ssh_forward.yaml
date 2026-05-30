@@ -15,7 +15,7 @@ mpas-ocean:
     config_check_ssh_consistency: false
   streams:
     mesh:
-      filename_template: init.nc
+      filename_template: mesh.nc
     input:
       filename_template: init.nc
     output:

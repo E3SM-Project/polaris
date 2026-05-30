@@ -60,8 +60,8 @@ class ExactSolution:
         self.yEdge = ds.yEdge
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
+        self.f0 = config.getfloat('coriolis', 'constant_f')
         section = config['inertial_gravity_wave']
-        self.f0 = section.getfloat('coriolis_parameter')
         self.eta0 = section.getfloat('ssh_amplitude')
         lx = section.getfloat('lx')
         npx = section.getfloat('n_wavelengths_x')

@@ -1,5 +1,12 @@
+from typing import TYPE_CHECKING
+
 from polaris import Step
-from polaris.tasks.ocean import Ocean
+
+if TYPE_CHECKING:
+    # Keep Ocean as a type-only import. Importing it at runtime pulls
+    # polaris.tasks.ocean back into polaris.ocean.model while that package is
+    # still importing these step classes, creating a circular import.
+    from polaris.tasks.ocean import Ocean
 
 
 class OceanIOStep(Step):
@@ -7,11 +14,71 @@ class OceanIOStep(Step):
     A step that writes input and/or output files for Omega or MPAS-Ocean
     """
 
-    # make sure component is of type Ocean
-    component: Ocean
+    # make sure component is of type Ocean, using a string to avoid circular
+    # imports
+    component: 'Ocean'
 
-    def __init__(self, component: Ocean, **kwargs):
+    def __init__(self, component: 'Ocean', **kwargs):
         super().__init__(component=component, **kwargs)
+
+    def add_output_files_for_ocean_model_input(
+        self,
+        horiz_mesh_filename=None,
+        vert_coord_filename=None,
+        init_filename=None,
+        base_mesh_filename=None,
+        graph_filename=None,
+    ):
+        """
+        Register output files that will be consumed by the ocean model as
+        inputs (horizontal mesh, initial condition, and model-specific files).
+
+        Parameters
+        ----------
+        horiz_mesh_filename : str, optional
+            Local filename for the horizontal mesh output; defaults to the
+            ``horiz_mesh_filename`` option in ``[ocean_model_files]``.
+
+        vert_coord_filename : str, optional
+            Local filename for the vertical-coordinate output (Omega only);
+            defaults to the ``vert_coord_filename`` option in
+            ``[ocean_model_files]``.
+
+        init_filename : str, optional
+            Local filename for the initial-state output; defaults to the
+            ``init_filename`` option in ``[ocean_model_files]``.
+
+        base_mesh_filename : str, optional
+            If provided, also register this filename as an output (used when
+            the step writes both a base and a culled mesh, e.g.
+            ``'base_mesh.nc'``).
+
+        graph_filename : str, optional
+            If provided, register this filename as an output for MPAS-Ocean
+            only (e.g. ``'culled_graph.info'``).  Ignored for Omega.
+        """
+        config = self.config
+        model = config.get('ocean', 'model')
+
+        if horiz_mesh_filename is None:
+            horiz_mesh_filename = config.get(
+                'ocean_model_files', 'horiz_mesh_filename'
+            )
+        if vert_coord_filename is None:
+            vert_coord_filename = config.get(
+                'ocean_model_files', 'vert_coord_filename'
+            )
+        if init_filename is None:
+            init_filename = config.get('ocean_model_files', 'init_filename')
+
+        if base_mesh_filename is not None:
+            self.add_output_file(filename=base_mesh_filename)
+        self.add_output_file(filename=horiz_mesh_filename)
+        self.add_output_file(filename=init_filename)
+        if model == 'omega':
+            self.add_output_file(filename=vert_coord_filename)
+        if model == 'mpas-ocean' and graph_filename is not None:
+            self.add_output_file(filename=graph_filename)
 
     def map_to_native_model_vars(self, ds):
         """
@@ -49,6 +116,61 @@ class OceanIOStep(Step):
             Configuration for the task; forwarded to the Ocean component.
         """
         self.component.write_model_dataset(ds, filename, config=config)
+
+    def write_horiz_mesh_dataset(self, ds, filename, config):
+        """
+        Write a horizontal mesh dataset, validating that all expected mesh
+        variables are present before writing.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean variable names including all
+            horizontal mesh variables
+
+        filename : str
+            The path for the NetCDF file to write
+
+        config : polaris.config.PolarisConfigParser
+            Configuration for the task; forwarded to the Ocean component.
+        """
+        self.component.write_horiz_mesh_dataset(ds, filename, config)
+
+    def write_vert_coord_dataset(self, ds, filename, config):
+        """
+        Write a vertical-coordinate dataset for Omega's ``InitialVertCoord``
+        stream.  No-op for MPAS-Ocean.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean variable names
+
+        filename : str
+            The path for the NetCDF file to write
+
+        config : polaris.config.PolarisConfigParser
+            Configuration for the task; forwarded to the Ocean component.
+        """
+        self.component.write_vert_coord_dataset(ds, filename, config)
+
+    def write_initial_state_dataset(self, ds, filename, config):
+        """
+        Write an initial-state dataset, omitting horizontal mesh fields and
+        (for Omega) vertical coordinate fields.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean variable names
+
+        filename : str
+            The path for the NetCDF file to write
+
+        config : polaris.config.PolarisConfigParser
+            Configuration for the task; forwarded to the Ocean component.
+        """
+        self.component.write_initial_state_dataset(ds, filename, config)
 
     def map_from_native_model_vars(self, ds):
         """

@@ -9,7 +9,7 @@ class Forward(OceanModelStep):
     acceleration) along with other diagnostics.
     """
 
-    def __init__(self, component, horiz_res, indir):
+    def __init__(self, component, horiz_res, init, indir):
         """
         Create the step
 
@@ -20,6 +20,9 @@ class Forward(OceanModelStep):
 
         horiz_res : float
             The horizontal resolution in km
+
+        init : polaris.tasks.ocean.horiz_press_grad.init.Init
+            The init step for this resolution
 
         indir : str
             The subdirectory that the task belongs to, that this step will
@@ -36,18 +39,13 @@ class Forward(OceanModelStep):
             openmp_threads=1,
         )
 
-        init_dir = f'init_{resolution_to_string(horiz_res)}'
-        self.add_input_file(
-            filename='initial_state.nc',
-            target=f'../{init_dir}/initial_state.nc',
+        self.add_horiz_mesh_input_file(
+            work_dir_target=f'{init.path}/culled_mesh.nc'
         )
-        self.add_input_file(
-            filename='mesh.nc',
-            target=f'../{init_dir}/culled_mesh.nc',
+        self.add_vert_coord_input_file(
+            work_dir_target=f'{init.path}/vert_coord.nc'
         )
-
-        # TODO: remove as soon as Omega no longer hard-codes this file
-        self.add_input_file(filename='OmegaMesh.nc', target='initial_state.nc')
+        self.add_init_input_file(work_dir_target=f'{init.path}/init.nc')
 
         validate_vars = ['NormalVelocityTend']
         self.add_output_file('output.nc', validate_vars=validate_vars)

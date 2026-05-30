@@ -45,10 +45,6 @@ mpas-ocean:
   AM_mixedLayerDepths:
     config_AM_mixedLayerDepths_enable: false
   streams:
-    mesh:
-      filename_template: init.nc
-    input:
-      filename_template: init.nc
     restart:
       output_interval: 0030_00:00:00
     output:
@@ -81,10 +77,7 @@ Omega:
     TracerHyperDiffTendencyEnable : false
     PressureGradTendencyEnable : false
   IOStreams:
-    InitialVertCoord:
-      Filename: init.nc
     InitialState:
-      Filename: init.nc
       Contents:
         - State
         - Tracers

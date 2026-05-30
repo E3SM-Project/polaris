@@ -1,19 +1,19 @@
 import cmocean  # noqa: F401
 import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris import Step
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.mpas import cell_mask_to_edge_mask
+from polaris.ocean.coriolis import add_coriolis_to_dataset
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.viz import plot_horiz_field
 
 
-class Init(Step):
+class Init(OceanIOStep):
     """
     A step for creating a mesh and initial condition for baroclinic channel
     tasks
@@ -42,11 +42,12 @@ class Init(Step):
         super().__init__(component=component, name='init', indir=indir)
         self.resolution = resolution
 
-        for file in ['base_mesh.nc', 'culled_mesh.nc', 'culled_graph.info']:
-            self.add_output_file(file)
-        self.add_output_file(
-            'initial_state.nc',
-            validate_vars=['temperature', 'salinity', 'layerThickness'],
+    def setup(self):
+        super().setup()
+        self.add_output_files_for_ocean_model_input(
+            horiz_mesh_filename='culled_mesh.nc',
+            base_mesh_filename='base_mesh.nc',
+            graph_filename='culled_graph.info',
         )
 
     def run(self):
@@ -68,18 +69,6 @@ class Init(Step):
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         dc = 1e3 * resolution
 
-        ds_mesh = make_planar_hex_mesh(
-            nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=True
-        )
-        write_netcdf(ds_mesh, 'base_mesh.nc')
-
-        ds_mesh = cull(ds_mesh, logger=logger)
-        ds_mesh = convert(
-            ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
-        )
-        write_netcdf(ds_mesh, 'culled_mesh.nc')
-
-        section = config['baroclinic_channel']
         use_distances = section.getboolean('use_distances')
         gradient_width_dist = section.getfloat('gradient_width_dist')
         gradient_width_frac = section.getfloat('gradient_width_frac')
@@ -87,7 +76,18 @@ class Init(Step):
         surface_temperature = section.getfloat('surface_temperature')
         temperature_difference = section.getfloat('temperature_difference')
         salinity = section.getfloat('salinity')
-        coriolis_parameter = section.getfloat('coriolis_parameter')
+
+        ds_mesh = make_planar_hex_mesh(
+            nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=True
+        )
+        self.write_model_dataset(ds_mesh, 'base_mesh.nc', config)
+
+        ds_mesh = cull(ds_mesh, logger=logger)
+        ds_mesh = convert(
+            ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
+        )
+        ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
+        self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)
 
         ds = ds_mesh.copy()
         x_cell = ds.xCell
@@ -168,15 +168,16 @@ class Init(Step):
         ds['temperature'] = temperature
         ds['salinity'] = salinity * xr.ones_like(temperature)
         ds['normalVelocity'] = normal_velocity
-        ds['fCell'] = coriolis_parameter * xr.ones_like(x_cell)
-        ds['fEdge'] = coriolis_parameter * xr.ones_like(ds_mesh.xEdge)
-        ds['fVertex'] = coriolis_parameter * xr.ones_like(ds_mesh.xVertex)
 
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
 
-        write_netcdf(ds, 'initial_state.nc')
+        # temperature and salinity must be set before this call:
+        # write_vert_coord_dataset converts restingThickness to
+        # RefPseudoThickness via pseudothickness_from_ds, which requires T/S
+        self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
+        self.write_initial_state_dataset(ds, 'init.nc', config)
 
         cell_mask = ds.maxLevelCell >= 1
         edge_mask = cell_mask_to_edge_mask(ds, cell_mask)
