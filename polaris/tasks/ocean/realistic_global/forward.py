@@ -11,14 +11,13 @@ class Forward(OceanModelStep):
         self,
         component,
         package,
+        mesh_name,
+        mesh_id,
         name='forward',
         indir=None,
         subdir=None,
         update_eos=False,
         yaml_filename='forward.yaml',
-        mesh_filename='mesh.nc',
-        init_filename='init.nc',
-        graph_filename='culled_graph.info',
         output_filename='output.nc',
         ntasks=None,
         min_tasks=None,
@@ -52,17 +51,14 @@ class Forward(OceanModelStep):
             min_tasks=min_tasks,
             update_eos=update_eos,
             openmp_threads=1,
-            graph_target=graph_filename,
+            graph_target='graph.info',
         )
-        self.mesh_filename = mesh_filename
-        self.init_filename = init_filename
-        self.graph_filename = graph_filename
+        self.mesh_filename = f'{mesh_name}.{mesh_id}'
+        self.graph_filename = f'graph.info.{mesh_id}'
         self.resolution = resolution_for_cell_count
+
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
-
-        # this is set in the yaml file
-        # self.add_yaml_file('polaris.ocean.eos', 'teos10.yaml')
 
         self.add_yaml_file(
             package,
@@ -91,16 +87,20 @@ class Forward(OceanModelStep):
         config = self.config
         model = config.get('ocean', 'model')
         # TODO: remove as soon as Omega no longer hard-codes this file
+        input_filename = f'ocean.{self.mesh_filename}'
         if model == 'omega':
+            # TODO eos_type = self.config.get('ocean', 'eos_type')
+            eos_type = 'teos10'
+            input_filename = f'{input_filename}.{eos_type}.nc'
             self.add_input_file(
-                target=self.mesh_filename,
+                target=input_filename,
                 filename='OmegaMesh.nc',
-                database='realistic_global',
+                database=f'realistic_global/{model}',
             )
             self.add_input_file(
-                target=self.init_filename,
+                target=input_filename,
                 filename='init.nc',
-                database='realistic_global',
+                database=f'realistic_global/{model}',
             )
             # TODO we need to add this file to input database if we want to
             # reconstruct zonal, meridional components before Omega has those
@@ -112,9 +112,9 @@ class Forward(OceanModelStep):
             # )
         else:
             self.add_input_file(
-                target='culled_graph.info',
-                filename=self.graph_filename,
-                database='realistic_global',
+                target=self.graph_filename,
+                filename='graph.info',
+                database=f'realistic_global/{model}',
             )
 
     def compute_cell_count(self):
