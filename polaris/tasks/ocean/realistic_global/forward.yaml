@@ -7,6 +7,35 @@ ocean:
   forcing:
     config_use_bulk_wind_stress: true
 
+mpas-ocean:
+  streams:
+    mesh:
+      filename_template: init.nc
+    input:
+      filename_template: init.nc
+    forcing:
+      filename_template: init.nc
+      input_interval: initial_only
+      type: input
+      contents:
+      - windStressZonal
+      - windStressMeridional
+    restart:
+      output_interval: {{ run_duration }}
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      reference_time: 0001-01-01_00:00:00
+      contents:
+      - tracers
+      - xtime
+      - normalVelocity
+      - layerThickness
+      - kineticEnergyCell
+      - relativeVorticityCell
+
 Omega:
   TimeIntegration:
     TimeStepper: RungeKutta4
@@ -22,7 +51,6 @@ Omega:
       Contents:
         - State
         - Tracers
-        - Tracers
         - WindStressZonal
         - WindStressMeridional
     History:
@@ -34,9 +62,10 @@ Omega:
       FileFreq: 9999
       FileFreqUnits: years
       Contents:
+        - State
+        - AuxiliaryState
         - Tracers
         - PseudoThickness
-        - NormalVelocity
         - SshCell
         - KineticEnergyCell
         - Eos

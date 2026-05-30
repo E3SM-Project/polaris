@@ -19,6 +19,7 @@ class AnalysisMembers(Task):
         component,
         subdir,
         mesh_name,
+        mesh_id,
         config,
         config_filename,
     ):
@@ -56,10 +57,8 @@ class AnalysisMembers(Task):
             component=component,
             package=package,
             indir=subdir,
-            name=f'{mesh_name}_forward',
-            mesh_filename='ocean.QU.240km.151209.omega.teos10eos.nc',
-            init_filename='ocean.QU.240km.151209.omega.teos10eos.nc',
-            output_filename='output.nc',
+            mesh_name=mesh_name,
+            mesh_id=mesh_id,
             replacements=replacements,
             resolution_for_cell_count=240,
         )
