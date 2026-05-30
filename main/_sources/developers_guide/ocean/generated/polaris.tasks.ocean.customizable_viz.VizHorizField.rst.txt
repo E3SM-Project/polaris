@@ -17,6 +17,7 @@
       ~VizHorizField.add_dependency
       ~VizHorizField.add_input_file
       ~VizHorizField.add_output_file
+      ~VizHorizField.add_output_files_for_ocean_model_input
       ~VizHorizField.check_properties
       ~VizHorizField.constrain_resources
       ~VizHorizField.map_from_native_model_vars
@@ -29,7 +30,10 @@
       ~VizHorizField.set_shared_config
       ~VizHorizField.setup
       ~VizHorizField.validate_baselines
+      ~VizHorizField.write_horiz_mesh_dataset
+      ~VizHorizField.write_initial_state_dataset
       ~VizHorizField.write_model_dataset
+      ~VizHorizField.write_vert_coord_dataset
    
    
 

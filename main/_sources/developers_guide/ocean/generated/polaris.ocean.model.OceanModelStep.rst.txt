@@ -15,16 +15,22 @@
    
       ~OceanModelStep.__init__
       ~OceanModelStep.add_dependency
+      ~OceanModelStep.add_horiz_mesh_input_file
+      ~OceanModelStep.add_init_input_file
       ~OceanModelStep.add_input_file
       ~OceanModelStep.add_model_config_options
       ~OceanModelStep.add_namelist_file
       ~OceanModelStep.add_output_file
       ~OceanModelStep.add_streams_file
+      ~OceanModelStep.add_vert_coord_input_file
       ~OceanModelStep.add_yaml_file
       ~OceanModelStep.check_properties
       ~OceanModelStep.compute_cell_count
       ~OceanModelStep.constrain_resources
       ~OceanModelStep.dynamic_model_config
+      ~OceanModelStep.get_horiz_mesh_filename
+      ~OceanModelStep.get_init_filename
+      ~OceanModelStep.get_vert_coord_filename
       ~OceanModelStep.map_yaml_configs
       ~OceanModelStep.map_yaml_options
       ~OceanModelStep.map_yaml_streams

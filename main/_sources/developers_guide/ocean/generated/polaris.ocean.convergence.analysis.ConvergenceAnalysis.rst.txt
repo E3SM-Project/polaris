@@ -17,6 +17,7 @@
       ~ConvergenceAnalysis.add_dependency
       ~ConvergenceAnalysis.add_input_file
       ~ConvergenceAnalysis.add_output_file
+      ~ConvergenceAnalysis.add_output_files_for_ocean_model_input
       ~ConvergenceAnalysis.check_properties
       ~ConvergenceAnalysis.compute_error
       ~ConvergenceAnalysis.constrain_resources
@@ -34,7 +35,10 @@
       ~ConvergenceAnalysis.set_shared_config
       ~ConvergenceAnalysis.setup
       ~ConvergenceAnalysis.validate_baselines
+      ~ConvergenceAnalysis.write_horiz_mesh_dataset
+      ~ConvergenceAnalysis.write_initial_state_dataset
       ~ConvergenceAnalysis.write_model_dataset
+      ~ConvergenceAnalysis.write_vert_coord_dataset
    
    
 

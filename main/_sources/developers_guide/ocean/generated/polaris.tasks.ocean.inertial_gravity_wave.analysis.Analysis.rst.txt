@@ -17,6 +17,7 @@
       ~Analysis.add_dependency
       ~Analysis.add_input_file
       ~Analysis.add_output_file
+      ~Analysis.add_output_files_for_ocean_model_input
       ~Analysis.check_properties
       ~Analysis.compute_error
       ~Analysis.constrain_resources
@@ -34,7 +35,10 @@
       ~Analysis.set_shared_config
       ~Analysis.setup
       ~Analysis.validate_baselines
+      ~Analysis.write_horiz_mesh_dataset
+      ~Analysis.write_initial_state_dataset
       ~Analysis.write_model_dataset
+      ~Analysis.write_vert_coord_dataset
    
    
 

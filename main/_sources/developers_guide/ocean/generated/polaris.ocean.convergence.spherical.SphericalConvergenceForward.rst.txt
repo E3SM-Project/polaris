@@ -15,16 +15,22 @@
    
       ~SphericalConvergenceForward.__init__
       ~SphericalConvergenceForward.add_dependency
+      ~SphericalConvergenceForward.add_horiz_mesh_input_file
+      ~SphericalConvergenceForward.add_init_input_file
       ~SphericalConvergenceForward.add_input_file
       ~SphericalConvergenceForward.add_model_config_options
       ~SphericalConvergenceForward.add_namelist_file
       ~SphericalConvergenceForward.add_output_file
       ~SphericalConvergenceForward.add_streams_file
+      ~SphericalConvergenceForward.add_vert_coord_input_file
       ~SphericalConvergenceForward.add_yaml_file
       ~SphericalConvergenceForward.check_properties
       ~SphericalConvergenceForward.compute_cell_count
       ~SphericalConvergenceForward.constrain_resources
       ~SphericalConvergenceForward.dynamic_model_config
+      ~SphericalConvergenceForward.get_horiz_mesh_filename
+      ~SphericalConvergenceForward.get_init_filename
+      ~SphericalConvergenceForward.get_vert_coord_filename
       ~SphericalConvergenceForward.map_yaml_configs
       ~SphericalConvergenceForward.map_yaml_options
       ~SphericalConvergenceForward.map_yaml_streams

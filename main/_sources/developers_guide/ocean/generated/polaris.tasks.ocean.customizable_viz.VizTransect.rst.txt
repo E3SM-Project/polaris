@@ -17,6 +17,7 @@
       ~VizTransect.add_dependency
       ~VizTransect.add_input_file
       ~VizTransect.add_output_file
+      ~VizTransect.add_output_files_for_ocean_model_input
       ~VizTransect.check_properties
       ~VizTransect.constrain_resources
       ~VizTransect.map_from_native_model_vars
@@ -29,7 +30,10 @@
       ~VizTransect.set_shared_config
       ~VizTransect.setup
       ~VizTransect.validate_baselines
+      ~VizTransect.write_horiz_mesh_dataset
+      ~VizTransect.write_initial_state_dataset
       ~VizTransect.write_model_dataset
+      ~VizTransect.write_vert_coord_dataset
    
    
 

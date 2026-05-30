@@ -15,16 +15,22 @@
    
       ~ConvergenceForward.__init__
       ~ConvergenceForward.add_dependency
+      ~ConvergenceForward.add_horiz_mesh_input_file
+      ~ConvergenceForward.add_init_input_file
       ~ConvergenceForward.add_input_file
       ~ConvergenceForward.add_model_config_options
       ~ConvergenceForward.add_namelist_file
       ~ConvergenceForward.add_output_file
       ~ConvergenceForward.add_streams_file
+      ~ConvergenceForward.add_vert_coord_input_file
       ~ConvergenceForward.add_yaml_file
       ~ConvergenceForward.check_properties
       ~ConvergenceForward.compute_cell_count
       ~ConvergenceForward.constrain_resources
       ~ConvergenceForward.dynamic_model_config
+      ~ConvergenceForward.get_horiz_mesh_filename
+      ~ConvergenceForward.get_init_filename
+      ~ConvergenceForward.get_vert_coord_filename
       ~ConvergenceForward.map_yaml_configs
       ~ConvergenceForward.map_yaml_options
       ~ConvergenceForward.map_yaml_streams

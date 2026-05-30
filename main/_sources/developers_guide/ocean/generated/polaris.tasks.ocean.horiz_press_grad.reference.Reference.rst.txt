@@ -17,6 +17,7 @@
       ~Reference.add_dependency
       ~Reference.add_input_file
       ~Reference.add_output_file
+      ~Reference.add_output_files_for_ocean_model_input
       ~Reference.check_properties
       ~Reference.constrain_resources
       ~Reference.map_from_native_model_vars
@@ -29,7 +30,10 @@
       ~Reference.set_shared_config
       ~Reference.setup
       ~Reference.validate_baselines
+      ~Reference.write_horiz_mesh_dataset
+      ~Reference.write_initial_state_dataset
       ~Reference.write_model_dataset
+      ~Reference.write_vert_coord_dataset
    
    
 

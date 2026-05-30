@@ -148,6 +148,10 @@
 ‘unknown’ if no OceanModelStep or OceanIOStep is present in any task</p></li>
 <li><p><strong>mpaso_to_omega_dim_map</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – A map from MPAS-Ocean dimension names to their Omega equivalents</p></li>
 <li><p><strong>mpaso_to_omega_var_map</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – A map from MPAS-Ocean variable names to their Omega equivalents</p></li>
+<li><p><strong>horiz_mesh_vars</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Variables that belong in the horizontal mesh file rather than the
+initial condition file</p></li>
+<li><p><strong>vert_coord_vars</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Variables that belong in the vertical coordinate file (Omega only)
+rather than the initial condition file</p></li>
 </ul>
 </dd>
 </dl>
@@ -196,8 +200,14 @@
 <tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.Ocean.open_model_dataset.html#polaris.tasks.ocean.Ocean.open_model_dataset" title="polaris.tasks.ocean.Ocean.open_model_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_model_dataset</span></code></a>(filename, config[, ...])</p></td>
 <td><p>Open the given dataset, mapping variable and dimension names from Omega to MPAS-Ocean names if appropriate</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_step</span></code>(step)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_horiz_mesh_vars</span></code>(ds)</p></td>
+<td><p>Remove horizontal mesh variables from a dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_step</span></code>(step)</p></td>
 <td><p>Remove the given step from this component</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_vert_coord_vars</span></code>(ds)</p></td>
+<td><p>Remove vertical coordinate variables from a dataset.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_parallel_command</span></code>(args, cpus_per_task, ...)</p></td>
 <td><p>Run a command using the active parallel system</p></td>
@@ -205,8 +215,17 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_parallel_system</span></code>(config)</p></td>
 <td><p>Construct and store the active parallel system for this component</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_horiz_mesh_dataset</span></code>(ds, filename, config)</p></td>
+<td><p>Write a horizontal mesh dataset, validating that all expected mesh variables are present.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_initial_state_dataset</span></code>(ds, filename, config)</p></td>
+<td><p>Write an initial-state dataset, omitting horizontal mesh fields and (for Omega) vertical coordinate fields.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.Ocean.write_model_dataset.html#polaris.tasks.ocean.Ocean.write_model_dataset" title="polaris.tasks.ocean.Ocean.write_model_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_model_dataset</span></code></a>(ds, filename, config)</p></td>
 <td><p>Write out the given dataset, mapping dimension and variable names from MPAS-Ocean to Omega names if appropriate</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_vert_coord_dataset</span></code>(ds, filename, config)</p></td>
+<td><p>Write a vertical-coordinate dataset for Omega's <code class="docutils literal notranslate"><span class="pre">InitialVertCoord</span></code> stream.</p></td>
 </tr>
 </tbody>
 </table>

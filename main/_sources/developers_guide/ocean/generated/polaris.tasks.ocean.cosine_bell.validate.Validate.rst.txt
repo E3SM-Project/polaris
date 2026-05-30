@@ -17,6 +17,7 @@
       ~Validate.add_dependency
       ~Validate.add_input_file
       ~Validate.add_output_file
+      ~Validate.add_output_files_for_ocean_model_input
       ~Validate.check_properties
       ~Validate.constrain_resources
       ~Validate.map_from_native_model_vars
@@ -29,7 +30,10 @@
       ~Validate.set_shared_config
       ~Validate.setup
       ~Validate.validate_baselines
+      ~Validate.write_horiz_mesh_dataset
+      ~Validate.write_initial_state_dataset
       ~Validate.write_model_dataset
+      ~Validate.write_vert_coord_dataset
    
    
 

@@ -17,6 +17,7 @@
       ~Viz.add_dependency
       ~Viz.add_input_file
       ~Viz.add_output_file
+      ~Viz.add_output_files_for_ocean_model_input
       ~Viz.check_properties
       ~Viz.constrain_resources
       ~Viz.map_from_native_model_vars
@@ -29,7 +30,10 @@
       ~Viz.set_shared_config
       ~Viz.setup
       ~Viz.validate_baselines
+      ~Viz.write_horiz_mesh_dataset
+      ~Viz.write_initial_state_dataset
       ~Viz.write_model_dataset
+      ~Viz.write_vert_coord_dataset
    
    
 

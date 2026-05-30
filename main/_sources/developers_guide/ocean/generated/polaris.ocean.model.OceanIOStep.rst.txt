@@ -17,6 +17,7 @@
       ~OceanIOStep.add_dependency
       ~OceanIOStep.add_input_file
       ~OceanIOStep.add_output_file
+      ~OceanIOStep.add_output_files_for_ocean_model_input
       ~OceanIOStep.check_properties
       ~OceanIOStep.constrain_resources
       ~OceanIOStep.map_from_native_model_vars
@@ -29,7 +30,10 @@
       ~OceanIOStep.set_shared_config
       ~OceanIOStep.setup
       ~OceanIOStep.validate_baselines
+      ~OceanIOStep.write_horiz_mesh_dataset
+      ~OceanIOStep.write_initial_state_dataset
       ~OceanIOStep.write_model_dataset
+      ~OceanIOStep.write_vert_coord_dataset
    
    
 

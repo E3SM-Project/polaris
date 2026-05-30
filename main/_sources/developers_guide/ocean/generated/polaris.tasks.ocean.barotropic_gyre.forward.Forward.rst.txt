@@ -15,17 +15,23 @@
    
       ~Forward.__init__
       ~Forward.add_dependency
+      ~Forward.add_horiz_mesh_input_file
+      ~Forward.add_init_input_file
       ~Forward.add_input_file
       ~Forward.add_model_config_options
       ~Forward.add_namelist_file
       ~Forward.add_output_file
       ~Forward.add_streams_file
+      ~Forward.add_vert_coord_input_file
       ~Forward.add_yaml_file
       ~Forward.check_properties
       ~Forward.compute_cell_count
       ~Forward.compute_max_time_step
       ~Forward.constrain_resources
       ~Forward.dynamic_model_config
+      ~Forward.get_horiz_mesh_filename
+      ~Forward.get_init_filename
+      ~Forward.get_vert_coord_filename
       ~Forward.map_yaml_configs
       ~Forward.map_yaml_options
       ~Forward.map_yaml_streams

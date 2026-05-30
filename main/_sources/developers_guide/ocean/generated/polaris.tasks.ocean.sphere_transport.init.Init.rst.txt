@@ -17,6 +17,7 @@
       ~Init.add_dependency
       ~Init.add_input_file
       ~Init.add_output_file
+      ~Init.add_output_files_for_ocean_model_input
       ~Init.check_properties
       ~Init.constrain_resources
       ~Init.map_from_native_model_vars
@@ -29,7 +30,10 @@
       ~Init.set_shared_config
       ~Init.setup
       ~Init.validate_baselines
+      ~Init.write_horiz_mesh_dataset
+      ~Init.write_initial_state_dataset
       ~Init.write_model_dataset
+      ~Init.write_vert_coord_dataset
    
    
 

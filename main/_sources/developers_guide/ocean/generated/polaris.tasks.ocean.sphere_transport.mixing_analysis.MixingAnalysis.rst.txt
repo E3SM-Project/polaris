@@ -17,6 +17,7 @@
       ~MixingAnalysis.add_dependency
       ~MixingAnalysis.add_input_file
       ~MixingAnalysis.add_output_file
+      ~MixingAnalysis.add_output_files_for_ocean_model_input
       ~MixingAnalysis.check_properties
       ~MixingAnalysis.constrain_resources
       ~MixingAnalysis.map_from_native_model_vars
@@ -29,7 +30,10 @@
       ~MixingAnalysis.set_shared_config
       ~MixingAnalysis.setup
       ~MixingAnalysis.validate_baselines
+      ~MixingAnalysis.write_horiz_mesh_dataset
+      ~MixingAnalysis.write_initial_state_dataset
       ~MixingAnalysis.write_model_dataset
+      ~MixingAnalysis.write_vert_coord_dataset
    
    
 

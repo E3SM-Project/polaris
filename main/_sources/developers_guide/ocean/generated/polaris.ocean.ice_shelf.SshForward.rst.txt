@@ -15,16 +15,22 @@
    
       ~SshForward.__init__
       ~SshForward.add_dependency
+      ~SshForward.add_horiz_mesh_input_file
+      ~SshForward.add_init_input_file
       ~SshForward.add_input_file
       ~SshForward.add_model_config_options
       ~SshForward.add_namelist_file
       ~SshForward.add_output_file
       ~SshForward.add_streams_file
+      ~SshForward.add_vert_coord_input_file
       ~SshForward.add_yaml_file
       ~SshForward.check_properties
       ~SshForward.compute_cell_count
       ~SshForward.constrain_resources
       ~SshForward.dynamic_model_config
+      ~SshForward.get_horiz_mesh_filename
+      ~SshForward.get_init_filename
+      ~SshForward.get_vert_coord_filename
       ~SshForward.map_yaml_configs
       ~SshForward.map_yaml_options
       ~SshForward.map_yaml_streams

@@ -15,16 +15,22 @@
    
       ~RestartStep.__init__
       ~RestartStep.add_dependency
+      ~RestartStep.add_horiz_mesh_input_file
+      ~RestartStep.add_init_input_file
       ~RestartStep.add_input_file
       ~RestartStep.add_model_config_options
       ~RestartStep.add_namelist_file
       ~RestartStep.add_output_file
       ~RestartStep.add_streams_file
+      ~RestartStep.add_vert_coord_input_file
       ~RestartStep.add_yaml_file
       ~RestartStep.check_properties
       ~RestartStep.compute_cell_count
       ~RestartStep.constrain_resources
       ~RestartStep.dynamic_model_config
+      ~RestartStep.get_horiz_mesh_filename
+      ~RestartStep.get_init_filename
+      ~RestartStep.get_vert_coord_filename
       ~RestartStep.map_yaml_configs
       ~RestartStep.map_yaml_options
       ~RestartStep.map_yaml_streams

@@ -17,6 +17,7 @@
       ~FilamentAnalysis.add_dependency
       ~FilamentAnalysis.add_input_file
       ~FilamentAnalysis.add_output_file
+      ~FilamentAnalysis.add_output_files_for_ocean_model_input
       ~FilamentAnalysis.check_properties
       ~FilamentAnalysis.constrain_resources
       ~FilamentAnalysis.map_from_native_model_vars
@@ -29,7 +30,10 @@
       ~FilamentAnalysis.set_shared_config
       ~FilamentAnalysis.setup
       ~FilamentAnalysis.validate_baselines
+      ~FilamentAnalysis.write_horiz_mesh_dataset
+      ~FilamentAnalysis.write_initial_state_dataset
       ~FilamentAnalysis.write_model_dataset
+      ~FilamentAnalysis.write_vert_coord_dataset
    
    
 
