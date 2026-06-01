@@ -338,19 +338,9 @@ the <code class="docutils literal notranslate"><span class="pre">init</span></co
 also often include namelist and streams files with replacements to use across
 tasks.</p>
 <p>In addition to shared steps, some categories can include additional shared
-framework modules tailored to that category.</p>
-<p>The shared code in <code class="docutils literal notranslate"><span class="pre">global_ocean</span></code> has made it easy to define dozens different
-tasks using the QU240 or QUwISC240 meshes.  This is possible because
-the same conceptual test (e.g. restart) can be defined:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>with or without ice-shelf cavities</p></li>
-<li><p>with the RK4 or split-explicit time integrators</p></li>
-</ul>
-</div></blockquote>
-<p>In theory, we could provide additional variants of these tasks with
-different  initial conditions and other capabilities such as support for
-biogeochemistry.</p>
+framework modules tailored to that category. For example, the shared code in
+<code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> contains hydrography preprocessing steps that can be reused
+by future realistic global ocean initialization workflows.</p>
 </section>
 <section id="within-a-task">
 <h3>…within a task<a class="headerlink" href="#within-a-task" title="Link to this heading"></a></h3>

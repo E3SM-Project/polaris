@@ -515,23 +515,26 @@ files to the step by calling any of the following methods:</p>
 other than downloading files.  Time-consuming work should be saved for
 <code class="docutils literal notranslate"><span class="pre">run()</span></code> whenever possible.</p>
 <p>As an example, here is
-<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.global_ocean.mesh.mesh.MeshStep.setup()</span></code>:</p>
+<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.extrapolate.ExtrapolateStep.setup()</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Set up the task in the work directory, including downloading any</span>
-<span class="sd">    dependencies.</span>
+<span class="sd">    Set up input files for the step.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># get the these properties from the config options</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;global_ocean&#39;</span><span class="p">,</span>
-                                       <span class="s1">&#39;mesh_cpus_per_task&#39;</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">min_cpus_per_task</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;global_ocean&#39;</span><span class="p">,</span>
-                                           <span class="s1">&#39;mesh_min_cpus_per_task&#39;</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;woa.nc&#39;</span><span class="p">,</span>
+        <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/woa_combined.nc&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;topography.nc&#39;</span><span class="p">,</span>
+        <span class="n">work_dir_target</span><span class="o">=</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/&#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">combined_filename</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
 </pre></div>
 </div>
-<p>Some parts of the mesh computation (creating masks for culling) are done using
-python multiprocessing, so the <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code>
-attributes are set to appropriate values based on config options.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">work_dir_target</span></code> paths point to outputs from upstream shared steps.</p>
 </section>
 <section id="constrain-resources">
 <span id="dev-step-constrain-resources"></span><h2>constrain_resources()<a class="headerlink" href="#constrain-resources" title="Link to this heading"></a></h2>
@@ -843,19 +846,20 @@ subdirectory for this step or the target’s step (or both) depends on
 parameters.  For such cases, there is a <code class="docutils literal notranslate"><span class="pre">work_dir_target</span></code> argument that
 allows you to give the path with respect to the base work directory (which is
 not yet known at init). Here is an example taken from
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.global_ocean.forward.ForwardStep</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
-    <span class="n">mesh_path</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">mesh_step</span><span class="o">.</span><span class="n">path</span>
-
-    <span class="k">if</span> <span class="n">mesh</span><span class="o">.</span><span class="n">with_ice_shelf_cavities</span><span class="p">:</span>
-        <span class="n">initial_state_target</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/ssh_adjustment/adjusted_init.nc&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">initial_state_target</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init/initial_state.nc&#39;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
-                        <span class="n">work_dir_target</span><span class="o">=</span><span class="n">initial_state_target</span><span class="p">)</span>
+<a class="reference internal" href="../ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.extrapolate.ExtrapolateStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.extrapolate.ExtrapolateStep</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-        <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;forcing_data.nc&#39;</span><span class="p">,</span>
-        <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init/init_mode_forcing_data.nc&#39;</span><span class="p">)</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;woa.nc&#39;</span><span class="p">,</span>
+        <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/woa_combined.nc&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;topography.nc&#39;</span><span class="p">,</span>
+        <span class="n">work_dir_target</span><span class="o">=</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/&#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">combined_filename</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -890,11 +894,10 @@ a location where they can be shared between users and reused over time.  These
 </pre></div>
 </div>
 <p>In this example from
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.global_ocean.init.init.Init()</span></code>,
-the file <code class="docutils literal notranslate"><span class="pre">BedMachineAntarctica_v2_and_GEBCO_2022_0.05_degree_20220729.nc</span></code> is
-slated for later downloaded from the
-<a class="reference external" href="https://web.lcrc.anl.gov/public/e3sm/polaris/ocean/bathymetry_database/">Ocean bathymetry database</a>.
-The file will be stored in the subdirectory <code class="docutils literal notranslate"><span class="pre">ocean/bathymetry_database</span></code>
+<a class="reference internal" href="../ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.combine.CombineStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.combine.CombineStep</span></code></a>,
+the file <code class="docutils literal notranslate"><span class="pre">woa23_decav91C0_t00_04.nc</span></code> is slated for later downloaded from the
+initial-condition database.
+The file will be stored in the subdirectory <code class="docutils literal notranslate"><span class="pre">ocean/initial_condition_database</span></code>
 of the path in the <code class="docutils literal notranslate"><span class="pre">database_root</span></code> config option in the <code class="docutils literal notranslate"><span class="pre">paths</span></code> section of
 the config file.  The <code class="docutils literal notranslate"><span class="pre">database_root</span></code> option is set either by selecting one
 of the <a class="reference internal" href="../../users_guide/machines/index.html#supported-machines"><span class="std std-ref">Supported Machines</span></a> or in the user’s config file.</p>
@@ -985,9 +988,9 @@ which cache files correspond to which step outputs.</p>
 <p>A developer can indicate that polaris suite includes steps with cached
 outputs in two ways.  First, if all steps in a task should have cached
 output, the following notation should be used:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/global_ocean/QU240/mesh
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/spherical/realistic_global/hydrography/woa23
     cached
-ocean/global_ocean/QU240/PHC/init
+ocean/spherical/icos/cosine_bell/decomp
     cached
 </pre></div>
 </div>
@@ -995,10 +998,10 @@ ocean/global_ocean/QU240/PHC/init
 The indentation is for visual clarity and is not required.</p>
 <p>Second, ff only some steps in a task should have cached output, they need
 to be listed explicitly, as follows:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/global_ocean/QUwISC240/mesh
-    cached: mesh
-ocean/global_ocean/QUwISC240/PHC/init
-    cached: init ssh_adjustment
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/spherical/realistic_global/hydrography/woa23
+    cached: combine_topo_bedmap3_gebco2023_lat_lon_0.25000_degree
+ocean/spherical/icos/cosine_bell/decomp
+    cached: init forward
 </pre></div>
 </div>
 <p>The line can be indented for visual clarity, but must begin with <code class="docutils literal notranslate"><span class="pre">cached:</span></code>,
@@ -1009,16 +1012,15 @@ should use cached outputs, the suffix <code class="docutils literal notranslate"
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris setup -n 90c 91c 92 ...
 </pre></div>
 </div>
-<p>In this example, tasks 90 and 91 (<code class="docutils literal notranslate"><span class="pre">mesh</span></code> and <code class="docutils literal notranslate"><span class="pre">init</span></code> tasks from
-the <code class="docutils literal notranslate"><span class="pre">SOwISC12to60</span></code> global ocean mesh, in this case) are set up with cached
-outputs in all steps and 92 (<code class="docutils literal notranslate"><span class="pre">performance_test</span></code>) is not.  This approach is
-efficient but does not provide any control of which steps use cached outputs
-and which do not.</p>
+<p>In this example, tasks 90 and 91 are set up with cached outputs in all steps
+and 92 is not. This approach is efficient but does not provide any control of
+which steps use cached outputs and which do not.</p>
 <p>A much more verbose approach is required if some steps use cached outputs and
 others do not within a given task.  Each task must be set up on its
 own with the <code class="docutils literal notranslate"><span class="pre">-t</span></code> and <code class="docutils literal notranslate"><span class="pre">--cached</span></code> flags as follows:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris setup -t ocean/global_ocean/QU240/mesh --cached mesh ...
-polaris setup -t ocean/global_ocean/QU240/PHC/init --cached init ...
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris setup -t ocean/spherical/realistic_global/hydrography/woa23 \
+    --cached combine_topo_bedmap3_gebco2023_lat_lon_0.25000_degree ...
+polaris setup -t ocean/spherical/icos/cosine_bell/decomp --cached init forward ...
 ...
 </pre></div>
 </div>
@@ -1075,7 +1077,7 @@ the cache database.</p>
 modifying task code.  A step may not appear in both <code class="docutils literal notranslate"><span class="pre">--cached</span></code> and
 <code class="docutils literal notranslate"><span class="pre">--free_running</span></code>.</p>
 <p>See <a class="reference internal" href="../e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.html#polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask" title="polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask</span></code></a>
-and <a class="reference internal" href="../ocean/generated/polaris.tasks.ocean.global_ocean.hydrography.woa23.Woa23.html#polaris.tasks.ocean.global_ocean.hydrography.woa23.Woa23" title="polaris.tasks.ocean.global_ocean.hydrography.woa23.task.Woa23"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.global_ocean.hydrography.woa23.task.Woa23</span></code></a>
+and <a class="reference internal" href="../ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23</span></code></a>
 for concrete examples.</p>
 </section>
 <section id="adding-other-steps-as-dependencies">

@@ -149,12 +149,14 @@ README file that the user might want to have available) using
 
 <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
     <span class="o">...</span>
-    <span class="k">with</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.global_ocean.files_for_e3sm&#39;</span><span class="p">,</span> <span class="s1">&#39;README&#39;</span><span class="p">)</span> <span class="k">as</span> \
-            <span class="n">target</span><span class="p">:</span>
-        <span class="n">symlink</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/README&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;work_dir&#39;</span><span class="p">]))</span>
+    <span class="k">with</span> <span class="n">path</span><span class="p">(</span>
+        <span class="s1">&#39;polaris.tasks.ocean.realistic_global.hydrography.woa23&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;woa23.cfg&#39;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">target</span><span class="p">:</span>
+        <span class="n">symlink</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/woa23.cfg&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;work_dir&#39;</span><span class="p">]))</span>
 </pre></div>
 </div>
-<p>In this example, we get the path to a README file within polaris and make
+<p>In this example, we get the path to a config file within polaris and make
 a local symlink to it in the task’s work directory.  We did this with
 <code class="docutils literal notranslate"><span class="pre">symlink()</span></code> rather than <code class="docutils literal notranslate"><span class="pre">add_input_file()</span></code> because we want this link to
 be within the task’s work directory, not the step’s work directory.  We

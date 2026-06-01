@@ -463,12 +463,10 @@ file:</p>
                  <span class="n">template_replacements</span><span class="o">=</span><span class="n">stream_replacements</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>In this example, taken from
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.global_ocean.mesh.qu240.dynamic_adjustement.QU240DynamicAdjustment</span></code>,
-we are creating a series of steps that will be used to perform dynamic
-adjustment of the ocean model, each of which might have different durations and
-restart intervals.  Rather than creating a streams file for each step of the
-spin up, we reuse the same template with just a few appropriate replacements.
+<p>In this pattern, a series of steps can share one streams template while using
+different durations and restart intervals. Rather than creating a streams file
+for each step of the spin up, we reuse the same template with just a few
+appropriate replacements.
 Thus, calls to <a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> with
 <code class="docutils literal notranslate"><span class="pre">template_replacements</span></code> are qualitatively similar to namelist calls to
 <a class="reference internal" href="../generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a>.</p>

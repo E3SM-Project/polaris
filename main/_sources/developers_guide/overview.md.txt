@@ -241,18 +241,9 @@ also often include namelist and streams files with replacements to use across
 tasks.
 
 In addition to shared steps, some categories can include additional shared
-framework modules tailored to that category.
-
-The shared code in `global_ocean` has made it easy to define dozens different
-tasks using the QU240 or QUwISC240 meshes.  This is possible because
-the same conceptual test (e.g. restart) can be defined:
-
-> - with or without ice-shelf cavities
-> - with the RK4 or split-explicit time integrators
-
-In theory, we could provide additional variants of these tasks with
-different  initial conditions and other capabilities such as support for
-biogeochemistry.
+framework modules tailored to that category. For example, the shared code in
+`realistic_global` contains hydrography preprocessing steps that can be reused
+by future realistic global ocean initialization workflows.
 
 ### ...within a task
 

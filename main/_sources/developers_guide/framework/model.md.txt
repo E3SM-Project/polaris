@@ -366,12 +366,10 @@ add_streams_file(step, module, 'streams.template',
                  template_replacements=stream_replacements)
 ```
 
-In this example, taken from
-{py:class}`polaris.tasks.ocean.global_ocean.mesh.qu240.dynamic_adjustement.QU240DynamicAdjustment`,
-we are creating a series of steps that will be used to perform dynamic
-adjustment of the ocean model, each of which might have different durations and
-restart intervals.  Rather than creating a streams file for each step of the
-spin up, we reuse the same template with just a few appropriate replacements.
+In this pattern, a series of steps can share one streams template while using
+different durations and restart intervals. Rather than creating a streams file
+for each step of the spin up, we reuse the same template with just a few
+appropriate replacements.
 Thus, calls to {py:meth}`polaris.ModelStep.add_streams_file()` with
 `template_replacements` are qualitatively similar to namelist calls to
 {py:meth}`polaris.ModelStep.add_model_config_options()`.
