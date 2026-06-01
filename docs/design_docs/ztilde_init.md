@@ -32,8 +32,7 @@ This design document describes:
 This capability is needed wherever the z-tilde coordinate must be initialized from a
 known geometric seafloor depth. Its first concrete users are idealized test cases such as
 `ocean/horiz_press_grad`, which already implements the algorithm but embeds it in
-task-specific code, and the planned realistic initialization task described in the
-companion design document [global_ocean_init.md](global_ocean_init.md). The design is
+task-specific code, and the planned realistic initialization task. The design is
 successful if the iteration logic is cleanly separated from the CT/SA initialization
 strategy, and if the same base class and algorithm serve both idealized and realistic use
 cases without modification.
@@ -208,8 +207,7 @@ Several concrete initialization strategies are envisioned:
 3. **Observational hydrography** (planned for realistic initialization): CT and SA are
    interpolated from a pre-processed hydrography product that has already been remapped
    to the MPAS horizontal mesh; at each outer iteration, vertical interpolation from the
-   source depth levels to the current z-tilde midpoints is performed. This strategy is
-   described in more detail in [global_ocean_init.md](global_ocean_init.md).
+   source depth levels to the current z-tilde midpoints is performed.
 
 The interface constrains only what the method receives and returns; it does not constrain
 how CT and SA are computed. The method may access `self.config`, `self.logger`, or any
@@ -423,8 +421,7 @@ constructing each column's coordinate. This override pattern is consistent in st
 the `init_tracers` interface and keeps the per-cell logic in the subclass.
 
 The planned realistic initialization step (`ocean/realistic/init`) will subclass
-`ZTildeInitStep` and implement `init_tracers` to read from the WOA hydrography product
-described in [global_ocean_init.md](global_ocean_init.md). In that context, CT/SA
+`ZTildeInitStep` and implement `init_tracers` to read from the WOA hydrography product. In that context, CT/SA
 initialization at each outer iteration involves sampling a pre-computed hydrography
 product that has been remapped to the MPAS horizontal mesh, then interpolating vertically
 from the source depth levels to the current z-tilde layer midpoints. The mesh file for
