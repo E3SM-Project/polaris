@@ -436,7 +436,7 @@ by `ZTildeInitStep` in that context.
 
 ### Testing and Validation: The z-tilde vertical coordinate can be initialized with a geometric seafloor depth matching target bathymetry within a configurable tolerance
 
-Date last modified: 2026/05/27
+Date last modified: 2026/06/01
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -452,9 +452,10 @@ Unit tests in `tests/ocean/vertical/test_ztilde_init.py` cover:
   matches the target to within a relative tolerance well below $10^{-10}$.
 
 The `horiz_press_grad` regression tests (all three task variants: `salinity_gradient`,
-`temperature_gradient`, `ztilde_gradient`) provide validation that the refactored
-base class produces the same outputs as the original embedded loop. These tests are
-pending a developer run on an Omega-enabled machine.
+`temperature_gradient`, `ztilde_gradient`) validate that the refactored base class produces
+the same outputs as the original embedded loop. All three variants passed the `omega_pr`
+suite on Chrysalis (2026-06-01), with `salinity_gradient` producing results identical to
+the `main`-branch baseline.
 
 ### Testing and Validation: CT and SA can be initialized on the z-tilde coordinate through a pluggable interface
 
@@ -486,7 +487,7 @@ cells across the three task variants.
 
 ### Testing and Validation: Full and partial bottom cells are handled correctly within the iteration
 
-Date last modified: 2026/05/27
+Date last modified: 2026/06/01
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -497,18 +498,21 @@ test confirms that a warning containing `'full-cell snap'` is emitted and that t
 terminates without raising an exception, and that the returned dataset still contains
 `bottomDepth`.
 
-The `horiz_press_grad` regression tests for configurations with `partial_cell_type = full`
-and `partial_cell_type = partial` are pending a developer run on an Omega-enabled machine.
+The `horiz_press_grad` regression tests (all three task variants) passed the `omega_pr`
+suite on Chrysalis (2026-06-01). The `horiz_press_grad` tasks all use
+`partial_cell_type = partial`, exercising the partial-cell path through the iteration.
 
 ### Testing and Validation: The capability is reusable across idealized and realistic initialization tasks
 
-Date last modified: 2026/05/27
+Date last modified: 2026/06/01
 
 Contributors: Xylar Asay-Davis, Claude
 
 `horiz_press_grad.Init` is refactored onto `ZTildeInitStep` and its existing regression
 tests serve as the first validation that the base class interface is correct and complete.
+All three `horiz_press_grad` task variants passed the `omega_pr` suite on Chrysalis
+(2026-06-01), confirming that the outer loop converges and the output dataset is complete.
 Once the realistic initialization task (`ocean/realistic/init`) is implemented, its
 regression tests will exercise the shared base class with WOA-derived CT/SA on at least
-one small or moderate-resolution global mesh, confirming that the outer loop converges and
-the output dataset is complete without any modification to the base class.
+one small or moderate-resolution global mesh, confirming that no modification to the base
+class is needed for realistic initialization.
