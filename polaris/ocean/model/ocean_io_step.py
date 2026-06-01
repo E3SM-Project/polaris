@@ -1,3 +1,5 @@
+from typing import Optional
+
 from polaris import Step
 from polaris.ocean.model import io
 
@@ -5,7 +7,16 @@ from polaris.ocean.model import io
 class OceanIOStep(Step):
     """
     A step that writes input and/or output files for Omega or MPAS-Ocean
+
+    Attributes
+    ----------
+    model : str or None
+        The ocean model (``'omega'`` or ``'mpas-ocean'``) if fixed at
+        construction time, or ``None`` to read from
+        ``config['ocean']['model']`` at run time.
     """
+
+    model: Optional[str] = None
 
     def __init__(self, component, **kwargs):
         super().__init__(component=component, **kwargs)
@@ -18,10 +29,21 @@ class OceanIOStep(Step):
         :py:class:`.InitialStateStep`), that value is used.  Otherwise the
         model is read from ``config['ocean']['model']``, which is the
         globally-configured model set during :py:meth:`.Ocean.configure`.
+
+        Raises
+        ------
+        ValueError
+            If the resolved model is not ``'omega'`` or ``'mpas-ocean'``,
+            indicating the user needs to pass ``--model`` to ``polaris setup``.
         """
-        return getattr(self, 'model', None) or self.config.get(
-            'ocean', 'model'
-        )
+        model = self.model or self.config.get('ocean', 'model')
+        if model not in ('omega', 'mpas-ocean'):
+            raise ValueError(
+                f'Step "{self.name}" requires the ocean model to be set to '
+                f'"omega" or "mpas-ocean", but got "{model}". Pass '
+                f'--model omega or --model mpas-ocean to polaris setup.'
+            )
+        return model
 
     def add_output_files_for_ocean_model_input(
         self,

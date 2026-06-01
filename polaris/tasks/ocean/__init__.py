@@ -1,17 +1,7 @@
-import importlib.resources as imp_res
 import os
-from typing import Dict, Tuple, Union
-
-import xarray as xr
-from mpas_tools.io import write_netcdf
-from mpas_tools.vector.reconstruct import reconstruct_variable
-from ruamel.yaml import YAML
+from typing import Union
 
 from polaris import Component
-from polaris.ocean.vertical.diagnostics import (
-    geom_thickness_from_ds,
-    pseudothickness_from_ds,
-)
 
 
 class Ocean(Component):
@@ -21,22 +11,10 @@ class Ocean(Component):
     Attributes
     ----------
     model : str
-        The ocean model being used, either 'mpas-ocean', 'omega', or
-        'unknown' if no OceanModelStep or OceanIOStep is present in any task
-
-    mpaso_to_omega_dim_map : dict
-        A map from MPAS-Ocean dimension names to their Omega equivalents
-
-    mpaso_to_omega_var_map : dict
-        A map from MPAS-Ocean variable names to their Omega equivalents
-
-    horiz_mesh_vars : list of str
-        Variables that belong in the horizontal mesh file rather than the
-        initial condition file
-
-    vert_coord_vars : list of str
-        Variables that belong in the vertical coordinate file (Omega only)
-        rather than the initial condition file
+        The ocean model being used, either ``'mpas-ocean'``, ``'omega'``, or
+        ``'unknown'`` if no ``OceanModelStep`` or ``OceanIOStep`` is present
+        in any task, or if only model-fixed ``OceanIOStep`` instances are
+        present (steps that set ``self.model`` explicitly at construction time)
     """
 
     def __init__(self):
@@ -45,10 +23,6 @@ class Ocean(Component):
         """
         super().__init__(name='ocean')
         self.model: Union[None, str] = None
-        self.mpaso_to_omega_dim_map: Union[None, Dict[str, str]] = None
-        self.mpaso_to_omega_var_map: Union[None, Dict[str, str]] = None
-        self.horiz_mesh_vars: Union[None, list[str]] = None
-        self.vert_coord_vars: Union[None, list[str]] = None
 
     def configure(self, config, tasks):
         """
@@ -64,10 +38,10 @@ class Ocean(Component):
         """
         section = config['ocean']
         model = section.get('model')
-        has_ocean_io_steps, has_ocean_model_steps = (
+        has_ocean_model_steps, has_fixed_io, has_agnostic_io = (
             self._has_ocean_io_model_steps(tasks)
         )
-        if not (has_ocean_model_steps or has_ocean_io_steps):
+        if not (has_ocean_model_steps or has_fixed_io or has_agnostic_io):
             # No ocean I/O or model steps, so no model detection or build
             # needed.
             if model == 'detect':
@@ -75,426 +49,67 @@ class Ocean(Component):
             self.model = model
             return
 
-        if model == 'detect':
-            model = self._detect_model(config)
-            print('Detected ocean model:', model)
-            config.set('ocean', 'model', model)
+        model_cfgs = {'mpas-ocean': 'mpas_ocean.cfg', 'omega': 'omega.cfg'}
 
-        configs = {'mpas-ocean': 'mpas_ocean.cfg', 'omega': 'omega.cfg'}
+        if has_ocean_model_steps or has_agnostic_io:
+            # Need a single global model: either a binary is required, or
+            # model-agnostic IO steps need the model from config.
+            if model == 'detect':
+                model = self._detect_model(config)
+                print('Detected ocean model:', model)
+                config.set('ocean', 'model', model)
+            if model not in model_cfgs:
+                raise ValueError(f'Unknown ocean model {model}')
+            config.add_from_package('polaris.ocean', model_cfgs[model])
+            if has_ocean_model_steps:
+                # Try to detect the model build; trigger a build if absent
+                component_path = config.get('paths', 'component_path')
+                if model == 'omega':
+                    detected = self._detect_omega_build(component_path)
+                else:
+                    detected = self._detect_mpas_ocean_build(component_path)
+                if not detected:
+                    build = config.getboolean('build', 'build')
+                    if not build:
+                        print(
+                            f'Ocean model {model} not found in '
+                            f'{component_path}, setting build option to True'
+                        )
+                        config.set('build', 'build', 'True', user=True)
+            self.model = model
+        else:
+            # Only model-fixed IO steps; each step knows its own model.
+            # Load config for every model referenced by those steps.
+            from polaris.ocean.model.ocean_io_step import OceanIOStep
 
-        if model not in configs:
-            raise ValueError(f'Unknown ocean model {model}')
-
-        config.add_from_package('polaris.ocean', configs[model])
-
-        component_path = config.get('paths', 'component_path')
-        if has_ocean_model_steps:
-            # we need to try to detect the model and build it if needed
-            if model == 'omega':
-                detected = self._detect_omega_build(component_path)
-            else:
-                detected = self._detect_mpas_ocean_build(component_path)
-
-            if not detected:
-                # looks like we need to build the model
-                build = config.getboolean('build', 'build')
-                if not build:
-                    print(
-                        f'Ocean model {model} not found in '
-                        f'{component_path}, setting build option to True'
-                    )
-                    config.set('build', 'build', 'True', user=True)
-
-        self.model = model
-        if model == 'omega':
-            self._read_var_map()
-
-    def map_to_native_model_vars(self, ds):
-        """
-        If the model is Omega, rename dimensions and variables in a dataset
-        from their MPAS-Ocean names to the Omega equivalent (appropriate for
-        input datasets like an initial condition)
-
-        Parameters
-        ----------
-        ds : xarray.Dataset
-            A dataset containing MPAS-Ocean variable names
-
-        Returns
-        -------
-        ds : xarray.Dataset
-            The same dataset with variables renamed as appropriate for the
-            ocean model being run
-        """
-        model = self.model
-        if model == 'omega':
-            assert self.mpaso_to_omega_dim_map is not None
-            rename = {
-                k: v
-                for k, v in self.mpaso_to_omega_dim_map.items()
-                if k in ds.dims
+            fixed_models = {
+                step.model
+                for task in tasks
+                for step in task.steps.values()
+                if isinstance(step, OceanIOStep) and step.model is not None
             }
-            assert self.mpaso_to_omega_var_map is not None
-            rename_vars = {
-                k: v for k, v in self.mpaso_to_omega_var_map.items() if k in ds
-            }
-            rename.update(rename_vars)
-            ds = ds.rename(rename)
-        return ds
+            for m in sorted(fixed_models):
+                if m not in model_cfgs:
+                    raise ValueError(f'Unknown ocean model {m}')
+                config.add_from_package('polaris.ocean', model_cfgs[m])
+            self.model = model if model != 'detect' else 'unknown'
 
-    def map_var_list_to_native_model(self, var_list):
-        """
-        If the model is Omega, rename variables from their MPAS-Ocean names to
-        the Omega equivalent (appropriate for validation variable lists)
-
-        Parameters
-        ----------
-        var_list : list of str
-            A list of MPAS-Ocean variable names
-
-        Returns
-        -------
-        renamed_vars : list of str
-            The same list with variables renamed as appropriate for the
-            ocean model being run
-        """
-        renamed_vars = var_list
-        model = self.model
-        if model == 'omega':
-            assert self.mpaso_to_omega_var_map is not None
-            renamed_vars = [
-                self.mpaso_to_omega_var_map.get(v, v) for v in var_list
-            ]
-        return renamed_vars
-
-    def write_model_dataset(self, ds, filename, config):
-        """
-        Write out the given dataset, mapping dimension and variable names from
-        MPAS-Ocean to Omega names if appropriate
-
-        Parameters
-        ----------
-        ds : xarray.Dataset
-            A dataset containing MPAS-Ocean variable names
-
-        filename : str
-            The path for the NetCDF file to write
-
-        config : polaris.config.PolarisConfigParser
-            Configuration for the task; used when the model is Omega to
-            convert geometric layer thickness to pseudo-thickness before
-            writing.
-        """
-        if self.model == 'omega':
-            # fields to be converted from geometric to pseudo thickness
-            mpas_to_omega_vars = {
-                'layerThickness': 'PseudoThickness',
-                'restingThickness': 'RefPseudoThickness',
-            }
-            for mpas_var, omega_var in mpas_to_omega_vars.items():
-                if mpas_var in ds.keys() and omega_var not in ds.keys():
-                    pseudothickness, spec_vol = pseudothickness_from_ds(
-                        ds, config=config, src_var_name=mpas_var
-                    )
-                    if pseudothickness is not None and spec_vol is not None:
-                        ds[omega_var] = pseudothickness
-                        if mpas_var == 'layerThickness':
-                            ds['SpecVol'] = spec_vol
-
-        # After map_to_native_model_vars, the dataset contains
-        # LayerThickness and PseudoThickness which are both
-        # pseudo-thickness
-        ds = self.map_to_native_model_vars(ds)
-
-        write_netcdf(ds=ds, fileName=filename)
-
-    def write_horiz_mesh_dataset(self, ds, filename, config):
-        """
-        Write a horizontal mesh dataset, validating that all expected mesh
-        variables are present.
-
-        Parameters
-        ----------
-        ds : xarray.Dataset
-            A dataset containing MPAS-Ocean or native model variable names
-            including all horizontal mesh variables
-
-        filename : str
-            The path for the NetCDF file to write
-
-        config : polaris.config.PolarisConfigParser
-            Not used; retained for API compatibility.
-        """
-        if self.horiz_mesh_vars is None:
-            self._read_variables_yaml()
-        if self.model == 'omega' and self.mpaso_to_omega_var_map is None:
-            self._read_var_map()
-        assert self.horiz_mesh_vars is not None
-        ds = self.map_to_native_model_vars(ds)
-        native_vars = self.map_var_list_to_native_model(self.horiz_mesh_vars)
-        self._check_vars_present(ds, native_vars, 'write_horiz_mesh_dataset')
-        write_netcdf(ds=ds, fileName=filename)
-
-    def remove_horiz_mesh_vars(self, ds):
-        """
-        Remove horizontal mesh variables from a dataset.
-
-        Parameters
-        ----------
-        ds : xarray.Dataset
-            A dataset containing MPAS-Ocean variable names
-
-        Returns
-        -------
-        ds : xarray.Dataset
-            The same dataset without horizontal mesh variables
-        """
-        if self.horiz_mesh_vars is None:
-            self._read_variables_yaml()
-
-        assert self.horiz_mesh_vars is not None
-        drop = [v for v in self.horiz_mesh_vars if v in ds]
-        if drop:
-            ds = ds.drop_vars(drop)
-        return ds
-
-    def write_vert_coord_dataset(self, ds, filename, config):
-        """
-        Write a vertical-coordinate dataset for Omega's ``InitialVertCoord``
-        stream.  This is a no-op for MPAS-Ocean (vertical coordinate fields
-        stay in the initial state file).
-
-        Parameters
-        ----------
-        ds : xarray.Dataset
-            A dataset containing MPAS-Ocean or native model variable names,
-            including the vertical coordinate variables and the
-            temperature/salinity/ssh fields needed for pseudo-thickness
-            conversion.
-
-        filename : str
-            The path for the NetCDF file to write
-
-        config : polaris.config.PolarisConfigParser
-            Configuration for the task; used when converting
-            ``restingThickness`` to ``RefPseudoThickness``.
-        """
-        if self.vert_coord_vars is None:
-            self._read_variables_yaml()
-        if self.model == 'omega' and self.mpaso_to_omega_var_map is None:
-            self._read_var_map()
-        assert self.vert_coord_vars is not None
-
-        native_vars = self.map_var_list_to_native_model(self.vert_coord_vars)
-
-        if self.model != 'omega':
-            self._check_vars_present(
-                ds, native_vars, 'write_vert_coord_dataset'
-            )
-            return
-
-        ds_vc = ds.copy()
-
-        # Convert restingThickness (geometric) to RefPseudoThickness (pseudo)
-        if 'restingThickness' in ds_vc and 'RefPseudoThickness' not in ds_vc:
-            pseudothickness, _ = pseudothickness_from_ds(
-                ds_vc, config=config, src_var_name='restingThickness'
-            )
-            if pseudothickness is not None:
-                # VertCoordInit stream is time-independent; drop Time dim
-                if 'Time' in pseudothickness.dims:
-                    pseudothickness = pseudothickness.isel(Time=0)
-                ds_vc['RefPseudoThickness'] = pseudothickness
-
-        ds_vc = self.map_to_native_model_vars(ds_vc)
-        # native_vars for Omega: [MinLayerCell, MaxLayerCell,
-        #   BottomGeomDepth, VertCoordMovementWeights, RefPseudoThickness]
-        self._check_vars_present(
-            ds_vc, native_vars, 'write_vert_coord_dataset'
-        )
-        ds_vc = ds_vc[native_vars]
-        write_netcdf(ds=ds_vc, fileName=filename)
-
-    def remove_vert_coord_vars(self, ds):
-        """
-        Remove vertical coordinate variables from a dataset.
-
-        Parameters
-        ----------
-        ds : xarray.Dataset
-            A dataset containing MPAS-Ocean variable names
-
-        Returns
-        -------
-        ds : xarray.Dataset
-            The same dataset without vertical coordinate variables
-        """
-        if self.vert_coord_vars is None:
-            self._read_variables_yaml()
-
-        assert self.vert_coord_vars is not None
-        drop = [v for v in self.vert_coord_vars if v in ds]
-        if drop:
-            ds = ds.drop_vars(drop)
-        return ds
-
-    def write_initial_state_dataset(self, ds, filename, config):
-        """
-        Write an initial-state dataset, omitting horizontal mesh fields and
-        (for Omega) vertical coordinate fields.
-
-        For MPAS-Ocean the vertical coordinate variables remain in the initial
-        state file.  For Omega they are written separately via
-        :py:meth:`write_vert_coord_dataset`.
-
-        Parameters
-        ----------
-        ds : xarray.Dataset
-            A dataset containing MPAS-Ocean variable names
-
-        filename : str
-            The path for the NetCDF file to write
-
-        config : polaris.config.PolarisConfigParser
-            Configuration for the task; forwarded to
-            :py:meth:`write_model_dataset`.
-        """
-        ds = self.remove_horiz_mesh_vars(ds)
-        if self.model == 'omega':
-            ds = self.remove_vert_coord_vars(ds)
-        self.write_model_dataset(ds, filename, config)
-
-    def map_from_native_model_vars(self, ds):
-        """
-        If the model is Omega, rename dimensions and variables in a dataset
-        from their Omega names to the MPAS-Ocean equivalent (appropriate for
-        datasets that are output from the model)
-
-        Parameters
-        ----------
-        ds : xarray.Dataset
-            A dataset containing variable names native to either ocean model
-
-        Returns
-        -------
-        ds : xarray.Dataset
-            The same dataset with variables named as expected in MPAS-Ocean
-        """
-        model = self.model
-        if model == 'omega':
-            # switch keys and values in mpaso_to_omega maps to get
-            # omega to mpaso maps
-            assert self.mpaso_to_omega_dim_map is not None
-            rename = {
-                k: v
-                for v, k in self.mpaso_to_omega_dim_map.items()
-                if k in ds.dims
-            }
-            assert self.mpaso_to_omega_var_map is not None
-            rename_vars = {
-                k: v for v, k in self.mpaso_to_omega_var_map.items() if k in ds
-            }
-            rename.update(rename_vars)
-            ds = ds.rename(rename)
-        return ds
-
-    def map_var_list_from_native_model(self, var_list):
-        """
-        If the model is Omega, rename variables from their Omega names to
-        the MPAS-Ocean equivalent
-
-        Parameters
-        ----------
-        var_list : list of str
-            A list of MPAS-Ocean variable names
-
-        Returns
-        -------
-        renamed_vars : list of str
-            The same list with variables renamed as appropriate for the
-            ocean model being run
-        """
-        renamed_vars = var_list
-        model = self.model
-        if model == 'omega':
-            # switch keys and values in mpaso_to_omega maps to get
-            # omega to mpaso maps
-            assert self.mpaso_to_omega_var_map is not None
-            renamed_vars = [
-                v
-                for v, k in self.mpaso_to_omega_var_map.items()
-                if k in var_list
-            ]
-        return renamed_vars
-
-    def open_model_dataset(
-        self,
-        filename,
-        config,
-        mesh_filename=None,
-        reconstruct_variables=None,
-        coeffs_filename=None,
-        **kwargs,
-    ):
-        """
-        Open the given dataset, mapping variable and dimension names from Omega
-        to MPAS-Ocean names if appropriate
-
-        Parameters
-        ----------
-        filename : str
-            The path for the NetCDF file to open
-
-        config : polaris.config.PolarisConfigParser
-            Configuration for the task; used when the model is Omega to
-            compute geometric layer thickness from pseudo-thickness.
-
-        mesh_filename : str, optional
-            Path to the mesh NetCDF file.
-
-        reconstruct_variables : list of str, optional
-            List of variable names to reconstruct in the dataset.
-
-        coeffs_filename : str, optional
-            Path to the coefficients NetCDF file.
-
-        kwargs
-            keyword arguments passed to `xarray.open_dataset()`
-
-        Returns
-        -------
-        ds : xarray.Dataset
-            The dataset with variables named as expected in MPAS-Ocean
-        """
-        ds = xr.open_dataset(filename, **kwargs)
-        if (
-            self.model == 'omega'
-            and 'layerThickness' not in ds.keys()
-            and 'PseudoThickness' in ds.keys()
-            and 'SpecVol' in ds.keys()
-        ):
-            ds['layerThickness'] = geom_thickness_from_ds(ds, config=config)
-        ds = self.map_from_native_model_vars(ds)
-        ds = _add_reconstructed_variables_to_dataset(
-            ds, reconstruct_variables, mesh_filename, coeffs_filename
-        )
-        return ds
-
-    def _check_vars_present(self, ds, native_vars, context):
-        """
-        Raise ValueError if any variable in native_vars is absent from ds.
-        """
-        missing = [v for v in native_vars if v not in ds]
-        if missing:
-            raise ValueError(
-                f'{context} requires the following variables that are '
-                'missing from the dataset: ' + ', '.join(missing)
-            )
-
-    def _has_ocean_io_model_steps(self, tasks) -> Tuple[bool, bool]:
+    def _has_ocean_io_model_steps(self, tasks) -> tuple[bool, bool, bool]:
         """
         Determine if any steps in this component descend from OceanIOStep or
-        OceanModelStep
+        OceanModelStep, and distinguish model-fixed from model-agnostic IO
+        steps.
+
+        Returns
+        -------
+        has_ocean_model_steps : bool
+            True if any step is an ``OceanModelStep`` (needs a model binary).
+        has_model_fixed_io_steps : bool
+            True if any ``OceanIOStep`` has ``self.model`` set explicitly at
+            construction time (does not need global model detection).
+        has_model_agnostic_io_steps : bool
+            True if any ``OceanIOStep`` does *not* have ``self.model`` set
+            (reads the model from config; requires global model detection).
         """
         # local import to avoid circular imports
         from polaris.ocean.model.ocean_io_step import OceanIOStep
@@ -505,56 +120,22 @@ class Ocean(Component):
             for task in tasks
             for step in task.steps.values()
         )
-        has_ocean_io_steps = any(
-            isinstance(step, OceanIOStep)
+        has_model_fixed_io_steps = any(
+            isinstance(step, OceanIOStep) and step.model is not None
+            for task in tasks
+            for step in task.steps.values()
+        )
+        has_model_agnostic_io_steps = any(
+            isinstance(step, OceanIOStep) and step.model is None
             for task in tasks
             for step in task.steps.values()
         )
 
-        return has_ocean_io_steps, has_ocean_model_steps
-
-    def _read_variables_yaml(self):
-        """
-        Read horiz_mesh_vars and vert_coord_vars from variables.yaml
-        """
-        if (
-            self.horiz_mesh_vars is not None
-            and self.vert_coord_vars is not None
-        ):
-            return
-        package = 'polaris.ocean.model'
-        filename = 'variables.yaml'
-        text = imp_res.files(package).joinpath(filename).read_text()
-        yaml_data = YAML(typ='rt')
-        nested_dict = yaml_data.load(text)
-        self.horiz_mesh_vars = nested_dict['ocean']['horiz_mesh_variables']
-        self.vert_coord_vars = list(
-            nested_dict['ocean']['vert_coord_variables']
+        return (
+            has_ocean_model_steps,
+            has_model_fixed_io_steps,
+            has_model_agnostic_io_steps,
         )
-        model_section_map = {'mpas-ocean': 'mpas-ocean', 'omega': 'Omega'}
-        model_key = model_section_map.get(self.model or '')
-        if model_key:
-            extra = nested_dict.get(model_key, {}).get(
-                'vert_coord_variables', []
-            )
-            self.vert_coord_vars.extend(extra)
-
-    def _read_var_map(self):
-        """
-        Read the map from MPAS-Ocean to Omega dimension and variable names
-        """
-        if self.mpaso_to_omega_var_map is not None:
-            return
-        package = 'polaris.ocean.model'
-
-        filename = 'mpaso_to_omega.yaml'
-        text = imp_res.files(package).joinpath(filename).read_text()
-        yaml_data = YAML(typ='rt')
-        nested_dict = yaml_data.load(text)
-        self.mpaso_to_omega_dim_map = nested_dict['dimensions']
-        self.mpaso_to_omega_var_map = nested_dict['variables']
-
-        self._read_variables_yaml()
 
     def _detect_model(self, config) -> str:
         """
@@ -621,84 +202,6 @@ class Ocean(Component):
                 all_found = False
                 break
         return all_found
-
-
-def _add_reconstructed_variables_to_dataset(
-    ds, reconstruct_variables, mesh_filename, coeffs_filename
-):
-    """
-    Add reconstructed vector variables to the dataset if requested.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        The dataset to add reconstructed variables to.
-
-    reconstruct_variables : list of str or None
-        List of variable names to reconstruct.
-
-    mesh_filename : str
-        Path to the mesh NetCDF file.
-
-    coeffs_filename : str
-        Path to the coefficients NetCDF file.
-
-    Returns
-    -------
-    ds : xarray.Dataset
-        The dataset with reconstructed variables added.
-    """
-    if reconstruct_variables is None:
-        return ds
-
-    if mesh_filename is None:
-        raise ValueError(
-            'mesh_filename must be provided to open_model_dataset for '
-            'variable reconstruction'
-        )
-    if coeffs_filename is None:
-        raise ValueError(
-            'coeffs_filename must be provided to open_model_dataset for '
-            'variable reconstruction'
-        )
-
-    for variable in reconstruct_variables:
-        if variable not in ds:
-            raise ValueError(
-                f"User requested vector reconstruction for '{variable}' "
-                "but it isn't present in the dataset."
-            )
-
-        out_var_name = (
-            variable.replace('normal', '').lower()
-            if 'normal' in variable
-            else variable
-        )
-
-        if f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds:
-            continue
-
-        ds_mesh = xr.open_dataset(mesh_filename)
-        ds_coeff = xr.open_dataset(coeffs_filename)
-        coeffs_reconstruct = ds_coeff.coeffs_reconstruct
-
-        if ds_coeff.sizes['nCells'] != ds_mesh.sizes['nCells']:
-            print(
-                f'The sizes of coefficient dataset do not match mesh '
-                f'dataset; exiting without reconstructing {out_var_name}'
-            )
-            continue
-
-        reconstruct_variable(
-            out_var_name,
-            ds[variable],
-            ds_mesh,
-            coeffs_reconstruct,
-            ds,
-            quiet=True,
-        )
-
-    return ds
 
 
 # create a single module-level instance available to other components
