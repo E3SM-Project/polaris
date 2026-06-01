@@ -7,12 +7,6 @@
    :toctree: generated/
 
    Ocean
-   Ocean.map_to_native_model_vars
-   Ocean.map_var_list_to_native_model
-   Ocean.write_model_dataset
-   Ocean.map_from_native_model_vars
-   Ocean.map_var_list_from_native_model
-   Ocean.open_model_dataset
 
    add_tasks.add_ocean_tasks
 ```
@@ -615,6 +609,27 @@
 
    get_days_since_start
    get_time_interval_string
+```
+
+### Ocean Model I/O
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.model
+
+.. autosummary::
+   :toctree: generated/
+
+   map_to_native_model_vars
+   map_from_native_model_vars
+   map_var_list_to_native_model
+   map_var_list_from_native_model
+   write_model_dataset
+   write_horiz_mesh_dataset
+   remove_horiz_mesh_vars
+   write_vert_coord_dataset
+   remove_vert_coord_vars
+   write_initial_state_dataset
+   open_model_dataset
 ```
 
 ### Equations of state (EOS)

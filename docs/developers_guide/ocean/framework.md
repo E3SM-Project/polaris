@@ -12,30 +12,52 @@ The `ocean` component contains an ever expanding set of shared framework code.
 
 Steps that write input files for or read output files from either Omega or
 MPAS-Ocean should descend from the {py:class}`polaris.ocean.model.OceanIOStep`
-class.  Methods in this class facilitate mapping between MPAS-Ocean variable
-names (used in Polaris) and Omega variable names for tasks that will run Omega.
+class.  This class facilitates mapping between MPAS-Ocean variable names (used
+in Polaris) and Omega variable names for tasks that will run Omega.
 
-To map a dataset between MPAS-Ocean variable names and those appropriate for
-the model being run, use the methods
-{py:meth}`polaris.ocean.model.OceanIOStep.map_to_native_model_vars()` and
-{py:meth}`polaris.ocean.model.OceanIOStep.map_from_native_model_vars()`. These
-methods should be called in Polaris immediatly before writing out input files
-and immediately after opening in output files, respectively. To make opening
-and writing easier, we also provide
-{py:meth}`polaris.ocean.model.OceanIOStep.write_model_dataset()` and
-{py:meth}`polaris.ocean.model.OceanIOStep.open_model_dataset()`, which take
-care of of the mapping in addition to writing and opening a dataset,
-respectively. The `open_model_dataset()` method also supports reconstructing
-normal vector components to their zonal and meridional equivalents by passing
-a list of variable names to
-{py:class}`mpas_tools.vector.reconstruct.reconstruct_variables`, along with the mesh and
-reconstruction coefficient files. In addition,
-`open_model_dataset()` derives `PseudoThickness` from the ocean state when it
-is not present in the dataset. This provides a way of using the same initial
-conditions for MPAS-Ocean and Omega when the geometric thickness is the state
-variable for MPAS-Ocean and the pseudo-thickness is the state variable for
-Omega. As new variables are added to Omega, they
-should be added to the `variables` section in the
+The I/O functions themselves live in the `polaris.ocean.model` module (backed
+by `polaris.ocean.model.io`) and can be called directly when you have a `model`
+string available:
+
+- {py:func}`polaris.ocean.model.map_to_native_model_vars()` and
+  {py:func}`polaris.ocean.model.map_from_native_model_vars()` rename dimensions
+  and variables in a dataset between MPAS-Ocean and Omega conventions.  These
+  should be called immediately before writing input files and immediately after
+  opening output files, respectively.
+- {py:func}`polaris.ocean.model.map_var_list_to_native_model()` and
+  {py:func}`polaris.ocean.model.map_var_list_from_native_model()` perform the
+  same renaming on plain Python lists of variable names (e.g. for validation).
+- {py:func}`polaris.ocean.model.write_model_dataset()` maps names then writes
+  a dataset to NetCDF.
+- {py:func}`polaris.ocean.model.write_horiz_mesh_dataset()` validates that all
+  expected horizontal mesh variables are present before writing.
+- {py:func}`polaris.ocean.model.remove_horiz_mesh_vars()` drops horizontal mesh
+  variables from a dataset.
+- {py:func}`polaris.ocean.model.write_vert_coord_dataset()` writes a separate
+  vertical-coordinate file for Omega's ``InitialVertCoord`` stream (a no-op for
+  MPAS-Ocean, which keeps these fields in the initial-state file).
+- {py:func}`polaris.ocean.model.remove_vert_coord_vars()` drops vertical
+  coordinate variables from a dataset.
+- {py:func}`polaris.ocean.model.write_initial_state_dataset()` removes
+  horizontal mesh fields (and for Omega, vertical coordinate fields) then writes
+  the initial-state file.
+- {py:func}`polaris.ocean.model.open_model_dataset()` opens a NetCDF file,
+  maps variable names from Omega back to MPAS-Ocean conventions, and optionally
+  reconstructs normal vector components to their zonal and meridional
+  equivalents by passing a list of variable names along with the mesh and
+  reconstruction coefficient files.  It also derives `layerThickness` from
+  `PseudoThickness` and `SpecVol` when those are present in an Omega output
+  file, providing a unified interface for both models.
+
+When writing a step that descends from {py:class}`polaris.ocean.model.OceanIOStep`,
+you can call these same functions through the equivalent instance methods
+(`self.map_to_native_model_vars()`, `self.write_model_dataset()`,
+`self.open_model_dataset()`, etc.), which internally call `_effective_model()`
+to determine the active model from `self.model` (if set on the step) or from
+`config['ocean']['model']` (set during {py:meth}`polaris.tasks.ocean.Ocean.configure`).
+
+As new variables are added to Omega, they should be added to the `variables`
+section in the
 [mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
 file.
 
