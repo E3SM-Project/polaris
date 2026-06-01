@@ -1,11 +1,11 @@
-from polaris.tasks.ocean.global_ocean.hydrography.woa23 import (
+from polaris.tasks.ocean.realistic_global.hydrography.woa23 import (
     Woa23 as Woa23,
 )
 
 
-def add_global_ocean_tasks(component):
+def add_realistic_global_tasks(component):
     """
-    Add tasks for global-ocean preprocessing and initialization.
+    Add tasks for realistic global ocean preprocessing and initialization.
 
     Parameters
     ----------

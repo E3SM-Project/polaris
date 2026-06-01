@@ -1,5 +1,5 @@
 from polaris import Task
-from polaris.tasks.ocean.global_ocean.hydrography.woa23.steps import (
+from polaris.tasks.ocean.realistic_global.hydrography.woa23.steps import (
     get_woa23_steps,
     get_woa23_topography_step,
 )
@@ -19,7 +19,7 @@ class Woa23(Task):
         component : polaris.tasks.ocean.Ocean
             The ocean component the task belongs to.
         """
-        subdir = 'global_ocean/hydrography/woa23'
+        subdir = 'spherical/realistic_global/hydrography/woa23'
         super().__init__(component=component, name='woa23', subdir=subdir)
 
         self.combine_topo_step = get_woa23_topography_step()

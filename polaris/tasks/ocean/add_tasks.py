@@ -7,7 +7,6 @@ from polaris.tasks.ocean.external_gravity_wave import (
     add_external_gravity_wave_tasks as add_external_gravity_wave_tasks,
 )
 from polaris.tasks.ocean.geostrophic import add_geostrophic_tasks
-from polaris.tasks.ocean.global_ocean import add_global_ocean_tasks
 from polaris.tasks.ocean.horiz_press_grad import add_horiz_press_grad_tasks
 from polaris.tasks.ocean.ice_shelf_2d import add_ice_shelf_2d_tasks
 from polaris.tasks.ocean.inertial_gravity_wave import (
@@ -20,6 +19,7 @@ from polaris.tasks.ocean.manufactured_solution import (
 )
 from polaris.tasks.ocean.merry_go_round import add_merry_go_round_tasks
 from polaris.tasks.ocean.overflow import add_overflow_tasks
+from polaris.tasks.ocean.realistic_global import add_realistic_global_tasks
 from polaris.tasks.ocean.seamount import add_seamount_tasks
 from polaris.tasks.ocean.single_column import add_single_column_tasks
 from polaris.tasks.ocean.sphere_transport import add_sphere_transport_tasks
@@ -56,6 +56,6 @@ def add_ocean_tasks(component):
     add_cosine_bell_tasks(component=component)
     add_external_gravity_wave_tasks(component=component)
     add_geostrophic_tasks(component=component)
-    add_global_ocean_tasks(component=component)
     add_isomip_plus_tasks(component=component, mesh_type='spherical')
+    add_realistic_global_tasks(component=component)
     add_sphere_transport_tasks(component=component)
