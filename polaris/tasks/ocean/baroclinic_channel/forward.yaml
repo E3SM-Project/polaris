@@ -109,3 +109,4 @@ Omega:
       - State
       - Tracers
       - KineticEnergyCell
+      - Eos
