@@ -10,7 +10,6 @@ import numpy as np
 import xarray as xr
 
 from polaris.ocean.eos import compute_specvol
-from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.grid_1d import generate_1d_grid
 from polaris.ocean.vertical.ztilde import (
     Gravity,
@@ -19,9 +18,10 @@ from polaris.ocean.vertical.ztilde import (
     init_z_tilde_vertical_coord,
     pressure_from_z_tilde,
 )
+from polaris.step import Step
 
 
-class ZTildeInitStep(OceanIOStep, ABC):
+class ZTildeInitStep(Step, ABC):
     """
     Base class for initialization steps that use the z-tilde (p-star)
     vertical coordinate.
