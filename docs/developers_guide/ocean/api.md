@@ -198,38 +198,6 @@
    viz.Viz.run
 ```
 
-### global_ocean
-
-```{eval-rst}
-.. currentmodule:: polaris.tasks.ocean.global_ocean
-
-.. autosummary::
-   :toctree: generated/
-
-   add_global_ocean_tasks
-```
-
-### global_ocean.hydrography.woa23
-
-```{eval-rst}
-.. currentmodule:: polaris.tasks.ocean.global_ocean.hydrography.woa23
-
-.. autosummary::
-   :toctree: generated/
-
-   Woa23
-   get_woa23_topography_step
-   get_woa23_steps
-
-   CombineStep
-   CombineStep.setup
-   CombineStep.run
-
-   ExtrapolateStep
-   ExtrapolateStep.setup
-   ExtrapolateStep.run
-```
-
 ### horiz_press_grad
 
 ```{eval-rst}
@@ -431,6 +399,38 @@
    viz.Viz
    viz.Viz.run
 
+```
+
+### realistic_global
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global
+
+.. autosummary::
+   :toctree: generated/
+
+   add_realistic_global_tasks
+```
+
+### realistic_global.hydrography.woa23
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.hydrography.woa23
+
+.. autosummary::
+   :toctree: generated/
+
+   Woa23
+   get_woa23_topography_step
+   get_woa23_steps
+
+   CombineStep
+   CombineStep.setup
+   CombineStep.run
+
+   ExtrapolateStep
+   ExtrapolateStep.setup
+   ExtrapolateStep.run
 ```
 
 ### seamount

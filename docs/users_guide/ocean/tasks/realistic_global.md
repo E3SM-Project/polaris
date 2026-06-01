@@ -1,6 +1,6 @@
-(ocean-global-ocean)=
+(ocean-realistic-global)=
 
-# global_ocean
+# realistic_global
 
 This category contains ocean preprocessing tasks that are upstream of any
 particular MPAS mesh. The first task builds a reusable World Ocean Atlas 2023
@@ -11,7 +11,7 @@ particular MPAS mesh. The first task builds a reusable World Ocean Atlas 2023
 This task is model-independent and does not require either MPAS-Ocean or
 Omega to be built.
 
-(ocean-global-ocean-woa23)=
+(ocean-realistic-global-woa23)=
 
 ## woa23
 
@@ -25,7 +25,7 @@ extrapolation.
 The task can be set up with:
 
 ```bash
-polaris setup -t ocean/global_ocean/hydrography/woa23 ...
+polaris setup -t ocean/spherical/realistic_global/hydrography/woa23 ...
 ```
 
 ### description
@@ -42,7 +42,7 @@ The task is organized into three inspectable steps:
 
 This layout is intended to match Polaris shared-step conventions so the WOA23
 preprocessing pipeline can later be reused by mesh-dependent
-`global_ocean` initialization tasks.
+`realistic_global` initialization tasks.
 
 ### mesh
 

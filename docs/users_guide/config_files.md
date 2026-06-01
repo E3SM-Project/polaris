@@ -104,18 +104,14 @@ config files listed above. Here is an example of some customization for
 ocean tasks:
 
 ```cfg
-# options for global ocean testcases
-[global_ocean]
+# Options related to generating a reusable WOA23 hydrography product
+[woa23]
 
-# The following options are detected from .gitconfig if not explicitly entered
-author = Xylar Asay-Davis
-email = xylar@lanl.gov
-pull_request = https://github.com/E3SM-Project/polaris/pull/28
+# target depths for horizontal plots of the extrapolated product (m)
+horizontal_plot_depths = 0.0, 250.0, 500.0
 ```
 
-In this example, the author's name and email address, and the path to a pull
-request will be included in the metadata for output files from global ocean
-tasks.
+In this example, the default depths for WOA23 horizontal plots are overridden.
 
 A typical config file resulting from combining all of the sources listed above
 looks like:
@@ -260,219 +256,17 @@ model = /home/xylar/code/polaris/customize_config_parser/E3SM-Project/components
 iterations = 10
 
 
-# options for global ocean testcases
-[global_ocean]
+# Options related to generating a reusable WOA23 hydrography product
+[woa23]
 
-## each mesh should replace these with appropriate values in its config file
-## config options related to the mesh step
-# number of cores to use
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-mesh_cores = 18
+# source: /home/xylar/code/polaris/customize_config_parser/polaris/tasks/ocean/realistic_global/hydrography/woa23/woa23.cfg
+extrap_threshold = 0.01
 
-# minimum of cores, below which the step fails
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-mesh_min_cores = 1
+# source: /home/xylar/code/polaris/customize_config_parser/polaris/tasks/ocean/realistic_global/hydrography/woa23/woa23.cfg
+horizontal_plot_depths = 0.0, 200.0, 400.0, 600.0, 800.0
 
-# maximum memory usage allowed (in MB)
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-mesh_max_memory = 1000
-
-# maximum disk usage allowed (in MB)
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-mesh_max_disk = 1000
-
-## config options related to the init step
-# number of cores to use
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-init_cores = 4
-
-# minimum of cores, below which the step fails
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-init_min_cores = 1
-
-# maximum memory usage allowed (in MB)
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-init_max_memory = 1000
-
-# maximum disk usage allowed (in MB)
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-init_max_disk = 1000
-
-# number of threads
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-init_threads = 1
-
-## config options related to the forward steps
-# number of cores to use
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-forward_cores = 4
-
-# minimum of cores, below which the step fails
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-forward_min_cores = 1
-
-# number of threads
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-forward_threads = 1
-
-# maximum memory usage allowed (in MB)
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-forward_max_memory = 1000
-
-# maximum disk usage allowed (in MB)
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-forward_max_disk = 1000
-
-## metadata related to the mesh
-# whether to add metadata to output files
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-add_metadata = True
-
-## metadata related to the mesh
-# the prefix (e.g. QU, EC, WC, SO)
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-prefix = QU
-
-# a description of the mesh
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-mesh_description = MPAS quasi-uniform mesh for E3SM version 2 at
-    240-km global resolution with autodetect vertical
-    level
-
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/configure.py
-bathy_description = Bathymetry is from GEBCO 2022, combined with BedMachine Antarctica v2 around Antarctica.
-
-# a description of the mesh with ice-shelf cavities
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-init_description = <<<Missing>>>
-
-# E3SM version that the mesh is intended for
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-e3sm_version = 2
-
-# The revision number of the mesh, which should be incremented each time the
-# mesh is revised
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-mesh_revision = 1
-
-# the minimum (finest) resolution in the mesh
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-min_res = 240
-
-# the maximum (coarsest) resolution in the mesh, can be the same as min_res
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-max_res = 240
-
-# the maximum depth of the ocean, always detected automatically
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-max_depth = autodetect
-
-# the number of vertical levels, always detected automatically
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-levels = autodetect
-
-# the date the mesh was created as YYMMDD, typically detected automatically
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-creation_date = autodetect
-
-# These options are used in the metadata for global ocean initial conditions.
-# You can indicated that you are the "author" of a mesh and give your preferred
-# email address for people to contact your if they have questions about the
-# mesh.  Or you can let polaris figure out who you are from your git
-# configuration
-# source: /home/xylar/code/polaris/customize_config_parser/inej.cfg
-author = Xylar Asay-Davis
-
-# source: /home/xylar/code/polaris/customize_config_parser/inej.cfg
-email = xylar@lanl.gov
-
-# The URL of the pull request documenting the creation of the mesh
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-pull_request = <<<Missing>>>
-
-
-# config options related to dynamic adjustment
-[dynamic_adjustment]
-
-# the maximum allowed value of temperatureMax in global statistics
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-temperature_max = 33.0
-
-
-# config options related to initial condition and diagnostics support files
-# for E3SM
-[files_for_e3sm]
-
-# whether to generate an ocean initial condition in E3SM
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-enable_ocean_initial_condition = true
-
-# whether to generate graph partitions for different numbers of ocean cores in
-# E3SM
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-enable_ocean_graph_partition = true
-
-# whether to generate a sea-ice initial condition in E3SM
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-enable_seaice_initial_condition = true
-
-# whether to generate SCRIP files for later use in creating E3SM mapping files
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-enable_scrip = true
-
-# whether to generate region masks, transects and mapping files for use in both
-# online analysis members and offline with MPAS-Analysis
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-enable_diagnostics_files = true
-
-## the following relate to the comparison grids in MPAS-Analysis to generate
-## mapping files for.  The default values are also the defaults in
-## MPAS-Analysis.  Coarser or finer resolution may be desirable for some MPAS
-## meshes.
-# The comparison lat/lon grid resolution in degrees
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-comparisonlatresolution = 0.5
-
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-comparisonlonresolution = 0.5
-
-# The comparison Antarctic polar stereographic grid size and resolution in km
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-comparisonantarcticstereowidth = 6000.
-
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-comparisonantarcticstereoresolution = 10.
-
-# The comparison Arctic polar stereographic grid size and resolution in km
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-comparisonarcticstereowidth = 6000.
-
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/global_ocean.cfg
-comparisonarcticstereoresolution = 10.
-
-
-# Options related to the vertical grid
-[vertical_grid]
-
-# the type of vertical grid
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-grid_type = tanh_dz
-
-# Number of vertical levels
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-vert_levels = 16
-
-# Depth of the bottom of the ocean
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-bottom_depth = 3000.0
-
-# The minimum layer thickness
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-min_layer_thickness = 3.0
-
-# The maximum layer thickness
-# source: /home/xylar/code/polaris/customize_config_parser/polaris/ocean/tests/global_ocean/mesh/qu240/qu240.cfg
-max_layer_thickness = 500.0
+# source: /home/xylar/code/polaris/customize_config_parser/polaris/tasks/ocean/realistic_global/hydrography/woa23/woa23.cfg
+section_max_depth = 2000.0
 ```
 
 The comments are retained and the config file or python module where they were

@@ -176,7 +176,7 @@ To set up a particular task, you can either use the full path of the
 task:
 
 ```bash
-polaris setup -t ocean/global_ocean/QU240/mesh -w <workdir> -p <component_path>
+polaris setup -t ocean/spherical/realistic_global/hydrography/woa23 -w <workdir> -p <component_path>
 ```
 
 or you can replace the `-t` flag with the simple shortcut: `-n 15`.  You
@@ -211,7 +211,7 @@ is detected.
 You may point to a config file with `-f`:
 
 ```bash
-polaris setup -t ocean/global_ocean/QU240/mesh -f my_config.cfg -w <workdir>
+polaris setup -t ocean/spherical/realistic_global/hydrography/woa23 -f my_config.cfg -w <workdir>
 ```
 
 to specify config options that override the defaults from polaris as a

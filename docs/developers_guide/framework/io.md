@@ -22,12 +22,14 @@ from polaris.io import symlink
 
 def configure(task, config):
     ...
-    with path('polaris.tasks.ocean.global_ocean.files_for_e3sm', 'README') as \
-            target:
-        symlink(str(target), '{}/README'.format(task['work_dir']))
+    with path(
+        'polaris.tasks.ocean.realistic_global.hydrography.woa23',
+        'woa23.cfg',
+    ) as target:
+        symlink(str(target), '{}/woa23.cfg'.format(task['work_dir']))
 ```
 
-In this example, we get the path to a README file within polaris and make
+In this example, we get the path to a config file within polaris and make
 a local symlink to it in the task's work directory.  We did this with
 `symlink()` rather than `add_input_file()` because we want this link to
 be within the task's work directory, not the step's work directory.  We
