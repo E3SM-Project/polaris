@@ -12,6 +12,7 @@ from polaris.ocean.conservation import (
     compute_total_salt,
     compute_total_tracer,
 )
+from polaris.ocean.model import io
 
 if TYPE_CHECKING:
     # Keep Ocean as a type-only import. Importing it at runtime pulls
@@ -530,10 +531,12 @@ class OceanModelStep(ModelStep):
                 self.work_dir, self.get_horiz_mesh_filename()
             )
             this_filename = os.path.join(self.work_dir, filename)
-            ds_mesh = self.component.open_model_dataset(
-                mesh_filename, self.config
+            ds_mesh = io.open_model_dataset(
+                mesh_filename, self.config, model=self.component.model
             )
-            ds = self.component.open_model_dataset(this_filename, self.config)
+            ds = io.open_model_dataset(
+                this_filename, self.config, model=self.component.model
+            )
             if 'tracer conservation' in properties:
                 # All tracers in mpaso_to_omega.yaml
                 tracers_to_check = [

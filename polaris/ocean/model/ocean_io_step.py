@@ -1,12 +1,5 @@
-from typing import TYPE_CHECKING
-
 from polaris import Step
-
-if TYPE_CHECKING:
-    # Keep Ocean as a type-only import. Importing it at runtime pulls
-    # polaris.tasks.ocean back into polaris.ocean.model while that package is
-    # still importing these step classes, creating a circular import.
-    from polaris.tasks.ocean import Ocean
+from polaris.ocean.model import io
 
 
 class OceanIOStep(Step):
@@ -14,12 +7,21 @@ class OceanIOStep(Step):
     A step that writes input and/or output files for Omega or MPAS-Ocean
     """
 
-    # make sure component is of type Ocean, using a string to avoid circular
-    # imports
-    component: 'Ocean'
-
-    def __init__(self, component: 'Ocean', **kwargs):
+    def __init__(self, component, **kwargs):
         super().__init__(component=component, **kwargs)
+
+    def _effective_model(self) -> str:
+        """
+        Return the ocean model for this step.
+
+        If the step (or a subclass) has set ``self.model`` explicitly (e.g.
+        :py:class:`.InitialStateStep`), that value is used.  Otherwise the
+        model is read from ``config['ocean']['model']``, which is the
+        globally-configured model set during :py:meth:`.Ocean.configure`.
+        """
+        return getattr(self, 'model', None) or self.config.get(
+            'ocean', 'model'
+        )
 
     def add_output_files_for_ocean_model_input(
         self,
@@ -58,7 +60,7 @@ class OceanIOStep(Step):
             only (e.g. ``'culled_graph.info'``).  Ignored for Omega.
         """
         config = self.config
-        model = config.get('ocean', 'model')
+        model = self._effective_model()
 
         if horiz_mesh_filename is None:
             horiz_mesh_filename = config.get(
@@ -97,7 +99,7 @@ class OceanIOStep(Step):
             The same dataset with variables renamed as appropriate for the
             ocean model being run
         """
-        return self.component.map_to_native_model_vars(ds)
+        return io.map_to_native_model_vars(ds, model=self._effective_model())
 
     def write_model_dataset(self, ds, filename, config):
         """
@@ -113,9 +115,11 @@ class OceanIOStep(Step):
             The path for the NetCDF file to write
 
         config : polaris.config.PolarisConfigParser
-            Configuration for the task; forwarded to the Ocean component.
+            Configuration for the task; forwarded to the I/O module.
         """
-        self.component.write_model_dataset(ds, filename, config=config)
+        io.write_model_dataset(
+            ds, filename, config, model=self._effective_model()
+        )
 
     def write_horiz_mesh_dataset(self, ds, filename, config):
         """
@@ -132,9 +136,11 @@ class OceanIOStep(Step):
             The path for the NetCDF file to write
 
         config : polaris.config.PolarisConfigParser
-            Configuration for the task; forwarded to the Ocean component.
+            Configuration for the task; forwarded to the I/O module.
         """
-        self.component.write_horiz_mesh_dataset(ds, filename, config)
+        io.write_horiz_mesh_dataset(
+            ds, filename, config, model=self._effective_model()
+        )
 
     def write_vert_coord_dataset(self, ds, filename, config):
         """
@@ -150,9 +156,11 @@ class OceanIOStep(Step):
             The path for the NetCDF file to write
 
         config : polaris.config.PolarisConfigParser
-            Configuration for the task; forwarded to the Ocean component.
+            Configuration for the task; forwarded to the I/O module.
         """
-        self.component.write_vert_coord_dataset(ds, filename, config)
+        io.write_vert_coord_dataset(
+            ds, filename, config, model=self._effective_model()
+        )
 
     def write_initial_state_dataset(self, ds, filename, config):
         """
@@ -168,9 +176,11 @@ class OceanIOStep(Step):
             The path for the NetCDF file to write
 
         config : polaris.config.PolarisConfigParser
-            Configuration for the task; forwarded to the Ocean component.
+            Configuration for the task; forwarded to the I/O module.
         """
-        self.component.write_initial_state_dataset(ds, filename, config)
+        io.write_initial_state_dataset(
+            ds, filename, config, model=self._effective_model()
+        )
 
     def map_from_native_model_vars(self, ds):
         """
@@ -188,7 +198,7 @@ class OceanIOStep(Step):
         ds : xarray.Dataset
             The same dataset with variables named as expected in MPAS-Ocean
         """
-        return self.component.map_from_native_model_vars(ds)
+        return io.map_from_native_model_vars(ds, model=self._effective_model())
 
     def open_model_dataset(self, filename, config, **kwargs):
         """
@@ -201,7 +211,7 @@ class OceanIOStep(Step):
             The path for the NetCDF file to open
 
         config : polaris.config.PolarisConfigParser
-            Configuration for the task; forwarded to the Ocean component.
+            Configuration for the task; forwarded to the I/O module.
 
         kwargs
             keyword arguments passed to `xarray.open_dataset()`
@@ -211,6 +221,6 @@ class OceanIOStep(Step):
         ds : xarray.Dataset
             The dataset with variables named as expected in MPAS-Ocean
         """
-        return self.component.open_model_dataset(
-            filename, config=config, **kwargs
+        return io.open_model_dataset(
+            filename, config, model=self._effective_model(), **kwargs
         )
