@@ -450,25 +450,28 @@ other than downloading files.  Time-consuming work should be saved for
 `run()` whenever possible.
 
 As an example, here is
-{py:func}`polaris.tasks.ocean.global_ocean.mesh.mesh.MeshStep.setup()`:
+{py:func}`polaris.tasks.ocean.realistic_global.hydrography.woa23.extrapolate.ExtrapolateStep.setup()`:
 
 ```python
 def setup(self):
     """
-    Set up the task in the work directory, including downloading any
-    dependencies.
+    Set up input files for the step.
     """
-    # get the these properties from the config options
-    config = self.config
-    self.cpus_per_task = config.getint('global_ocean',
-                                       'mesh_cpus_per_task')
-    self.min_cpus_per_task = config.getint('global_ocean',
-                                           'mesh_min_cpus_per_task')
+    super().setup()
+    self.add_input_file(
+        filename='woa.nc',
+        work_dir_target=f'{self.combine_step.path}/woa_combined.nc',
+    )
+    self.add_input_file(
+        filename='topography.nc',
+        work_dir_target=(
+            f'{self.combine_topo_step.path}/'
+            f'{self.combine_topo_step.combined_filename}'
+        ),
+    )
 ```
 
-Some parts of the mesh computation (creating masks for culling) are done using
-python multiprocessing, so the `cpus_per_task` and `min_cpus_per_task`
-attributes are set to appropriate values based on config options.
+The `work_dir_target` paths point to outputs from upstream shared steps.
 
 (dev-step-constrain-resources)=
 
@@ -816,21 +819,22 @@ subdirectory for this step or the target's step (or both) depends on
 parameters.  For such cases, there is a `work_dir_target` argument that
 allows you to give the path with respect to the base work directory (which is
 not yet known at init). Here is an example taken from
-{py:class}`polaris.tasks.ocean.global_ocean.forward.ForwardStep`:
+{py:class}`polaris.tasks.ocean.realistic_global.hydrography.woa23.extrapolate.ExtrapolateStep`:
 
 ```python
-def __init__(self, component, mesh, init):
-    mesh_path = mesh.mesh_step.path
-
-    if mesh.with_ice_shelf_cavities:
-        initial_state_target = f'{init.path}/ssh_adjustment/adjusted_init.nc'
-    else:
-        initial_state_target = f'{init.path}/init/initial_state.nc'
-    self.add_input_file(filename='init.nc',
-                        work_dir_target=initial_state_target)
+def setup(self):
+    super().setup()
     self.add_input_file(
-        filename='forcing_data.nc',
-        work_dir_target=f'{init.path}/init/init_mode_forcing_data.nc')
+        filename='woa.nc',
+        work_dir_target=f'{self.combine_step.path}/woa_combined.nc',
+    )
+    self.add_input_file(
+        filename='topography.nc',
+        work_dir_target=(
+            f'{self.combine_topo_step.path}/'
+            f'{self.combine_topo_step.combined_filename}'
+        ),
+    )
 ```
 
 (dev-step-input-polaris)=
@@ -873,11 +877,10 @@ self.add_input_file(
 ```
 
 In this example from
-{py:class}`polaris.tasks.ocean.global_ocean.init.init.Init()`,
-the file `BedMachineAntarctica_v2_and_GEBCO_2022_0.05_degree_20220729.nc` is
-slated for later downloaded from the
-[Ocean bathymetry database](https://web.lcrc.anl.gov/public/e3sm/polaris/ocean/bathymetry_database/).
-The file will be stored in the subdirectory `ocean/bathymetry_database`
+{py:class}`polaris.tasks.ocean.realistic_global.hydrography.woa23.combine.CombineStep`,
+the file `woa23_decav91C0_t00_04.nc` is slated for later downloaded from the
+initial-condition database.
+The file will be stored in the subdirectory `ocean/initial_condition_database`
 of the path in the `database_root` config option in the `paths` section of
 the config file.  The `database_root` option is set either by selecting one
 of the {ref}`supported-machines` or in the user's config file.
@@ -993,9 +996,9 @@ outputs in two ways.  First, if all steps in a task should have cached
 output, the following notation should be used:
 
 ```none
-ocean/global_ocean/QU240/mesh
+ocean/spherical/realistic_global/hydrography/woa23
     cached
-ocean/global_ocean/QU240/PHC/init
+ocean/spherical/icos/cosine_bell/decomp
     cached
 ```
 
@@ -1006,10 +1009,10 @@ Second, ff only some steps in a task should have cached output, they need
 to be listed explicitly, as follows:
 
 ```none
-ocean/global_ocean/QUwISC240/mesh
-    cached: mesh
-ocean/global_ocean/QUwISC240/PHC/init
-    cached: init ssh_adjustment
+ocean/spherical/realistic_global/hydrography/woa23
+    cached: combine_topo_bedmap3_gebco2023_lat_lon_0.25000_degree
+ocean/spherical/icos/cosine_bell/decomp
+    cached: init forward
 ```
 
 The line can be indented for visual clarity, but must begin with `cached:`,
@@ -1023,19 +1026,18 @@ should use cached outputs, the suffix `c` can be added to the test number:
 polaris setup -n 90c 91c 92 ...
 ```
 
-In this example, tasks 90 and 91 (`mesh` and `init` tasks from
-the `SOwISC12to60` global ocean mesh, in this case) are set up with cached
-outputs in all steps and 92 (`performance_test`) is not.  This approach is
-efficient but does not provide any control of which steps use cached outputs
-and which do not.
+In this example, tasks 90 and 91 are set up with cached outputs in all steps
+and 92 is not. This approach is efficient but does not provide any control of
+which steps use cached outputs and which do not.
 
 A much more verbose approach is required if some steps use cached outputs and
 others do not within a given task.  Each task must be set up on its
 own with the `-t` and `--cached` flags as follows:
 
 ```none
-polaris setup -t ocean/global_ocean/QU240/mesh --cached mesh ...
-polaris setup -t ocean/global_ocean/QU240/PHC/init --cached init ...
+polaris setup -t ocean/spherical/realistic_global/hydrography/woa23 \
+    --cached combine_topo_bedmap3_gebco2023_lat_lon_0.25000_degree ...
+polaris setup -t ocean/spherical/icos/cosine_bell/decomp --cached init forward ...
 ...
 ```
 
@@ -1107,7 +1109,7 @@ modifying task code.  A step may not appear in both `--cached` and
 `--free_running`.
 
 See {py:class}`polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask`
-and {py:class}`polaris.tasks.ocean.global_ocean.hydrography.woa23.task.Woa23`
+and {py:class}`polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23`
 for concrete examples.
 
 (dev-step-dependencies)=

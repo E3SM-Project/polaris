@@ -13,7 +13,7 @@ cosine_bell
 customizable_viz
 external_gravity_wave
 geostrophic
-global_ocean
+realistic_global
 horiz_press_grad
 divergent_2d
 ice_shelf_2d

@@ -13,7 +13,6 @@ cosine_bell
 customizable_viz
 external_gravity_wave
 geostrophic
-global_ocean
 horiz_press_grad
 divergent_2d
 ice_shelf_2d
@@ -23,6 +22,7 @@ manufactured_solution
 merry_go_round
 nondivergent_2d
 overflow
+realistic_global
 rotation_2d
 seamount
 single_column

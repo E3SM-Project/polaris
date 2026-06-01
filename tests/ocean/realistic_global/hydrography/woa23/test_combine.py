@@ -3,10 +3,10 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from polaris.tasks.ocean.global_ocean.hydrography.woa23.combine import (
+from polaris.tasks.ocean.realistic_global.hydrography.woa23.combine import (
     CombineStep,
 )
-from polaris.tasks.ocean.global_ocean.hydrography.woa23.viz import (
+from polaris.tasks.ocean.realistic_global.hydrography.woa23.viz import (
     Woa23VizStep,
 )
 

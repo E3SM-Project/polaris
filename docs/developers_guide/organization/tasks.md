@@ -541,7 +541,7 @@ def configure(self):
     """
     Modify the configuration options for this task
     """
-    package = 'polaris.ocean.tests.global_ocean.files_for_e3sm'
-    target = imp_res.files(package).joinpath('README')
-    symlink(str(target), f'{self.work_dir}/README')
+    package = 'polaris.tasks.ocean.realistic_global.hydrography.woa23'
+    target = imp_res.files(package).joinpath('woa23.cfg')
+    symlink(str(target), f'{self.work_dir}/woa23.cfg')
 ```

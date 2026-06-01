@@ -1,19 +1,19 @@
-(dev-ocean-global-ocean)=
+(dev-ocean-realistic-global)=
 
-# global_ocean
+# realistic_global
 
-The `global_ocean` tasks in `polaris.tasks.ocean.global_ocean` are intended
-for preprocessing and initialization workflows that are upstream of any
-particular MPAS mesh. The first task category under this framework is
+The `realistic_global` tasks in `polaris.tasks.ocean.realistic_global` are
+intended for preprocessing and initialization workflows that are upstream of
+any particular MPAS mesh. The first task category under this framework is
 `hydrography/woa23`, which builds a reusable hydrography product from the
 World Ocean Atlas 2023 on its native 0.25-degree latitude-longitude grid.
 
-(dev-ocean-global-ocean-framework)=
+(dev-ocean-realistic-global-framework)=
 
 ## framework
 
 The shared config options for the WOA23 hydrography task are described in
-{ref}`ocean-global-ocean` in the User's Guide.
+{ref}`ocean-realistic-global` in the User's Guide.
 
 The implementation is intentionally organized around reusable Polaris steps
 rather than around the legacy Compass `utility/extrap_woa` multiprocessing
@@ -24,10 +24,10 @@ filename as a task-specific input.
 ### cached topography dependency
 
 The helper
-{py:func}`polaris.tasks.ocean.global_ocean.hydrography.woa23.get_woa23_topography_step`
+{py:func}`polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_topography_step`
 creates a shared `e3sm/init` {py:class}`polaris.tasks.e3sm.init.topo.combine.step.CombineStep`
 configured for a 0.25-degree lat-lon target grid. The
-{py:class}`polaris.tasks.ocean.global_ocean.hydrography.woa23.task.Woa23`
+{py:class}`polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23`
 task adds this step with a symlink `combine_topo`.
 
 Because `CombineStep` sets `default_cached = True`, the `combine_topo` step
@@ -40,18 +40,18 @@ approach to shared, cacheable preprocessing steps.  See
 {ref}`dev-step-default-cached` for a full description of the
 `default_cached` / `free_running_steps` mechanism.
 
-(dev-ocean-global-ocean-woa23)=
+(dev-ocean-realistic-global-woa23)=
 
 ## hydrography/woa23
 
-The {py:class}`polaris.tasks.ocean.global_ocean.hydrography.woa23.task.Woa23`
+The {py:class}`polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23`
 task is the Polaris port of the WOA preprocessing part of the legacy Compass
 workflow.
 
 ### combine
 
 The class
-{py:class}`polaris.tasks.ocean.global_ocean.hydrography.woa23.combine.CombineStep`
+{py:class}`polaris.tasks.ocean.realistic_global.hydrography.woa23.combine.CombineStep`
 combines January and annual WOA23 temperature and salinity climatologies into
 a single dataset. January values are used where they exist, and annual values
 fill deeper levels where the monthly product is not available.
@@ -63,7 +63,7 @@ canonical `woa_combined.nc` product.
 ### extrapolate
 
 The class
-{py:class}`polaris.tasks.ocean.global_ocean.hydrography.woa23.extrapolate.ExtrapolateStep`
+{py:class}`polaris.tasks.ocean.realistic_global.hydrography.woa23.extrapolate.ExtrapolateStep`
 uses the cached combined-topography product on the WOA grid together with
 `woa_combined.nc` to build a 3D ocean mask and then fill missing WOA values in
 two stages:
