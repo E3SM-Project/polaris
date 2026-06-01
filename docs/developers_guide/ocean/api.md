@@ -1,3 +1,5 @@
+(dev-ocean-api)=
+
 # ocean
 
 ```{eval-rst}
@@ -679,4 +681,9 @@
    vertical.ztilde.pressure_from_geom_thickness
    vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height
    vertical.ztilde.geom_height_from_pseudo_height
+   vertical.ztilde.init_z_tilde_vertical_coord
+   vertical.ztilde_init.ZTildeInitStep
+   vertical.ztilde_init.ZTildeInitStep.init_tracers
+   vertical.ztilde_init.ZTildeInitStep.run_z_tilde_init
+   vertical.ztilde_init.ZTildeInitStep._build_vert_coord_ds
 ```

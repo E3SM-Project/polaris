@@ -303,3 +303,39 @@ in exactly the same way as at the seafloor.
 
 The `sigma` coordinate is a terrain-following coordinate that stretches a 1D
 reference coordinate between `z = -bottomDepth` and `z = ssh`.
+
+(ocean-z-tilde)=
+
+### z-tilde
+
+The z-tilde (p-star) coordinate defines layer boundaries in pseudo-height
+$\tilde{z} = -p / (\rho_0 g)$ rather than geometric depth.  Initializing this coordinate
+requires an iterative procedure because the pseudo-height grid depends on `BottomPressure`,
+which in turn depends on the thermohaline structure that must be sampled on that grid.
+
+The iteration is controlled by two options in the `[vertical_grid]` config section:
+
+```cfg
+# Options related to the vertical grid
+[vertical_grid]
+
+# The number of outer iterations used when initialising the z-tilde coordinate
+pseudothickness_iter_count = 6
+
+# Early-stopping threshold: fractional change in geometric water-column thickness
+# between z-tilde outer iterations
+water_col_adjust_frac_change_threshold = 1.0e-12
+```
+
+`pseudothickness_iter_count` sets the maximum number of outer fixed-point iterations.
+`water_col_adjust_frac_change_threshold` is the convergence tolerance: the iteration stops
+early when the maximum fractional change in the recovered geometric water-column thickness
+between successive iterations falls below this value.
+
+:::{note}
+`water_col_adjust_frac_change_threshold` was previously in the task-specific
+`[horiz_press_grad]` config section.  It has been moved to `[vertical_grid]` so that it
+applies to all tasks that use z-tilde initialization.  Users who had overridden this value
+in a local `horiz_press_grad` config file should move the override to the `[vertical_grid]`
+section.
+:::

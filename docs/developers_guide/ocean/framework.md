@@ -612,6 +612,71 @@ For workflows that need pseudo-height/pressure conversion, the
   reconstructs geometric layer-interface and midpoint heights from
   pseudo-thickness and specific volume.
 
+### Z-tilde initialization
+
+The {py:class}`polaris.ocean.vertical.ztilde_init.ZTildeInitStep` base class handles the
+circular dependency between the z-tilde pseudo-height grid, the equation of state, and the
+target bathymetry.  Because layer boundaries are defined in pseudo-height but ocean
+observations record geometric depth, the pseudo-bottom depth (`BottomPressure`) and the
+tracer state must be determined jointly.  `ZTildeInitStep` encapsulates a fixed-point
+iteration that adjusts `BottomPressure` until the geometric seafloor depth recovered from
+the converged coordinate matches the target bathymetry within a configurable fractional
+tolerance.
+
+To build a z-tilde initialization step, subclass `ZTildeInitStep` and implement the
+required abstract method:
+
+```python
+def init_tracers(
+    self, ds: xr.Dataset
+) -> tuple[xr.DataArray, xr.DataArray]:
+    ...
+```
+
+`init_tracers` receives the current z-tilde dataset (containing `ZTildeMid`,
+`ZTildeInterface`, `PseudoThickness`, `cellMask`, `minLevelCell`, and `maxLevelCell`) and
+returns conservative temperature (CT) and absolute salinity (SA) arrays with dimensions
+`(Time, nCells, nVertLevels)`.  This is the only task-specific hook required; it may read
+from `self.config`, `self.logger`, or any other step attributes.
+
+The base class provides a second overridable method,
+{py:meth}`~polaris.ocean.vertical.ztilde_init.ZTildeInitStep._build_vert_coord_ds`, which
+builds the z-tilde coordinate dataset for one outer iteration.  The default implementation
+calls {py:func}`polaris.ocean.vertical.ztilde.init_z_tilde_vertical_coord` once on the full
+mesh.  Subclasses may override it when per-cell coordinate construction is needed — for
+example, `horiz_press_grad.Init` overrides it to set a per-cell reference pseudo-depth from
+a configurable horizontal gradient.
+
+The outer fixed-point loop is driven by
+{py:meth}`~polaris.ocean.vertical.ztilde_init.ZTildeInitStep.run_z_tilde_init`:
+
+```python
+ds = self.run_z_tilde_init(ds_mesh, geom_z_bot, geom_ssh=None)
+```
+
+`geom_z_bot` is the target geometric seafloor height (negative, in metres) and `geom_ssh`
+is an optional sea-surface height array (default zero).  At convergence the returned
+dataset contains all z-tilde coordinate fields, converged tracer fields, specific volume,
+pressure, geometric heights, and `bottomDepth` set to the actual converged water-column
+thickness (not the target, to ensure the initial SSH is exactly zero even when bottom-cell
+snapping prevents an exact match).
+
+Convergence is controlled by two options in the `[vertical_grid]` config section
+(see {ref}`ocean-z-tilde`):
+
+- `pseudothickness_iter_count`: maximum number of outer iterations.
+- `water_col_adjust_frac_change_threshold`: fractional-change tolerance for early stopping.
+
+After `run_z_tilde_init` returns, the concrete `run()` method writes the split output files
+using the existing framework helpers:
+
+```python
+self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
+self.write_initial_state_dataset(ds, 'init.nc', config)
+```
+
+See {ref}`dev-ocean-api` for the full API reference.
+
 For sigma coordinates, shared functionality for direct thickness computation is
 available in
 {py:func}`polaris.ocean.vertical.sigma.compute_sigma_layer_thickness()`.
