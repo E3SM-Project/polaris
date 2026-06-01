@@ -5,6 +5,7 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.ocean.coriolis import add_coriolis_to_dataset
+from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.ztilde import (
     Gravity,
     RhoSw,
@@ -18,7 +19,7 @@ from polaris.tasks.ocean.horiz_press_grad.column import (
 )
 
 
-class Init(ZTildeInitStep):
+class Init(ZTildeInitStep, OceanIOStep):
     """
     A step for creating a mesh and initial condition for two column
     test cases
