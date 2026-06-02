@@ -1,4 +1,5 @@
 ocean/column/horiz_press_grad/salinity_gradient
+ocean/column/horiz_press_grad/surface_pressure_gradient
 ocean/column/horiz_press_grad/temperature_gradient
 ocean/column/horiz_press_grad/ztilde_gradient
 ocean/planar/baroclinic_channel/10km/default

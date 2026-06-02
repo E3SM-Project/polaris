@@ -140,9 +140,11 @@ class Init(ZTildeInitStep, OceanIOStep):
         # store for use by init_tracers and _build_vert_coord_ds
         self.x = x
 
-        geom_ssh, geom_z_bot = self._get_geom_ssh_z_bot(x)
+        surface_pressure, geom_z_bot = self._get_surface_pressure_z_bot(x)
 
-        ds = self.run_z_tilde_init(ds_mesh, geom_z_bot, geom_ssh)
+        ds = self.run_z_tilde_init(
+            ds_mesh, geom_z_bot, surface_pressure=surface_pressure
+        )
 
         ds['Density'] = 1.0 / ds['SpecVol']
         ds.Density.attrs['long_name'] = 'density'
@@ -176,6 +178,7 @@ class Init(ZTildeInitStep, OceanIOStep):
         self,
         ds_mesh: xr.Dataset,
         bottom_pressure: xr.DataArray,
+        surface_pressure: xr.DataArray | None = None,
     ) -> xr.Dataset:
         """
         Build z-tilde coordinate for each column separately, because
@@ -192,7 +195,9 @@ class Init(ZTildeInitStep, OceanIOStep):
         ds['BottomPressure'] = bottom_pressure
         ds.BottomPressure.attrs['long_name'] = 'seafloor pressure'
         ds.BottomPressure.attrs['units'] = 'Pa'
-        ds['SurfacePressure'] = xr.zeros_like(bottom_pressure)
+        if surface_pressure is None:
+            surface_pressure = xr.zeros_like(bottom_pressure)
+        ds['SurfacePressure'] = surface_pressure
         ds.SurfacePressure.attrs['long_name'] = 'sea surface pressure'
         ds.SurfacePressure.attrs['units'] = 'Pa'
 
@@ -382,23 +387,25 @@ class Init(ZTildeInitStep, OceanIOStep):
             'units': 'g kg-1 m-1',
         }
 
-    def _get_geom_ssh_z_bot(
+    def _get_surface_pressure_z_bot(
         self, x: np.ndarray
     ) -> tuple[xr.DataArray, xr.DataArray]:
         """
-        Get the geometric sea surface height and sea floor height for each
-        column from the configuration.
+        Get the sea surface pressure and sea floor height for each column
+        from the configuration.
         """
         config = self.config
-        geom_ssh = get_array_from_mid_grad(config, 'geom_ssh', x)
+        surface_pressure = get_array_from_mid_grad(
+            config, 'surface_pressure', x
+        )
         geom_z_bot = get_array_from_mid_grad(config, 'geom_z_bot', x)
         return (
             xr.DataArray(
-                data=geom_ssh,
+                data=surface_pressure,
                 dims=['nCells'],
                 attrs={
-                    'long_name': 'sea surface geometric height',
-                    'units': 'm',
+                    'long_name': 'sea surface pressure',
+                    'units': 'Pa',
                 },
             ),
             xr.DataArray(

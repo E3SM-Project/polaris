@@ -95,7 +95,9 @@ class Reference(OceanIOStep):
 
         x = resolution * np.array([-1.5, -0.5, 0.0, 0.5, 1.5], dtype=float)
 
-        geom_ssh, geom_z_bot, z_tilde_bot = self._get_ssh_z_bot(x)
+        surface_pressure, geom_z_bot, z_tilde_bot = (
+            self._get_surface_pressure_z_bot(x)
+        )
 
         test_vert_res = config.getexpression(
             'horiz_press_grad', 'vert_resolutions'
@@ -145,7 +147,7 @@ class Reference(OceanIOStep):
                 z_tilde_node=z_tilde_node[icol, :],
                 temperature_node=temperature_node[icol, :],
                 salinity_node=salinity_node[icol, :],
-                geom_ssh=geom_ssh.isel(nCells=icol).item(),
+                surface_pressure=surface_pressure.isel(nCells=icol).item(),
                 geom_z_bot=geom_z_bot.isel(nCells=icol).item(),
                 z_tilde_bot=z_tilde_bot.isel(nCells=icol).item(),
             )
@@ -352,38 +354,55 @@ class Reference(OceanIOStep):
 
         self.write_model_dataset(ds, 'reference_solution.nc', config)
 
-    def _get_ssh_z_bot(
+    def _get_surface_pressure_z_bot(
         self, x: np.ndarray
     ) -> tuple[xr.DataArray, xr.DataArray, xr.DataArray]:
         """
-        Get the geometric sea surface height and sea floor height, as well as
-        sea floor pseudo-height for each column from the configuration.
+        Get the sea surface pressure and sea floor heights for each column
+        from the configuration.
         """
         config = self.config
-        geom_ssh = get_array_from_mid_grad(config, 'geom_ssh', x)
+        surface_pressure = get_array_from_mid_grad(
+            config, 'surface_pressure', x
+        )
         geom_z_bot = get_array_from_mid_grad(config, 'geom_z_bot', x)
         z_tilde_bot = get_array_from_mid_grad(config, 'z_tilde_bot', x)
         return (
-            xr.DataArray(data=geom_ssh, dims=['nCells']),
+            xr.DataArray(data=surface_pressure, dims=['nCells']),
             xr.DataArray(data=geom_z_bot, dims=['nCells']),
             xr.DataArray(data=z_tilde_bot, dims=['nCells']),
         )
 
     def _init_z_tilde_interface(
-        self, pseudo_bottom_depth: float, z_tilde_bot: float
+        self,
+        pseudo_col_thickness: float,
+        z_tilde_bot: float,
+        z_tilde_surf: float = 0.0,
     ) -> tuple[np.ndarray, int, np.ndarray]:
         """
         Compute z-tilde vertical interfaces.
+
+        Parameters
+        ----------
+        pseudo_col_thickness : float
+            Pseudo-height thickness of the water column measured from
+            ``z_tilde_surf`` downward (positive, metres).
+        z_tilde_bot : float
+            Reference pseudo-height of the grid bottom (negative, metres).
+            Must be at or below ``z_tilde_surf - pseudo_col_thickness``.
+        z_tilde_surf : float, optional
+            Pseudo-height of the sea surface (metres, ≤ 0).  Defaults to 0.
         """
         section = self.config['vertical_grid']
         vert_levels = section.getint('vert_levels')
         z_tilde_interface = np.linspace(
-            0.0, z_tilde_bot, vert_levels + 1, dtype=float
+            z_tilde_surf, z_tilde_bot, vert_levels + 1, dtype=float
         )
+        z_tilde_eff_bot = z_tilde_surf - pseudo_col_thickness
         # layers where z_tilde is not adjusted for bathymetry
-        uniform_layer_mask = z_tilde_interface >= -pseudo_bottom_depth
+        uniform_layer_mask = z_tilde_interface >= z_tilde_eff_bot
 
-        z_tilde_interface = np.maximum(z_tilde_interface, -pseudo_bottom_depth)
+        z_tilde_interface = np.maximum(z_tilde_interface, z_tilde_eff_bot)
         dz = z_tilde_interface[0:-1] - z_tilde_interface[1:]
         mask = dz == 0.0
         z_tilde_interface[1:][mask] = np.nan
@@ -428,7 +447,7 @@ class Reference(OceanIOStep):
         z_tilde_node: np.ndarray,
         temperature_node: np.ndarray,
         salinity_node: np.ndarray,
-        geom_ssh: float,
+        surface_pressure: float,
         geom_z_bot: float,
         z_tilde_bot: float,
     ) -> tuple[
@@ -450,11 +469,16 @@ class Reference(OceanIOStep):
             'set in the "vertical_grid" section.'
         )
 
-        goal_geom_water_column_thickness = geom_ssh - geom_z_bot
+        # Sea-surface pseudo-height corresponding to the surface pressure.
+        z_tilde_surf = -surface_pressure / (RhoSw * Gravity)
 
-        # first guess at the pseudo bottom depth is the geometric
-        # water column thickness
-        pseudo_bottom_depth = goal_geom_water_column_thickness
+        # Target SSH = z_tilde_surf: the resting surface-pressure depression.
+        # For SP = 0 this reduces to SSH = 0 (previous behaviour).
+        goal_geom_water_column_thickness = z_tilde_surf - geom_z_bot
+
+        # First guess at pseudo column thickness (from z_tilde_surf downward)
+        # equals the target geometric water-column thickness.
+        pseudo_col_thickness = goal_geom_water_column_thickness
 
         logger.debug(
             f'goal_geom_water_column_thickness = '
@@ -464,8 +488,9 @@ class Reference(OceanIOStep):
         for iter in range(pseudothickness_iter_count):
             z_tilde_inter, max_layer, uniform_layer_mask_inter = (
                 self._init_z_tilde_interface(
-                    pseudo_bottom_depth=pseudo_bottom_depth,
+                    pseudo_col_thickness=pseudo_col_thickness,
                     z_tilde_bot=z_tilde_bot,
+                    z_tilde_surf=z_tilde_surf,
                 )
             )
             vert_levels = len(z_tilde_inter) - 1
@@ -518,10 +543,10 @@ class Reference(OceanIOStep):
                 f'   Iteration {iter}: '
                 f'scaling factor = {scaling_factor:.12f}, '
                 f'scaling factor - 1 = {scaling_factor - 1.0:.12g}, '
-                f'pseudo bottom depth = {pseudo_bottom_depth:.12f}, '
+                f'pseudo col thickness = {pseudo_col_thickness:.12f}, '
                 f'max layer = {max_layer}'
             )
-            pseudo_bottom_depth *= scaling_factor
+            pseudo_col_thickness *= scaling_factor
         logger.info('')
 
         return z_tilde, z, spec_vol, ct, sa, uniform_layer_mask
