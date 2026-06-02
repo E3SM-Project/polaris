@@ -480,6 +480,10 @@ Unit tests in `tests/ocean/vertical/test_ztilde_init.py` cover:
   `PseudoThickness` over valid layers equals
   $(P_\text{bot} - P_\text{surf})/(\rho_0 g)$, confirming the z-star-style scaling
   $(P_\text{bot} - P_\text{surf})/P_\text{bot}$ is correctly applied.
+- `test_two_cell_surface_pressure_gradient`: two-column case with a per-cell
+  $P_\text{surf}$ gradient, mimicking the `surface_pressure_gradient.cfg` geometry.
+  Both columns converge to the expected `ssh` and `bottomDepth`, and each column's
+  `ZTildeInterface` top equals $-P_\text{surf}[i]/(\rho_0 g)$.
 
 The `horiz_press_grad` regression tests (all three task variants: `salinity_gradient`,
 `temperature_gradient`, `ztilde_gradient`) validate that the refactored base class produces
@@ -506,7 +510,8 @@ Unit tests in `tests/ocean/vertical/test_ztilde_init.py` cover:
 
 The surface-pressure tests (`test_nonzero_surface_pressure_shifts_pressures`,
 `test_surface_pressure_sets_ztilde_surface_correctly`,
-`test_surface_pressure_total_pseudo_thickness`) also exercise `init_tracers` with a
+`test_surface_pressure_total_pseudo_thickness`,
+`test_two_cell_surface_pressure_gradient`) also exercise `init_tracers` with a
 shifted `ZTildeMid` range, confirming that the coordinate geometry produced under
 non-zero $P_\text{surf}$ is compatible with the pluggable interface.
 
