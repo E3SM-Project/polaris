@@ -390,8 +390,8 @@ def init_z_tilde_vertical_coord(config, ds):
 
       * ``PseudoThickness`` - the pseudo-thickness of each layer
 
-      * ``RefPseudoThickness`` - the same as pseudo-thickness, used for the
-        p* vertical coordinate
+      * ``RefPseudoThickness`` - the pseudo-thickness when SurfacePressure = 0,
+        used for the p* vertical coordinate
 
       * ``zTildeMid`` - the pseudo height of the midpoint of each layer
 
@@ -429,40 +429,41 @@ def init_z_tilde_vertical_coord(config, ds):
 
     pseudo_bottom_depth = ds.BottomPressure / (RhoSw * Gravity)
 
-    pseudo_column_thickness = (ds.BottomPressure - ds.SurfacePressure) / (
-        RhoSw * Gravity
-    )
-
-    if 'Time' in pseudo_column_thickness.dims:
-        pseudo_column_thickness = pseudo_column_thickness.isel(Time=0)
+    if 'Time' in pseudo_bottom_depth.dims:
+        pseudo_bottom_depth = pseudo_bottom_depth.isel(Time=0)
 
     min_level_cell, max_level_cell = _compute_min_max_level_cell(
         ref_pseudo_depth_top,
-        pseudo_column_thickness,
+        pseudo_bottom_depth,
         min_vert_levels,
         min_layer_thickness,
     )
 
-    pseudo_column_thickness, max_level_cell = _alter_pseudo_column_thickness(
-        config, pseudo_column_thickness, ref_pseudo_depth_bot, max_level_cell
+    pseudo_bottom_depth, max_level_cell = _alter_pseudo_column_thickness(
+        config, pseudo_bottom_depth, ref_pseudo_depth_bot, max_level_cell
     )
 
-    # Recompute pseudo_bottom_depth from the adjusted column thickness so
-    # ZTildeInterface is anchored at the correct (post-snap) pseudo-height, and
-    # update BottomPressure so downstream callers see the effective value.
-    pseudo_bottom_depth = (
-        ds.SurfacePressure / (RhoSw * Gravity) + pseudo_column_thickness
-    )
-    ds['BottomPressure'] = ds.SurfacePressure + pseudo_column_thickness * (
-        RhoSw * Gravity
-    )
+    # Update BottomPressure after partial-cell snap.  The resting depth
+    # (SurfacePressure = 0) determines the snap; SurfacePressure then scales
+    # the layers uniformly, analogous to ssh in z-star.
+    ds['BottomPressure'] = pseudo_bottom_depth * (RhoSw * Gravity)
 
-    pseudo_thickness = _compute_pseudo_thickness(
+    # Resting pseudo-thicknesses (as if SurfacePressure = 0), then scale by
+    # (BottomPressure - SurfacePressure) / BottomPressure to account for the
+    # surface pressure squashing the column — the z-tilde analogue of z-star's
+    # layerThickness = restingThickness * (ssh + bottomDepth) / bottomDepth.
+    ref_pseudo_thickness = _compute_pseudo_thickness(
         ref_pseudo_depth_top,
         ref_pseudo_depth_bot,
-        pseudo_column_thickness,
+        pseudo_bottom_depth,
         min_level_cell,
         max_level_cell,
+    )
+
+    scale = xr.where(
+        ds.BottomPressure > 0,
+        (ds.BottomPressure - ds.SurfacePressure) / ds.BottomPressure,
+        1.0,
     )
 
     # recompute the cell mask since min/max indices may have changed
@@ -471,9 +472,10 @@ def init_z_tilde_vertical_coord(config, ds):
     )
     ds['cellMask'] = cell_mask
 
-    pseudo_thickness = pseudo_thickness.where(cell_mask)
-    ds['RefPseudoThickness'] = pseudo_thickness.copy()
+    ref_pseudo_thickness = ref_pseudo_thickness.where(cell_mask)
+    ds['RefPseudoThickness'] = ref_pseudo_thickness.copy()
 
+    pseudo_thickness = (ref_pseudo_thickness * scale).where(cell_mask)
     pseudo_thickness = pseudo_thickness.expand_dims(dim='Time', axis=0)
 
     # add Time dimension to PseudoThickness but not RefPseudoThickness
@@ -615,13 +617,13 @@ def _alter_pseudo_column_thickness_for_partial_cells(
 def _compute_pseudo_thickness(
     ref_pseudo_depth_top,
     ref_pseudo_depth_bot,
-    pseudo_column_thickness,
+    pseudo_bottom_depth,
     min_level_cell,
     max_level_cell,
 ):
     """
-    Compute z-tilde layer thickness by stretching restingThickness based on
-    pseudo_column_thickness
+    Compute resting z-tilde pseudo-thicknesses (as if SurfacePressure = 0)
+    by clipping reference layers at pseudo_bottom_depth.
     """
 
     n_vert_levels = ref_pseudo_depth_bot.sizes['nVertLevels']
@@ -630,9 +632,7 @@ def _compute_pseudo_thickness(
         z_index >= min_level_cell, z_index <= max_level_cell
     ).transpose('nCells', 'nVertLevels')
 
-    pseudo_depth_bot = np.minimum(
-        pseudo_column_thickness, ref_pseudo_depth_bot
-    )
+    pseudo_depth_bot = np.minimum(pseudo_bottom_depth, ref_pseudo_depth_bot)
     pseudo_thickness = (pseudo_depth_bot - ref_pseudo_depth_top).transpose(
         'nCells', 'nVertLevels'
     )
