@@ -121,25 +121,37 @@ iteration logic.
 
 ### Algorithm Design: The z-tilde vertical coordinate can be initialized with a geometric seafloor depth matching target bathymetry within a configurable tolerance
 
-Date last modified: 2026/05/27
+Date last modified: 2026/06/02
 
 Contributors: Xylar Asay-Davis, Claude
 
 The core algorithm is a fixed-point iteration in pseudo-height space. Let:
 
-- $H_\text{geo}^\star$ = target geometric water-column thickness
-  (target bathymetric depth minus sea-surface height $\eta$)
+- $\eta_0$ = prescribed sea-surface height (m); defaults to $-P_\text{surf}/(\rho_0 g)$,
+  the resting surface-pressure depression for a reference-density fluid
+- $H_\text{geo}^\star$ = target geometric water-column thickness $= \eta_0 - z_\text{bot}$
+- $P_\text{surf}$ = prescribed sea-surface pressure (Pa; due to atmosphere,
+  sea ice, ice shelves, etc.)
 - $P_\text{bot}^{(k)}$ = `BottomPressure` at iteration $k$
 - $\hat{P}_\text{bot}^{(k)}$ = post-snap `BottomPressure` after applying full or partial
   bottom-cell constraints inside the coordinate-construction step
 - $H_\text{geo}^{(k)}$ = geometric water-column thickness recovered at iteration $k$
 
-The initial guess uses the reference density $\rho_0$ and gravitational acceleration $g$:
+The three constraints ($z_\text{bot}$, $P_\text{surf}$, $\eta_0$) are fixed; the iteration
+adjusts `BottomPressure` until all three are satisfied simultaneously.  The initial
+`BottomPressure` is computed from the reference density $\rho_0$ and gravitational
+acceleration $g$:
 
 $$P_\text{bot}^{(0)} = P_\text{surf} + \rho_0\, g\, H_\text{geo}^\star$$
 
-where $P_\text{surf}$ is the surface pressure (typically zero or a prescribed free-surface
-value).
+For the default $\eta_0 = -P_\text{surf}/(\rho_0 g)$ this simplifies to
+$P_\text{bot}^{(0)} = \rho_0\, g\,(-z_\text{bot})$ because the $P_\text{surf}$ terms
+cancel.  This keeps `pseudo_bottom_depth` $= P_\text{bot}^{(0)}/(\rho_0 g)$ equal to the
+bathymetric depth $-z_\text{bot}$, safely within the reference grid regardless of
+$P_\text{surf}$.
+
+$P_\text{surf}$ and $\eta_0$ are optional inputs.  The diagnostic `ssh` at convergence
+equals $\eta_0$ to good approximation (exactly for a constant-density fluid).
 
 At each iteration $k$:
 
@@ -165,13 +177,16 @@ At each iteration $k$:
 9. Check for full-cell stagnation: if
    $\hat{P}_\text{bot}^{(k)} = \hat{P}_\text{bot}^{(k-1)}$, stop early and log a warning
    (see the bottom-cell algorithm design section).
-10. Update: $P_\text{bot}^{(k+1)} = \hat{P}_\text{bot}^{(k)} \cdot s^{(k)}$.
+10. Update, scaling the **pseudo-column pressure** $\hat{P}_\text{bot}^{(k)} - P_\text{surf}$
+    rather than $\hat{P}_\text{bot}^{(k)}$ directly:
+    $$P_\text{bot}^{(k+1)} = P_\text{surf} + \bigl(\hat{P}_\text{bot}^{(k)} - P_\text{surf}\bigr)\cdot s^{(k)}$$
 
 After convergence, `bottomDepth` is set to the actual recovered geometric water-column
-thickness $H_\text{geo}^{(k)}$ (not the target $H_\text{geo}^\star$), so that the initial
-condition is thermodynamically self-consistent and sea-surface height is exactly zero at
-initialization even when bottom-cell snapping prevents an exact match to the target
-bathymetry.
+thickness $H_\text{geo}^{(k)}$ (not the target $H_\text{geo}^\star$) for thermodynamic
+self-consistency, even when bottom-cell snapping prevents an exact match to the target
+bathymetry.  The diagnostic `ssh` is computed as the top interface height
+$\tilde{z}^\text{top}_\text{min-level}$ after applying
+`geom_height_from_pseudo_height`, which integrates upward from $z_\text{bot}$.
 
 The iteration evaluates the EOS once per outer iteration (step 4 above). This is distinct
 from the inner fixed-point iteration in
@@ -256,6 +271,7 @@ above are also stripped (they are in `vert_coord.nc` instead).
 | `pressure` | `PressureMid` | Sea pressure at layer midpoints | Time, nCells, nVertLevels |
 | `zMid` / `GeomZMid` | `GeomZMid` | Geometric height at layer midpoints | Time, nCells, nVertLevels |
 | `zInterface` / `GeomZInterface` | `GeomZInterface` | Geometric height at layer interfaces | Time, nCells, nVertLevelsP1 |
+| `ssh` | `SshCell` | Sea-surface geometric height (diagnostic) | nCells |
 
 Additional task-specific diagnostic variables (e.g., `SpecVol`, `Density`, Montgomery
 potential fields) may be included in `init.nc` by concrete subclasses.
@@ -308,16 +324,21 @@ anticipated when adding new CT/SA initialization strategies.
 
 ### Implementation: The z-tilde vertical coordinate can be initialized with a geometric seafloor depth matching target bathymetry within a configurable tolerance
 
-Date last modified: 2026/05/27
+Date last modified: 2026/06/02
 
 Contributors: Xylar Asay-Davis, Claude
 
 The outer fixed-point loop is encapsulated in a `run_z_tilde_init` method on the
 `ZTildeInitStep` base class in `polaris/ocean/vertical/ztilde_init.py`. The method takes
-`ds_mesh`, `geom_z_bot`, and an optional `geom_ssh` (defaulting to zero) as arguments;
-internally it computes the target water-column thickness and the initial `BottomPressure`
-guess. The `horiz_press_grad.Init` class inherits from `ZTildeInitStep`, implements the
-`init_tracers` abstract method, and delegates the entire iteration to `run_z_tilde_init`.
+`ds_mesh`, `geom_z_bot`, an optional `surface_pressure` (defaulting to zero), and an
+optional `sea_surface_height` as arguments. `sea_surface_height` is the prescribed SSH; it
+defaults to `-surface_pressure / (RhoSw * g)`. The target water-column thickness is set to
+`sea_surface_height - geom_z_bot`; the iteration adjusts `BottomPressure` until this
+target is met, at which point the diagnostic `ssh` equals `sea_surface_height`. For the
+default `sea_surface_height`, the initial `BottomPressure` simplifies to
+`RhoSw * g * (-geom_z_bot)` because the `surface_pressure` terms cancel. The
+`horiz_press_grad.Init` class inherits from `ZTildeInitStep`, implements the `init_tracers`
+abstract method, and delegates the entire iteration to `run_z_tilde_init`.
 
 The convergence threshold and maximum iteration count are read from the `vertical_grid`
 configuration section. `pseudothickness_iter_count` was already in that section;
@@ -414,7 +435,7 @@ base class is consistent with that pattern.
 
 Because `horiz_press_grad` allows `z_tilde_bot` to vary per cell via a configurable
 gradient, `horiz_press_grad.Init` also overrides the `_build_vert_coord_ds(self,
-ds_mesh, bottom_pressure)` method. The base-class default calls
+ds_mesh, bottom_pressure, surface_pressure)` method. The base-class default calls
 `init_z_tilde_vertical_coord` once on the full mesh; `horiz_press_grad.Init` overrides
 it with a per-cell loop that sets a per-cell reference depth in a local config copy before
 constructing each column's coordinate. This override pattern is consistent in style with
@@ -433,7 +454,7 @@ by `ZTildeInitStep` in that context.
 
 ### Testing and Validation: The z-tilde vertical coordinate can be initialized with a geometric seafloor depth matching target bathymetry within a configurable tolerance
 
-Date last modified: 2026/06/01
+Date last modified: 2026/06/03
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -447,6 +468,18 @@ Unit tests in `tests/ocean/vertical/test_ztilde_init.py` cover:
   a 1% density offset from $\rho_0$, requiring 3 outer iterations before the fractional
   change in water-column thickness falls below the threshold. The final `bottomDepth`
   matches the target to within a relative tolerance well below $10^{-10}$.
+- `test_nonzero_surface_pressure_shifts_pressures`: single-column case with non-zero
+  $P_\text{surf}$ and the default $\eta_0 = -P_\text{surf}/(\rho_0 g)$. Confirms that
+  the converged `ssh` equals $-P_\text{surf}/(\rho_0 g)$ and `bottomDepth` equals
+  the actual water-column thickness $\eta_0 - z_\text{bot}$, and that
+  `BottomPressure > SurfacePressure`.
+- `test_surface_pressure_sets_ztilde_surface_correctly`: verifies that
+  `ZTildeInterface.isel(nVertLevelsP1=0)` equals $-P_\text{surf}/(\rho_0 g)$, confirming
+  the top of the pseudo-height coordinate is correctly anchored at the surface pseudo-height.
+- `test_surface_pressure_total_pseudo_thickness`: verifies that the sum of
+  `PseudoThickness` over valid layers equals
+  $(P_\text{bot} - P_\text{surf})/(\rho_0 g)$, confirming the z-star-style scaling
+  $(P_\text{bot} - P_\text{surf})/P_\text{bot}$ is correctly applied.
 
 The `horiz_press_grad` regression tests (all three task variants: `salinity_gradient`,
 `temperature_gradient`, `ztilde_gradient`) validate that the refactored base class produces
@@ -456,7 +489,7 @@ the `main`-branch baseline.
 
 ### Testing and Validation: CT and SA can be initialized on the z-tilde coordinate through a pluggable interface
 
-Date last modified: 2026/05/27
+Date last modified: 2026/06/03
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -470,6 +503,12 @@ Unit tests in `tests/ocean/vertical/test_ztilde_init.py` cover:
 - `test_minimal_subclass_returns_complete_dataset`: a minimal concrete subclass with a
   constant `init_tracers` completes the outer loop without error and the returned dataset
   contains all 17 required base-class output variables with correct dimensions.
+
+The surface-pressure tests (`test_nonzero_surface_pressure_shifts_pressures`,
+`test_surface_pressure_sets_ztilde_surface_correctly`,
+`test_surface_pressure_total_pseudo_thickness`) also exercise `init_tracers` with a
+shifted `ZTildeMid` range, confirming that the coordinate geometry produced under
+non-zero $P_\text{surf}$ is compatible with the pluggable interface.
 
 ### Testing and Validation: The initialized state includes all z-tilde coordinate variables and derived geometric quantities needed for subsequent steps
 
