@@ -10,7 +10,7 @@ Omega:
     SSHTendencyEnable: false
     VelDiffTendencyEnable: false
     VelHyperDiffTendencyEnable: false
-    WindForcingTendencyEnable: false
+    SfcStressForcingTendencyEnable: false
     BottomDragTendencyEnable: false
     TracerHorzAdvTendencyEnable: false
     TracerDiffTendencyEnable: false

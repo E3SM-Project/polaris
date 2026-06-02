@@ -97,8 +97,8 @@ Omega:
       Contents:
       - State
       - Base
-      - WindStressZonal
-      - WindStressMeridional
+      - SfcStressZonal
+      - SfcStressMeridional
     RestartRead:
       UsePointerFile: true
       PointerFilename: ocn.pointer
