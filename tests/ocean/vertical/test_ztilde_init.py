@@ -137,6 +137,7 @@ def test_minimal_subclass_returns_complete_dataset():
         'GeomZMid',
         'GeomZInterface',
         'bottomDepth',
+        'ssh',
         'SurfacePressure',
         'BottomPressure',
         'PseudoThickness',
@@ -176,6 +177,11 @@ def test_constant_density_converges_cleanly(caplog):
     bottom_depth = float(ds.bottomDepth.values.flat[0])
     np.testing.assert_allclose(bottom_depth, target_depth, rtol=1e-10)
 
+    # For constant density equal to RhoSw and zero SSP the diagnostic SSH
+    # must be exactly zero.
+    ssh = float(ds.ssh.values.flat[0])
+    np.testing.assert_allclose(ssh, 0.0, atol=1e-10)
+
 
 def test_wrong_reference_density_requires_multiple_iterations():
     """When rhoref != RhoSw the first iteration produces a non-unit scaling
@@ -201,6 +207,184 @@ def test_wrong_reference_density_requires_multiple_iterations():
     np.testing.assert_allclose(bottom_depth, target_depth, rtol=threshold * 10)
 
 
+def test_nonzero_surface_pressure_shifts_pressures():
+    """With non-zero surface pressure the iteration converges to
+    SSH = -SP/(RhoSw * Gravity).
+
+    For constant density equal to RhoSw the coordinate converges in two
+    iterations. The target SSH is -ssp/(RhoSw*Gravity), so bottomDepth equals
+    target_depth - ssp/(RhoSw*Gravity) (the actual water-column thickness
+    between the depressed surface and the seafloor).  The reference grid needs
+    to reach pseudo_bottom_depth = target_depth (not target_depth +
+    ssp/(RhoSw*Gravity)) because the SP terms cancel in the initial BP.
+    """
+    from polaris.ocean.vertical.ztilde import Gravity, RhoSw
+
+    target_depth = 500.0
+    # ~1 m of water-column pressure (well below the 500 m column)
+    ssp = RhoSw * Gravity * 1.0
+
+    # bottom_depth must cover pseudo_bottom_depth ≈ target_depth (SP terms
+    # cancel in the initial BP so the pseudo-column stays within target_depth).
+    config = _make_config(rhoref=RhoSw, bottom_depth=target_depth)
+    step = _make_step(_ConstantTracerStep, config)
+
+    ncells = 1
+    ds_mesh = _make_ds_mesh(ncells)
+    geom_z_bot = xr.DataArray(np.full(ncells, -target_depth), dims=['nCells'])
+    surface_pressure = xr.DataArray(np.full(ncells, ssp), dims=['nCells'])
+
+    ds = step.run_z_tilde_init(
+        ds_mesh, geom_z_bot, surface_pressure=surface_pressure
+    )
+
+    sp_out = float(ds.SurfacePressure.values.flat[0])
+    np.testing.assert_allclose(sp_out, ssp, rtol=1e-12)
+
+    bp_out = float(ds.BottomPressure.values.flat[0])
+    assert bp_out > sp_out, 'BottomPressure must exceed SurfacePressure'
+
+    # SSH equals the surface-pressure depression −SP/(ρ₀g).
+    expected_ssh = -ssp / (RhoSw * Gravity)
+    ssh = float(ds.ssh.values.flat[0])
+    np.testing.assert_allclose(ssh, expected_ssh, rtol=1e-10)
+
+    # bottomDepth is the actual water column: SSH − geom_z_bot.
+    expected_bottom_depth = expected_ssh - float(geom_z_bot.values.flat[0])
+    bottom_depth = float(ds.bottomDepth.values.flat[0])
+    np.testing.assert_allclose(bottom_depth, expected_bottom_depth, rtol=1e-10)
+
+
+def test_surface_pressure_sets_ztilde_surface_correctly():
+    """With non-zero surface pressure the top ZTildeInterface should be
+    -SurfacePressure / (RhoSw * Gravity), not zero.
+
+    This is the invariant that reference.py relies on: it computes
+    z_tilde_surf = -surface_pressure / (RhoSw * Gravity) and expects the
+    z-tilde grid to start there.  If the surface is stuck at zero the tracer
+    interpolation in init_tracers (which uses ZTildeMid) and the reference
+    solution will be offset from each other.
+    """
+    from polaris.ocean.vertical.ztilde import Gravity, RhoSw
+
+    target_depth = 500.0
+    ssp = RhoSw * Gravity * 1.0  # ~1 m water-column equivalent
+    # bottom_depth = target_depth: SP terms cancel in the initial BP so
+    # pseudo_bottom_depth stays at target_depth.
+    config = _make_config(rhoref=RhoSw, bottom_depth=target_depth)
+    step = _make_step(_ConstantTracerStep, config)
+
+    ncells = 1
+    ds_mesh = _make_ds_mesh(ncells)
+    geom_z_bot = xr.DataArray(np.full(ncells, -target_depth), dims=['nCells'])
+    surface_pressure = xr.DataArray(np.full(ncells, ssp), dims=['nCells'])
+
+    ds = step.run_z_tilde_init(
+        ds_mesh, geom_z_bot, surface_pressure=surface_pressure
+    )
+
+    expected_z_tilde_surf = -ssp / (RhoSw * Gravity)
+    z_tilde_top = float(
+        ds.ZTildeInterface.isel(Time=0, nCells=0, nVertLevelsP1=0).values
+    )
+    np.testing.assert_allclose(z_tilde_top, expected_z_tilde_surf, rtol=1e-10)
+
+
+def test_surface_pressure_total_pseudo_thickness():
+    """The sum of PseudoThickness should equal
+    (BottomPressure - SurfacePressure)/ (RhoSw * Gravity).
+
+    This verifies that the z-star-style scaling scale = (BP - SP) / BP in
+    init_z_tilde_vertical_coord is applied correctly.  A wrong scaling
+    produces pseudo-thicknesses that don't span the right range, which
+    corrupts the ZTildeMid values used in tracer interpolation without causing
+    an obvious convergence failure.
+    """
+    from polaris.ocean.vertical.ztilde import Gravity, RhoSw
+
+    target_depth = 500.0
+    ssp = RhoSw * Gravity * 1.0
+    config = _make_config(rhoref=RhoSw, bottom_depth=target_depth)
+    step = _make_step(_ConstantTracerStep, config)
+
+    ncells = 1
+    ds_mesh = _make_ds_mesh(ncells)
+    geom_z_bot = xr.DataArray(np.full(ncells, -target_depth), dims=['nCells'])
+    surface_pressure = xr.DataArray(np.full(ncells, ssp), dims=['nCells'])
+
+    ds = step.run_z_tilde_init(
+        ds_mesh, geom_z_bot, surface_pressure=surface_pressure
+    )
+
+    total_pseudo = float(
+        ds.PseudoThickness.isel(Time=0, nCells=0).sum().values
+    )
+    bp = float(ds.BottomPressure.isel(nCells=0).values)
+    sp = float(ds.SurfacePressure.isel(nCells=0).values)
+    expected = (bp - sp) / (RhoSw * Gravity)
+    np.testing.assert_allclose(total_pseudo, expected, rtol=1e-10)
+
+
+def test_two_cell_surface_pressure_gradient():
+    """Two cells with different surface pressures each converge to
+    ssh[i] = −SP[i]/(ρ₀g) and bottomDepth[i] = ssh[i] − geom_z_bot.
+    Each cell's ZTildeInterface top equals ssh[i].
+
+    This directly mimics the surface_pressure_gradient.cfg geometry and
+    exercises the default _build_vert_coord_ds path with a per-cell surface
+    pressure vector.
+    """
+    from polaris.ocean.vertical.ztilde import Gravity, RhoSw
+
+    target_depth = 500.0
+    ssp_mid = RhoSw * Gravity * 10.0  # ~10 m water-column equivalent
+    ssp_grad = RhoSw * Gravity * 1.0  # ~1 m/cell gradient
+    ssp = np.array([ssp_mid - ssp_grad, ssp_mid + ssp_grad])
+
+    # SP terms cancel in the initial BP; pseudo_bottom_depth ≈ target_depth.
+    config = _make_config(rhoref=RhoSw, bottom_depth=target_depth)
+    step = _make_step(_ConstantTracerStep, config)
+
+    ncells = 2
+    ds_mesh = _make_ds_mesh(ncells)
+    geom_z_bot = xr.DataArray(np.full(ncells, -target_depth), dims=['nCells'])
+    surface_pressure = xr.DataArray(ssp, dims=['nCells'])
+
+    ds = step.run_z_tilde_init(
+        ds_mesh, geom_z_bot, surface_pressure=surface_pressure
+    )
+
+    for i in range(ncells):
+        expected_ssh = -ssp[i] / (RhoSw * Gravity)
+        expected_bottom_depth = expected_ssh - float(
+            geom_z_bot.isel(nCells=i).values
+        )
+
+        ssh = float(ds.ssh.isel(nCells=i).values)
+        np.testing.assert_allclose(
+            ssh,
+            expected_ssh,
+            rtol=1e-10,
+            err_msg=f'cell {i} ssh',
+        )
+        bottom_depth = float(ds.bottomDepth.isel(nCells=i).values)
+        np.testing.assert_allclose(
+            bottom_depth,
+            expected_bottom_depth,
+            rtol=1e-10,
+            err_msg=f'cell {i} bottomDepth',
+        )
+        zt_surf = float(
+            ds.ZTildeInterface.isel(Time=0, nCells=i, nVertLevelsP1=0).values
+        )
+        np.testing.assert_allclose(
+            zt_surf,
+            expected_ssh,
+            rtol=1e-10,
+            err_msg=f'cell {i} ZTildeInterface top',
+        )
+
+
 def test_full_cell_stagnation_warning_and_early_exit(caplog):
     """When _build_vert_coord_ds always returns the same BottomPressure
     (simulating full-cell snapping) the stagnation check should fire and the
@@ -214,9 +398,12 @@ def test_full_cell_stagnation_warning_and_early_exit(caplog):
             self,
             ds_mesh: xr.Dataset,
             bottom_pressure: xr.DataArray,
+            surface_pressure: xr.DataArray | None = None,
         ) -> xr.Dataset:
             # Call the real coord builder once to get a properly structured ds
-            ds = super()._build_vert_coord_ds(ds_mesh, bottom_pressure)
+            ds = super()._build_vert_coord_ds(
+                ds_mesh, bottom_pressure, surface_pressure
+            )
             # Then hard-code BottomPressure to a fixed value regardless of
             # the incoming bottom_pressure (full-cell snapping simulation)
             fixed_pressure = xr.DataArray(

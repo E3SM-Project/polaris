@@ -62,6 +62,7 @@ class ZTildeInitStep(Step, ABC):
         self,
         ds_mesh: xr.Dataset,
         bottom_pressure: xr.DataArray,
+        surface_pressure: xr.DataArray | None = None,
     ) -> xr.Dataset:
         """
         Build the z-tilde vertical coordinate dataset for one outer iteration.
@@ -77,6 +78,9 @@ class ZTildeInitStep(Step, ABC):
             Horizontal mesh dataset.
         bottom_pressure : xarray.DataArray
             Current BottomPressure guess with dimension ``nCells`` (Pa).
+        surface_pressure : xarray.DataArray, optional
+            Sea-surface pressure with dimension ``nCells`` (Pa).  Defaults to
+            zero for all cells.
 
         Returns
         -------
@@ -88,7 +92,9 @@ class ZTildeInitStep(Step, ABC):
         ds['BottomPressure'] = bottom_pressure
         ds.BottomPressure.attrs['long_name'] = 'seafloor pressure'
         ds.BottomPressure.attrs['units'] = 'Pa'
-        ds['SurfacePressure'] = xr.zeros_like(bottom_pressure)
+        if surface_pressure is None:
+            surface_pressure = xr.zeros_like(bottom_pressure)
+        ds['SurfacePressure'] = surface_pressure
         ds.SurfacePressure.attrs['long_name'] = 'sea surface pressure'
         ds.SurfacePressure.attrs['units'] = 'Pa'
         init_z_tilde_vertical_coord(config, ds)
@@ -107,19 +113,20 @@ class ZTildeInitStep(Step, ABC):
         self,
         ds_mesh: xr.Dataset,
         geom_z_bot: xr.DataArray,
-        geom_ssh: xr.DataArray | None = None,
+        surface_pressure: xr.DataArray | None = None,
+        sea_surface_height: xr.DataArray | None = None,
     ) -> xr.Dataset:
         """
         Run the fixed-point iteration that determines BottomPressure (and
         therefore the z-tilde coordinate) such that the recovered geometric
-        seafloor depth matches the target bathymetry within a configurable
+        water-column thickness matches the target within a configurable
         fractional tolerance.
 
         At convergence the returned dataset contains all z-tilde coordinate
         variables, converged tracer fields, specific volume, pressure,
-        geometric height at layer midpoints and interfaces, and
-        ``bottomDepth`` set to the actual converged geometric water-column
-        thickness.
+        geometric height at layer midpoints and interfaces, ``bottomDepth``
+        set to the actual converged geometric water-column thickness, and
+        ``ssh`` computed as the diagnostic geometric sea-surface height.
 
         Parameters
         ----------
@@ -128,11 +135,18 @@ class ZTildeInitStep(Step, ABC):
         geom_z_bot : xarray.DataArray
             Target geometric height of the seafloor (negative, in metres) with
             dimension ``nCells``.  Used both to anchor
-            ``geom_height_from_pseudo_height`` and to compute the target
+            ``geom_height_from_pseudo_height`` and to set the target
             water-column thickness.
-        geom_ssh : xarray.DataArray, optional
-            Geometric sea-surface height (metres) with dimension ``nCells``.
-            Defaults to zero for all cells.
+        surface_pressure : xarray.DataArray, optional
+            Sea-surface pressure (Pa) with dimension ``nCells``.  Defaults to
+            zero for all cells.
+        sea_surface_height : xarray.DataArray, optional
+            Prescribed sea-surface height (m) with dimension ``nCells``.
+            The target water-column thickness is ``sea_surface_height -
+            geom_z_bot``; the iteration adjusts ``BottomPressure`` until
+            this target is met, so the converged ``ssh`` equals this value.
+            Defaults to ``-surface_pressure / (RhoSw * Gravity)``, i.e. the
+            resting surface-pressure depression for a reference-density fluid.
 
         Returns
         -------
@@ -146,19 +160,25 @@ class ZTildeInitStep(Step, ABC):
 
         ncells = ds_mesh.sizes['nCells']
 
-        if geom_ssh is None:
-            geom_ssh = xr.DataArray(
+        if surface_pressure is None:
+            surface_pressure = xr.DataArray(
                 data=np.zeros(ncells, dtype=float),
                 dims=['nCells'],
                 attrs={
-                    'long_name': 'sea surface geometric height',
-                    'units': 'm',
+                    'long_name': 'sea surface pressure',
+                    'units': 'Pa',
                 },
             )
 
-        goal_geom_water_column_thickness = geom_ssh - geom_z_bot
+        if sea_surface_height is None:
+            sea_surface_height = -surface_pressure / (RhoSw * Gravity)
 
-        bottom_pressure = RhoSw * Gravity * goal_geom_water_column_thickness
+        goal_geom_water_column_thickness = sea_surface_height - geom_z_bot
+
+        bottom_pressure = (
+            surface_pressure
+            + RhoSw * Gravity * goal_geom_water_column_thickness
+        )
 
         pseudothickness_iter_count = config.getint(
             'vertical_grid', 'pseudothickness_iter_count'
@@ -200,7 +220,9 @@ class ZTildeInitStep(Step, ABC):
         )
 
         for iteration in range(pseudothickness_iter_count):
-            ds = self._build_vert_coord_ds(ds_mesh, bottom_pressure)
+            ds = self._build_vert_coord_ds(
+                ds_mesh, bottom_pressure, surface_pressure
+            )
             # ds.BottomPressure is the post-partial-cell-snap value
             adjusted_bottom_pressure = ds.BottomPressure
 
@@ -289,7 +311,11 @@ class ZTildeInitStep(Step, ABC):
                 f'max scaling factor = {scaling_factor.max().item():.6f}'
             )
 
-            bottom_pressure = adjusted_bottom_pressure * scaling_factor
+            bottom_pressure = (
+                surface_pressure
+                + (adjusted_bottom_pressure - surface_pressure)
+                * scaling_factor
+            )
 
             prev_adjusted_bottom_pressure = adjusted_bottom_pressure
             prev_geom_water_column_thickness = geom_water_column_thickness
@@ -321,12 +347,16 @@ class ZTildeInitStep(Step, ABC):
         )
         ds.GeomZInterface.attrs['units'] = 'm'
 
-        # Use the actual converged water-column thickness (not the target) so
-        # that SSH == 0 holds exactly at initialisation even when bottom-cell
-        # snapping prevents an exact match to the target bathymetry.
+        # Use the actual converged water-column thickness (not the target) for
+        # thermodynamic self-consistency, even when bottom-cell snapping
+        # prevents an exact match to the target bathymetry.
         ds['bottomDepth'] = geom_water_column_thickness
         ds.bottomDepth.attrs['long_name'] = 'seafloor geometric depth'
         ds.bottomDepth.attrs['units'] = 'm'
+
+        ds['ssh'] = geom_z_min
+        ds.ssh.attrs['long_name'] = 'sea surface geometric height'
+        ds.ssh.attrs['units'] = 'm'
 
         ds.ZTildeMid.attrs['long_name'] = 'pseudo-height at layer midpoints'
         ds.ZTildeMid.attrs['units'] = 'm'
