@@ -2,10 +2,10 @@
 
 # overflow
 
-The overflow task group is currently comprised of one `default` task for quick
-testing, particularly against a baseline, and one `rpe` test which shows how
-the resting potential energy changes across forward runs with different
-viscosities.
+The overflow task group is currently comprised of three `smoke_test` tasks
+for quick testing (one for each horizontal advection order: 2, 3, and 4),
+and one `rpe` test which shows how the resting potential energy changes across
+forward runs with different viscosities.
 
 ## framework
 
@@ -42,7 +42,7 @@ tasks have as their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
 graph partition is generated as part of `runtime_setup()`.  Next, the ocean
 model is run. The duration is set by `run_duration` in the config section
-corresponding to the task (`overflow_default` or `overflow_rpe`). Finally,
+corresponding to the task (`overflow_smoke_test` or `overflow_rpe`). Finally,
 validation of `layerThickness`, `temperature` and `normalVelocity` in the
 `output.nc` file are performed against a baseline if one is provided when
 calling {ref}`dev-polaris-setup`.
@@ -52,12 +52,16 @@ calling {ref}`dev-polaris-setup`.
 The {py:class}`polaris.tasks.ocean.overflow.viz.Viz` plots the initial and
 final temperature along a transect perpendicular to the continental slope.
 
-(dev-ocean-overflow-default)=
+(dev-ocean-overflow-smoke-test)=
 
-## default
+## smoke_test
 
-The {py:class}`polaris.tasks.ocean.overflow.default.Default`
-test runs the `init` step, a short `forward` step, and the `viz` step.
+The {py:class}`polaris.tasks.ocean.overflow.smoke_test.SmokeTest`
+task runs the `init` step, a short `forward` step, and (optionally, not run
+by default) the `viz` step. Three instances are created, one for each
+horizontal advection order (2, 3, and 4), producing tasks named
+`smoke_test_horiz_adv_order_2`, `smoke_test_horiz_adv_order_3`, and
+`smoke_test_horiz_adv_order_4`.
 
 ## rpe
 

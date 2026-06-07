@@ -5,7 +5,7 @@
 The ``ocean/overflow`` test group induces a density current flowing down a
 continental slope and includes two test cases.
 
-## suppported models
+## supported models
 
 These tasks support MPAS-Ocean and Omega.
 
@@ -94,8 +94,11 @@ These config options are common to all overflow tests:
 # Options related to the overflow case
 [overflow]
 
+# Time integration scheme
+time_integrator = RK4
+
 # Timestep per km horizontal resolution (s)
-dt_per_km = 10.
+dt_per_km = 7.5
 
 # Barotropic timestep per km horizontal resolution (s)
 btr_dt_per_km = 2.5
@@ -138,6 +141,12 @@ lower_temperature = 10.0
 
 # Higher temperature (deg C)
 higher_temperature = 20.0
+
+# Default viscosity (m^2/s)
+default_viscosity = 1000.0
+
+# Default horizontal advection order
+default_horiz_adv_order = 2
 ```
 
 The linear EOS is used because it is convenient for computing RPE. The
@@ -149,12 +158,17 @@ namelist parameters for the linear EOS can be altered using config options
 The number of cores is determined by `goal_cells_per_core` and
 `max_cells_per_core` in the `ocean` section of the config file.
 
-## default
+## smoke_test
 
 ### description
 
-The default case is the same as described above except the run is stopped
-before it is allowed to reach equilibrium to facilitate rapid testing.
+There are three smoke test cases corresponding to horizontal advection orders
+2, 3, and 4: `smoke_test_horiz_adv_order_2`, `smoke_test_horiz_adv_order_3`,
+and `smoke_test_horiz_adv_order_4`. Each smoke test is the same as described
+above except the run is stopped before it is allowed to reach equilibrium to
+facilitate rapid testing. The horizontal advection order is controlled by the
+`horiz_adv_order` argument to the `SmokeTest` task and passed through to the
+forward step.
 
 ### mesh
 
@@ -175,23 +189,25 @@ See {ref}`ocean-overflow`.
 ### time step and run duration
 
 The time step for forward integration is set by `dt_per_km` and the model
-resolution. The barotropic time step is 15s. The run duration is 12 minutes.
+resolution. The run duration is 12 minutes.
 
 ### config options
 
-The config options specific to the default case are:
+The config options specific to the smoke test cases are:
 
 ```cfg
-[overflow_default]
+[overflow_smoke_test]
 
-# Run duration (minutes)
+# Run duration
 run_duration = 12.
 
-# Output interval (seconds)
-output_interval = 1.
-```
+run_duration_units = minutes
 
-Include here any further description of each of the config options.
+# Output interval
+output_interval = 1.
+
+output_interval_units = seconds
+```
 
 ### cores
 
@@ -201,7 +217,7 @@ See {ref}`ocean-overflow`.
 
 ### description
 
-The `rpe` case is the same as the default except it runs to 40 days by which
+The `rpe` case is similar to the smoke tests except it runs to 40 days by which
 time the dense blob is mostly at depth. It also includs several forward runs
 corresponding to different values of the laplacian viscosity specified by the
 config option `overflow_rpe:viscosities`. The analysis step is a substitute for the viz step as
@@ -226,11 +242,15 @@ The config options specific to the RPE case are:
 ```cfg
 [overflow_rpe]
 
-# Run duration (days)
+# Run duration
 run_duration = 40.
 
-# Output interval (days)
+run_duration_units = days
+
+# Output interval
 output_interval = 1.
+
+output_interval_units = hours
 
 # Viscosity values to test for rpe test case
 viscosities = 1, 5, 10, 100, 1000
