@@ -1,9 +1,9 @@
 import os
 
 from polaris.config import PolarisConfigParser as PolarisConfigParser
-from polaris.tasks.ocean.overflow.default import Default as Default
-from polaris.tasks.ocean.overflow.init import Init as Init
-from polaris.tasks.ocean.overflow.rpe import Rpe as Rpe
+from polaris.tasks.ocean.overflow.init import Init
+from polaris.tasks.ocean.overflow.rpe import Rpe
+from polaris.tasks.ocean.overflow.smoke_test import SmokeTest
 
 
 def add_overflow_tasks(component):
@@ -25,9 +25,15 @@ def add_overflow_tasks(component):
     init_step = Init(component=component, name='init', indir=taskdir)
     init_step.set_shared_config(config, link=config_filename)
 
-    default = Default(component=component, indir=taskdir, init=init_step)
-    default.set_shared_config(config, link=config_filename)
-    component.add_task(default)
+    for horiz_adv_order in [2, 3, 4]:
+        smoke_test = SmokeTest(
+            component=component,
+            indir=taskdir,
+            init=init_step,
+            horiz_adv_order=horiz_adv_order,
+        )
+        smoke_test.set_shared_config(config, link=config_filename)
+        component.add_task(smoke_test)
 
     component.add_task(
         Rpe(
