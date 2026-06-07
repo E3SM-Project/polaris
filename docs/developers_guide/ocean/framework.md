@@ -39,6 +39,76 @@ should be added to the `variables` section in the
 [mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
 file.
 
+#### Canonical staged files
+
+The three files that flow through the ocean pipeline — horizontal mesh,
+vertical coordinate, and initial state — have canonical local filenames
+defined in the `[ocean_staged_files]` config section (in
+`polaris/ocean/ocean.cfg`):
+
+```ini
+[ocean_staged_files]
+horiz_mesh_filename = mesh.nc
+vert_coord_filename = vert_coord.nc
+init_filename = init.nc
+```
+
+These filenames are shared by all pipeline stages: init steps write them as
+outputs, model steps link them as inputs, and viz/analysis steps also link
+from upstream using the same names.
+
+Both {py:class}`polaris.ocean.model.OceanIOStep` and
+{py:class}`polaris.ocean.model.OceanModelStep` inherit these conveniences from
+{py:class}`polaris.ocean.model.OceanModelFilesMixin`:
+
+- **Getters** — `get_horiz_mesh_filename()`, `get_vert_coord_filename()`,
+  `get_init_filename()` — read the current values from config.
+- **Input-file registration** — `add_horiz_mesh_input_file(**kwargs)`,
+  `add_vert_coord_input_file(filename=None, **kwargs)`,
+  `add_init_input_file(**kwargs)` — all safe to call from `__init__()`.
+  The model check is deferred to `process_inputs_and_outputs()`, so no
+  `if model == 'omega':` guards are needed in `__init__()`.
+  `add_vert_coord_input_file()` is a no-op for MPAS-Ocean when the default
+  placeholder is used.  When an explicit `filename=` is given (for
+  per-resolution files such as `'vert_coord_r04.nc'`), it must be called
+  from `setup()` or later because `self.config` is required.
+
+A typical viz or analysis step that reads vert-coord variables:
+
+```python
+class Viz(OceanIOStep):
+    def __init__(self, component, indir, init):
+        super().__init__(component=component, name='viz', indir=indir)
+        self.add_input_file(filename='mesh.nc',
+                            work_dir_target=f'{init.path}/culled_mesh.nc')
+        self.add_input_file(filename='init.nc',
+                            work_dir_target=f'{init.path}/init.nc')
+        # registers vert_coord.nc for Omega; no-op for MPAS-Ocean
+        self.add_vert_coord_input_file(
+            work_dir_target=f'{init.path}/vert_coord.nc')
+        self.add_input_file(filename='output.nc', target='../forward/output.nc')
+
+    def run(self):
+        ds_init = self.open_model_dataset('init.nc', self.config)
+        # returns ds_init for MPAS-Ocean; opens vert_coord.nc for Omega
+        ds_vert_coord = self.open_vert_coord_dataset(ds_init)
+        ...
+        compute_transect(
+            ...,
+            bottom_depth=ds_vert_coord.bottomDepth,
+            min_level_cell=ds_vert_coord.minLevelCell - 1,
+            max_level_cell=ds_vert_coord.maxLevelCell - 1,
+        )
+```
+
+`open_vert_coord_dataset(ds_init, vert_coord_filename=None)` returns
+the subset of variables associated with the veritcal coordinate taken from
+`ds_init` for MPAS-Ocean (the vert-coord variables live in `init.nc`) and
+opens the separate `vert_coord.nc` file for Omega, mapping
+Omega variable names to MPAS-Ocean equivalents via `open_model_dataset()`.
+Pass an explicit `vert_coord_filename=` when using per-resolution files
+(e.g. from a `ConvergenceAnalysis` subclass).
+
 ### Running an E3SM component
 
 Steps that run either Omega or MPAS-Ocean should descend from the
