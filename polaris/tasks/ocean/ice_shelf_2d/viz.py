@@ -5,12 +5,12 @@ import pandas as pd
 import xarray as xr
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
-from polaris import Step
 from polaris.mpas import cell_mask_to_edge_mask
+from polaris.ocean.model import OceanIOStep
 from polaris.viz import plot_horiz_field
 
 
-class Viz(Step):
+class Viz(OceanIOStep):
     """
     A step for visualizing a cross-section and horizontal planes through the
     ice shelf
@@ -42,6 +42,9 @@ class Viz(Step):
         self.add_input_file(
             filename='init.nc', work_dir_target=f'{init.path}/init.nc'
         )
+        self.add_vert_coord_input_file(
+            work_dir_target=f'{init.path}/vert_coord.nc'
+        )
         self.add_input_file(
             filename='adjusted_init.nc', target='../forward/init.nc'
         )
@@ -57,11 +60,12 @@ class Viz(Step):
         """
         Run this step of the test case
         """
-        ds_mesh = xr.load_dataset('mesh.nc')
-        ds_init = xr.load_dataset('init.nc')
-        ds_adj_init = xr.load_dataset('adjusted_init.nc')
-        ds = xr.load_dataset('output.nc')
-        ds_ice = xr.load_dataset('land_ice_fluxes.nc')
+        ds_mesh = self.open_model_dataset('mesh.nc', self.config)
+        ds_init = self.open_model_dataset('init.nc', self.config)
+        ds_vert_coord = self.open_vert_coord_dataset(ds_init)
+        ds_adj_init = self.open_model_dataset('adjusted_init.nc', self.config)
+        ds = self.open_model_dataset('output.nc', self.config)
+        ds_ice = self.open_model_dataset('land_ice_fluxes.nc', self.config)
 
         x_mid = ds_mesh.xCell.median()
         y_min = ds_mesh.yCell.min()
@@ -84,7 +88,11 @@ class Viz(Step):
         plt.close()
 
         ds_horiz = self._process_ds(
-            ds_init, ds_ice, ds_adj_init, ds_init.bottomDepth, time_index=0
+            ds_init,
+            ds_ice,
+            ds_adj_init,
+            ds_vert_coord.bottomDepth,
+            time_index=0,
         )
         vmin_del_ssh = np.min(ds_horiz.delSsh.values)
         vmax_del_ssh = np.max(ds_horiz.delSsh.values)
@@ -103,9 +111,9 @@ class Viz(Step):
             y=y,
             ds_horiz_mesh=ds_mesh,
             layer_thickness=ds_init.layerThickness.isel(Time=time_index),
-            bottom_depth=ds_init.bottomDepth,
-            min_level_cell=ds_init.minLevelCell - 1,
-            max_level_cell=ds_init.maxLevelCell - 1,
+            bottom_depth=ds_vert_coord.bottomDepth,
+            min_level_cell=ds_vert_coord.minLevelCell - 1,
+            max_level_cell=ds_vert_coord.maxLevelCell - 1,
             spherical=False,
         )
 
@@ -132,8 +140,8 @@ class Viz(Step):
         )
 
         # Plot water column thickness horizontal ds_init
-        cell_mask = ds_init.maxLevelCell >= 1
-        edge_mask = cell_mask_to_edge_mask(ds_init, cell_mask)
+        cell_mask = ds_vert_coord.maxLevelCell >= 1
+        edge_mask = cell_mask_to_edge_mask(ds_mesh, cell_mask)
         plot_horiz_field(
             ds_mesh,
             ds_horiz['columnThickness'],
@@ -144,7 +152,11 @@ class Viz(Step):
 
         time_index = -1  # Plot the final state
         ds_horiz = self._process_ds(
-            ds, ds_ice, ds_init, ds_init.bottomDepth, time_index=time_index
+            ds,
+            ds_ice,
+            ds_init,
+            ds_vert_coord.bottomDepth,
+            time_index=time_index,
         )
         vmin_del_ssh = np.min(ds_horiz.delSsh.values)
         vmax_del_ssh = np.max(ds_horiz.delSsh.values)
@@ -205,9 +217,9 @@ class Viz(Step):
             y=y,
             ds_horiz_mesh=ds_mesh,
             layer_thickness=ds.layerThickness.isel(Time=time_index),
-            bottom_depth=ds_init.bottomDepth,
-            min_level_cell=ds_init.minLevelCell - 1,
-            max_level_cell=ds_init.maxLevelCell - 1,
+            bottom_depth=ds_vert_coord.bottomDepth,
+            min_level_cell=ds_vert_coord.minLevelCell - 1,
+            max_level_cell=ds_vert_coord.maxLevelCell - 1,
             spherical=False,
         )
 

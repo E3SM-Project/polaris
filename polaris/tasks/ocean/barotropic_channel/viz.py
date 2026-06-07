@@ -29,6 +29,7 @@ class Viz(OceanIOStep):
             filename='mesh.nc', target='../init/culled_mesh.nc'
         )
         self.add_input_file(filename='init.nc', target='../init/init.nc')
+        self.add_vert_coord_input_file(target='../init/vert_coord.nc')
         self.add_input_file(
             filename='output.nc', target='../forward/output.nc'
         )
@@ -39,10 +40,11 @@ class Viz(OceanIOStep):
         """
         ds_mesh = self.open_model_dataset('mesh.nc', self.config)
         ds_init = self.open_model_dataset('init.nc', self.config)
+        ds_vert_coord = self.open_vert_coord_dataset(ds_init)
         ds_out = self.open_model_dataset('output.nc', self.config)
 
-        cell_mask = ds_init.maxLevelCell >= 1
-        vertex_mask = ds_init.boundaryVertex == 0
+        cell_mask = ds_vert_coord.maxLevelCell >= 1
+        vertex_mask = ds_mesh.boundaryVertex == 0
 
         # Uncomment these lines to get 10 evenly spaced time slices
         # nt = ds_out.sizes['Time']

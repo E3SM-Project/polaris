@@ -3,10 +3,10 @@ import numpy as np
 import xarray as xr
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
-from polaris import Step
+from polaris.ocean.model import OceanIOStep
 
 
-class Viz(Step):
+class Viz(OceanIOStep):
     """
     A step for visualizing a cross-section through the internal wave
     """
@@ -25,6 +25,7 @@ class Viz(Step):
             filename='mesh.nc', target='../../../init/culled_mesh.nc'
         )
         self.add_input_file(filename='init.nc', target='../../../init/init.nc')
+        self.add_vert_coord_input_file(target='../../../init/vert_coord.nc')
         self.add_input_file(
             filename='output.nc', target='../forward/output.nc'
         )
@@ -33,9 +34,10 @@ class Viz(Step):
         """
         Run this step of the test case
         """
-        ds_mesh = xr.load_dataset('init.nc')
-        ds_init = ds_mesh
-        ds = xr.load_dataset('output.nc')
+        ds_mesh = self.open_model_dataset('mesh.nc', self.config)
+        ds_init = self.open_model_dataset('init.nc', self.config)
+        ds_vert_coord = self.open_vert_coord_dataset(ds_init)
+        ds = self.open_model_dataset('output.nc', self.config)
 
         x_mid = ds_mesh.xCell.median()
         y_min = ds_mesh.yCell.min()
@@ -53,9 +55,9 @@ class Viz(Step):
             y=y,
             ds_horiz_mesh=ds_mesh,
             layer_thickness=ds_init.layerThickness.isel(Time=tidx),
-            bottom_depth=ds_mesh.bottomDepth,
-            min_level_cell=ds_mesh.minLevelCell - 1,
-            max_level_cell=ds_mesh.maxLevelCell - 1,
+            bottom_depth=ds_vert_coord.bottomDepth,
+            min_level_cell=ds_vert_coord.minLevelCell - 1,
+            max_level_cell=ds_vert_coord.maxLevelCell - 1,
             spherical=False,
         )
 
@@ -77,9 +79,9 @@ class Viz(Step):
             y=y,
             ds_horiz_mesh=ds_mesh,
             layer_thickness=ds.layerThickness.isel(Time=tidx),
-            bottom_depth=ds_mesh.bottomDepth,
-            min_level_cell=ds_mesh.minLevelCell - 1,
-            max_level_cell=ds_mesh.maxLevelCell - 1,
+            bottom_depth=ds_vert_coord.bottomDepth,
+            min_level_cell=ds_vert_coord.minLevelCell - 1,
+            max_level_cell=ds_vert_coord.maxLevelCell - 1,
             spherical=False,
         )
 

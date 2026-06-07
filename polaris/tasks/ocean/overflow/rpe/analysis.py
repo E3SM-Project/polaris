@@ -47,6 +47,9 @@ class Analysis(OceanIOStep):
         self.add_input_file(
             filename='init.nc', work_dir_target=f'{init.path}/init.nc'
         )
+        self.add_vert_coord_input_file(
+            work_dir_target=f'{init.path}/vert_coord.nc'
+        )
 
         # for nu in nus:
         #    self.add_input_file(
@@ -70,6 +73,7 @@ class Analysis(OceanIOStep):
 
         ds_mesh = self.open_model_dataset(mesh_filename, config=self.config)
         ds_init = self.open_model_dataset(init_filename, config=self.config)
+        ds_vert_coord = self.open_vert_coord_dataset(ds_init)
 
         rpe = compute_rpe(
             ds_mesh,
@@ -83,6 +87,7 @@ class Analysis(OceanIOStep):
                 for nu in nus
             ],
             config=self.config,
+            ds_vert_coord=ds_vert_coord,
         )
 
         plt.switch_backend('Agg')
@@ -134,9 +139,9 @@ class Analysis(OceanIOStep):
                 y=y,
                 ds_horiz_mesh=ds_mesh,
                 layer_thickness=ds.layerThickness.isel(Time=time_index),
-                bottom_depth=ds_init.bottomDepth,
-                min_level_cell=ds_init.minLevelCell - 1,
-                max_level_cell=ds_init.maxLevelCell - 1,
+                bottom_depth=ds_vert_coord.bottomDepth,
+                min_level_cell=ds_vert_coord.minLevelCell - 1,
+                max_level_cell=ds_vert_coord.maxLevelCell - 1,
                 spherical=False,
             )
 

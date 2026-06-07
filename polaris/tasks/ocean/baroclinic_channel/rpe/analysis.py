@@ -1,14 +1,13 @@
 import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray as xr
 
-from polaris import Step
+from polaris.ocean.model import OceanIOStep, get_days_since_start
 from polaris.ocean.rpe import compute_rpe
 from polaris.viz import plot_horiz_field, use_mplstyle
 
 
-class Analysis(Step):
+class Analysis(OceanIOStep):
     """
     A step for plotting the results of a series of baroclinic channel RPE runs
 
@@ -44,6 +43,7 @@ class Analysis(Step):
         )
 
         self.add_input_file(target='../../init/init.nc')
+        self.add_vert_coord_input_file(target='../../init/vert_coord.nc')
 
         for nu in nus:
             self.add_input_file(
@@ -67,13 +67,18 @@ class Analysis(Step):
         nus = self.nus
         section = self.config['baroclinic_channel_rpe']
 
-        ds_mesh = xr.open_dataset(mesh_filename)
-        ds_init = xr.open_dataset(init_filename)
-        ds_outputs = [xr.open_dataset(i) for i in self.inputs[2:]]
+        ds_mesh = self.open_model_dataset(mesh_filename, self.config)
+        ds_init = self.open_model_dataset(init_filename, self.config)
+        ds_vert_coord = self.open_vert_coord_dataset(ds_init)
+        ds_outputs = [
+            self.open_model_dataset(f'output_nu_{nu:g}.nc', self.config)
+            for nu in nus
+        ]
         rpe = compute_rpe(
             ds_mesh,
             ds_init,
             ds_outputs,
+            ds_vert_coord=ds_vert_coord,
         )
 
         plt.switch_backend('Agg')
@@ -82,8 +87,10 @@ class Analysis(Step):
         min_temp = section.getfloat('min_temp')
         max_temp = section.getfloat('max_temp')
 
-        ds = xr.open_dataset(f'output_nu_{nus[0]:g}.nc', decode_times=False)
-        times = ds.daysSinceStartOfSim.values
+        ds = self.open_model_dataset(
+            f'output_nu_{nus[0]:g}.nc', self.config, decode_times=True
+        )
+        times = get_days_since_start(ds)
 
         use_mplstyle()
         fig = plt.figure()
@@ -102,12 +109,14 @@ class Analysis(Step):
 
         for row_index, nu in enumerate(nus):
             ax = axes[row_index]
-            ds = xr.open_dataset(f'output_nu_{nu:g}.nc', decode_times=False)
+            ds = self.open_model_dataset(
+                f'output_nu_{nu:g}.nc', self.config, decode_times=True
+            )
             ds = ds.isel(nVertLevels=0)
-            times = ds.daysSinceStartOfSim.values
+            times = get_days_since_start(ds)
             time_index = np.argmin(np.abs(times - time))
 
-            cell_mask = ds_init.maxLevelCell >= 1
+            cell_mask = ds_vert_coord.maxLevelCell >= 1
             plot_horiz_field(
                 ds_mesh,
                 ds['temperature'],

@@ -4,12 +4,12 @@ import numpy as np
 import xarray as xr
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
-from polaris import Step
+from polaris.ocean.model import OceanIOStep, get_days_since_start
 from polaris.ocean.rpe import compute_rpe
 from polaris.viz import use_mplstyle
 
 
-class Analysis(Step):
+class Analysis(OceanIOStep):
     """
     A step for plotting the results of a series of internal wave RPE runs
 
@@ -42,6 +42,7 @@ class Analysis(Step):
         )
 
         self.add_input_file(filename='init.nc', target='../../../init/init.nc')
+        self.add_vert_coord_input_file(target='../../../init/vert_coord.nc')
 
         for nu in nus:
             self.add_input_file(
@@ -63,13 +64,18 @@ class Analysis(Step):
         nus = self.nus
         section = self.config['internal_wave_rpe']
 
-        ds_mesh = xr.open_dataset(mesh_filename)
-        ds_init = xr.open_dataset(init_filename)
-        ds_outputs = [xr.open_dataset(i) for i in self.inputs[2:]]
+        ds_mesh = self.open_model_dataset(mesh_filename, self.config)
+        ds_init = self.open_model_dataset(init_filename, self.config)
+        ds_vert_coord = self.open_vert_coord_dataset(ds_init)
+        ds_outputs = [
+            self.open_model_dataset(f'output_nu_{nu:g}.nc', self.config)
+            for nu in nus
+        ]
         rpe = compute_rpe(
             ds_mesh,
             ds_init,
             ds_outputs,
+            ds_vert_coord=ds_vert_coord,
         )
 
         plt.switch_backend('Agg')
@@ -78,8 +84,10 @@ class Analysis(Step):
         min_temp = section.getfloat('min_temp')
         max_temp = section.getfloat('max_temp')
 
-        ds = xr.open_dataset(f'output_nu_{nus[0]:g}.nc', decode_times=False)
-        times = ds.daysSinceStartOfSim.values
+        ds = self.open_model_dataset(
+            f'output_nu_{nus[0]:g}.nc', self.config, decode_times=True
+        )
+        times = get_days_since_start(ds)
 
         use_mplstyle()
         fig = plt.figure()
@@ -107,17 +115,19 @@ class Analysis(Step):
         y = xr.DataArray(data=[y_min, y_max], dims=('nPoints',))
         for row_index, nu in enumerate(nus):
             ax = axes[row_index]
-            ds = xr.open_dataset(f'output_nu_{nu:g}.nc', decode_times=False)
-            times = ds.daysSinceStartOfSim.values
+            ds = self.open_model_dataset(
+                f'output_nu_{nu:g}.nc', self.config, decode_times=True
+            )
+            times = get_days_since_start(ds)
             time_index = np.argmin(np.abs(times - time))
             ds_transect = compute_transect(
                 x=x,
                 y=y,
                 ds_horiz_mesh=ds_mesh,
                 layer_thickness=ds.layerThickness.isel(Time=time_index),
-                bottom_depth=ds_init.bottomDepth,
-                min_level_cell=ds_init.minLevelCell - 1,
-                max_level_cell=ds_init.maxLevelCell - 1,
+                bottom_depth=ds_vert_coord.bottomDepth,
+                min_level_cell=ds_vert_coord.minLevelCell - 1,
+                max_level_cell=ds_vert_coord.maxLevelCell - 1,
                 spherical=False,
             )
 

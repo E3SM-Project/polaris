@@ -113,6 +113,10 @@ class Viz(OceanIOStep):
                 filename=f'init_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{init.path}/init.nc',
             )
+            self.add_vert_coord_input_file(
+                filename=f'vert_coord_r{refinement_factor:02g}.nc',
+                work_dir_target=f'{init.path}/vert_coord.nc',
+            )
             self.add_input_file(
                 filename=f'output_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{forward.path}/output.nc',
@@ -166,6 +170,10 @@ class Viz(OceanIOStep):
             ds_init = self.open_model_dataset(
                 f'init_r{refinement_factor:02g}.nc', config
             )
+            ds_vert_coord = self.open_vert_coord_dataset(
+                ds_init,
+                vert_coord_filename=f'vert_coord_r{refinement_factor:02g}.nc',
+            )
             ds = self.open_model_dataset(
                 f'output_r{refinement_factor:02g}.nc',
                 config,
@@ -195,9 +203,9 @@ class Viz(OceanIOStep):
                 y=y,
                 ds_horiz_mesh=ds_mesh,
                 layer_thickness=ds_init.layerThickness.isel(Time=0),
-                bottom_depth=ds_init.bottomDepth,
-                min_level_cell=ds_init.minLevelCell - 1,
-                max_level_cell=ds_init.maxLevelCell - 1,
+                bottom_depth=ds_vert_coord.bottomDepth,
+                min_level_cell=ds_vert_coord.minLevelCell - 1,
+                max_level_cell=ds_vert_coord.maxLevelCell - 1,
                 spherical=False,
             )
 
