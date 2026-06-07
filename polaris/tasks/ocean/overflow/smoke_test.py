@@ -6,13 +6,13 @@ from polaris.tasks.ocean.overflow.forward import Forward as Forward
 from polaris.tasks.ocean.overflow.viz import Viz as Viz
 
 
-class Default(Task):
+class SmokeTest(Task):
     """
-    The default overflow test case simply creates the mesh and
+    The short overflow smoke test simply creates the mesh and
     initial condition, then performs a short forward run on 4 cores.
     """
 
-    def __init__(self, component, indir, init):
+    def __init__(self, component, indir, init, horiz_adv_order):
         """
         Create the test case
 
@@ -26,8 +26,11 @@ class Default(Task):
 
         init : polaris.tasks.ocean.overflow.init.Init
             A shared step for creating the initial state
+
+        horiz_adv_order : int
+            The horizontal advection order for the test case
         """
-        task_name = 'default'
+        task_name = f'smoke_test_horiz_adv_order_{horiz_adv_order}'
         super().__init__(component=component, name=task_name, indir=indir)
 
         self.add_step(init, symlink='init')
@@ -35,9 +38,10 @@ class Default(Task):
         forward_step = Forward(
             component=component,
             init=init,
-            task_name=task_name,
+            config_section='overflow_smoke_test',
             name='forward',
             indir=self.subdir,
+            horiz_adv_order=horiz_adv_order,
         )
         self.add_step(forward_step)
 

@@ -9,13 +9,14 @@ class Forward(OceanModelStep):
 
     Attributes
     ----------
-    task_name : str
-       The name of the task that this step belongs to
+    config_section : str
+        The section in the config file for this test case, used to get
+        the run duration and output interval
 
-    yaml_filename : str
-       The name of the yaml file for this forward step
+    horiz_adv_order : int or None
+        The horizontal advection order for the test case
 
-    nu : float
+    nu : float or None
        The Laplacian viscosity to use for this forward step
     """
 
@@ -23,15 +24,15 @@ class Forward(OceanModelStep):
         self,
         component,
         init,
-        yaml_filename='forward.yaml',
+        config_section,
         name='forward',
-        task_name='default',
         subdir=None,
         indir=None,
         ntasks=None,
         min_tasks=None,
         openmp_threads=1,
-        nu=1000.0,
+        horiz_adv_order=None,
+        nu=None,
     ):
         """
         Create a new test case
@@ -47,11 +48,12 @@ class Forward(OceanModelStep):
         task_name : str
            The name of the task that this step belongs to
 
-        yaml_filename : str
-           The name of the yaml file for this forward step
-
         init : polaris.ocean.tasks.internal_wave.init.Init
             the initial state step
+
+        config_section : str
+            The section in the config file for this test case, used to get
+            the run duration and output interval
 
         subdir : str, optional
             the subdirectory for the step.  The default is ``name``
@@ -67,6 +69,10 @@ class Forward(OceanModelStep):
 
         openmp_threads : int, optional
             the number of OpenMP threads the step will use
+
+        horiz_adv_order : int, optional
+            The horizontal advection order for the test case (if different
+            from the default for the test group)
 
         nu : float, optional
             the viscosity (if different from the default for the test group)
@@ -84,8 +90,8 @@ class Forward(OceanModelStep):
             update_eos=True,
             graph_target=f'{init.path}/culled_graph.info',
         )
-        self.task_name = task_name
-        self.yaml_filename = yaml_filename
+        self.config_section = config_section
+        self.horiz_adv_order = horiz_adv_order
         self.nu = nu
 
         # make sure output is double precision
@@ -119,36 +125,25 @@ class Forward(OceanModelStep):
         btr_dt_str = get_time_interval_string(
             seconds=btr_dt_per_km * resolution
         )
-        section = config[f'overflow_{self.task_name}']
+        if self.nu is None:
+            self.nu = config.getfloat('overflow', 'default_viscosity')
+
+        if self.horiz_adv_order is None:
+            self.horiz_adv_order = config.getint(
+                'overflow', 'default_horiz_adv_order'
+            )
+        section = config[self.config_section]
         run_duration = section.getfloat('run_duration')
         run_duration_units = section.get('run_duration_units')
         output_interval = section.getfloat('output_interval')
         output_units = section.get('output_interval_units')
         output_freq = int(output_interval)
-        if run_duration_units == 'days':
-            run_duration_str = get_time_interval_string(days=run_duration)
-        elif run_duration_units == 'hours':
-            run_duration_str = get_time_interval_string(
-                seconds=run_duration * 3600.0
-            )
-        elif run_duration_units == 'minutes':
-            run_duration_str = get_time_interval_string(
-                seconds=run_duration * 60.0
-            )
-        elif run_duration_units == 'seconds':
-            run_duration_str = get_time_interval_string(seconds=run_duration)
-        else:
-            raise ValueError(
-                f'Unknown run duration units: {run_duration_units}'
-            )
-        if self.task_name == 'rpe':
-            output_interval_str = get_time_interval_string(
-                days=output_interval
-            )
-        else:
-            output_interval_str = get_time_interval_string(
-                seconds=output_interval
-            )
+        run_duration_str = self._interval_to_string(
+            run_duration, run_duration_units
+        )
+        output_interval_str = self._interval_to_string(
+            output_interval, output_units
+        )
 
         time_integrator = config.get('overflow', 'time_integrator')
         time_integrator_map = dict([('RK4', 'RungeKutta4')])
@@ -173,10 +168,11 @@ class Forward(OceanModelStep):
             nu=self.nu,
             output_freq=f'{output_freq}',
             output_freq_units=output_units,
+            horiz_adv_order=self.horiz_adv_order,
         )
         self.add_yaml_file(
             'polaris.tasks.ocean.overflow',
-            self.yaml_filename,
+            'forward.yaml',
             template_replacements=replacements,
         )
 
@@ -197,3 +193,20 @@ class Forward(OceanModelStep):
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         cell_count = nx * ny
         return cell_count
+
+    @staticmethod
+    def _interval_to_string(interval, units):
+        """
+        Convert a time interval to a string in the format "DDDD_HH:MM:SS.SS"
+        """
+        if units == 'days':
+            interval_str = get_time_interval_string(days=interval)
+        elif units == 'hours':
+            interval_str = get_time_interval_string(seconds=interval * 3600.0)
+        elif units == 'minutes':
+            interval_str = get_time_interval_string(seconds=interval * 60.0)
+        elif units == 'seconds':
+            interval_str = get_time_interval_string(seconds=interval)
+        else:
+            raise ValueError(f'Unexpected time interval units: {units}')
+        return interval_str
