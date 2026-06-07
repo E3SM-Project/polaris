@@ -1,6 +1,9 @@
 from typing import TYPE_CHECKING
 
+import xarray as xr
+
 from polaris import Step
+from polaris.ocean.model.ocean_model_files_mixin import OceanModelFilesMixin
 
 if TYPE_CHECKING:
     # Keep Ocean as a type-only import. Importing it at runtime pulls
@@ -9,7 +12,7 @@ if TYPE_CHECKING:
     from polaris.tasks.ocean import Ocean
 
 
-class OceanIOStep(Step):
+class OceanIOStep(Step, OceanModelFilesMixin):
     """
     A step that writes input and/or output files for Omega or MPAS-Ocean
     """
@@ -20,6 +23,15 @@ class OceanIOStep(Step):
 
     def __init__(self, component: 'Ocean', **kwargs):
         super().__init__(component=component, **kwargs)
+
+    def process_inputs_and_outputs(self) -> None:
+        """
+        Resolve ``<<<placeholder>>>`` filenames to configured names and drop
+        ``<<<vert_coord>>>`` entries for MPAS-Ocean before delegating to
+        the base :py:class:`~polaris.Step` processing.
+        """
+        self._resolve_model_file_placeholders()
+        super().process_inputs_and_outputs()
 
     def add_output_files_for_ocean_model_input(
         self,
@@ -37,16 +49,16 @@ class OceanIOStep(Step):
         ----------
         horiz_mesh_filename : str, optional
             Local filename for the horizontal mesh output; defaults to the
-            ``horiz_mesh_filename`` option in ``[ocean_model_files]``.
+            ``horiz_mesh_filename`` option in ``[ocean_staged_files]``.
 
         vert_coord_filename : str, optional
             Local filename for the vertical-coordinate output (Omega only);
             defaults to the ``vert_coord_filename`` option in
-            ``[ocean_model_files]``.
+            ``[ocean_staged_files]``.
 
         init_filename : str, optional
             Local filename for the initial-state output; defaults to the
-            ``init_filename`` option in ``[ocean_model_files]``.
+            ``init_filename`` option in ``[ocean_staged_files]``.
 
         base_mesh_filename : str, optional
             If provided, also register this filename as an output (used when
@@ -61,15 +73,11 @@ class OceanIOStep(Step):
         model = config.get('ocean', 'model')
 
         if horiz_mesh_filename is None:
-            horiz_mesh_filename = config.get(
-                'ocean_model_files', 'horiz_mesh_filename'
-            )
+            horiz_mesh_filename = self.get_horiz_mesh_filename()
         if vert_coord_filename is None:
-            vert_coord_filename = config.get(
-                'ocean_model_files', 'vert_coord_filename'
-            )
+            vert_coord_filename = self.get_vert_coord_filename()
         if init_filename is None:
-            init_filename = config.get('ocean_model_files', 'init_filename')
+            init_filename = self.get_init_filename()
 
         if base_mesh_filename is not None:
             self.add_output_file(filename=base_mesh_filename)
@@ -79,6 +87,60 @@ class OceanIOStep(Step):
             self.add_output_file(filename=vert_coord_filename)
         if model == 'mpas-ocean' and graph_filename is not None:
             self.add_output_file(filename=graph_filename)
+
+    def open_vert_coord_dataset(
+        self, ds_init, vert_coord_filename=None, **kwargs
+    ):
+        """
+        Return the dataset containing vertical-coordinate variables
+        (``bottomDepth``, ``minLevelCell``, ``maxLevelCell``,
+        ``vertCoordMovementWeights`` and either ``restingThickness`` or
+        ``RefPseudoThickness``).
+
+        For Omega: opens *vert_coord_filename* (defaults to
+        :py:meth:`get_vert_coord_filename`) via
+        :py:meth:`open_model_dataset` so Omega variable names are mapped to
+        their MPAS-Ocean equivalents.
+
+        For MPAS-Ocean: returns the set of vertical-coordinate variables from
+        *ds_init* (those variables live in the initial state file).
+
+        Parameters
+        ----------
+        ds_init : xarray.Dataset
+            The already-opened initial-condition dataset.
+        vert_coord_filename : str, optional
+            Local filename of the vertical-coordinate file.  Defaults to
+            :py:meth:`get_vert_coord_filename`.  Pass an explicit name when
+            using per-resolution files (e.g. ``'vert_coord_r04.nc'``).
+        **kwargs
+            Forwarded to :py:meth:`open_model_dataset`.
+        """
+        model = self.config.get('ocean', 'model')
+        if model == 'omega':
+            if vert_coord_filename is None:
+                vert_coord_filename = self.get_vert_coord_filename()
+            ds_vert_coord = self.open_model_dataset(
+                vert_coord_filename, config=self.config, **kwargs
+            )
+        elif model == 'mpas-ocean':
+            ds_vert_coord = xr.Dataset()
+            if self.component.vert_coord_vars is None:
+                raise ValueError(
+                    'Vertical coordinate variables not defined in the Ocean '
+                    'component'
+                )
+            for var in self.component.vert_coord_vars:
+                if var not in ds_init:
+                    raise ValueError(
+                        f"Expected vertical coordinate variable '{var}' not "
+                        'found in initial condition dataset'
+                    )
+                ds_vert_coord[var] = ds_init[var]
+        else:
+            raise ValueError(f'Unsupported ocean model: {model}')
+
+        return ds_vert_coord
 
     def map_to_native_model_vars(self, ds):
         """
