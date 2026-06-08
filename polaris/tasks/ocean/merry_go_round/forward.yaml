@@ -84,6 +84,8 @@ Omega:
     ThicknessVertAdvTendencyEnable: false
     VelocityVertAdvTendencyEnable: false
     TracerVertAdvTendencyEnable: true
+  Tracers:
+    Debug: [Debug1, Debug2, Debug3]
   IOStreams:
     InitialVertCoord:
       UsePointerFile: false

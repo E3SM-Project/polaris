@@ -76,6 +76,8 @@ Omega:
     TracerHorzAdvTendencyEnable : true
     TracerDiffTendencyEnable : false
     TracerHyperDiffTendencyEnable : false
+  Tracers:
+    Debug: [Debug1]
   IOStreams:
     InitialState:
       Contents:
