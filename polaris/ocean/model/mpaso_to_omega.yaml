@@ -73,6 +73,7 @@ variables:
   normalVelocity: NormalVelocity
   # Note: vertVelocityTop in MPAS-Ocean has no Omega equivalent and
   #       VerticalPseudoVelocity in Omega has no MPAS-Ocean equivalent
+  surfacePressure: SurfacePressure
 
   # auxiliary state
   ssh: SshCell
