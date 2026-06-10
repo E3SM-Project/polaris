@@ -124,9 +124,7 @@ class Forward(OceanModelStep):
         model = self.config.get('ocean', 'model')
         # TODO: remove as soon as Omega no longer hard-codes this file
         if model == 'omega':
-            self.add_input_file(
-                filename='OmegaMesh.nc', target='initial_state.nc'
-            )
+            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
 
     def compute_cell_count(self):
         """

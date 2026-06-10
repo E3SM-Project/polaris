@@ -72,8 +72,14 @@ class Viz(OceanIOStep):
         self.add_input_file(
             filename='mesh.nc', work_dir_target=f'{mesh.path}/culled_mesh.nc'
         )
-        self.add_input_file(filename='init.nc',
-                            work_dir_target=f'{init.path}/init.nc')
+        self.add_input_file(
+            filename='init.nc', work_dir_target=f'{init.path}/init.nc'
+        )
+        if self.component.model == 'omega':
+            self.add_input_file(
+                filename='vert_coord.nc',
+                work_dir_target=f'{init.path}/vert_coord.nc',
+            )
         self.add_input_file(
             filename='output.nc', work_dir_target=f'{forward.path}/output.nc'
         )
@@ -85,11 +91,15 @@ class Viz(OceanIOStep):
         config = self.config
         ds_mesh = self.open_model_dataset('mesh.nc', config=config)
         ds_init = self.open_model_dataset('init.nc', config=config)
+        if self.component.model == 'omega':
+            ds_vert = self.open_model_dataset('vert_coord.nc', config=config)
+        else:
+            ds_vert = ds_init
         ds = self.open_model_dataset('output.nc', config=config)
 
         t_index = ds.sizes['Time'] - 1
-        cell_mask = ds_init.maxLevelCell >= 1
-        edge_mask = cell_mask_to_edge_mask(ds_init, cell_mask)
+        cell_mask = ds_vert.maxLevelCell >= 1
+        edge_mask = cell_mask_to_edge_mask(ds_mesh, cell_mask)
         max_velocity = np.max(np.abs(ds.normalVelocity.values))
 
         step = 10
@@ -120,9 +130,9 @@ class Viz(OceanIOStep):
                 y=y,
                 ds_horiz_mesh=ds_mesh,
                 layer_thickness=ds.layerThickness.isel(Time=t_index),
-                bottom_depth=ds_init.bottomDepth,
-                min_level_cell=ds_init.minLevelCell - 1,
-                max_level_cell=ds_init.maxLevelCell - 1,
+                bottom_depth=ds_vert.bottomDepth,
+                min_level_cell=ds_vert.minLevelCell - 1,
+                max_level_cell=ds_vert.maxLevelCell - 1,
                 spherical=False,
             )
 
