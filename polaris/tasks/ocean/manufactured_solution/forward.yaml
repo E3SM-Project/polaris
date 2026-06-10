@@ -49,6 +49,7 @@ Omega:
       Contents:
       - NormalVelocity
       - PseudoThickness
+      - SurfacePressure
     History:
       Filename: output.nc
       Freq: {{ output_freq }}
