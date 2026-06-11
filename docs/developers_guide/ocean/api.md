@@ -380,7 +380,7 @@
 
    add_overflow_tasks
 
-   default.Default
+   smoke_test.SmokeTest
 
    forward.Forward
    forward.Forward.dynamic_model_config

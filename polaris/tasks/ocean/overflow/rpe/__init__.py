@@ -68,8 +68,8 @@ class Rpe(Task):
             step = Forward(
                 component=component,
                 name=name,
-                task_name='rpe',
                 init=init,
+                config_section='overflow_rpe',
                 indir=self.subdir,
                 ntasks=None,
                 min_tasks=None,

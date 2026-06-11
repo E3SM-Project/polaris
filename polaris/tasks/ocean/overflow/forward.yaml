@@ -19,6 +19,8 @@ ocean:
     config_cvmix_background_viscosity: 0.0
   bottom_drag:
     config_explicit_bottom_drag_coeff: 0.01
+  advection:
+    config_horiz_tracer_adv_order: {{ horiz_adv_order }}
 
 mpas-ocean:
   io:

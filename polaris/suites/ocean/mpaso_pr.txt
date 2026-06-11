@@ -9,7 +9,9 @@ ocean/planar/internal_wave/standard/default
 ocean/planar/internal_wave/vlr/default
 # ocean/planar/manufactured_solution/convergence_both
 ocean/planar/merry_go_round/default
-ocean/planar/overflow/default
+ocean/planar/overflow/smoke_test_horiz_adv_order_2
+ocean/planar/overflow/smoke_test_horiz_adv_order_3
+ocean/planar/overflow/smoke_test_horiz_adv_order_4
 ocean/single_column/cvmix
 ocean/single_column/ekman
 ocean/single_column/ideal_age

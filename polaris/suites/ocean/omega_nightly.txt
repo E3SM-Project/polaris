@@ -8,6 +8,9 @@ ocean/planar/manufactured_solution/convergence_both/del4
 ocean/planar/merry_go_round/default
 ocean/planar/merry_go_round/convergence_both_order2
 ocean/planar/merry_go_round/convergence_both_order4
+ocean/planar/overflow/smoke_test_horiz_adv_order_2
+ocean/planar/overflow/smoke_test_horiz_adv_order_3
+ocean/planar/overflow/smoke_test_horiz_adv_order_4
 ocean/spherical/icos/correlated_tracers_2d
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
