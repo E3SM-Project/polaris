@@ -174,7 +174,7 @@ model.</p>
 </section>
 <section id="suppported-models">
 <h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
-<p>These tasks support only MPAS-Ocean.</p>
+<p>These tasks support both Omega and MPAS-Ocean.</p>
 </section>
 <section id="mesh">
 <h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
@@ -287,6 +287,9 @@ Run duration will be discussed for individual test cases.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for baroclinic channel testcases</span>
 <span class="k">[baroclinic_channel]</span>
 
+<span class="c1"># Time integration scheme</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+
 <span class="c1"># the size of the domain in km in the x and y directions</span>
 <span class="na">lx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">160.0</span>
 <span class="na">ly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">500.0</span>
@@ -339,6 +342,19 @@ options is likely to break the <code class="docutils literal notranslate"><span 
 safely modify <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> to control the time step for any
 other baroclinic channel tests.</p>
 <p>All units are mks, with temperature in degrees Celsius and salinity in PSU.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">long_forward</span></code> test has the following additional options:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[baroclinic_channel_long]</span>
+
+<span class="c1"># Number of days to run the long_forward case</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30.0</span>
+
+<span class="c1"># Output interval</span>
+<span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span><span class="w"> </span>
+
+<span class="c1"># Units assocaited with output interval</span>
+<span class="na">output_interval_units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">hours</span>
+</pre></div>
+</div>
 </section>
 <section id="default">
 <h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>

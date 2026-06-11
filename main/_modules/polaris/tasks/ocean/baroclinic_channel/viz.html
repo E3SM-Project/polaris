@@ -116,21 +116,36 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.ocean.viz.transect</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_transect</span><span class="p">,</span> <span class="n">plot_transect</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas</span><span class="w"> </span><span class="kn">import</span> <span class="n">cell_mask_to_edge_mask</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_horiz_field</span>
 
 
 <div class="viewcode-block" id="Viz">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.viz.Viz.html#polaris.tasks.ocean.baroclinic_channel.viz.Viz">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step for plotting the results of a series of baroclinic channel RPE runs</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dependencies_dict : dict of polaris.Steps</span>
+<span class="sd">        The dependencies of this step must be given as separate keys in the</span>
+<span class="sd">        dict:</span>
+
+<span class="sd">            mesh : polaris.Step</span>
+<span class="sd">                Must have the attribute `path`, the path to `culled_mesh.nc`</span>
+
+<span class="sd">            init : polaris.Step</span>
+<span class="sd">                Must have the attribute `path`, the path to `init.nc`</span>
+
+<span class="sd">            forward : polaris.Step</span>
+<span class="sd">                Must have the attribute `path`, the path to `output.nc`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Viz.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.viz.Viz.html#polaris.tasks.ocean.baroclinic_channel.viz.Viz.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">taskdir</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the step</span>
 
@@ -139,18 +154,53 @@
 <span class="sd">        component : polaris.Component</span>
 <span class="sd">            The component the step belongs to</span>
 
-<span class="sd">        indir : str</span>
-<span class="sd">            the directory the step is in, to which ``name`` will be appended</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../../init/culled_mesh.nc&#39;</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../../init/init.nc&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../forward/output.nc&#39;</span>
-        <span class="p">)</span></div>
+<span class="sd">        dependencies : dict of polaris.Steps</span>
+<span class="sd">            The dependencies of this step must be given as separate keys in the</span>
+<span class="sd">            dict:</span>
 
+<span class="sd">                mesh : polaris.Step</span>
+<span class="sd">                    Must have the attribute `path`, the path to</span>
+<span class="sd">                    `culled_mesh.nc`</span>
+
+<span class="sd">                init : polaris.Step</span>
+<span class="sd">                    Must have the attribute `path`, the path to `init.nc`</span>
+
+<span class="sd">                forward : polaris.Step</span>
+<span class="sd">                    Must have the attribute `path`, the path to `output.nc`</span>
+
+<span class="sd">        taskdir : str</span>
+<span class="sd">            The subdirectory that the task belongs to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">taskdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span> <span class="o">=</span> <span class="n">dependencies</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add input files from dependencies</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+        <span class="n">dependencies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span>
+
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;mesh&#39;</span><span class="p">]</span>
+        <span class="n">init</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;init&#39;</span><span class="p">]</span>
+        <span class="n">forward</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_mesh.nc&#39;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc&#39;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/vert_coord.nc&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="Viz.run">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.viz.Viz.run.html#polaris.tasks.ocean.baroclinic_channel.viz.Viz.run">[docs]</a>
@@ -158,71 +208,82 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run this step of the task</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">)</span>
-        <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;init.nc&#39;</span><span class="p">)</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="n">ds_vert</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ds_vert</span> <span class="o">=</span> <span class="n">ds_init</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
         <span class="n">t_index</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">&gt;=</span> <span class="mi">1</span>
-        <span class="n">edge_mask</span> <span class="o">=</span> <span class="n">cell_mask_to_edge_mask</span><span class="p">(</span><span class="n">ds_init</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">)</span>
+        <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds_vert</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+        <span class="n">edge_mask</span> <span class="o">=</span> <span class="n">cell_mask_to_edge_mask</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">)</span>
         <span class="n">max_velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">normalVelocity</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
-        <span class="n">plot_horiz_field</span><span class="p">(</span>
-            <span class="n">ds_mesh</span><span class="p">,</span>
-            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">],</span>
-            <span class="s1">&#39;final_normalVelocity.png&#39;</span><span class="p">,</span>
-            <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span>
-            <span class="n">vmin</span><span class="o">=-</span><span class="n">max_velocity</span><span class="p">,</span>
-            <span class="n">vmax</span><span class="o">=</span><span class="n">max_velocity</span><span class="p">,</span>
-            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
-            <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">field_mask</span><span class="o">=</span><span class="n">edge_mask</span><span class="p">,</span>
-        <span class="p">)</span>
 
-        <span class="n">y_min</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yVertex</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">y_max</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yVertex</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">x_mid</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="k">for</span> <span class="n">t_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">step</span><span class="p">):</span>
+            <span class="n">plot_horiz_field</span><span class="p">(</span>
+                <span class="n">ds_mesh</span><span class="p">,</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">],</span>
+                <span class="sa">f</span><span class="s1">&#39;normalVelocity_</span><span class="si">{</span><span class="n">t_index</span><span class="si">:</span><span class="s1">04</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span>
+                <span class="n">vmin</span><span class="o">=-</span><span class="n">max_velocity</span><span class="p">,</span>
+                <span class="n">vmax</span><span class="o">=</span><span class="n">max_velocity</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+                <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">field_mask</span><span class="o">=</span><span class="n">edge_mask</span><span class="p">,</span>
+            <span class="p">)</span>
 
-        <span class="n">y</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;nPoints&#39;</span><span class="p">,))</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">x_mid</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">y_min</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yVertex</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">y_max</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yVertex</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">x_mid</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
 
-        <span class="n">ds_transect</span> <span class="o">=</span> <span class="n">compute_transect</span><span class="p">(</span>
-            <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
-            <span class="n">ds_horiz_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
-            <span class="n">layer_thickness</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">),</span>
-            <span class="n">bottom_depth</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span>
-            <span class="n">min_level_cell</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="n">spherical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;nPoints&#39;</span><span class="p">,)</span>
+            <span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x_mid</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
-        <span class="n">field_name</span> <span class="o">=</span> <span class="s1">&#39;temperature&#39;</span>
-        <span class="n">vmin</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">vmax</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">mpas_field</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">)</span>
-        <span class="n">plot_transect</span><span class="p">(</span>
-            <span class="n">ds_transect</span><span class="o">=</span><span class="n">ds_transect</span><span class="p">,</span>
-            <span class="n">mpas_field</span><span class="o">=</span><span class="n">mpas_field</span><span class="p">,</span>
-            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> at x=</span><span class="si">{</span><span class="mf">1e-3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x_mid</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> km&#39;</span><span class="p">,</span>
-            <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;final_</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">_section.png&#39;</span><span class="p">,</span>
-            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
-            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
-            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.thermal&#39;</span><span class="p">,</span>
-            <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$^\circ$C&#39;</span><span class="p">,</span>
-            <span class="n">color_start_and_end</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span>
+            <span class="n">ds_transect</span> <span class="o">=</span> <span class="n">compute_transect</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+                <span class="n">ds_horiz_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
+                <span class="n">layer_thickness</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">),</span>
+                <span class="n">bottom_depth</span><span class="o">=</span><span class="n">ds_vert</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span>
+                <span class="n">min_level_cell</span><span class="o">=</span><span class="n">ds_vert</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds_vert</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">spherical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
 
-        <span class="n">plot_horiz_field</span><span class="p">(</span>
-            <span class="n">ds_mesh</span><span class="p">,</span>
-            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">],</span>
-            <span class="s1">&#39;final_temperature.png&#39;</span><span class="p">,</span>
-            <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span>
-            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
-            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
-            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.thermal&#39;</span><span class="p">,</span>
-            <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
-            <span class="n">transect_x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
-            <span class="n">transect_y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
-        <span class="p">)</span></div>
+            <span class="n">field_name</span> <span class="o">=</span> <span class="s1">&#39;temperature&#39;</span>
+            <span class="n">vmin</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">vmax</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">mpas_field</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">)</span>
+            <span class="n">plot_transect</span><span class="p">(</span>
+                <span class="n">ds_transect</span><span class="o">=</span><span class="n">ds_transect</span><span class="p">,</span>
+                <span class="n">mpas_field</span><span class="o">=</span><span class="n">mpas_field</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> at x=</span><span class="si">{</span><span class="mf">1e-3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x_mid</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> km&#39;</span><span class="p">,</span>
+                <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">_section_</span><span class="si">{</span><span class="n">t_index</span><span class="si">:</span><span class="s1">04</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+                <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.thermal&#39;</span><span class="p">,</span>
+                <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$^\circ$C&#39;</span><span class="p">,</span>
+                <span class="n">color_start_and_end</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">plot_horiz_field</span><span class="p">(</span>
+                <span class="n">ds_mesh</span><span class="p">,</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">],</span>
+                <span class="sa">f</span><span class="s1">&#39;temperature_</span><span class="si">{</span><span class="n">t_index</span><span class="si">:</span><span class="s1">04</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span>
+                <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+                <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.thermal&#39;</span><span class="p">,</span>
+                <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
+                <span class="n">transect_x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+                <span class="n">transect_y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+            <span class="p">)</span></div>
 </div>
 
 </pre></div>

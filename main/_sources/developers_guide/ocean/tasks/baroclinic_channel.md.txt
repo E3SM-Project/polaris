@@ -66,7 +66,8 @@ and `normalVelocity` are identical in `output.nc` files in the two steps.
 ## default
 
 The {py:class}`polaris.tasks.ocean.baroclinic_channel.default.Default`
-test performs a 3-time-step run on 4 cores.
+contains a `forward` test performs a 3-time-step run on 4 cores, and
+a `long_forward` that performs a 30-day run.
 
 (dev-ocean-baroclinic-channel-decomp-test)=
 

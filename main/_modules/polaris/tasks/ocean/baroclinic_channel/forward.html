@@ -114,7 +114,7 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.planar</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span><span class="p">,</span> <span class="n">get_time_interval_string</span>
 
 
 <div class="viewcode-block" id="Forward">
@@ -219,17 +219,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_vert_coord_input_file</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;../../init/vert_coord.nc&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_init_input_file</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;../../init/init.nc&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.baroclinic_channel&#39;</span><span class="p">,</span> <span class="s1">&#39;forward.yaml&#39;</span>
-        <span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">nu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># update the viscosity to the requested value *after* loading</span>
-            <span class="c1"># forward.yaml</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
-                <span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">config_mom_del2</span><span class="o">=</span><span class="n">nu</span><span class="p">),</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;mpas-ocean&#39;</span>
-            <span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span>
@@ -241,8 +230,19 @@
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">btr_dt</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btr_dt</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="o">=</span> <span class="n">nu</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set up the step, adding the OmegaMesh.nc symlink for Omega</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="c1"># TODO: remove as soon as Omega no longer hard-codes this file</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;OmegaMesh.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Forward.compute_cell_count">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.baroclinic_channel.forward.Forward.compute_cell_count">[docs]</a>
@@ -281,36 +281,109 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="p">)</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
 
-        <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;long_forward&#39;</span><span class="p">:</span>
+            <span class="n">output_freq</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s1">&#39;baroclinic_channel_long&#39;</span><span class="p">,</span> <span class="s1">&#39;output_interval&#39;</span>
+            <span class="p">)</span>
+            <span class="n">output_freq_units</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s1">&#39;baroclinic_channel_long&#39;</span><span class="p">,</span> <span class="s1">&#39;output_interval_units&#39;</span>
+            <span class="p">)</span>
+            <span class="n">output_freq</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">output_freq</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_freq</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">output_freq_units</span> <span class="o">=</span> <span class="s1">&#39;minutes&#39;</span>
+
+        <span class="c1"># Get output interval for mpas-ocean</span>
+        <span class="n">output_interval</span> <span class="o">=</span> <span class="s1">&#39;0000-00-00_00:00:01&#39;</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">output_freq_units</span> <span class="o">==</span> <span class="s1">&#39;minutes&#39;</span><span class="p">:</span>
+                <span class="n">seconds</span> <span class="o">=</span> <span class="n">output_freq</span> <span class="o">*</span> <span class="mf">60.0</span>
+            <span class="k">elif</span> <span class="n">output_freq_units</span> <span class="o">==</span> <span class="s1">&#39;hours&#39;</span><span class="p">:</span>
+                <span class="n">seconds</span> <span class="o">=</span> <span class="n">output_freq</span> <span class="o">*</span> <span class="mf">3600.00</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s1">&#39;Warning: ouput freqency units &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_freq_units</span><span class="si">}</span><span class="s1"> not supported&#39;</span>
+                    <span class="s1">&#39;using default value&#39;</span>
+                <span class="p">)</span>
+                <span class="n">seconds</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+            <span class="n">output_interval</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">)</span>
+
+        <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">,</span> <span class="s1">&#39;time_integrator&#39;</span><span class="p">)</span>
+        <span class="n">time_integrator_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="s1">&#39;RK4&#39;</span><span class="p">,</span> <span class="s1">&#39;RungeKutta4&#39;</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">time_integrator</span> <span class="ow">in</span> <span class="n">time_integrator_map</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">time_integrator_map</span><span class="p">[</span><span class="n">time_integrator</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s1">&#39;Warning: mapping from time integrator &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">time_integrator</span><span class="si">}</span><span class="s1"> to omega not found, &#39;</span>
+                    <span class="s1">&#39;retaining name given in config&#39;</span>
+                <span class="p">)</span>
+
+        <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">output_freq</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_freq</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="n">output_freq_units</span><span class="o">=</span><span class="n">output_freq_units</span><span class="p">,</span>
+            <span class="n">time_integrator</span><span class="o">=</span><span class="n">time_integrator</span><span class="p">,</span>
+            <span class="n">output_interval</span><span class="o">=</span><span class="n">output_interval</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
+            <span class="s1">&#39;polaris.tasks.ocean.baroclinic_channel&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
+            <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="c1"># dt is proportional to resolution: default 30 seconds per km</span>
         <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">,</span> <span class="s1">&#39;dt_per_km&#39;</span><span class="p">)</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="n">dt_per_km</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
-        <span class="c1"># https://stackoverflow.com/a/1384565/7728169</span>
-        <span class="n">options</span><span class="p">[</span><span class="s1">&#39;config_dt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">dt</span><span class="p">))</span>
+        <span class="n">dt_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+
+        <span class="n">ocean_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_dt&#39;</span><span class="p">:</span> <span class="n">dt_str</span><span class="p">}</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># default run duration is a few time steps</span>
             <span class="n">run_seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="o">*</span> <span class="n">dt</span>
-            <span class="n">options</span><span class="p">[</span><span class="s1">&#39;config_run_duration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
-                <span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">run_seconds</span><span class="p">)</span>
+            <span class="n">ocean_options</span><span class="p">[</span><span class="s1">&#39;config_run_duration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
+                <span class="n">seconds</span><span class="o">=</span><span class="n">run_seconds</span>
             <span class="p">)</span>
-            <span class="n">options</span><span class="p">[</span><span class="s1">&#39;config_stop_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
+            <span class="n">ocean_options</span><span class="p">[</span><span class="s1">&#39;config_stop_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
 
-        <span class="c1"># btr_dt is also proportional to resolution: default 1.5 seconds per km</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;long_forward&#39;</span><span class="p">:</span>
+            <span class="n">run_duration</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+                <span class="s1">&#39;baroclinic_channel_long&#39;</span><span class="p">,</span> <span class="s1">&#39;run_duration&#39;</span>
+            <span class="p">)</span>
+            <span class="n">ocean_options</span><span class="p">[</span><span class="s1">&#39;config_run_duration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
+                <span class="n">days</span><span class="o">=</span><span class="n">run_duration</span>
+            <span class="p">)</span>
+            <span class="n">ocean_options</span><span class="p">[</span><span class="s1">&#39;config_stop_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">ocean_options</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># btr_dt is only for MPAS-Ocean (Omega uses RK4)</span>
         <span class="n">btr_dt_per_km</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">,</span> <span class="s1">&#39;btr_dt_per_km&#39;</span><span class="p">)</span>
         <span class="n">btr_dt</span> <span class="o">=</span> <span class="n">btr_dt_per_km</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
-        <span class="n">options</span><span class="p">[</span><span class="s1">&#39;config_btr_dt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
-            <span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">btr_dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">&#39;config_btr_dt&#39;</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">btr_dt</span><span class="p">))</span>
+            <span class="p">},</span>
+            <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">btr_dt</span> <span class="o">=</span> <span class="n">btr_dt</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
-            <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;mpas-ocean&#39;</span>
-        <span class="p">)</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># update the viscosity to the requested value *after* loading</span>
+            <span class="c1"># forward.yaml</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+                <span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">config_mom_del2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">),</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span>
+            <span class="p">)</span></div>
 </div>
 
 </pre></div>
