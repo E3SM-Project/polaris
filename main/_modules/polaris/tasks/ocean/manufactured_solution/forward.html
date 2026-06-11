@@ -255,6 +255,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="o">=</span><span class="n">at_setup</span><span class="p">)</span>
 
+        <span class="n">vert_levels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;vert_levels&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vert_levels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;single_layer.yaml&#39;</span><span class="p">)</span>
+
         <span class="n">exact_solution</span> <span class="o">=</span> <span class="n">ExactSolution</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
         <span class="n">mpas_options</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;config_manufactured_solution_amplitude&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
