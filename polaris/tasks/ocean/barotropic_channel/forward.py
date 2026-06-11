@@ -108,9 +108,8 @@ class Forward(OceanModelStep):
             self.yaml_filename,
             template_replacements=replacements,
         )
-        model = config.get('ocean', 'model')
         vert_levels = config.getfloat('vertical_grid', 'vert_levels')
-        if model == 'mpas-ocean' and vert_levels == 1:
+        if vert_levels == 1:
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
     def compute_cell_count(self):

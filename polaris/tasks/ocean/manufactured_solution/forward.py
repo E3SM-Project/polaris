@@ -134,6 +134,10 @@ class Forward(ConvergenceForward):
         """
         super().dynamic_model_config(at_setup=at_setup)
 
+        vert_levels = self.config.getfloat('vertical_grid', 'vert_levels')
+        if vert_levels == 1:
+            self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
+
         exact_solution = ExactSolution(self.config)
         mpas_options = {
             'config_manufactured_solution_amplitude': float(
