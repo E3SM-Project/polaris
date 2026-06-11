@@ -196,7 +196,7 @@ The `long_forward` test has the following additional options:
 # Number of days to run the long_forward case
 run_duration = 30.0
 
-# Ouput interval
+# Output interval
 output_interval = 2 
 
 # Units assocaited with output interval
