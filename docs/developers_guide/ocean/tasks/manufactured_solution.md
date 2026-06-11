@@ -17,7 +17,9 @@ The config options for the `manufactured_solution` test are described in
 Additionally, the test uses a `forward.yaml` file with
 a few common model config options related to run duration and default
 horizontal  and vertical momentum and tracer diffusion, as well as defining
-`mesh`, `input`, `restart`, and `output` streams.
+`mesh`, `input`, `restart`, and `output` streams for MPAS-Ocean.  For Omega,
+the file defines an `InitialState` stream (reading `NormalVelocity`,
+`PseudoThickness`, and `SurfacePressure`) and a `History` stream.
 
 ### exact_solution
 
