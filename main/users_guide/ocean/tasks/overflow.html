@@ -74,7 +74,7 @@
 <li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">overflow</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#suppported-models">suppported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#description">description</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
@@ -82,7 +82,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#smoke-test">smoke_test</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#rpe">rpe</a></li>
 </ul>
 </li>
@@ -160,9 +160,9 @@
   <section class="tex2jax_ignore mathjax_ignore" id="overflow">
 <span id="ocean-overflow"></span><h1>overflow<a class="headerlink" href="#overflow" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">ocean/overflow</span></code> test group induces a density current flowing down a
-continental slope and includes two test cases.</p>
-<section id="suppported-models">
-<h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
+continental slope and includes four test cases.</p>
+<section id="supported-models">
+<h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
 <p>These tasks support MPAS-Ocean and Omega.</p>
 </section>
 <section id="description">
@@ -239,8 +239,11 @@ down the slope as a bottom boundary current.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the overflow case</span>
 <span class="k">[overflow]</span>
 
+<span class="c1"># Time integration scheme</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+
 <span class="c1"># Timestep per km horizontal resolution (s)</span>
-<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10.</span>
+<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">7.5</span>
 
 <span class="c1"># Barotropic timestep per km horizontal resolution (s)</span>
 <span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.5</span>
@@ -283,6 +286,12 @@ down the slope as a bottom boundary current.</p>
 
 <span class="c1"># Higher temperature (deg C)</span>
 <span class="na">higher_temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20.0</span>
+
+<span class="c1"># Default viscosity (m^2/s)</span>
+<span class="na">default_viscosity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1000.0</span>
+
+<span class="c1"># Default horizontal advection order</span>
+<span class="na">default_horiz_adv_order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span>
 </pre></div>
 </div>
 <p>The linear EOS is used because it is convenient for computing RPE. The
@@ -294,12 +303,17 @@ namelist parameters for the linear EOS can be altered using config options
 <p>The number of cores is determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file.</p>
 </section>
-<section id="default">
-<h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
+<section id="smoke-test">
+<h2>smoke_test<a class="headerlink" href="#smoke-test" title="Link to this heading"></a></h2>
 <section id="id1">
 <h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
-<p>The default case is the same as described above except the run is stopped
-before it is allowed to reach equilibrium to facilitate rapid testing.</p>
+<p>There are three smoke test cases corresponding to horizontal advection orders
+2, 3, and 4: <code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_2</span></code>, <code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_3</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_4</span></code>. Each smoke test is the same as described
+above except the run is stopped before it is allowed to reach equilibrium to
+facilitate rapid testing. The horizontal advection order is controlled by the
+<code class="docutils literal notranslate"><span class="pre">horiz_adv_order</span></code> argument to the <code class="docutils literal notranslate"><span class="pre">SmokeTest</span></code> task and passed through to the
+forward step.</p>
 </section>
 <section id="id2">
 <h3>mesh<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
@@ -320,21 +334,24 @@ before it is allowed to reach equilibrium to facilitate rapid testing.</p>
 <section id="time-step-and-run-duration">
 <h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h3>
 <p>The time step for forward integration is set by <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and the model
-resolution. The barotropic time step is 15s. The run duration is 12 minutes.</p>
+resolution. The run duration is 12 minutes.</p>
 </section>
 <section id="id6">
 <h3>config options<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
-<p>The config options specific to the default case are:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[overflow_default]</span>
+<p>The config options specific to the smoke test cases are:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[overflow_smoke_test]</span>
 
-<span class="c1"># Run duration (minutes)</span>
+<span class="c1"># Run duration</span>
 <span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">12.</span>
 
-<span class="c1"># Output interval (seconds)</span>
+<span class="na">run_duration_units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">minutes</span>
+
+<span class="c1"># Output interval</span>
 <span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.</span>
+
+<span class="na">output_interval_units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">seconds</span>
 </pre></div>
 </div>
-<p>Include here any further description of each of the config options.</p>
 </section>
 <section id="id7">
 <h3>cores<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
@@ -345,9 +362,9 @@ resolution. The barotropic time step is 15s. The run duration is 12 minutes.</p>
 <h2>rpe<a class="headerlink" href="#rpe" title="Link to this heading"></a></h2>
 <section id="id8">
 <h3>description<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">rpe</span></code> case is the same as the default except it runs to 40 days by which
-time the dense blob is mostly at depth. It also includs several forward runs
-corresponding to different values of the laplacian viscosity specified by the
+<p>The <code class="docutils literal notranslate"><span class="pre">rpe</span></code> case is similar to the smoke tests except it runs to 40 days by which
+time the dense blob is mostly at depth. It also includes several forward runs
+corresponding to different values of the Laplacian viscosity specified by the
 config option <code class="docutils literal notranslate"><span class="pre">overflow_rpe:viscosities</span></code>. The analysis step is a substitute for the viz step as
 it includes the same cross-section visualizations of temperature but also
 includes a computation and plot of the evolution of the Resting Potential
@@ -362,11 +379,15 @@ Energy (RPE) for each forward run.</p>
 <p>The config options specific to the RPE case are:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[overflow_rpe]</span>
 
-<span class="c1"># Run duration (days)</span>
+<span class="c1"># Run duration</span>
 <span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">40.</span>
 
-<span class="c1"># Output interval (days)</span>
+<span class="na">run_duration_units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">days</span>
+
+<span class="c1"># Output interval</span>
 <span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.</span>
+
+<span class="na">output_interval_units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">hours</span>
 
 <span class="c1"># Viscosity values to test for rpe test case</span>
 <span class="na">viscosities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1, 5, 10, 100, 1000</span>

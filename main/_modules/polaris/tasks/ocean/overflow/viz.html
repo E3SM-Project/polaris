@@ -191,6 +191,11 @@
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_mesh.nc&#39;</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/vert_coord.nc&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc&#39;</span><span class="p">,</span>
@@ -209,6 +214,13 @@
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
         <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">model</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="n">ds_vert_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+                <span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ds_vert_coord</span> <span class="o">=</span> <span class="n">ds_init</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
         <span class="n">x_min</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
@@ -224,9 +236,9 @@
             <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
             <span class="n">ds_horiz_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
             <span class="n">layer_thickness</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">),</span>
-            <span class="n">bottom_depth</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span>
-            <span class="n">min_level_cell</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">bottom_depth</span><span class="o">=</span><span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span>
+            <span class="n">min_level_cell</span><span class="o">=</span><span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
             <span class="n">spherical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -254,9 +266,9 @@
             <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
             <span class="n">ds_horiz_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
             <span class="n">layer_thickness</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">),</span>
-            <span class="n">bottom_depth</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span>
-            <span class="n">min_level_cell</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">bottom_depth</span><span class="o">=</span><span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span>
+            <span class="n">min_level_cell</span><span class="o">=</span><span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
             <span class="n">spherical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
 

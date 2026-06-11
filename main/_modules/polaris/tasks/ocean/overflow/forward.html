@@ -124,13 +124,14 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    task_name : str</span>
-<span class="sd">       The name of the task that this step belongs to</span>
+<span class="sd">    config_section : str</span>
+<span class="sd">        The section in the config file for this test case, used to get</span>
+<span class="sd">        the run duration and output interval</span>
 
-<span class="sd">    yaml_filename : str</span>
-<span class="sd">       The name of the yaml file for this forward step</span>
+<span class="sd">    horiz_adv_order : int or None</span>
+<span class="sd">        The horizontal advection order for the test case</span>
 
-<span class="sd">    nu : float</span>
+<span class="sd">    nu : float or None</span>
 <span class="sd">       The Laplacian viscosity to use for this forward step</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -140,15 +141,15 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">component</span><span class="p">,</span>
         <span class="n">init</span><span class="p">,</span>
-        <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
+        <span class="n">config_section</span><span class="p">,</span>
         <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span>
-        <span class="n">task_name</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
         <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">nu</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span>
+        <span class="n">horiz_adv_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new test case</span>
@@ -161,14 +162,12 @@
 <span class="sd">        name : str</span>
 <span class="sd">            the name of the task</span>
 
-<span class="sd">        task_name : str</span>
-<span class="sd">           The name of the task that this step belongs to</span>
-
-<span class="sd">        yaml_filename : str</span>
-<span class="sd">           The name of the yaml file for this forward step</span>
-
 <span class="sd">        init : polaris.ocean.tasks.internal_wave.init.Init</span>
 <span class="sd">            the initial state step</span>
+
+<span class="sd">        config_section : str</span>
+<span class="sd">            The section in the config file for this test case, used to get</span>
+<span class="sd">            the run duration and output interval</span>
 
 <span class="sd">        subdir : str, optional</span>
 <span class="sd">            the subdirectory for the step.  The default is ``name``</span>
@@ -184,6 +183,10 @@
 
 <span class="sd">        openmp_threads : int, optional</span>
 <span class="sd">            the number of OpenMP threads the step will use</span>
+
+<span class="sd">        horiz_adv_order : int, optional</span>
+<span class="sd">            The horizontal advection order for the test case (if different</span>
+<span class="sd">            from the default for the test group)</span>
 
 <span class="sd">        nu : float, optional</span>
 <span class="sd">            the viscosity (if different from the default for the test group)</span>
@@ -201,8 +204,8 @@
             <span class="n">update_eos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">task_name</span> <span class="o">=</span> <span class="n">task_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">yaml_filename</span> <span class="o">=</span> <span class="n">yaml_filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_section</span> <span class="o">=</span> <span class="n">config_section</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">horiz_adv_order</span> <span class="o">=</span> <span class="n">horiz_adv_order</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="o">=</span> <span class="n">nu</span>
 
         <span class="c1"># make sure output is double precision</span>
@@ -239,36 +242,25 @@
         <span class="n">btr_dt_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
             <span class="n">seconds</span><span class="o">=</span><span class="n">btr_dt_per_km</span> <span class="o">*</span> <span class="n">resolution</span>
         <span class="p">)</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;overflow_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">task_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;overflow&#39;</span><span class="p">,</span> <span class="s1">&#39;default_viscosity&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">horiz_adv_order</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">horiz_adv_order</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
+                <span class="s1">&#39;overflow&#39;</span><span class="p">,</span> <span class="s1">&#39;default_horiz_adv_order&#39;</span>
+            <span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">config_section</span><span class="p">]</span>
         <span class="n">run_duration</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;run_duration&#39;</span><span class="p">)</span>
         <span class="n">run_duration_units</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;run_duration_units&#39;</span><span class="p">)</span>
         <span class="n">output_interval</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;output_interval&#39;</span><span class="p">)</span>
         <span class="n">output_units</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;output_interval_units&#39;</span><span class="p">)</span>
         <span class="n">output_freq</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">output_interval</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">run_duration_units</span> <span class="o">==</span> <span class="s1">&#39;days&#39;</span><span class="p">:</span>
-            <span class="n">run_duration_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">run_duration</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">run_duration_units</span> <span class="o">==</span> <span class="s1">&#39;hours&#39;</span><span class="p">:</span>
-            <span class="n">run_duration_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
-                <span class="n">seconds</span><span class="o">=</span><span class="n">run_duration</span> <span class="o">*</span> <span class="mf">3600.0</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">run_duration_units</span> <span class="o">==</span> <span class="s1">&#39;minutes&#39;</span><span class="p">:</span>
-            <span class="n">run_duration_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
-                <span class="n">seconds</span><span class="o">=</span><span class="n">run_duration</span> <span class="o">*</span> <span class="mf">60.0</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">run_duration_units</span> <span class="o">==</span> <span class="s1">&#39;seconds&#39;</span><span class="p">:</span>
-            <span class="n">run_duration_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">run_duration</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Unknown run duration units: </span><span class="si">{</span><span class="n">run_duration_units</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_name</span> <span class="o">==</span> <span class="s1">&#39;rpe&#39;</span><span class="p">:</span>
-            <span class="n">output_interval_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
-                <span class="n">days</span><span class="o">=</span><span class="n">output_interval</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">output_interval_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
-                <span class="n">seconds</span><span class="o">=</span><span class="n">output_interval</span>
-            <span class="p">)</span>
+        <span class="n">run_duration_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interval_to_string</span><span class="p">(</span>
+            <span class="n">run_duration</span><span class="p">,</span> <span class="n">run_duration_units</span>
+        <span class="p">)</span>
+        <span class="n">output_interval_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interval_to_string</span><span class="p">(</span>
+            <span class="n">output_interval</span><span class="p">,</span> <span class="n">output_units</span>
+        <span class="p">)</span>
 
         <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;overflow&#39;</span><span class="p">,</span> <span class="s1">&#39;time_integrator&#39;</span><span class="p">)</span>
         <span class="n">time_integrator_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="s1">&#39;RK4&#39;</span><span class="p">,</span> <span class="s1">&#39;RungeKutta4&#39;</span><span class="p">)])</span>
@@ -293,10 +285,11 @@
             <span class="n">nu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">,</span>
             <span class="n">output_freq</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_freq</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
             <span class="n">output_freq_units</span><span class="o">=</span><span class="n">output_units</span><span class="p">,</span>
+            <span class="n">horiz_adv_order</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">horiz_adv_order</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
             <span class="s1">&#39;polaris.tasks.ocean.overflow&#39;</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">yaml_filename</span><span class="p">,</span>
+            <span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
             <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -320,7 +313,24 @@
         <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
         <span class="n">cell_count</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">*</span> <span class="n">ny</span>
         <span class="k">return</span> <span class="n">cell_count</span></div>
-</div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_interval_to_string</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert a time interval to a string in the format &quot;DDDD_HH:MM:SS.SS&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s1">&#39;days&#39;</span><span class="p">:</span>
+            <span class="n">interval_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">units</span> <span class="o">==</span> <span class="s1">&#39;hours&#39;</span><span class="p">:</span>
+            <span class="n">interval_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">interval</span> <span class="o">*</span> <span class="mf">3600.0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">units</span> <span class="o">==</span> <span class="s1">&#39;minutes&#39;</span><span class="p">:</span>
+            <span class="n">interval_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">interval</span> <span class="o">*</span> <span class="mf">60.0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">units</span> <span class="o">==</span> <span class="s1">&#39;seconds&#39;</span><span class="p">:</span>
+            <span class="n">interval_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected time interval units: </span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">interval_str</span></div>
 
 </pre></div>
 

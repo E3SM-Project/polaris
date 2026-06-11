@@ -84,7 +84,7 @@
 <li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent_2d</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">overflow</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#smoke-test">smoke_test</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#rpe">rpe</a></li>
 </ul>
 </li>
@@ -148,10 +148,10 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="overflow">
 <span id="dev-ocean-overflow"></span><h1>overflow<a class="headerlink" href="#overflow" title="Link to this heading"></a></h1>
-<p>The overflow task group is currently comprised of one <code class="docutils literal notranslate"><span class="pre">default</span></code> task for quick
-testing, particularly against a baseline, and one <code class="docutils literal notranslate"><span class="pre">rpe</span></code> test which shows how
-the resting potential energy changes across forward runs with different
-viscosities.</p>
+<p>The overflow task group is currently comprised of three <code class="docutils literal notranslate"><span class="pre">smoke_test</span></code> tasks
+for quick testing (one for each horizontal advection order: 2, 3, and 4),
+and one <code class="docutils literal notranslate"><span class="pre">rpe</span></code> test which shows how the resting potential energy changes across
+forward runs with different viscosities.</p>
 <section id="framework">
 <h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
 <p>The shared config options for <code class="docutils literal notranslate"><span class="pre">overflow</span></code> tests  are described in
@@ -184,7 +184,7 @@ tasks have as their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
 graph partition is generated as part of <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code>.  Next, the ocean
 model is run. The duration is set by <code class="docutils literal notranslate"><span class="pre">run_duration</span></code> in the config section
-corresponding to the task (<code class="docutils literal notranslate"><span class="pre">overflow_default</span></code> or <code class="docutils literal notranslate"><span class="pre">overflow_rpe</span></code>). Finally,
+corresponding to the task (<code class="docutils literal notranslate"><span class="pre">overflow_smoke_test</span></code> or <code class="docutils literal notranslate"><span class="pre">overflow_rpe</span></code>). Finally,
 validation of <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the
 <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> file are performed against a baseline if one is provided when
 calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
@@ -195,10 +195,14 @@ calling <a class="reference internal" href="../../command_line.html#dev-polaris-
 final temperature along a transect perpendicular to the continental slope.</p>
 </section>
 </section>
-<section id="default">
-<span id="dev-ocean-overflow-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.overflow.default.Default.html#polaris.tasks.ocean.overflow.default.Default" title="polaris.tasks.ocean.overflow.default.Default"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.overflow.default.Default</span></code></a>
-test runs the <code class="docutils literal notranslate"><span class="pre">init</span></code> step, a short <code class="docutils literal notranslate"><span class="pre">forward</span></code> step, and the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step.</p>
+<section id="smoke-test">
+<span id="dev-ocean-overflow-smoke-test"></span><h2>smoke_test<a class="headerlink" href="#smoke-test" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.overflow.smoke_test.SmokeTest.html#polaris.tasks.ocean.overflow.smoke_test.SmokeTest" title="polaris.tasks.ocean.overflow.smoke_test.SmokeTest"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.overflow.smoke_test.SmokeTest</span></code></a>
+task runs the <code class="docutils literal notranslate"><span class="pre">init</span></code> step, a short <code class="docutils literal notranslate"><span class="pre">forward</span></code> step, and (optionally, not run
+by default) the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step. Three instances are created, one for each
+horizontal advection order (2, 3, and 4), producing tasks named
+<code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_2</span></code>, <code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_3</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_4</span></code>.</p>
 </section>
 <section id="rpe">
 <h2>rpe<a class="headerlink" href="#rpe" title="Link to this heading"></a></h2>

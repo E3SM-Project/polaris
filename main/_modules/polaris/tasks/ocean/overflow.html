@@ -113,9 +113,9 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span> <span class="k">as</span> <span class="n">PolarisConfigParser</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.overflow.default</span><span class="w"> </span><span class="kn">import</span> <span class="n">Default</span> <span class="k">as</span> <span class="n">Default</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.overflow.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span> <span class="k">as</span> <span class="n">Init</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.overflow.rpe</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rpe</span> <span class="k">as</span> <span class="n">Rpe</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.overflow.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.overflow.rpe</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rpe</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.overflow.smoke_test</span><span class="w"> </span><span class="kn">import</span> <span class="n">SmokeTest</span>
 
 
 <div class="viewcode-block" id="add_overflow_tasks">
@@ -139,9 +139,15 @@
     <span class="n">init_step</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">taskdir</span><span class="p">)</span>
     <span class="n">init_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
 
-    <span class="n">default</span> <span class="o">=</span> <span class="n">Default</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">taskdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">)</span>
-    <span class="n">default</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
-    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">horiz_adv_order</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]:</span>
+        <span class="n">smoke_test</span> <span class="o">=</span> <span class="n">SmokeTest</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="n">taskdir</span><span class="p">,</span>
+            <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
+            <span class="n">horiz_adv_order</span><span class="o">=</span><span class="n">horiz_adv_order</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">smoke_test</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">smoke_test</span><span class="p">)</span>
 
     <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
         <span class="n">Rpe</span><span class="p">(</span>
