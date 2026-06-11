@@ -3,7 +3,7 @@
 # overflow
 
 The ``ocean/overflow`` test group induces a density current flowing down a
-continental slope and includes two test cases.
+continental slope and includes four test cases.
 
 ## supported models
 
@@ -218,8 +218,8 @@ See {ref}`ocean-overflow`.
 ### description
 
 The `rpe` case is similar to the smoke tests except it runs to 40 days by which
-time the dense blob is mostly at depth. It also includs several forward runs
-corresponding to different values of the laplacian viscosity specified by the
+time the dense blob is mostly at depth. It also includes several forward runs
+corresponding to different values of the Laplacian viscosity specified by the
 config option `overflow_rpe:viscosities`. The analysis step is a substitute for the viz step as
 it includes the same cross-section visualizations of temperature but also
 includes a computation and plot of the evolution of the Resting Potential
