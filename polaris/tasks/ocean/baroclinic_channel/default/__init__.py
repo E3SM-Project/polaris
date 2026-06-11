@@ -1,3 +1,6 @@
+from typing import Dict as Dict
+
+from polaris import Step as Step
 from polaris import Task as Task
 from polaris.tasks.ocean.baroclinic_channel.forward import Forward as Forward
 from polaris.tasks.ocean.baroclinic_channel.viz import Viz as Viz
@@ -31,17 +34,36 @@ class Default(Task):
 
         self.add_step(init, symlink='init')
 
-        self.add_step(
-            Forward(
-                component=component,
-                indir=self.subdir,
-                ntasks=None,
-                min_tasks=None,
-                openmp_threads=1,
-                resolution=resolution,
-                run_time_steps=3,
-                graph_target=f'{init.path}/culled_graph.info',
-            )
+        forward_step = Forward(
+            component=component,
+            indir=self.subdir,
+            ntasks=None,
+            min_tasks=None,
+            openmp_threads=1,
+            resolution=resolution,
+            run_time_steps=3,
+            graph_target=f'{init.path}/culled_graph.info',
         )
+        self.add_step(forward_step)
 
-        self.add_step(Viz(component=component, indir=self.subdir))
+        long_forward_step = Forward(
+            name='long_forward',
+            component=component,
+            indir=self.subdir,
+            ntasks=None,
+            min_tasks=None,
+            openmp_threads=1,
+            resolution=resolution,
+            graph_target=f'{init.path}/culled_graph.info',
+        )
+        self.add_step(long_forward_step, run_by_default=False)
+
+        viz_dependencies: Dict[str, Step] = dict(
+            mesh=init, init=init, forward=long_forward_step
+        )
+        viz_step = Viz(
+            component=component,
+            dependencies=viz_dependencies,
+            taskdir=self.subdir,
+        )
+        self.add_step(viz_step, run_by_default=False)

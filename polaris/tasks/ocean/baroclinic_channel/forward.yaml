@@ -1,24 +1,128 @@
-mpas-ocean:
-  io:
-    config_write_output_on_startup: false
+ocean:
+  time_integration:
+    config_time_integrator: {{ time_integrator }}
   hmix_del2:
     config_use_mom_del2: true
     config_mom_del2: 10.0
-  bottom_drag:
-    config_implicit_bottom_drag_type: constant
-    config_implicit_constant_bottom_drag_coeff: 0.01
+    config_use_tracer_del2: false
+  hmix_del4:
+    config_use_mom_del4: false
+    config_use_tracer_del4: false
   cvmix:
-    config_cvmix_background_diffusion: 0.0
-    config_cvmix_background_viscosity: 0.0001
+    config_use_cvmix_convection: false
+    config_use_cvmix_shear: false
+    config_cvmix_background_diffusion: 1.0e-5
+    config_cvmix_background_viscosity: 1.0e-4
+  advection:
+    config_horiz_tracer_adv_order: 2
+    config_vert_tracer_adv_flux_order: 3
+
+mpas-ocean:
+  io:
+    config_write_output_on_startup: false
+  bottom_drag:
+    config_bottom_drag_mode: explicit
+    config_explicit_bottom_drag_coeff: 0.0
+  cvmix:
+    config_use_cvmix: false
+  advection:
+    config_flux_limiter: 'none'
+    config_remap_limiter: 'none'
+  debug:
+    config_check_ssh_consistency: false
+    config_compute_active_tracer_budgets: false
+    config_disable_thick_sflux: true
+    config_disable_vel_surface_stress: true
+    config_disable_vel_topographic_wave_drag: true
+    config_disable_vel_explicit_bottom_drag: true
+    config_disable_vel_vmix: true
+    config_disable_tr_vmix: true
+    config_disable_tr_sflux: true
+    config_disable_tr_nonlocalflux: true
   streams:
     restart: {}
     output:
       type: output
       filename_template: output.nc
-      output_interval: 0000_00:00:01
+      output_interval: {{ output_interval }}
       clobber_mode: truncate
       contents:
       - tracers
       - xtime
       - normalVelocity
       - layerThickness
+
+Omega:
+  Advection:
+    VerticalTracerFluxLimiterEnable: false
+  Eos:
+    EosType: linear
+  Tendencies:
+    SSHTendencyEnable: false
+  Tracers:
+    Base: [Temperature, Salinity]
+  IOStreams:
+    InitialVertCoord:
+      UsePointerFile: false
+      Filename: vert_coord.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+      - InitVertCoord
+    # InitialState should only be used when starting from scratch.
+    # For restart runs, the frequency units should be changed from
+    # "OnStartup" to "never" so that the initial state file is not read.
+    InitialState:
+      UsePointerFile: false
+      Filename: init.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+      - State
+      - Tracers
+    RestartRead:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: true
+      StartTime: 0001-01-01_00:00:01
+      EndTime: 99999-12-31_00:00:00
+      Contents:
+      - Restart
+    RestartWrite:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: 6
+      FreqUnits: Years
+      UseStartEnd: false
+      Contents:
+      - Restart
+    History:
+      UsePointerFile: false
+      Filename: output.nc
+      FileFreq: 9999
+      FileFreqUnits: Years
+      Mode: write
+      IfExists: append
+      Precision: double
+      Freq: {{ output_freq }}
+      FreqUnits: {{ output_freq_units }}
+      UseStartEnd: false
+      Contents:
+      - State
+      - Tracers
+      - KineticEnergyCell
+      - Eos
