@@ -12,6 +12,7 @@ from polaris.ocean.conservation import (
     compute_total_salt,
     compute_total_tracer,
 )
+from polaris.ocean.model.ocean_model_files_mixin import OceanModelFilesMixin
 
 if TYPE_CHECKING:
     # Keep Ocean as a type-only import. Importing it at runtime pulls
@@ -33,7 +34,7 @@ ConfigsType = Dict[
 ]
 
 
-class OceanModelStep(ModelStep):
+class OceanModelStep(ModelStep, OceanModelFilesMixin):
     """
     An Omega or MPAS-Ocean step
 
@@ -52,14 +53,6 @@ class OceanModelStep(ModelStep):
         The name of the graph partition file to link to (relative to the base
         working directory)
     """
-
-    # a mapping from placeholder filenames to config options used to
-    # determine the actual filenames at runtime
-    _MODEL_INPUT_OPTIONS = {
-        '<<<horiz_mesh>>>': 'horiz_mesh_filename',
-        '<<<vert_coord>>>': 'vert_coord_filename',
-        '<<<init>>>': 'init_filename',
-    }
 
     # make sure component is of type Ocean, using a string to avoid circular
     # imports
@@ -266,81 +259,13 @@ class OceanModelStep(ModelStep):
         self._set_gpus_per_task()
         super().constrain_resources(available_cores)
 
-    def add_horiz_mesh_input_file(self, **kwargs) -> None:
-        """
-        Add a horizontal-mesh input file using the configured local filename.
-
-        Parameters
-        ----------
-        **kwargs
-            Additional keyword arguments to pass to
-            :py:meth:`polaris.Step.add_input_file()`
-        """
-        self.add_input_file(filename='<<<horiz_mesh>>>', **kwargs)
-
-    def add_vert_coord_input_file(self, **kwargs) -> None:
-        """
-        Add a vertical-coordinate input file using the configured local
-        filename.  For MPAS-Ocean this entry is silently skipped at runtime
-        (no separate vert_coord file is written).
-
-        Parameters
-        ----------
-        **kwargs
-            Additional keyword arguments to pass to
-            :py:meth:`polaris.Step.add_input_file()`
-        """
-        self.add_input_file(filename='<<<vert_coord>>>', **kwargs)
-
-    def add_init_input_file(self, **kwargs) -> None:
-        """
-        Add an initial-condition input file using the configured local
-        filename.
-
-        Parameters
-        ----------
-        **kwargs
-            Additional keyword arguments to pass to
-            :py:meth:`polaris.Step.add_input_file()`
-        """
-        self.add_input_file(filename='<<<init>>>', **kwargs)
-
-    def get_horiz_mesh_filename(self) -> str:
-        """
-        Get the configured local filename for the horizontal mesh file.
-        """
-        return self._get_model_input_filename('horiz_mesh_filename')
-
-    def get_vert_coord_filename(self) -> str:
-        """
-        Get the configured local filename for the vertical coordinate file.
-        """
-        return self._get_model_input_filename('vert_coord_filename')
-
-    def get_init_filename(self) -> str:
-        """
-        Get the configured local filename for the initial-condition file.
-        """
-        return self._get_model_input_filename('init_filename')
-
     def process_inputs_and_outputs(self) -> None:
         """
         Process the model and any configured model-input placeholders.
         For MPAS-Ocean, ``<<<vert_coord>>>`` entries are removed because no
         separate vert coord file is written for that model.
         """
-        model = self.component.model
-        keep = []
-        for entry in self.input_data:
-            fn = entry['filename']
-            if fn == '<<<vert_coord>>>' and model != 'omega':
-                continue
-            if fn in self._MODEL_INPUT_OPTIONS:
-                entry['filename'] = self._get_model_input_filename(
-                    self._MODEL_INPUT_OPTIONS[fn]
-                )
-            keep.append(entry)
-        self.input_data = keep
+        self._resolve_model_file_placeholders()
         super().process_inputs_and_outputs()
 
     def compute_cell_count(self) -> Optional[int]:
@@ -665,20 +590,6 @@ class OceanModelStep(ModelStep):
         self.min_tasks = max(
             1, 4 * round(cell_count / (4 * max_cells_per_core))
         )
-
-    def _get_model_input_filename(self, option: str) -> str:
-        section = 'ocean_model_files'
-        if not self.config.has_section(section):
-            raise ValueError(
-                f'Config section {section} is required to determine model '
-                f'input filenames, but it was not found.'
-            )
-        if not self.config.has_option(section, option):
-            raise ValueError(
-                f'Config option {option} is required to determine model input '
-                f'filenames, but it was not found in section {section}.'
-            )
-        return self.config.get(section, option)
 
     def _get_model_input_replacements(self) -> Dict[str, str]:
         return {

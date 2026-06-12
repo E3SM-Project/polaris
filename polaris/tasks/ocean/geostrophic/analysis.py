@@ -1,5 +1,3 @@
-import xarray as xr
-
 from polaris.ocean.convergence.analysis import ConvergenceAnalysis
 from polaris.tasks.ocean.geostrophic.exact_solution import (
     compute_exact_solution,
@@ -131,8 +129,14 @@ class Analysis(ConvergenceAnalysis):
                 zidx=zidx,
             )
         else:
-            ds_init = xr.open_dataset(f'init_r{refinement_factor:02g}.nc')
-            bottom_depth = ds_init.bottomDepth
+            ds_init = self.open_model_dataset(
+                f'init_r{refinement_factor:02g}.nc', self.config
+            )
+            ds_vert_coord = self.open_vert_coord_dataset(
+                ds_init,
+                vert_coord_filename=f'vert_coord_r{refinement_factor:02g}.nc',
+            )
+            bottom_depth = ds_vert_coord.bottomDepth
             ssh = super().get_output_field(
                 refinement_factor=refinement_factor,
                 field_name='ssh',

@@ -1,11 +1,10 @@
 import cmocean  # noqa: F401
-import xarray as xr
 
-from polaris import Step
+from polaris.ocean.model import OceanIOStep
 from polaris.viz import plot_global_mpas_field
 
 
-class Viz(Step):
+class Viz(OceanIOStep):
     """
     A step for plotting fields from the cosine bell output
 
@@ -53,6 +52,9 @@ class Viz(Step):
             filename='initial_state.nc',
             work_dir_target=f'{init.path}/init.nc',
         )
+        self.add_vert_coord_input_file(
+            work_dir_target=f'{init.path}/vert_coord.nc',
+        )
         self.add_input_file(
             filename='output.nc', work_dir_target=f'{forward.path}/output.nc'
         )
@@ -74,8 +76,9 @@ class Viz(Step):
             v='geostrophic_viz_vel',
         )
 
-        ds_init = xr.open_dataset('initial_state.nc')
-        bottom_depth = ds_init.bottomDepth
+        ds_init = self.open_model_dataset('initial_state.nc', config)
+        ds_vert_coord = self.open_vert_coord_dataset(ds_init)
+        bottom_depth = ds_vert_coord.bottomDepth
         ds_init = self._process_ds(ds_init, bottom_depth, time_index=0)
         ds_init.to_netcdf('remapped_init.nc')
 
@@ -91,7 +94,7 @@ class Viz(Step):
                 plot_land=False,
             )
 
-        ds_out = xr.open_dataset('output.nc')
+        ds_out = self.open_model_dataset('output.nc', config)
         ds_out = self._process_ds(ds_out, bottom_depth, time_index=-1)
         ds_out.to_netcdf('remapped_final.nc')
 

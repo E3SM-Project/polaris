@@ -68,7 +68,6 @@ class Analysis(OceanIOStep):
             work_dir_target=f'{reference.path}/reference_solution.nc',
         )
 
-        model = self.config.get('ocean', 'model')
         init_steps = self.dependencies_dict['init']
         forward_steps = self.dependencies_dict['forward']
         for resolution in horiz_resolutions:
@@ -86,11 +85,10 @@ class Analysis(OceanIOStep):
                 filename=f'culled_mesh_r{resolution:02g}.nc',
                 work_dir_target=f'{init.path}/culled_mesh.nc',
             )
-            if model == 'omega':
-                self.add_input_file(
-                    filename=f'vert_coord_r{resolution:02g}.nc',
-                    work_dir_target=f'{init.path}/vert_coord.nc',
-                )
+            self.add_vert_coord_input_file(
+                filename=f'vert_coord_r{resolution:02g}.nc',
+                work_dir_target=f'{init.path}/vert_coord.nc',
+            )
 
     def run(self):
         """
@@ -155,7 +153,6 @@ class Analysis(OceanIOStep):
         ref_hpga = ds_ref.HPGAInter.isel(Time=0).values
         ref_valid_grad_mask = ds_ref.ValidGradInterMask.isel(Time=0).values
 
-        model = self.config.get('ocean', 'model')
         ref_errors = []
         py_errors = []
 
@@ -187,17 +184,13 @@ class Analysis(OceanIOStep):
             # maxLevelCell is one-based (Fortran indexing), convert to
             # zero-based and use the shallowest valid bottom among the two
             # cells that bound the internal edge.
-            if model == 'omega':
-                ds_vc = self.open_model_dataset(
-                    f'vert_coord_r{resolution:02g}.nc', self.config
-                )
-                max_level_cells = ds_vc.maxLevelCell.isel(
-                    nCells=[cell0, cell1]
-                ).values.astype(int)
-            else:
-                max_level_cells = ds_init.maxLevelCell.isel(
-                    nCells=[cell0, cell1]
-                ).values.astype(int)
+            ds_vc = self.open_vert_coord_dataset(
+                ds_init,
+                vert_coord_filename=f'vert_coord_r{resolution:02g}.nc',
+            )
+            max_level_cells = ds_vc.maxLevelCell.isel(
+                nCells=[cell0, cell1]
+            ).values.astype(int)
             max_level_index = int(np.min(max_level_cells) - 1)
             if max_level_index < 0:
                 raise ValueError(

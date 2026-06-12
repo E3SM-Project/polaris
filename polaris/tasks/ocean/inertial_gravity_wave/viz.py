@@ -1,22 +1,20 @@
-import datetime
-
 import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray as xr
 
-from polaris import Step
+from polaris.mpas import time_since_start
 from polaris.ocean.convergence import (
     get_resolution_for_task,
     get_timestep_for_task,
 )
+from polaris.ocean.model import OceanIOStep
 from polaris.tasks.ocean.inertial_gravity_wave.exact_solution import (
     ExactSolution,
 )
 from polaris.viz import plot_horiz_field, use_mplstyle
 
 
-class Viz(Step):
+class Viz(OceanIOStep):
     """
     A step for visualizing the output from the inertial gravity wave
     test case
@@ -115,6 +113,10 @@ class Viz(Step):
                 filename=f'init_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{init.path}/init.nc',
             )
+            self.add_vert_coord_input_file(
+                filename=f'vert_coord_r{refinement_factor:02g}.nc',
+                work_dir_target=f'{init.path}/vert_coord.nc',
+            )
             self.add_input_file(
                 filename=f'output_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{forward.path}/output.nc',
@@ -137,6 +139,8 @@ class Viz(Step):
         section = config['inertial_gravity_wave']
         eta0 = section.getfloat('ssh_amplitude')
 
+        model = config.get('ocean', 'model')
+
         use_mplstyle()
         fig, axes = plt.subplots(nrows=nres, ncols=3, figsize=(12, 2 * nres))
         rmse = []
@@ -145,18 +149,27 @@ class Viz(Step):
             resolution = get_resolution_for_task(
                 config, refinement_factor, refinement=self.refinement
             )
-            ds_mesh = xr.open_dataset(f'mesh_r{refinement_factor:02g}.nc')
-            ds_init = xr.open_dataset(f'init_r{refinement_factor:02g}.nc')
-            ds = xr.open_dataset(f'output_r{refinement_factor:02g}.nc')
-            exact = ExactSolution(ds_init, config)
+            ds_mesh = self.open_model_dataset(
+                f'mesh_r{refinement_factor:02g}.nc', config
+            )
+            ds_init = self.open_model_dataset(
+                f'init_r{refinement_factor:02g}.nc', config
+            )
+            ds_vert_coord = self.open_vert_coord_dataset(
+                ds_init,
+                vert_coord_filename=f'vert_coord_r{refinement_factor:02g}.nc',
+            )
+            ds = self.open_model_dataset(
+                f'output_r{refinement_factor:02g}.nc', config
+            )
+            exact = ExactSolution(ds_mesh, config)
 
-            t0 = datetime.datetime.strptime(
-                ds.xtime.values[0].decode(), '%Y-%m-%d_%H:%M:%S'
-            )
-            tf = datetime.datetime.strptime(
-                ds.xtime.values[-1].decode(), '%Y-%m-%d_%H:%M:%S'
-            )
-            t = (tf - t0).total_seconds()
+            if model == 'mpas-o':
+                dt = time_since_start(ds.xtime.values)
+                t = float(dt[-1])
+            else:
+                # time is seconds since the start of the simulation in Omega
+                t = float(ds.Time.values[-1])
             ssh_model = ds.ssh.values[-1, :]
             rmse.append(
                 np.sqrt(np.mean((ssh_model - exact.ssh(t).values) ** 2))
@@ -168,7 +181,7 @@ class Viz(Step):
             if error_range is None:
                 error_range = np.max(np.abs(ds.ssh_error.values))
 
-            cell_mask = ds_init.maxLevelCell >= 1
+            cell_mask = ds_vert_coord.maxLevelCell >= 1
             descriptor = plot_horiz_field(
                 ds_mesh,
                 ds['ssh'],

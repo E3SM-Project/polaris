@@ -159,6 +159,10 @@ class ConvergenceAnalysis(OceanIOStep):
                 filename=f'init_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{init.path}/init.nc',
             )
+            self.add_vert_coord_input_file(
+                filename=f'vert_coord_r{refinement_factor:02g}.nc',
+                work_dir_target=f'{init.path}/vert_coord.nc',
+            )
             self.add_input_file(
                 filename=f'output_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{forward.path}/output.nc',

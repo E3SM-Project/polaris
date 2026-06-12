@@ -31,6 +31,7 @@ class Viz(OceanIOStep):
             filename='mesh.nc', target='../../init/culled_mesh.nc'
         )
         self.add_input_file(filename='init.nc', target='../../init/init.nc')
+        self.add_vert_coord_input_file(target='../../init/vert_coord.nc')
         self.add_input_file(
             filename='output.nc', target='../forward/output.nc'
         )
@@ -41,6 +42,7 @@ class Viz(OceanIOStep):
         """
         ds_mesh = self.open_model_dataset('mesh.nc', self.config)
         ds_init = self.open_model_dataset('init.nc', self.config)
+        ds_vert_coord = self.open_vert_coord_dataset(ds_init)
         ds = self.open_model_dataset(
             'output.nc', self.config, decode_times=True
         )
@@ -58,9 +60,9 @@ class Viz(OceanIOStep):
             y=y,
             ds_horiz_mesh=ds_mesh,
             layer_thickness=ds_init.layerThickness.isel(Time=t_index),
-            bottom_depth=ds_init.bottomDepth,
-            min_level_cell=ds_init.minLevelCell - 1,
-            max_level_cell=ds_init.maxLevelCell - 1,
+            bottom_depth=ds_vert_coord.bottomDepth,
+            min_level_cell=ds_vert_coord.minLevelCell - 1,
+            max_level_cell=ds_vert_coord.maxLevelCell - 1,
             spherical=False,
         )
 
@@ -70,9 +72,9 @@ class Viz(OceanIOStep):
             y=y,
             ds_horiz_mesh=ds_mesh,
             layer_thickness=ds.layerThickness.isel(Time=t_index),
-            bottom_depth=ds_init.bottomDepth,
-            min_level_cell=ds_init.minLevelCell - 1,
-            max_level_cell=ds_init.maxLevelCell - 1,
+            bottom_depth=ds_vert_coord.bottomDepth,
+            min_level_cell=ds_vert_coord.minLevelCell - 1,
+            max_level_cell=ds_vert_coord.maxLevelCell - 1,
             spherical=False,
         )
 
@@ -95,8 +97,8 @@ class Viz(OceanIOStep):
         )
 
         field_name = 'normalVelocity'
-        cell_mask = ds_init.maxLevelCell >= 1
-        edge_mask = cell_mask_to_edge_mask(ds_init, cell_mask)
+        cell_mask = ds_vert_coord.maxLevelCell >= 1
+        edge_mask = cell_mask_to_edge_mask(ds_mesh, cell_mask)
         mpas_field = ds[field_name].isel(Time=t_index)
         max_velocity = np.max(np.abs(mpas_field.values))
         plot_horiz_field(

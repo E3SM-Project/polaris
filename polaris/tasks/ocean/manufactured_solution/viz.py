@@ -114,6 +114,10 @@ class Viz(OceanIOStep):
                 filename=f'init_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{init.path}/init.nc',
             )
+            self.add_vert_coord_input_file(
+                filename=f'vert_coord_r{refinement_factor:02g}.nc',
+                work_dir_target=f'{init.path}/vert_coord.nc',
+            )
             self.add_input_file(
                 filename=f'output_r{refinement_factor:02g}.nc',
                 work_dir_target=f'{forward.path}/output.nc',
@@ -154,13 +158,17 @@ class Viz(OceanIOStep):
             ds_init = self.open_model_dataset(
                 f'init_r{refinement_factor:02g}.nc', config
             )
+            ds_vert_coord = self.open_vert_coord_dataset(
+                ds_init,
+                vert_coord_filename=f'vert_coord_r{refinement_factor:02g}.nc',
+            )
             ds = self.open_model_dataset(
                 f'output_r{refinement_factor:02g}.nc',
                 config,
                 decode_times=False,
             )
 
-            exact = ExactSolution(config, ds_init)
+            exact = ExactSolution(config, ds_mesh)
 
             if model == 'mpas-o':
                 dt = time_since_start(ds.xtime.values)
@@ -181,14 +189,12 @@ class Viz(OceanIOStep):
             if error_range is None:
                 error_range = np.max(np.abs(ds.ssh_error.values))
 
-            cell_mask = ds_init.maxLevelCell >= 1
+            cell_mask = ds_vert_coord.maxLevelCell >= 1
             descriptor = plot_horiz_field(
-                ds,
                 ds_mesh,
-                'ssh',
+                ssh_model,
                 ax=axes[i, 0],
                 cmap='cmo.balance',
-                t_index=ds.sizes['Time'] - 1,
                 vmin=-eta0,
                 vmax=eta0,
                 cmap_title='SSH',

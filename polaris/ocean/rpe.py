@@ -7,26 +7,40 @@ from polaris.constants import get_constant
 from polaris.ocean.model import get_days_since_start
 
 
-def compute_rpe(ds_mesh, ds_init, ds_outputs, config=None):
+def compute_rpe(ds_mesh, ds_init, ds_outputs, config=None, ds_vert_coord=None):
     """
     Computes the reference (resting) potential energy for the whole domain
 
     Parameters
     ----------
-    mesh_filename : str
-        Name of the netCDF file containing the MPAS horizontal mesh variables
+    ds_mesh : xarray.Dataset
+        Dataset containing MPAS horizontal mesh variables
 
-    initial_state_filename : str
-        Name of the netCDF file containing the initial state
+    ds_init : xarray.Dataset
+        Dataset containing the initial state
 
-    output_filenames : list
-        List of netCDF files containing output of forward steps
+    ds_outputs : list of xarray.Dataset
+        Datasets containing output of forward steps
+
+    config : polaris.config.PolarisConfigParser, optional
+        Configuration for the task
+
+    ds_vert_coord : xarray.Dataset, optional
+        Dataset containing vertical-coordinate variables (``bottomDepth``,
+        ``minLevelCell``, ``maxLevelCell``).  For Omega this is the separate
+        ``vert_coord.nc`` dataset opened via
+        :py:meth:`~polaris.ocean.model.OceanIOStep.open_vert_coord_dataset`.
+        Defaults to *ds_init* when not provided (correct for MPAS-Ocean).
 
     Returns
     -------
     rpe : numpy.ndarray
-        the reference potential energy of size ``Time`` x ``len(output_files)``
+        the reference potential energy of size ``len(output_files)`` x
+        ``Time``
     """
+    if ds_vert_coord is None:
+        ds_vert_coord = ds_init
+
     num_files = len(ds_outputs)
     if num_files == 0:
         raise ValueError('Must provide at least one output filename')
@@ -36,9 +50,9 @@ def compute_rpe(ds_mesh, ds_init, ds_outputs, config=None):
     xEdge = ds_mesh.xEdge
     yEdge = ds_mesh.yEdge
     areaCell = ds_mesh.areaCell
-    minLevelCell = ds_init.minLevelCell - 1
-    maxLevelCell = ds_init.maxLevelCell - 1
-    bottomDepth = ds_init.bottomDepth
+    minLevelCell = ds_vert_coord.minLevelCell - 1
+    maxLevelCell = ds_vert_coord.maxLevelCell - 1
+    bottomDepth = ds_vert_coord.bottomDepth
     nVertLevels = ds_init.sizes['nVertLevels']
 
     areaCellMatrix = np.tile(areaCell, (nVertLevels, 1)).transpose()

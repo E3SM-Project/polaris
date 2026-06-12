@@ -73,11 +73,9 @@ class Viz(OceanIOStep):
             filename='mesh.nc',
             work_dir_target=f'{mesh.path}/culled_mesh.nc',
         )
-        if self.component.model == 'omega':
-            self.add_input_file(
-                filename='vert_coord.nc',
-                work_dir_target=f'{init.path}/vert_coord.nc',
-            )
+        self.add_vert_coord_input_file(
+            work_dir_target=f'{init.path}/vert_coord.nc',
+        )
         self.add_input_file(
             filename='init.nc',
             work_dir_target=f'{init.path}/init.nc',
@@ -94,13 +92,7 @@ class Viz(OceanIOStep):
         config = self.config
         ds_mesh = self.open_model_dataset('mesh.nc', config=config)
         ds_init = self.open_model_dataset('init.nc', config=config)
-        model = self.component.model
-        if model == 'omega':
-            ds_vert_coord = self.open_model_dataset(
-                'vert_coord.nc', config=config
-            )
-        else:
-            ds_vert_coord = ds_init
+        ds_vert_coord = self.open_vert_coord_dataset(ds_init)
         ds = self.open_model_dataset('output.nc', config=config)
 
         x_min = ds_mesh.xVertex.min().values

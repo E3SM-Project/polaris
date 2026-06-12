@@ -15,12 +15,19 @@ def _make_config(
     horiz_mesh_filename='mesh.nc',
     vert_coord_filename='vert_coord.nc',
     init_filename='init.nc',
+    model='omega',
 ):
     config = ConfigParser()
-    config.add_section('ocean_model_files')
-    config.set('ocean_model_files', 'horiz_mesh_filename', horiz_mesh_filename)
-    config.set('ocean_model_files', 'vert_coord_filename', vert_coord_filename)
-    config.set('ocean_model_files', 'init_filename', init_filename)
+    config.add_section('ocean')
+    config.set('ocean', 'model', model)
+    config.add_section('ocean_staged_files')
+    config.set(
+        'ocean_staged_files', 'horiz_mesh_filename', horiz_mesh_filename
+    )
+    config.set(
+        'ocean_staged_files', 'vert_coord_filename', vert_coord_filename
+    )
+    config.set('ocean_staged_files', 'init_filename', init_filename)
     return config
 
 
@@ -268,7 +275,7 @@ def test_vert_coord_placeholder_skipped_for_mpas_ocean(monkeypatch):
         min_tasks=1,
     )
 
-    step.config = _make_config()
+    step.config = _make_config(model='mpas-ocean')
     step.add_vert_coord_input_file(work_dir_target='vc_target.nc')
 
     monkeypatch.setattr(
