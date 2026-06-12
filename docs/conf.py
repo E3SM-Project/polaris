@@ -86,8 +86,7 @@ intersphinx_mapping = {
     'mosaic': ('https://docs.e3sm.org/mosaic', None),
     'numpy': ('https://numpy.org/doc/stable', None),
     'python': ('https://docs.python.org', None),
-    'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
-    "sphinx": ("https://www.sphinx-doc.org/en/master", None),
+"sphinx": ("https://www.sphinx-doc.org/en/master", None),
     'xarray': ('https://xarray.pydata.org/en/stable', None),
     'tranche': ('https://xylar.github.io/tranche/', None),
 }
