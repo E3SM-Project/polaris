@@ -168,6 +168,71 @@ Omega. As new variables are added to Omega, they
 should be added to the <code class="docutils literal notranslate"><span class="pre">variables</span></code> section in the
 <a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml">mpaso_to_omega.yaml</a>
 file.</p>
+<section id="canonical-staged-files">
+<h4>Canonical staged files<a class="headerlink" href="#canonical-staged-files" title="Link to this heading"></a></h4>
+<p>The three files that flow through the ocean pipeline — horizontal mesh,
+vertical coordinate, and initial state — have canonical local filenames
+defined in the <code class="docutils literal notranslate"><span class="pre">[ocean_staged_files]</span></code> config section (in
+<code class="docutils literal notranslate"><span class="pre">polaris/ocean/ocean.cfg</span></code>):</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean_staged_files]</span>
+<span class="na">horiz_mesh_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mesh.nc</span>
+<span class="na">vert_coord_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">vert_coord.nc</span>
+<span class="na">init_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">init.nc</span>
+</pre></div>
+</div>
+<p>These filenames are shared by all pipeline stages: init steps write them as
+outputs, model steps link them as inputs, and viz/analysis steps also link
+from upstream using the same names.</p>
+<p>Both <a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.html#polaris.ocean.model.OceanIOStep" title="polaris.ocean.model.OceanIOStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep</span></code></a> and
+<a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep</span></code></a> inherit these conveniences from
+<a class="reference internal" href="generated/polaris.ocean.model.OceanModelFilesMixin.html#polaris.ocean.model.OceanModelFilesMixin" title="polaris.ocean.model.OceanModelFilesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelFilesMixin</span></code></a>:</p>
+<ul class="simple">
+<li><p><strong>Getters</strong> — <code class="docutils literal notranslate"><span class="pre">get_horiz_mesh_filename()</span></code>, <code class="docutils literal notranslate"><span class="pre">get_vert_coord_filename()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">get_init_filename()</span></code> — read the current values from config.</p></li>
+<li><p><strong>Input-file registration</strong> — <code class="docutils literal notranslate"><span class="pre">add_horiz_mesh_input_file(**kwargs)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">add_vert_coord_input_file(filename=None,</span> <span class="pre">**kwargs)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">add_init_input_file(**kwargs)</span></code> — all safe to call from <code class="docutils literal notranslate"><span class="pre">__init__()</span></code>.
+The model check is deferred to <code class="docutils literal notranslate"><span class="pre">process_inputs_and_outputs()</span></code>, so no
+<code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">model</span> <span class="pre">==</span> <span class="pre">'omega':</span></code> guards are needed in <code class="docutils literal notranslate"><span class="pre">__init__()</span></code>.
+<code class="docutils literal notranslate"><span class="pre">add_vert_coord_input_file()</span></code> is a no-op for MPAS-Ocean when the default
+placeholder is used.  When an explicit <code class="docutils literal notranslate"><span class="pre">filename=</span></code> is given (for
+per-resolution files such as <code class="docutils literal notranslate"><span class="pre">'vert_coord_r04.nc'</span></code>), it must be called
+from <code class="docutils literal notranslate"><span class="pre">setup()</span></code> or later because <code class="docutils literal notranslate"><span class="pre">self.config</span></code> is required.</p></li>
+</ul>
+<p>A typical viz or analysis step that reads vert-coord variables:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+                            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_mesh.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
+                            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc&#39;</span><span class="p">)</span>
+        <span class="c1"># registers vert_coord.nc for Omega; no-op for MPAS-Ocean</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_vert_coord_input_file</span><span class="p">(</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/vert_coord.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../forward/output.nc&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="c1"># returns ds_init for MPAS-Ocean; opens vert_coord.nc for Omega</span>
+        <span class="n">ds_vert_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_vert_coord_dataset</span><span class="p">(</span><span class="n">ds_init</span><span class="p">)</span>
+        <span class="o">...</span>
+        <span class="n">compute_transect</span><span class="p">(</span>
+            <span class="o">...</span><span class="p">,</span>
+            <span class="n">bottom_depth</span><span class="o">=</span><span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span>
+            <span class="n">min_level_cell</span><span class="o">=</span><span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">open_vert_coord_dataset(ds_init,</span> <span class="pre">vert_coord_filename=None)</span></code> returns
+the subset of variables associated with the veritcal coordinate taken from
+<code class="docutils literal notranslate"><span class="pre">ds_init</span></code> for MPAS-Ocean (the vert-coord variables live in <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>) and
+opens the separate <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code> file for Omega, mapping
+Omega variable names to MPAS-Ocean equivalents via <code class="docutils literal notranslate"><span class="pre">open_model_dataset()</span></code>.
+Pass an explicit <code class="docutils literal notranslate"><span class="pre">vert_coord_filename=</span></code> when using per-resolution files
+(e.g. from a <code class="docutils literal notranslate"><span class="pre">ConvergenceAnalysis</span></code> subclass).</p>
+</section>
 </section>
 <section id="running-an-e3sm-component">
 <h3>Running an E3SM component<a class="headerlink" href="#running-an-e3sm-component" title="Link to this heading"></a></h3>

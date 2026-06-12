@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanIOStep.get\_init\_filename
+===================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanIOStep.get_init_filename

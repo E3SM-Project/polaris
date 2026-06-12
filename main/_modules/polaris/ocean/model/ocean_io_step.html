@@ -111,7 +111,10 @@
   <h1>Source code for polaris.ocean.model.ocean_io_step</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.ocean_model_files_mixin</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelFilesMixin</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="c1"># Keep Ocean as a type-only import. Importing it at runtime pulls</span>
@@ -122,7 +125,7 @@
 
 <div class="viewcode-block" id="OceanIOStep">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.html#polaris.ocean.model.OceanIOStep">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">OceanIOStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OceanIOStep</span><span class="p">(</span><span class="n">Step</span><span class="p">,</span> <span class="n">OceanModelFilesMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A step that writes input and/or output files for Omega or MPAS-Ocean</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -135,6 +138,18 @@
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.html#polaris.ocean.model.OceanIOStep.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="s1">&#39;Ocean&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OceanIOStep.process_inputs_and_outputs">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.process_inputs_and_outputs.html#polaris.ocean.model.OceanIOStep.process_inputs_and_outputs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_inputs_and_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resolve ``&lt;&lt;&lt;placeholder&gt;&gt;&gt;`` filenames to configured names and drop</span>
+<span class="sd">        ``&lt;&lt;&lt;vert_coord&gt;&gt;&gt;`` entries for MPAS-Ocean before delegating to</span>
+<span class="sd">        the base :py:class:`~polaris.Step` processing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_model_file_placeholders</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">process_inputs_and_outputs</span><span class="p">()</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">add_output_files_for_ocean_model_input</span><span class="p">(</span>
@@ -153,16 +168,16 @@
 <span class="sd">        ----------</span>
 <span class="sd">        horiz_mesh_filename : str, optional</span>
 <span class="sd">            Local filename for the horizontal mesh output; defaults to the</span>
-<span class="sd">            ``horiz_mesh_filename`` option in ``[ocean_model_files]``.</span>
+<span class="sd">            ``horiz_mesh_filename`` option in ``[ocean_staged_files]``.</span>
 
 <span class="sd">        vert_coord_filename : str, optional</span>
 <span class="sd">            Local filename for the vertical-coordinate output (Omega only);</span>
 <span class="sd">            defaults to the ``vert_coord_filename`` option in</span>
-<span class="sd">            ``[ocean_model_files]``.</span>
+<span class="sd">            ``[ocean_staged_files]``.</span>
 
 <span class="sd">        init_filename : str, optional</span>
 <span class="sd">            Local filename for the initial-state output; defaults to the</span>
-<span class="sd">            ``init_filename`` option in ``[ocean_model_files]``.</span>
+<span class="sd">            ``init_filename`` option in ``[ocean_staged_files]``.</span>
 
 <span class="sd">        base_mesh_filename : str, optional</span>
 <span class="sd">            If provided, also register this filename as an output (used when</span>
@@ -177,15 +192,11 @@
         <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">horiz_mesh_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">horiz_mesh_filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s1">&#39;ocean_model_files&#39;</span><span class="p">,</span> <span class="s1">&#39;horiz_mesh_filename&#39;</span>
-            <span class="p">)</span>
+            <span class="n">horiz_mesh_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_horiz_mesh_filename</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">vert_coord_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">vert_coord_filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s1">&#39;ocean_model_files&#39;</span><span class="p">,</span> <span class="s1">&#39;vert_coord_filename&#39;</span>
-            <span class="p">)</span>
+            <span class="n">vert_coord_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vert_coord_filename</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">init_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">init_filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean_model_files&#39;</span><span class="p">,</span> <span class="s1">&#39;init_filename&#39;</span><span class="p">)</span>
+            <span class="n">init_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_init_filename</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">base_mesh_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">base_mesh_filename</span><span class="p">)</span>
@@ -195,6 +206,63 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">vert_coord_filename</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span> <span class="ow">and</span> <span class="n">graph_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">graph_filename</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OceanIOStep.open_vert_coord_dataset">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.open_vert_coord_dataset.html#polaris.ocean.model.OceanIOStep.open_vert_coord_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_vert_coord_dataset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ds_init</span><span class="p">,</span> <span class="n">vert_coord_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the dataset containing vertical-coordinate variables</span>
+<span class="sd">        (``bottomDepth``, ``minLevelCell``, ``maxLevelCell``,</span>
+<span class="sd">        ``vertCoordMovementWeights`` and either ``restingThickness`` or</span>
+<span class="sd">        ``RefPseudoThickness``).</span>
+
+<span class="sd">        For Omega: opens *vert_coord_filename* (defaults to</span>
+<span class="sd">        :py:meth:`get_vert_coord_filename`) via</span>
+<span class="sd">        :py:meth:`open_model_dataset` so Omega variable names are mapped to</span>
+<span class="sd">        their MPAS-Ocean equivalents.</span>
+
+<span class="sd">        For MPAS-Ocean: returns the set of vertical-coordinate variables from</span>
+<span class="sd">        *ds_init* (those variables live in the initial state file).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds_init : xarray.Dataset</span>
+<span class="sd">            The already-opened initial-condition dataset.</span>
+<span class="sd">        vert_coord_filename : str, optional</span>
+<span class="sd">            Local filename of the vertical-coordinate file.  Defaults to</span>
+<span class="sd">            :py:meth:`get_vert_coord_filename`.  Pass an explicit name when</span>
+<span class="sd">            using per-resolution files (e.g. ``&#39;vert_coord_r04.nc&#39;``).</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Forwarded to :py:meth:`open_model_dataset`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">vert_coord_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">vert_coord_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vert_coord_filename</span><span class="p">()</span>
+            <span class="n">ds_vert_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+                <span class="n">vert_coord_filename</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
+            <span class="n">ds_vert_coord</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">vert_coord_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Vertical coordinate variables not defined in the Ocean &#39;</span>
+                    <span class="s1">&#39;component&#39;</span>
+                <span class="p">)</span>
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">vert_coord_vars</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_init</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Expected vertical coordinate variable &#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">&#39; not &quot;</span>
+                        <span class="s1">&#39;found in initial condition dataset&#39;</span>
+                    <span class="p">)</span>
+                <span class="n">ds_vert_coord</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported ocean model: </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ds_vert_coord</span></div>
+
 
 <div class="viewcode-block" id="OceanIOStep.map_to_native_model_vars">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.map_to_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_to_native_model_vars">[docs]</a>

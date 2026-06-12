@@ -120,26 +120,40 @@
 
 <div class="viewcode-block" id="compute_rpe">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.rpe.compute_rpe.html#polaris.ocean.rpe.compute_rpe">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">compute_rpe</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_init</span><span class="p">,</span> <span class="n">ds_outputs</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_rpe</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_init</span><span class="p">,</span> <span class="n">ds_outputs</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ds_vert_coord</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the reference (resting) potential energy for the whole domain</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    mesh_filename : str</span>
-<span class="sd">        Name of the netCDF file containing the MPAS horizontal mesh variables</span>
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        Dataset containing MPAS horizontal mesh variables</span>
 
-<span class="sd">    initial_state_filename : str</span>
-<span class="sd">        Name of the netCDF file containing the initial state</span>
+<span class="sd">    ds_init : xarray.Dataset</span>
+<span class="sd">        Dataset containing the initial state</span>
 
-<span class="sd">    output_filenames : list</span>
-<span class="sd">        List of netCDF files containing output of forward steps</span>
+<span class="sd">    ds_outputs : list of xarray.Dataset</span>
+<span class="sd">        Datasets containing output of forward steps</span>
+
+<span class="sd">    config : polaris.config.PolarisConfigParser, optional</span>
+<span class="sd">        Configuration for the task</span>
+
+<span class="sd">    ds_vert_coord : xarray.Dataset, optional</span>
+<span class="sd">        Dataset containing vertical-coordinate variables (``bottomDepth``,</span>
+<span class="sd">        ``minLevelCell``, ``maxLevelCell``).  For Omega this is the separate</span>
+<span class="sd">        ``vert_coord.nc`` dataset opened via</span>
+<span class="sd">        :py:meth:`~polaris.ocean.model.OceanIOStep.open_vert_coord_dataset`.</span>
+<span class="sd">        Defaults to *ds_init* when not provided (correct for MPAS-Ocean).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    rpe : numpy.ndarray</span>
-<span class="sd">        the reference potential energy of size ``Time`` x ``len(output_files)``</span>
+<span class="sd">        the reference potential energy of size ``len(output_files)`` x</span>
+<span class="sd">        ``Time``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ds_vert_coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ds_vert_coord</span> <span class="o">=</span> <span class="n">ds_init</span>
+
     <span class="n">num_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds_outputs</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">num_files</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Must provide at least one output filename&#39;</span><span class="p">)</span>
@@ -149,9 +163,9 @@
     <span class="n">xEdge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span>
     <span class="n">yEdge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yEdge</span>
     <span class="n">areaCell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">areaCell</span>
-    <span class="n">minLevelCell</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
-    <span class="n">maxLevelCell</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
-    <span class="n">bottomDepth</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepth</span>
+    <span class="n">minLevelCell</span> <span class="o">=</span> <span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">maxLevelCell</span> <span class="o">=</span> <span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">bottomDepth</span> <span class="o">=</span> <span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">bottomDepth</span>
     <span class="n">nVertLevels</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
 
     <span class="n">areaCellMatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">areaCell</span><span class="p">,</span> <span class="p">(</span><span class="n">nVertLevels</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>

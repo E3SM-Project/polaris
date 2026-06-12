@@ -57,5 +57,7 @@
    .. autosummary::
    
       ~SphericalConvergenceForward.component
+      ~SphericalConvergenceForward.config
+      ~SphericalConvergenceForward.input_data
    
    

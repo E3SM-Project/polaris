@@ -600,6 +600,14 @@
 
    OceanIOStep
    OceanIOStep.setup
+   OceanIOStep.process_inputs_and_outputs
+   OceanIOStep.add_horiz_mesh_input_file
+   OceanIOStep.add_vert_coord_input_file
+   OceanIOStep.add_init_input_file
+   OceanIOStep.get_horiz_mesh_filename
+   OceanIOStep.get_vert_coord_filename
+   OceanIOStep.get_init_filename
+   OceanIOStep.open_vert_coord_dataset
    OceanIOStep.map_to_native_model_vars
    OceanIOStep.write_model_dataset
    OceanIOStep.map_from_native_model_vars
@@ -612,6 +620,8 @@
    OceanModelStep.compute_cell_count
    OceanModelStep.map_yaml_options
    OceanModelStep.map_yaml_configs
+
+   OceanModelFilesMixin
 
    get_days_since_start
    get_time_interval_string

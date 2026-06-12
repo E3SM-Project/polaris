@@ -111,9 +111,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.geostrophic.analysis</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.convergence.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConvergenceAnalysis</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.convergence.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConvergenceAnalysis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.geostrophic.exact_solution</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">compute_exact_solution</span><span class="p">,</span>
 <span class="p">)</span>
@@ -254,8 +252,14 @@
                 <span class="n">zidx</span><span class="o">=</span><span class="n">zidx</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;init_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">)</span>
-            <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepth</span>
+            <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;init_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+            <span class="p">)</span>
+            <span class="n">ds_vert_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_vert_coord_dataset</span><span class="p">(</span>
+                <span class="n">ds_init</span><span class="p">,</span>
+                <span class="n">vert_coord_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;vert_coord_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">bottomDepth</span>
             <span class="n">ssh</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_output_field</span><span class="p">(</span>
                 <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
                 <span class="n">field_name</span><span class="o">=</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span>

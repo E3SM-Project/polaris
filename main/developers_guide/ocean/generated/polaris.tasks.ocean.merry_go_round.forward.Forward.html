@@ -181,10 +181,10 @@ space and time</p></li>
 <td><p>Add <cite>step</cite> as a dependency of this step (i.e. this step can't run until the dependency has finished).</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_horiz_mesh_input_file</span></code>(**kwargs)</p></td>
-<td><p>Add a horizontal-mesh input file using the configured local filename.</p></td>
+<td><p>Add the horizontal-mesh input file using a placeholder that is resolved to the configured filename at <code class="xref py py-meth docutils literal notranslate"><span class="pre">process_inputs_and_outputs()</span></code> time.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_init_input_file</span></code>(**kwargs)</p></td>
-<td><p>Add an initial-condition input file using the configured local filename.</p></td>
+<td><p>Add the initial-condition input file using a placeholder that is resolved to the configured filename at <code class="xref py py-meth docutils literal notranslate"><span class="pre">process_inputs_and_outputs()</span></code> time.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code>([filename, target, database, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
@@ -201,8 +201,8 @@ space and time</p></li>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_streams_file</span></code>(package, streams[, ...])</p></td>
 <td><p>Add a streams file to the step to be parsed when generating a complete streams file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_vert_coord_input_file</span></code>(**kwargs)</p></td>
-<td><p>Add a vertical-coordinate input file using the configured local filename.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_vert_coord_input_file</span></code>([filename])</p></td>
+<td><p>Add the vertical-coordinate input file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_yaml_file</span></code>(package, yaml[, ...])</p></td>
 <td><p>Add a file with updates to yaml config options to the step to be parsed when generating a complete yaml file if and when the step gets set up.</p></td>
@@ -282,6 +282,12 @@ space and time</p></li>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">component</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">config</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">input_data</span></code></p></td>
 <td><p></p></td>
 </tr>
 </tbody>

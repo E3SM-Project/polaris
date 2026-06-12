@@ -57,5 +57,7 @@
    .. autosummary::
    
       ~OceanModelStep.component
+      ~OceanModelStep.config
+      ~OceanModelStep.input_data
    
    

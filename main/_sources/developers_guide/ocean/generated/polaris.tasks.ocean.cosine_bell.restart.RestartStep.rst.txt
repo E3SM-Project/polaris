@@ -57,5 +57,7 @@
    .. autosummary::
    
       ~RestartStep.component
+      ~RestartStep.config
+      ~RestartStep.input_data
    
    

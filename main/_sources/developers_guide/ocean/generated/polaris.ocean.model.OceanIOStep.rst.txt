@@ -15,14 +15,21 @@
    
       ~OceanIOStep.__init__
       ~OceanIOStep.add_dependency
+      ~OceanIOStep.add_horiz_mesh_input_file
+      ~OceanIOStep.add_init_input_file
       ~OceanIOStep.add_input_file
       ~OceanIOStep.add_output_file
       ~OceanIOStep.add_output_files_for_ocean_model_input
+      ~OceanIOStep.add_vert_coord_input_file
       ~OceanIOStep.check_properties
       ~OceanIOStep.constrain_resources
+      ~OceanIOStep.get_horiz_mesh_filename
+      ~OceanIOStep.get_init_filename
+      ~OceanIOStep.get_vert_coord_filename
       ~OceanIOStep.map_from_native_model_vars
       ~OceanIOStep.map_to_native_model_vars
       ~OceanIOStep.open_model_dataset
+      ~OceanIOStep.open_vert_coord_dataset
       ~OceanIOStep.process_inputs_and_outputs
       ~OceanIOStep.run
       ~OceanIOStep.runtime_setup
@@ -44,5 +51,7 @@
    .. autosummary::
    
       ~OceanIOStep.component
+      ~OceanIOStep.config
+      ~OceanIOStep.input_data
    
    

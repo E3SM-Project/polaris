@@ -58,5 +58,7 @@
    .. autosummary::
    
       ~Forward.component
+      ~Forward.config
+      ~Forward.input_data
    
    

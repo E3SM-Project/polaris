@@ -1,0 +1,37 @@
+﻿polaris.ocean.model.OceanModelFilesMixin
+========================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. autoclass:: OceanModelFilesMixin
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OceanModelFilesMixin.__init__
+      ~OceanModelFilesMixin.add_horiz_mesh_input_file
+      ~OceanModelFilesMixin.add_init_input_file
+      ~OceanModelFilesMixin.add_input_file
+      ~OceanModelFilesMixin.add_vert_coord_input_file
+      ~OceanModelFilesMixin.get_horiz_mesh_filename
+      ~OceanModelFilesMixin.get_init_filename
+      ~OceanModelFilesMixin.get_vert_coord_filename
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OceanModelFilesMixin.component
+      ~OceanModelFilesMixin.config
+      ~OceanModelFilesMixin.input_data
+   
+   

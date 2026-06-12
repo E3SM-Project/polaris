@@ -15,14 +15,21 @@
    
       ~VizTransect.__init__
       ~VizTransect.add_dependency
+      ~VizTransect.add_horiz_mesh_input_file
+      ~VizTransect.add_init_input_file
       ~VizTransect.add_input_file
       ~VizTransect.add_output_file
       ~VizTransect.add_output_files_for_ocean_model_input
+      ~VizTransect.add_vert_coord_input_file
       ~VizTransect.check_properties
       ~VizTransect.constrain_resources
+      ~VizTransect.get_horiz_mesh_filename
+      ~VizTransect.get_init_filename
+      ~VizTransect.get_vert_coord_filename
       ~VizTransect.map_from_native_model_vars
       ~VizTransect.map_to_native_model_vars
       ~VizTransect.open_model_dataset
+      ~VizTransect.open_vert_coord_dataset
       ~VizTransect.process_inputs_and_outputs
       ~VizTransect.run
       ~VizTransect.runtime_setup
@@ -44,5 +51,7 @@
    .. autosummary::
    
       ~VizTransect.component
+      ~VizTransect.config
+      ~VizTransect.input_data
    
    

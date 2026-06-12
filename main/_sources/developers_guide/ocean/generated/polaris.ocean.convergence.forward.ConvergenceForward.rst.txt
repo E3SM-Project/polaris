@@ -57,5 +57,7 @@
    .. autosummary::
    
       ~ConvergenceForward.component
+      ~ConvergenceForward.config
+      ~ConvergenceForward.input_data
    
    

@@ -15,14 +15,21 @@
    
       ~Reference.__init__
       ~Reference.add_dependency
+      ~Reference.add_horiz_mesh_input_file
+      ~Reference.add_init_input_file
       ~Reference.add_input_file
       ~Reference.add_output_file
       ~Reference.add_output_files_for_ocean_model_input
+      ~Reference.add_vert_coord_input_file
       ~Reference.check_properties
       ~Reference.constrain_resources
+      ~Reference.get_horiz_mesh_filename
+      ~Reference.get_init_filename
+      ~Reference.get_vert_coord_filename
       ~Reference.map_from_native_model_vars
       ~Reference.map_to_native_model_vars
       ~Reference.open_model_dataset
+      ~Reference.open_vert_coord_dataset
       ~Reference.process_inputs_and_outputs
       ~Reference.run
       ~Reference.runtime_setup
@@ -44,5 +51,7 @@
    .. autosummary::
    
       ~Reference.component
+      ~Reference.config
+      ~Reference.input_data
    
    

@@ -57,5 +57,7 @@
    .. autosummary::
    
       ~SshForward.component
+      ~SshForward.config
+      ~SshForward.input_data
    
    
