@@ -89,10 +89,10 @@ def init_vertical_coord(config, ds):
         init_z_star_vertical_coord(config, ds)
     elif coord_type == 'sigma':
         init_sigma_vertical_coord(config, ds)
-    elif coord_type == 'z-tilde':
+    elif coord_type == 'p-star':
         raise ValueError(
-            'z-tilde coordinate requires calling '
-            'init_z_tilde_vertical_coord() directly.'
+            'p-star coordinate requires calling '
+            'init_pstar_vertical_coord() directly.'
         )
     elif coord_type == 'haney-number':
         raise ValueError('Haney Number coordinate not yet supported.')
@@ -156,7 +156,7 @@ def update_layer_thickness(config, ds):
 
     if coord_type == 'z-level':
         update_z_level_layer_thickness(config, ds)
-    elif coord_type == 'z-star' or coord_type == 'z-tilde':
+    elif coord_type == 'z-star' or coord_type == 'p-star':
         update_z_star_layer_thickness(config, ds)
     elif coord_type == 'sigma':
         update_sigma_layer_thickness(config, ds)
