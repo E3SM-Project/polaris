@@ -676,8 +676,8 @@ For workflows that need pseudo-height/pressure conversion, the
   between pseudo-height and pressure.
 - {py:func}`polaris.ocean.vertical.ztilde.pressure_from_geom_thickness()` and
   {py:func}`polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height()`
-  compute hydrostatic pressure (and specific volume) from geometric layer
-  thickness and state variables.
+  compute hydrostatic gauge pressure (and specific volume) from geometric
+  layer thickness and state variables.
 - {py:func}`polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height()`
   reconstructs geometric layer-interface and midpoint heights from
   pseudo-thickness and specific volume.

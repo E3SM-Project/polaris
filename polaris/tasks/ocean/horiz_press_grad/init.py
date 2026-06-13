@@ -314,7 +314,7 @@ class Init(OceanIOStep):
             data=np.zeros((1, ncells), dtype=float),
             dims=['Time', 'nCells'],
             attrs={
-                'long_name': 'surface pressure',
+                'long_name': 'sea surface gauge pressure',
                 'units': 'Pa',
             },
         )
@@ -327,7 +327,7 @@ class Init(OceanIOStep):
         ds.bottomDepth.attrs['units'] = 'm'
 
         ds['pressure'] = p_mid
-        ds.pressure.attrs['long_name'] = 'pressure at layer midpoints'
+        ds.pressure.attrs['long_name'] = 'gauge pressure at layer midpoints'
         ds.pressure.attrs['units'] = 'Pa'
 
         ds['Density'] = 1.0 / ds['SpecVol']
@@ -465,7 +465,8 @@ class Init(OceanIOStep):
             ds.salinity.isel(nCells=1) - ds.salinity.isel(nCells=0)
         ) / dx
 
-        # Pressure (positive downward), averaged to the edge between columns
+        # Gauge pressure (positive downward), averaged to the edge between
+        # columns
         p_edge_mid = 0.5 * (p_mid.isel(nCells=0) + p_mid.isel(nCells=1))
 
         hpga_mid = -dM_dx_mid + p_edge_mid * dalpha_dx_mid
@@ -498,7 +499,9 @@ class Init(OceanIOStep):
 
         ds['PEdgeMid'] = p_edge_mid
         ds.PEdgeMid.attrs = {
-            'long_name': 'Pressure at horizontal edge and layer midpoints',
+            'long_name': (
+                'Gauge pressure at horizontal edge and layer midpoints'
+            ),
             'units': 'Pa',
         }
 
@@ -559,11 +562,11 @@ class Init(OceanIOStep):
         ds = ds_mesh.copy()
 
         ds['BottomPressure'] = bottom_pressure
-        ds.BottomPressure.attrs['long_name'] = 'seafloor pressure'
+        ds.BottomPressure.attrs['long_name'] = 'seafloor gauge pressure'
         ds.BottomPressure.attrs['units'] = 'Pa'
-        # the surface pressure is always zero
+        # gauge pressure is zero at the free surface
         ds['SurfacePressure'] = xr.zeros_like(bottom_pressure)
-        ds.SurfacePressure.attrs['long_name'] = 'sea surface pressure'
+        ds.SurfacePressure.attrs['long_name'] = 'sea surface gauge pressure'
         ds.SurfacePressure.attrs['units'] = 'Pa'
         ds_list: list[xr.Dataset] = []
         for icell in range(ds.sizes['nCells']):

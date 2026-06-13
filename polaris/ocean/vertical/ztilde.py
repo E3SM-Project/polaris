@@ -3,7 +3,8 @@ Conversions between Omega pseudo-height and pressure.
 
 Omega's vertical coordinate is pseudo-height
     z_tilde = -p / (RhoSw * g)
-with z_tilde positive upward. Here, ``p`` is sea pressure in Pascals (Pa),
+with z_tilde positive upward. Here, ``p`` is sea gauge pressure (pressure
+relative to the atmosphere, zero at the free surface) in Pascals (Pa),
 ``RhoSw`` is a reference density (kg m^-3), and ``g`` is gravitational
 acceleration as defined by ``polaris.constants`` via the Physical Constants
 Dictionary.
@@ -36,14 +37,14 @@ def pseudothickness_from_pressure(
     p: xr.DataArray,
 ) -> xr.DataArray:
     """
-    Convert sea pressure to pseudo-thickness.
+    Convert sea gauge pressure to pseudo-thickness.
 
     z_tilde = -p / (RhoSw * g)
 
     Parameters
     ----------
     p : xarray.DataArray
-        Sea pressure in Pascals (Pa) at layer interfaces.
+        Sea gauge pressure in Pascals (Pa) at layer interfaces.
 
     Returns
     -------
@@ -71,14 +72,14 @@ def pseudothickness_from_pressure(
 
 def z_tilde_from_pressure(p: xr.DataArray) -> xr.DataArray:
     """
-    Convert sea pressure to pseudo-height.
+    Convert sea gauge pressure to pseudo-height.
 
     z_tilde = -p / (RhoSw * g)
 
     Parameters
     ----------
     p : xarray.DataArray
-        Sea pressure in Pascals (Pa).
+        Sea gauge pressure in Pascals (Pa).
 
     Returns
     -------
@@ -98,9 +99,12 @@ def z_tilde_from_pressure(p: xr.DataArray) -> xr.DataArray:
 
 def pressure_from_z_tilde(z_tilde: xr.DataArray) -> xr.DataArray:
     """
-    Convert pseudo-height to sea pressure.
+    Convert pseudo-height to sea gauge pressure.
 
     p = -z_tilde * (RhoSw * g)
+
+    Pressure here is gauge pressure (relative to the atmosphere), which is
+    zero at the free surface (z_tilde = 0) and positive downward.
 
     Parameters
     ----------
@@ -110,13 +114,14 @@ def pressure_from_z_tilde(z_tilde: xr.DataArray) -> xr.DataArray:
     Returns
     -------
     xarray.DataArray
-        Sea pressure with the same shape and coords as ``z_tilde`` (Pa).
+        Sea gauge pressure with the same shape and coords as ``z_tilde``
+        (Pa).
     """
 
     p = -(z_tilde) * (RhoSw * Gravity)
     return p.assign_attrs(
         {
-            'long_name': 'sea pressure',
+            'long_name': 'sea gauge pressure',
             'units': 'Pa',
             'note': 'p = -RhoSw * g * z_tilde',
         }
@@ -129,14 +134,15 @@ def pressure_from_geom_thickness(
     spec_vol: xr.DataArray,
 ) -> tuple[xr.DataArray, xr.DataArray]:
     """
-    Compute the pressure at layer interfaces and midpoints given surface
-    pressure, geometric layer thicknesses, and specific volume. This
+    Compute gauge pressure at layer interfaces and midpoints given surface
+    gauge pressure, geometric layer thicknesses, and specific volume. This
     calculation assumes a constant specific volume within each layer.
 
     Parameters
     ----------
     surf_pressure : xarray.DataArray
-        The surface pressure at the top of the water column.
+        The surface gauge pressure at the top of the water column (zero for
+        a free surface open to the atmosphere).
 
     geom_layer_thickness : xarray.DataArray
         The geometric thickness of each layer, set to zero for invalid layers.
@@ -147,10 +153,10 @@ def pressure_from_geom_thickness(
     Returns
     -------
     p_interface : xarray.DataArray
-        The pressure at layer interfaces.
+        The gauge pressure at layer interfaces.
 
     p_mid : xarray.DataArray
-        The pressure at layer midpoints.
+        The gauge pressure at layer midpoints.
     """
 
     dp = Gravity / spec_vol * geom_layer_thickness
@@ -186,12 +192,12 @@ def pressure_and_spec_vol_from_state_at_geom_height(
     logger: logging.Logger | None = None,
 ) -> tuple[xr.DataArray, xr.DataArray, xr.DataArray]:
     """
-    Compute the pressure at layer interfaces and midpoints, as well as the
+    Compute gauge pressure at layer interfaces and midpoints, as well as the
     specific volume at midpoints given geometric layer thicknesses,
     temperature and salinity at layer midpoints (i.e. constant in geometric
-    height, not pseudo-height), and surface pressure. The solution is found
-    iteratively starting from a specific volume calculated from the reference
-    density.
+    height, not pseudo-height), and surface gauge pressure. The solution is
+    found iteratively starting from a specific volume calculated from the
+    reference density.
 
     Requires config options needed by
     {py:func}`polaris.ocean.eos.compute_specvol()`.
@@ -211,7 +217,8 @@ def pressure_and_spec_vol_from_state_at_geom_height(
         The salinity at layer midpoints.
 
     surf_pressure : xarray.DataArray
-        The surface pressure at the top of the water column.
+        The surface gauge pressure at the top of the water column (zero for
+        a free surface open to the atmosphere).
 
     iter_count : int
         The number of iterations to perform.
@@ -222,10 +229,10 @@ def pressure_and_spec_vol_from_state_at_geom_height(
     Returns
     -------
     p_interface : xarray.DataArray
-        The pressure at layer interfaces.
+        The gauge pressure at layer interfaces.
 
     p_mid : xarray.DataArray
-        The pressure at layer midpoints.
+        The gauge pressure at layer midpoints.
 
     spec_vol : xarray.DataArray
         The specific volume at layer midpoints.
