@@ -5,6 +5,7 @@
 ```{toctree}
 :titlesonly: true
 
+pstar_init
 shared_steps
 unified_base_mesh
 unified_mesh_prepare_coastline
