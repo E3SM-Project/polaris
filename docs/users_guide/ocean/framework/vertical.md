@@ -252,8 +252,9 @@ with the sea floor at 2500 m.
 
 ## 3D vertical coordinates
 
-Currently, `z-star`, `z-level` and `sigma` vertical coordinates are supported
-(`coord_type`).  The `z-star` and `z-level` types support 3 options for
+Currently, `z-star`, `z-level`, `sigma`, and `p-star` vertical coordinates
+are supported (`coord_type`).  The `z-star`, `z-level`, and `p-star` types
+support 3 options for
 `partial_cell_type`: `full` meaning the topography (bottom depth and
 sea-surface height) are expanded so that all layers have their full thickness;
 `partial` meaning that cells adjacent to the topography are allowed to be a
@@ -303,3 +304,51 @@ in exactly the same way as at the seafloor.
 
 The `sigma` coordinate is a terrain-following coordinate that stretches a 1D
 reference coordinate between `z = -bottomDepth` and `z = ssh`.
+
+(ocean-p-star)=
+
+### p-star
+
+The `p-star` coordinate is Omega's ALE pseudo-compressible variant of its
+z-tilde (pseudo-height) vertical coordinate.  Pseudo-height is defined as
+
+$$
+\tilde{z} = -p\,/\,(\rho_0 g),
+$$
+
+where $p$ is sea gauge pressure, $\rho_0$ is a reference seawater density, and
+$g$ is gravitational acceleration.  With the p-star coordinate, Omega stores a
+set of reference pseudo-thicknesses (``RefPseudoThickness``) — the
+pseudo-thicknesses each layer would have if the sea-surface pressure were zero
+— together with vertical-coordinate movement weights that control how changes
+in total column mass are distributed across layers.  With uniform weights (the
+current default), every layer scales proportionally and the coordinate behaves
+as a pseudo-compressible z-star: total column pseudo-thickness tracks total
+column pressure.
+
+The reference 1-D grid is specified in pseudo-height (metres) using the same
+`grid_type`, `vert_levels`, and `bottom_depth` config options as the other
+coordinates.  The `partial_cell_type` and `min_pc_fraction` options likewise
+apply in pseudo-height space rather than geometric height.
+
+Because establishing the p-star coordinate requires knowledge of the
+thermohaline state (via the equation of state), the initialization involves a
+fixed-point iteration.  Two `vertical_grid` config options control that
+iteration:
+
+```cfg
+# Number of outer iterations; increase if bathymetry is steep or the EOS
+# is highly nonlinear
+pseudothickness_iter_count = 6
+
+# Early-stopping threshold: iteration halts when the maximum fractional
+# change in geometric water-column thickness falls below this value
+water_col_adjust_frac_change_threshold = 1.0e-12
+```
+
+Unlike the other coordinate types, `p-star` is not initialized through the
+general {py:func}`polaris.ocean.vertical.init_vertical_coord()` function.
+Instead, init steps must inherit from
+{py:class}`polaris.ocean.vertical.pstar_init.PStarInitStep` and call
+{py:meth}`~polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init()`;
+see {ref}`dev-ocean-framework-vertical` for details.

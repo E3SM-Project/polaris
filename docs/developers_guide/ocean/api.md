@@ -689,4 +689,8 @@
    vertical.ztilde.pressure_from_geom_thickness
    vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height
    vertical.ztilde.geom_height_from_pseudo_height
+   vertical.pstar.init_pstar_vertical_coord
+   vertical.pstar_init.PStarInitStep
+   vertical.pstar_init.PStarInitStep.init_tracers
+   vertical.pstar_init.PStarInitStep.run_pstar_init
 ```

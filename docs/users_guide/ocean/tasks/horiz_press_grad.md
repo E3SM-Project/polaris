@@ -61,14 +61,15 @@ edge-normal coordinate.
 
 ## vertical grid
 
-The vertical coordinate is `z-tilde` with a uniform pseudo-height spacing for
-each test in `vert_resolutions`.
+The vertical coordinate is `p-star` (see {ref}`ocean-p-star`), Omega's ALE
+pseudo-compressible variant of the z-tilde coordinate, with a uniform
+pseudo-height spacing for each test in `vert_resolutions`.
 
 The meaning of the along-layer `x` direction depends on the task variant.  In
-the `salinity_gradient` and `temperature_gradient` tests, the `z-tilde`
+the `salinity_gradient` and `temperature_gradient` tests, the z-tilde
 interfaces are level, so pressure surfaces are also horizontally level except
 where they intersect the bathymetry.  In the `ztilde_gradient` test, the
-prescribed `z-tilde` gradient tilts the layers, so the pressure surfaces are
+prescribed z-tilde gradient tilts the layers, so the pressure surfaces are
 sloped and the along-layer direction follows those sloping layers.
 
 The `reference` step uses a finer spacing `vert_res` chosen so that every test
@@ -154,10 +155,12 @@ discrete Omega formulation than the high-fidelity reference is.
 
 First, the step constructs the two-cell mesh and the test vertical grid for the
 requested `(horiz_res, vert_res)` pair.  Because the geometric water-column
-thickness depends on the equation of state through the mapping from
-`z-tilde` to `z`, the step iteratively rescales the pseudo-bottom depth so that
+thickness depends on the equation of state through the mapping from z-tilde to
+geometric height, the step iteratively rescales the pseudo-bottom depth so that
 the resulting geometric water-column thickness matches the prescribed
-sea-surface and bottom geometry.
+sea-surface and bottom geometry.  This fixed-point iteration is provided by
+{py:class}`polaris.ocean.vertical.pstar_init.PStarInitStep` (see
+{ref}`dev-ocean-framework-vertical`), from which `Init` inherits.
 
 Once the initialized state is available, the Python diagnostic computes the
 same thermodynamic quantities used by Omega: pressure, specific volume,
@@ -184,7 +187,7 @@ $$
 + p_{\mathrm{edge}}\frac{\partial \alpha}{\partial x}
 $$
 
-to `initial_state.nc`.
+to `init.nc`.
 
 This Python HPGA is not the main reference solution.  Instead, it checks
 whether Omega's one-step tendency matches the expected two-column discrete
@@ -256,9 +259,9 @@ test midpoints and interfaces.  The comparison only uses layers that are valid
 in both the reference and the Omega solution.
 
 For the Omega-versus-Python comparison, the analysis uses the HPGA written by
-the `init` step in `initial_state.nc`, so this second metric should be read as
-an implementation-consistency check rather than as an accuracy measure against
-the high-fidelity reference.
+the `init` step in `init.nc`, so this second metric should be read as an
+implementation-consistency check rather than as an accuracy measure against the
+high-fidelity reference.
 
 Implementation details for the `reference`, `init`, and `analysis` steps are
 described in {ref}`dev-ocean-horiz-press-grad`.
