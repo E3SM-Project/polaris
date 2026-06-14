@@ -31,6 +31,8 @@ class CombineStep(Step):
             min_tasks=1,
         )
         self.add_output_file(filename='woa_combined.nc')
+        # this is an expensive step so cache it by default
+        self.default_cached = True
 
     def setup(self):
         """
