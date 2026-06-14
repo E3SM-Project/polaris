@@ -6,6 +6,31 @@ from mpas_tools.io import write_netcdf
 
 from polaris import Step
 
+# the fields that are masked by the land and ocean masks during remapping
+_MASKED_VARIABLES = [
+    'base_elevation',
+    'ice_draft',
+    'ice_thickness',
+    'ocean_frac',
+    'ice_frac',
+    'grounded_frac',
+]
+
+# the standard fields in the topography dataset before culling
+TOPO_VARIABLES = [
+    'base_elevation',
+    'ice_draft',
+    'ice_thickness',
+    'land_frac',
+    'ocean_frac',
+    'ice_frac',
+    'grounded_frac',
+] + [
+    f'{prefix}_masked_{var}'
+    for prefix in ['land', 'ocean']
+    for var in _MASKED_VARIABLES
+]
+
 
 class CullTopoStep(Step):
     """
@@ -51,7 +76,9 @@ class CullTopoStep(Step):
         )
         self.remap_topo_step = remap_topo_step
         self.cull_mesh_step = cull_mesh_step
-        self.add_output_file('topography_culled.nc')
+        self.add_output_file(
+            'topography_culled.nc', validate_vars=TOPO_VARIABLES
+        )
 
     def setup(self):
         """
