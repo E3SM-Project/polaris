@@ -7,6 +7,8 @@ intended for preprocessing and initialization workflows that are upstream of
 any particular MPAS mesh. The first task category under this framework is
 `hydrography/woa23`, which builds a reusable hydrography product from the
 World Ocean Atlas 2023 on its native 0.25-degree latitude-longitude grid.
+The second category, `init`, creates mesh-specific ocean initial conditions
+using that hydrography and the culled mesh from `e3sm/init`.
 
 (dev-ocean-realistic-global-framework)=
 
@@ -23,9 +25,9 @@ filename as a task-specific input.
 
 ### cached topography dependency
 
-The helper
-{py:func}`polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_topography_step`
-creates a shared `e3sm/init` {py:class}`polaris.tasks.e3sm.init.topo.combine.step.CombineStep`
+{py:func}`polaris.tasks.ocean.realistic_global.hydrography.woa23.steps.get_woa23_steps`
+internally creates a shared `e3sm/init`
+{py:class}`polaris.tasks.e3sm.init.topo.combine.step.CombineStep`
 configured for a 0.25-degree lat-lon target grid. The
 {py:class}`polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23`
 task adds this step with a symlink `combine_topo`.
@@ -72,3 +74,39 @@ two stages:
 2. Horizontal then vertical extrapolation into land and grounded-ice regions
 
 The final output is `woa23_decav_0.25_jan_extrap.nc`.
+
+(dev-ocean-realistic-global-init)=
+
+## init
+
+The `realistic_global/init` task family creates mesh-specific ocean initial
+conditions using WOA23 hydrography and the culled mesh produced by
+`e3sm/init`.  One
+{py:class}`polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit`
+task is registered per MPAS mesh; the target ocean model is determined by the
+``[ocean] model`` config option at run time.
+
+### step dependency chain
+
+{py:func}`polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps`
+composes the full chain:
+
+1. **cull_topo** ({py:class}`~polaris.tasks.ocean.realistic_global.init.cull_topo.CullTopoStep`):
+   reindexes remapped topography from the base mesh to the culled ocean mesh
+   using `ocean_map_culled_to_base.nc`, producing `topography_culled.nc`.
+2. **remap_woa23** ({py:class}`~polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step`):
+   uses pyremap to remap WOA23 conservative temperature and absolute salinity
+   from the 0.25-degree lat-lon grid to the culled MPAS mesh, producing
+   `woa23_on_mesh.nc`.  Task count scales with the approximate cell count
+   recorded in the ``[unified_mesh]`` config section.
+3. **pstar_init** ({py:class}`~polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep`):
+   subclass of {py:class}`polaris.ocean.vertical.pstar_init.PStarInitStep`.
+   Runs the fixed-point p-star coordinate iteration jointly with WOA23 tracer
+   interpolation, writing a model-neutral `pstar_init.nc` that contains
+   converged geometric layer interfaces and CT/SA tracer fields.
+4. **initial_state** ({py:class}`~polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep`):
+   reads `pstar_init.nc` and the model resolved from ``[ocean] model`` to
+   produce model-specific output files (`init.nc` for both models;
+   `vert_coord.nc` additionally for Omega).  Tracer fields are kept as CT/SA
+   for Omega and converted to potential temperature / practical salinity for
+   MPAS-Ocean via GSW.
