@@ -5,6 +5,7 @@
 ```{toctree}
 :titlesonly: true
 
+global_ocean_dynamic_adjustment
 global_ocean_init
 pstar_init
 shared_steps
