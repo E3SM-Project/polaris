@@ -2,7 +2,6 @@ from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global import add_realistic_global_tasks
 from polaris.tasks.ocean.realistic_global.hydrography.woa23.steps import (
     get_woa23_steps,
-    get_woa23_topography_step,
 )
 
 
@@ -37,22 +36,26 @@ def test_add_realistic_global_tasks_registers_woa23():
     assert 'spherical/realistic_global/hydrography/woa23/viz' in (
         component.steps
     )
+    # the standalone task regenerates the product rather than reading it
+    # from the cache, and plots it only on request
+    assert task.free_running_steps == {
+        'spherical/realistic_global/hydrography/woa23/combine',
+        'spherical/realistic_global/hydrography/woa23/extrapolate',
+    }
+    assert 'viz' not in task.steps_to_run
 
 
 def test_woa23_steps_hand_back_the_config_their_steps_use():
     component = Ocean()
-    combine_topo_step = get_woa23_topography_step()
 
-    first_steps, first_config = get_woa23_steps(
-        component=component, combine_topo_step=combine_topo_step
-    )
-    second_steps, second_config = get_woa23_steps(
-        component=component, combine_topo_step=combine_topo_step
-    )
+    first_steps, first_config = get_woa23_steps(component=component)
+    second_steps, second_config = get_woa23_steps(component=component)
 
     assert second_config is first_config
     for name, step in first_steps.items():
         assert second_steps[name] is step, name
-        assert step.config is first_config, name
+        if name != 'combine_topo':
+            # the combined topography is an e3sm/init step with its own config
+            assert step.config is first_config, name
     # and re-registering what was handed back is a no-op rather than an error
     component.add_config(second_config)
