@@ -5,6 +5,7 @@
 ```{toctree}
 :titlesonly: true
 
+global_ocean_init
 horiz_press_grad_reference
 overflow_nonlinear_eos
 pstar_init
