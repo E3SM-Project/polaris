@@ -424,7 +424,6 @@
    :toctree: generated/
 
    Woa23
-   get_woa23_topography_step
    get_woa23_steps
 
    CombineStep
@@ -434,6 +433,38 @@
    ExtrapolateStep
    ExtrapolateStep.setup
    ExtrapolateStep.run
+```
+
+### realistic_global.init
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init
+
+.. autosummary::
+   :toctree: generated/
+
+   tasks.add_realistic_global_init_tasks
+
+   task.RealisticGlobalInit
+
+   steps.get_realistic_init_steps
+
+   cull_topo.CullTopoStep
+   cull_topo.CullTopoStep.setup
+   cull_topo.CullTopoStep.run
+
+   remap_woa23.RemapWoa23Step
+   remap_woa23.RemapWoa23Step.setup
+   remap_woa23.RemapWoa23Step.run
+
+   pstar_init.RealisticPStarInitStep
+   pstar_init.RealisticPStarInitStep.setup
+   pstar_init.RealisticPStarInitStep.run
+   pstar_init.RealisticPStarInitStep.init_tracers
+
+   initial_state.InitialStateStep
+   initial_state.InitialStateStep.setup
+   initial_state.InitialStateStep.run
 ```
 
 ### seamount
