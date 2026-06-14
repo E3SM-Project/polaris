@@ -4,7 +4,6 @@ from polaris import Task
 from polaris.tasks.ocean.horiz_press_grad.analysis import Analysis
 from polaris.tasks.ocean.horiz_press_grad.forward import Forward
 from polaris.tasks.ocean.horiz_press_grad.init import Init
-from polaris.tasks.ocean.horiz_press_grad.reference import Reference
 
 
 class HorizPressGradTask(Task):
@@ -87,9 +86,6 @@ class HorizPressGradTask(Task):
         for step in list(self.steps.values()):
             self.remove_step(step)
 
-        reference_step = Reference(component=self.component, indir=self.subdir)
-        self.add_step(reference_step)
-
         init_steps = dict()
         forward_steps = dict()
 
@@ -120,7 +116,6 @@ class HorizPressGradTask(Task):
                 component=self.component,
                 indir=self.subdir,
                 dependencies={
-                    'reference': reference_step,
                     'init': init_steps,
                     'forward': forward_steps,
                 },
