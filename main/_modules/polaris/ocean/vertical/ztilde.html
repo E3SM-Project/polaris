@@ -115,7 +115,8 @@
 
 <span class="sd">Omega&#39;s vertical coordinate is pseudo-height</span>
 <span class="sd">    z_tilde = -p / (RhoSw * g)</span>
-<span class="sd">with z_tilde positive upward. Here, ``p`` is sea pressure in Pascals (Pa),</span>
+<span class="sd">with z_tilde positive upward. Here, ``p`` is sea gauge pressure (pressure</span>
+<span class="sd">relative to the atmosphere, zero at the free surface) in Pascals (Pa),</span>
 <span class="sd">``RhoSw`` is a reference density (kg m^-3), and ``g`` is gravitational</span>
 <span class="sd">acceleration as defined by ``polaris.constants`` via the Physical Constants</span>
 <span class="sd">Dictionary.</span>
@@ -148,14 +149,14 @@
     <span class="n">p</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert sea pressure to pseudo-thickness.</span>
+<span class="sd">    Convert sea gauge pressure to pseudo-thickness.</span>
 
 <span class="sd">    z_tilde = -p / (RhoSw * g)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    p : xarray.DataArray</span>
-<span class="sd">        Sea pressure in Pascals (Pa) at layer interfaces.</span>
+<span class="sd">        Sea gauge pressure in Pascals (Pa) at layer interfaces.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -185,14 +186,14 @@
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.ztilde.z_tilde_from_pressure.html#polaris.ocean.vertical.ztilde.z_tilde_from_pressure">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">z_tilde_from_pressure</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert sea pressure to pseudo-height.</span>
+<span class="sd">    Convert sea gauge pressure to pseudo-height.</span>
 
 <span class="sd">    z_tilde = -p / (RhoSw * g)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    p : xarray.DataArray</span>
-<span class="sd">        Sea pressure in Pascals (Pa).</span>
+<span class="sd">        Sea gauge pressure in Pascals (Pa).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -215,9 +216,12 @@
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.ztilde.pressure_from_z_tilde.html#polaris.ocean.vertical.ztilde.pressure_from_z_tilde">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">pressure_from_z_tilde</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert pseudo-height to sea pressure.</span>
+<span class="sd">    Convert pseudo-height to sea gauge pressure.</span>
 
 <span class="sd">    p = -z_tilde * (RhoSw * g)</span>
+
+<span class="sd">    Pressure here is gauge pressure (relative to the atmosphere), which is</span>
+<span class="sd">    zero at the free surface (z_tilde = 0) and positive downward.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -227,13 +231,14 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    xarray.DataArray</span>
-<span class="sd">        Sea pressure with the same shape and coords as ``z_tilde`` (Pa).</span>
+<span class="sd">        Sea gauge pressure with the same shape and coords as ``z_tilde``</span>
+<span class="sd">        (Pa).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">p</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
         <span class="p">{</span>
-            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;sea pressure&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;sea gauge pressure&#39;</span><span class="p">,</span>
             <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;Pa&#39;</span><span class="p">,</span>
             <span class="s1">&#39;note&#39;</span><span class="p">:</span> <span class="s1">&#39;p = -RhoSw * g * z_tilde&#39;</span><span class="p">,</span>
         <span class="p">}</span>
@@ -249,14 +254,15 @@
     <span class="n">spec_vol</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the pressure at layer interfaces and midpoints given surface</span>
-<span class="sd">    pressure, geometric layer thicknesses, and specific volume. This</span>
+<span class="sd">    Compute gauge pressure at layer interfaces and midpoints given surface</span>
+<span class="sd">    gauge pressure, geometric layer thicknesses, and specific volume. This</span>
 <span class="sd">    calculation assumes a constant specific volume within each layer.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    surf_pressure : xarray.DataArray</span>
-<span class="sd">        The surface pressure at the top of the water column.</span>
+<span class="sd">        The surface gauge pressure at the top of the water column (zero for</span>
+<span class="sd">        a free surface open to the atmosphere).</span>
 
 <span class="sd">    geom_layer_thickness : xarray.DataArray</span>
 <span class="sd">        The geometric thickness of each layer, set to zero for invalid layers.</span>
@@ -267,10 +273,10 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    p_interface : xarray.DataArray</span>
-<span class="sd">        The pressure at layer interfaces.</span>
+<span class="sd">        The gauge pressure at layer interfaces.</span>
 
 <span class="sd">    p_mid : xarray.DataArray</span>
-<span class="sd">        The pressure at layer midpoints.</span>
+<span class="sd">        The gauge pressure at layer midpoints.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">dp</span> <span class="o">=</span> <span class="n">Gravity</span> <span class="o">/</span> <span class="n">spec_vol</span> <span class="o">*</span> <span class="n">geom_layer_thickness</span>
@@ -309,12 +315,12 @@
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the pressure at layer interfaces and midpoints, as well as the</span>
+<span class="sd">    Compute gauge pressure at layer interfaces and midpoints, as well as the</span>
 <span class="sd">    specific volume at midpoints given geometric layer thicknesses,</span>
 <span class="sd">    temperature and salinity at layer midpoints (i.e. constant in geometric</span>
-<span class="sd">    height, not pseudo-height), and surface pressure. The solution is found</span>
-<span class="sd">    iteratively starting from a specific volume calculated from the reference</span>
-<span class="sd">    density.</span>
+<span class="sd">    height, not pseudo-height), and surface gauge pressure. The solution is</span>
+<span class="sd">    found iteratively starting from a specific volume calculated from the</span>
+<span class="sd">    reference density.</span>
 
 <span class="sd">    Requires config options needed by</span>
 <span class="sd">    {py:func}`polaris.ocean.eos.compute_specvol()`.</span>
@@ -334,7 +340,8 @@
 <span class="sd">        The salinity at layer midpoints.</span>
 
 <span class="sd">    surf_pressure : xarray.DataArray</span>
-<span class="sd">        The surface pressure at the top of the water column.</span>
+<span class="sd">        The surface gauge pressure at the top of the water column (zero for</span>
+<span class="sd">        a free surface open to the atmosphere).</span>
 
 <span class="sd">    iter_count : int</span>
 <span class="sd">        The number of iterations to perform.</span>
@@ -345,10 +352,10 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    p_interface : xarray.DataArray</span>
-<span class="sd">        The pressure at layer interfaces.</span>
+<span class="sd">        The gauge pressure at layer interfaces.</span>
 
 <span class="sd">    p_mid : xarray.DataArray</span>
-<span class="sd">        The pressure at layer midpoints.</span>
+<span class="sd">        The gauge pressure at layer midpoints.</span>
 
 <span class="sd">    spec_vol : xarray.DataArray</span>
 <span class="sd">        The specific volume at layer midpoints.</span>

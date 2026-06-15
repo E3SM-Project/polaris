@@ -158,7 +158,9 @@ test performs a 10-hour run.</p>
 <p>Additionally, the test uses a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with
 a few common model config options related to run duration and default
 horizontal  and vertical momentum and tracer diffusion, as well as defining
-<code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">input</span></code>, <code class="docutils literal notranslate"><span class="pre">restart</span></code>, and <code class="docutils literal notranslate"><span class="pre">output</span></code> streams.</p>
+<code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">input</span></code>, <code class="docutils literal notranslate"><span class="pre">restart</span></code>, and <code class="docutils literal notranslate"><span class="pre">output</span></code> streams for MPAS-Ocean.  For Omega,
+the file defines an <code class="docutils literal notranslate"><span class="pre">InitialState</span></code> stream (reading <code class="docutils literal notranslate"><span class="pre">NormalVelocity</span></code>,
+<code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code>, and <code class="docutils literal notranslate"><span class="pre">SurfacePressure</span></code>) and a <code class="docutils literal notranslate"><span class="pre">History</span></code> stream.</p>
 <section id="exact-solution">
 <h3>exact_solution<a class="headerlink" href="#exact-solution" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution.html#polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution" title="polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.manufactured_solution.exact_solution.ExactSolution</span></code></a>
