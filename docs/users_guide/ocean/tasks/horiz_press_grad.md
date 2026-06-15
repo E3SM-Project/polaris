@@ -89,7 +89,9 @@ $$
 p = -\rho_0 g \tilde z,
 $$
 
-and converts to geometric height `z` by integrating the hydrostatic relation
+where $p$ is gauge pressure (pressure relative to the atmosphere, zero at the
+free surface $\tilde z = 0$).  The reference converts to geometric height `z`
+by integrating the hydrostatic relation
 
 $$
 \frac{\partial z}{\partial \tilde z} = \rho_0\,\nu\left(S_A, \Theta, p\right),

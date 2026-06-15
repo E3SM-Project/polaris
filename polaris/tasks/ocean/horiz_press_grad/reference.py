@@ -33,8 +33,9 @@ class Reference(OceanIOStep):
 
     where :math:`\nu` is the specific volume (``spec_vol``) computed from the
     TEOS-10 equation of state, :math:`S_A` is Absolute Salinity,
-    :math:`\Theta` is Conservative Temperature, :math:`p` is sea pressure
-    (positive downward), and :math:`\rho_0` is a reference density used in the
+    :math:`\Theta` is Conservative Temperature, :math:`p` is sea gauge
+    pressure (relative to the atmosphere, positive downward, zero at the free
+    surface), and :math:`\rho_0` is a reference density used in the
     definition :math:`\tilde z = -p/(\rho_0 g)`. The conversion therefore
     requires an integral of the form:
 

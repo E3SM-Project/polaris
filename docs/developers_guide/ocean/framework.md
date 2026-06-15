@@ -34,8 +34,14 @@ reconstruction coefficient files. In addition,
 is not present in the dataset. This provides a way of using the same initial
 conditions for MPAS-Ocean and Omega when the geometric thickness is the state
 variable for MPAS-Ocean and the pseudo-thickness is the state variable for
-Omega. As new variables are added to Omega, they
-should be added to the `variables` section in the
+Omega. Similarly,
+{py:meth}`polaris.ocean.model.OceanIOStep.write_initial_state_dataset()`
+ensures that `surfacePressure` is present in initial conditions written for
+Omega, adding it initialized to zero if it is not already set.  This allows
+tasks to share the same initial-state dataset between MPAS-Ocean and Omega
+without needing to explicitly include a `surfacePressure` field. As new
+variables are added to Omega, they should be added to the `variables` section
+in the
 [mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
 file.
 
@@ -670,8 +676,8 @@ For workflows that need pseudo-height/pressure conversion, the
   between pseudo-height and pressure.
 - {py:func}`polaris.ocean.vertical.ztilde.pressure_from_geom_thickness()` and
   {py:func}`polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height()`
-  compute hydrostatic pressure (and specific volume) from geometric layer
-  thickness and state variables.
+  compute hydrostatic gauge pressure (and specific volume) from geometric
+  layer thickness and state variables.
 - {py:func}`polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height()`
   reconstructs geometric layer-interface and midpoint heights from
   pseudo-thickness and specific volume.

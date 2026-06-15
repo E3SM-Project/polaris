@@ -2,6 +2,7 @@ import importlib.resources as imp_res
 import os
 from typing import Dict, Tuple, Union
 
+import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
 from mpas_tools.vector.reconstruct import reconstruct_variable
@@ -362,6 +363,14 @@ class Ocean(Component):
         ds = self.remove_horiz_mesh_vars(ds)
         if self.model == 'omega':
             ds = self.remove_vert_coord_vars(ds)
+
+            # make sure surfacePressure is present for Omega
+            if 'surfacePressure' not in ds and 'SurfacePressure' not in ds:
+                ds['surfacePressure'] = xr.DataArray(
+                    data=np.zeros((1, ds.sizes['nCells']), dtype=float),
+                    dims=['Time', 'nCells'],
+                    attrs={'units': 'Pa', 'long_name': 'Surface Pressure'},
+                )
         self.write_model_dataset(ds, filename, config)
 
     def map_from_native_model_vars(self, ds):
