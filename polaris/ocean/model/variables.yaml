@@ -44,11 +44,21 @@ ocean:
     - maxLevelCell
     - bottomDepth
     - vertCoordMovementWeights
+  state_variables:
+    - temperature
+    - salinity
+    - normalVelocity
 
 mpas-ocean:
   vert_coord_variables:
     - restingThickness
+  state_variables:
+    - layerThickness
 
 Omega:
   vert_coord_variables:
     - RefPseudoThickness
+    - SurfacePressure
+  state_variables:
+    - SurfacePressure
+    - PseudoThickness

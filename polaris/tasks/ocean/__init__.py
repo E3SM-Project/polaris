@@ -50,6 +50,7 @@ class Ocean(Component):
         self.mpaso_to_omega_var_map: Union[None, Dict[str, str]] = None
         self.horiz_mesh_vars: Union[None, list[str]] = None
         self.vert_coord_vars: Union[None, list[str]] = None
+        self.state_vars: Union[None, list[str]] = None
 
     def configure(self, config, tasks):
         """
@@ -364,13 +365,24 @@ class Ocean(Component):
         if self.model == 'omega':
             ds = self.remove_vert_coord_vars(ds)
 
-            # make sure surfacePressure is present for Omega
-            if 'surfacePressure' not in ds and 'SurfacePressure' not in ds:
-                ds['surfacePressure'] = xr.DataArray(
-                    data=np.zeros((1, ds.sizes['nCells']), dtype=float),
-                    dims=['Time', 'nCells'],
-                    attrs={'units': 'Pa', 'long_name': 'Surface Pressure'},
-                )
+        if self.state_vars is None:
+            self._read_variables_yaml()
+        if self.model == 'omega' and self.mpaso_to_omega_var_map is None:
+            self._read_var_map()
+        assert self.state_vars is not None
+
+        native_vars = self.map_var_list_to_native_model(self.state_vars)
+
+        # make sure surfacePressure is present for Omega
+        if 'surfacePressure' not in ds and 'SurfacePressure' not in ds:
+            ds['surfacePressure'] = xr.DataArray(
+                data=np.zeros((1, ds.sizes['nCells']), dtype=float),
+                dims=['Time', 'nCells'],
+                attrs={'units': 'Pa', 'long_name': 'Surface Pressure'},
+            )
+        self._check_vars_present(
+            ds, native_vars, 'write_initial_state_dataset'
+        )
         self.write_model_dataset(ds, filename, config)
 
     def map_from_native_model_vars(self, ds):
