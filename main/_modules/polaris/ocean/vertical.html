@@ -202,10 +202,10 @@
         <span class="n">init_z_star_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;sigma&#39;</span><span class="p">:</span>
         <span class="n">init_sigma_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;z-tilde&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;p-star&#39;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;z-tilde coordinate requires calling &#39;</span>
-            <span class="s1">&#39;init_z_tilde_vertical_coord() directly.&#39;</span>
+            <span class="s1">&#39;init_vertical_coord() does not support the p-star coordinate. &#39;</span>
+            <span class="s1">&#39;Use PStarInitStep.run_pstar_init() for p-star initialization.&#39;</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;haney-number&#39;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Haney Number coordinate not yet supported.&#39;</span><span class="p">)</span>
@@ -272,10 +272,15 @@
 
     <span class="k">if</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;z-level&#39;</span><span class="p">:</span>
         <span class="n">update_z_level_layer_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;z-star&#39;</span> <span class="ow">or</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;z-tilde&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;z-star&#39;</span><span class="p">:</span>
         <span class="n">update_z_star_layer_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;sigma&#39;</span><span class="p">:</span>
         <span class="n">update_sigma_layer_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;p-star&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;update_layer_thickness() does not support the p-star coordinate. &#39;</span>
+            <span class="s1">&#39;Use PStarInitStep.run_pstar_init() for p-star initialization.&#39;</span>
+        <span class="p">)</span>
     <span class="k">elif</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;haney-number&#39;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Haney Number coordinate not yet supported.&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>

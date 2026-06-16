@@ -1,0 +1,823 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>P-Star Coordinate and Tracer Initialization</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Shared steps" href="shared_steps.html" />
+    <link rel="prev" title="Design Documents" href="index.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">P-Star Coordinate and Tracer Initialization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#background-z-tilde-and-p-star-in-omega">Background: z-tilde and p-star in Omega</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-p-star-vertical-coordinate-can-be-initialized-with-a-geometric-seafloor-depth-matching-target-bathymetry-within-a-configurable-tolerance">Requirement: The p-star vertical coordinate can be initialized with a geometric seafloor depth matching target bathymetry within a configurable tolerance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-ct-and-sa-can-be-initialized-on-the-p-star-coordinate-through-a-pluggable-interface">Requirement: CT and SA can be initialized on the p-star coordinate through a pluggable interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-initialized-state-includes-all-p-star-coordinate-variables-and-derived-geometric-quantities-needed-for-subsequent-steps">Requirement: The initialized state includes all p-star coordinate variables and derived geometric quantities needed for subsequent steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-full-and-partial-bottom-cells-are-handled-correctly-within-the-iteration">Requirement: Full and partial bottom cells are handled correctly within the iteration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-capability-is-reusable-across-idealized-and-realistic-initialization-tasks">Requirement: The capability is reusable across idealized and realistic initialization tasks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-p-star-vertical-coordinate-can-be-initialized-with-a-geometric-seafloor-depth-matching-target-bathymetry-within-a-configurable-tolerance">Algorithm Design: The p-star vertical coordinate can be initialized with a geometric seafloor depth matching target bathymetry within a configurable tolerance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-ct-and-sa-can-be-initialized-on-the-p-star-coordinate-through-a-pluggable-interface">Algorithm Design: CT and SA can be initialized on the p-star coordinate through a pluggable interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-initialized-state-includes-all-p-star-coordinate-variables-and-derived-geometric-quantities-needed-for-subsequent-steps">Algorithm Design: The initialized state includes all p-star coordinate variables and derived geometric quantities needed for subsequent steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-full-and-partial-bottom-cells-are-handled-correctly-within-the-iteration">Algorithm Design: Full and partial bottom cells are handled correctly within the iteration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-capability-is-reusable-across-idealized-and-realistic-initialization-tasks">Algorithm Design: The capability is reusable across idealized and realistic initialization tasks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-p-star-vertical-coordinate-can-be-initialized-with-a-geometric-seafloor-depth-matching-target-bathymetry-within-a-configurable-tolerance">Implementation: The p-star vertical coordinate can be initialized with a geometric seafloor depth matching target bathymetry within a configurable tolerance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-ct-and-sa-can-be-initialized-on-the-p-star-coordinate-through-a-pluggable-interface">Implementation: CT and SA can be initialized on the p-star coordinate through a pluggable interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-initialized-state-includes-all-p-star-coordinate-variables-and-derived-geometric-quantities-needed-for-subsequent-steps">Implementation: The initialized state includes all p-star coordinate variables and derived geometric quantities needed for subsequent steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-full-and-partial-bottom-cells-are-handled-correctly-within-the-iteration">Implementation: Full and partial bottom cells are handled correctly within the iteration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-capability-is-reusable-across-idealized-and-realistic-initialization-tasks">Implementation: The capability is reusable across idealized and realistic initialization tasks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-p-star-vertical-coordinate-can-be-initialized-with-a-geometric-seafloor-depth-matching-target-bathymetry-within-a-configurable-tolerance">Testing and Validation: The p-star vertical coordinate can be initialized with a geometric seafloor depth matching target bathymetry within a configurable tolerance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-ct-and-sa-can-be-initialized-on-the-p-star-coordinate-through-a-pluggable-interface">Testing and Validation: CT and SA can be initialized on the p-star coordinate through a pluggable interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-initialized-state-includes-all-p-star-coordinate-variables-and-derived-geometric-quantities-needed-for-subsequent-steps">Testing and Validation: The initialized state includes all p-star coordinate variables and derived geometric quantities needed for subsequent steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-full-and-partial-bottom-cells-are-handled-correctly-within-the-iteration">Testing and Validation: Full and partial bottom cells are handled correctly within the iteration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-capability-is-reusable-across-idealized-and-realistic-initialization-tasks">Testing and Validation: The capability is reusable across idealized and realistic initialization tasks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">P-Star Coordinate and Tracer Initialization</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/pstar_init.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="p-star-coordinate-and-tracer-initialization">
+<h1>P-Star Coordinate and Tracer Initialization<a class="headerlink" href="#p-star-coordinate-and-tracer-initialization" title="Link to this heading"></a></h1>
+<p>date: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<section id="background-z-tilde-and-p-star-in-omega">
+<h2>Background: z-tilde and p-star in Omega<a class="headerlink" href="#background-z-tilde-and-p-star-in-omega" title="Link to this heading"></a></h2>
+<p>Omega’s vertical coordinate system is built on <strong>pseudo-height</strong>,
+<span class="math notranslate nohighlight">\(\tilde{z} = -p / (\rho_0 g)\)</span>, where <span class="math notranslate nohighlight">\(p\)</span> is sea gauge pressure, <span class="math notranslate nohighlight">\(\rho_0\)</span> is a reference
+seawater density, and <span class="math notranslate nohighlight">\(g\)</span> is gravitational acceleration. This family of coordinates is
+called the <strong>z-tilde coordinate</strong> in Omega.</p>
+<p>Within the z-tilde framework, Omega supports a specific ALE variant called the <strong>p-star
+coordinate</strong>. The p-star coordinate defines a set of reference pseudo-thicknesses
+<code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code> — the pseudo-thicknesses the layers would have if the sea-surface
+pressure were zero — together with a set of <code class="docutils literal notranslate"><span class="pre">VertCoordMovementWeights</span></code> that control how
+changes in total column mass are distributed across layers. At runtime, Omega’s
+<code class="docutils literal notranslate"><span class="pre">VertCoord::computeTargetThickness()</span></code> adjusts each layer’s pseudo-thickness from its
+reference value proportionally to the total column pressure difference and the layer’s
+movement weight. With uniform weights (all ones, as currently used), every layer scales
+proportionally and the coordinate behaves as a pseudo-compressible z-star: the total
+column pseudo-thickness tracks the total column pressure.</p>
+<p>Polaris initializes the p-star coordinate by computing <code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code> from a
+target bathymetric depth and a given ocean state. The general z-tilde conversion
+utilities (pressure/pseudo-height conversions, geometric height recovery) live in
+<code class="docutils literal notranslate"><span class="pre">polaris/ocean/vertical/ztilde.py</span></code> and are reusable for any z-tilde–based coordinate.
+The p-star–specific coordinate construction lives in <code class="docutils literal notranslate"><span class="pre">polaris/ocean/vertical/pstar.py</span></code>,
+and the iterative initialization algorithm lives in <code class="docutils literal notranslate"><span class="pre">polaris/ocean/vertical/pstar_init.py</span></code>.</p>
+<p><strong>MinLayerCell scope</strong>: all p-star columns are assumed to start at the surface
+(<code class="docutils literal notranslate"><span class="pre">minLevelCell</span> <span class="pre">=</span> <span class="pre">0</span></code> in zero-based indexing). Support for non-zero <code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code>
+(e.g., ice-shelf cavities where the water column does not start at the free surface) is
+explicitly <strong>out of scope</strong> for this design.</p>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>Because ocean observations record geometric depth rather than pseudo-height, establishing
+<code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code> requires knowing the thermohaline structure of the water column and
+the equation of state (EOS). In turn, the thermohaline structure must be sampled on the
+vertical grid that depends on <code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code>. This circular dependency means the
+vertical coordinate and the tracer state must be determined jointly through iteration.</p>
+<p>This design document describes:</p>
+<ol class="arabic simple">
+<li><p>A fixed-point iteration for determining <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> (and therefore
+<code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code> and the p-star coordinate) such that the geometric seafloor depth
+recovered from the coordinate matches a target bathymetric depth within a configurable
+tolerance.</p></li>
+<li><p>A pluggable interface for supplying conservative temperature (CT) and absolute salinity
+(SA) at each outer iteration step, supporting multiple initialization strategies
+without changes to the core algorithm.</p></li>
+<li><p>The complete set of variables produced at convergence and their distribution across the
+separate output files established by the Polaris ocean framework.</p></li>
+<li><p>The interaction between the proportional-ratio update and full or partial bottom cell
+snapping.</p></li>
+</ol>
+<p>This capability is needed wherever the p-star coordinate must be initialized from a
+known geometric seafloor depth. Its first concrete users are idealized test cases such as
+<code class="docutils literal notranslate"><span class="pre">ocean/horiz_press_grad</span></code>, which already implements the algorithm but embeds it in
+task-specific code, and the planned realistic initialization task. The design is
+successful if the iteration logic is cleanly separated from the CT/SA initialization
+strategy, and if the same base class and algorithm serve both idealized and realistic use
+cases without modification.</p>
+<p>The primary software challenge is providing a generalization pattern consistent with the
+existing Polaris framework — specifically the convention of using overridable methods on
+step subclasses, as exemplified by the convergence task framework — while keeping the
+coupling between p-star coordinate construction, tracer initialization, and EOS
+evaluation explicit and inspectable.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-the-p-star-vertical-coordinate-can-be-initialized-with-a-geometric-seafloor-depth-matching-target-bathymetry-within-a-configurable-tolerance">
+<h3>Requirement: The p-star vertical coordinate can be initialized with a geometric seafloor depth matching target bathymetry within a configurable tolerance<a class="headerlink" href="#requirement-the-p-star-vertical-coordinate-can-be-initialized-with-a-geometric-seafloor-depth-matching-target-bathymetry-within-a-configurable-tolerance" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Given a target geometric seafloor depth (equivalently, a target geometric water-column
+thickness) and a means of obtaining conservative temperature and absolute salinity on the
+resulting vertical grid, Polaris shall be able to initialize the p-star vertical
+coordinate such that the geometric seafloor depth recovered from the converged coordinate
+matches the target to within a configurable fractional tolerance.</p>
+<p>The workflow shall support a configurable maximum number of iterations and shall terminate
+early when the fractional change in the recovered geometric water-column thickness falls
+below the tolerance. Both the convergence tolerance and the maximum iteration count shall
+be configurable through the standard Polaris configuration mechanism.</p>
+</section>
+<section id="requirement-ct-and-sa-can-be-initialized-on-the-p-star-coordinate-through-a-pluggable-interface">
+<h3>Requirement: CT and SA can be initialized on the p-star coordinate through a pluggable interface<a class="headerlink" href="#requirement-ct-and-sa-can-be-initialized-on-the-p-star-coordinate-through-a-pluggable-interface" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The workflow shall define a clear interface by which conservative temperature and absolute
+salinity are supplied at each outer iteration step. This interface shall be general enough
+to support multiple initialization strategies — including analytic profiles, piecewise
+profiles defined by configuration values, and interpolation from an observational
+hydrography dataset — without any change to the core iteration logic. The interface shall
+be consistent in style with the generalization mechanisms already used in the Polaris
+framework.</p>
+</section>
+<section id="requirement-the-initialized-state-includes-all-p-star-coordinate-variables-and-derived-geometric-quantities-needed-for-subsequent-steps">
+<h3>Requirement: The initialized state includes all p-star coordinate variables and derived geometric quantities needed for subsequent steps<a class="headerlink" href="#requirement-the-initialized-state-includes-all-p-star-coordinate-variables-and-derived-geometric-quantities-needed-for-subsequent-steps" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The workflow shall produce at convergence all variables needed to configure the ocean
+model, including p-star coordinate fields (pseudo-thickness, reference pseudo-thickness,
+pseudo-height at midpoints and interfaces, minimum and maximum valid level indices, cell
+mask, coordinate movement weights), converged tracer fields, specific volume, pressure,
+<code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> consistent with the converged geometric water-column thickness, and
+geometric height at layer midpoints and interfaces.</p>
+<p>These outputs shall be distributed across model-specific files according to the Polaris
+ocean framework’s split-file convention: vertical coordinate variables shall be written to
+a separate vertical-coordinate file for Omega (where they feed the <code class="docutils literal notranslate"><span class="pre">InitialVertCoord</span></code>
+stream) or kept in the initial-state file for MPAS-Ocean. The outputs shall be sufficient
+for subsequent forward-model steps without re-running the iteration.</p>
+</section>
+<section id="requirement-full-and-partial-bottom-cells-are-handled-correctly-within-the-iteration">
+<h3>Requirement: Full and partial bottom cells are handled correctly within the iteration<a class="headerlink" href="#requirement-full-and-partial-bottom-cells-are-handled-correctly-within-the-iteration" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>When full or partial bottom cell behavior is requested, the iteration shall handle the
+discrete snapping of the pseudo-column-thickness to layer boundaries in a manner that is
+consistent with the converged state. The design shall specify how to detect and handle the
+case where snapping prevents further convergence.</p>
+</section>
+<section id="requirement-the-capability-is-reusable-across-idealized-and-realistic-initialization-tasks">
+<h3>Requirement: The capability is reusable across idealized and realistic initialization tasks<a class="headerlink" href="#requirement-the-capability-is-reusable-across-idealized-and-realistic-initialization-tasks" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The same iteration algorithm shall be applicable to both idealized test cases and
+observationally-constrained realistic initialization tasks without duplication of the core
+loop. Task-specific initialization of CT and SA shall be separable from the shared
+iteration logic.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-the-p-star-vertical-coordinate-can-be-initialized-with-a-geometric-seafloor-depth-matching-target-bathymetry-within-a-configurable-tolerance">
+<h3>Algorithm Design: The p-star vertical coordinate can be initialized with a geometric seafloor depth matching target bathymetry within a configurable tolerance<a class="headerlink" href="#algorithm-design-the-p-star-vertical-coordinate-can-be-initialized-with-a-geometric-seafloor-depth-matching-target-bathymetry-within-a-configurable-tolerance" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The core algorithm is a fixed-point iteration in pseudo-height space. Let:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\eta_0\)</span> = prescribed sea-surface height (m); defaults to <span class="math notranslate nohighlight">\(-P_\text{surf}/(\rho_0 g)\)</span>,
+the resting surface-pressure depression for a reference-density fluid</p></li>
+<li><p><span class="math notranslate nohighlight">\(H_\text{geo}^\star\)</span> = target geometric water-column thickness <span class="math notranslate nohighlight">\(= \eta_0 - z_\text{bot}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(P_\text{surf}\)</span> = prescribed sea-surface pressure (Pa; due to atmosphere,
+sea ice, ice shelves, etc.)</p></li>
+<li><p><span class="math notranslate nohighlight">\(P_\text{bot}^{(k)}\)</span> = <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> at iteration <span class="math notranslate nohighlight">\(k\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\hat{P}_\text{bot}^{(k)}\)</span> = post-snap <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> after applying full or partial
+bottom-cell constraints inside the coordinate-construction step</p></li>
+<li><p><span class="math notranslate nohighlight">\(H_\text{geo}^{(k)}\)</span> = geometric water-column thickness recovered at iteration <span class="math notranslate nohighlight">\(k\)</span></p></li>
+</ul>
+<p>The three constraints (<span class="math notranslate nohighlight">\(z_\text{bot}\)</span>, <span class="math notranslate nohighlight">\(P_\text{surf}\)</span>, <span class="math notranslate nohighlight">\(\eta_0\)</span>) are fixed; the iteration
+adjusts <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> until all three are satisfied simultaneously.  The initial
+<code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> is computed from the reference density <span class="math notranslate nohighlight">\(\rho_0\)</span> and gravitational
+acceleration <span class="math notranslate nohighlight">\(g\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[P_\text{bot}^{(0)} = P_\text{surf} + \rho_0\, g\, H_\text{geo}^\star\]</div>
+<p>For the default <span class="math notranslate nohighlight">\(\eta_0 = -P_\text{surf}/(\rho_0 g)\)</span> this simplifies to
+<span class="math notranslate nohighlight">\(P_\text{bot}^{(0)} = \rho_0\, g\,(-z_\text{bot})\)</span> because the <span class="math notranslate nohighlight">\(P_\text{surf}\)</span> terms
+cancel.  This keeps <code class="docutils literal notranslate"><span class="pre">pseudo_bottom_depth</span></code> <span class="math notranslate nohighlight">\(= P_\text{bot}^{(0)}/(\rho_0 g)\)</span> equal to the
+bathymetric depth <span class="math notranslate nohighlight">\(-z_\text{bot}\)</span>, safely within the reference grid regardless of
+<span class="math notranslate nohighlight">\(P_\text{surf}\)</span>.</p>
+<p><span class="math notranslate nohighlight">\(P_\text{surf}\)</span> and <span class="math notranslate nohighlight">\(\eta_0\)</span> are optional inputs.  The diagnostic <code class="docutils literal notranslate"><span class="pre">ssh</span></code> at convergence
+equals <span class="math notranslate nohighlight">\(\eta_0\)</span> to good approximation (exactly for a constant-density fluid).</p>
+<p>At each iteration <span class="math notranslate nohighlight">\(k\)</span>:</p>
+<ol class="arabic simple">
+<li><p>Construct the p-star coordinate from <span class="math notranslate nohighlight">\(P_\text{bot}^{(k)}\)</span>, obtaining
+<code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">ZTildeMid</span></code>, <code class="docutils literal notranslate"><span class="pre">ZTildeInterface</span></code>, and related
+fields. The coordinate-construction step may snap <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> to a layer boundary
+for full or partial bottom cells; denote the snapped value <span class="math notranslate nohighlight">\(\hat{P}_\text{bot}^{(k)}\)</span>.</p></li>
+<li><p>Obtain CT and SA at the p-star layer midpoints through the CT/SA initialization
+interface (see the next algorithm design section).</p></li>
+<li><p>Compute sea pressure at each layer midpoint from pseudo-height:
+<span class="math notranslate nohighlight">\(p_\text{mid} = -\rho_0 g \tilde{z}_\text{mid}\)</span>.</p></li>
+<li><p>Evaluate the EOS to obtain specific volume:
+<span class="math notranslate nohighlight">\(\alpha = \text{EOS}(\text{CT},\, \text{SA},\, p_\text{mid})\)</span>.</p></li>
+<li><p>Recover geometric layer thickness from pseudo-thickness and specific volume:
+<span class="math notranslate nohighlight">\(\delta z = \alpha\, \rho_0\, \delta\tilde{z}\)</span>.</p></li>
+<li><p>Sum the geometric layer thicknesses upward from the seafloor to obtain the geometric
+water-column thickness <span class="math notranslate nohighlight">\(H_\text{geo}^{(k)}\)</span>.</p></li>
+<li><p>Compute the proportional scaling factor:
+<span class="math notranslate nohighlight">\(s^{(k)} = H_\text{geo}^\star / H_\text{geo}^{(k)}\)</span>.</p></li>
+<li><p>Check convergence: if <span class="math notranslate nohighlight">\(k &gt; 0\)</span> and
+<span class="math notranslate nohighlight">\(|H_\text{geo}^{(k)} - H_\text{geo}^{(k-1)}| / H_\text{geo}^{(k-1)} &lt; \epsilon\)</span>
+(configurable tolerance), stop.</p></li>
+<li><p>Check for full-cell stagnation: if
+<span class="math notranslate nohighlight">\(\hat{P}_\text{bot}^{(k)} = \hat{P}_\text{bot}^{(k-1)}\)</span>, stop early and log a warning
+(see the bottom-cell algorithm design section).</p></li>
+<li><p>Update, scaling the <strong>pseudo-column pressure</strong> <span class="math notranslate nohighlight">\(\hat{P}_\text{bot}^{(k)} - P_\text{surf}\)</span>
+rather than <span class="math notranslate nohighlight">\(\hat{P}_\text{bot}^{(k)}\)</span> directly:
+<div class="math notranslate nohighlight">
+\[P_\text{bot}^{(k+1)} = P_\text{surf} + \bigl(\hat{P}_\text{bot}^{(k)} - P_\text{surf}\bigr)\cdot s^{(k)}\]</div>
+</p></li>
+</ol>
+<p>After convergence, <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> is set to the actual recovered geometric water-column
+thickness <span class="math notranslate nohighlight">\(H_\text{geo}^{(k)}\)</span> (not the target <span class="math notranslate nohighlight">\(H_\text{geo}^\star\)</span>) for thermodynamic
+self-consistency, even when bottom-cell snapping prevents an exact match to the target
+bathymetry.  The diagnostic <code class="docutils literal notranslate"><span class="pre">ssh</span></code> is computed as the top interface height
+<span class="math notranslate nohighlight">\(\tilde{z}^\text{top}_\text{min-level}\)</span> after applying
+<code class="docutils literal notranslate"><span class="pre">geom_height_from_pseudo_height</span></code>, which integrates upward from <span class="math notranslate nohighlight">\(z_\text{bot}\)</span>.</p>
+<p>The iteration evaluates the EOS once per outer iteration (step 4 above). This is distinct
+from the inner fixed-point iteration in
+<code class="docutils literal notranslate"><span class="pre">pressure_and_spec_vol_from_state_at_geom_height</span></code> in
+<code class="docutils literal notranslate"><span class="pre">polaris/ocean/vertical/ztilde.py</span></code>, which recovers pressure from geometric layer
+thicknesses when pseudo-height is not known directly. In the present algorithm, pressure
+is derived analytically from pseudo-height (step 3), so the inner iteration is not
+invoked within the outer loop.</p>
+</section>
+<section id="algorithm-design-ct-and-sa-can-be-initialized-on-the-p-star-coordinate-through-a-pluggable-interface">
+<h3>Algorithm Design: CT and SA can be initialized on the p-star coordinate through a pluggable interface<a class="headerlink" href="#algorithm-design-ct-and-sa-can-be-initialized-on-the-p-star-coordinate-through-a-pluggable-interface" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The CT/SA initialization interface is realized as an overridable method on a base step
+class. The method receives the current p-star dataset — which contains <code class="docutils literal notranslate"><span class="pre">ZTildeMid</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ZTildeInterface</span></code>, <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">cellMask</span></code>, <code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>, and
+associated coordinate information — and returns CT and SA as arrays with dimensions
+<code class="docutils literal notranslate"><span class="pre">(Time,</span> <span class="pre">nCells,</span> <span class="pre">nVertLevels)</span></code>.</p>
+<p>This follows the same generalization pattern used in the convergence task framework,
+where concrete subclasses implement or override step methods that are invoked by shared
+base-class logic.</p>
+<p>Several concrete initialization strategies are envisioned:</p>
+<ol class="arabic simple">
+<li><p><strong>Piecewise pseudo-height profiles from config</strong> (current <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code> approach):
+node values of CT and SA are read from the configuration at specified pseudo-height
+levels, and a monotone interpolant (e.g., PCHIP) maps them to each layer midpoint.</p></li>
+<li><p><strong>Analytic profiles</strong>: CT and SA are computed from a formula as a function of
+pseudo-height, geometric depth, or another column coordinate.</p></li>
+<li><p><strong>Observational hydrography</strong> (planned for realistic initialization): CT and SA are
+interpolated from a pre-processed hydrography product that has already been remapped
+to the MPAS horizontal mesh; at each outer iteration, vertical interpolation from the
+source depth levels to the current p-star midpoints is performed.</p></li>
+</ol>
+<p>The interface constrains only what the method receives and returns; it does not constrain
+how CT and SA are computed. The method may access <code class="docutils literal notranslate"><span class="pre">self.config</span></code>, <code class="docutils literal notranslate"><span class="pre">self.logger</span></code>, or any
+other attributes of the step instance.</p>
+</section>
+<section id="algorithm-design-the-initialized-state-includes-all-p-star-coordinate-variables-and-derived-geometric-quantities-needed-for-subsequent-steps">
+<h3>Algorithm Design: The initialized state includes all p-star coordinate variables and derived geometric quantities needed for subsequent steps<a class="headerlink" href="#algorithm-design-the-initialized-state-includes-all-p-star-coordinate-variables-and-derived-geometric-quantities-needed-for-subsequent-steps" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The Polaris ocean framework separates model inputs into three files. The horizontal mesh
+file (<code class="docutils literal notranslate"><span class="pre">mesh.nc</span></code> or <code class="docutils literal notranslate"><span class="pre">culled_mesh.nc</span></code>) is not produced by the p-star initialization step;
+it comes from an upstream mesh-construction or cull step. The p-star initialization step
+produces the remaining two files.</p>
+<p><strong>Vertical coordinate file</strong> (<code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code>, written by <code class="docutils literal notranslate"><span class="pre">write_vert_coord_dataset</span></code>):
+For Omega this file feeds the <code class="docutils literal notranslate"><span class="pre">InitialVertCoord</span></code> stream. For MPAS-Ocean
+<code class="docutils literal notranslate"><span class="pre">write_vert_coord_dataset</span></code> is a no-op and these variables remain in the initial-state
+file instead. Variable names in parentheses are the Omega-native equivalents after the
+framework’s variable renaming.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>MPAS-Ocean variable</p></th>
+<th class="head"><p>Omega variable</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Key dimensions</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MinLayerCell</span></code></p></td>
+<td><p>First valid layer index (1-based)</p></td>
+<td><p>nCells</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MaxLayerCell</span></code></p></td>
+<td><p>Last valid layer index (1-based)</p></td>
+<td><p>nCells</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BottomGeomDepth</span></code></p></td>
+<td><p>Actual geometric water-column thickness</p></td>
+<td><p>nCells</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code></p></td>
+<td><p>Reference pseudo-thickness at zero SurfacePressure (no Time dim)</p></td>
+<td><p>nCells, nVertLevels</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vertCoordMovementWeights</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">VertCoordMovementWeights</span></code></p></td>
+<td><p>Weights for coordinate movement (all ones)</p></td>
+<td><p>nVertLevels</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Initial-state file</strong> (<code class="docutils literal notranslate"><span class="pre">init.nc</span></code>, written by <code class="docutils literal notranslate"><span class="pre">write_initial_state_dataset</span></code>): horizontal
+mesh variables are stripped before writing; for Omega, the vertical coordinate variables
+above are also stripped (they are in <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code> instead).</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>MPAS-Ocean variable</p></th>
+<th class="head"><p>Omega variable</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Key dimensions</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Temperature</span></code></p></td>
+<td><p>Conservative temperature (CT) at convergence</p></td>
+<td><p>Time, nCells, nVertLevels</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">salinity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Salinity</span></code></p></td>
+<td><p>Absolute salinity (SA) at convergence</p></td>
+<td><p>Time, nCells, nVertLevels</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NormalVelocity</span></code></p></td>
+<td><p>Initial velocity (typically zero)</p></td>
+<td><p>Time, nEdges, nVertLevels</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code></p></td>
+<td><p>Pseudo-layer thickness</p></td>
+<td><p>Time, nCells, nVertLevels</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ZTildeMid</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ZTildeMid</span></code></p></td>
+<td><p>Pseudo-height at layer midpoints</p></td>
+<td><p>Time, nCells, nVertLevels</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ZTildeInterface</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ZTildeInterface</span></code></p></td>
+<td><p>Pseudo-height at layer interfaces</p></td>
+<td><p>Time, nCells, nVertLevelsP1</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SurfacePressure</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SurfacePressure</span></code></p></td>
+<td><p>Surface pressure</p></td>
+<td><p>nCells</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code></p></td>
+<td><p>Effective (post-snap) seafloor pressure</p></td>
+<td><p>nCells</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cellMask</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cellMask</span></code></p></td>
+<td><p>Boolean mask of valid layers</p></td>
+<td><p>nCells, nVertLevels</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pressure</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PressureMid</span></code></p></td>
+<td><p>Sea pressure at layer midpoints</p></td>
+<td><p>Time, nCells, nVertLevels</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">zMid</span></code> / <code class="docutils literal notranslate"><span class="pre">GeomZMid</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GeomZMid</span></code></p></td>
+<td><p>Geometric height at layer midpoints</p></td>
+<td><p>Time, nCells, nVertLevels</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">zInterface</span></code> / <code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code></p></td>
+<td><p>Geometric height at layer interfaces</p></td>
+<td><p>Time, nCells, nVertLevelsP1</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ssh</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SshCell</span></code></p></td>
+<td><p>Sea-surface geometric height (diagnostic)</p></td>
+<td><p>nCells</p></td>
+</tr>
+</tbody>
+</table>
+<p>Additional task-specific diagnostic variables (e.g., <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code>, <code class="docutils literal notranslate"><span class="pre">Density</span></code>, Montgomery
+potential fields) may be included in <code class="docutils literal notranslate"><span class="pre">init.nc</span></code> by concrete subclasses.</p>
+</section>
+<section id="algorithm-design-full-and-partial-bottom-cells-are-handled-correctly-within-the-iteration">
+<h3>Algorithm Design: Full and partial bottom cells are handled correctly within the iteration<a class="headerlink" href="#algorithm-design-full-and-partial-bottom-cells-are-handled-correctly-within-the-iteration" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The p-star coordinate-construction step (<code class="docutils literal notranslate"><span class="pre">init_pstar_vertical_coord</span></code> in
+<code class="docutils literal notranslate"><span class="pre">polaris/ocean/vertical/pstar.py</span></code>) handles full and partial bottom cells by
+snapping the pseudo-column-thickness to a discrete layer boundary before returning. Within
+the outer iteration, the proportional-ratio update (step 10 of the algorithm) is applied
+to the post-snap value <span class="math notranslate nohighlight">\(\hat{P}_\text{bot}^{(k)}\)</span>, not the raw value
+<span class="math notranslate nohighlight">\(P_\text{bot}^{(k)}\)</span>. This ensures that each successive iterate moves relative to the
+effective snapped position and prevents the iteration from swinging between two snapping
+levels.</p>
+<p>For full-cell configurations, <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> is forced to the bottom of a reference
+layer regardless of the incoming value. Once the iteration converges on the nearest full
+cell, <span class="math notranslate nohighlight">\(\hat{P}_\text{bot}^{(k)}\)</span> no longer changes between iterations even though the
+scaling factor <span class="math notranslate nohighlight">\(s^{(k)}\)</span> may differ from 1. The algorithm detects stagnation by comparing
+<span class="math notranslate nohighlight">\(\hat{P}_\text{bot}^{(k)}\)</span> to <span class="math notranslate nohighlight">\(\hat{P}_\text{bot}^{(k-1)}\)</span> and stops early, logging a
+warning that reports the residual mismatch between the recovered and target geometric
+water-column thicknesses. The residual is bounded by the reference pseudo-layer spacing at
+the seafloor.</p>
+<p>For partial-cell configurations, <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> is allowed to vary continuously between
+the partial-cell minimum threshold and the full-cell boundary. Convergence within this
+window is generally achievable, and the stagnation check triggers only if the partial-cell
+constraints force a discrete jump.</p>
+</section>
+<section id="algorithm-design-the-capability-is-reusable-across-idealized-and-realistic-initialization-tasks">
+<h3>Algorithm Design: The capability is reusable across idealized and realistic initialization tasks<a class="headerlink" href="#algorithm-design-the-capability-is-reusable-across-idealized-and-realistic-initialization-tasks" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The iteration algorithm is encapsulated in a base step class (see the implementation
+section) that provides the outer fixed-point loop, output dataset assembly, convergence
+checking, full-cell stagnation detection, and iteration logging. Concrete subclasses
+supply only the CT/SA initialization method, making it straightforward to add new
+initialization strategies without touching the core algorithm.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">horiz_press_grad.Init</span></code> step is the first concrete implementation. The planned
+realistic initialization step will be the second. No changes to the base class are
+anticipated when adding new CT/SA initialization strategies.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-the-p-star-vertical-coordinate-can-be-initialized-with-a-geometric-seafloor-depth-matching-target-bathymetry-within-a-configurable-tolerance">
+<h3>Implementation: The p-star vertical coordinate can be initialized with a geometric seafloor depth matching target bathymetry within a configurable tolerance<a class="headerlink" href="#implementation-the-p-star-vertical-coordinate-can-be-initialized-with-a-geometric-seafloor-depth-matching-target-bathymetry-within-a-configurable-tolerance" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The outer fixed-point loop is encapsulated in a <code class="docutils literal notranslate"><span class="pre">run_pstar_init</span></code> method on the
+<code class="docutils literal notranslate"><span class="pre">PStarInitStep</span></code> base class in <code class="docutils literal notranslate"><span class="pre">polaris/ocean/vertical/pstar_init.py</span></code>. The method takes
+<code class="docutils literal notranslate"><span class="pre">ds_mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">geom_z_bot</span></code>, an optional <code class="docutils literal notranslate"><span class="pre">surface_pressure</span></code> (defaulting to zero), and an
+optional <code class="docutils literal notranslate"><span class="pre">sea_surface_height</span></code> as arguments. <code class="docutils literal notranslate"><span class="pre">sea_surface_height</span></code> is the prescribed SSH;
+it defaults to <code class="docutils literal notranslate"><span class="pre">-surface_pressure</span> <span class="pre">/</span> <span class="pre">(RhoSw</span> <span class="pre">*</span> <span class="pre">g)</span></code>. The target water-column thickness is
+set to <code class="docutils literal notranslate"><span class="pre">sea_surface_height</span> <span class="pre">-</span> <span class="pre">geom_z_bot</span></code>; the iteration adjusts <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> until
+this target is met, at which point the diagnostic <code class="docutils literal notranslate"><span class="pre">ssh</span></code> equals <code class="docutils literal notranslate"><span class="pre">sea_surface_height</span></code>. For
+the default <code class="docutils literal notranslate"><span class="pre">sea_surface_height</span></code>, the initial <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> simplifies to
+<code class="docutils literal notranslate"><span class="pre">RhoSw</span> <span class="pre">*</span> <span class="pre">g</span> <span class="pre">*</span> <span class="pre">(-geom_z_bot)</span></code> because the <code class="docutils literal notranslate"><span class="pre">surface_pressure</span></code> terms cancel. The
+<code class="docutils literal notranslate"><span class="pre">horiz_press_grad.Init</span></code> class inherits from <code class="docutils literal notranslate"><span class="pre">PStarInitStep</span></code>, implements the <code class="docutils literal notranslate"><span class="pre">init_tracers</span></code>
+abstract method, and delegates the entire iteration to <code class="docutils literal notranslate"><span class="pre">run_pstar_init</span></code>.</p>
+<p>The convergence threshold and maximum iteration count are read from the <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code>
+configuration section. <code class="docutils literal notranslate"><span class="pre">pseudothickness_iter_count</span></code> was already in that section;
+<code class="docutils literal notranslate"><span class="pre">water_col_adjust_frac_change_threshold</span></code> is placed there as well so that it is available
+to all users of the base class without task-specific configuration. The default value
+(<code class="docutils literal notranslate"><span class="pre">1e-12</span></code>) is set in <code class="docutils literal notranslate"><span class="pre">polaris/ocean/ocean.cfg</span></code>.</p>
+</section>
+<section id="implementation-ct-and-sa-can-be-initialized-on-the-p-star-coordinate-through-a-pluggable-interface">
+<h3>Implementation: CT and SA can be initialized on the p-star coordinate through a pluggable interface<a class="headerlink" href="#implementation-ct-and-sa-can-be-initialized-on-the-p-star-coordinate-through-a-pluggable-interface" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The CT/SA initialization interface is declared using Python’s <code class="docutils literal notranslate"><span class="pre">abc.abstractmethod</span></code>
+decorator on the <code class="docutils literal notranslate"><span class="pre">PStarInitStep</span></code> base class. Because the <code class="docutils literal notranslate"><span class="pre">Step</span></code> base class does not
+include <code class="docutils literal notranslate"><span class="pre">ABCMeta</span></code>, <code class="docutils literal notranslate"><span class="pre">PStarInitStep</span></code> inherits from both <code class="docutils literal notranslate"><span class="pre">Step</span></code> and <code class="docutils literal notranslate"><span class="pre">abc.ABC</span></code> to
+activate abstract-method enforcement. The required method signature is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@abstractmethod</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">init_tracers</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialize CT and SA at p-star layer midpoints for the current iteration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Current p-star dataset, including ZTildeMid, ZTildeInterface,</span>
+<span class="sd">        PseudoThickness, cellMask, minLevelCell, and maxLevelCell.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    conservative_temperature : xarray.DataArray</span>
+<span class="sd">        CT with dimensions (Time, nCells, nVertLevels).</span>
+<span class="sd">    absolute_salinity : xarray.DataArray</span>
+<span class="sd">        SA with dimensions (Time, nCells, nVertLevels).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>The former <code class="docutils literal notranslate"><span class="pre">horiz_press_grad.Init._interpolate_t_s</span></code> private method is the concrete
+<code class="docutils literal notranslate"><span class="pre">init_tracers</span></code> implementation in the refactored <code class="docutils literal notranslate"><span class="pre">horiz_press_grad.Init</span></code> subclass; the
+column-position array <code class="docutils literal notranslate"><span class="pre">x</span></code> is stored on <code class="docutils literal notranslate"><span class="pre">self</span></code> before <code class="docutils literal notranslate"><span class="pre">run_pstar_init</span></code> is called so that
+<code class="docutils literal notranslate"><span class="pre">init_tracers</span></code> can access it via the step instance.</p>
+</section>
+<section id="implementation-the-initialized-state-includes-all-p-star-coordinate-variables-and-derived-geometric-quantities-needed-for-subsequent-steps">
+<h3>Implementation: The initialized state includes all p-star coordinate variables and derived geometric quantities needed for subsequent steps<a class="headerlink" href="#implementation-the-initialized-state-includes-all-p-star-coordinate-variables-and-derived-geometric-quantities-needed-for-subsequent-steps" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The base class <code class="docutils literal notranslate"><span class="pre">run_pstar_init</span></code> method assembles and returns the output dataset from
+the quantities accumulated during the outer loop. The concrete subclass <code class="docutils literal notranslate"><span class="pre">run</span></code> method
+then writes the split output files using the framework helpers:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">write_vert_coord_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">write_vert_coord_dataset</span></code> is a no-op for MPAS-Ocean; <code class="docutils literal notranslate"><span class="pre">write_initial_state_dataset</span></code>
+strips horizontal mesh variables and (for Omega) also strips vertical coordinate variables
+before writing. Since <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code> is Omega-only, <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code> is registered
+unconditionally as a step output file.</p>
+<p>Any model-specific or task-specific fields not part of the p-star base output (e.g.,
+<code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code>, pressure-gradient diagnostics) are added to <code class="docutils literal notranslate"><span class="pre">ds</span></code> by the concrete
+subclass before calling the write helpers. The horizontal mesh file is written separately
+and is not produced by <code class="docutils literal notranslate"><span class="pre">PStarInitStep</span></code>.</p>
+</section>
+<section id="implementation-full-and-partial-bottom-cells-are-handled-correctly-within-the-iteration">
+<h3>Implementation: Full and partial bottom cells are handled correctly within the iteration<a class="headerlink" href="#implementation-full-and-partial-bottom-cells-are-handled-correctly-within-the-iteration" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The stagnation-detection logic (comparing the post-snap <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> between
+consecutive iterations) is preserved in the base class. The convergence check (step 8 of
+the algorithm) is evaluated before the stagnation check (step 9), so a perfect initial
+guess exits via convergence rather than triggering a misleading stagnation warning. The
+warning message reports the iteration number to aid debugging on meshes where full-cell
+behaviour is unexpected.</p>
+</section>
+<section id="implementation-the-capability-is-reusable-across-idealized-and-realistic-initialization-tasks">
+<h3>Implementation: The capability is reusable across idealized and realistic initialization tasks<a class="headerlink" href="#implementation-the-capability-is-reusable-across-idealized-and-realistic-initialization-tasks" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">horiz_press_grad.Init</span></code> is the first concrete subclass of <code class="docutils literal notranslate"><span class="pre">PStarInitStep</span></code>. It uses the
+three-file split (<code class="docutils literal notranslate"><span class="pre">culled_mesh.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>) and demonstrates that the
+base class is consistent with that pattern.</p>
+<p>Because <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code> allows <code class="docutils literal notranslate"><span class="pre">z_tilde_bot</span></code> to vary per cell via a configurable
+gradient, <code class="docutils literal notranslate"><span class="pre">horiz_press_grad.Init</span></code> also overrides the <code class="docutils literal notranslate"><span class="pre">_build_pstar_coord_ds(self,</span> <span class="pre">ds_mesh,</span> <span class="pre">bottom_pressure,</span> <span class="pre">surface_pressure)</span></code> method. The base-class default calls
+<code class="docutils literal notranslate"><span class="pre">init_pstar_vertical_coord</span></code> once on the full mesh; <code class="docutils literal notranslate"><span class="pre">horiz_press_grad.Init</span></code> overrides
+it with a per-cell loop that sets a per-cell reference depth in a local config copy before
+constructing each column’s coordinate. This override pattern is consistent in style with
+the <code class="docutils literal notranslate"><span class="pre">init_tracers</span></code> interface and keeps the per-cell logic in the subclass.</p>
+<p>The planned realistic initialization step (<code class="docutils literal notranslate"><span class="pre">ocean/realistic/init</span></code>) will subclass
+<code class="docutils literal notranslate"><span class="pre">PStarInitStep</span></code> and implement <code class="docutils literal notranslate"><span class="pre">init_tracers</span></code> to read from the WOA hydrography product.
+In that context, CT/SA initialization at each outer iteration involves sampling a
+pre-computed hydrography product that has been remapped to the MPAS horizontal mesh, then
+interpolating vertically from the source depth levels to the current p-star layer
+midpoints. The mesh file for realistic initialization comes from an upstream <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>
+cull step rather than being constructed by the init step itself, so only <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code>
+and <code class="docutils literal notranslate"><span class="pre">init.nc</span></code> are produced by <code class="docutils literal notranslate"><span class="pre">PStarInitStep</span></code> in that context.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-the-p-star-vertical-coordinate-can-be-initialized-with-a-geometric-seafloor-depth-matching-target-bathymetry-within-a-configurable-tolerance">
+<h3>Testing and Validation: The p-star vertical coordinate can be initialized with a geometric seafloor depth matching target bathymetry within a configurable tolerance<a class="headerlink" href="#testing-and-validation-the-p-star-vertical-coordinate-can-be-initialized-with-a-geometric-seafloor-depth-matching-target-bathymetry-within-a-configurable-tolerance" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests in <code class="docutils literal notranslate"><span class="pre">tests/ocean/vertical/test_pstar_init.py</span></code> cover:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_constant_density_converges_cleanly</span></code>: single-column case with
+<span class="math notranslate nohighlight">\(\rho = \rho_0\)</span> everywhere (<span class="math notranslate nohighlight">\(s^{(k)} = 1\)</span> at every iteration). The loop exits via the
+convergence check on iteration 1 with <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> matching the target to within
+floating-point precision and no stagnation warning.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_wrong_reference_density_requires_multiple_iterations</span></code>: single-column case with
+a 1% density offset from <span class="math notranslate nohighlight">\(\rho_0\)</span>, requiring 3 outer iterations before the fractional
+change in water-column thickness falls below the threshold. The final <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code>
+matches the target to within a relative tolerance well below <span class="math notranslate nohighlight">\(10^{-10}\)</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_nonzero_surface_pressure_shifts_pressures</span></code>: single-column case with non-zero
+<span class="math notranslate nohighlight">\(P_\text{surf}\)</span> and the default <span class="math notranslate nohighlight">\(\eta_0 = -P_\text{surf}/(\rho_0 g)\)</span>. Confirms that
+the converged <code class="docutils literal notranslate"><span class="pre">ssh</span></code> equals <span class="math notranslate nohighlight">\(-P_\text{surf}/(\rho_0 g)\)</span> and <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> equals
+the actual water-column thickness <span class="math notranslate nohighlight">\(\eta_0 - z_\text{bot}\)</span>, and that
+<code class="docutils literal notranslate"><span class="pre">BottomPressure</span> <span class="pre">&gt;</span> <span class="pre">SurfacePressure</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_surface_pressure_sets_ztilde_surface_correctly</span></code>: verifies that
+<code class="docutils literal notranslate"><span class="pre">ZTildeInterface.isel(nVertLevelsP1=0)</span></code> equals <span class="math notranslate nohighlight">\(-P_\text{surf}/(\rho_0 g)\)</span>, confirming
+the top of the pseudo-height coordinate is correctly anchored at the surface pseudo-height.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_surface_pressure_total_pseudo_thickness</span></code>: verifies that the sum of
+<code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> over valid layers equals
+<span class="math notranslate nohighlight">\((P_\text{bot} - P_\text{surf})/(\rho_0 g)\)</span>, confirming the z-star-style scaling
+<span class="math notranslate nohighlight">\((P_\text{bot} - P_\text{surf})/P_\text{bot}\)</span> is correctly applied.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code> regression tests (all three task variants: <code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code>,
+<code class="docutils literal notranslate"><span class="pre">temperature_gradient</span></code>, <code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code>) validate that the refactored base class
+produces the same outputs as the original embedded loop. All three variants passed the
+<code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite on Chrysalis (2026-06-01), with <code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code> producing results
+identical to the <code class="docutils literal notranslate"><span class="pre">main</span></code>-branch baseline.</p>
+</section>
+<section id="testing-and-validation-ct-and-sa-can-be-initialized-on-the-p-star-coordinate-through-a-pluggable-interface">
+<h3>Testing and Validation: CT and SA can be initialized on the p-star coordinate through a pluggable interface<a class="headerlink" href="#testing-and-validation-ct-and-sa-can-be-initialized-on-the-p-star-coordinate-through-a-pluggable-interface" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests in <code class="docutils literal notranslate"><span class="pre">tests/ocean/vertical/test_pstar_init.py</span></code> cover:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_abstract_class_not_instantiable</span></code>: confirms <code class="docutils literal notranslate"><span class="pre">init_tracers</span></code> is in
+<code class="docutils literal notranslate"><span class="pre">PStarInitStep.__abstractmethods__</span></code>, verifying that the abstract-method mechanism
+is active.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_subclass_without_init_tracers_not_instantiable</span></code>: confirms that a subclass that
+does not override <code class="docutils literal notranslate"><span class="pre">init_tracers</span></code> also carries the abstract method.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_minimal_subclass_returns_complete_dataset</span></code>: a minimal concrete subclass with a
+constant <code class="docutils literal notranslate"><span class="pre">init_tracers</span></code> completes the outer loop without error and the returned dataset
+contains all 17 required base-class output variables with correct dimensions.</p></li>
+</ul>
+<p>The surface-pressure tests (<code class="docutils literal notranslate"><span class="pre">test_nonzero_surface_pressure_shifts_pressures</span></code>,
+<code class="docutils literal notranslate"><span class="pre">test_surface_pressure_sets_ztilde_surface_correctly</span></code>,
+<code class="docutils literal notranslate"><span class="pre">test_surface_pressure_total_pseudo_thickness</span></code>) also exercise <code class="docutils literal notranslate"><span class="pre">init_tracers</span></code> with a
+shifted <code class="docutils literal notranslate"><span class="pre">ZTildeMid</span></code> range, confirming that the coordinate geometry produced under
+non-zero <span class="math notranslate nohighlight">\(P_\text{surf}\)</span> is compatible with the pluggable interface.</p>
+</section>
+<section id="testing-and-validation-the-initialized-state-includes-all-p-star-coordinate-variables-and-derived-geometric-quantities-needed-for-subsequent-steps">
+<h3>Testing and Validation: The initialized state includes all p-star coordinate variables and derived geometric quantities needed for subsequent steps<a class="headerlink" href="#testing-and-validation-the-initialized-state-includes-all-p-star-coordinate-variables-and-derived-geometric-quantities-needed-for-subsequent-steps" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">test_minimal_subclass_returns_complete_dataset</span></code> unit test verifies that the output
+dataset contains all variables listed in the algorithm design section tables. Regression
+tests for <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code> will verify correct dimensions and non-NaN values in valid
+cells across the three task variants.</p>
+</section>
+<section id="testing-and-validation-full-and-partial-bottom-cells-are-handled-correctly-within-the-iteration">
+<h3>Testing and Validation: Full and partial bottom cells are handled correctly within the iteration<a class="headerlink" href="#testing-and-validation-full-and-partial-bottom-cells-are-handled-correctly-within-the-iteration" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit test <code class="docutils literal notranslate"><span class="pre">test_full_cell_stagnation_warning_and_early_exit</span></code> in
+<code class="docutils literal notranslate"><span class="pre">tests/ocean/vertical/test_pstar_init.py</span></code> overrides <code class="docutils literal notranslate"><span class="pre">_build_pstar_coord_ds</span></code> to always
+return a fixed <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> regardless of input, simulating full-cell snapping. The
+test confirms that a warning containing <code class="docutils literal notranslate"><span class="pre">'full-cell</span> <span class="pre">snap'</span></code> is emitted and that the loop
+terminates without raising an exception, and that the returned dataset still contains
+<code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code> regression tests (all three task variants) passed the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code>
+suite on Chrysalis (2026-06-01). The <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code> tasks all use
+<code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">partial</span></code>, exercising the partial-cell path through the iteration.</p>
+</section>
+<section id="testing-and-validation-the-capability-is-reusable-across-idealized-and-realistic-initialization-tasks">
+<h3>Testing and Validation: The capability is reusable across idealized and realistic initialization tasks<a class="headerlink" href="#testing-and-validation-the-capability-is-reusable-across-idealized-and-realistic-initialization-tasks" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/13</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">horiz_press_grad.Init</span></code> is refactored onto <code class="docutils literal notranslate"><span class="pre">PStarInitStep</span></code> and its existing regression
+tests serve as the first validation that the base class interface is correct and complete.
+All three <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code> task variants passed the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite on Chrysalis
+(2026-06-01), confirming that the outer loop converges and the output dataset is complete.
+Once the realistic initialization task (<code class="docutils literal notranslate"><span class="pre">ocean/realistic/init</span></code>) is implemented, its
+regression tests will exercise the shared base class with WOA-derived CT/SA on at least
+one small or moderate-resolution global mesh, confirming that no modification to the base
+class is needed for realistic initialization.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Design Documents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="shared_steps.html" class="btn btn-neutral float-right" title="Shared steps" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

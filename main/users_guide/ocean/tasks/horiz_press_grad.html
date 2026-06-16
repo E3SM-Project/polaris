@@ -210,13 +210,14 @@ edge-normal coordinate.</p>
 </section>
 <section id="vertical-grid">
 <h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
-<p>The vertical coordinate is <code class="docutils literal notranslate"><span class="pre">z-tilde</span></code> with a uniform pseudo-height spacing for
-each test in <code class="docutils literal notranslate"><span class="pre">vert_resolutions</span></code>.</p>
+<p>The vertical coordinate is <code class="docutils literal notranslate"><span class="pre">p-star</span></code> (see <a class="reference internal" href="../framework/vertical.html#ocean-p-star"><span class="std std-ref">p-star</span></a>), Omega’s ALE
+pseudo-compressible variant of the z-tilde coordinate, with a uniform
+pseudo-height spacing for each test in <code class="docutils literal notranslate"><span class="pre">vert_resolutions</span></code>.</p>
 <p>The meaning of the along-layer <code class="docutils literal notranslate"><span class="pre">x</span></code> direction depends on the task variant.  In
-the <code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code> and <code class="docutils literal notranslate"><span class="pre">temperature_gradient</span></code> tests, the <code class="docutils literal notranslate"><span class="pre">z-tilde</span></code>
+the <code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code> and <code class="docutils literal notranslate"><span class="pre">temperature_gradient</span></code> tests, the z-tilde
 interfaces are level, so pressure surfaces are also horizontally level except
 where they intersect the bathymetry.  In the <code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code> test, the
-prescribed <code class="docutils literal notranslate"><span class="pre">z-tilde</span></code> gradient tilts the layers, so the pressure surfaces are
+prescribed z-tilde gradient tilts the layers, so the pressure surfaces are
 sloped and the along-layer direction follows those sloping layers.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">reference</span></code> step uses a finer spacing <code class="docutils literal notranslate"><span class="pre">vert_res</span></code> chosen so that every test
 spacing is an integer multiple of <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">vert_res</span></code>. This allows reference
@@ -291,10 +292,12 @@ two-column state.  This calculation is intentionally much closer to the
 discrete Omega formulation than the high-fidelity reference is.</p>
 <p>First, the step constructs the two-cell mesh and the test vertical grid for the
 requested <code class="docutils literal notranslate"><span class="pre">(horiz_res,</span> <span class="pre">vert_res)</span></code> pair.  Because the geometric water-column
-thickness depends on the equation of state through the mapping from
-<code class="docutils literal notranslate"><span class="pre">z-tilde</span></code> to <code class="docutils literal notranslate"><span class="pre">z</span></code>, the step iteratively rescales the pseudo-bottom depth so that
+thickness depends on the equation of state through the mapping from z-tilde to
+geometric height, the step iteratively rescales the pseudo-bottom depth so that
 the resulting geometric water-column thickness matches the prescribed
-sea-surface and bottom geometry.</p>
+sea-surface and bottom geometry.  This fixed-point iteration is provided by
+<a class="reference internal" href="../../../developers_guide/ocean/generated/polaris.ocean.vertical.pstar_init.PStarInitStep.html#polaris.ocean.vertical.pstar_init.PStarInitStep" title="polaris.ocean.vertical.pstar_init.PStarInitStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.vertical.pstar_init.PStarInitStep</span></code></a> (see
+<a class="reference internal" href="../../../developers_guide/ocean/framework.html#dev-ocean-framework-vertical"><span class="std std-ref">Vertical coordinate</span></a>), from which <code class="docutils literal notranslate"><span class="pre">Init</span></code> inherits.</p>
 <p>Once the initialized state is available, the Python diagnostic computes the
 same thermodynamic quantities used by Omega: pressure, specific volume,
 geometric height, and Montgomery potential.  It then forms a two-column finite
@@ -317,7 +320,7 @@ p_{\mathrm{edge}} = \frac{p_L + p_R}{2},
 \mathrm{HPGA}_{\mathrm{python}} = -\frac{\partial M}{\partial x}
 + p_{\mathrm{edge}}\frac{\partial \alpha}{\partial x}
 \]</div>
-<p>to <code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code>.</p>
+<p>to <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>.</p>
 <p>This Python HPGA is not the main reference solution.  Instead, it checks
 whether Omega’s one-step tendency matches the expected two-column discrete
 calculation from the initialized state.</p>
@@ -384,9 +387,9 @@ reference spacing is chosen so that the reference interfaces align exactly with
 test midpoints and interfaces.  The comparison only uses layers that are valid
 in both the reference and the Omega solution.</p>
 <p>For the Omega-versus-Python comparison, the analysis uses the HPGA written by
-the <code class="docutils literal notranslate"><span class="pre">init</span></code> step in <code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code>, so this second metric should be read as
-an implementation-consistency check rather than as an accuracy measure against
-the high-fidelity reference.</p>
+the <code class="docutils literal notranslate"><span class="pre">init</span></code> step in <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>, so this second metric should be read as an
+implementation-consistency check rather than as an accuracy measure against the
+high-fidelity reference.</p>
 <p>Implementation details for the <code class="docutils literal notranslate"><span class="pre">reference</span></code>, <code class="docutils literal notranslate"><span class="pre">init</span></code>, and <code class="docutils literal notranslate"><span class="pre">analysis</span></code> steps are
 described in <a class="reference internal" href="../../../developers_guide/ocean/tasks/horiz_press_grad.html#dev-ocean-horiz-press-grad"><span class="std std-ref">horiz_press_grad</span></a>.</p>
 </section>

@@ -682,6 +682,83 @@ For workflows that need pseudo-height/pressure conversion, the
   reconstructs geometric layer-interface and midpoint heights from
   pseudo-thickness and specific volume.
 
+For the p-star coordinate — Omega's ALE pseudo-compressible variant of
+z-tilde — two additional modules are provided.
+
+The function
+{py:func}`polaris.ocean.vertical.pstar.init_pstar_vertical_coord()` builds the
+p-star coordinate for one outer iteration.  It expects ``BottomPressure`` and
+``SurfacePressure`` (both in Pa with dimension ``nCells``) to already be
+present in the mesh dataset, and adds ``RefPseudoThickness``,
+``PseudoThickness``, ``ZTildeInterface``, ``ZTildeMid``, ``cellMask``,
+``minLevelCell``, ``maxLevelCell``, and ``vertCoordMovementWeights``.
+``BottomPressure`` is updated in place to the post-partial-cell-snap value.
+The reference 1-D grid (in pseudo-height) is controlled by the same
+``vertical_grid`` config options used by the z-star and z-level coordinates.
+Unlike those coordinates, the p-star coordinate cannot be constructed via
+{py:func}`polaris.ocean.vertical.init_vertical_coord()`; tasks must call
+``init_pstar_vertical_coord()`` directly (or rely on the base class below).
+
+The {py:class}`polaris.ocean.vertical.pstar_init.PStarInitStep` class
+implements the fixed-point iteration that determines ``BottomPressure``
+(and therefore the p-star coordinate) such that the recovered geometric
+water-column thickness matches a target bathymetric depth within a
+configurable tolerance.  At each outer step the iteration scales
+``BottomPressure`` by the ratio of the target to the recovered geometric
+water-column thickness.
+
+Subclasses of ``PStarInitStep`` must implement the abstract method
+{py:meth}`polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers()`,
+which receives the current p-star dataset (containing ``ZTildeMid``,
+``ZTildeInterface``, ``PseudoThickness``, ``cellMask``, ``minLevelCell``, and
+``maxLevelCell``) and returns conservative temperature and absolute salinity
+arrays with dimensions ``(Time, nCells, nVertLevels)``.  The iteration is
+driven by calling
+{py:meth}`polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init()`
+from within the step's ``run()`` method:
+
+```python
+from polaris.ocean.model import OceanIOStep
+from polaris.ocean.vertical.pstar_init import PStarInitStep
+
+
+class MyInit(PStarInitStep, OceanIOStep):
+    def init_tracers(self, ds):
+        ct = ...  # (Time, nCells, nVertLevels)
+        sa = ...  # (Time, nCells, nVertLevels)
+        return ct, sa
+
+    def run(self):
+        ds = self.run_pstar_init(
+            ds_mesh=ds_mesh,
+            geom_z_bot=geom_z_bot,
+            sea_surface_height=geom_ssh,
+        )
+        ...
+```
+
+At convergence, the returned dataset contains all p-star coordinate variables
+plus ``temperature``, ``salinity``, ``SpecVol``, ``pressure``, ``GeomZMid``,
+``GeomZInterface``, ``bottomDepth``, and ``ssh``.
+
+The iteration is controlled by two ``vertical_grid`` config options:
+
+```cfg
+# Number of outer iterations
+pseudothickness_iter_count = 6
+
+# Early-stopping threshold: iteration stops when the maximum fractional
+# change in geometric water-column thickness falls below this value
+water_col_adjust_frac_change_threshold = 1.0e-12
+```
+
+For tasks where each column has a different reference pseudo-depth (for
+example because the z-tilde bottom varies spatially), the semi-private method
+``_build_pstar_coord_ds()`` may be overridden to call
+``init_pstar_vertical_coord()`` per cell with cell-specific config options,
+as done in
+{py:class}`polaris.tasks.ocean.horiz_press_grad.init.Init`.
+
 For sigma coordinates, shared functionality for direct thickness computation is
 available in
 {py:func}`polaris.ocean.vertical.sigma.compute_sigma_layer_thickness()`.

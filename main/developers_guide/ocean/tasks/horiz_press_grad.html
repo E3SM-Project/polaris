@@ -193,27 +193,36 @@ the valid-gradient masks.</p>
 <section id="init">
 <h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init" title="polaris.tasks.ocean.horiz_press_grad.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.init.Init</span></code></a>
-defines one step per <code class="docutils literal notranslate"><span class="pre">(horiz_res,</span> <span class="pre">vert_res)</span></code> pair.</p>
+defines one step per <code class="docutils literal notranslate"><span class="pre">(horiz_res,</span> <span class="pre">vert_res)</span></code> pair.  It inherits from both
+<a class="reference internal" href="../generated/polaris.ocean.vertical.pstar_init.PStarInitStep.html#polaris.ocean.vertical.pstar_init.PStarInitStep" title="polaris.ocean.vertical.pstar_init.PStarInitStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.vertical.pstar_init.PStarInitStep</span></code></a> and
+<a class="reference internal" href="../generated/polaris.ocean.model.OceanIOStep.html#polaris.ocean.model.OceanIOStep" title="polaris.ocean.model.OceanIOStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep</span></code></a>.</p>
 <p>Each <code class="docutils literal notranslate"><span class="pre">init</span></code> step:</p>
 <ul class="simple">
 <li><p>builds and culls a planar two-cell mesh,</p></li>
-<li><p>sets up z-tilde vertical coordinates and profile fields,</p></li>
-<li><p>iteratively adjusts pseudo-bottom depth to match target geometric
-water-column thickness, and</p></li>
-<li><p>writes <code class="docutils literal notranslate"><span class="pre">culled_mesh.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code>.</p></li>
+<li><p>delegates the p-star iterative initialization to
+<a class="reference internal" href="../generated/polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init.html#polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init" title="polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_pstar_init()</span></code></a>,
+which adjusts <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> until the recovered geometric water-column
+thickness matches the prescribed sea-surface and seafloor geometry, and</p></li>
+<li><p>writes <code class="docutils literal notranslate"><span class="pre">culled_mesh.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code>, and <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>.</p></li>
 </ul>
-<p>The implementation is centered around <code class="docutils literal notranslate"><span class="pre">Init.run()</span></code> and three helpers:</p>
+<p>The class implements the two extension points required by <code class="docutils literal notranslate"><span class="pre">PStarInitStep</span></code>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">_init_z_tilde_vert_coord()</span></code> initializes the vertical coordinate for each
-column separately,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">_interpolate_t_s()</span></code> reconstructs temperature and salinity on the test grid,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">_compute_montgomery_and_hpga()</span></code> computes the Python-side HPGA diagnostic and
-related output fields.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">init_tracers()</span></code> reconstructs conservative temperature and absolute salinity
+at p-star layer midpoints by calling the private helper <code class="docutils literal notranslate"><span class="pre">_interpolate_t_s()</span></code>,
+which applies a PCHIP interpolator to the piecewise pseudo-height profiles
+defined in the configuration.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_build_pstar_coord_ds()</span></code> overrides the base-class default to call
+<a class="reference internal" href="../generated/polaris.ocean.vertical.pstar.init_pstar_vertical_coord.html#polaris.ocean.vertical.pstar.init_pstar_vertical_coord" title="polaris.ocean.vertical.pstar.init_pstar_vertical_coord"><code class="xref py py-func docutils literal notranslate"><span class="pre">init_pstar_vertical_coord()</span></code></a> per
+column, allowing each column to have a different reference pseudo-depth set
+by <code class="docutils literal notranslate"><span class="pre">z_tilde_bot</span></code> in the configuration.</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code> stores both the fields needed by Omega and the offline
-diagnostics later used in analysis, including <code class="docutils literal notranslate"><span class="pre">PressureMid</span></code>, <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code>,
-<code class="docutils literal notranslate"><span class="pre">Density</span></code>, <code class="docutils literal notranslate"><span class="pre">GeomZMid</span></code>, <code class="docutils literal notranslate"><span class="pre">GeomZInter</span></code>, <code class="docutils literal notranslate"><span class="pre">MontgomeryMid</span></code>, <code class="docutils literal notranslate"><span class="pre">MontgomeryInter</span></code>,
-<code class="docutils literal notranslate"><span class="pre">HPGA</span></code>, <code class="docutils literal notranslate"><span class="pre">dMdxMid</span></code>, <code class="docutils literal notranslate"><span class="pre">dalphadxMid</span></code>, <code class="docutils literal notranslate"><span class="pre">PEdgeMid</span></code>, and <code class="docutils literal notranslate"><span class="pre">dSAdxMid</span></code>.</p>
+<p>After the iteration converges, <code class="docutils literal notranslate"><span class="pre">Init.run()</span></code> appends the Python-side HPGA
+diagnostic via the private helper <code class="docutils literal notranslate"><span class="pre">_compute_montgomery_and_hpga()</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">init.nc</span></code> stores both the fields needed by Omega and the offline diagnostics
+later used in analysis, including <code class="docutils literal notranslate"><span class="pre">pressure</span></code>, <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code>, <code class="docutils literal notranslate"><span class="pre">Density</span></code>,
+<code class="docutils literal notranslate"><span class="pre">GeomZMid</span></code>, <code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code>, <code class="docutils literal notranslate"><span class="pre">MontgomeryMid</span></code>, <code class="docutils literal notranslate"><span class="pre">MontgomeryInter</span></code>, <code class="docutils literal notranslate"><span class="pre">HPGA</span></code>,
+<code class="docutils literal notranslate"><span class="pre">dMdxMid</span></code>, <code class="docutils literal notranslate"><span class="pre">dalphadxMid</span></code>, <code class="docutils literal notranslate"><span class="pre">PEdgeMid</span></code>, and <code class="docutils literal notranslate"><span class="pre">dSAdxMid</span></code>.  <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code>
+holds the p-star coordinate variables written for Omega.</p>
 </section>
 <section id="forward">
 <h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
@@ -228,7 +237,7 @@ defines one model step per horizontal resolution.</p>
 compares each <code class="docutils literal notranslate"><span class="pre">forward</span></code> result with:</p>
 <ul class="simple">
 <li><p>the high-fidelity reference solution, and</p></li>
-<li><p>the Python-computed HPGA from <code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code>.</p></li>
+<li><p>the Python-computed HPGA from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>.</p></li>
 </ul>
 <p>The step writes:</p>
 <ul class="simple">
@@ -249,7 +258,7 @@ such as <code class="docutils literal notranslate"><span class="pre">_get_intern
 plots.</p>
 <p>The key code-level distinction is that the reference comparison is built from
 <code class="docutils literal notranslate"><span class="pre">reference_solution.nc</span></code>, whereas the implementation-consistency comparison is
-built from <code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code>.  The forward solution always comes from
+built from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>.  The forward solution always comes from
 <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> via <code class="docutils literal notranslate"><span class="pre">NormalVelocityTend</span></code>.</p>
 </section>
 </section>

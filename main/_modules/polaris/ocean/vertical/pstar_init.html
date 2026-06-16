@@ -1,0 +1,542 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.ocean.vertical.pstar_init</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../vertical.html">polaris.ocean.vertical</a></li>
+      <li class="breadcrumb-item active">polaris.ocean.vertical.pstar_init</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.ocean.vertical.pstar_init</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Base class for steps that initialize the p-star vertical coordinate by</span>
+<span class="sd">iterating on BottomPressure until the recovered geometric seafloor depth</span>
+<span class="sd">matches a target bathymetry within a configurable tolerance.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_specvol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.grid_1d</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_1d_grid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.pstar</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_pstar_vertical_coord</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Gravity</span><span class="p">,</span>
+    <span class="n">RhoSw</span><span class="p">,</span>
+    <span class="n">geom_height_from_pseudo_height</span><span class="p">,</span>
+    <span class="n">pressure_from_z_tilde</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+
+
+<div class="viewcode-block" id="PStarInitStep">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.pstar_init.PStarInitStep.html#polaris.ocean.vertical.pstar_init.PStarInitStep">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PStarInitStep</span><span class="p">(</span><span class="n">Step</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for initialization steps that use the p-star vertical</span>
+<span class="sd">    coordinate.</span>
+
+<span class="sd">    Subclasses must implement :py:meth:`init_tracers`.  Subclasses may</span>
+<span class="sd">    optionally override :py:meth:`_build_pstar_coord_ds` when per-cell</span>
+<span class="sd">    coordinate construction is required (e.g. when each cell has a different</span>
+<span class="sd">    reference pseudo-depth).</span>
+
+<span class="sd">    The outer fixed-point iteration is provided by</span>
+<span class="sd">    :py:meth:`run_pstar_init`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PStarInitStep.init_tracers">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers.html#polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_tracers</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize conservative temperature (CT) and absolute salinity (SA)</span>
+<span class="sd">        at p-star layer midpoints for the current outer iteration.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds : xarray.Dataset</span>
+<span class="sd">            Current p-star dataset, including ``ZTildeMid``,</span>
+<span class="sd">            ``ZTildeInterface``, ``PseudoThickness``, ``cellMask``,</span>
+<span class="sd">            ``minLevelCell``, and ``maxLevelCell``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        conservative_temperature : xarray.DataArray</span>
+<span class="sd">            CT with dimensions ``(Time, nCells, nVertLevels)``.</span>
+<span class="sd">        absolute_salinity : xarray.DataArray</span>
+<span class="sd">            SA with dimensions ``(Time, nCells, nVertLevels)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_pstar_coord_ds</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ds_mesh</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">bottom_pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="n">surface_pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the p-star vertical coordinate dataset for one outer iteration.</span>
+
+<span class="sd">        The default implementation calls</span>
+<span class="sd">        :py:func:`~polaris.ocean.vertical.pstar.init_pstar_vertical_coord`</span>
+<span class="sd">        once on the full mesh.  Subclasses may override this method when</span>
+<span class="sd">        per-cell coordinate construction is required.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds_mesh : xarray.Dataset</span>
+<span class="sd">            Horizontal mesh dataset.</span>
+<span class="sd">        bottom_pressure : xarray.DataArray</span>
+<span class="sd">            Current BottomPressure guess with dimension ``nCells`` (Pa).</span>
+<span class="sd">        surface_pressure : xarray.DataArray, optional</span>
+<span class="sd">            Sea-surface pressure with dimension ``nCells`` (Pa).  Defaults to</span>
+<span class="sd">            zero for all cells.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xarray.Dataset</span>
+<span class="sd">            Dataset with p-star coordinate variables added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;BottomPressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_pressure</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;seafloor pressure&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Pa&#39;</span>
+        <span class="k">if</span> <span class="n">surface_pressure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">bottom_pressure</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SurfacePressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_pressure</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sea surface pressure&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Pa&#39;</span>
+        <span class="n">init_pstar_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;vertCoordMovementWeights&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;vertCoordMovementWeights&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">],</span>
+                <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;vertical coordinate movement weights&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+<div class="viewcode-block" id="PStarInitStep.run_pstar_init">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init.html#polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_pstar_init</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ds_mesh</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">geom_z_bot</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="n">surface_pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">sea_surface_height</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the fixed-point iteration that determines BottomPressure (and</span>
+<span class="sd">        therefore the p-star coordinate) such that the recovered geometric</span>
+<span class="sd">        water-column thickness matches the target within a configurable</span>
+<span class="sd">        fractional tolerance.</span>
+
+<span class="sd">        At convergence the returned dataset contains all p-star coordinate</span>
+<span class="sd">        variables, converged tracer fields, specific volume, pressure,</span>
+<span class="sd">        geometric height at layer midpoints and interfaces, ``bottomDepth``</span>
+<span class="sd">        set to the actual converged geometric water-column thickness, and</span>
+<span class="sd">        ``ssh`` computed as the diagnostic geometric sea-surface height.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds_mesh : xarray.Dataset</span>
+<span class="sd">            Horizontal mesh dataset.</span>
+<span class="sd">        geom_z_bot : xarray.DataArray</span>
+<span class="sd">            Target geometric height of the seafloor (negative, in metres)</span>
+<span class="sd">            with dimension ``nCells``.  Used both to anchor</span>
+<span class="sd">            ``geom_height_from_pseudo_height`` and to set the target</span>
+<span class="sd">            water-column thickness.</span>
+<span class="sd">        surface_pressure : xarray.DataArray, optional</span>
+<span class="sd">            Sea-surface pressure (Pa) with dimension ``nCells``.  Defaults</span>
+<span class="sd">            to zero for all cells.</span>
+<span class="sd">        sea_surface_height : xarray.DataArray, optional</span>
+<span class="sd">            Prescribed sea-surface height (m) with dimension ``nCells``.</span>
+<span class="sd">            The target water-column thickness is ``sea_surface_height -</span>
+<span class="sd">            geom_z_bot``; the iteration adjusts ``BottomPressure`` until</span>
+<span class="sd">            this target is met, so the converged ``ssh`` equals this value.</span>
+<span class="sd">            Defaults to ``-surface_pressure / (RhoSw * Gravity)``, i.e. the</span>
+<span class="sd">            resting surface-pressure depression for a reference-density fluid.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xarray.Dataset</span>
+<span class="sd">            Dataset containing all base-class output variables with</span>
+<span class="sd">            ``long_name`` and ``units`` attributes set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+
+        <span class="n">ncells</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">surface_pressure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ncells</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">],</span>
+                <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;sea surface pressure&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;Pa&#39;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sea_surface_height</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sea_surface_height</span> <span class="o">=</span> <span class="o">-</span><span class="n">surface_pressure</span> <span class="o">/</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
+
+        <span class="n">goal_geom_water_column_thickness</span> <span class="o">=</span> <span class="n">sea_surface_height</span> <span class="o">-</span> <span class="n">geom_z_bot</span>
+
+        <span class="n">bottom_pressure</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">surface_pressure</span>
+            <span class="o">+</span> <span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span> <span class="o">*</span> <span class="n">goal_geom_water_column_thickness</span>
+        <span class="p">)</span>
+
+        <span class="n">pseudothickness_iter_count</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
+            <span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;pseudothickness_iter_count&#39;</span>
+        <span class="p">)</span>
+        <span class="n">water_col_adjust_frac_change_threshold</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;water_col_adjust_frac_change_threshold&#39;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">water_col_adjust_frac_change_threshold</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;&quot;water_col_adjust_frac_change_threshold&quot; must be nonnegative.&#39;</span>
+            <span class="p">)</span>
+
+        <span class="n">prev_geom_water_column_thickness</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">prev_adjusted_bottom_pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Derive nVertLevels from the config-driven reference grid so the</span>
+        <span class="c1"># fallback zero-arrays below are shaped correctly even when ds_mesh</span>
+        <span class="c1"># does not carry a nVertLevels dimension.</span>
+        <span class="n">nvertlevels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">generate_1d_grid</span><span class="p">(</span><span class="n">config</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="c1"># These are assigned inside the loop; initialise to satisfy type</span>
+        <span class="c1"># checkers and so the post-loop assembly can reference them even if</span>
+        <span class="c1"># the loop body executes zero times (pseudothickness_iter_count == 0).</span>
+        <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">ct</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">nvertlevels</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">sa</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">p_mid</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">geom_z_inter</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">nvertlevels</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">geom_z_mid</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">geom_water_column_thickness</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">goal_geom_water_column_thickness</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pseudothickness_iter_count</span><span class="p">):</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_pstar_coord_ds</span><span class="p">(</span>
+                <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">bottom_pressure</span><span class="p">,</span> <span class="n">surface_pressure</span>
+            <span class="p">)</span>
+            <span class="c1"># ds.BottomPressure is the post-partial-cell-snap value</span>
+            <span class="n">adjusted_bottom_pressure</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span>
+
+            <span class="n">ct</span><span class="p">,</span> <span class="n">sa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_tracers</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+            <span class="n">p_mid</span> <span class="o">=</span> <span class="n">pressure_from_z_tilde</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="p">)</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: p_mid = </span><span class="si">{</span><span class="n">p_mid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">compute_specvol</span><span class="p">(</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">temperature</span><span class="o">=</span><span class="n">ct</span><span class="p">,</span>
+                <span class="n">salinity</span><span class="o">=</span><span class="n">sa</span><span class="p">,</span>
+                <span class="n">pressure</span><span class="o">=</span><span class="n">p_mid</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec_vol</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span>
+
+            <span class="n">min_level_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">max_level_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
+
+            <span class="n">geom_z_inter</span><span class="p">,</span> <span class="n">geom_z_mid</span> <span class="o">=</span> <span class="n">geom_height_from_pseudo_height</span><span class="p">(</span>
+                <span class="n">geom_z_bot</span><span class="o">=</span><span class="n">geom_z_bot</span><span class="p">,</span>
+                <span class="n">h_tilde</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="p">,</span>
+                <span class="n">spec_vol</span><span class="o">=</span><span class="n">spec_vol</span><span class="p">,</span>
+                <span class="n">min_level_cell</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">,</span>
+                <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">geom_z_min</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+                <span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevelsP1</span><span class="o">=</span><span class="n">min_level_cell</span>
+            <span class="p">)</span>
+            <span class="n">geom_z_max</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+                <span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevelsP1</span><span class="o">=</span><span class="n">max_level_cell</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="p">)</span>
+            <span class="n">geom_water_column_thickness</span> <span class="o">=</span> <span class="n">geom_z_min</span> <span class="o">-</span> <span class="n">geom_z_max</span>
+
+            <span class="c1"># convergence check</span>
+            <span class="k">if</span> <span class="n">prev_geom_water_column_thickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">frac_change</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
+                        <span class="n">geom_water_column_thickness</span>
+                        <span class="o">-</span> <span class="n">prev_geom_water_column_thickness</span>
+                    <span class="p">)</span>
+                    <span class="o">/</span> <span class="n">prev_geom_water_column_thickness</span>
+                <span class="p">)</span>
+                <span class="n">max_frac_change</span> <span class="o">=</span> <span class="n">frac_change</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: max fractional change in &#39;</span>
+                    <span class="s1">&#39;geometric water-column thickness = &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">max_frac_change</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">max_frac_change</span> <span class="o">&lt;</span> <span class="n">water_col_adjust_frac_change_threshold</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Early stopping after iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;max fractional change (</span><span class="si">{</span><span class="n">max_frac_change</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1">) &#39;</span>
+                        <span class="s1">&#39;is below threshold &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">water_col_adjust_frac_change_threshold</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1">).&#39;</span>
+                    <span class="p">)</span>
+                    <span class="k">break</span>
+
+            <span class="c1"># full-cell stagnation check — convergence check above takes</span>
+            <span class="c1"># priority so that a perfect initial guess (scaling = 1) exits</span>
+            <span class="c1"># cleanly rather than triggering this warning.</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">prev_adjusted_bottom_pressure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="p">(</span>
+                    <span class="n">adjusted_bottom_pressure</span> <span class="o">==</span> <span class="n">prev_adjusted_bottom_pressure</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+            <span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: full-cell snap is holding &#39;</span>
+                    <span class="s1">&#39;BottomPressure constant — stopping early to avoid &#39;</span>
+                    <span class="s1">&#39;non-convergence. bottomDepth will reflect the actual &#39;</span>
+                    <span class="s1">&#39;cell bottom rather than the target bathymetry.&#39;</span>
+                <span class="p">)</span>
+                <span class="k">break</span>
+
+            <span class="c1"># proportional-ratio update</span>
+            <span class="n">scaling_factor</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">goal_geom_water_column_thickness</span> <span class="o">/</span> <span class="n">geom_water_column_thickness</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;min scaling factor = </span><span class="si">{</span><span class="n">scaling_factor</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="s1">, &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;max scaling factor = </span><span class="si">{</span><span class="n">scaling_factor</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
+            <span class="n">bottom_pressure</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">surface_pressure</span>
+                <span class="o">+</span> <span class="p">(</span><span class="n">adjusted_bottom_pressure</span> <span class="o">-</span> <span class="n">surface_pressure</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">scaling_factor</span>
+            <span class="p">)</span>
+
+            <span class="n">prev_adjusted_bottom_pressure</span> <span class="o">=</span> <span class="n">adjusted_bottom_pressure</span>
+            <span class="n">prev_geom_water_column_thickness</span> <span class="o">=</span> <span class="n">geom_water_column_thickness</span>
+
+        <span class="c1"># Assemble the output dataset from the converged state</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ct</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;conservative temperature&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;degC&#39;</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sa</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;absolute salinity&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;g kg-1&#39;</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SpecVol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_vol</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;specific volume&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m3 kg-1&#39;</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;pressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_mid</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;pressure at layer midpoints&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Pa&#39;</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;GeomZMid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_z_mid</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;geometric height at layer midpoints&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;GeomZInterface&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_z_inter</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;geometric height at layer interfaces&#39;</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+
+        <span class="c1"># Use the actual converged water-column thickness (not the target)</span>
+        <span class="c1"># for thermodynamic self-consistency, even when bottom-cell snapping</span>
+        <span class="c1"># prevents an exact match to the target bathymetry.</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_water_column_thickness</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;seafloor geometric depth&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_z_min</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sea surface geometric height&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+
+        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;pseudo-height at layer midpoints&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+
+        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;pseudo-height at layer interfaces&#39;</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+
+        <span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;pseudo-layer thickness&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+
+        <span class="k">return</span> <span class="n">ds</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

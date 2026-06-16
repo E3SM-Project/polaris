@@ -1260,6 +1260,18 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height.html#polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height" title="polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.ztilde.geom_height_from_pseudo_height</span></code></a>(...)</p></td>
 <td><p>Sum geometric heights from pseudo-heights and specific volume.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.pstar.init_pstar_vertical_coord.html#polaris.ocean.vertical.pstar.init_pstar_vertical_coord" title="polaris.ocean.vertical.pstar.init_pstar_vertical_coord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.pstar.init_pstar_vertical_coord</span></code></a>(...)</p></td>
+<td><p>Create a p-star vertical coordinate based on the config options in the <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> section and the <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> and <code class="docutils literal notranslate"><span class="pre">SurfacePressure</span></code> variables of the mesh dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.pstar_init.PStarInitStep.html#polaris.ocean.vertical.pstar_init.PStarInitStep" title="polaris.ocean.vertical.pstar_init.PStarInitStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.pstar_init.PStarInitStep</span></code></a>(component, ...)</p></td>
+<td><p>Base class for initialization steps that use the p-star vertical coordinate.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers.html#polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers" title="polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.pstar_init.PStarInitStep.init_tracers</span></code></a>(ds)</p></td>
+<td><p>Initialize conservative temperature (CT) and absolute salinity (SA) at p-star layer midpoints for the current outer iteration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init.html#polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init" title="polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical.pstar_init.PStarInitStep.run_pstar_init</span></code></a>(...)</p></td>
+<td><p>Run the fixed-point iteration that determines BottomPressure (and therefore the p-star coordinate) such that the recovered geometric water-column thickness matches the target within a configurable fractional tolerance.</p></td>
+</tr>
 </tbody>
 </table>
 </section>

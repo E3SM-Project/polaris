@@ -761,6 +761,74 @@ layer thickness and state variables.</p></li>
 reconstructs geometric layer-interface and midpoint heights from
 pseudo-thickness and specific volume.</p></li>
 </ul>
+<p>For the p-star coordinate — Omega’s ALE pseudo-compressible variant of
+z-tilde — two additional modules are provided.</p>
+<p>The function
+<a class="reference internal" href="generated/polaris.ocean.vertical.pstar.init_pstar_vertical_coord.html#polaris.ocean.vertical.pstar.init_pstar_vertical_coord" title="polaris.ocean.vertical.pstar.init_pstar_vertical_coord"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.pstar.init_pstar_vertical_coord()</span></code></a> builds the
+p-star coordinate for one outer iteration.  It expects <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> and
+<code class="docutils literal notranslate"><span class="pre">SurfacePressure</span></code> (both in Pa with dimension <code class="docutils literal notranslate"><span class="pre">nCells</span></code>) to already be
+present in the mesh dataset, and adds <code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code>,
+<code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">ZTildeInterface</span></code>, <code class="docutils literal notranslate"><span class="pre">ZTildeMid</span></code>, <code class="docutils literal notranslate"><span class="pre">cellMask</span></code>,
+<code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>, and <code class="docutils literal notranslate"><span class="pre">vertCoordMovementWeights</span></code>.
+<code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> is updated in place to the post-partial-cell-snap value.
+The reference 1-D grid (in pseudo-height) is controlled by the same
+<code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> config options used by the z-star and z-level coordinates.
+Unlike those coordinates, the p-star coordinate cannot be constructed via
+<a class="reference internal" href="generated/polaris.ocean.vertical.init_vertical_coord.html#polaris.ocean.vertical.init_vertical_coord" title="polaris.ocean.vertical.init_vertical_coord"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.init_vertical_coord()</span></code></a>; tasks must call
+<code class="docutils literal notranslate"><span class="pre">init_pstar_vertical_coord()</span></code> directly (or rely on the base class below).</p>
+<p>The <a class="reference internal" href="generated/polaris.ocean.vertical.pstar_init.PStarInitStep.html#polaris.ocean.vertical.pstar_init.PStarInitStep" title="polaris.ocean.vertical.pstar_init.PStarInitStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.vertical.pstar_init.PStarInitStep</span></code></a> class
+implements the fixed-point iteration that determines <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code>
+(and therefore the p-star coordinate) such that the recovered geometric
+water-column thickness matches a target bathymetric depth within a
+configurable tolerance.  At each outer step the iteration scales
+<code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> by the ratio of the target to the recovered geometric
+water-column thickness.</p>
+<p>Subclasses of <code class="docutils literal notranslate"><span class="pre">PStarInitStep</span></code> must implement the abstract method
+<a class="reference internal" href="generated/polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers.html#polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers" title="polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers()</span></code></a>,
+which receives the current p-star dataset (containing <code class="docutils literal notranslate"><span class="pre">ZTildeMid</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ZTildeInterface</span></code>, <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">cellMask</span></code>, <code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>) and returns conservative temperature and absolute salinity
+arrays with dimensions <code class="docutils literal notranslate"><span class="pre">(Time,</span> <span class="pre">nCells,</span> <span class="pre">nVertLevels)</span></code>.  The iteration is
+driven by calling
+<a class="reference internal" href="generated/polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init.html#polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init" title="polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init()</span></code></a>
+from within the step’s <code class="docutils literal notranslate"><span class="pre">run()</span></code> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.pstar_init</span><span class="w"> </span><span class="kn">import</span> <span class="n">PStarInitStep</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyInit</span><span class="p">(</span><span class="n">PStarInitStep</span><span class="p">,</span> <span class="n">OceanIOStep</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_tracers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
+        <span class="n">ct</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># (Time, nCells, nVertLevels)</span>
+        <span class="n">sa</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># (Time, nCells, nVertLevels)</span>
+        <span class="k">return</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sa</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_pstar_init</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">geom_z_bot</span><span class="o">=</span><span class="n">geom_z_bot</span><span class="p">,</span>
+            <span class="n">sea_surface_height</span><span class="o">=</span><span class="n">geom_ssh</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>At convergence, the returned dataset contains all p-star coordinate variables
+plus <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code>, <code class="docutils literal notranslate"><span class="pre">pressure</span></code>, <code class="docutils literal notranslate"><span class="pre">GeomZMid</span></code>,
+<code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code>, <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code>, and <code class="docutils literal notranslate"><span class="pre">ssh</span></code>.</p>
+<p>The iteration is controlled by two <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> config options:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Number of outer iterations</span>
+<span class="na">pseudothickness_iter_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">6</span>
+
+<span class="c1"># Early-stopping threshold: iteration stops when the maximum fractional</span>
+<span class="c1"># change in geometric water-column thickness falls below this value</span>
+<span class="na">water_col_adjust_frac_change_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-12</span>
+</pre></div>
+</div>
+<p>For tasks where each column has a different reference pseudo-depth (for
+example because the z-tilde bottom varies spatially), the semi-private method
+<code class="docutils literal notranslate"><span class="pre">_build_pstar_coord_ds()</span></code> may be overridden to call
+<code class="docutils literal notranslate"><span class="pre">init_pstar_vertical_coord()</span></code> per cell with cell-specific config options,
+as done in
+<a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init" title="polaris.tasks.ocean.horiz_press_grad.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.init.Init</span></code></a>.</p>
 <p>For sigma coordinates, shared functionality for direct thickness computation is
 available in
 <a class="reference internal" href="generated/polaris.ocean.vertical.sigma.compute_sigma_layer_thickness.html#polaris.ocean.vertical.sigma.compute_sigma_layer_thickness" title="polaris.ocean.vertical.sigma.compute_sigma_layer_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.sigma.compute_sigma_layer_thickness()</span></code></a>.</p>

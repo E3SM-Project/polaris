@@ -55,28 +55,38 @@ the valid-gradient masks.
 ### init
 
 The class {py:class}`polaris.tasks.ocean.horiz_press_grad.init.Init`
-defines one step per `(horiz_res, vert_res)` pair.
+defines one step per `(horiz_res, vert_res)` pair.  It inherits from both
+{py:class}`polaris.ocean.vertical.pstar_init.PStarInitStep` and
+{py:class}`polaris.ocean.model.OceanIOStep`.
 
 Each `init` step:
 
 - builds and culls a planar two-cell mesh,
-- sets up z-tilde vertical coordinates and profile fields,
-- iteratively adjusts pseudo-bottom depth to match target geometric
-  water-column thickness, and
-- writes `culled_mesh.nc` and `initial_state.nc`.
+- delegates the p-star iterative initialization to
+  {py:meth}`~polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init()`,
+  which adjusts ``BottomPressure`` until the recovered geometric water-column
+  thickness matches the prescribed sea-surface and seafloor geometry, and
+- writes `culled_mesh.nc`, `vert_coord.nc`, and `init.nc`.
 
-The implementation is centered around `Init.run()` and three helpers:
+The class implements the two extension points required by `PStarInitStep`:
 
-- `_init_z_tilde_vert_coord()` initializes the vertical coordinate for each
-  column separately,
-- `_interpolate_t_s()` reconstructs temperature and salinity on the test grid,
-- `_compute_montgomery_and_hpga()` computes the Python-side HPGA diagnostic and
-  related output fields.
+- `init_tracers()` reconstructs conservative temperature and absolute salinity
+  at p-star layer midpoints by calling the private helper `_interpolate_t_s()`,
+  which applies a PCHIP interpolator to the piecewise pseudo-height profiles
+  defined in the configuration.
+- `_build_pstar_coord_ds()` overrides the base-class default to call
+  {py:func}`~polaris.ocean.vertical.pstar.init_pstar_vertical_coord()` per
+  column, allowing each column to have a different reference pseudo-depth set
+  by ``z_tilde_bot`` in the configuration.
 
-`initial_state.nc` stores both the fields needed by Omega and the offline
-diagnostics later used in analysis, including `PressureMid`, `SpecVol`,
-`Density`, `GeomZMid`, `GeomZInter`, `MontgomeryMid`, `MontgomeryInter`,
-`HPGA`, `dMdxMid`, `dalphadxMid`, `PEdgeMid`, and `dSAdxMid`.
+After the iteration converges, `Init.run()` appends the Python-side HPGA
+diagnostic via the private helper `_compute_montgomery_and_hpga()`.
+
+`init.nc` stores both the fields needed by Omega and the offline diagnostics
+later used in analysis, including `pressure`, `SpecVol`, `Density`,
+`GeomZMid`, `GeomZInterface`, `MontgomeryMid`, `MontgomeryInter`, `HPGA`,
+`dMdxMid`, `dalphadxMid`, `PEdgeMid`, and `dSAdxMid`.  `vert_coord.nc`
+holds the p-star coordinate variables written for Omega.
 
 ### forward
 
@@ -92,7 +102,7 @@ The class {py:class}`polaris.tasks.ocean.horiz_press_grad.analysis.Analysis`
 compares each `forward` result with:
 
 - the high-fidelity reference solution, and
-- the Python-computed HPGA from `initial_state.nc`.
+- the Python-computed HPGA from `init.nc`.
 
 The step writes:
 
@@ -114,5 +124,5 @@ plots.
 
 The key code-level distinction is that the reference comparison is built from
 `reference_solution.nc`, whereas the implementation-consistency comparison is
-built from `initial_state.nc`.  The forward solution always comes from
+built from `init.nc`.  The forward solution always comes from
 `output.nc` via `NormalVelocityTend`.

@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.ocean.vertical.pstar</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../vertical.html">polaris.ocean.vertical</a></li>
+      <li class="breadcrumb-item active">polaris.ocean.vertical.pstar</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.ocean.vertical.pstar</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">P-star vertical coordinate construction for Omega.</span>
+
+<span class="sd">The p-star coordinate is a specific ALE variant of Omega&#39;s z-tilde</span>
+<span class="sd">(pseudo-height) coordinate system.  It stores a set of reference</span>
+<span class="sd">pseudo-thicknesses ``RefPseudoThickness`` — the pseudo-thicknesses the layers</span>
+<span class="sd">would have if the sea-surface pressure were zero — together with</span>
+<span class="sd">``VertCoordMovementWeights`` that control how changes in total column mass are</span>
+<span class="sd">distributed across layers.  At runtime, Omega&#39;s</span>
+<span class="sd">``VertCoord::computeTargetThickness()`` adjusts each layer&#39;s</span>
+<span class="sd">pseudo-thickness from its reference value proportionally to the total column</span>
+<span class="sd">pressure difference and the layer&#39;s movement weight.</span>
+
+<span class="sd">Pseudo-height is defined as :math:`\\tilde{z} = -p / (\\rho_0 g)`, where</span>
+<span class="sd">:math:`p` is sea gauge pressure, :math:`\\rho_0` is a reference seawater</span>
+<span class="sd">density, and :math:`g` is gravitational acceleration.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_zint_zmid_from_layer_thickness</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.grid_1d</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_1d_grid</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;init_pstar_vertical_coord&#39;</span><span class="p">]</span>
+
+<span class="n">Gravity</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;standard_acceleration_of_gravity&#39;</span><span class="p">)</span>
+<span class="n">RhoSw</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;seawater_density_reference&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="init_pstar_vertical_coord">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.pstar.init_pstar_vertical_coord.html#polaris.ocean.vertical.pstar.init_pstar_vertical_coord">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">init_pstar_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a p-star vertical coordinate based on the config options in the</span>
+<span class="sd">    ``vertical_grid`` section and the ``BottomPressure`` and</span>
+<span class="sd">    ``SurfacePressure`` variables of the mesh dataset.</span>
+
+<span class="sd">    ``RefPseudoThickness`` is the pseudo-thickness each layer would have at</span>
+<span class="sd">    zero ``SurfacePressure``; it is set by clipping the reference 1-D grid</span>
+<span class="sd">    at the snapped ``BottomPressure / (rho0 * g)``.  ``PseudoThickness`` is</span>
+<span class="sd">    then scaled from ``RefPseudoThickness`` by</span>
+<span class="sd">    ``(BottomPressure - SurfacePressure) / BottomPressure``, the p-star</span>
+<span class="sd">    analogue of z-star&#39;s ``layerThickness = restingThickness *</span>
+<span class="sd">    (ssh + bottomDepth) / bottomDepth``.</span>
+
+<span class="sd">    The following new variables are added to ``ds``:</span>
+
+<span class="sd">    * ``minLevelCell`` — index of the topmost valid layer (1-based; always</span>
+<span class="sd">      1, since non-zero top levels are not supported)</span>
+<span class="sd">    * ``maxLevelCell`` — index of the bottommost valid layer (1-based)</span>
+<span class="sd">    * ``cellMask`` — boolean mask of valid layers</span>
+<span class="sd">    * ``RefPseudoThickness`` — reference pseudo-thickness (no Time dim)</span>
+<span class="sd">    * ``PseudoThickness`` — pseudo-thickness scaled by surface pressure</span>
+<span class="sd">    * ``ZTildeInterface`` — pseudo-height at layer interfaces</span>
+<span class="sd">    * ``ZTildeMid`` — pseudo-height at layer midpoints</span>
+<span class="sd">    * ``vertCoordMovementWeights`` — weights for coordinate movement (all 1)</span>
+
+<span class="sd">    ``BottomPressure`` in ``ds`` is updated to the post-snap value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Configuration options with parameters used to construct the vertical</span>
+<span class="sd">        grid.</span>
+
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Dataset containing ``BottomPressure`` and ``SurfacePressure``</span>
+<span class="sd">        variables (both in Pa with dimension ``nCells``) used to construct</span>
+<span class="sd">        the vertical coordinate.  Also requires ``nVertLevels`` to be a</span>
+<span class="sd">        dimension of ``ds``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">interfaces</span> <span class="o">=</span> <span class="n">generate_1d_grid</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">ref_pseudo_depth_top</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">interfaces</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">])</span>
+    <span class="n">ref_pseudo_depth_bot</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">interfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">])</span>
+
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;vertCoordMovementWeights&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ref_pseudo_depth_bot</span><span class="p">)</span>
+
+    <span class="n">min_vert_levels</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;min_vert_levels&#39;</span><span class="p">)</span>
+    <span class="n">min_layer_thickness</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+        <span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;min_layer_thickness&#39;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># pseudo_bottom_depth is defined at zero SurfacePressure: it sets the</span>
+    <span class="c1"># boundaries of RefPseudoThickness.</span>
+    <span class="n">pseudo_bottom_depth</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span> <span class="o">/</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;Time&#39;</span> <span class="ow">in</span> <span class="n">pseudo_bottom_depth</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">pseudo_bottom_depth</span> <span class="o">=</span> <span class="n">pseudo_bottom_depth</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span> <span class="o">=</span> <span class="n">_compute_min_max_level_cell</span><span class="p">(</span>
+        <span class="n">ref_pseudo_depth_top</span><span class="p">,</span>
+        <span class="n">pseudo_bottom_depth</span><span class="p">,</span>
+        <span class="n">min_vert_levels</span><span class="p">,</span>
+        <span class="n">min_layer_thickness</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">pseudo_bottom_depth</span><span class="p">,</span> <span class="n">max_level_cell</span> <span class="o">=</span> <span class="n">_alter_pseudo_column_thickness</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span> <span class="n">pseudo_bottom_depth</span><span class="p">,</span> <span class="n">ref_pseudo_depth_bot</span><span class="p">,</span> <span class="n">max_level_cell</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Update BottomPressure after partial-cell snap.  The resting depth</span>
+    <span class="c1"># (SurfacePressure = 0) determines the snap; SurfacePressure then scales</span>
+    <span class="c1"># the layers uniformly, analogous to ssh in z-star.</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;BottomPressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pseudo_bottom_depth</span> <span class="o">*</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
+
+    <span class="c1"># Resting pseudo-thicknesses (as if SurfacePressure = 0), then scale by</span>
+    <span class="c1"># (BottomPressure - SurfacePressure) / BottomPressure to account for the</span>
+    <span class="c1"># surface pressure squashing the column — the p-star analogue of z-star&#39;s</span>
+    <span class="c1"># layerThickness = restingThickness * (ssh + bottomDepth) / bottomDepth.</span>
+    <span class="n">ref_pseudo_thickness</span> <span class="o">=</span> <span class="n">_compute_ref_pseudo_thickness</span><span class="p">(</span>
+        <span class="n">ref_pseudo_depth_top</span><span class="p">,</span>
+        <span class="n">ref_pseudo_depth_bot</span><span class="p">,</span>
+        <span class="n">pseudo_bottom_depth</span><span class="p">,</span>
+        <span class="n">min_level_cell</span><span class="p">,</span>
+        <span class="n">max_level_cell</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span> <span class="o">-</span> <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="p">)</span> <span class="o">/</span> <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="p">,</span>
+        <span class="mf">1.0</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">_compute_cell_mask</span><span class="p">(</span>
+        <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;cellMask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cell_mask</span>
+
+    <span class="n">ref_pseudo_thickness</span> <span class="o">=</span> <span class="n">ref_pseudo_thickness</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;RefPseudoThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_pseudo_thickness</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">pseudo_thickness</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref_pseudo_thickness</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">)</span>
+    <span class="n">pseudo_thickness</span> <span class="o">=</span> <span class="n">pseudo_thickness</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># add Time dimension to PseudoThickness but not RefPseudoThickness</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;PseudoThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pseudo_thickness</span>
+
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ZTildeInterface&#39;</span><span class="p">],</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ZTildeMid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">compute_zint_zmid_from_layer_thickness</span><span class="p">(</span>
+            <span class="n">layer_thickness</span><span class="o">=</span><span class="n">pseudo_thickness</span><span class="p">,</span>
+            <span class="n">bottom_depth</span><span class="o">=</span><span class="n">pseudo_bottom_depth</span><span class="p">,</span>
+            <span class="n">min_level_cell</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">,</span>
+            <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># fortran 1-based indexing</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;minLevelCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_level_cell</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;maxLevelCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_level_cell</span> <span class="o">+</span> <span class="mi">1</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_min_max_level_cell</span><span class="p">(</span>
+    <span class="n">ref_pseudo_depth_top</span><span class="p">,</span>
+    <span class="n">pseudo_bottom_depth</span><span class="p">,</span>
+    <span class="n">min_vert_levels</span><span class="p">,</span>
+    <span class="n">min_layer_thickness</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute zero-based ``minLevelCell`` and ``maxLevelCell`` indices for the</span>
+<span class="sd">    given reference grid and pseudo-bottom depth.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">pseudo_bottom_depth</span> <span class="o">&gt;=</span> <span class="n">min_layer_thickness</span> <span class="o">*</span> <span class="n">min_vert_levels</span>
+
+    <span class="n">above_bot_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref_pseudo_depth_top</span> <span class="o">&lt;</span> <span class="n">pseudo_bottom_depth</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+        <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span>
+    <span class="p">)</span>
+    <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">above_bot_mask</span><span class="p">,</span> <span class="n">valid</span><span class="p">)</span>
+
+    <span class="c1"># non-zero top index (e.g. ice-shelf cavities) is not supported</span>
+    <span class="n">min_level_cell</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">pseudo_bottom_depth</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">max_level_cell</span> <span class="o">=</span> <span class="p">(</span><span class="n">cell_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">max_level_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span>
+        <span class="n">max_level_cell</span><span class="p">,</span> <span class="n">min_level_cell</span> <span class="o">+</span> <span class="n">min_vert_levels</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_cell_mask</span><span class="p">(</span><span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span><span class="p">,</span> <span class="n">n_vert_levels</span><span class="p">):</span>
+    <span class="n">z_index</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_vert_levels</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">z_index</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">z_index</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_alter_pseudo_column_thickness</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">,</span> <span class="n">pseudo_bottom_depth</span><span class="p">,</span> <span class="n">ref_pseudo_depth_bot</span><span class="p">,</span> <span class="n">max_level_cell</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply full or partial bottom-cell snapping to ``pseudo_bottom_depth``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">]</span>
+    <span class="n">partial_cell_type</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
+    <span class="n">min_pc_fraction</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_cell_type&#39;</span><span class="p">):</span>
+        <span class="n">partial_cell_type</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;partial_cell_type&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">min_pc_fraction</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;min_pc_fraction&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">partial_cell_type</span> <span class="o">==</span> <span class="s1">&#39;full&#39;</span><span class="p">:</span>
+        <span class="n">pseudo_bottom_depth</span> <span class="o">=</span> <span class="n">_compute_full_cells_pseudo_depth</span><span class="p">(</span>
+            <span class="n">ref_pseudo_depth_bot</span><span class="p">,</span> <span class="n">max_level_cell</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">partial_cell_type</span> <span class="o">==</span> <span class="s1">&#39;partial&#39;</span><span class="p">:</span>
+        <span class="n">pseudo_bottom_depth</span><span class="p">,</span> <span class="n">max_level_cell</span> <span class="o">=</span> <span class="n">_snap_partial_cells</span><span class="p">(</span>
+            <span class="n">pseudo_bottom_depth</span><span class="p">,</span>
+            <span class="n">ref_pseudo_depth_bot</span><span class="p">,</span>
+            <span class="n">max_level_cell</span><span class="p">,</span>
+            <span class="n">min_pc_fraction</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">partial_cell_type</span> <span class="o">!=</span> <span class="s1">&#39;none&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected partial cell type </span><span class="si">{</span><span class="n">partial_cell_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pseudo_bottom_depth</span><span class="p">,</span> <span class="n">max_level_cell</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_full_cells_pseudo_depth</span><span class="p">(</span><span class="n">ref_pseudo_depth_bot</span><span class="p">,</span> <span class="n">level_index</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the full-cell pseudo-depth at the bottom of ``level_index``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pseudo_depth</span> <span class="o">=</span> <span class="n">ref_pseudo_depth_bot</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">level_index</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">level_index</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">other</span><span class="o">=</span><span class="mf">0.0</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">pseudo_depth</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_snap_partial_cells</span><span class="p">(</span>
+    <span class="n">pseudo_bottom_depth</span><span class="p">,</span>
+    <span class="n">ref_pseudo_depth_bot</span><span class="p">,</span>
+    <span class="n">max_level_cell</span><span class="p">,</span>
+    <span class="n">min_pc_fraction</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Snap ``pseudo_bottom_depth`` and ``max_level_cell`` for partial cells.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">full_bot</span> <span class="o">=</span> <span class="n">_compute_full_cells_pseudo_depth</span><span class="p">(</span>
+        <span class="n">ref_pseudo_depth_bot</span><span class="p">,</span> <span class="n">max_level_cell</span>
+    <span class="p">)</span>
+    <span class="n">full_top</span> <span class="o">=</span> <span class="n">_compute_full_cells_pseudo_depth</span><span class="p">(</span>
+        <span class="n">ref_pseudo_depth_bot</span><span class="p">,</span> <span class="n">max_level_cell</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="n">full_thickness</span> <span class="o">=</span> <span class="n">full_bot</span> <span class="o">-</span> <span class="n">full_top</span>
+
+    <span class="n">pseudo_depth_min_bot</span> <span class="o">=</span> <span class="n">full_bot</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">min_pc_fraction</span><span class="p">)</span> <span class="o">*</span> <span class="n">full_thickness</span>
+    <span class="n">pseudo_depth_min_bot_mid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">pseudo_depth_min_bot</span> <span class="o">+</span> <span class="n">full_top</span><span class="p">)</span>
+
+    <span class="c1"># where the bottom is far too shallow, remove the last level</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">pseudo_bottom_depth</span> <span class="o">&lt;</span> <span class="n">pseudo_depth_min_bot_mid</span>
+    <span class="n">max_level_cell</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">max_level_cell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">max_level_cell</span><span class="p">)</span>
+    <span class="n">pseudo_bottom_depth</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">full_top</span><span class="p">,</span> <span class="n">pseudo_bottom_depth</span><span class="p">)</span>
+
+    <span class="c1"># where the bottom is only slightly too shallow, snap it deeper</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span>
+        <span class="n">pseudo_bottom_depth</span> <span class="o">&lt;</span> <span class="n">pseudo_depth_min_bot</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pseudo_bottom_depth</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">mask</span><span class="p">,</span> <span class="n">pseudo_depth_min_bot</span><span class="p">,</span> <span class="n">pseudo_bottom_depth</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pseudo_bottom_depth</span><span class="p">,</span> <span class="n">max_level_cell</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_ref_pseudo_thickness</span><span class="p">(</span>
+    <span class="n">ref_pseudo_depth_top</span><span class="p">,</span>
+    <span class="n">ref_pseudo_depth_bot</span><span class="p">,</span>
+    <span class="n">pseudo_bottom_depth</span><span class="p">,</span>
+    <span class="n">min_level_cell</span><span class="p">,</span>
+    <span class="n">max_level_cell</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute resting p-star pseudo-thicknesses (as if SurfacePressure = 0)</span>
+<span class="sd">    by clipping reference layers at ``pseudo_bottom_depth``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_vert_levels</span> <span class="o">=</span> <span class="n">ref_pseudo_depth_bot</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
+    <span class="n">z_index</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_vert_levels</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">])</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">z_index</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">z_index</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
+
+    <span class="n">pseudo_depth_bot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">pseudo_bottom_depth</span><span class="p">,</span> <span class="n">ref_pseudo_depth_bot</span><span class="p">)</span>
+    <span class="n">pseudo_thickness</span> <span class="o">=</span> <span class="p">(</span><span class="n">pseudo_depth_bot</span> <span class="o">-</span> <span class="n">ref_pseudo_depth_top</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+        <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pseudo_thickness</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>
