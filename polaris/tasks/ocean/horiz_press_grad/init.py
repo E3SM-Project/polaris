@@ -5,15 +5,10 @@ from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.ocean.coriolis import add_coriolis_to_dataset
-from polaris.ocean.eos import compute_specvol
 from polaris.ocean.model import OceanIOStep
-from polaris.ocean.vertical.ztilde import (
-    Gravity,
-    RhoSw,
-    geom_height_from_pseudo_height,
-    init_z_tilde_vertical_coord,
-    pressure_from_z_tilde,
-)
+from polaris.ocean.vertical.pstar import init_pstar_vertical_coord
+from polaris.ocean.vertical.pstar_init import PStarInitStep
+from polaris.ocean.vertical.ztilde import Gravity, RhoSw
 from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.horiz_press_grad.column import (
     get_array_from_mid_grad,
@@ -21,7 +16,7 @@ from polaris.tasks.ocean.horiz_press_grad.column import (
 )
 
 
-class Init(OceanIOStep):
+class Init(PStarInitStep, OceanIOStep):
     """
     A step for creating a mesh and initial condition for two column
     test cases
@@ -33,6 +28,10 @@ class Init(OceanIOStep):
 
     vert_res : float
         The vertical resolution in m
+
+    x : numpy.ndarray
+        The x-coordinates of the two columns in km, used by
+        :py:meth:`init_tracers` and :py:meth:`_build_pstar_coord_ds`.
     """
 
     def __init__(self, component, horiz_res, vert_res, indir):
@@ -56,6 +55,7 @@ class Init(OceanIOStep):
         """
         self.horiz_res = horiz_res
         self.vert_res = vert_res
+        self.x: np.ndarray = np.array([])
         name = f'init_{resolution_to_string(horiz_res)}'
         super().__init__(component=component, name=name, indir=indir)
 
@@ -70,7 +70,6 @@ class Init(OceanIOStep):
         Run this step of the test case
         """
         logger = self.logger
-        # logger.setLevel(logging.INFO)
         config = self.config
         hpg_section = config['horiz_press_grad']
         if config.get('ocean', 'model') != 'omega':
@@ -135,233 +134,25 @@ class Init(OceanIOStep):
             )
 
         x = horiz_res * np.array([-0.5, 0.5], dtype=float)
+        # Store x so init_tracers and _build_pstar_coord_ds can access it
+        self.x = x
         geom_ssh, geom_z_bot = self._get_geom_ssh_z_bot(x)
 
-        goal_geom_water_column_thickness = geom_ssh - geom_z_bot
-
-        # first guess at the bottom pressure is based on the geometric water
-        # column thickness and a constant density.  It will be iteratively
-        # adjusted until we get the desired geometric bottom depth
-        bottom_pressure = RhoSw * Gravity * goal_geom_water_column_thickness
-
-        pseudothickness_iter_count = config.getint(
-            'vertical_grid', 'pseudothickness_iter_count'
+        # Delegate the p-star iterative initialization to the base class.
+        # surface_pressure defaults to zero; sea_surface_height drives the
+        # target water-column thickness.
+        ds = self.run_pstar_init(
+            ds_mesh=ds_mesh,
+            geom_z_bot=geom_z_bot,
+            sea_surface_height=geom_ssh,
         )
-
-        if pseudothickness_iter_count is None:
-            raise ValueError(
-                'The "pseudothickness_iter_count" configuration option '
-                'must be set in the "vertical_grid" section.'
-            )
-
-        water_col_adjust_frac_change_threshold = hpg_section.getfloat(
-            'water_col_adjust_frac_change_threshold'
-        )
-        if water_col_adjust_frac_change_threshold is None:
-            raise ValueError(
-                'The "water_col_adjust_frac_change_threshold" configuration '
-                'option must be set in the "horiz_press_grad" section.'
-            )
-        if water_col_adjust_frac_change_threshold < 0.0:
-            raise ValueError(
-                'The "water_col_adjust_frac_change_threshold" configuration '
-                'option must be nonnegative.'
-            )
-
-        prev_geom_water_column_thickness: xr.DataArray | None = None
-        prev_adjusted_bottom_pressure: xr.DataArray | None = None
-
-        for iter in range(pseudothickness_iter_count):
-            ds = self._init_z_tilde_vert_coord(ds_mesh, bottom_pressure, x)
-            # ds.BottomPressure reflects the post-partial-cell-adjustment value
-            adjusted_bottom_pressure = ds.BottomPressure
-
-            # When partial_cell_type == 'full', the snap constrains the column
-            # to a fixed reference level regardless of the raw bottom_pressure.
-            # Detect this by checking if the adjusted pressure is unchanged.
-            if (
-                prev_adjusted_bottom_pressure is not None
-                and (
-                    adjusted_bottom_pressure == prev_adjusted_bottom_pressure
-                ).all()
-            ):
-                logger.warning(
-                    f'Iteration {iter}: full-cell snap is holding '
-                    'BottomPressure constant — stopping early to avoid '
-                    'non-convergence. bottomDepth will reflect the actual '
-                    'cell bottom rather than the target bathymetry.'
-                )
-                break
-
-            prev_adjusted_bottom_pressure = adjusted_bottom_pressure
-
-            z_tilde_mid = ds.ZTildeMid
-            h_tilde = ds.PseudoThickness
-
-            logger.debug(f'z_tilde_mid = {z_tilde_mid}')
-            logger.debug(f'h_tilde = {h_tilde}')
-
-            ct, sa = self._interpolate_t_s(
-                ds=ds,
-                z_tilde_mid=z_tilde_mid,
-                x=x,
-            )
-            p_mid = pressure_from_z_tilde(
-                z_tilde=z_tilde_mid,
-            )
-
-            logger.debug(f'ct = {ct}')
-            logger.debug(f'sa = {sa}')
-            logger.debug(f'p_mid = {p_mid}')
-
-            spec_vol = compute_specvol(
-                config=config,
-                temperature=ct,
-                salinity=sa,
-                pressure=p_mid,
-            )
-            assert isinstance(spec_vol, xr.DataArray)
-
-            logger.debug(f'geom_z_bot = {geom_z_bot}')
-            logger.debug(f'spec_vol = {spec_vol}')
-
-            min_level_cell = ds.minLevelCell - 1
-            max_level_cell = ds.maxLevelCell - 1
-            logger.debug(f'min_level_cell = {min_level_cell}')
-            logger.debug(f'max_level_cell = {max_level_cell}')
-
-            geom_z_inter, geom_z_mid = geom_height_from_pseudo_height(
-                geom_z_bot=geom_z_bot,
-                h_tilde=h_tilde,
-                spec_vol=spec_vol,
-                min_level_cell=min_level_cell,
-                max_level_cell=max_level_cell,
-            )
-
-            logger.debug(f'geom_z_inter = {geom_z_inter}')
-            logger.debug(f'geom_z_mid = {geom_z_mid}')
-
-            # the water column thickness is the difference in the geometric
-            # height between the first and last valid valid interfaces
-
-            geom_z_min = geom_z_inter.isel(
-                Time=0, nVertLevelsP1=min_level_cell
-            )
-            geom_z_max = geom_z_inter.isel(
-                Time=0, nVertLevelsP1=max_level_cell + 1
-            )
-            # the min is shallower (less negative) than the max
-            geom_water_column_thickness = geom_z_min - geom_z_max
-            logger.debug(
-                f'geom_water_column_thickness = {geom_water_column_thickness}'
-            )
-
-            if prev_geom_water_column_thickness is not None:
-                frac_change = (
-                    np.abs(
-                        geom_water_column_thickness
-                        - prev_geom_water_column_thickness
-                    )
-                    / prev_geom_water_column_thickness
-                )
-                max_frac_change = frac_change.max().item()
-
-                logger.info(
-                    f'Iteration {iter}: max fractional change in '
-                    f'geometric water-column thickness = '
-                    f'{max_frac_change:.6e}'
-                )
-
-                if max_frac_change < water_col_adjust_frac_change_threshold:
-                    logger.info(
-                        f'Early stopping water-column adjustment after '
-                        f'iteration {iter} because max fractional change '
-                        f'({max_frac_change:.6e}) is below threshold '
-                        f'({water_col_adjust_frac_change_threshold:.6e}).'
-                    )
-                    break
-
-            # scale the pseudo bottom depth proportional to how far off we are
-            # in the geometric water column thickness from the goal
-            scaling_factor = (
-                goal_geom_water_column_thickness / geom_water_column_thickness
-            )
-
-            max_scaling_factor = scaling_factor.max().item()
-            min_scaling_factor = scaling_factor.min().item()
-            logger.info(
-                f'Iteration {iter}: min scaling factor = '
-                f'{min_scaling_factor:.6f}, '
-                f'max scaling factor = {max_scaling_factor:.6f}'
-            )
-
-            # Scale from the post-adjustment pressure so we move relative to
-            # the effective (snapped) bottom, not the raw input.
-            bottom_pressure = adjusted_bottom_pressure * scaling_factor
-
-            logger.info(
-                f'Iteration {iter}: bottom pressures = '
-                f'{bottom_pressure.values}'
-            )
-
-            prev_geom_water_column_thickness = geom_water_column_thickness
-
-        ds['temperature'] = ct
-        ds['salinity'] = sa
-        ds['SpecVol'] = spec_vol
-
-        ds['SurfacePressure'] = xr.DataArray(
-            data=np.zeros((1, ncells), dtype=float),
-            dims=['Time', 'nCells'],
-            attrs={
-                'long_name': 'sea surface gauge pressure',
-                'units': 'Pa',
-            },
-        )
-
-        # Use the actual per-cell geometric water column at convergence so that
-        # SSH == 0 holds exactly at initialization even when partial cells push
-        # the effective bathymetry shallower than the target.
-        ds['bottomDepth'] = geom_water_column_thickness
-        ds.bottomDepth.attrs['long_name'] = 'seafloor geometric height'
-        ds.bottomDepth.attrs['units'] = 'm'
-
-        ds['pressure'] = p_mid
-        ds.pressure.attrs['long_name'] = 'gauge pressure at layer midpoints'
-        ds.pressure.attrs['units'] = 'Pa'
 
         ds['Density'] = 1.0 / ds['SpecVol']
         ds.Density.attrs['long_name'] = 'density'
         ds.Density.attrs['units'] = 'kg m-3'
 
-        ds.ZTildeMid.attrs['long_name'] = 'pseudo-height at layer midpoints'
-        ds.ZTildeMid.attrs['units'] = 'm'
-
-        ds.ZTildeInterface.attrs['long_name'] = (
-            'pseudo-height at layer interfaces'
-        )
-        ds.ZTildeInterface.attrs['units'] = 'm'
-
-        ds['GeomZMid'] = geom_z_mid
-        ds.GeomZMid.attrs['long_name'] = 'geometric height at layer midpoints'
-        ds.GeomZMid.attrs['units'] = 'm'
-
-        ds['GeomZInterface'] = geom_z_inter
-        ds.GeomZInterface.attrs['long_name'] = (
-            'geometric height at layer interfaces'
-        )
-        ds.GeomZInterface.attrs['units'] = 'm'
-
-        self._compute_montgomery_and_hpga(ds=ds, dx=dx, p_mid=p_mid)
-
-        ds.PseudoThickness.attrs['long_name'] = 'pseudo-layer thickness'
-        ds.PseudoThickness.attrs['units'] = 'm'
-
-        ds.ZTildeMid.attrs['long_name'] = 'pseudo-height at layer midpoints'
-        ds.ZTildeMid.attrs['units'] = 'm'
-
-        nedges = ds_mesh.sizes['nEdges']
         nvertlevels = ds.sizes['nVertLevels']
+        nedges = ds_mesh.sizes['nEdges']
 
         ds['normalVelocity'] = xr.DataArray(
             data=np.zeros((1, nedges, nvertlevels), dtype=float),
@@ -374,8 +165,79 @@ class Init(OceanIOStep):
         ds.attrs['nx'] = nx
         ds.attrs['ny'] = ny
         ds.attrs['dc'] = dc
+
+        self._compute_montgomery_and_hpga(ds=ds, dx=dx, p_mid=ds.pressure)
+
         self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
         self.write_initial_state_dataset(ds, 'init.nc', config)
+
+    def init_tracers(
+        self, ds: xr.Dataset
+    ) -> tuple[xr.DataArray, xr.DataArray]:
+        """
+        Interpolate conservative temperature and absolute salinity from
+        piecewise pseudo-height profiles defined in the configuration.
+        """
+        return self._interpolate_t_s(ds=ds, z_tilde_mid=ds.ZTildeMid, x=self.x)
+
+    def _build_pstar_coord_ds(
+        self,
+        ds_mesh: xr.Dataset,
+        bottom_pressure: xr.DataArray,
+        surface_pressure: xr.DataArray | None = None,
+    ) -> xr.Dataset:
+        """
+        Build the p-star coordinate per cell, allowing each column to have a
+        different reference pseudo-depth set by ``z_tilde_bot`` in config.
+        """
+        config = self.config
+        x = self.x
+
+        z_tilde_bot = get_array_from_mid_grad(config, 'z_tilde_bot', x)
+
+        ds = ds_mesh.copy()
+        ds['BottomPressure'] = bottom_pressure
+        ds.BottomPressure.attrs['long_name'] = 'seafloor gauge pressure'
+        ds.BottomPressure.attrs['units'] = 'Pa'
+        if surface_pressure is None:
+            surface_pressure = xr.zeros_like(bottom_pressure)
+        ds['SurfacePressure'] = surface_pressure
+        ds.SurfacePressure.attrs['long_name'] = 'sea surface gauge pressure'
+        ds.SurfacePressure.attrs['units'] = 'Pa'
+
+        ds_list: list[xr.Dataset] = []
+        for icell in range(ds.sizes['nCells']):
+            pseudo_bottom_depth = -z_tilde_bot[icell]
+            ds_cell = ds.isel(nCells=slice(icell, icell + 1))
+            local_config = config.copy()
+            local_config.set(
+                'vertical_grid', 'bottom_depth', str(pseudo_bottom_depth)
+            )
+            init_pstar_vertical_coord(local_config, ds_cell)
+            cell_vars = [
+                var
+                for var in ds_cell.data_vars
+                if 'nCells' in ds_cell[var].dims
+            ]
+            ds_list.append(ds_cell[cell_vars])
+
+        ds_cell_vars = xr.concat(ds_list, dim='nCells')
+        for var in ds_cell_vars.data_vars:
+            attrs = ds_cell_vars[var].attrs
+            ds[var] = ds_cell_vars[var]
+            ds[var].attrs = attrs
+
+        # vertCoordMovementWeights is a vertical-only variable; the per-cell
+        # loop above only copies cell variables back, so add it here.
+        ds['vertCoordMovementWeights'] = xr.DataArray(
+            data=np.ones(ds.sizes['nVertLevels'], dtype=float),
+            dims=['nVertLevels'],
+            attrs={
+                'long_name': 'vertical coordinate movement weights',
+                'units': '1',
+            },
+        )
+        return ds
 
     def _compute_montgomery_and_hpga(
         self,
@@ -546,66 +408,6 @@ class Init(OceanIOStep):
             ),
         )
 
-    def _init_z_tilde_vert_coord(
-        self,
-        ds_mesh: xr.Dataset,
-        bottom_pressure: xr.DataArray,
-        x: np.ndarray,
-    ) -> xr.Dataset:
-        """
-        Initialize variables for a z-tilde vertical coordinate.
-        """
-        config = self.config
-
-        z_tilde_bot = get_array_from_mid_grad(config, 'z_tilde_bot', x)
-
-        ds = ds_mesh.copy()
-
-        ds['BottomPressure'] = bottom_pressure
-        ds.BottomPressure.attrs['long_name'] = 'seafloor gauge pressure'
-        ds.BottomPressure.attrs['units'] = 'Pa'
-        # gauge pressure is zero at the free surface
-        ds['SurfacePressure'] = xr.zeros_like(bottom_pressure)
-        ds.SurfacePressure.attrs['long_name'] = 'sea surface gauge pressure'
-        ds.SurfacePressure.attrs['units'] = 'Pa'
-        ds_list: list[xr.Dataset] = []
-        for icell in range(ds.sizes['nCells']):
-            # initialize the vertical coordinate for each column separately
-            # to allow different pseudo-bottom depths
-            pseudo_bottom_depth = -z_tilde_bot[icell]
-            # keep `nCells` dimension
-            ds_cell = ds.isel(nCells=slice(icell, icell + 1))
-            local_config = config.copy()
-            local_config.set(
-                'vertical_grid', 'bottom_depth', str(pseudo_bottom_depth)
-            )
-
-            init_z_tilde_vertical_coord(local_config, ds_cell)
-            cell_vars = [
-                var
-                for var in ds_cell.data_vars
-                if 'nCells' in ds_cell[var].dims
-            ]
-            ds_list.append(ds_cell[cell_vars])
-
-        # copy back only the cell variables
-        ds_cell_vars = xr.concat(ds_list, dim='nCells')
-        for var in ds_cell_vars.data_vars:
-            attrs = ds_cell_vars[var].attrs
-            ds[var] = ds_cell_vars[var]
-            ds[var].attrs = attrs
-
-        # add missing vertical-only variable
-        ds['vertCoordMovementWeights'] = xr.DataArray(
-            data=np.ones(ds.sizes['nVertLevels'], dtype=float),
-            dims=['nVertLevels'],
-            attrs={
-                'long_name': 'vertical coordinate movement weights',
-                'units': '1',
-            },
-        )
-        return ds
-
     def _get_z_tilde_t_s_nodes(
         self, x: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -636,10 +438,9 @@ class Init(OceanIOStep):
         x: np.ndarray,
     ) -> tuple[xr.DataArray, xr.DataArray]:
         """
-        Compute temperature, salinity, pressure and specific volume given
-        z-tilde
+        Interpolate temperature and salinity to p-star layer midpoints using
+        piecewise pseudo-height profiles from configuration.
         """
-
         z_tilde_node, t_node, s_node = self._get_z_tilde_t_s_nodes(x)
 
         ncells = ds.sizes['nCells']
