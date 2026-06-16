@@ -48,6 +48,7 @@ ocean:
     - temperature
     - salinity
     - normalVelocity
+    - surfacePressure
 
 mpas-ocean:
   vert_coord_variables:
@@ -57,8 +58,8 @@ mpas-ocean:
 
 Omega:
   vert_coord_variables:
+    # [MinLayerCell, MaxLayerCell, BottomGeomDepth,
+    # VertCoordMovementWeights, RefPseudoThickness]
     - RefPseudoThickness
-    - SurfacePressure
   state_variables:
-    - SurfacePressure
     - PseudoThickness
