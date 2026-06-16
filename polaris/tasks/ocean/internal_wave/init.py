@@ -36,7 +36,7 @@ class Init(OceanIOStep):
             self.add_output_file(file)
         self.add_output_file(
             'init.nc',
-            validate_vars=['temperature', 'salinity', 'layerThickness'],
+            validate_class='state',
         )
         model = self.config.get('ocean', 'model')
         if model == 'omega':
