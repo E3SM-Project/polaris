@@ -35,9 +35,7 @@ def _make_config(
     return config
 
 
-def _make_initial_state_ds(
-    include_horiz_mesh=False, include_vert_coord=False
-):
+def _make_initial_state_ds(include_horiz_mesh=False, include_vert_coord=False):
     data_vars = dict(
         temperature=(('nCells', 'nVertLevels'), [[3.0], [4.0]]),
         salinity=(('nCells', 'nVertLevels'), [[35.0], [35.0]]),
@@ -59,9 +57,7 @@ def _make_initial_state_ds(
     return xr.Dataset(data_vars=data_vars)
 
 
-def _make_vert_coord_ds(
-    include_resting_thickness=True, include_weights=True
-):
+def _make_vert_coord_ds(include_resting_thickness=True, include_weights=True):
     data_vars = dict(
         minLevelCell=('nCells', [0, 0]),
         maxLevelCell=('nCells', [0, 0]),
