@@ -111,4 +111,4 @@ class Init(OceanIOStep):
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
         ds['normalVelocity'] = normal_velocity
 
-        self.write_initial_state_dataset(ds, 'init.nc', config)
+        self.write_model_dataset(ds, 'init.nc', config)
