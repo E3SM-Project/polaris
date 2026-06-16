@@ -1,6 +1,5 @@
 import importlib
 from configparser import ConfigParser
-from unittest.mock import MagicMock
 
 import pytest
 import xarray as xr
@@ -20,6 +19,11 @@ def _make_config(
     config = ConfigParser()
     config.add_section('ocean')
     config.set('ocean', 'model', model)
+    config.set('ocean', 'eos_type', 'constant')
+    config.set('ocean', 'eos_constant_rhoref', '1026.0')
+    config.add_section('vertical_grid')
+    config.set('vertical_grid', 'surface_pressure', '0.0')
+    config.set('vertical_grid', 'pseudothickness_iter_count', '1')
     config.add_section('ocean_staged_files')
     config.set(
         'ocean_staged_files', 'horiz_mesh_filename', horiz_mesh_filename
@@ -31,21 +35,58 @@ def _make_config(
     return config
 
 
+def _make_initial_state_ds(
+    include_horiz_mesh=False, include_vert_coord=False
+):
+    data_vars = dict(
+        temperature=(('nCells', 'nVertLevels'), [[3.0], [4.0]]),
+        salinity=(('nCells', 'nVertLevels'), [[35.0], [35.0]]),
+        layerThickness=(('nCells', 'nVertLevels'), [[50.0], [100.0]]),
+        normalVelocity=(('nEdges', 'nVertLevels'), [[0.0], [0.0]]),
+        ssh=('nCells', [0.0, 0.0]),
+    )
+    if include_horiz_mesh:
+        data_vars.update(
+            xCell=('nCells', [0.0, 1.0]), fCell=('nCells', [1.0, 2.0])
+        )
+    if include_vert_coord:
+        data_vars.update(
+            minLevelCell=('nCells', [0, 0]),
+            maxLevelCell=('nCells', [0, 0]),
+            bottomDepth=('nCells', [100.0, 200.0]),
+            vertCoordMovementWeights=('nVertLevels', [1.0]),
+        )
+    return xr.Dataset(data_vars=data_vars)
+
+
+def _make_vert_coord_ds(
+    include_resting_thickness=True, include_weights=True
+):
+    data_vars = dict(
+        minLevelCell=('nCells', [0, 0]),
+        maxLevelCell=('nCells', [0, 0]),
+        bottomDepth=('nCells', [100.0, 200.0]),
+        temperature=(('nCells', 'nVertLevels'), [[3.0], [4.0]]),
+        salinity=(('nCells', 'nVertLevels'), [[35.0], [35.0]]),
+        ssh=('nCells', [0.0, 0.0]),
+    )
+    if include_resting_thickness:
+        data_vars['restingThickness'] = (
+            ('nCells', 'nVertLevels'),
+            [[50.0], [100.0]],
+        )
+    if include_weights:
+        data_vars['vertCoordMovementWeights'] = ('nVertLevels', [1.0])
+    return xr.Dataset(data_vars=data_vars)
+
+
 def test_write_initial_state_dataset_omega_drops_horiz_mesh_vars(tmp_path):
     component = Ocean()
     component.model = 'omega'
     component._read_var_map()
 
-    config = MagicMock()
-
-    ds = xr.Dataset(
-        data_vars=dict(
-            xCell=('nCells', [0.0, 1.0]),
-            fCell=('nCells', [1.0, 2.0]),
-            temperature=(('nCells', 'nVertLevels'), [[3.0], [4.0]]),
-            salinity=(('nCells', 'nVertLevels'), [[35.0], [35.0]]),
-        )
-    )
+    config = _make_config(model='omega')
+    ds = _make_initial_state_ds(include_horiz_mesh=True)
 
     filename = tmp_path / 'initial_state.nc'
     component.write_initial_state_dataset(ds, str(filename), config)
@@ -62,18 +103,8 @@ def test_write_initial_state_dataset_omega_drops_vert_coord_vars(tmp_path):
     component.model = 'omega'
     component._read_var_map()
 
-    config = MagicMock()
-
-    ds = xr.Dataset(
-        data_vars=dict(
-            temperature=(('nCells', 'nVertLevels'), [[3.0], [4.0]]),
-            salinity=(('nCells', 'nVertLevels'), [[35.0], [35.0]]),
-            minLevelCell=('nCells', [0, 0]),
-            maxLevelCell=('nCells', [0, 0]),
-            bottomDepth=('nCells', [100.0, 200.0]),
-            vertCoordMovementWeights=('nVertLevels', [1.0]),
-        )
-    )
+    config = _make_config(model='omega')
+    ds = _make_initial_state_ds(include_vert_coord=True)
 
     filename = tmp_path / 'initial_state.nc'
     component.write_initial_state_dataset(ds, str(filename), config)
@@ -93,18 +124,8 @@ def test_write_initial_state_dataset_mpas_ocean_keeps_vert_coord_vars(
     component.model = 'mpas-ocean'
     component._read_var_map()
 
-    config = MagicMock()
-
-    ds = xr.Dataset(
-        data_vars=dict(
-            temperature=(('nCells', 'nVertLevels'), [[3.0], [4.0]]),
-            salinity=(('nCells', 'nVertLevels'), [[35.0], [35.0]]),
-            minLevelCell=('nCells', [0, 0]),
-            maxLevelCell=('nCells', [0, 0]),
-            bottomDepth=('nCells', [100.0, 200.0]),
-            vertCoordMovementWeights=('nVertLevels', [1.0]),
-        )
-    )
+    config = _make_config(model='mpas-ocean')
+    ds = _make_initial_state_ds(include_vert_coord=True)
 
     filename = tmp_path / 'initial_state.nc'
     component.write_initial_state_dataset(ds, str(filename), config)
@@ -122,17 +143,8 @@ def test_write_vert_coord_dataset_noop_for_mpas_ocean(tmp_path):
     component.model = 'mpas-ocean'
     component._read_var_map()
 
-    config = MagicMock()
-
-    ds = xr.Dataset(
-        data_vars=dict(
-            minLevelCell=('nCells', [0, 0]),
-            maxLevelCell=('nCells', [0, 0]),
-            bottomDepth=('nCells', [100.0, 200.0]),
-            restingThickness=(('nCells', 'nVertLevels'), [[50.0], [100.0]]),
-            vertCoordMovementWeights=('nVertLevels', [1.0]),
-        )
-    )
+    config = _make_config(model='mpas-ocean')
+    ds = _make_vert_coord_ds()
 
     filename = tmp_path / 'vert_coord.nc'
     component.write_vert_coord_dataset(ds, str(filename), config)
@@ -154,15 +166,11 @@ def test_write_vert_coord_dataset_raises_on_missing_vars(
     component.model = model
     component._read_var_map()
 
-    config = MagicMock()
+    config = _make_config(model=model)
 
     # omit the model-specific thickness var and vertCoordMovementWeights
-    ds = xr.Dataset(
-        data_vars=dict(
-            minLevelCell=('nCells', [0, 0]),
-            maxLevelCell=('nCells', [0, 0]),
-            bottomDepth=('nCells', [100.0, 200.0]),
-        )
+    ds = _make_vert_coord_ds(
+        include_resting_thickness=False, include_weights=False
     )
 
     filename = tmp_path / 'vert_coord.nc'
@@ -184,7 +192,7 @@ def test_write_horiz_mesh_dataset_raises_on_missing_vars(tmp_path):
     component.model = 'mpas-ocean'
     component._read_var_map()
 
-    config = MagicMock()
+    config = _make_config(model='mpas-ocean')
 
     # dataset is missing most horiz_mesh_vars
     ds = xr.Dataset(data_vars=dict(xCell=('nCells', [0.0, 1.0])))
@@ -199,7 +207,7 @@ def test_write_horiz_mesh_dataset_writes_mpas_ocean(tmp_path):
     component.model = 'mpas-ocean'
     component._read_var_map()
 
-    config = MagicMock()
+    config = _make_config(model='mpas-ocean')
     ds = _make_horiz_mesh_ds(component)
 
     filename = tmp_path / 'mesh.nc'
@@ -215,7 +223,7 @@ def test_write_horiz_mesh_dataset_writes_omega(tmp_path):
     component.model = 'omega'
     component._read_var_map()
 
-    config = MagicMock()
+    config = _make_config(model='omega')
     ds = _make_horiz_mesh_ds(component)
 
     filename = tmp_path / 'mesh.nc'
