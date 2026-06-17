@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
     from polaris.config import PolarisConfigParser
@@ -29,20 +29,7 @@ class OceanModelFilesMixin:
     # These attributes and methods are provided by the Step base class:
     config: 'PolarisConfigParser'
     input_data: list[dict[str, Any]]
-
-    def add_input_file(
-        self,
-        filename=None,
-        target=None,
-        database=None,
-        database_component=None,
-        url=None,
-        work_dir_target=None,
-        package=None,
-        copy=False,
-    ) -> None:
-        """Provided by :py:class:`polaris.Step`."""
-        raise NotImplementedError
+    add_input_file: Callable[..., None]
 
     # --- filename getters ---
 
@@ -125,6 +112,59 @@ class OceanModelFilesMixin:
             :py:meth:`polaris.Step.add_input_file`.
         """
         self.add_input_file(filename='<<<init>>>', **kwargs)
+
+    def add_output_file(
+        self,
+        filename,
+        validate_vars=None,
+        check_properties=None,
+        validate_class=None,
+    ):
+        """
+        Add an output file, optionally resolving ``validate_class`` to a
+        pre-defined list of variables from the Ocean component.
+
+        Parameters
+        ----------
+        filename : str
+            The output filename to register.
+
+        validate_vars : list of str, optional
+            Explicit list of variable names to validate against a baseline.
+
+        check_properties : dict, optional
+            Forwarded to :py:meth:`polaris.Step.add_output_file`.
+
+        validate_class : str, optional
+            A named class of variables to validate.  Currently only
+            ``'state'`` is supported, which resolves to
+            ``self.component.state_vars`` mapped to the native model's
+            variable names.  The resulting list is unioned with any
+            explicitly supplied ``validate_vars``.
+        """
+        if validate_class is not None:
+            if validate_class == 'state':
+                if self.component.state_vars is None:
+                    self.component._read_variables_yaml()
+                assert self.component.state_vars is not None
+                validate_vars = list(
+                    dict.fromkeys(
+                        self.component.map_var_list_to_native_model(
+                            self.component.state_vars
+                        )
+                        + (validate_vars if validate_vars is not None else [])
+                    )
+                )
+            else:
+                raise ValueError(
+                    f"Unknown validate_class '{validate_class}'. "
+                    "Currently only 'state' is supported."
+                )
+        super().add_output_file(  # type: ignore[misc]
+            filename=filename,
+            validate_vars=validate_vars,
+            check_properties=check_properties,
+        )
 
     # --- shared placeholder resolution ---
 

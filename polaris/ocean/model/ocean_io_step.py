@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from polaris.tasks.ocean import Ocean
 
 
-class OceanIOStep(Step, OceanModelFilesMixin):
+class OceanIOStep(OceanModelFilesMixin, Step):
     """
     A step that writes input and/or output files for Omega or MPAS-Ocean
     """
@@ -275,57 +275,4 @@ class OceanIOStep(Step, OceanModelFilesMixin):
         """
         return self.component.open_model_dataset(
             filename, config=config, **kwargs
-        )
-
-    def add_output_file(
-        self,
-        filename,
-        validate_vars=None,
-        check_properties=None,
-        validate_class=None,
-    ):
-        """
-        Add an output file, optionally resolving ``validate_class`` to a
-        pre-defined list of variables from the Ocean component.
-
-        Parameters
-        ----------
-        filename : str
-            The output filename to register.
-
-        validate_vars : list of str, optional
-            Explicit list of variable names to validate against a baseline.
-            Mutually exclusive with ``validate_class``.
-
-        validate_class : str, optional
-            A named class of variables to validate.  Currently only
-            ``'state'`` is supported, which resolves to
-            ``self.component.state_vars`` mapped to the native model's
-            variable names.
-
-        **kwargs
-            Forwarded to :py:meth:`polaris.Step.add_output_file`.
-        """
-        if validate_class is not None:
-            if validate_class == 'state':
-                if self.component.state_vars is None:
-                    self.component._read_variables_yaml()
-                assert self.component.state_vars is not None
-                validate_vars = list(
-                    dict.fromkeys(
-                        self.component.map_var_list_to_native_model(
-                            self.component.state_vars
-                        )
-                        + (validate_vars if validate_vars is not None else [])
-                    )
-                )
-            else:
-                raise ValueError(
-                    f"Unknown validate_class '{validate_class}'. "
-                    "Currently only 'state' is supported."
-                )
-        super().add_output_file(
-            filename=filename,
-            validate_vars=validate_vars,
-            check_properties=check_properties,
         )
