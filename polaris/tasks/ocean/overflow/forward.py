@@ -104,11 +104,7 @@ class Forward(OceanModelStep):
 
         self.add_output_file(
             filename='output.nc',
-            validate_vars=[
-                'layerThickness',
-                'normalVelocity',
-                'temperature',
-            ],
+            validate_class='state',
         )
 
     def dynamic_model_config(self, at_setup):

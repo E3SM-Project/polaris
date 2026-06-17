@@ -45,17 +45,11 @@ class Init(OceanIOStep):
 
     def setup(self):
         super().setup()
-        self.add_output_file(filename='culled_mesh.nc')
-        validate_vars = [
-            'temperature',
-            'salinity',
-            'layerThickness',
-            'normalVelocity',
-        ]
-        self.add_output_file(filename='init.nc', validate_vars=validate_vars)
-        model = self.config.get('ocean', 'model')
-        if model == 'omega':
-            self.add_output_file(filename='vert_coord.nc')
+        self.add_output_files_for_ocean_model_input(
+            horiz_mesh_filename='culled_mesh.nc',
+            vert_coord_filename='vert_coord.nc',
+            init_filename='init.nc',
+        )
 
     def run(self):
         """
