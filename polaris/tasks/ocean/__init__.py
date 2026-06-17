@@ -560,12 +560,6 @@ class Ocean(Component):
         """
         Read horiz_mesh_vars and vert_coord_vars from variables.yaml
         """
-        if (
-            self.horiz_mesh_vars is not None
-            and self.vert_coord_vars is not None
-            and self.state_vars is not None
-        ):
-            return
         package = 'polaris.ocean.model'
         filename = 'variables.yaml'
         text = imp_res.files(package).joinpath(filename).read_text()
