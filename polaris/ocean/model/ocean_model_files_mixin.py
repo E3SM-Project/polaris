@@ -136,33 +136,52 @@ class OceanModelFilesMixin:
             Forwarded to :py:meth:`polaris.Step.add_output_file`.
 
         validate_class : str, optional
-            A named class of variables to validate.  Currently only
-            ``'state'`` is supported, which resolves to
-            ``self.component.state_vars`` mapped to the native model's
-            variable names.  The resulting list is unioned with any
-            explicitly supplied ``validate_vars``.
+            A named class of variables to validate. 'state' or 'vert_coord'
+            are supported. The resulting list is unioned with any explicitly
+            supplied ``validate_vars``.
         """
+        validate_vars_native = None
         if validate_class is not None:
-            if validate_class == 'state':
+            if validate_class == 'vert_coord':
+                if self.component.vert_coord_vars is None:
+                    self.component._read_variables_yaml()
+                assert self.component.vert_coord_vars is not None
+                validate_vars_native = (
+                    self.component.map_var_list_to_native_model(
+                        self.component.vert_coord_vars
+                    )
+                )
+            elif validate_class == 'state':
                 if self.component.state_vars is None:
                     self.component._read_variables_yaml()
                 assert self.component.state_vars is not None
-                validate_vars = list(
-                    dict.fromkeys(
-                        self.component.map_var_list_to_native_model(
-                            self.component.state_vars
-                        )
-                        + (validate_vars if validate_vars is not None else [])
+                # build validate_vars in the MPAS-Ocean namespace used by
+                # open_model_dataset during validation
+                validate_vars_native = (
+                    self.component.map_var_list_to_native_model(
+                        self.component.state_vars
                     )
                 )
             else:
                 raise ValueError(
                     f"Unknown validate_class '{validate_class}'. "
-                    "Currently only 'state' is supported."
+                    "Currently only 'vert_coord' and 'state' are supported."
                 )
+        validate_vars = list(
+            dict.fromkeys(
+                (
+                    self.component.map_var_list_from_native_model(
+                        validate_vars_native
+                    )
+                    if validate_vars_native is not None
+                    else []
+                )
+                + (validate_vars if validate_vars is not None else [])
+            )
+        )
         super().add_output_file(  # type: ignore[misc]
             filename=filename,
-            validate_vars=validate_vars,
+            validate_vars=validate_vars if validate_vars else None,
             check_properties=check_properties,
         )
 
