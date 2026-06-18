@@ -52,6 +52,7 @@ class Init(OceanIOStep):
             horiz_mesh_filename='culled_mesh.nc',
             base_mesh_filename='base_mesh.nc',
             graph_filename='culled_graph.info',
+            skip_validation=True,  # since not all state variables are included
         )
 
     def run(self):
