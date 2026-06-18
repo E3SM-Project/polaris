@@ -40,6 +40,7 @@ class OceanIOStep(OceanModelFilesMixin, Step):
         init_filename=None,
         base_mesh_filename=None,
         graph_filename=None,
+        skip_validation=False,
     ):
         """
         Register output files that will be consumed by the ocean model as
@@ -82,9 +83,19 @@ class OceanIOStep(OceanModelFilesMixin, Step):
         if base_mesh_filename is not None:
             self.add_output_file(filename=base_mesh_filename)
         self.add_output_file(filename=horiz_mesh_filename)
-        self.add_output_file(filename=init_filename)
+        if skip_validation:
+            self.add_output_file(filename=init_filename)
+        else:
+            self.add_output_file(
+                filename=init_filename, validate_class='state'
+            )
         if model == 'omega':
-            self.add_output_file(filename=vert_coord_filename)
+            if skip_validation:
+                self.add_output_file(filename=vert_coord_filename)
+            else:
+                self.add_output_file(
+                    filename=vert_coord_filename, validate_class='vert_coord'
+                )
         if model == 'mpas-ocean' and graph_filename is not None:
             self.add_output_file(filename=graph_filename)
 
