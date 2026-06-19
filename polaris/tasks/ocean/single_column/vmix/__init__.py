@@ -54,6 +54,19 @@ class VMix(Task):
                 openmp_threads=1,
                 validate_vars=validate_vars,
                 task_name='vmix',
+                enable_vadv=True,
+                enable_restoring=True,
+            ),
+        )
+        self.add_step(
+            Forward(
+                component=component,
+                indir=f'{indir}/{name}',
+                ntasks=1,
+                min_tasks=1,
+                openmp_threads=1,
+                validate_vars=validate_vars,
+                task_name='vmix',
                 enable_vadv=False,
             )
         )
@@ -79,6 +92,7 @@ class VMix(Task):
                     'standard': '../forward',
                     'no_vadv': '../forward_no_vadv',
                     'constant': '../forward_no_vadv_constant',
+                    'restoring': '../forward_restoring',
                 },
                 variables={
                     'temperature': 'degC',

@@ -26,6 +26,7 @@ class Forward(OceanModelStep):
         task_name='',
         update_eos=True,
         enable_vadv=True,
+        enable_restoring=False,
         constant_diff=False,
     ):
         """
@@ -67,6 +68,8 @@ class Forward(OceanModelStep):
         """
         if not enable_vadv:
             name = f'{name}_no_vadv'
+        if enable_restoring:
+            name = f'{name}_restoring'
         if constant_diff:
             name = f'{name}_constant'
         super().__init__(
@@ -88,9 +91,6 @@ class Forward(OceanModelStep):
         self.add_input_file(
             filename='graph.info', target='../init/culled_graph.info'
         )
-        self.add_input_file(
-            filename='forcing.nc', target='../init/initial_state.nc'
-        )
 
         self.add_yaml_file('polaris.tasks.ocean.single_column', 'forward.yaml')
         self.add_yaml_file(
@@ -104,6 +104,7 @@ class Forward(OceanModelStep):
         self.task_name = task_name
 
         self.enable_vadv = enable_vadv
+        self.enable_restoring = enable_restoring
 
         self.constant_diff = constant_diff
 
@@ -171,6 +172,12 @@ class Forward(OceanModelStep):
             omega_options.update(
                 {
                     'TracerVertAdvTendencyEnable': False,
+                }
+            )
+        if self.enable_restoring:
+            shared_options.update(
+                {
+                    'config_use_activeTracers_surface_restoring': True,
                 }
             )
 
