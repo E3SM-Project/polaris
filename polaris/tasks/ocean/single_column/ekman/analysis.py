@@ -2,7 +2,6 @@ from math import pi
 
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray as xr
 
 from polaris.constants import get_constant
 from polaris.mpas import area_for_field
@@ -62,11 +61,12 @@ class Analysis(OceanIOStep):
         nu = config.getfloat('single_column_ekman', 'vertical_viscosity')
         tol = config.getfloat('single_column_ekman', 'L2_error_norm_max')
 
-        ds_mesh = xr.load_dataset('mesh.nc')
+        ds_mesh = self.open_model_dataset('mesh.nc', config)
         ds = self.open_model_dataset(
             'output.nc',
+            config,
             decode_times=True,
-            mesh_filename='../init/initial_state.nc',
+            mesh_filename='mesh.nc',
             reconstruct_variables=['normalVelocity'],
             coeffs_filename='../forward_constant/coeffs.nc',
         )
