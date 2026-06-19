@@ -22,6 +22,9 @@ class Analysis(OceanIOStep):
         comparisons=None,
     ):
         super().__init__(component=component, name='analysis', indir=indir)
+        self.add_input_file(
+            filename='vert_coord.nc', target='../init/vert_coord.nc'
+        )
         self.comparisons = (
             dict(comparisons)
             if comparisons
@@ -49,12 +52,14 @@ class Analysis(OceanIOStep):
         # u_star = ds_diags_1day['surfaceFrictionVelocity'].mean(dim='nCells')
         # TODO compute this based on config parameters
         N_sq_init = 1.0e-4
-        ds_init = self.open_model_dataset(
-            '../init/initial_state.nc', decode_times=False
+        ds_vert = self.open_model_dataset(
+            'vert_coord.nc',
+            decode_times=False,
+            config=self.config,
         )
         for comparison_name in self.comparisons.keys():
             ds_diags = self.open_model_dataset(
-                f'{comparison_name}.nc', decode_times=True
+                f'{comparison_name}.nc', decode_times=True, config=self.config
             )
             t_target = 1.0  # empirical relationship hold for up to 30h
             t_arr = get_days_since_start(ds_diags)
@@ -74,9 +79,9 @@ class Analysis(OceanIOStep):
             else:
                 z_int_final, _ = compute_zint_zmid_from_layer_thickness(
                     layer_thickness=ds_diags_1day['layerThickness'],
-                    bottom_depth=ds_init['bottomDepth'],
-                    min_level_cell=ds_init['minLevelCell'] - 1,
-                    max_level_cell=ds_init['maxLevelCell'] - 1,
+                    bottom_depth=ds_vert['bottomDepth'],
+                    min_level_cell=ds_vert['minLevelCell'] - 1,
+                    max_level_cell=ds_vert['maxLevelCell'] - 1,
                 )
                 z_top_final = z_int_final[:-1].mean(dim='nCells')
                 z_top_final = z_top_final.rename(

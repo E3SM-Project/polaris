@@ -62,8 +62,9 @@ class Viz(OceanIOStep):
             # Include age tracer
             self.variables['iAge'] = 'seconds'
         self.add_input_file(
-            filename='initial_state.nc', target='../init/init.nc'
+            filename='mesh.nc', target='../init/culled_mesh.nc'
         )
+        self.add_input_file(filename='init.nc', target='../init/init.nc')
         for comparison_name, comparison_path in self.comparisons.items():
             self.add_input_file(
                 filename=f'{comparison_name}.nc',
@@ -95,26 +96,29 @@ class Viz(OceanIOStep):
                     comparison_name
                 ]
                 continue
+        print(comparisons.keys())
         for comparison_name in comparisons.keys():
             if os.path.exists(f'../{comparison_name}/coeffs_reconstruct.nc'):
                 ds_comp = self.open_model_dataset(
                     f'{comparison_name}.nc',
                     decode_times=True,
-                    mesh_filename='../init/initial_state.nc',
+                    mesh_filename='mesh.nc',
                     reconstruct_variables=['normalVelocity'],
                     coeffs_filename=f'../{comparison_name}/coeffs_reconstruct.nc',
+                    config=self.config,
                 )
             else:
                 ds_comp = self.open_model_dataset(
                     f'{comparison_name}.nc',
                     decode_times=True,
+                    config=self.config,
                 )
             t_arr = get_days_since_start(ds_comp)
             t_index = np.argmin(np.abs(t_arr - t_target))
             time_ds.append(float(t_arr[t_index]))
             ds_list.append(ds_comp.isel(Time=t_index))
 
-        ds_init = self.open_model_dataset('initial_state.nc')
+        ds_init = self.open_model_dataset('init.nc', config=self.config)
         ds_init = ds_init.isel(Time=0)
         z_mid_init = ds_init['zMid'].mean(dim='nCells')
 
@@ -127,7 +131,7 @@ class Viz(OceanIOStep):
         for field_name, field_units in self.variables.items():
             curves_plotted = 0
             fig = plt.figure(figsize=(3, 5))
-            colors = ['b', 'r', 'darkgreen']
+            colors = ['k', 'b', 'r', 'darkgreen']
             for comparison_name, ds_comp, t_days, color in zip(
                 self.comparisons.keys(), ds_list, time_ds, colors, strict=False
             ):

@@ -65,8 +65,9 @@ class Analysis(OceanIOStep):
         ds_mesh = xr.load_dataset('mesh.nc')
         ds = self.open_model_dataset(
             'output.nc',
+            config,
             decode_times=True,
-            mesh_filename='../init/initial_state.nc',
+            mesh_filename='mesh.nc',
             reconstruct_variables=['normalVelocity'],
             coeffs_filename='../forward_constant/coeffs_reconstruct.nc',
         )
