@@ -514,6 +514,7 @@ class Ocean(Component):
         ds : xarray.Dataset
             The dataset with variables named as expected in MPAS-Ocean
         """
+        kwargs.setdefault('engine', config.get('io', 'engine'))
         ds = xr.open_dataset(filename, **kwargs)
         if (
             self.model == 'omega'
@@ -524,7 +525,11 @@ class Ocean(Component):
             ds['layerThickness'] = geom_thickness_from_ds(ds, config=config)
         ds = self.map_from_native_model_vars(ds)
         ds = _add_reconstructed_variables_to_dataset(
-            ds, reconstruct_variables, mesh_filename, coeffs_filename
+            ds,
+            reconstruct_variables,
+            mesh_filename,
+            coeffs_filename,
+            engine=config.get('io', 'engine'),
         )
         return ds
 
@@ -670,7 +675,7 @@ class Ocean(Component):
 
 
 def _add_reconstructed_variables_to_dataset(
-    ds, reconstruct_variables, mesh_filename, coeffs_filename
+    ds, reconstruct_variables, mesh_filename, coeffs_filename, engine=None
 ):
     """
     Add reconstructed vector variables to the dataset if requested.
@@ -688,6 +693,9 @@ def _add_reconstructed_variables_to_dataset(
 
     coeffs_filename : str
         Path to the coefficients NetCDF file.
+
+    engine : str, optional
+        The NetCDF backend engine to pass to ``xarray.open_dataset``.
 
     Returns
     -------
@@ -724,8 +732,8 @@ def _add_reconstructed_variables_to_dataset(
         if f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds:
             continue
 
-        ds_mesh = xr.open_dataset(mesh_filename)
-        ds_coeff = xr.open_dataset(coeffs_filename)
+        ds_mesh = xr.open_dataset(mesh_filename, engine=engine)
+        ds_coeff = xr.open_dataset(coeffs_filename, engine=engine)
         coeffs_reconstruct = ds_coeff.coeffs_reconstruct
 
         if ds_coeff.sizes['nCells'] != ds_mesh.sizes['nCells']:
