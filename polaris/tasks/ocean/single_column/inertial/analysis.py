@@ -59,6 +59,7 @@ class Analysis(OceanIOStep):
 
         ds = self.open_model_dataset(
             'output.nc',
+            config=config,
             decode_times=True,
             mesh_filename='../init/initial_state.nc',
             reconstruct_variables=['normalVelocity'],
