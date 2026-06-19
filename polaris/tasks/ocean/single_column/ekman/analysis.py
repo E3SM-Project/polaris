@@ -69,7 +69,7 @@ class Analysis(OceanIOStep):
             decode_times=True,
             mesh_filename='mesh.nc',
             reconstruct_variables=['normalVelocity'],
-            coeffs_filename='../forward_constant/coeffs_reconstruct.nc',
+            coeffs_filename='../forward_constant/coeffs.nc',
         )
         t_index = -1
         ds = ds.isel(Time=t_index)
