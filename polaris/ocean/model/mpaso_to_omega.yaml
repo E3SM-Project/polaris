@@ -188,6 +188,16 @@ config:
     config_disable_vel_vmix: not VelVertMixTendencyEnable
 
 - section:
+    tracer_forcing_activeTracers: SurfaceRestoring
+  options:
+    config_salinity_restoring_constant_piston_velocity: PistonVelocity
+
+- section:
+    tracer_forcing_activeTracers: Tendencies
+  options:
+    config_use_activeTracers_surface_restoring: SurfaceTracerRestoringEnable
+
+- section:
     bottom_drag: Tendencies
   options:
     config_explicit_bottom_drag_coeff: BottomDragCoeff
