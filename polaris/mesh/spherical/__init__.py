@@ -241,7 +241,6 @@ class SphericalBaseStep(Step):
         )
         plt.colorbar(im, shrink=0.60)
         fig.canvas.draw()
-        plt.tight_layout()
         plt.savefig(image_filename, bbox_inches='tight')
         plt.close()
 
