@@ -15,12 +15,6 @@ mpas-ocean:
     config_bulk_wind_stress_interp_isotropic: true
     config_use_bulk_thickness_flux: true
   streams:
-    mesh:
-      filename_template: mesh.nc
-    vert:
-      filename_template: vert_coord.nc
-    input:
-      filename_template: init.nc
     restart: {}
 
 Omega:

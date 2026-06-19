@@ -11,7 +11,7 @@ ocean:
   cvmix:
     config_cvmix_background_diffusion: 1.e-5
     config_cvmix_background_viscosity: 1.e-4
-    config_cvmix_num_ri_smooth_loops: 2
+    #config_cvmix_num_ri_smooth_loops: 2
   eos:
     config_eos_type: linear
   eos_linear:
@@ -24,6 +24,8 @@ ocean:
   debug:
     config_disable_vel_explicit_bottom_drag: true
     config_disable_tr_adv: false
+  tracer_forcing_activeTracers:
+    config_salinity_restoring_constant_piston_velocity: 1.585e-5
 
 mpas-ocean:
   frazil_ice:
@@ -40,17 +42,59 @@ mpas-ocean:
     config_disable_vel_vmix: false
     config_disable_tr_vmix: false
   streams:
-    output:
-      output_interval: 0001_00:00:00
+    forcing_data:
+      type: input
+      filename_template: init.nc
+      input_interval: initial_only
       contents:
-      - layerThickness
-      - tracers
-      - vertNonLocalFlux
+      - tracersSurfaceRestoringFields
+      - tracersInteriorRestoringFields
+      - tracersExponentialDecayFields
+      - tracersIdealAgeFields
+      - tracersTTDFields
+      - windStressZonal
+      - windStressMeridional
+      - landIceSurfaceTemperature
+      - atmosphericPressure
+      - latentHeatFlux
+      - sensibleHeatFlux
+      - shortWaveHeatFlux
+      - evaporationFlux
+      - rainFlux
+      - seaIceFreshWaterFlux
+      - icebergFreshWaterFlux
+      - riverRunoffFlux
+      - iceRunoffFlux
+    KPP_testing: {}
+    mixedLayerDepthsOutput:
+      type: output
+      contents:
       - xtime
+      - dThreshMLD
+      - tThreshMLD
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: 0001_00:00:00
+      clobber_mode: truncate
+      contents:
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
       - zMid
       - zTop
+      - normalVelocity
       - velocityZonal
       - velocityMeridional
+      - layerThickness
+      - kineticEnergyCell
+      - relativeVorticityCell
+      - accumulatedFrazilIceMass
+      - accumulatedFrazilIceSalinity
+      - frazilLayerThicknessTendency
+      - frazilTemperatureTendency
+      - frazilSalinityTendency
+      - vertNonLocalFlux
       - bulkRichardsonNumber
       - bulkRichardsonNumberBuoy
       - potentialDensity
@@ -58,8 +102,6 @@ mpas-ocean:
       - boundaryLayerDepth
       - surfaceFrictionVelocity
       - surfaceBuoyancyForcing
-      - windStressZonal
-      - windStressMeridional
       - transportVelocityZonal
       - transportVelocityMeridional
       - RiTopOfCell
@@ -68,61 +110,10 @@ mpas-ocean:
       - vertDiffTopOfCell
 
 Omega:
-  Tendencies:
-    ThicknessFluxTendencyEnable: true
-    PVTendencyEnable: false
-    KETendencyEnable: false
-    SSHTendencyEnable: false
-    PressureGradTendencyEnable: false
+  # This is needed for consistency with MPAS-O
+  SurfaceRestoring:
+    TracersToRestore: [Salinity]
   IOStreams:
-    InitialVertCoord:
-      UsePointerFile: false
-      Filename: init.nc
-      Mode: read
-      Precision: double
-      Freq: 1
-      FreqUnits: OnStartup
-      UseStartEnd: false
-      Contents:
-        - InitVertCoord
-    InitialState:
-      UsePointerFile: false
-      Filename: init.nc
-      Mode: read
-      Precision: double
-      Freq: 1
-      FreqUnits: OnStartup
-      UseStartEnd: false
-      Contents:
-        - State
-        - Base
-        - Tracers
-        - WindStressZonal
-        - WindStressMeridional
-    RestartRead:
-      UsePointerFile: true
-      PointerFilename: ocn.pointer
-      Mode: read
-      Precision: double
-      Freq: 1
-      FreqUnits: OnStartup
-      UseStartEnd: true
-      StartTime: 0001-01-01_00:00:01
-      EndTime: 99999-12-31_00:00:00
-      Contents:
-        - Restart
-    RestartWrite:
-      UsePointerFile: true
-      PointerFilename: ocn.pointer
-      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
-      Mode: write
-      IfExists: replace
-      Precision: double
-      Freq: 1
-      FreqUnits: day
-      UseStartEnd: false
-      Contents:
-        - Restart
     History:
       Filename: output.nc
       Freq: 1
@@ -134,7 +125,7 @@ Omega:
       Contents:
       - AuxiliaryState
       - State
-      - ZMid
+      - GeomZMid
       - Tracers
       - SshCell
       - Eos
