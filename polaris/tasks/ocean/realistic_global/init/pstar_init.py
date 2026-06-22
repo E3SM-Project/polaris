@@ -77,7 +77,10 @@ class RealisticPStarInitStep(PStarInitStep):
         self.cull_mesh_step = cull_mesh_step
         self.cull_topo_step = cull_topo_step
         self._woa23_ds = None
-        self.add_output_file('pstar_init.nc')
+        self.add_output_file(
+            'pstar_init.nc',
+            validate_vars=['ZTildeMid', 'SpecVol', 'temperature', 'salinity'],
+        )
 
     def setup(self):
         """
