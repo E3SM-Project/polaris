@@ -146,8 +146,6 @@ and versus the Python-computed initial-state solution.</p>
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>dependencies_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <p>A dictionary of dependent steps:</p>
 <dl class="simple">
-<dt>reference<span class="classifier">polaris.Step</span></dt><dd><p>The reference step that produces <code class="docutils literal notranslate"><span class="pre">reference_solution.nc</span></code></p>
-</dd>
 <dt>init<span class="classifier">dict</span></dt><dd><p>Mapping from horizontal resolution (km) to <code class="docutils literal notranslate"><span class="pre">Init</span></code> step</p>
 </dd>
 <dt>forward<span class="classifier">dict</span></dt><dd><p>Mapping from horizontal resolution (km) to <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step</p>
@@ -242,7 +240,7 @@ go into a subdirectory of</p></li>
 <td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
-<td><p>Add inputs from reference, init and forward steps</p></td>
+<td><p>Add inputs from init and forward steps</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>

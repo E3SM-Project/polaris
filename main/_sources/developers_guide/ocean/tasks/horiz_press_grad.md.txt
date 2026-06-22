@@ -28,29 +28,45 @@ reflected in the work directory setup.
 
 ### reference
 
-The class {py:class}`polaris.tasks.ocean.horiz_press_grad.reference.Reference`
-defines a step that builds a high-fidelity reference HPGA solution in
-`reference_solution.nc`.
+The class
+{py:class}`polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn`
+is not a `Step` but a lightweight callable evaluator.  It is instantiated
+inside `Analysis.run()` (once per task, using the config and the mesh-derived
+`x_sign`), and computes the HPGA reference analytically without writing any
+intermediate file.
 
-In implementation terms, `Reference.run()` does four things:
+`ReferenceColumn.__init__()` reads the quadrature settings
+(`reference_quadrature_method`, `reference_quadrature_subdivisions`,
+`reference_horiz_eps_km`) and the geometry / profile parameters from config.
+It builds `_ClampedInterp` PCHIP interpolants for Absolute Salinity and
+Conservative Temperature at $x = 0$ and $x = \pm\varepsilon$ (six interpolants
+in all), which are used later for centred finite-differencing.
 
-- determines the refined vertical resolution from the configured test
-  resolutions,
-- builds the reference columns and their thermodynamic profiles,
-- computes the reference diagnostic fields, and
-- writes `reference_solution.nc`.
+The public methods are `specvol(z_tilde)` (specific volume at $x = 0$) and
+`dalpha_dx(z_tilde)` (the fixed-$\tilde z$ x-gradient of specific volume), plus
+the two used by `Analysis`:
 
-Most of the work is organized through the private helpers
-`_get_ssh_z_bot()`, `_get_z_tilde_t_s_nodes()`, `_compute_column()`, and
-`_integrate_geometric_height()`.  Together, these routines reconstruct the
-column state, convert from pseudo-height to geometric height, and populate the
-reference dataset.
+- `hpga(z_tilde)` — evaluates $a(\tilde z)$ pointwise at the edge $x = 0$
+  via the chain-rule / Leibniz integral, anchored at the surface (the boundary
+  the model honours).  It accumulates the cumulative integral
+  $I(\tilde z) = \int_{\tilde z_s}^{\tilde z} \bigl(\alpha_{S_A} \partial_x
+  S_A + \alpha_{\Theta} \partial_x \Theta\bigr)\,d\tilde z'$ using
+  `_fixed_quadrature` on a sorted unique node set, then interpolates back onto
+  the requested $\tilde z$ values.  The surface boundary term
+  ($\eta'$ and $\tilde z_s'$) is kept general so nonzero sea-surface height and
+  surface pressure are supported.
+- `layer_mean_hpga(z_tilde_interfaces)` — layer-averages `hpga()` over the
+  model's actual pseudo-height layer bounds using 4-point Gauss–Legendre
+  quadrature with `reference_quadrature_subdivisions` sub-panels per layer.
+  This is what `Analysis` calls to form the reference target per layer.
 
-`reference_solution.nc` contains both the baseline fields used directly in
-analysis and additional diagnostics that are useful when debugging or
-inspecting the reference calculation, including `HPGAMid`, `HPGAInter`,
-`MontgomeryMid`, `MontgomeryInter`, `dMdxMid`, `dalphadxMid`, `PEdgeMid`, and
-the valid-gradient masks.
+The private class `_ClampedInterp` wraps
+{py:func}`~polaris.tasks.ocean.horiz_press_grad.column.get_pchip_interpolator`
+with constant extrapolation at the node bounds.
+
+The quadrature primitives (`_fixed_quadrature`, `_gauss_composite`) support
+midpoint, trapezoid, Simpson, `gauss2`, and `gauss4` methods and are shared
+between the cumulative integral and the layer averaging.
 
 ### init
 
@@ -101,7 +117,7 @@ It runs Omega from the corresponding `init` output and writes `output.nc`
 The class {py:class}`polaris.tasks.ocean.horiz_press_grad.analysis.Analysis`
 compares each `forward` result with:
 
-- the high-fidelity reference solution, and
+- the analytic reference solution (built from `ReferenceColumn`), and
 - the Python-computed HPGA from `init.nc`.
 
 The step writes:
@@ -115,14 +131,20 @@ and enforces regression criteria from `[horiz_press_grad]`, including:
 - high-resolution RMS threshold for Omega-vs-reference, and
 - RMS threshold for Omega-vs-Python consistency.
 
-Implementation-wise, `Analysis.run()` reads the reference, init, and forward
-outputs for each configured horizontal resolution, then uses helper routines
-such as `_get_internal_edge()`, `_get_forward_z_tilde_edge_mid()`,
-`_sample_reference_without_interpolation()`, `_check_vertical_match()`,
-`_rms_error()`, and `_power_law_fit()` to produce the comparison datasets and
-plots.
+Implementation-wise, `Analysis.run()` iterates over configured horizontal
+resolutions.  For each resolution it:
 
-The key code-level distinction is that the reference comparison is built from
-`reference_solution.nc`, whereas the implementation-consistency comparison is
-built from `init.nc`.  The forward solution always comes from
-`output.nc` via `NormalVelocityTend`.
+1. reads `init_r*.nc`, `culled_mesh_r*.nc`, `vert_coord_r*.nc`, and
+   `output_r*.nc`;
+2. identifies the single internal edge via `_get_internal_edge()` and derives
+   the forward pseudo-heights via `_get_forward_z_tilde_edge_mid()`;
+3. constructs a `ReferenceColumn` with the mesh-derived `x_sign` and calls
+   `ref.layer_mean_hpga()` on the edge interface pseudo-heights from
+   `init.nc`, dropping the deepest valid layer (which abuts bathymetry);
+4. checks that Python and Omega pseudo-heights agree with
+   `_check_vertical_match()`, then computes the Omega-vs-Python RMS difference
+   from `init.nc` HPGA.
+
+The forward solution always comes from `output.nc` via `NormalVelocityTend`.
+Helper routines `_rms_error()` and `_power_law_fit()` produce the convergence
+datasets and plots.

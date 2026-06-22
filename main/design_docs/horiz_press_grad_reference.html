@@ -1,0 +1,874 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reworked HPG Reference Solution</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="P-Star Coordinate and Tracer Initialization" href="pstar_init.html" />
+    <link rel="prev" title="Design Documents" href="index.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Reworked HPG Reference Solution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#background-the-horizontal-pressure-gradient-and-its-reference-solution">Background: the horizontal pressure gradient and its reference solution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-two-column-task-and-its-comparisons">The two-column task and its comparisons</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-current-reference-solution-and-why-it-must-be-reworked">The current reference solution and why it must be reworked</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-reference-hpga-can-be-evaluated-at-an-arbitrary-pseudo-height-without-loss-of-accuracy">Requirement: The reference HPGA can be evaluated at an arbitrary pseudo-height without loss of accuracy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-reference-is-valid-throughout-the-water-column-including-immediately-above-the-bathymetry">Requirement: The reference is valid throughout the water column, including immediately above the bathymetry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-reference-is-accurate-enough-to-assess-hpg-operators-beyond-second-order">Requirement: The reference is accurate enough to assess HPG operators beyond second order</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-reference-supports-general-horizontal-variation-of-the-prescribed-inputs">Requirement: The reference supports general horizontal variation of the prescribed inputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-accuracy-assessment-evaluates-the-along-layer-scheme-on-its-own-merits">Requirement: The accuracy assessment evaluates the along-layer scheme on its own merits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-capability-integrates-with-the-existing-two-column-task-without-a-separate-precompute-step">Requirement: The capability integrates with the existing two-column task without a separate precompute step</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-continuous-coordinate-invariant-reference-and-the-cancellation-of-layer-slant-terms">Algorithm Design: The continuous, coordinate-invariant reference and the cancellation of layer-slant terms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-single-column-chain-rule-leibniz-expression-for-the-reference">Algorithm Design: Single-column chain-rule / Leibniz expression for the reference</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-horizontal-derivatives-of-the-prescribed-profiles-at-fixed-pseudo-height">Algorithm Design: Horizontal derivatives of the prescribed profiles at fixed pseudo-height</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-building-the-reference-profile-and-the-layer-averaged-comparison">Algorithm Design: Building the reference profile and the layer-averaged comparison</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-removal-of-the-separate-reference-step">Algorithm Design: Removal of the separate reference step</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-shared-reference-evaluator-module">Implementation: shared reference evaluator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-analysis-consumes-the-reference-directly">Implementation: Analysis consumes the reference directly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-task-wiring-and-configuration">Implementation: task wiring and configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-orientation-and-consistency-safeguards">Implementation: orientation and consistency safeguards</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-arbitrary-pseudo-height-evaluation-and-near-bathymetry-validity">Testing and Validation: arbitrary-pseudo-height evaluation and near-bathymetry validity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-fidelity-beyond-second-order">Testing and Validation: fidelity beyond second order</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-general-horizontal-input-variation">Testing and Validation: general horizontal input variation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-layer-averaged-comparison-and-regression-behavior">Testing and Validation: layer-averaged comparison and regression behavior</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Reworked HPG Reference Solution</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/horiz_press_grad_reference.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="reworked-hpg-reference-solution">
+<h1>Reworked HPG Reference Solution<a class="headerlink" href="#reworked-hpg-reference-solution" title="Link to this heading"></a></h1>
+<p>Creation date: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<section id="background-the-horizontal-pressure-gradient-and-its-reference-solution">
+<h2>Background: the horizontal pressure gradient and its reference solution<a class="headerlink" href="#background-the-horizontal-pressure-gradient-and-its-reference-solution" title="Link to this heading"></a></h2>
+<p>Omega is a non-Boussinesq, hydrostatic ocean model whose prognostic vertical
+coordinate is <strong>pseudo-height</strong>, <span class="math notranslate nohighlight">\(\tilde{z} = -p / (\rho_0 g)\)</span>, where <span class="math notranslate nohighlight">\(p\)</span> is sea
+gauge pressure, <span class="math notranslate nohighlight">\(\rho_0\)</span> is a reference seawater density (<code class="docutils literal notranslate"><span class="pre">RhoSw</span></code>), and <span class="math notranslate nohighlight">\(g\)</span> is
+gravitational acceleration. The <code class="docutils literal notranslate"><span class="pre">ocean/horiz_press_grad</span></code> task family in Polaris
+exists to verify the convergence of Omega’s horizontal pressure-gradient (HPG)
+operator against a high-fidelity reference solution, as called for in the Omega
+<a class="reference external" href="https://github.com/E3SM-Project/Omega">pressure gradient design document</a>
+(<code class="docutils literal notranslate"><span class="pre">PGrad.md</span></code>, “Test: Spatial convergence to exact solution”).</p>
+<p>The continuous horizontal pressure-gradient force (HPGF) per unit mass that
+Omega’s momentum tendency must reproduce is, from the
+<a class="reference external" href="https://github.com/E3SM-Project/Omega">Omega V1 governing equations</a>
+(<code class="docutils literal notranslate"><span class="pre">OmegaV1GoverningEqns.md</span></code>),</p>
+<div class="math notranslate nohighlight">
+\[
+\mathbf{a}_\text{PGF} = -\left(\alpha\,\nabla p + \nabla \Phi\right),
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(\alpha = 1/\rho\)</span> is specific volume, <span class="math notranslate nohighlight">\(\Phi = g z\)</span> is the geopotential
+(neglecting tidal and self-attraction-and-loading terms), and <span class="math notranslate nohighlight">\(\nabla\)</span> is the
+<strong>along-layer</strong> horizontal gradient. Using the hydrostatic relation, Omega
+rewrites this through the Montgomery potential <span class="math notranslate nohighlight">\(M = \alpha p + g z\)</span> as</p>
+<div class="math notranslate nohighlight">
+\[
+\mathbf{a}_\text{PGF} = -\nabla M + p\,\nabla \alpha,
+\]</div>
+<p>and discretizes it with a centered scheme in which <span class="math notranslate nohighlight">\(\alpha\)</span> is held constant
+within each layer, the Montgomery gradient is evaluated at layer interfaces and
+averaged to the layer midpoint, and the along-layer gradient is a two-cell
+finite difference across the edge.</p>
+<section id="the-two-column-task-and-its-comparisons">
+<h3>The two-column task and its comparisons<a class="headerlink" href="#the-two-column-task-and-its-comparisons" title="Link to this heading"></a></h3>
+<p>Each <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code> task variant (<code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code>,
+<code class="docutils literal notranslate"><span class="pre">temperature_gradient</span></code>, <code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code>) builds a two-column mesh at a set of
+paired horizontal and vertical resolutions. Per resolution:</p>
+<ul class="simple">
+<li><p>An <code class="docutils literal notranslate"><span class="pre">Init</span></code> step (a <code class="docutils literal notranslate"><span class="pre">PStarInitStep</span></code>, see the
+<a class="reference internal" href="pstar_init.html"><span class="doc std std-doc">p-star initialization design</span></a>) builds the p-star coordinate and
+the initial conservative temperature (CT) and absolute salinity (SA) from
+piecewise pseudo-height profiles, and computes a Polaris HPGA from a two-cell
+finite difference of the Montgomery potential.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step runs Omega for a <strong>single time step</strong> and writes Omega’s
+<code class="docutils literal notranslate"><span class="pre">NormalVelocityTend</span></code>, which is just the HPGA.</p></li>
+<li><p>An <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> step performs two comparisons:</p>
+<ol class="arabic simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">omega_vs_reference</span></code></strong> — Omega’s HPGA against the high-fidelity reference
+solution, fit to a power law to measure the convergence rate.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">omega_vs_python</span></code></strong> — Omega’s HPGA against the Polaris/Python HPGA from
+<code class="docutils literal notranslate"><span class="pre">Init</span></code>, a code-correctness check that the two implementations of the
+<em>same discrete scheme</em> agree to a tight tolerance.</p></li>
+</ol>
+</li>
+</ul>
+<p>Because each forward run is a single step with no coordinate motion, the
+forward layer pseudo-heights and geometric heights are identical to those in
+<code class="docutils literal notranslate"><span class="pre">Init</span></code>; the <code class="docutils literal notranslate"><span class="pre">omega_vs_python</span></code> comparison therefore needs no special handling.</p>
+</section>
+<section id="the-current-reference-solution-and-why-it-must-be-reworked">
+<h3>The current reference solution and why it must be reworked<a class="headerlink" href="#the-current-reference-solution-and-why-it-must-be-reworked" title="Link to this heading"></a></h3>
+<p>The current <code class="docutils literal notranslate"><span class="pre">Reference</span></code> step (<code class="docutils literal notranslate"><span class="pre">reference.py</span></code>) builds five columns at
+<span class="math notranslate nohighlight">\(x = \Delta x_\text{ref}\,[-1.5,-0.5,0,0.5,1.5]\)</span>, integrates the hydrostatic
+relation upward from each seafloor to obtain geometric height <span class="math notranslate nohighlight">\(z(\tilde z)\)</span>,
+forms <span class="math notranslate nohighlight">\(M\)</span>, and takes a <strong>4th-order finite difference across columns</strong> to obtain
+<span class="math notranslate nohighlight">\(\partial M/\partial x\)</span> and <span class="math notranslate nohighlight">\(\partial \alpha/\partial x\)</span> at the center column,
+giving HPGA <span class="math notranslate nohighlight">\(= -\partial M/\partial x + p\,\partial\alpha/\partial x\)</span>. It writes
+the result on a vertical grid deliberately refined (via a greatest-common-
+divisor construction) so that every test grid’s layer midpoints land exactly on
+reference grid points. <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> then samples the reference by <strong>exact z̃
+matching</strong> with no interpolation.</p>
+<p>This design has two structural weaknesses:</p>
+<ol class="arabic simple">
+<li><p><strong>Grid-alignment fragility.</strong> Exact-match sampling only works when the
+reference and test pseudo-heights coincide. As soon as a nonzero
+<code class="docutils literal notranslate"><span class="pre">SurfacePressure</span></code> is applied, the p-star coordinate stretches and squashes
+the column in proportion to the pressure thickness, and partial bottom cells
+produce interfaces that no longer align across vertical resolutions. The
+reference must instead be queryable at <em>arbitrary</em> pseudo-height with no loss
+of accuracy.</p></li>
+<li><p><strong>Breakdown near bathymetry.</strong> The cross-column finite-difference stencil
+requires every neighboring column to be valid at a given <span class="math notranslate nohighlight">\(\tilde z\)</span>. Near the
+seafloor, collocation points in some columns fall below their own bathymetry
+and the stencil cannot be formed, so those layers are masked out. The
+accuracy is also only as good as the stencil and the matched grid, which is
+insufficient for assessing the higher-than-second-order HPG operators planned
+for Omega.</p></li>
+</ol>
+</section>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>This design replaces the multi-column, finite-difference reference solution
+with a <strong>single-column, analytic</strong> reference computed at the edge between the
+two columns (<span class="math notranslate nohighlight">\(x = 0\)</span>). The new capability:</p>
+<ul class="simple">
+<li><p>Evaluates the exact continuous HPGF directly via a chain-rule / Leibniz
+expansion of the along-pseudo-height gradient, using TEOS-10 specific-volume
+derivatives. Because the continuous HPGF is coordinate-invariant, this single
+central-column expression is exact in the horizontal — there is no
+finite-difference truncation and no dependence on neighboring columns, so the
+near-bathymetry breakdown disappears and the reference is fidelity-limited only
+by a smooth one-dimensional quadrature.</p></li>
+<li><p>Is a callable function of <span class="math notranslate nohighlight">\(\tilde z\)</span>, so it can be sampled at exactly the
+pseudo-heights a test produces, eliminating the grid-alignment requirement.</p></li>
+<li><p>Supports fully general horizontal variation of every prescribed input.</p></li>
+<li><p>Is consumed directly by <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> through a shared evaluator module; the
+separate <code class="docutils literal notranslate"><span class="pre">Reference</span></code> step is removed.</p></li>
+</ul>
+<p>The accuracy assessment compares Omega’s along-layer HPGA to the reference using
+a <strong>layer-averaged</strong> target: for each model layer, the reference is averaged over
+that layer’s pseudo-height extent at the edge. This compares like with like (a
+layer mean against a layer mean) so that legitimate layer tilt and finite layer
+thickness are accounted for in the target rather than charged as discretization
+error.</p>
+<p>The primary challenges are (a) formulating the continuous reference correctly so
+that the along-layer computation is judged on its own merits, (b) differentiating
+the prescribed profiles with respect to the horizontal coordinate at fixed
+pseudo-height — including the case where the profile node pseudo-heights
+themselves tilt — and (c) integrating the resulting expression to high accuracy
+in the vertical. The design is <strong>successful</strong> if the reference can be evaluated
+at any pseudo-height without loss of accuracy, remains valid throughout the water
+column including immediately above the bathymetry, is accurate enough to serve a
+beyond-second-order HPG operator, supports general horizontal input variation,
+and reproduces (with re-tuned thresholds) the convergence behavior the existing
+regression tests check.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-the-reference-hpga-can-be-evaluated-at-an-arbitrary-pseudo-height-without-loss-of-accuracy">
+<h3>Requirement: The reference HPGA can be evaluated at an arbitrary pseudo-height without loss of accuracy<a class="headerlink" href="#requirement-the-reference-hpga-can-be-evaluated-at-an-arbitrary-pseudo-height-without-loss-of-accuracy" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The reference solution shall be evaluable at any pseudo-height within the water
+column produced by a test, to high accuracy, without requiring that the
+reference and test vertical grids coincide. This must hold when a nonzero
+sea-surface pressure stretches or squashes the p-star column and when partial
+bottom cells misalign layer interfaces across resolutions.</p>
+</section>
+<section id="requirement-the-reference-is-valid-throughout-the-water-column-including-immediately-above-the-bathymetry">
+<h3>Requirement: The reference is valid throughout the water column, including immediately above the bathymetry<a class="headerlink" href="#requirement-the-reference-is-valid-throughout-the-water-column-including-immediately-above-the-bathymetry" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The reference shall remain valid and accurate for every pseudo-height from the
+free surface down to the seafloor of the column at the edge between the two test
+columns. It shall not break down or require masking in the layers nearest the
+bathymetry.</p>
+</section>
+<section id="requirement-the-reference-is-accurate-enough-to-assess-hpg-operators-beyond-second-order">
+<h3>Requirement: The reference is accurate enough to assess HPG operators beyond second order<a class="headerlink" href="#requirement-the-reference-is-accurate-enough-to-assess-hpg-operators-beyond-second-order" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The reference shall be of sufficient fidelity that, when an HPG operator more
+accurate than the current second-order centered scheme is introduced in Omega,
+the reference error does not limit the measured convergence. In particular, the
+reference shall not introduce a fixed-order horizontal truncation error of its
+own.</p>
+</section>
+<section id="requirement-the-reference-supports-general-horizontal-variation-of-the-prescribed-inputs">
+<h3>Requirement: The reference supports general horizontal variation of the prescribed inputs<a class="headerlink" href="#requirement-the-reference-supports-general-horizontal-variation-of-the-prescribed-inputs" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The reference shall correctly represent horizontal variation of every prescribed
+input that the task permits: the geometric sea-surface height, the geometric
+seafloor depth, the seafloor pseudo-height, and the temperature and salinity
+profile node values <strong>and</strong> node pseudo-heights. No input variation supported by
+the task configuration may be assumed to be horizontally uniform.</p>
+</section>
+<section id="requirement-the-accuracy-assessment-evaluates-the-along-layer-scheme-on-its-own-merits">
+<h3>Requirement: The accuracy assessment evaluates the along-layer scheme on its own merits<a class="headerlink" href="#requirement-the-accuracy-assessment-evaluates-the-along-layer-scheme-on-its-own-merits" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The comparison between the model’s along-layer HPGA and the reference shall
+measure only the genuine discretization error of the along-layer scheme. It
+shall not attribute legitimate, physically correct effects of tilted layers or
+of finite layer thickness to discretization error. The reference shall represent
+the exact continuous pressure-gradient force that the along-layer scheme
+converges to as both horizontal and vertical resolution are refined.</p>
+</section>
+<section id="requirement-the-capability-integrates-with-the-existing-two-column-task-without-a-separate-precompute-step">
+<h3>Requirement: The capability integrates with the existing two-column task without a separate precompute step<a class="headerlink" href="#requirement-the-capability-integrates-with-the-existing-two-column-task-without-a-separate-precompute-step" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The reference shall be available to the <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> step on demand at the
+pseudo-heights each test produces, without a separate precomputed reference
+artifact and without changing the structure of the <code class="docutils literal notranslate"><span class="pre">Init</span></code>/<code class="docutils literal notranslate"><span class="pre">Forward</span></code>/<code class="docutils literal notranslate"><span class="pre">Analysis</span></code>
+workflow or the two comparisons (<code class="docutils literal notranslate"><span class="pre">omega_vs_reference</span></code> and <code class="docutils literal notranslate"><span class="pre">omega_vs_python</span></code>).</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-the-continuous-coordinate-invariant-reference-and-the-cancellation-of-layer-slant-terms">
+<h3>Algorithm Design: The continuous, coordinate-invariant reference and the cancellation of layer-slant terms<a class="headerlink" href="#algorithm-design-the-continuous-coordinate-invariant-reference-and-the-cancellation-of-layer-slant-terms" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The reference is the <strong>exact continuous</strong> pressure-gradient acceleration that
+Omega’s discrete operator must converge to. The key fact that makes a
+single central-column evaluation correct is that this acceleration is
+<strong>independent of the vertical coordinate</strong> used to evaluate the horizontal
+gradients.</p>
+<p>Write the horizontal gradients along a general layer label <span class="math notranslate nohighlight">\(\sigma\)</span> (constant
+along a model coordinate surface). Pseudo-height is, by definition, a rescaled
+pressure, <span class="math notranslate nohighlight">\(p = -\rho_0 g\,\tilde z\)</span>, so along constant <span class="math notranslate nohighlight">\(\tilde z\)</span> the pressure is
+constant. Using the hydrostatic relation <span class="math notranslate nohighlight">\(\partial z/\partial \tilde z =
+\rho_0 \alpha\)</span>, the along-<span class="math notranslate nohighlight">\(\sigma\)</span> gradients of pressure and geometric height are</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\nabla_\sigma p &amp;= -\rho_0 g\,\left.\partial_x \tilde z\right|_\sigma, \\
+\nabla_\sigma z &amp;= \left.\partial_x z\right|_{\tilde z}
+                  + \rho_0 \alpha\,\left.\partial_x \tilde z\right|_\sigma .
+\end{split}\]</div>
+<p>Substituting into <span class="math notranslate nohighlight">\(\mathbf{a}_\text{PGF} = -(\alpha\,\nabla_\sigma p +
+g\,\nabla_\sigma z)\)</span>, the two terms proportional to the coordinate slope
+<span class="math notranslate nohighlight">\(\left.\partial_x\tilde z\right|_\sigma\)</span> carry the <strong>same</strong> <span class="math notranslate nohighlight">\(\alpha\)</span> at the same
+point and cancel exactly:</p>
+<div class="math notranslate nohighlight">
+\[
+\mathbf{a}_\text{PGF} = -g\,\left.\frac{\partial z}{\partial x}\right|_{\tilde z}.
+\]</div>
+<p>This is the standard statement that the pressure-gradient force does not depend
+on the coordinate used to compute it. Consequences for the design:</p>
+<ul class="simple">
+<li><p>The reference is <span class="math notranslate nohighlight">\(-g\,\partial_x z|_{\tilde z}\)</span>, evaluated at the edge (<span class="math notranslate nohighlight">\(x=0\)</span>).
+It can be computed entirely at constant <span class="math notranslate nohighlight">\(\tilde z\)</span>, which is the convenient
+frame, <strong>without approximation</strong>, even when the model layers slant (as in
+<code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code>) or bend near the bathymetry (partial cells).</p></li>
+<li><p>The cancellation holds only for the <strong>total</strong> acceleration. Omega’s discrete
+pieces <span class="math notranslate nohighlight">\(\nabla M\)</span> and <span class="math notranslate nohighlight">\(p\,\nabla\alpha\)</span> are individually coordinate-dependent
+and large; the design never compares those pieces to the reference, only the
+total. The residual between Omega’s along-layer total and the continuous total
+is therefore the genuine discretization error of the along-layer scheme —
+including the classic slant-induced pressure-gradient error that the future
+high-order operator is intended to reduce.</p></li>
+</ul>
+</section>
+<section id="algorithm-design-single-column-chain-rule-leibniz-expression-for-the-reference">
+<h3>Algorithm Design: Single-column chain-rule / Leibniz expression for the reference<a class="headerlink" href="#algorithm-design-single-column-chain-rule-leibniz-expression-for-the-reference" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Geometric height as a function of pseudo-height in a single column is obtained by
+integrating the hydrostatic relation from the surface:</p>
+<div class="math notranslate nohighlight">
+\[
+z(\tilde z; x) = \eta(x) + \rho_0 \int_{\tilde z_s(x)}^{\tilde z}
+    \alpha\bigl(S_A(\tilde z', x),\,\Theta(\tilde z', x),\,p(\tilde z')\bigr)
+    \, d\tilde z' ,
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(\eta(x)\)</span> is the geometric sea-surface height, <span class="math notranslate nohighlight">\(\tilde z_s(x)\)</span> is the
+surface pseudo-height (<span class="math notranslate nohighlight">\(\tilde z_s = -p_s/(\rho_0 g)\)</span>, zero only when the surface
+pressure <span class="math notranslate nohighlight">\(p_s\)</span> is zero), and <span class="math notranslate nohighlight">\(p(\tilde z') = -\rho_0 g\,\tilde z'\)</span> depends only on
+<span class="math notranslate nohighlight">\(\tilde z'\)</span> (not on <span class="math notranslate nohighlight">\(x\)</span>). The integral runs downward, so for <span class="math notranslate nohighlight">\(\tilde z &lt; \tilde
+z_s\)</span> it is negative and <span class="math notranslate nohighlight">\(z &lt; \eta\)</span>, as required. The reference is <strong>anchored at
+the surface</strong> rather than the seafloor because that is the boundary the model
+honours: <code class="docutils literal notranslate"><span class="pre">Init</span></code>/Omega build the p-star column from the prescribed sea-surface
+height and surface pressure, so the HPGA vanishes at the surface (for zero
+surface slope) and grows downward. Anchoring elsewhere — e.g. at the configured
+seafloor pseudo-height, which is a coordinate buffer below the deepest valid
+layer rather than a honoured geometric boundary — would reconstruct a different
+<span class="math notranslate nohighlight">\(z(\tilde z)\)</span> and miss the model by a constant offset.</p>
+<p>Differentiating with respect to <span class="math notranslate nohighlight">\(x\)</span> at fixed <span class="math notranslate nohighlight">\(\tilde z\)</span>, the lower integration
+limit depends on <span class="math notranslate nohighlight">\(x\)</span>, so the Leibniz rule contributes a boundary term:</p>
+<div class="math notranslate nohighlight">
+\[
+\left.\frac{\partial z}{\partial x}\right|_{\tilde z} =
+   \eta'(x)
+   - \rho_0\,\alpha(\tilde z_s)\,\tilde z_s'(x)
+   + \rho_0 \int_{\tilde z_s}^{\tilde z}
+        \left.\frac{\partial \alpha}{\partial x}\right|_{\tilde z'} d\tilde z' .
+\]</div>
+<p>Because <span class="math notranslate nohighlight">\(p\)</span> is fixed along constant <span class="math notranslate nohighlight">\(\tilde z'\)</span>, the integrand involves only the
+horizontal variation of the thermohaline state through the TEOS-10 specific
+volume:</p>
+<div class="math notranslate nohighlight">
+\[
+\left.\frac{\partial \alpha}{\partial x}\right|_{\tilde z'} =
+   \alpha_{S_A}\,\left.\frac{\partial S_A}{\partial x}\right|_{\tilde z'}
+ + \alpha_{\Theta}\,\left.\frac{\partial \Theta}{\partial x}\right|_{\tilde z'},
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(\alpha_{S_A} = \partial \alpha / \partial S_A\)</span> and
+<span class="math notranslate nohighlight">\(\alpha_{\Theta} = \partial \alpha / \partial \Theta\)</span> are the first derivatives of
+specific volume from the equation of state, evaluated at the central column’s
+<span class="math notranslate nohighlight">\((S_A, \Theta, p)\)</span>. The reference acceleration is then</p>
+<div class="math notranslate nohighlight">
+\[
+a(\tilde z) = -g\left.\frac{\partial z}{\partial x}\right|_{\tilde z} =
+   -g\left[\,\eta' - \rho_0\,\alpha(\tilde z_s)\,\tilde z_s'
+   + \rho_0 \int_{\tilde z_s}^{\tilde z}
+   \left(\alpha_{S_A}\,\partial_x S_A + \alpha_{\Theta}\,\partial_x \Theta\right)
+   d\tilde z'\right].
+\]</div>
+<p>Notable properties:</p>
+<ul class="simple">
+<li><p><strong>No geometric-height integration is required for the HPGA.</strong> Everything is
+expressed through the prescribed profiles <span class="math notranslate nohighlight">\(S_A(\tilde z'), \Theta(\tilde z')\)</span>
+and the analytic pressure <span class="math notranslate nohighlight">\(p(\tilde z') = -\rho_0 g\,\tilde z'\)</span> at the central
+column, plus the input slopes <span class="math notranslate nohighlight">\(\eta'\)</span> and <span class="math notranslate nohighlight">\(\tilde z_s'\)</span>. The only quadrature is
+the smooth one-dimensional integral of <span class="math notranslate nohighlight">\(\partial_x\alpha\)</span>. (A geometric-height
+integration may still be performed for optional diagnostics.)</p></li>
+<li><p><strong>Single column, valid to the seafloor.</strong> The expression is evaluated only at
+<span class="math notranslate nohighlight">\(x = 0\)</span> and is well defined for every <span class="math notranslate nohighlight">\(\tilde z \in [\tilde z_b(0), \tilde
+z_s(0)]\)</span>. Integrating from the surface loses none of this validity — it reaches
+every pseudo-height down to and immediately above the bathymetry — and it never
+references neighboring columns, so it cannot break down above the bathymetry.</p></li>
+<li><p><strong>Exact in the horizontal.</strong> The horizontal gradient is analytic; there is no
+<span class="math notranslate nohighlight">\(\Delta x\)</span> truncation, satisfying the beyond-second-order fidelity requirement.</p></li>
+</ul>
+<p>The boundary term uses <span class="math notranslate nohighlight">\(\tilde z_s(0) = \)</span> the surface pseudo-height (the
+shallowest <code class="docutils literal notranslate"><span class="pre">z_tilde</span></code> node) and <span class="math notranslate nohighlight">\(\alpha(\tilde z_s)\)</span> evaluated from the profiles
+at <span class="math notranslate nohighlight">\(\tilde z_s(0)\)</span>. The slopes <span class="math notranslate nohighlight">\(\eta'\)</span> (from <code class="docutils literal notranslate"><span class="pre">geom_ssh_grad</span></code>) and <span class="math notranslate nohighlight">\(\tilde z_s'\)</span>
+(from the surface <code class="docutils literal notranslate"><span class="pre">z_tilde_grad</span></code> node) are read from the configuration gradients
+(converted from per-km to per-m and projected onto the edge normal). They are
+kept <strong>fully general</strong>: a nonzero sea-surface height or surface pressure makes
+<span class="math notranslate nohighlight">\(\eta'\)</span> and/or <span class="math notranslate nohighlight">\(\tilde z_s'\)</span> (and <span class="math notranslate nohighlight">\(\tilde z_s\)</span> itself) nonzero, and the formula
+already accounts for them. A regression test that exercises a nonzero surface
+pressure is deferred to a follow-up PR; the present tasks all use zero surface
+slope and pressure.</p>
+</section>
+<section id="algorithm-design-horizontal-derivatives-of-the-prescribed-profiles-at-fixed-pseudo-height">
+<h3>Algorithm Design: Horizontal derivatives of the prescribed profiles at fixed pseudo-height<a class="headerlink" href="#algorithm-design-horizontal-derivatives-of-the-prescribed-profiles-at-fixed-pseudo-height" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The factors <span class="math notranslate nohighlight">\(\partial_x S_A|_{\tilde z'}\)</span> and <span class="math notranslate nohighlight">\(\partial_x \Theta|_{\tilde z'}\)</span>
+are the horizontal gradients of the prescribed profiles at fixed pseudo-height.
+The profiles are defined by node values and node pseudo-heights, each of which
+varies linearly in <span class="math notranslate nohighlight">\(x\)</span> (configuration <code class="docutils literal notranslate"><span class="pre">*_mid</span></code> plus <code class="docutils literal notranslate"><span class="pre">*_grad</span></code><span class="math notranslate nohighlight">\(\cdot x\)</span>), and a
+monotone PCHIP interpolant in pseudo-height (the same interpolant <code class="docutils literal notranslate"><span class="pre">Init</span></code> uses, so
+the reference and the test describe the same physical state).</p>
+<p>The profile value at fixed <span class="math notranslate nohighlight">\(\tilde z'\)</span> depends on <span class="math notranslate nohighlight">\(x\)</span> through both the node
+values and, in the general case (<code class="docutils literal notranslate"><span class="pre">z_tilde_grad</span></code> <span class="math notranslate nohighlight">\(\neq 0\)</span>), the node
+pseudo-heights. Because PCHIP is nonlinear in its node data, the horizontal
+derivative is obtained by <strong>differencing the analytic input profiles</strong>: the
+interpolant is constructed at <span class="math notranslate nohighlight">\(x = \pm\varepsilon\)</span> from the exactly known linear
+node functions and evaluated at <span class="math notranslate nohighlight">\(\tilde z'\)</span>, and a centered difference is taken,</p>
+<div class="math notranslate nohighlight">
+\[
+\left.\frac{\partial S_A}{\partial x}\right|_{\tilde z'} \approx
+   \frac{S_A(\tilde z'; +\varepsilon) - S_A(\tilde z'; -\varepsilon)}
+        {2\varepsilon},
+\]</div>
+<p>and similarly for <span class="math notranslate nohighlight">\(\Theta\)</span>. Since the nodes are exactly linear in <span class="math notranslate nohighlight">\(x\)</span> and the
+interpolant is smooth in <span class="math notranslate nohighlight">\(x\)</span>, this is accurate to round-off for a suitably chosen
+<span class="math notranslate nohighlight">\(\varepsilon\)</span> (optionally refined by Richardson extrapolation). This single
+construction handles all task variants uniformly, including tilted node
+pseudo-heights, satisfying the general-input requirement.</p>
+<p>The specific-volume derivatives <span class="math notranslate nohighlight">\(\alpha_{S_A}\)</span> and <span class="math notranslate nohighlight">\(\alpha_{\Theta}\)</span> are obtained from the
+equation of state at the central column’s <span class="math notranslate nohighlight">\((S_A(\tilde z'), \Theta(\tilde z'),
+p(\tilde z'))\)</span> — concretely, from <code class="docutils literal notranslate"><span class="pre">gsw.specvol_first_derivatives</span></code> for TEOS-10.</p>
+</section>
+<section id="algorithm-design-building-the-reference-profile-and-the-layer-averaged-comparison">
+<h3>Algorithm Design: Building the reference profile and the layer-averaged comparison<a class="headerlink" href="#algorithm-design-building-the-reference-profile-and-the-layer-averaged-comparison" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The reference is needed as a layer mean over each model layer. Define the
+cumulative integral</p>
+<div class="math notranslate nohighlight">
+\[
+I(\tilde z) = \int_{\tilde z_s}^{\tilde z}
+   \left(\alpha_{S_A}\,\partial_x S_A + \alpha_{\Theta}\,\partial_x \Theta\right)
+   d\tilde z', \qquad
+a(\tilde z) = -g\left[\,\eta' - \rho_0\,\alpha(\tilde z_s)\,\tilde z_s'
+   + \rho_0\,I(\tilde z)\right].
+\]</div>
+<p>The integrand is smooth, so <span class="math notranslate nohighlight">\(I(\tilde z)\)</span> — and therefore <span class="math notranslate nohighlight">\(a(\tilde z)\)</span> — is
+evaluated with a high-order quadrature (the existing Gauss–Legendre / adaptive
+machinery; see Implementation). <span class="math notranslate nohighlight">\(a(\tilde z)\)</span> is thus available as an accurate
+callable of pseudo-height.</p>
+<p>For the comparison, each model layer <span class="math notranslate nohighlight">\(k\)</span> spans, at the edge, the pseudo-height
+interval <span class="math notranslate nohighlight">\([\tilde z^{\text{bot}}_{k}, \tilde z^{\text{top}}_{k}]\)</span>, where the edge
+interfaces are the average of the two cells’ interface pseudo-heights (the edge
+lies midway between the columns; for linearly varying inputs this average equals
+the central-column value). The reference target for layer <span class="math notranslate nohighlight">\(k\)</span> is the <strong>layer
+mean</strong></p>
+<div class="math notranslate nohighlight">
+\[
+\overline{a}_k = \frac{1}{\tilde z^{\text{top}}_k - \tilde z^{\text{bot}}_k}
+   \int_{\tilde z^{\text{bot}}_k}^{\tilde z^{\text{top}}_k}
+   a(\tilde z)\, d\tilde z ,
+\]</div>
+<p>evaluated by high-order quadrature within the layer. This compares the model’s
+layer-mean acceleration to the true layer-mean acceleration, so finite layer
+thickness and layer tilt are folded into the target rather than counted as error
+(satisfying the “on its own merits” requirement). As both resolutions refine,
+<span class="math notranslate nohighlight">\(\overline{a}_k \to a(\tilde z_k)\)</span> and the residual is the scheme’s genuine
+discretization error.</p>
+<p>The model layer interfaces are taken from the test output (identical between
+<code class="docutils literal notranslate"><span class="pre">Init</span></code> and <code class="docutils literal notranslate"><span class="pre">Forward</span></code>), so the reference is sampled at exactly the test’s
+pseudo-heights and the partial-cell bottom geometry is honored automatically. As
+in the current analysis, the single deepest valid model layer (which abuts the
+bathymetry) is excluded from the error metric.</p>
+<p>The sign/orientation of <span class="math notranslate nohighlight">\(a\)</span> must match the edge-normal convention used by the
+model output: the horizontal coordinate <span class="math notranslate nohighlight">\(x\)</span> increases from the first to the
+second cell on the internal edge. <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> determines that orientation from
+the mesh cell positions and applies it consistently to the input slopes and the
+reference acceleration.</p>
+</section>
+<section id="algorithm-design-removal-of-the-separate-reference-step">
+<h3>Algorithm Design: Removal of the separate reference step<a class="headerlink" href="#algorithm-design-removal-of-the-separate-reference-step" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Because the reference is an inexpensive callable evaluated at the test’s
+pseudo-heights, it does not need to be precomputed by a dedicated step. The
+<code class="docutils literal notranslate"><span class="pre">Reference</span></code> step is removed. <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> constructs the reference evaluator from
+the configuration (which fully determines the central column) and evaluates the
+layer-averaged target per resolution. The greatest-common-divisor reference
+grid, the five-column construction, the cross-column finite-difference stencil,
+and the exact-match sampling are all retired.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-shared-reference-evaluator-module">
+<h3>Implementation: shared reference evaluator module<a class="headerlink" href="#implementation-shared-reference-evaluator-module" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Replace the <code class="docutils literal notranslate"><span class="pre">Reference</span></code> <em>step</em> in <code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/horiz_press_grad/reference.py</span></code>
+with a <code class="docutils literal notranslate"><span class="pre">Reference</span></code> <em>evaluator module</em> in the same package (the file name may
+remain <code class="docutils literal notranslate"><span class="pre">reference.py</span></code>; it no longer defines a <code class="docutils literal notranslate"><span class="pre">Step</span></code> subclass). The evaluator
+encapsulates the central column and exposes the reference as a function of
+pseudo-height.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ReferenceColumn</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    High-fidelity continuous HPGA reference at the edge (x = 0) between the</span>
+<span class="sd">    two columns, evaluated analytically via the chain-rule / Leibniz</span>
+<span class="sd">    expansion of the along-pseudo-height gradient.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">x_sign</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="c1"># x_sign carries the edge-normal orientation (+1 if x increases from</span>
+        <span class="c1"># cell0 to cell1, -1 otherwise) so the reference matches the model</span>
+        <span class="c1"># output convention.</span>
+        <span class="o">...</span>
+        <span class="c1"># Cache, at x = 0:</span>
+        <span class="c1">#   - PCHIP interpolants for SA(z_tilde), CT(z_tilde)</span>
+        <span class="c1">#   - the surface pseudo-height z_tilde_s (shallowest z_tilde node),</span>
+        <span class="c1">#     the sea-surface-height slope eta&#39; and the surface pseudo-height</span>
+        <span class="c1">#     slope z_tilde_s&#39; (per-metre, * x_sign); kept general so nonzero</span>
+        <span class="c1">#     SSH / surface pressure need no further change</span>
+        <span class="c1">#   - alpha(z_tilde_s) for the boundary term</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">specvol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_tilde</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;alpha = EOS(SA(z_tilde), CT(z_tilde), p = -RhoSw*g*z_tilde).&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">dalpha_dx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_tilde</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        alpha_SA * dSA/dx + alpha_CT * dCT/dx at fixed z_tilde, with alpha_*</span>
+<span class="sd">        from gsw.specvol_first_derivatives and dSA/dx, dCT/dx from analytic-input</span>
+<span class="sd">        differencing of the profiles (handles tilted nodes).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">hpga</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_tilde</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        a(z_tilde) = -g [ eta&#39; - RhoSw*alpha(z_tilde_s)*z_tilde_s&#39;</span>
+<span class="sd">                          + RhoSw * I(z_tilde) ],</span>
+<span class="sd">        with I(z_tilde) the cumulative integral of dalpha_dx from the surface</span>
+<span class="sd">        z_tilde_s. Vectorized over a 1-D array of target pseudo-heights.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">layer_mean_hpga</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_tilde_interfaces</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given edge layer interface pseudo-heights (length nLayers+1), return</span>
+<span class="sd">        the per-layer mean of a(z_tilde) over each [z_top, z_bot] interval by</span>
+<span class="sd">        high-order quadrature.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>Reuse existing utilities rather than reimplementing them:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_array_from_mid_grad(config,</span> <span class="pre">name,</span> <span class="pre">x)</span></code> and <code class="docutils literal notranslate"><span class="pre">get_pchip_interpolator(...)</span></code>
+from <code class="docutils literal notranslate"><span class="pre">column.py</span></code> for node arrays and profile interpolants. Pass an array of
+the single point <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">[0.0]</span></code> (plus <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">±epsilon</span></code> for the differencing).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_specvol</span></code> from <code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos</span></code> (TEOS-10 path) for <span class="math notranslate nohighlight">\(\alpha\)</span>, and
+<code class="docutils literal notranslate"><span class="pre">gsw.specvol_first_derivatives(SA,</span> <span class="pre">CT,</span> <span class="pre">p_dbar)</span></code> for <span class="math notranslate nohighlight">\(\alpha_{S_A}, \alpha_{\Theta}\)</span>
+(note <code class="docutils literal notranslate"><span class="pre">gsw</span></code> takes pressure in dbar = Pa <span class="math notranslate nohighlight">\(\times 10^{-4}\)</span>).</p></li>
+<li><p>The fixed-step Gauss–Legendre and adaptive-Simpson quadrature helpers already
+present in <code class="docutils literal notranslate"><span class="pre">reference.py</span></code> (<code class="docutils literal notranslate"><span class="pre">_gauss_composite</span></code>, <code class="docutils literal notranslate"><span class="pre">_fixed_quadrature</span></code>,
+<code class="docutils literal notranslate"><span class="pre">_adaptive_simpson</span></code>) for both <span class="math notranslate nohighlight">\(I(\tilde z)\)</span> and the layer-mean integral. The
+quadrature method remains configurable via <code class="docutils literal notranslate"><span class="pre">reference_quadrature_method</span></code>
+(default <code class="docutils literal notranslate"><span class="pre">gauss4</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gravity</span></code> and <code class="docutils literal notranslate"><span class="pre">RhoSw</span></code> from <code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical.ztilde</span></code>.</p></li>
+</ul>
+<p>Recommended evaluation strategy for <code class="docutils literal notranslate"><span class="pre">hpga</span></code>/<code class="docutils literal notranslate"><span class="pre">layer_mean_hpga</span></code>: build
+<span class="math notranslate nohighlight">\(a(\tilde z)\)</span> on a fine internal pseudo-height grid spanning <span class="math notranslate nohighlight">\([\tilde z_b(0), 0]\)</span>
+by cumulative high-order quadrature of the integrand, then integrate <span class="math notranslate nohighlight">\(a\)</span> over
+each model layer with the same quadrature using a few sub-samples per layer (the
+sub-sampling fineness can reuse <code class="docutils literal notranslate"><span class="pre">reference_quadrature_method</span></code>’s panel count).
+Choose the internal grid fine enough that its contribution to the error is far
+below the HPGA errors being measured; alternatively evaluate <span class="math notranslate nohighlight">\(I\)</span> on demand at the
+layer quadrature points to avoid any interpolation. Either approach must keep the
+reference fidelity well beyond the model’s.</p>
+<p><code class="docutils literal notranslate"><span class="pre">epsilon</span></code> for the profile differencing should be a small fraction of the column
+extent (e.g. relative to <code class="docutils literal notranslate"><span class="pre">reference_horiz_res</span></code> if retained for this purpose, or a
+fixed small value such as <span class="math notranslate nohighlight">\(10^{-3}\)</span> km); document the choice and optionally apply
+Richardson extrapolation.</p>
+</section>
+<section id="implementation-analysis-consumes-the-reference-directly">
+<h3>Implementation: Analysis consumes the reference directly<a class="headerlink" href="#implementation-analysis-consumes-the-reference-directly" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">analysis.py</span></code>:</p>
+<ul class="simple">
+<li><p>Remove the <code class="docutils literal notranslate"><span class="pre">reference</span></code> dependency, the <code class="docutils literal notranslate"><span class="pre">reference_solution.nc</span></code> input, and
+<code class="docutils literal notranslate"><span class="pre">_sample_reference_without_interpolation</span></code>.</p></li>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">setup</span></code>, drop the reference-step input wiring; keep the per-resolution
+<code class="docutils literal notranslate"><span class="pre">init</span></code>, <code class="docutils literal notranslate"><span class="pre">forward</span></code>, <code class="docutils literal notranslate"><span class="pre">culled_mesh</span></code>, and <code class="docutils literal notranslate"><span class="pre">vert_coord</span></code> inputs.</p></li>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">run</span></code>, construct a single <code class="docutils literal notranslate"><span class="pre">ReferenceColumn</span></code> from <code class="docutils literal notranslate"><span class="pre">self.config</span></code> (its
+orientation <code class="docutils literal notranslate"><span class="pre">x_sign</span></code> is derived once from the mesh, see below). Then for each
+resolution:</p>
+<ol class="arabic simple">
+<li><p>Identify the internal edge and its two cells with the existing
+<code class="docutils literal notranslate"><span class="pre">_get_internal_edge</span></code>.</p></li>
+<li><p>Determine <code class="docutils literal notranslate"><span class="pre">x_sign</span></code> from the cells’ <code class="docutils literal notranslate"><span class="pre">xCell</span></code> (sign of <code class="docutils literal notranslate"><span class="pre">xCell[cell1]</span> <span class="pre">-</span> <span class="pre">xCell[cell0]</span></code>), so the reference gradient matches the model edge-normal
+convention. The current Python HPGA in <code class="docutils literal notranslate"><span class="pre">Init</span></code>
+(<code class="docutils literal notranslate"><span class="pre">_compute_montgomery_and_hpga</span></code>) uses <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">horiz_res*[-0.5,</span> <span class="pre">0.5]</span></code> for cells
+<code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>; the new orientation logic must reproduce the same sign the
+existing <code class="docutils literal notranslate"><span class="pre">omega_vs_python</span></code> comparison relies on.</p></li>
+<li><p>Read the <strong>edge</strong> layer-interface pseudo-heights as the average of the two
+cells’ <code class="docutils literal notranslate"><span class="pre">ZTildeInterface</span></code> from the forward output (equivalently <code class="docutils literal notranslate"><span class="pre">Init</span></code>).</p></li>
+<li><p>Compute <code class="docutils literal notranslate"><span class="pre">ref_layer_mean</span> <span class="pre">=</span> <span class="pre">reference.layer_mean_hpga(edge_interfaces)</span></code>.</p></li>
+<li><p>Restrict to valid layers via <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> (shallowest of the two cells,
+as today) and drop the deepest valid layer (abuts bathymetry).</p></li>
+<li><p>RMS-difference Omega’s <code class="docutils literal notranslate"><span class="pre">NormalVelocityTend</span></code> at the edge against
+<code class="docutils literal notranslate"><span class="pre">ref_layer_mean</span></code>; accumulate per resolution.</p></li>
+</ol>
+</li>
+<li><p>The power-law fit, threshold checks, plots, and <code class="docutils literal notranslate"><span class="pre">omega_vs_python</span></code> comparison
+are unchanged in structure. Optionally overlay the reference layer-mean profile
+on a diagnostic plot at the finest resolution.</p></li>
+</ul>
+</section>
+<section id="implementation-task-wiring-and-configuration">
+<h3>Implementation: task wiring and configuration<a class="headerlink" href="#implementation-task-wiring-and-configuration" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">task.py</span></code>: remove the <code class="docutils literal notranslate"><span class="pre">Reference</span></code> step creation and its entry in the
+<code class="docutils literal notranslate"><span class="pre">Analysis</span></code> dependencies dict (<code class="docutils literal notranslate"><span class="pre">{'init':</span> <span class="pre">...,</span> <span class="pre">'forward':</span> <span class="pre">...}</span></code> only).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">horiz_press_grad.cfg</span></code>: remove <code class="docutils literal notranslate"><span class="pre">reference_horiz_res</span></code> (no neighboring columns).
+Keep <code class="docutils literal notranslate"><span class="pre">reference_quadrature_method</span></code> for the one-dimensional integral and the
+layer mean. Retain the <code class="docutils literal notranslate"><span class="pre">omega_vs_reference_*</span></code> threshold and convergence-rate
+options; their values will likely need re-tuning now that the reference is
+exact in the horizontal (see Testing).</p></li>
+<li><p>Delete the now-unused machinery in the old <code class="docutils literal notranslate"><span class="pre">reference.py</span></code>: the five-column
+setup, <code class="docutils literal notranslate"><span class="pre">_get_reference_vert_res</span></code> and <code class="docutils literal notranslate"><span class="pre">_fraction_gcd</span></code>, the 4th-order stencil
+(<code class="docutils literal notranslate"><span class="pre">_compute_4th_order_gradient</span></code>, <code class="docutils literal notranslate"><span class="pre">_check_gradient</span></code>), the per-column
+geometric-height integration used for the cross-column difference, and the
+<code class="docutils literal notranslate"><span class="pre">reference_solution.nc</span></code> output. Keep and relocate the quadrature helpers used
+by <code class="docutils literal notranslate"><span class="pre">ReferenceColumn</span></code>.</p></li>
+</ul>
+</section>
+<section id="implementation-orientation-and-consistency-safeguards">
+<h3>Implementation: orientation and consistency safeguards<a class="headerlink" href="#implementation-orientation-and-consistency-safeguards" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<ul class="simple">
+<li><p>The reference must use the same <span class="math notranslate nohighlight">\(+x\)</span> orientation as <code class="docutils literal notranslate"><span class="pre">Init</span></code>/<code class="docutils literal notranslate"><span class="pre">Forward</span></code>. Derive it
+from <code class="docutils literal notranslate"><span class="pre">xCell</span></code> and assert that the resulting sign reproduces the existing
+<code class="docutils literal notranslate"><span class="pre">omega_vs_python</span></code> agreement at the coarsest resolution as a guard against a
+flipped gradient.</p></li>
+<li><p>The edge surface pseudo-height (average of the two cells’ surface
+pseudo-heights) equals <span class="math notranslate nohighlight">\(\tilde z_s(0)\)</span> for linearly varying inputs; assert this
+equality to a tolerance to catch configuration or averaging mistakes.</p></li>
+<li><p>Keep the EOS path restricted to TEOS-10 (as the task already requires Omega),
+and guard <code class="docutils literal notranslate"><span class="pre">dalpha_dx</span></code> against requesting <code class="docutils literal notranslate"><span class="pre">specvol_first_derivatives</span></code> outside
+gsw’s valid range.</p></li>
+</ul>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-arbitrary-pseudo-height-evaluation-and-near-bathymetry-validity">
+<h3>Testing and Validation: arbitrary-pseudo-height evaluation and near-bathymetry validity<a class="headerlink" href="#testing-and-validation-arbitrary-pseudo-height-evaluation-and-near-bathymetry-validity" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Add unit tests for <code class="docutils literal notranslate"><span class="pre">ReferenceColumn</span></code> (e.g.
+<code class="docutils literal notranslate"><span class="pre">tests/ocean/horiz_press_grad/test_reference.py</span></code>):</p>
+<ul class="simple">
+<li><p><strong>Constant-density column.</strong> With a configuration giving spatially constant
+<span class="math notranslate nohighlight">\(\alpha\)</span> (so <span class="math notranslate nohighlight">\(\partial_x\alpha = 0\)</span>), <code class="docutils literal notranslate"><span class="pre">hpga</span></code> must equal the closed form
+<span class="math notranslate nohighlight">\(-g[\eta' - \rho_0\alpha\,\tilde z_s']\)</span> at every pseudo-height, to round-off,
+for several arbitrary <span class="math notranslate nohighlight">\(\tilde z\)</span> including values that fall between any plausible
+grid points. (With a nonzero surface pseudo-height slope <span class="math notranslate nohighlight">\(\tilde z_s'\)</span>, evaluate
+the boundary term at the surface, where the integral is exactly zero.)</p></li>
+<li><p><strong>Zero horizontal variation.</strong> With all input gradients zero, <code class="docutils literal notranslate"><span class="pre">hpga</span></code> must be
+identically zero (no spurious pressure-gradient signal) for arbitrary
+<span class="math notranslate nohighlight">\(\tilde z\)</span>, including immediately above the seafloor.</p></li>
+<li><p><strong>Independence from sampling.</strong> Evaluate <code class="docutils literal notranslate"><span class="pre">hpga</span></code> on two unrelated pseudo-height
+sets (one of which deliberately does not align with any uniform grid) and on a
+shifted set emulating a nonzero surface pressure; values at coincident
+pseudo-heights must agree to round-off, demonstrating freedom from grid
+alignment.</p></li>
+</ul>
+</section>
+<section id="testing-and-validation-fidelity-beyond-second-order">
+<h3>Testing and Validation: fidelity beyond second order<a class="headerlink" href="#testing-and-validation-fidelity-beyond-second-order" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<ul class="simple">
+<li><p><strong>Brute-force gradient cross-check.</strong> For a <span class="math notranslate nohighlight">\(\tilde z\)</span> comfortably above the
+seafloor, compare <code class="docutils literal notranslate"><span class="pre">ReferenceColumn.hpga</span></code> to a high-accuracy finite-difference
+estimate formed by fully integrating <span class="math notranslate nohighlight">\(z(\tilde z; x)\)</span> at <span class="math notranslate nohighlight">\(x = \pm\delta\)</span> and
+differencing at constant <span class="math notranslate nohighlight">\(\tilde z\)</span>, for a sequence of shrinking <span class="math notranslate nohighlight">\(\delta\)</span>. The
+analytic value must agree with the Richardson-extrapolated finite difference to
+many digits, confirming the chain-rule/Leibniz implementation and that the
+reference carries no fixed-order horizontal truncation error.</p></li>
+<li><p><strong>Quadrature convergence.</strong> Confirm that refining the quadrature panel count
+changes <code class="docutils literal notranslate"><span class="pre">hpga</span></code> by amounts decreasing at the expected high order and that the
+result is converged well below the model HPGA error levels.</p></li>
+</ul>
+</section>
+<section id="testing-and-validation-general-horizontal-input-variation">
+<h3>Testing and Validation: general horizontal input variation<a class="headerlink" href="#testing-and-validation-general-horizontal-input-variation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<ul class="simple">
+<li><p><strong>Tilted nodes.</strong> With <code class="docutils literal notranslate"><span class="pre">z_tilde_grad</span></code> <span class="math notranslate nohighlight">\(\neq 0\)</span> (tilted profile node
+pseudo-heights), verify <code class="docutils literal notranslate"><span class="pre">dalpha_dx</span></code> against an independent finite difference of
+<span class="math notranslate nohighlight">\(\alpha\)</span> in <span class="math notranslate nohighlight">\(x\)</span> at fixed <span class="math notranslate nohighlight">\(\tilde z\)</span>, confirming the analytic-input differencing
+handles moving nodes.</p></li>
+<li><p><strong>Each gradient in isolation.</strong> Exercise nonzero <code class="docutils literal notranslate"><span class="pre">salinity_grad</span></code>,
+<code class="docutils literal notranslate"><span class="pre">temperature_grad</span></code>, <code class="docutils literal notranslate"><span class="pre">geom_ssh_grad</span></code>, and the surface <code class="docutils literal notranslate"><span class="pre">z_tilde_grad</span></code> node
+one at a time and confirm the corresponding boundary or integrand contribution
+appears with the correct sign and magnitude. The surface boundary terms
+(<code class="docutils literal notranslate"><span class="pre">geom_ssh_grad</span></code>, surface <code class="docutils literal notranslate"><span class="pre">z_tilde_grad</span></code>) are kept general so a follow-up
+nonzero-surface-pressure test needs no further changes.</p></li>
+</ul>
+</section>
+<section id="testing-and-validation-layer-averaged-comparison-and-regression-behavior">
+<h3>Testing and Validation: layer-averaged comparison and regression behavior<a class="headerlink" href="#testing-and-validation-layer-averaged-comparison-and-regression-behavior" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<ul class="simple">
+<li><p><strong>Layer-mean correctness.</strong> For a known smooth <span class="math notranslate nohighlight">\(a(\tilde z)\)</span>, verify
+<code class="docutils literal notranslate"><span class="pre">layer_mean_hpga</span></code> returns the analytic layer averages, and that for vanishing
+layer thickness it approaches the pointwise value.</p></li>
+<li><p><strong>Regression suite.</strong> Run all three task variants (<code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code>,
+<code class="docutils literal notranslate"><span class="pre">temperature_gradient</span></code>, <code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code>) in the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite. Confirm the
+<code class="docutils literal notranslate"><span class="pre">omega_vs_python</span></code> comparison still passes at its tight tolerance (unchanged
+scheme), and that <code class="docutils literal notranslate"><span class="pre">omega_vs_reference</span></code> produces a convergence slope in the
+expected range. Because the reference is now exact in the horizontal,
+re-tune <code class="docutils literal notranslate"><span class="pre">omega_vs_reference_convergence_rate_min/max</span></code>,
+<code class="docutils literal notranslate"><span class="pre">omega_vs_reference_high_res_rms_threshold</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">omega_vs_reference_convergence_fit_max_resolution</span></code> to the observed behavior;
+document the updated values and the resolution at which curvature in the
+convergence plot appears.</p></li>
+<li><p><strong>Tilted-layer case.</strong> Pay particular attention to <code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code>, whose
+slanted layers exercise the slant-induced pressure-gradient error; confirm the
+layer-averaged comparison yields a clean convergence rather than a spurious
+floor from charging layer tilt as error.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Design Documents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pstar_init.html" class="btn btn-neutral float-right" title="P-Star Coordinate and Tracer Initialization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

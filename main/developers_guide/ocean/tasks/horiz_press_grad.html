@@ -16,6 +16,8 @@
       <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -168,27 +170,42 @@ user-supplied <code class="docutils literal notranslate"><span class="pre">horiz
 reflected in the work directory setup.</p>
 <section id="reference">
 <h3>reference<a class="headerlink" href="#reference" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.reference.Reference.html#polaris.tasks.ocean.horiz_press_grad.reference.Reference" title="polaris.tasks.ocean.horiz_press_grad.reference.Reference"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.reference.Reference</span></code></a>
-defines a step that builds a high-fidelity reference HPGA solution in
-<code class="docutils literal notranslate"><span class="pre">reference_solution.nc</span></code>.</p>
-<p>In implementation terms, <code class="docutils literal notranslate"><span class="pre">Reference.run()</span></code> does four things:</p>
+<p>The class
+<a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn</span></code></a>
+is not a <code class="docutils literal notranslate"><span class="pre">Step</span></code> but a lightweight callable evaluator.  It is instantiated
+inside <code class="docutils literal notranslate"><span class="pre">Analysis.run()</span></code> (once per task, using the config and the mesh-derived
+<code class="docutils literal notranslate"><span class="pre">x_sign</span></code>), and computes the HPGA reference analytically without writing any
+intermediate file.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ReferenceColumn.__init__()</span></code> reads the quadrature settings
+(<code class="docutils literal notranslate"><span class="pre">reference_quadrature_method</span></code>, <code class="docutils literal notranslate"><span class="pre">reference_quadrature_subdivisions</span></code>,
+<code class="docutils literal notranslate"><span class="pre">reference_horiz_eps_km</span></code>) and the geometry / profile parameters from config.
+It builds <code class="docutils literal notranslate"><span class="pre">_ClampedInterp</span></code> PCHIP interpolants for Absolute Salinity and
+Conservative Temperature at <span class="math notranslate nohighlight">\(x = 0\)</span> and <span class="math notranslate nohighlight">\(x = \pm\varepsilon\)</span> (six interpolants
+in all), which are used later for centred finite-differencing.</p>
+<p>The public methods are <code class="docutils literal notranslate"><span class="pre">specvol(z_tilde)</span></code> (specific volume at <span class="math notranslate nohighlight">\(x = 0\)</span>) and
+<code class="docutils literal notranslate"><span class="pre">dalpha_dx(z_tilde)</span></code> (the fixed-<span class="math notranslate nohighlight">\(\tilde z\)</span> x-gradient of specific volume), plus
+the two used by <code class="docutils literal notranslate"><span class="pre">Analysis</span></code>:</p>
 <ul class="simple">
-<li><p>determines the refined vertical resolution from the configured test
-resolutions,</p></li>
-<li><p>builds the reference columns and their thermodynamic profiles,</p></li>
-<li><p>computes the reference diagnostic fields, and</p></li>
-<li><p>writes <code class="docutils literal notranslate"><span class="pre">reference_solution.nc</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hpga(z_tilde)</span></code> — evaluates <span class="math notranslate nohighlight">\(a(\tilde z)\)</span> pointwise at the edge <span class="math notranslate nohighlight">\(x = 0\)</span>
+via the chain-rule / Leibniz integral, anchored at the surface (the boundary
+the model honours).  It accumulates the cumulative integral
+<span class="math notranslate nohighlight">\(I(\tilde z) = \int_{\tilde z_s}^{\tilde z} \bigl(\alpha_{S_A} \partial_x
+S_A + \alpha_{\Theta} \partial_x \Theta\bigr)\,d\tilde z'\)</span> using
+<code class="docutils literal notranslate"><span class="pre">_fixed_quadrature</span></code> on a sorted unique node set, then interpolates back onto
+the requested <span class="math notranslate nohighlight">\(\tilde z\)</span> values.  The surface boundary term
+(<span class="math notranslate nohighlight">\(\eta'\)</span> and <span class="math notranslate nohighlight">\(\tilde z_s'\)</span>) is kept general so nonzero sea-surface height and
+surface pressure are supported.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">layer_mean_hpga(z_tilde_interfaces)</span></code> — layer-averages <code class="docutils literal notranslate"><span class="pre">hpga()</span></code> over the
+model’s actual pseudo-height layer bounds using 4-point Gauss–Legendre
+quadrature with <code class="docutils literal notranslate"><span class="pre">reference_quadrature_subdivisions</span></code> sub-panels per layer.
+This is what <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> calls to form the reference target per layer.</p></li>
 </ul>
-<p>Most of the work is organized through the private helpers
-<code class="docutils literal notranslate"><span class="pre">_get_ssh_z_bot()</span></code>, <code class="docutils literal notranslate"><span class="pre">_get_z_tilde_t_s_nodes()</span></code>, <code class="docutils literal notranslate"><span class="pre">_compute_column()</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">_integrate_geometric_height()</span></code>.  Together, these routines reconstruct the
-column state, convert from pseudo-height to geometric height, and populate the
-reference dataset.</p>
-<p><code class="docutils literal notranslate"><span class="pre">reference_solution.nc</span></code> contains both the baseline fields used directly in
-analysis and additional diagnostics that are useful when debugging or
-inspecting the reference calculation, including <code class="docutils literal notranslate"><span class="pre">HPGAMid</span></code>, <code class="docutils literal notranslate"><span class="pre">HPGAInter</span></code>,
-<code class="docutils literal notranslate"><span class="pre">MontgomeryMid</span></code>, <code class="docutils literal notranslate"><span class="pre">MontgomeryInter</span></code>, <code class="docutils literal notranslate"><span class="pre">dMdxMid</span></code>, <code class="docutils literal notranslate"><span class="pre">dalphadxMid</span></code>, <code class="docutils literal notranslate"><span class="pre">PEdgeMid</span></code>, and
-the valid-gradient masks.</p>
+<p>The private class <code class="docutils literal notranslate"><span class="pre">_ClampedInterp</span></code> wraps
+<code class="xref py py-func docutils literal notranslate"><span class="pre">get_pchip_interpolator()</span></code>
+with constant extrapolation at the node bounds.</p>
+<p>The quadrature primitives (<code class="docutils literal notranslate"><span class="pre">_fixed_quadrature</span></code>, <code class="docutils literal notranslate"><span class="pre">_gauss_composite</span></code>) support
+midpoint, trapezoid, Simpson, <code class="docutils literal notranslate"><span class="pre">gauss2</span></code>, and <code class="docutils literal notranslate"><span class="pre">gauss4</span></code> methods and are shared
+between the cumulative integral and the layer averaging.</p>
 </section>
 <section id="init">
 <h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
@@ -236,7 +253,7 @@ defines one model step per horizontal resolution.</p>
 <p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.analysis.Analysis</span></code></a>
 compares each <code class="docutils literal notranslate"><span class="pre">forward</span></code> result with:</p>
 <ul class="simple">
-<li><p>the high-fidelity reference solution, and</p></li>
+<li><p>the analytic reference solution (built from <code class="docutils literal notranslate"><span class="pre">ReferenceColumn</span></code>), and</p></li>
 <li><p>the Python-computed HPGA from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>.</p></li>
 </ul>
 <p>The step writes:</p>
@@ -250,16 +267,23 @@ compares each <code class="docutils literal notranslate"><span class="pre">forwa
 <li><p>high-resolution RMS threshold for Omega-vs-reference, and</p></li>
 <li><p>RMS threshold for Omega-vs-Python consistency.</p></li>
 </ul>
-<p>Implementation-wise, <code class="docutils literal notranslate"><span class="pre">Analysis.run()</span></code> reads the reference, init, and forward
-outputs for each configured horizontal resolution, then uses helper routines
-such as <code class="docutils literal notranslate"><span class="pre">_get_internal_edge()</span></code>, <code class="docutils literal notranslate"><span class="pre">_get_forward_z_tilde_edge_mid()</span></code>,
-<code class="docutils literal notranslate"><span class="pre">_sample_reference_without_interpolation()</span></code>, <code class="docutils literal notranslate"><span class="pre">_check_vertical_match()</span></code>,
-<code class="docutils literal notranslate"><span class="pre">_rms_error()</span></code>, and <code class="docutils literal notranslate"><span class="pre">_power_law_fit()</span></code> to produce the comparison datasets and
-plots.</p>
-<p>The key code-level distinction is that the reference comparison is built from
-<code class="docutils literal notranslate"><span class="pre">reference_solution.nc</span></code>, whereas the implementation-consistency comparison is
-built from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>.  The forward solution always comes from
-<code class="docutils literal notranslate"><span class="pre">output.nc</span></code> via <code class="docutils literal notranslate"><span class="pre">NormalVelocityTend</span></code>.</p>
+<p>Implementation-wise, <code class="docutils literal notranslate"><span class="pre">Analysis.run()</span></code> iterates over configured horizontal
+resolutions.  For each resolution it:</p>
+<ol class="arabic simple">
+<li><p>reads <code class="docutils literal notranslate"><span class="pre">init_r*.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">culled_mesh_r*.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">vert_coord_r*.nc</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">output_r*.nc</span></code>;</p></li>
+<li><p>identifies the single internal edge via <code class="docutils literal notranslate"><span class="pre">_get_internal_edge()</span></code> and derives
+the forward pseudo-heights via <code class="docutils literal notranslate"><span class="pre">_get_forward_z_tilde_edge_mid()</span></code>;</p></li>
+<li><p>constructs a <code class="docutils literal notranslate"><span class="pre">ReferenceColumn</span></code> with the mesh-derived <code class="docutils literal notranslate"><span class="pre">x_sign</span></code> and calls
+<code class="docutils literal notranslate"><span class="pre">ref.layer_mean_hpga()</span></code> on the edge interface pseudo-heights from
+<code class="docutils literal notranslate"><span class="pre">init.nc</span></code>, dropping the deepest valid layer (which abuts bathymetry);</p></li>
+<li><p>checks that Python and Omega pseudo-heights agree with
+<code class="docutils literal notranslate"><span class="pre">_check_vertical_match()</span></code>, then computes the Omega-vs-Python RMS difference
+from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code> HPGA.</p></li>
+</ol>
+<p>The forward solution always comes from <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> via <code class="docutils literal notranslate"><span class="pre">NormalVelocityTend</span></code>.
+Helper routines <code class="docutils literal notranslate"><span class="pre">_rms_error()</span></code> and <code class="docutils literal notranslate"><span class="pre">_power_law_fit()</span></code> produce the convergence
+datasets and plots.</p>
 </section>
 </section>
 </section>

@@ -117,6 +117,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gravity</span><span class="p">,</span> <span class="n">RhoSw</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.horiz_press_grad.reference</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReferenceColumn</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
 
 
@@ -131,9 +132,6 @@
 <span class="sd">    ----------</span>
 <span class="sd">    dependencies_dict : dict</span>
 <span class="sd">        A dictionary of dependent steps:</span>
-
-<span class="sd">        reference : polaris.Step</span>
-<span class="sd">            The reference step that produces ``reference_solution.nc``</span>
 
 <span class="sd">        init : dict</span>
 <span class="sd">            Mapping from horizontal resolution (km) to ``Init`` step</span>
@@ -174,19 +172,13 @@
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add inputs from reference, init and forward steps</span>
+<span class="sd">        Add inputs from init and forward steps</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
 
         <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">]</span>
         <span class="n">horiz_resolutions</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getexpression</span><span class="p">(</span><span class="s1">&#39;horiz_resolutions&#39;</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">horiz_resolutions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-
-        <span class="n">reference</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span><span class="p">[</span><span class="s1">&#39;reference&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;reference_solution.nc&#39;</span><span class="p">,</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">reference</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/reference_solution.nc&#39;</span><span class="p">,</span>
-        <span class="p">)</span>
 
         <span class="n">init_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span><span class="p">[</span><span class="s1">&#39;init&#39;</span><span class="p">]</span>
         <span class="n">forward_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">]</span>
@@ -265,17 +257,6 @@
             <span class="s1">&#39;must be set in the &quot;horiz_press_grad&quot; section.&#39;</span>
         <span class="p">)</span>
 
-        <span class="n">ds_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;reference_solution.nc&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">ds_ref</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;The reference solution requires at least 3 columns so that &#39;</span>
-                <span class="s1">&#39;the central column is nCells=2.&#39;</span>
-            <span class="p">)</span>
-
-        <span class="n">ref_z</span> <span class="o">=</span> <span class="n">ds_ref</span><span class="o">.</span><span class="n">ZTildeInter</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nCells</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">ref_hpga</span> <span class="o">=</span> <span class="n">ds_ref</span><span class="o">.</span><span class="n">HPGAInter</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">ref_valid_grad_mask</span> <span class="o">=</span> <span class="n">ds_ref</span><span class="o">.</span><span class="n">ValidGradInterMask</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-
         <span class="n">ref_errors</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">py_errors</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -324,15 +305,28 @@
             <span class="n">forward_valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">hpga_forward</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
             <span class="n">forward_valid_mask</span><span class="p">[:</span> <span class="n">max_level_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
-            <span class="n">sampled_ref_hpga</span> <span class="o">=</span> <span class="n">_sample_reference_without_interpolation</span><span class="p">(</span>
-                <span class="n">ref_z</span><span class="o">=</span><span class="n">ref_z</span><span class="p">,</span>
-                <span class="n">ref_values</span><span class="o">=</span><span class="n">ref_hpga</span><span class="p">,</span>
-                <span class="n">target_z</span><span class="o">=</span><span class="n">z_tilde_forward</span><span class="p">,</span>
-                <span class="n">ref_valid_mask</span><span class="o">=</span><span class="n">ref_valid_grad_mask</span><span class="p">,</span>
-                <span class="n">target_valid_mask</span><span class="o">=</span><span class="n">forward_valid_mask</span><span class="p">,</span>
+            <span class="c1"># Build reference evaluator: x_sign aligns config +x with the</span>
+            <span class="c1"># edge normal (from cell0 toward cell1).</span>
+            <span class="n">x_sign</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span>
+                    <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">cell1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">cell0</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">ref</span> <span class="o">=</span> <span class="n">ReferenceColumn</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">x_sign</span><span class="o">=</span><span class="n">x_sign</span><span class="p">)</span>
+
+            <span class="c1"># Edge interface z̃: average of the two bounding cells</span>
+            <span class="n">z_tilde_inter_edge</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">ds_init</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nCells</span><span class="o">=</span><span class="n">cell0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+                <span class="o">+</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nCells</span><span class="o">=</span><span class="n">cell1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
             <span class="p">)</span>
 
-            <span class="n">hpga_ref_diff</span> <span class="o">=</span> <span class="n">hpga_forward</span> <span class="o">-</span> <span class="n">sampled_ref_hpga</span>
+            <span class="c1"># Interfaces for valid layers (0..max_level_index), then drop</span>
+            <span class="c1"># the deepest valid layer (abuts bathymetry): keep</span>
+            <span class="c1"># max_level_index layers using max_level_index+1 interfaces.</span>
+            <span class="n">z_tilde_inter_for_ref</span> <span class="o">=</span> <span class="n">z_tilde_inter_edge</span><span class="p">[:</span> <span class="n">max_level_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">ref_layer_mean</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">layer_mean_hpga</span><span class="p">(</span><span class="n">z_tilde_inter_for_ref</span><span class="p">)</span>
+            <span class="n">hpga_ref_diff</span> <span class="o">=</span> <span class="n">hpga_forward</span><span class="p">[:</span><span class="n">max_level_index</span><span class="p">]</span> <span class="o">-</span> <span class="n">ref_layer_mean</span>
             <span class="n">ref_errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_rms_error</span><span class="p">(</span><span class="n">hpga_ref_diff</span><span class="p">))</span>
 
             <span class="n">z_tilde_init</span> <span class="o">=</span> <span class="p">(</span>
@@ -507,78 +501,6 @@
         <span class="n">pressure_mid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">cell0</span><span class="p">)</span> <span class="o">+</span> <span class="n">pressure_mid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">cell1</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="o">-</span><span class="n">pressure_edge_mid</span> <span class="o">/</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_sample_reference_without_interpolation</span><span class="p">(</span>
-    <span class="n">ref_z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">ref_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">target_z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">ref_valid_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">target_valid_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">abs_tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0e-6</span><span class="p">,</span>
-    <span class="n">rel_tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0e-10</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Sample reference values at target z-tilde values by exact matching within a</span>
-<span class="sd">    strict tolerance, without interpolation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ref_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ref_z</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">ref_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ref_values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">target_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">target_z</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">ref_valid_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ref_valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ref_valid_mask</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">ref_valid_mask</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">ref_z</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;ref_valid_mask must have the same shape as ref_z.&#39;</span>
-            <span class="p">)</span>
-    <span class="k">if</span> <span class="n">target_valid_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">target_valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">target_valid_mask</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">target_valid_mask</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">target_z</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;target_valid_mask must have the same shape as target_z.&#39;</span>
-            <span class="p">)</span>
-
-    <span class="n">sampled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">target_z</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">valid_target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">target_z</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">target_valid_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">valid_target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">valid_target</span><span class="p">,</span> <span class="n">target_valid_mask</span><span class="p">)</span>
-    <span class="n">valid_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ref_z</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ref_values</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">ref_valid_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">valid_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">valid_ref</span><span class="p">,</span> <span class="n">ref_valid_mask</span><span class="p">)</span>
-
-    <span class="c1"># The bottom valid forward layer hits bathymetry and should not be used</span>
-    <span class="c1"># in the reference comparison.</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valid_target</span><span class="p">):</span>
-        <span class="n">deepest</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid_target</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">valid_target</span><span class="p">[</span><span class="n">deepest</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-
-    <span class="n">ref_z_valid</span> <span class="o">=</span> <span class="n">ref_z</span><span class="p">[</span><span class="n">valid_ref</span><span class="p">]</span>
-    <span class="n">ref_values_valid</span> <span class="o">=</span> <span class="n">ref_values</span><span class="p">[</span><span class="n">valid_ref</span><span class="p">]</span>
-
-    <span class="n">target_valid</span> <span class="o">=</span> <span class="n">target_z</span><span class="p">[</span><span class="n">valid_target</span><span class="p">]</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_valid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">sampled</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref_z_valid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;No valid reference z-tilde values remain after applying &#39;</span>
-            <span class="s1">&#39;ValidGradInterMask.&#39;</span>
-        <span class="p">)</span>
-
-    <span class="n">dz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ref_z_valid</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">-</span> <span class="n">target_valid</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:])</span>
-    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">dz</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">min_dz</span> <span class="o">=</span> <span class="n">dz</span><span class="p">[</span><span class="n">indices</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))]</span>
-
-    <span class="n">tol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">abs_tol</span><span class="p">,</span> <span class="n">rel_tol</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">target_valid</span><span class="p">)))</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">min_dz</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">):</span>
-        <span class="n">max_mismatch</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">min_dz</span><span class="p">))</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Reference z-tilde values do not match Omega z-tilde values &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;closely enough for subsampling without interpolation. max &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;|dz|=</span><span class="si">{</span><span class="n">max_mismatch</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="p">)</span>
-
-    <span class="n">sampled</span><span class="p">[</span><span class="n">valid_target</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_values_valid</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">sampled</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_check_vertical_match</span><span class="p">(</span>

@@ -467,31 +467,40 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.configure.html#polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.configure" title="polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">task.HorizPressGradTask.configure</span></code></a>()</p></td>
 <td><p>Set config options for the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.Reference.html#polaris.tasks.ocean.horiz_press_grad.reference.Reference" title="polaris.tasks.ocean.horiz_press_grad.reference.Reference"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.Reference</span></code></a>(component, indir)</p></td>
-<td><p>A step for creating a high-fidelity reference solution for two column test cases.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn</span></code></a>(config[, x_sign])</p></td>
+<td><p>Continuous, coordinate-invariant HPGA reference a(z̃) at the edge x=0.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.Reference.run.html#polaris.tasks.ocean.horiz_press_grad.reference.Reference.run" title="polaris.tasks.ocean.horiz_press_grad.reference.Reference.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.Reference.run</span></code></a>()</p></td>
-<td><p>Run this step of the test case</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.specvol.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.specvol" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn.specvol</span></code></a>(z_tilde)</p></td>
+<td><p>Specific volume at x=0 (m³ kg⁻¹).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init" title="polaris.tasks.ocean.horiz_press_grad.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, horiz_res, vert_res, indir)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.dalpha_dx.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.dalpha_dx" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.dalpha_dx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn.dalpha_dx</span></code></a>(z_tilde)</p></td>
+<td><p>d(α)/d(edge-normal) at fixed z̃ (m² kg⁻¹ m⁻¹).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.hpga.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.hpga" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.hpga"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn.hpga</span></code></a>(z_tilde)</p></td>
+<td><p>Reference HPGA in the edge-normal direction (m s⁻²).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.layer_mean_hpga.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.layer_mean_hpga" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.layer_mean_hpga"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn.layer_mean_hpga</span></code></a>(...)</p></td>
+<td><p>Layer-averaged HPGA in the edge-normal direction (m s⁻²).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init" title="polaris.tasks.ocean.horiz_press_grad.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, horiz_res, vert_res, indir)</p></td>
 <td><p>A step for creating a mesh and initial condition for two column test cases</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.run.html#polaris.tasks.ocean.horiz_press_grad.init.Init.run" title="polaris.tasks.ocean.horiz_press_grad.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.run.html#polaris.tasks.ocean.horiz_press_grad.init.Init.run" title="polaris.tasks.ocean.horiz_press_grad.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.forward.Forward.html#polaris.tasks.ocean.horiz_press_grad.forward.Forward" title="polaris.tasks.ocean.horiz_press_grad.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, horiz_res, init, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.forward.Forward.html#polaris.tasks.ocean.horiz_press_grad.forward.Forward" title="polaris.tasks.ocean.horiz_press_grad.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, horiz_res, init, ...)</p></td>
 <td><p>This step performs a forward run for a single time step, writing out the normal-velocity tendency (which is just the pressure gradient acceleration) along with other diagnostics.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup.html#polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup" title="polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup.html#polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup" title="polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.setup</span></code></a>()</p></td>
 <td><p>Fill in config options in the forward.yaml file based on config options</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, indir, dependencies)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, indir, dependencies)</p></td>
 <td><p>A step for analyzing two-column HPGA errors versus a reference solution and versus the Python-computed initial-state solution.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.setup</span></code></a>()</p></td>
-<td><p>Add inputs from reference, init and forward steps</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.setup</span></code></a>()</p></td>
+<td><p>Add inputs from init and forward steps</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.run.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.run" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.run.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.run" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
