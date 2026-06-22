@@ -211,8 +211,11 @@
    task.HorizPressGradTask
    task.HorizPressGradTask.configure
 
-   reference.Reference
-   reference.Reference.run
+   reference.ReferenceColumn
+   reference.ReferenceColumn.specvol
+   reference.ReferenceColumn.dalpha_dx
+   reference.ReferenceColumn.hpga
+   reference.ReferenceColumn.layer_mean_hpga
 
    init.Init
    init.Init.run

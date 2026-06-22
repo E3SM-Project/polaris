@@ -4,6 +4,7 @@ import xarray as xr
 
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.ztilde import Gravity, RhoSw
+from polaris.tasks.ocean.horiz_press_grad.reference import ReferenceColumn
 from polaris.viz import use_mplstyle
 
 
@@ -16,9 +17,6 @@ class Analysis(OceanIOStep):
     ----------
     dependencies_dict : dict
         A dictionary of dependent steps:
-
-        reference : polaris.Step
-            The reference step that produces ``reference_solution.nc``
 
         init : dict
             Mapping from horizontal resolution (km) to ``Init`` step
@@ -54,19 +52,13 @@ class Analysis(OceanIOStep):
 
     def setup(self):
         """
-        Add inputs from reference, init and forward steps
+        Add inputs from init and forward steps
         """
         super().setup()
 
         section = self.config['horiz_press_grad']
         horiz_resolutions = section.getexpression('horiz_resolutions')
         assert horiz_resolutions is not None
-
-        reference = self.dependencies_dict['reference']
-        self.add_input_file(
-            filename='reference_solution.nc',
-            work_dir_target=f'{reference.path}/reference_solution.nc',
-        )
 
         init_steps = self.dependencies_dict['init']
         forward_steps = self.dependencies_dict['forward']
@@ -142,17 +134,6 @@ class Analysis(OceanIOStep):
             'must be set in the "horiz_press_grad" section.'
         )
 
-        ds_ref = self.open_model_dataset('reference_solution.nc', self.config)
-        if ds_ref.sizes.get('nCells', 0) <= 2:
-            raise ValueError(
-                'The reference solution requires at least 3 columns so that '
-                'the central column is nCells=2.'
-            )
-
-        ref_z = ds_ref.ZTildeInter.isel(Time=0, nCells=2).values
-        ref_hpga = ds_ref.HPGAInter.isel(Time=0).values
-        ref_valid_grad_mask = ds_ref.ValidGradInterMask.isel(Time=0).values
-
         ref_errors = []
         py_errors = []
 
@@ -201,15 +182,28 @@ class Analysis(OceanIOStep):
             forward_valid_mask = np.zeros_like(hpga_forward, dtype=bool)
             forward_valid_mask[: max_level_index + 1] = True
 
-            sampled_ref_hpga = _sample_reference_without_interpolation(
-                ref_z=ref_z,
-                ref_values=ref_hpga,
-                target_z=z_tilde_forward,
-                ref_valid_mask=ref_valid_grad_mask,
-                target_valid_mask=forward_valid_mask,
+            # Build reference evaluator: x_sign aligns config +x with the
+            # edge normal (from cell0 toward cell1).
+            x_sign = float(
+                np.sign(
+                    ds_mesh.xCell.values[cell1] - ds_mesh.xCell.values[cell0]
+                )
+            )
+            ref = ReferenceColumn(config, x_sign=x_sign)
+
+            # Edge interface z̃: average of the two bounding cells
+            z_tilde_inter_edge = 0.5 * (
+                ds_init.ZTildeInterface.isel(Time=0, nCells=cell0).values
+                + ds_init.ZTildeInterface.isel(Time=0, nCells=cell1).values
             )
 
-            hpga_ref_diff = hpga_forward - sampled_ref_hpga
+            # Interfaces for valid layers (0..max_level_index), then drop
+            # the deepest valid layer (abuts bathymetry): keep
+            # max_level_index layers using max_level_index+1 interfaces.
+            z_tilde_inter_for_ref = z_tilde_inter_edge[: max_level_index + 1]
+
+            ref_layer_mean = ref.layer_mean_hpga(z_tilde_inter_for_ref)
+            hpga_ref_diff = hpga_forward[:max_level_index] - ref_layer_mean
             ref_errors.append(_rms_error(hpga_ref_diff))
 
             z_tilde_init = (
@@ -382,78 +376,6 @@ def _get_forward_z_tilde_edge_mid(
         pressure_mid.isel(nCells=cell0) + pressure_mid.isel(nCells=cell1)
     )
     return (-pressure_edge_mid / (RhoSw * Gravity)).values
-
-
-def _sample_reference_without_interpolation(
-    ref_z: np.ndarray,
-    ref_values: np.ndarray,
-    target_z: np.ndarray,
-    ref_valid_mask: np.ndarray | None = None,
-    target_valid_mask: np.ndarray | None = None,
-    abs_tol: float = 1.0e-6,
-    rel_tol: float = 1.0e-10,
-) -> np.ndarray:
-    """
-    Sample reference values at target z-tilde values by exact matching within a
-    strict tolerance, without interpolation.
-    """
-    ref_z = np.asarray(ref_z, dtype=float)
-    ref_values = np.asarray(ref_values, dtype=float)
-    target_z = np.asarray(target_z, dtype=float)
-    if ref_valid_mask is not None:
-        ref_valid_mask = np.asarray(ref_valid_mask, dtype=bool)
-        if ref_valid_mask.shape != ref_z.shape:
-            raise ValueError(
-                'ref_valid_mask must have the same shape as ref_z.'
-            )
-    if target_valid_mask is not None:
-        target_valid_mask = np.asarray(target_valid_mask, dtype=bool)
-        if target_valid_mask.shape != target_z.shape:
-            raise ValueError(
-                'target_valid_mask must have the same shape as target_z.'
-            )
-
-    sampled = np.full_like(target_z, np.nan, dtype=float)
-    valid_target = np.isfinite(target_z)
-    if target_valid_mask is not None:
-        valid_target = np.logical_and(valid_target, target_valid_mask)
-    valid_ref = np.logical_and(np.isfinite(ref_z), np.isfinite(ref_values))
-    if ref_valid_mask is not None:
-        valid_ref = np.logical_and(valid_ref, ref_valid_mask)
-
-    # The bottom valid forward layer hits bathymetry and should not be used
-    # in the reference comparison.
-    if np.any(valid_target):
-        deepest = int(np.where(valid_target)[0][-1])
-        valid_target[deepest] = False
-
-    ref_z_valid = ref_z[valid_ref]
-    ref_values_valid = ref_values[valid_ref]
-
-    target_valid = target_z[valid_target]
-    if len(target_valid) == 0:
-        return sampled
-    if len(ref_z_valid) == 0:
-        raise ValueError(
-            'No valid reference z-tilde values remain after applying '
-            'ValidGradInterMask.'
-        )
-
-    dz = np.abs(ref_z_valid[:, np.newaxis] - target_valid[np.newaxis, :])
-    indices = np.argmin(dz, axis=0)
-    min_dz = dz[indices, np.arange(len(indices))]
-
-    tol = np.maximum(abs_tol, rel_tol * np.maximum(1.0, np.abs(target_valid)))
-    if np.any(min_dz > tol):
-        max_mismatch = float(np.max(min_dz))
-        raise ValueError(
-            f'Reference z-tilde values do not match Omega z-tilde values '
-            f'closely enough for subsampling without interpolation. max '
-            f'|dz|={max_mismatch}'
-        )
-
-    sampled[valid_target] = ref_values_valid[indices]
-    return sampled
 
 
 def _check_vertical_match(

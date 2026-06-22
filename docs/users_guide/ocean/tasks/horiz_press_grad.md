@@ -10,18 +10,17 @@ for a two-column configuration with prescribed horizontal gradients.
 
 The analysis uses two different baselines, each with a different purpose:
 
-- a high-fidelity offline reference solution that is used as the main
-  accuracy target, and
+- an analytic reference solution evaluated inside the `analysis` step that is
+  used as the main accuracy target, and
 - a Python-computed two-column HPGA diagnostic from the `init` step that is
   used as a consistency check against Omega.
 
 Each task includes:
 
-- a high-fidelity `reference` solution for HPGA,
 - an `init` step at each horizontal/vertical resolution pair,
 - a single-time-step `forward` run at each horizontal resolution, and
-- an `analysis` step comparing Omega output with both the reference and
-  Python-initialized HPGA.
+- an `analysis` step that evaluates the analytic reference and compares Omega
+  output with both the reference and the Python-initialized HPGA.
 
 The tasks currently provided are:
 
@@ -72,80 +71,61 @@ where they intersect the bathymetry.  In the `ztilde_gradient` test, the
 prescribed z-tilde gradient tilts the layers, so the pressure surfaces are
 sloped and the along-layer direction follows those sloping layers.
 
-The `reference` step uses a finer spacing `vert_res` chosen so that every test
-spacing is an integer multiple of `2 * vert_res`. This allows reference
-interfaces to align with test midpoints for exact subsampling in analysis.
-
 ## reference solution
 
-The `reference` step constructs a high-fidelity numerical approximation to the
-HPGA before any Omega run is performed.  This reference is not an exact
-analytic solution.  Instead, it is a deliberately more accurate offline
-calculation based on more columns and a much finer vertical grid than the
-two-column test itself.
+The reference HPGA is evaluated analytically at the edge ($x = 0$) using the
+chain-rule / Leibniz expansion of the horizontal pressure-gradient force in
+pseudo-height coordinates.  Because the continuous pressure-gradient force is
+coordinate-invariant, the along-pseudo-height formula equals
+$-g\,\partial z / \partial x\big|_{\tilde z}$ exactly, including near the
+seafloor.
 
-The reference starts from the Omega pseudo-height coordinate `z-tilde`, with
+The reference is **anchored at the surface** rather than the seafloor, because
+the surface is the boundary the model honours: `Init`/Omega build the p-star
+column from the prescribed sea-surface height and surface pressure, so the HPGA
+vanishes at the surface (for zero surface slope) and grows downward.
 
-$$
-p = -\rho_0 g \tilde z,
-$$
-
-where $p$ is gauge pressure (pressure relative to the atmosphere, zero at the
-free surface $\tilde z = 0$).  The reference converts to geometric height `z`
-by integrating the hydrostatic relation
+The reference acceleration at pseudo-height $\tilde z$ is
 
 $$
-\frac{\partial z}{\partial \tilde z} = \rho_0\,\nu\left(S_A, \Theta, p\right),
+a(\tilde z) = -g\left[\eta' - \rho_0\,\alpha(\tilde z_s)\,\tilde z_s'
+  + \rho_0 \int_{\tilde z_s}^{\tilde z}
+  \bigl(\alpha_{S_A}\,\partial_x S_A + \alpha_{\Theta}\,\partial_x \Theta\bigr)\,
+  d\tilde z'\right],
 $$
 
-where $\nu$ is specific volume from the TEOS-10 equation of state, $S_A$ is
-Absolute Salinity, and $\Theta$ is Conservative Temperature.
+where:
 
-For each reference column, the configured `z_tilde`, `temperature`, and
-`salinity` node values are first reconstructed from the prescribed midpoint
-values and horizontal gradients.  The vertical profiles are then evaluated as
-functions of `z-tilde` and integrated upward from the seafloor to obtain
-geometric height, specific volume, salinity and temperature on the refined
-reference grid.
+- $\eta' = \partial_x \eta$ is the sea-surface-height gradient,
+- $\tilde z_s$ is the surface pseudo-height
+  ($\tilde z_s = -p_s / (\rho_0 g)$, zero only when the surface pressure is
+  zero) and $\tilde z_s' = \partial_x \tilde z_s$ is its gradient,
+- $\alpha$ is specific volume from the TEOS-10 equation of state,
+- $\alpha_{S_A} = \partial \alpha / \partial S_A$ and
+  $\alpha_{\Theta} = \partial \alpha / \partial \Theta$ are TEOS-10 first derivatives
+  of specific volume.
 
-The reference uses five columns at
+The surface boundary term is kept fully general, so a nonzero sea-surface
+height or surface pressure (nonzero `geom_ssh_grad` and/or surface
+`z_tilde_grad` node) is supported without further changes.  The three task
+variants currently provided all use zero surface slope.
 
-$$
-x = \Delta x_{\mathrm{ref}}\,[-1.5, -0.5, 0, 0.5, 1.5],
-$$
+The gradients $\partial_x S_A$ and $\partial_x \Theta$ at fixed $\tilde z$ are
+obtained by centred finite-differencing PCHIP interpolants evaluated at
+$x = \pm\varepsilon$, where $\varepsilon =$ `reference_horiz_eps_km` (1 m by
+default).  This handles moving-node inputs correctly, so it is valid for the
+`ztilde_gradient` task as well as the level-layer tasks.
 
-where $\Delta x_{\mathrm{ref}} =$ `reference_horiz_res`, 250 m by default.
-After constructing Montgomery potential,
+The integral in the formula is evaluated by composite quadrature.  The number
+of sub-panels per interval is set by `reference_quadrature_subdivisions` (4 by
+default).
 
-$$
-M = \alpha p + gz = g\left(z - \rho_0 \alpha \tilde z\right),
-$$
-
-the reference HPGA is formed with the same sign convention used in the task
-diagnostics,
-
-$$
-\mathrm{HPGA}_{\mathrm{ref}} = -\frac{\partial M}{\partial x}
-+ p\frac{\partial \alpha}{\partial x}.
-$$
-
-The horizontal derivatives at the center column are approximated with the
-4th-order centered stencil
-
-$$
-\frac{\partial f}{\partial x}(0) \approx
-\frac{f\left(-\tfrac{3}{2}\Delta x\right)
-- 27 f\left(-\tfrac{1}{2}\Delta x\right)
-+ 27 f\left(\tfrac{1}{2}\Delta x\right)
-- f\left(\tfrac{3}{2}\Delta x\right)}{24\Delta x}.
-$$
-
-This reconstruction is non-local: it uses four surrounding columns to evaluate
-the gradient at the central column.  It is therefore not the same as a local
-reconstruction based only on the two test cells or on local derivatives such
-as `dT/dx` and `dS/dx` at the edge midpoint.  That kind of local reference may
-be worth exploring in the future, especially when these tasks are extended to
-support higher-order HPGA formulations, but it is not what is used today.
+For comparison with a layer-averaged Omega tendency, the `analysis` step
+averages $a(\tilde z)$ over the model's actual pseudo-height layer bounds using
+4-point Gauss–Legendre quadrature with `reference_quadrature_subdivisions`
+sub-panels per layer.  The deepest valid layer (which abuts the bathymetry) is
+excluded from the RMS error calculation, because partial bottom cells make that
+layer's geometric extent differ from the smooth reference geometry.
 
 ## python HPGA in the `init` step
 
@@ -227,8 +207,23 @@ salinity_grad = [0.0, 0.0, 0.0, 0.0, 0.0]
 
 # reference settings
 reference_quadrature_method = gauss4
-reference_horiz_res = 0.25
+reference_quadrature_subdivisions = 4
+reference_horiz_eps_km = 1.0e-3
+
+# regression thresholds and convergence checks
+omega_vs_polaris_rms_threshold = 1.0e-10
+omega_vs_reference_high_res_rms_threshold = 1.0e-6
+omega_vs_reference_convergence_rate_min = 1.5
+omega_vs_reference_convergence_rate_max = 2.1
+omega_vs_reference_convergence_fit_max_resolution = 4.0
 ```
+
+The `omega_vs_polaris_rms_threshold` bounds the RMS difference between the Omega
+forward HPGA and the Python-initialized HPGA (the consistency check).  The
+`omega_vs_reference_*` options bound the Omega-vs-reference accuracy: the RMS
+error at the highest resolution, the allowed power-law convergence slope, and
+the finest horizontal resolution included in the convergence fit (all
+resolutions are still shown in the plots).
 
 The three task variants specialize one horizontal gradient field:
 
@@ -252,17 +247,18 @@ The `analysis` step computes and plots:
 The corresponding tabulated data are written to
 `omega_vs_reference.nc` and `omega_vs_python.nc`.
 
-For the Omega-versus-reference comparison, the reference is sampled onto the
-test vertical locations without interpolation.  This is why the refined
-reference spacing is chosen so that the reference interfaces align exactly with
-test midpoints and interfaces.  The comparison only uses layers that are valid
-in both the reference and the Omega solution.
+For the Omega-versus-reference comparison, the analytic reference
+$a(\tilde z)$ is layer-averaged over the model's actual pseudo-height layer
+bounds (from `init.nc`) using 4-point Gauss–Legendre quadrature.  The deepest
+valid layer is excluded from the RMS error calculation because that layer abuts
+the bathymetry, where partial bottom cells make the model layer's geometric
+extent differ from the smooth reference geometry.
 
 For the Omega-versus-Python comparison, the analysis uses the HPGA written by
 the `init` step in `init.nc`, so this second metric should be read as an
 implementation-consistency check rather than as an accuracy measure against the
 high-fidelity reference.
 
-Implementation details for the `reference`, `init`, and `analysis` steps are
-described in {ref}`dev-ocean-horiz-press-grad`.
+Implementation details for the `ReferenceColumn` evaluator and the `init` and
+`analysis` steps are described in {ref}`dev-ocean-horiz-press-grad`.
 

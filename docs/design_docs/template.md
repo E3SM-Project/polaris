@@ -1,6 +1,6 @@
 # Template
 
-date: YYYY/MM/DD
+Creation date: YYYY/MM/DD
 
 Contributors:
 
