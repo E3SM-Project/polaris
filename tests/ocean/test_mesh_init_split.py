@@ -42,8 +42,12 @@ def test_write_initial_state_dataset_omega_drops_horiz_mesh_vars(tmp_path):
         data_vars=dict(
             xCell=('nCells', [0.0, 1.0]),
             fCell=('nCells', [1.0, 2.0]),
+            normalVelocity=(('nEdges', 'nVertLevels'), [[0.0], [0.0]]),
+            layerThickness=(('nCells', 'nVertLevels'), [[1.0], [1.0]]),
             temperature=(('nCells', 'nVertLevels'), [[3.0], [4.0]]),
             salinity=(('nCells', 'nVertLevels'), [[35.0], [35.0]]),
+            SurfacePressure=('nCells', [0.0, 0.0]),
+            PseudoThickness=(('nCells', 'nVertLevels'), [[1.0], [1.0]]),
         )
     )
 
@@ -66,6 +70,9 @@ def test_write_initial_state_dataset_omega_drops_vert_coord_vars(tmp_path):
 
     ds = xr.Dataset(
         data_vars=dict(
+            normalVelocity=(('nEdges', 'nVertLevels'), [[0.0], [0.0]]),
+            RefPseudoThickness=(('nCells', 'nVertLevels'), [[1.0], [1.0]]),
+            PseudoThickness=(('nCells', 'nVertLevels'), [[1.0], [1.0]]),
             temperature=(('nCells', 'nVertLevels'), [[3.0], [4.0]]),
             salinity=(('nCells', 'nVertLevels'), [[35.0], [35.0]]),
             minLevelCell=('nCells', [0, 0]),
@@ -97,6 +104,8 @@ def test_write_initial_state_dataset_mpas_ocean_keeps_vert_coord_vars(
 
     ds = xr.Dataset(
         data_vars=dict(
+            normalVelocity=(('nEdges', 'nVertLevels'), [[0.0], [0.0]]),
+            layerThickness=(('nCells', 'nVertLevels'), [[1.0], [1.0]]),
             temperature=(('nCells', 'nVertLevels'), [[3.0], [4.0]]),
             salinity=(('nCells', 'nVertLevels'), [[35.0], [35.0]]),
             minLevelCell=('nCells', [0, 0]),
@@ -129,7 +138,10 @@ def test_write_vert_coord_dataset_noop_for_mpas_ocean(tmp_path):
             minLevelCell=('nCells', [0, 0]),
             maxLevelCell=('nCells', [0, 0]),
             bottomDepth=('nCells', [100.0, 200.0]),
-            restingThickness=(('nCells', 'nVertLevels'), [[50.0], [100.0]]),
+            restingThickness=(
+                ('nCells', 'nVertLevels'),
+                [[50.0], [100.0]],
+            ),
             vertCoordMovementWeights=('nVertLevels', [1.0]),
         )
     )
@@ -161,6 +173,7 @@ def test_write_vert_coord_dataset_raises_on_missing_vars(
         data_vars=dict(
             minLevelCell=('nCells', [0, 0]),
             maxLevelCell=('nCells', [0, 0]),
+            vertCoordMovementWeights=('nVertLevels', [1.0]),
             bottomDepth=('nCells', [100.0, 200.0]),
         )
     )

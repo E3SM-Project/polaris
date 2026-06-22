@@ -52,6 +52,7 @@ class Init(OceanIOStep):
             horiz_mesh_filename='culled_mesh.nc',
             base_mesh_filename='base_mesh.nc',
             graph_filename='culled_graph.info',
+            skip_validation=True,  # since not all state variables are included
         )
 
     def run(self):
@@ -111,4 +112,4 @@ class Init(OceanIOStep):
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
         ds['normalVelocity'] = normal_velocity
 
-        self.write_initial_state_dataset(ds, 'init.nc', config)
+        self.write_model_dataset(ds, 'init.nc', config)

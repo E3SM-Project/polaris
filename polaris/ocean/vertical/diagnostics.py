@@ -57,7 +57,7 @@ def pseudothickness_from_ds(
     ----------
     ds : xarray.Dataset
         An ocean dataset containing 'temperature', 'salinity',
-        src_var_name, and 'ssh'
+        src_var_name, and 'SurfacePressure'
 
     config : polaris.config.PolarisConfigParser
         Configuration options for the test case, including
@@ -93,7 +93,12 @@ def pseudothickness_from_ds(
     if iter_count is None:
         iter_count = get_iter_count_for_eos(config)
 
-    surface_pressure = config.getfloat('vertical_grid', 'surface_pressure')
+    if 'SurfacePressure' not in ds.keys():
+        surface_pressure = config.getfloat('vertical_grid', 'surface_pressure')
+        ds['SurfacePressure'] = xr.DataArray(
+            surface_pressure * np.ones((1, ds.sizes['nCells']), dtype=float),
+            dims=('Time', 'nCells'),
+        )
     src_var = ds[src_var_name]
     src_has_time = 'Time' in src_var.dims
     if not src_has_time:
@@ -103,7 +108,7 @@ def pseudothickness_from_ds(
         src_var,
         ds.temperature,
         ds.salinity,
-        surface_pressure * xr.ones_like(ds.ssh),
+        ds.SurfacePressure,
         iter_count=iter_count,
     )
 

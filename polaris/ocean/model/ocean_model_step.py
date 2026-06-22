@@ -34,7 +34,7 @@ ConfigsType = Dict[
 ]
 
 
-class OceanModelStep(ModelStep, OceanModelFilesMixin):
+class OceanModelStep(OceanModelFilesMixin, ModelStep):
     """
     An Omega or MPAS-Ocean step
 
