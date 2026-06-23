@@ -1,19 +1,28 @@
-mpas-ocean:
+ocean:
   time_management:
     config_stop_time: none
     config_run_duration: {{ run_duration }}
   time_integration:
     config_dt: {{ dt }}
     config_time_integrator: {{ time_integrator }}
+  hmix_del2:
+    config_use_mom_del2: False
+    config_use_tracer_del2: False
+  hmix_del4:
+    config_use_mom_del4: False
+    config_use_tracer_del4: False
+  debug:
+    config_disable_thick_vadv: true
+    config_disable_vel_vadv: true
+
+mpas-ocean:
   split_explicit_ts:
     config_btr_dt: {{ btr_dt }}
   debug:
-    config_check_ssh_consistency: false
     config_disable_thick_vadv: true
-    config_disable_vel_hmix: true
+    config_check_ssh_consistency: false
     config_disable_vel_surface_stress: true
     config_disable_vel_vmix: true
-    config_disable_vel_vadv: true
     config_disable_tr_hmix: true
     config_disable_tr_vmix: true
     config_disable_tr_sflux: true
@@ -44,3 +53,22 @@ mpas-ocean:
     globalStatsOutput:
       precision: double
       output_interval: 0001_00:00:0
+
+Omega:
+  Tendencies:
+    TracerVertAdvTendencyEnable: false
+  IOStreams:
+    History:
+      Filename: output.nc
+      Freq: {{ output_freq }}
+      FreqUnits: seconds
+      IfExists: append
+      # effectively never
+      FileFreq: 9999
+      FileFreqUnits: years
+      Contents:
+        - time
+        - PseudoThickness
+        - NormalVelocity
+        - SshCell
+        - Eos
