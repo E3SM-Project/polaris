@@ -24,6 +24,7 @@ ocean:
   debug:
     config_disable_vel_explicit_bottom_drag: true
     config_disable_tr_adv: false
+    config_disable_vel_pgrad: true
   tracer_forcing_activeTracers:
     config_salinity_restoring_constant_piston_velocity: 1.585e-5
 
@@ -41,6 +42,8 @@ mpas-ocean:
   debug:
     config_disable_vel_vmix: false
     config_disable_tr_vmix: false
+    config_disable_vel_hadv: true
+    config_disable_vel_coriolis: true
   streams:
     forcing_data:
       type: input
