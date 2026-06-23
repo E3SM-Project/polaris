@@ -99,7 +99,7 @@ class Viz(OceanIOStep):
         ds_mesh = self.open_model_dataset('mesh.nc', config)
         ds_init = self.open_model_dataset('init.nc', config)
         ds_vert_coord = self.open_vert_coord_dataset(ds_init)
-        ds = self.open_model_dataset('output.nc', config, decode_times=False)
+        ds = self.open_model_dataset('output.nc', config, mesh_filename='mesh.nc', vert_filename='vert_coord.nc', decode_times=False)
 
         x_min = ds_mesh.xVertex.min().values
         x_max = ds_mesh.xVertex.max().values
@@ -127,7 +127,8 @@ class Viz(OceanIOStep):
         )
 
         vert_velocity = ds.vertVelocityTop.isel(Time=tidx)
-
+        if 'nVertLevelsP1' in vert_velocity.dims:
+            vert_velocity = vert_velocity.isel(nVertLevelsP1=slice(0, -1))
         tracer_exact = ds_init.tracer1.isel(Time=0)
         tracer_model = ds.tracer1.isel(Time=tidx)
         tracer_error = tracer_model - tracer_exact
@@ -149,6 +150,24 @@ class Viz(OceanIOStep):
                 color_start_and_end=False,
             )
 
+        print('shape vert_velocity', vert_velocity.sizes)
+        #IndexError: index 50 is out of bounds for axis 1 with size 50
+        #  File "/lcrc/group/e3sm/ac.cbegeman/scratch/polaris-repo/fixup-pseudo-omega-support/fixup-pseudo/.pixi/envs/default/lib/python3.14/site-packages/mpas_tools/ocean/viz/transect/plot.py", line 138, in plot_transect
+        #    transect_field = interp_mpas_to_transect_cells(
+        #        ds_transect, mpas_field
+        #    )
+        #  File "/lcrc/group/e3sm/ac.cbegeman/scratch/polaris-repo/fixup-pseudo-omega-support/fixup-pseudo/.pixi/envs/default/lib/python3.14/site-packages/mpas_tools/ocean/viz/transect/vert.py", line 275, in interp_mpas_to_transect_cells
+        #    da_cells = da.isel(
+        #        nCells=cell_indices, nVertLevelsP1=intreface_indices
+        #    )
+        # or
+        #          File "/lcrc/group/e3sm/ac.cbegeman/scratch/polaris-repo/fixup-pseudo-omega-support/fixup-pseudo/.pixi/envs/default/lib/python3.14/site-packages/mpas_tools/ocean/viz/transect/plot.py", line 150, in plot_transect
+        #    pc = ax.pcolormesh(
+        #        x.values,
+        #    ...<6 lines>...
+        #        zorder=0,
+        #    )
+        #ValueError: For X (101) and Y (401) with flat shading, A should have shape (400, 100, 3) or (400, 100, 4) or (400, 100) or (40000,), not (400, 100, 51)
         plot_transect(
             ds_transect=ds_transect,
             mpas_field=vert_velocity,
