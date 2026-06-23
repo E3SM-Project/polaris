@@ -82,11 +82,6 @@ class Forward(OceanModelStep):
         self.add_vert_coord_input_file(target='../init/vert_coord.nc')
         self.add_init_input_file(target='../init/init.nc')
 
-        self.add_input_file(
-            filename='forcing.nc',
-            target='../init/forcing.nc',
-        )
-
         self.add_output_file(
             filename='output.nc',
             validate_vars=[
