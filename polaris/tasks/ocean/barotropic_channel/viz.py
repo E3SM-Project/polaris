@@ -34,6 +34,15 @@ class Viz(OceanIOStep):
             filename='output.nc', target='../forward/output.nc'
         )
 
+    def setup(self):
+        model = self.config.get('ocean', 'model')
+        # TODO: remove as soon as Omega no longer needs this file
+        if model == 'omega':
+            self.add_input_file(
+                filename='coeffs.nc',
+                target='../forward/coeffs.nc',
+            )
+
     def run(self):
         """
         Run this step of the task
@@ -41,7 +50,12 @@ class Viz(OceanIOStep):
         ds_mesh = self.open_model_dataset('mesh.nc', self.config)
         ds_init = self.open_model_dataset('init.nc', self.config)
         ds_vert_coord = self.open_vert_coord_dataset(ds_init)
-        ds_out = self.open_model_dataset('output.nc', self.config)
+        ds_out = self.open_model_dataset(
+            'output.nc',
+            self.config,
+            reconstruct_variables=['normalVelocity'],
+            coeffs_filename='coeffs.nc',
+        )
 
         cell_mask = ds_vert_coord.maxLevelCell >= 1
         vertex_mask = ds_mesh.boundaryVertex == 0

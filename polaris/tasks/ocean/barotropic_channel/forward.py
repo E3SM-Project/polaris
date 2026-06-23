@@ -91,6 +91,17 @@ class Forward(OceanModelStep):
             ],
         )
 
+    def setup(self):
+        super().setup()
+        model = self.config.get('ocean', 'model')
+        if model == 'omega':
+            self.add_input_file(
+                filename='coeffs.nc',
+                target='coeffs.nc',
+                database_component='ocean',
+                database='barotropic_channel',
+            )
+
     def dynamic_model_config(self, at_setup):
         super().dynamic_model_config(at_setup=at_setup)
 
