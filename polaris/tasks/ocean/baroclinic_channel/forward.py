@@ -1,3 +1,4 @@
+import os
 import time
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
@@ -34,9 +35,11 @@ class Forward(OceanModelStep):
         ntasks=None,
         min_tasks=None,
         openmp_threads=1,
-        nu=None,
+        nu=10.0,
         run_time_steps=None,
+        start_time_steps=None,
         graph_target='graph.info',
+        do_restart=False,
     ):
         """
         Create a new task
@@ -78,12 +81,17 @@ class Forward(OceanModelStep):
         run_time_steps : int, optional
             Number of time steps to run for
 
+        start_time_steps : int, optional
+            Number of time steps to start from
+
         graph_target : str, optional
             The graph file name (relative to the base work directory).
             If none, it will be created.
         """
+        self.do_restart = do_restart
         self.resolution = resolution
         self.run_time_steps = run_time_steps
+        self.start_time_steps = start_time_steps
         super().__init__(
             component=component,
             name=name,
@@ -170,7 +178,7 @@ class Forward(OceanModelStep):
             output_freq = int(output_freq)
         else:
             output_freq = 1
-            output_freq_units = 'minutes'
+            output_freq_units = 'seconds'
 
         # Get output interval for mpas-ocean
         output_interval = '0000-00-00_00:00:01'
@@ -201,25 +209,23 @@ class Forward(OceanModelStep):
                     'retaining name given in config'
                 )
 
-        replacements = dict(
-            output_freq=f'{output_freq}',
-            output_freq_units=output_freq_units,
-            time_integrator=time_integrator,
-            output_interval=output_interval,
-        )
-
-        self.add_yaml_file(
-            'polaris.tasks.ocean.baroclinic_channel',
-            'forward.yaml',
-            template_replacements=replacements,
-        )
-
         # dt is proportional to resolution: default 30 seconds per km
         dt_per_km = config.getfloat('baroclinic_channel', 'dt_per_km')
         dt = dt_per_km * self.resolution
         dt_str = get_time_interval_string(seconds=dt)
 
-        ocean_options = {'config_dt': dt_str}
+        mpaso_options = {}
+        # Set dt and default run duration, which may be changed below
+        ocean_options = {
+            'config_dt': dt_str,
+            'config_run_duration': '0005_00:00:00',
+        }
+        output_freq = 1
+        output_freq_units = 'days'
+        output_interval = get_time_interval_string(days=1)
+        ocean_options['config_stop_time'] = 'none'
+        restart_interval = output_interval
+        restart_freq = int(24 * 3600)
 
         if self.run_time_steps is not None:
             # default run duration is a few time steps
@@ -227,8 +233,21 @@ class Forward(OceanModelStep):
             ocean_options['config_run_duration'] = get_time_interval_string(
                 seconds=run_seconds
             )
+            output_freq = int(run_seconds)
+            output_freq_units = 'seconds'
+            output_interval = get_time_interval_string(seconds=run_seconds)
             ocean_options['config_stop_time'] = 'none'
+            restart_interval = dt_str
+            restart_freq = int(dt)
 
+        start_str = '0001-01-01_00:00:00'
+        if self.start_time_steps is not None:
+            start_seconds = self.start_time_steps * dt
+            start_str = get_time_interval_string(seconds=start_seconds)
+            # Assume the default start time for the full_run
+            start_str = f'0001-01-01_{start_str.split("_")[1]}'
+            ocean_options['config_start_time'] = start_str
+            mpaso_options['config_do_restart'] = True
         if self.name == 'long_forward':
             run_duration = config.getfloat(
                 'baroclinic_channel_long', 'run_duration'
@@ -240,6 +259,9 @@ class Forward(OceanModelStep):
 
         self.add_model_config_options(
             options=ocean_options, config_model='ocean'
+        )
+        self.add_model_config_options(
+            options=mpaso_options, config_model='mpas-ocean'
         )
 
         # btr_dt is only for MPAS-Ocean (Omega uses RK4)
@@ -261,3 +283,37 @@ class Forward(OceanModelStep):
             self.add_model_config_options(
                 options=dict(config_mom_del2=self.nu), config_model='ocean'
             )
+        if self.do_restart:
+            init_freq = 'never'
+            restart_start_time = start_str
+            # We store restarts one level up from the step to be easily
+            # accessed by multiple steps
+            restart_dir = os.path.abspath(
+                os.path.join(self.work_dir, '..', 'restarts')
+            )
+            os.makedirs(restart_dir, exist_ok=True)
+            restart_filename = f'{restart_dir}/ocn.rst.$Y-$M-$D_$h.$m.$s'
+        else:
+            init_freq = 'OnStartup'
+            restart_filename = 'ocn.rst.$Y-$M-$D_$h.$m.$s'
+            # The restart start time must be >= simulation start time
+            restart_start_time = '0001-01-01_00:00:01'
+
+        replacements = dict(
+            init_freq=init_freq,
+            restart_filename=restart_filename,
+            restart_start_time=restart_start_time,
+            not_restart=not self.do_restart,
+            output_freq=f'{output_freq}',
+            output_freq_units=output_freq_units,
+            time_integrator=time_integrator,
+            output_interval=output_interval,
+            restart_interval=restart_interval,
+            restart_freq=restart_freq,
+            restart_freq_units='seconds',
+        )
+        self.add_yaml_file(
+            'polaris.tasks.ocean.baroclinic_channel',
+            'forward.yaml',
+            template_replacements=replacements,
+        )
