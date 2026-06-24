@@ -1,4 +1,6 @@
 ocean:
+  time_management:
+    config_stop_time: none
   time_integration:
     config_time_integrator: {{ time_integrator }}
   hmix_del2:
@@ -40,7 +42,10 @@ mpas-ocean:
     config_disable_tr_sflux: true
     config_disable_tr_nonlocalflux: true
   streams:
-    restart: {}
+    restart:
+      filename_template: ../restarts/rst.$Y-$M-$D_$h.$m.$s.nc
+      filename_interval: output_interval
+      output_interval: {{ restart_interval }}
     output:
       type: output
       filename_template: output.nc
@@ -53,6 +58,8 @@ mpas-ocean:
       - layerThickness
 
 Omega:
+  IO:
+    IOStride: 1
   Advection:
     VerticalTracerFluxLimiterEnable: false
   Eos:
@@ -101,12 +108,12 @@ Omega:
     RestartWrite:
       UsePointerFile: true
       PointerFilename: ocn.pointer
-      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+      Filename: ../restarts/rst.$Y-$M-$D_$h.$m.$s
       Mode: write
       IfExists: replace
       Precision: double
-      Freq: 6
-      FreqUnits: Years
+      Freq: {{ restart_freq }}
+      FreqUnits: {{ restart_freq_units }}
       UseStartEnd: false
       Contents:
       - Restart
