@@ -54,6 +54,7 @@ class Viz(OceanIOStep):
             'output.nc',
             self.config,
             reconstruct_variables=['normalVelocity'],
+            mesh_filename='mesh.nc',
             coeffs_filename='coeffs.nc',
         )
 
@@ -71,7 +72,7 @@ class Viz(OceanIOStep):
                 ds = ds_out.isel(Time=t_index, nVertLevels=z_index)
                 if (
                     'velocityZonal' in ds.keys()
-                    and 'velocityZonal' in ds.keys()
+                    and 'velocityMeridional' in ds.keys()
                 ):
                     vmax = np.max(np.abs(ds.velocityZonal.values))
                     plot_horiz_field(

@@ -484,9 +484,24 @@ class Ocean(Component):
         ):
             ds['layerThickness'] = geom_thickness_from_ds(ds, config=config)
         ds = self.map_from_native_model_vars(ds)
-        ds = _add_reconstructed_variables_to_dataset(
-            ds, reconstruct_variables, mesh_filename, coeffs_filename
-        )
+        if reconstruct_variables is not None:
+            if mesh_filename is None:
+                raise ValueError(
+                    'mesh_filename must be provided to open_model_dataset '
+                    'for variable reconstruction'
+                )
+            if coeffs_filename is None:
+                raise ValueError(
+                    'coeffs_filename must be provided to open_model_dataset '
+                    'for variable reconstruction'
+                )
+            ds_mesh = self.open_model_dataset(mesh_filename, config)
+            ds = _add_reconstructed_variables_to_dataset(
+                ds,
+                reconstruct_variables,
+                ds_mesh,
+                coeffs_filename,
+            )
         return ds
 
     def _check_vars_present(self, ds, native_vars, context):
@@ -633,7 +648,7 @@ class Ocean(Component):
 
 
 def _add_reconstructed_variables_to_dataset(
-    ds, reconstruct_variables, mesh_filename, coeffs_filename
+    ds, reconstruct_variables, ds_mesh, coeffs_filename
 ):
     """
     Add reconstructed vector variables to the dataset if requested.
@@ -660,17 +675,6 @@ def _add_reconstructed_variables_to_dataset(
     if reconstruct_variables is None:
         return ds
 
-    if mesh_filename is None:
-        raise ValueError(
-            'mesh_filename must be provided to open_model_dataset for '
-            'variable reconstruction'
-        )
-    if coeffs_filename is None:
-        raise ValueError(
-            'coeffs_filename must be provided to open_model_dataset for '
-            'variable reconstruction'
-        )
-
     for variable in reconstruct_variables:
         if variable not in ds:
             raise ValueError(
@@ -687,7 +691,6 @@ def _add_reconstructed_variables_to_dataset(
         if f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds:
             continue
 
-        ds_mesh = xr.open_dataset(mesh_filename)
         ds_coeff = xr.open_dataset(coeffs_filename)
         coeffs_reconstruct = ds_coeff.coeffs_reconstruct
 
