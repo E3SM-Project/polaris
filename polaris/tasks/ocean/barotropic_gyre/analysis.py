@@ -57,17 +57,21 @@ class Analysis(OceanIOStep):
         self.add_input_file(
             filename='output.nc', target='../long_forward/output.nc'
         )
+        self.add_input_file(
+            filename='vert_coord.nc', target='../init/vert_coord.nc'
+        )
         self.boundary_condition = boundary_condition
         self.test_name = test_name
 
     def run(self):
         logger = self.logger
         ds_mesh = self.open_model_dataset('mesh.nc', self.config)
-        ds_init = self.open_model_dataset('init.nc', self.config)
         ds = self.open_model_dataset('output.nc', self.config)
+        ds_vert = self.open_model_dataset('vert_coord.nc', self.config)
+        ds_mesh['maxLevelCell'] = ds_vert.maxLevelCell
 
         field_mpas = compute_barotropic_streamfunction(
-            ds_init.isel(Time=0), ds, prefix='', time_index=-1
+            ds_mesh, ds, prefix='', time_index=-1
         )
         x_maxpsi = ds_mesh.xVertex.isel(nVertices=np.argmax(field_mpas.values))
         logger.info(f'Streamfunction reaches maximum at x = {x_maxpsi.values}')
