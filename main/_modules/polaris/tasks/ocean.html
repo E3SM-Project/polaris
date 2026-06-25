@@ -617,9 +617,24 @@
         <span class="p">):</span>
             <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_thickness_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">_add_reconstructed_variables_to_dataset</span><span class="p">(</span>
-            <span class="n">ds</span><span class="p">,</span> <span class="n">reconstruct_variables</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">,</span> <span class="n">coeffs_filename</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">reconstruct_variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mesh_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;mesh_filename must be provided to open_model_dataset &#39;</span>
+                    <span class="s1">&#39;for variable reconstruction&#39;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">coeffs_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;coeffs_filename must be provided to open_model_dataset &#39;</span>
+                    <span class="s1">&#39;for variable reconstruction&#39;</span>
+                <span class="p">)</span>
+            <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">_add_reconstructed_variables_to_dataset</span><span class="p">(</span>
+                <span class="n">ds</span><span class="p">,</span>
+                <span class="n">reconstruct_variables</span><span class="p">,</span>
+                <span class="n">ds_mesh</span><span class="p">,</span>
+                <span class="n">coeffs_filename</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="n">ds</span></div>
 
 
@@ -768,7 +783,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_reconstructed_variables_to_dataset</span><span class="p">(</span>
-    <span class="n">ds</span><span class="p">,</span> <span class="n">reconstruct_variables</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">,</span> <span class="n">coeffs_filename</span>
+    <span class="n">ds</span><span class="p">,</span> <span class="n">reconstruct_variables</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">coeffs_filename</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add reconstructed vector variables to the dataset if requested.</span>
@@ -795,17 +810,6 @@
     <span class="k">if</span> <span class="n">reconstruct_variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ds</span>
 
-    <span class="k">if</span> <span class="n">mesh_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;mesh_filename must be provided to open_model_dataset for &#39;</span>
-            <span class="s1">&#39;variable reconstruction&#39;</span>
-        <span class="p">)</span>
-    <span class="k">if</span> <span class="n">coeffs_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;coeffs_filename must be provided to open_model_dataset for &#39;</span>
-            <span class="s1">&#39;variable reconstruction&#39;</span>
-        <span class="p">)</span>
-
     <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">reconstruct_variables</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -822,7 +826,6 @@
         <span class="k">if</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal&#39;</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
             <span class="k">continue</span>
 
-        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">)</span>
         <span class="n">ds_coeff</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">coeffs_filename</span><span class="p">)</span>
         <span class="n">coeffs_reconstruct</span> <span class="o">=</span> <span class="n">ds_coeff</span><span class="o">.</span><span class="n">coeffs_reconstruct</span>
 

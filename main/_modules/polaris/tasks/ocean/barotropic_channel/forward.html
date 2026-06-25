@@ -199,11 +199,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_vert_coord_input_file</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/vert_coord.nc&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_init_input_file</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/init.nc&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;forcing.nc&#39;</span><span class="p">,</span>
-            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/forcing.nc&#39;</span><span class="p">,</span>
-        <span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span>
@@ -213,6 +208,17 @@
             <span class="p">],</span>
         <span class="p">)</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;coeffs.nc&#39;</span><span class="p">,</span>
+                <span class="n">target</span><span class="o">=</span><span class="s1">&#39;coeffs.nc&#39;</span><span class="p">,</span>
+                <span class="n">database_component</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span>
+                <span class="n">database</span><span class="o">=</span><span class="s1">&#39;barotropic_channel&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
 
 <div class="viewcode-block" id="Forward.dynamic_model_config">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config">[docs]</a>
