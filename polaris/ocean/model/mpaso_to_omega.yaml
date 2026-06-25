@@ -77,8 +77,8 @@ variables:
 
   # auxiliary state
   ssh: SshCell
-  windStressZonal: WindStressZonal
-  windStressMeridional: WindStressMeridional
+  windStressZonal: SfcStressZonal
+  windStressMeridional: SfcStressMeridional
   relativeVorticity: RelVortVertex
 
   # vertical coordinate diagnostics
@@ -150,7 +150,7 @@ config:
 - section:
     forcing: Tendencies
   options:
-    config_use_bulk_wind_stress: WindForcingTendencyEnable
+    config_use_bulk_wind_stress: SfcStressForcingTendencyEnable
 
 - section:
     debug: Tendencies

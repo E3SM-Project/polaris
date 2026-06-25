@@ -70,8 +70,8 @@ Omega:
       Mode: read
       Contents:
       - State
-      - WindStressZonal
-      - WindStressMeridional
+      - SfcStressZonal
+      - SfcStressMeridional
     History:
       UsePointerFile: false
       Filename: output.nc
