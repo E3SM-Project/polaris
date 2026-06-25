@@ -16,10 +16,12 @@
       ~PolarisConfigParser.__init__
       ~PolarisConfigParser.add_from_file
       ~PolarisConfigParser.add_from_package
+      ~PolarisConfigParser.add_section
       ~PolarisConfigParser.add_user_config
       ~PolarisConfigParser.append
       ~PolarisConfigParser.combine
       ~PolarisConfigParser.copy
+      ~PolarisConfigParser.defaults
       ~PolarisConfigParser.explain
       ~PolarisConfigParser.get
       ~PolarisConfigParser.getboolean
@@ -30,12 +32,22 @@
       ~PolarisConfigParser.getnumpy
       ~PolarisConfigParser.has_option
       ~PolarisConfigParser.has_section
+      ~PolarisConfigParser.items
+      ~PolarisConfigParser.keys
       ~PolarisConfigParser.list_files
+      ~PolarisConfigParser.options
       ~PolarisConfigParser.prepend
+      ~PolarisConfigParser.read_dict
+      ~PolarisConfigParser.read_file
+      ~PolarisConfigParser.read_string
       ~PolarisConfigParser.register_symbol
+      ~PolarisConfigParser.remove_option
+      ~PolarisConfigParser.remove_section
+      ~PolarisConfigParser.sections
       ~PolarisConfigParser.set
       ~PolarisConfigParser.setup
       ~PolarisConfigParser.validate
+      ~PolarisConfigParser.values
       ~PolarisConfigParser.write
    
    

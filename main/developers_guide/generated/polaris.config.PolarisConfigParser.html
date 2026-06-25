@@ -187,17 +187,23 @@ written out</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_from_package</span></code>(package, config_filename[, ...])</p></td>
 <td><p>Add the contents of a config file to the parser.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_user_config</span></code>(filename)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_section</span></code>(section[, user])</p></td>
+<td><p>Add an empty section.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_user_config</span></code>(filename)</p></td>
 <td><p>Add a the contents of a user config file to the parser.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">append</span></code>(other)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">append</span></code>(other)</p></td>
 <td><p>Append a deep copy of another config parser to this one.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine</span></code>([raw])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine</span></code>([raw])</p></td>
 <td><p>Combine the config files into one</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>()</p></td>
 <td><p>Get a deep copy of the config parser</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">defaults</span></code>()</p></td>
+<td><p>Get the options in the special <code class="docutils literal notranslate"><span class="pre">[DEFAULT]</span></code> section.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">explain</span></code>(section, option)</p></td>
 <td><p>Explain the provenance of an option.</p></td>
@@ -229,23 +235,53 @@ written out</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_section</span></code>(section)</p></td>
 <td><p>Whether the given section is part of the config</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">items</span></code>([section])</p></td>
+<td><p>Get section or option items from the combined config.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code>()</p></td>
+<td><p>Get the section names in the combined config (including <code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code>).</p></td>
+</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_files</span></code>()</p></td>
 <td><p>Get a list of files contributing to the combined config options</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepend</span></code>(other)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">options</span></code>(section)</p></td>
+<td><p>Get the list of option names available in the given section.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepend</span></code>(other)</p></td>
 <td><p>Prepend a deep copy of another config parser to this one.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_dict</span></code>(dictionary[, source, user])</p></td>
+<td><p>Add config options read from a nested dictionary.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_file</span></code>(f[, source, user])</p></td>
+<td><p>Add config options read from an open file or iterable of lines.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_string</span></code>(string[, source, user])</p></td>
+<td><p>Add config options read from a string.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">register_symbol</span></code>(name, obj)</p></td>
 <td><p>Make 'name' available to the safe expression backend.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(section, option[, value, comment, user])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_option</span></code>(section, option)</p></td>
+<td><p>Remove an option from a section across all layers.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_section</span></code>(section)</p></td>
+<td><p>Remove a section and all of its options across all layers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sections</span></code>()</p></td>
+<td><p>Get the list of section names in the combined config.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(section, option[, value, comment, user])</p></td>
 <td><p>Set the value of the given option in the given section.  The file from</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.config.PolarisConfigParser.setup.html#polaris.config.PolarisConfigParser.setup" title="polaris.config.PolarisConfigParser.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.config.PolarisConfigParser.setup.html#polaris.config.PolarisConfigParser.setup" title="polaris.config.PolarisConfigParser.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
 <td><p>A method that can be overridden to add config options during polaris setup</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code>(validator)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code>(validator)</p></td>
 <td><p>Call a user-provided validator function on the config as a nested dict.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">values</span></code>()</p></td>
+<td><p>Get a <a class="reference external" href="https://xylar.github.io/tranche/api/section.html#tranche.section.Section" title="(in tranche)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tranche.section.Section</span></code></a> wrapper for each section.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code>(fp[, include_sources, ...])</p></td>
 <td><p>Write the config options to the given file pointer.</p></td>
