@@ -136,14 +136,21 @@ class Init(PStarInitStep, OceanIOStep):
         x = horiz_res * np.array([-0.5, 0.5], dtype=float)
         # Store x so init_tracers and _build_pstar_coord_ds can access it
         self.x = x
-        geom_ssh, geom_z_bot = self._get_geom_ssh_z_bot(x)
+        geom_z_bot = self._get_geom_z_bot(x)
+        surface_pressure = self._get_surface_pressure(x)
+        # geom_ssh is an optional override; when it is not configured the
+        # base class defaults the sea-surface height to the resting
+        # surface-pressure depression -surface_pressure / (RhoSw * Gravity).
+        geom_ssh = self._get_geom_ssh(x)
 
         # Delegate the p-star iterative initialization to the base class.
-        # surface_pressure defaults to zero; sea_surface_height drives the
-        # target water-column thickness.
+        # surface_pressure drives the surface gauge pressure;
+        # sea_surface_height (when given) drives the target water-column
+        # thickness.
         ds = self.run_pstar_init(
             ds_mesh=ds_mesh,
             geom_z_bot=geom_z_bot,
+            surface_pressure=surface_pressure,
             sea_surface_height=geom_ssh,
         )
 
@@ -379,33 +386,67 @@ class Init(PStarInitStep, OceanIOStep):
             'units': 'g kg-1 m-1',
         }
 
-    def _get_geom_ssh_z_bot(
-        self, x: np.ndarray
-    ) -> tuple[xr.DataArray, xr.DataArray]:
+    def _get_geom_z_bot(self, x: np.ndarray) -> xr.DataArray:
         """
-        Get the geometric sea surface height and sea floor height for each
-        column from the configuration.
+        Get the geometric sea floor height for each column from the
+        configuration.
+        """
+        geom_z_bot = get_array_from_mid_grad(self.config, 'geom_z_bot', x)
+        return xr.DataArray(
+            data=geom_z_bot,
+            dims=['nCells'],
+            attrs={
+                'long_name': 'seafloor geometric height',
+                'units': 'm',
+            },
+        )
+
+    def _get_geom_ssh(self, x: np.ndarray) -> xr.DataArray | None:
+        """
+        Get the optional geometric sea surface height override for each column
+        from the configuration. Returns ``None`` when ``geom_ssh_mid`` /
+        ``geom_ssh_grad`` are not set, in which case the base class defaults
+        the sea-surface height to the resting surface-pressure depression.
         """
         config = self.config
+        if not (
+            config.has_option('horiz_press_grad', 'geom_ssh_mid')
+            and config.has_option('horiz_press_grad', 'geom_ssh_grad')
+        ):
+            return None
         geom_ssh = get_array_from_mid_grad(config, 'geom_ssh', x)
-        geom_z_bot = get_array_from_mid_grad(config, 'geom_z_bot', x)
-        return (
-            xr.DataArray(
-                data=geom_ssh,
-                dims=['nCells'],
-                attrs={
-                    'long_name': 'sea surface geometric height',
-                    'units': 'm',
-                },
-            ),
-            xr.DataArray(
-                data=geom_z_bot,
-                dims=['nCells'],
-                attrs={
-                    'long_name': 'seafloor geometric height',
-                    'units': 'm',
-                },
-            ),
+        return xr.DataArray(
+            data=geom_ssh,
+            dims=['nCells'],
+            attrs={
+                'long_name': 'sea surface geometric height',
+                'units': 'm',
+            },
+        )
+
+    def _get_surface_pressure(self, x: np.ndarray) -> xr.DataArray:
+        """
+        Get the sea-surface gauge pressure for each column from the
+        configuration. Defaults to zero when ``surface_pressure_mid`` /
+        ``surface_pressure_grad`` are not set.
+        """
+        config = self.config
+        if not (
+            config.has_option('horiz_press_grad', 'surface_pressure_mid')
+            and config.has_option('horiz_press_grad', 'surface_pressure_grad')
+        ):
+            surface_pressure = np.zeros_like(x)
+        else:
+            surface_pressure = get_array_from_mid_grad(
+                config, 'surface_pressure', x
+            )
+        return xr.DataArray(
+            data=surface_pressure,
+            dims=['nCells'],
+            attrs={
+                'long_name': 'sea surface gauge pressure',
+                'units': 'Pa',
+            },
         )
 
     def _get_z_tilde_t_s_nodes(

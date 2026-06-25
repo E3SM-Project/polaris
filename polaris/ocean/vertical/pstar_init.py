@@ -346,10 +346,13 @@ class PStarInitStep(Step, ABC):
         )
         ds.GeomZInterface.attrs['units'] = 'm'
 
-        # Use the actual converged water-column thickness (not the target)
-        # for thermodynamic self-consistency, even when bottom-cell snapping
-        # prevents an exact match to the target bathymetry.
-        ds['bottomDepth'] = geom_water_column_thickness
+        # Geometric depth of the seafloor below z=0, i.e. the negation of the
+        # actual converged bottom interface height (not the water-column
+        # thickness, which only matches when the sea-surface height is zero).
+        # Omega reads this as BottomGeomDepth and anchors its column there, so
+        # it must be the true bathymetric depth for the diagnosed sea-surface
+        # height (and the resulting geopotential gradient) to be correct.
+        ds['bottomDepth'] = -geom_z_max
         ds.bottomDepth.attrs['long_name'] = 'seafloor geometric depth'
         ds.bottomDepth.attrs['units'] = 'm'
 

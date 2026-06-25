@@ -13,6 +13,7 @@ def add_horiz_press_grad_tasks(component):
     """
     for name in [
         'salinity_gradient',
+        'surface_pressure_gradient',
         'temperature_gradient',
         'ztilde_gradient',
     ]:

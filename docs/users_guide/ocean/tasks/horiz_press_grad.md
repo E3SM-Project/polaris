@@ -28,6 +28,7 @@ The tasks currently provided are:
 ocean/column/horiz_press_grad/salinity_gradient
 ocean/column/horiz_press_grad/temperature_gradient
 ocean/column/horiz_press_grad/ztilde_gradient
+ocean/column/horiz_press_grad/surface_pressure_gradient
 ```
 
 ```{image} images/horiz_press_grad_salin_grad.png
@@ -69,7 +70,10 @@ the `salinity_gradient` and `temperature_gradient` tests, the z-tilde
 interfaces are level, so pressure surfaces are also horizontally level except
 where they intersect the bathymetry.  In the `ztilde_gradient` test, the
 prescribed z-tilde gradient tilts the layers, so the pressure surfaces are
-sloped and the along-layer direction follows those sloping layers.
+sloped and the along-layer direction follows those sloping layers.  In the
+`surface_pressure_gradient` test, a horizontally varying surface pressure
+depresses and tilts the surface pseudo-height (and compresses the column), so
+the layers are sloped even though the z-tilde profile itself is level.
 
 ## reference solution
 
@@ -105,10 +109,13 @@ where:
   $\alpha_{\Theta} = \partial \alpha / \partial \Theta$ are TEOS-10 first derivatives
   of specific volume.
 
-The surface boundary term is kept fully general, so a nonzero sea-surface
-height or surface pressure (nonzero `geom_ssh_grad` and/or surface
-`z_tilde_grad` node) is supported without further changes.  The three task
-variants currently provided all use zero surface slope.
+The surface boundary term is kept fully general, so a nonzero surface pressure
+or sea-surface height is supported.  The `surface_pressure_gradient` variant
+exercises this: a nonzero `surface_pressure_grad` sets the surface
+pseudo-height $\tilde z_s = -p_s / (\rho_0 g)$ and, by default, a matching
+sea-surface-height slope $\eta' = -\partial_x p_s / (\rho_0 g)$ (overridable
+with the optional `geom_ssh_grad`).  The other three variants use zero surface
+slope.
 
 The gradients $\partial_x S_A$ and $\partial_x \Theta$ at fixed $\tilde z$ are
 obtained by centred finite-differencing PCHIP interpolants evaluated at
@@ -185,9 +192,14 @@ horiz_resolutions = [4.0, 3.0, 2.0, 1.5, 1.0, 0.75, 0.5]
 # vertical resolution in m for each two-column setup
 vert_resolutions = [4.0, 3.0, 2.0, 1.5, 1.0, 0.75, 0.5]
 
-# geometric sea-surface and sea-floor midpoint values and x-gradients
-geom_ssh_mid = 0.0
-geom_ssh_grad = 0.0
+# sea-surface gauge pressure midpoint and x-gradient (Pa and Pa/km).  The
+# sea-surface height defaults to the resting depression
+# -surface_pressure / (rho0 * g); add the optional geom_ssh_mid / geom_ssh_grad
+# to override that default.
+surface_pressure_mid = 0.0
+surface_pressure_grad = 0.0
+
+# geometric sea-floor midpoint value and x-gradient
 geom_z_bot_mid = -500.0
 geom_z_bot_grad = 0.0
 
@@ -225,11 +237,13 @@ error at the highest resolution, the allowed power-law convergence slope, and
 the finest horizontal resolution included in the convergence fit (all
 resolutions are still shown in the plots).
 
-The three task variants specialize one horizontal gradient field:
+The four task variants each specialize one horizontal gradient field:
 
 - `salinity_gradient`: nonzero `salinity_grad`
 - `temperature_gradient`: nonzero `temperature_grad`
 - `ztilde_gradient`: nonzero `z_tilde_bot_grad`
+- `surface_pressure_gradient`: nonzero `surface_pressure_grad` (with the
+  sea-surface height following the default surface-pressure depression)
 
 ## time step and run duration
 

@@ -739,7 +739,10 @@ class MyInit(PStarInitStep, OceanIOStep):
 
 At convergence, the returned dataset contains all p-star coordinate variables
 plus ``temperature``, ``salinity``, ``SpecVol``, ``pressure``, ``GeomZMid``,
-``GeomZInterface``, ``bottomDepth``, and ``ssh``.
+``GeomZInterface``, ``bottomDepth``, and ``ssh``.  Here ``bottomDepth`` is the
+geometric seafloor depth below $z = 0$ (the negation of the converged bottom
+interface height), which Omega reads as ``BottomGeomDepth``; it equals the
+geometric water-column thickness only when ``ssh`` is zero.
 
 The iteration is controlled by two ``vertical_grid`` config options:
 
