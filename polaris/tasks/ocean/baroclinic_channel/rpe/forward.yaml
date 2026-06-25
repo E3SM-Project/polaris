@@ -1,7 +1,9 @@
-mpas-ocean:
+ocean:
   time_management:
     config_stop_time: none
     config_run_duration: 20_00:00:00
+
+mpas-ocean:
   streams:
     output:
       type: output
@@ -15,3 +17,23 @@ mpas-ocean:
       - daysSinceStartOfSim
       - relativeVorticity
       - layerThickness
+
+Omega:
+  IOStreams:
+    History:
+      UsePointerFile: false
+      Filename: output.nc
+      Mode: write
+      IfExists: append
+      Precision: double
+      Freq: 1
+      FreqUnits: days
+      UseStartEnd: false
+      Contents:
+      - State
+      - AuxState
+      - Tracers
+      - KineticEnergyCell
+      - Eos
+      FileFreq: 9999
+      FileFreqUnits: Years

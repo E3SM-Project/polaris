@@ -1,6 +1,6 @@
 from polaris import Task as Task
-from polaris.tasks.ocean.baroclinic_channel.restart.restart_step import (
-    RestartStep as RestartStep,
+from polaris.tasks.ocean.baroclinic_channel.forward import (
+    Forward as Forward,
 )
 from polaris.tasks.ocean.baroclinic_channel.validate import (
     Validate as Validate,
@@ -36,21 +36,22 @@ class Restart(Task):
 
         self.add_step(init, symlink='init')
 
-        full = RestartStep(
+        full = Forward(
             component=component,
             resolution=resolution,
+            run_time_steps=2,
             name='full_run',
             indir=self.subdir,
-            init=init,
         )
         self.add_step(full)
 
-        restart = RestartStep(
+        restart = Forward(
             component=component,
             resolution=resolution,
+            run_time_steps=1,
+            start_time_steps=1,
             name='restart_run',
             indir=self.subdir,
-            init=init,
         )
         restart.add_dependency(full, full.name)
         self.add_step(restart)
