@@ -43,7 +43,7 @@ mpas-ocean:
     restart:
       output_interval: 0000_01:00:00
     forcing:
-      filename_template: forcing.nc
+      filename_template: init.nc
       input_interval: initial_only
       type: input
       contents:

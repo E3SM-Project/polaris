@@ -82,11 +82,6 @@ class Forward(OceanModelStep):
         self.add_vert_coord_input_file(target='../init/vert_coord.nc')
         self.add_init_input_file(target='../init/init.nc')
 
-        self.add_input_file(
-            filename='forcing.nc',
-            target='../init/forcing.nc',
-        )
-
         self.add_output_file(
             filename='output.nc',
             validate_vars=[
@@ -95,6 +90,17 @@ class Forward(OceanModelStep):
                 'temperature',
             ],
         )
+
+    def setup(self):
+        super().setup()
+        model = self.config.get('ocean', 'model')
+        if model == 'omega':
+            self.add_input_file(
+                filename='coeffs.nc',
+                target='coeffs.nc',
+                database_component='ocean',
+                database='barotropic_channel',
+            )
 
     def dynamic_model_config(self, at_setup):
         super().dynamic_model_config(at_setup=at_setup)
