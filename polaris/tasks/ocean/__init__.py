@@ -9,10 +9,18 @@ from mpas_tools.vector.reconstruct import reconstruct_variable
 from ruamel.yaml import YAML
 
 from polaris import Component
+from polaris.constants import get_constant
 from polaris.ocean.vertical.diagnostics import (
     geom_thickness_from_ds,
     pseudothickness_from_ds,
 )
+from polaris.ocean.vertical.ztilde import (
+    geom_height_from_pseudo_height,
+    get_iter_count_for_eos,
+    pressure_and_spec_vol_from_state_at_geom_height,
+)
+
+RhoSw = get_constant('seawater_density_reference')
 
 
 class Ocean(Component):
@@ -191,16 +199,35 @@ class Ocean(Component):
             mpas_to_omega_vars = {
                 'layerThickness': 'PseudoThickness',
                 'restingThickness': 'RefPseudoThickness',
+                'vertVelocityTop': 'VerticalPseudoVelocity',
             }
             for mpas_var, omega_var in mpas_to_omega_vars.items():
                 if mpas_var in ds.keys() and omega_var not in ds.keys():
-                    pseudothickness, spec_vol = pseudothickness_from_ds(
-                        ds, config=config, src_var_name=mpas_var
-                    )
-                    if pseudothickness is not None and spec_vol is not None:
-                        ds[omega_var] = pseudothickness
-                        if mpas_var == 'layerThickness':
-                            ds['SpecVol'] = spec_vol
+                    if 'Thickness' in mpas_var:
+                        pseudothickness, spec_vol = pseudothickness_from_ds(
+                            ds, config=config, src_var_name=mpas_var
+                        )
+                        if (
+                            pseudothickness is not None
+                            and spec_vol is not None
+                        ):
+                            ds[omega_var] = pseudothickness
+                            if (
+                                'SpecVol' not in ds.keys()
+                                and mpas_var == 'layerThickness'
+                            ):
+                                ds['SpecVol'] = spec_vol
+                    elif mpas_var == 'vertVelocityTop':
+                        if (
+                            'SpecVol' not in ds.keys()
+                            and 'layerThickness' in ds.keys()
+                        ):
+                            _, spec_vol = pseudothickness_from_ds(
+                                ds,
+                                config=config,
+                                src_var_name='layerThickness',
+                            )
+                            ds[omega_var] = ds[mpas_var] / (spec_vol * RhoSw)
 
         # After map_to_native_model_vars, the dataset contains
         # LayerThickness and PseudoThickness which are both
@@ -441,6 +468,7 @@ class Ocean(Component):
         filename,
         config,
         mesh_filename=None,
+        vert_filename=None,
         reconstruct_variables=None,
         coeffs_filename=None,
         **kwargs,
@@ -483,6 +511,65 @@ class Ocean(Component):
             and 'SpecVol' in ds.keys()
         ):
             ds['layerThickness'] = geom_thickness_from_ds(ds, config=config)
+        if (
+            self.model == 'omega'
+            and 'SpecVol' not in ds.keys()
+            and 'Temperature' in ds.keys()
+            and 'Salinity' in ds.keys()
+            and 'SurfacePressure' in ds.keys()
+        ):
+            iter_count = get_iter_count_for_eos(config)
+            _, _, spec_vol = pressure_and_spec_vol_from_state_at_geom_height(
+                config,
+                ds.layerThickness,
+                ds.Temperature,
+                ds.Salinity,
+                ds.SurfacePressure,
+                iter_count=iter_count,
+            )
+            ds.SpecVol = spec_vol
+        if (
+            self.model == 'omega'
+            and 'vertVelocityTop' not in ds.keys()
+            and 'PseudoThickness' in ds.keys()
+            and 'SpecVol' in ds.keys()
+            and 'VerticalPseudoVelocity' in ds.keys()
+            and mesh_filename is not None
+        ):
+            ds_vert = self.open_model_dataset(vert_filename, config)
+            geom_z_inter, geom_z_mid = geom_height_from_pseudo_height(
+                geom_z_bot=ds_vert.bottomDepth,
+                h_tilde=ds.PseudoThickness.rename(
+                    {'NVertLayers': 'nVertLevels', 'NCells': 'nCells'}
+                ),
+                spec_vol=ds.SpecVol.rename(
+                    {'NVertLayers': 'nVertLevels', 'NCells': 'nCells'}
+                ),
+                min_level_cell=ds_vert.minLevelCell,
+                max_level_cell=ds_vert.maxLevelCell,
+            )
+            n_time = geom_z_inter.sizes['time']
+            n_vert_levels_p1 = geom_z_inter.sizes['nVertLevelsP1']
+            n_cells = geom_z_inter.sizes['nCells']
+            spec_vol_inter_vals = np.zeros((n_time, n_vert_levels_p1, n_cells))
+            for i_time in range(ds.sizes['time']):
+                for i_cell in range(n_cells):
+                    x_vals = geom_z_inter.isel(nCells=i_cell, time=i_time)
+                    xp_vals = geom_z_mid.isel(nCells=i_cell, time=i_time)
+                    fp_vals = ds.SpecVol.isel(NCells=i_cell, time=i_time)
+                    interp_vals = np.interp(
+                        x_vals.values,
+                        xp_vals.values,
+                        fp_vals.values,
+                    )
+                    spec_vol_inter_vals[i_time, :, i_cell] = interp_vals
+            spec_vol_inter = xr.DataArray(
+                spec_vol_inter_vals,
+                dims=['time', 'NVertLevelsP1', 'NCells'],
+            )
+            ds['vertVelocityTop'] = (
+                ds.VerticalPseudoVelocity * spec_vol_inter * RhoSw
+            )
         ds = self.map_from_native_model_vars(ds)
         if reconstruct_variables is not None:
             if mesh_filename is None:
