@@ -2,7 +2,7 @@ import os
 from typing import List
 
 import xarray as xr
-from mpas_tools.io import write_netcdf
+from mpas_tools.io import open_dataset, write_netcdf
 
 from polaris import Step
 
@@ -68,7 +68,7 @@ class TopoScale(Step):
             'isomip_plus_scaling', f'{experiment}_scales', dtype=float
         )
 
-        ds_orig = xr.open_dataset('topography_unscaled.nc')
+        ds_orig = open_dataset('topography_unscaled.nc')
 
         ds_list: List[xr.Dataset] = list()
 

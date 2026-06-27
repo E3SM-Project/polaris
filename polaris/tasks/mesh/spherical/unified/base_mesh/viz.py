@@ -5,6 +5,7 @@ import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
+from mpas_tools.io import open_dataset
 from shapely.geometry import box
 
 from polaris.step import Step
@@ -116,7 +117,7 @@ class VizBaseMeshStep(Step):
         """
         Create durable mesh, sizing-field and river-alignment diagnostics.
         """
-        with xr.open_dataset('base_mesh.nc') as ds_mesh:
+        with open_dataset('base_mesh.nc') as ds_mesh:
             area_km2 = ds_mesh.areaCell * 1.0e-6
             resolution_km = _estimate_dc_edge_from_area_cell(area_km2.values)
             dc_edge_km = 1.0e-3 * ds_mesh.dcEdge

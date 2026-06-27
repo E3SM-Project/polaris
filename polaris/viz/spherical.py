@@ -6,8 +6,8 @@ import matplotlib.colors as cols
 import matplotlib.pyplot as plt
 import mosaic
 import numpy as np
-import xarray as xr
 from cartopy.geodesic import Geodesic
+from mpas_tools.io import open_dataset
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pyremap.descriptor.utility import interp_extrap_corner
 
@@ -120,7 +120,7 @@ def plot_global_mpas_field(
                 'Either mesh_filename or descriptor must be given'
                 ' as parameters to Descriptor'
             )
-        mesh_ds = xr.open_dataset(mesh_filename)
+        mesh_ds = open_dataset(mesh_filename)
         mesh_ds.attrs['is_periodic'] = 'NO'
         if cell_indices is not None:
             mesh_ds = mesh_ds.isel(nCells=cell_indices)

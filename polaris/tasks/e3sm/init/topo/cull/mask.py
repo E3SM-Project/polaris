@@ -7,7 +7,7 @@ from geometric_features import (
     GeometricFeatures,
     read_feature_collection,
 )
-from mpas_tools.io import write_netcdf
+from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.logging import check_call
 from mpas_tools.mesh.mask import compute_mpas_flood_fill_mask
 from mpas_tools.ocean.coastline_alteration import (
@@ -247,7 +247,7 @@ class CullMaskStep(Step):
             logger.info(
                 'Applying critical land transect mask to ocean cull mask.'
             )
-            ds_crit = xr.open_dataset(crit_land_filename)
+            ds_crit = open_dataset(crit_land_filename)
             preserve_land = ds_crit.regionCellMasks.isel(nRegions=0) > 0
             cull_mask = np.logical_or(cull_mask, preserve_land)
 
@@ -257,7 +257,7 @@ class CullMaskStep(Step):
             logger.info(
                 'Applying critical ocean transect mask to ocean cull mask.'
             )
-            ds_crit = xr.open_dataset(crit_ocean_filename)
+            ds_crit = open_dataset(crit_ocean_filename)
             preserve_ocean = ds_crit.regionCellMasks.isel(nRegions=0) > 0
             cull_mask = np.logical_and(
                 cull_mask, np.logical_not(preserve_ocean)
@@ -335,11 +335,11 @@ class CullMaskStep(Step):
             logger.info(
                 'Applying critical ocean transect mask to land cull mask.'
             )
-            ds_crit = xr.open_dataset(crit_ocean_filename)
+            ds_crit = open_dataset(crit_ocean_filename)
             preserve_ocean = ds_crit.regionCellMasks.isel(nRegions=0) > 0
             cull_mask = np.logical_or(cull_mask, preserve_ocean)
 
-        ds_ocean_no_cavity_cull_mask = xr.open_dataset(
+        ds_ocean_no_cavity_cull_mask = open_dataset(
             'ocean_no_cavities_cull_mask.nc'
         )
 
@@ -386,7 +386,7 @@ class CullMaskStep(Step):
 
         gf = GeometricFeatures()
 
-        ds_base_mesh = xr.open_dataset('base_mesh.nc')
+        ds_base_mesh = open_dataset('base_mesh.nc')
 
         fc_crit_land_transects = self.define_critical_land_transects(gf)
 
@@ -416,7 +416,7 @@ class CullMaskStep(Step):
             ]
             check_call(args, logger=logger)
 
-            ds_all = xr.open_dataset(nc_filename)
+            ds_all = open_dataset(nc_filename)
 
             # combine into a single field
             preserve = xr.where(
@@ -460,7 +460,7 @@ class CullMaskStep(Step):
                 netcdf_engine,
             ]
             check_call(args, logger=logger)
-            ds_all = xr.open_dataset(nc_filename)
+            ds_all = open_dataset(nc_filename)
 
             ds_widened = widen_transect_edge_masks(
                 ds_all, ds_base_mesh, latitude_threshold=latitude_threshold
@@ -491,9 +491,9 @@ class CullMaskStep(Step):
         logger = self.logger
         logger.info('Creating ocean cull mask.')
 
-        ds_base_mesh = xr.open_dataset('base_mesh.nc')
+        ds_base_mesh = open_dataset('base_mesh.nc')
 
-        ds_topo = xr.open_dataset('topography_unsmoothed.nc')
+        ds_topo = open_dataset('topography_unsmoothed.nc')
         ocean_frac = ds_topo.ocean_frac
         cull_mask = ocean_frac < 0.5
 
@@ -520,12 +520,12 @@ class CullMaskStep(Step):
         land_ice_max_latitude = section.getfloat('land_ice_max_latitude')
         land_ice_min_fraction = section.getfloat('land_ice_min_fraction')
 
-        ds_base_mesh = xr.open_dataset('base_mesh.nc')
+        ds_base_mesh = open_dataset('base_mesh.nc')
 
-        ds_topo = xr.open_dataset('topography_unsmoothed.nc')
+        ds_topo = open_dataset('topography_unsmoothed.nc')
         land_ice_frac = ds_topo.ice_frac
 
-        ds_ocean_cull_mask = xr.open_dataset('ocean_cull_mask.nc')
+        ds_ocean_cull_mask = open_dataset('ocean_cull_mask.nc')
         ocean_cull_mask = ds_ocean_cull_mask.oceanCullMask > 0
 
         land_ice_present = self._antarctic_land_ice_ownership(
@@ -572,12 +572,12 @@ class CullMaskStep(Step):
         latitude_threshold = section.getfloat('sea_ice_latitude_threshold')
         iterations = section.getint('land_locked_cell_iterations')
 
-        ds_base_mesh = xr.open_dataset('base_mesh.nc')
+        ds_base_mesh = open_dataset('base_mesh.nc')
 
-        ds_ocean_cull_mask = xr.open_dataset('ocean_cull_mask.nc')
+        ds_ocean_cull_mask = open_dataset('ocean_cull_mask.nc')
         ocean_cull_mask = ds_ocean_cull_mask.oceanCullMask > 0
 
-        ds_land_ice_mask = xr.open_dataset('land_ice_mask_preliminary.nc')
+        ds_land_ice_mask = open_dataset('land_ice_mask_preliminary.nc')
         land_ice_mask = ds_land_ice_mask.landIceMask > 0
 
         # Exclude all land ice, not just the grounded ice
@@ -643,12 +643,12 @@ class CullMaskStep(Step):
         logger = self.logger
         logger.info('Creating land cull mask.')
 
-        ds_topo = xr.open_dataset('topography_unsmoothed.nc')
+        ds_topo = open_dataset('topography_unsmoothed.nc')
         land_frac = ds_topo.land_frac
         cull_mask = land_frac < 0.5
 
         cull_mask = self.refine_land_cull_mask(
-            ds_base_mesh=xr.open_dataset('base_mesh.nc'),
+            ds_base_mesh=open_dataset('base_mesh.nc'),
             ds_topo=ds_topo,
             cull_mask=cull_mask,
         )
@@ -666,12 +666,12 @@ class CullMaskStep(Step):
         logger = self.logger
         logger.info('Combining land and ocean cull masks.')
 
-        ds_ocean_cull_mask = xr.open_dataset('ocean_cull_mask.nc')
-        ds_ocean_no_cavities_cull_mask = xr.open_dataset(
+        ds_ocean_cull_mask = open_dataset('ocean_cull_mask.nc')
+        ds_ocean_no_cavities_cull_mask = open_dataset(
             'ocean_no_cavities_cull_mask.nc'
         )
-        ds_land_cull_mask = xr.open_dataset('land_cull_mask.nc')
-        ds_land_ice_mask = xr.open_dataset('land_ice_mask.nc')
+        ds_land_cull_mask = open_dataset('land_cull_mask.nc')
+        ds_land_ice_mask = open_dataset('land_ice_mask.nc')
 
         ds_masks = xr.Dataset()
         ds_masks['oceanCullMask'] = ds_ocean_cull_mask.oceanCullMask

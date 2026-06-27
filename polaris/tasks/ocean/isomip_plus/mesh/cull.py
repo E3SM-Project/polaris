@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
+from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.logging import LoggingContext
 from mpas_tools.mesh.conversion import cull
 from mpas_tools.mesh.creation.sort_mesh import sort_mesh
@@ -77,8 +77,8 @@ class CullMesh(Step):
                 min_ocean_fraction=min_ocean_fraction,
             )
 
-            ds_base = xr.open_dataset('base_mesh.nc')
-            ds_land_mask = xr.open_dataset('land_mask.nc')
+            ds_base = open_dataset('base_mesh.nc')
+            ds_land_mask = open_dataset('land_mask.nc')
 
             # cull the mesh based on the land mask
             ds_culled = cull(
@@ -101,7 +101,7 @@ class CullMesh(Step):
 
 
 def _land_mask_from_topo(topo_filename, mask_filename, min_ocean_fraction):
-    ds_topo = xr.open_dataset(topo_filename)
+    ds_topo = open_dataset(topo_filename)
 
     ocean_frac = ds_topo.oceanFraction
 
