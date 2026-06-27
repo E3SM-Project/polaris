@@ -1,5 +1,5 @@
 import cmocean  # noqa: F401
-import xarray as xr
+from mpas_tools.io import open_dataset
 
 from polaris import Step
 from polaris.viz import plot_global_mpas_field
@@ -64,7 +64,7 @@ class VizRemappedTopoStep(Step):
         config = self.config
         mesh_name = self.mesh_name
 
-        ds = xr.open_dataset('topography.nc')
+        ds = open_dataset('topography.nc')
 
         descriptor = None
 

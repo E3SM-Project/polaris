@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
+from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.logging import check_call
 from pyremap import MpasCellMeshDescriptor
 
@@ -215,7 +215,7 @@ class RemapTopoStep(Step):
             target = os.path.join(unsmoothed_path, target_filename)
             symlink(target, unsmoothed_filename)
 
-            ds_unsmoothed = xr.open_dataset(unsmoothed_filename)
+            ds_unsmoothed = open_dataset(unsmoothed_filename)
             self.expand_distance, self.expand_factor = self.define_smoothing(
                 ds_unsmoothed
             )
@@ -329,7 +329,7 @@ class RemapTopoStep(Step):
         section = config['remap_topography']
         renorm_threshold = section.getfloat('renorm_threshold')
 
-        ds_in = xr.open_dataset('topography_ncremap.nc')
+        ds_in = open_dataset('topography_ncremap.nc')
         ds_in = ds_in.rename({'ncol': 'nCells'})
 
         drop_vars = [

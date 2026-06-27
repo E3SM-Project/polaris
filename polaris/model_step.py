@@ -4,8 +4,8 @@ from collections import OrderedDict
 from typing import Dict, List, Union
 
 import numpy as np
-import xarray as xr
 from lxml import etree
+from mpas_tools.io import open_dataset
 from mpas_tools.logging import check_call
 
 import polaris.namelist
@@ -1044,7 +1044,7 @@ def make_graph_file(
         weights
     """
 
-    with xr.open_dataset(mesh_filename) as ds:
+    with open_dataset(mesh_filename) as ds:
         nCells = ds.sizes['nCells']
 
         nEdgesOnCell = ds.nEdgesOnCell.values

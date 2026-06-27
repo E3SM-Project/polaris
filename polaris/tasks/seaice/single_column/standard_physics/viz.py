@@ -1,7 +1,7 @@
 import importlib.resources as imp_res
 
 import matplotlib.pyplot as plt
-import xarray as xr
+from mpas_tools.io import open_dataset
 
 from polaris import Step
 
@@ -36,7 +36,7 @@ class Viz(Step):
         """
         style_filename = str(imp_res.files('polaris.viz') / 'polaris.mplstyle')
         plt.style.use(style_filename)
-        ds = xr.open_dataset('output.2000.nc', decode_times=False)
+        ds = open_dataset('output.2000.nc', decode_times=False)
         daysSinceStartOfSim = ds.daysSinceStartOfSim.values
         snowVolumeCell = ds.snowVolumeCell.values
         iceVolumeCell = ds.iceVolumeCell.values

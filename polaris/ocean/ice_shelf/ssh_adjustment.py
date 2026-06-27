@@ -1,6 +1,5 @@
 import numpy as np
-import xarray as xr
-from mpas_tools.io import write_netcdf
+from mpas_tools.io import open_dataset, write_netcdf
 
 from polaris import Step
 from polaris.constants import get_constant
@@ -67,9 +66,9 @@ class SshAdjustment(Step):
         init_filename = 'init.nc'
         final_filename = 'final.nc'
         out_filename = 'output.nc'
-        ds_mesh = xr.open_dataset(mesh_filename)
-        ds_init = xr.open_dataset(init_filename)
-        ds_final = xr.open_dataset(final_filename)
+        ds_mesh = open_dataset(mesh_filename)
+        ds_init = open_dataset(init_filename)
+        ds_final = open_dataset(final_filename)
         ds_out = ds_init.copy()
 
         if adjust_variable not in ['ssh', 'landIcePressure']:

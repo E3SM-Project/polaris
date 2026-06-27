@@ -1,5 +1,5 @@
 import numpy as np
-import xarray as xr
+from mpas_tools.io import open_dataset
 
 from polaris.constants import get_constant
 
@@ -16,7 +16,7 @@ def compute_exact_solution(alpha, vel_period, gh_0, mesh_filename):
     u_0 = 2 * np.pi * a / (vel_period * sec_per_day)
     h_0 = gh_0 / g
 
-    ds_mesh = xr.open_dataset(mesh_filename)
+    ds_mesh = open_dataset(mesh_filename)
     angleEdge = ds_mesh.angleEdge
     latCell = ds_mesh.latCell
     lonCell = ds_mesh.lonCell

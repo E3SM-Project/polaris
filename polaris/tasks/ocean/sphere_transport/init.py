@@ -1,5 +1,6 @@
 import numpy as np
 import xarray as xr
+from mpas_tools.io import open_dataset
 
 from polaris.constants import get_constant
 from polaris.ocean.coriolis import add_coriolis_to_dataset
@@ -83,7 +84,7 @@ class Init(OceanIOStep):
         section = config['vertical_grid']
         bottom_depth = section.getfloat('bottom_depth')
 
-        ds_mesh = xr.open_dataset('mesh.nc')
+        ds_mesh = open_dataset('mesh.nc')
         latCell = ds_mesh.latCell
         latEdge = ds_mesh.latEdge
         lonCell = ds_mesh.lonCell
