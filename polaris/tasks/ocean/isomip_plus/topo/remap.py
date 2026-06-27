@@ -1,6 +1,6 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
+from mpas_tools.io import open_dataset, write_netcdf
 
 from polaris import Step
 from polaris.constants import get_constant
@@ -120,7 +120,7 @@ class TopoRemap(Step):
 
     @staticmethod
     def _rename():
-        with xr.open_dataset('topography_ncremap.nc') as ds_out:
+        with open_dataset('topography_ncremap.nc') as ds_out:
             drop = ['x', 'y', 'area', 'lat_vertices', 'lon_vertices']
             if 't' in ds_out.dims:
                 # this confusing bit first drops the t coordinate, then renames
@@ -140,7 +140,7 @@ class TopoRemap(Step):
 
     @staticmethod
     def _renormalize():
-        with xr.open_dataset('topography_rename.nc') as ds_out:
+        with open_dataset('topography_rename.nc') as ds_out:
             if 'Time' in ds_out.dims:
                 ds_out = ds_out.chunk({'Time': 1})
             # renormalize all variables by ocean_frac

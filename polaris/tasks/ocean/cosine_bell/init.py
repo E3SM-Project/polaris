@@ -1,5 +1,6 @@
 import numpy as np
 import xarray as xr
+from mpas_tools.io import open_dataset
 from mpas_tools.transects import lon_lat_to_cartesian
 from mpas_tools.vector import Vector
 
@@ -62,7 +63,7 @@ class Init(OceanIOStep):
         section = config['vertical_grid']
         bottom_depth = section.getfloat('bottom_depth')
 
-        ds_mesh = xr.open_dataset('mesh.nc')
+        ds_mesh = open_dataset('mesh.nc')
         angleEdge = ds_mesh.angleEdge
         latCell = ds_mesh.latCell
         latEdge = ds_mesh.latEdge

@@ -1,7 +1,7 @@
 import os
 
 import xarray as xr
-from mpas_tools.io import write_netcdf
+from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.logging import check_call
 from mpas_tools.mesh.conversion import cull
 from mpas_tools.mesh.creation.sort_mesh import sort_mesh
@@ -138,14 +138,14 @@ class CullMeshStep(Step):
             'land': 'landCullMask',
         }
 
-        ds_cull_masks = xr.open_dataset('cull_masks.nc')
+        ds_cull_masks = open_dataset('cull_masks.nc')
         cull_mask = ds_cull_masks[cull_vars[prefix]]
         ds_mask = xr.Dataset()
         ds_mask['regionCellMasks'] = cull_mask.expand_dims(
             dim='nRegions', axis=1
         )
 
-        ds_base_mesh = xr.open_dataset('base_mesh.nc')
+        ds_base_mesh = open_dataset('base_mesh.nc')
 
         ds_culled_mesh = cull(
             dsIn=ds_base_mesh,

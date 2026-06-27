@@ -1,5 +1,6 @@
 import numpy as np
 import xarray as xr
+from mpas_tools.io import open_dataset
 from mpas_tools.transects import lon_lat_to_cartesian
 from mpas_tools.vector import Vector
 
@@ -80,7 +81,7 @@ class Analysis(ConvergenceAnalysis):
         psi0 = config.getfloat('cosine_bell', 'psi0')
         vel_pd = config.getfloat('cosine_bell', 'vel_pd')
 
-        ds_mesh = xr.open_dataset(f'mesh_r{refinement_factor:02g}.nc')
+        ds_mesh = open_dataset(f'mesh_r{refinement_factor:02g}.nc')
         sphere_radius = ds_mesh.sphere_radius
 
         ds_init = self.open_model_dataset(

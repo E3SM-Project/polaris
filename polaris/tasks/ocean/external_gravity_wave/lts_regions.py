@@ -2,8 +2,7 @@ import math
 
 import netCDF4 as nc
 import numpy as np
-import xarray as xr
-from mpas_tools.io import write_netcdf
+from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.viz.paraview_extractor import extract_vtk
 from shapely import distance
 from shapely.geometry import Point
@@ -117,7 +116,7 @@ def label_mesh(
     use_progress_bar,
 ):
     # read in mesh data
-    ds = xr.open_dataset(mesh)
+    ds = open_dataset(mesh)
     n_cells = ds['nCells'].size
     n_edges = ds['nEdges'].size
     area_cell = ds['areaCell'].values
@@ -151,7 +150,7 @@ def label_mesh(
 
     # copy the init file and add LTSRegion to it
 
-    ds_msh = xr.open_dataset(init)
+    ds_msh = open_dataset(init)
     ds_ltsmsh = ds_msh.copy(deep=True)
     ltsmsh_name = 'init.nc'
     write_netcdf(ds_ltsmsh, ltsmsh_name)

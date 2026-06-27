@@ -1,4 +1,4 @@
-import xarray as xr
+from mpas_tools.io import open_dataset
 
 from polaris.ocean.convergence.analysis import ConvergenceAnalysis
 from polaris.tasks.ocean.inertial_gravity_wave.exact_solution import (
@@ -74,7 +74,7 @@ class Analysis(ConvergenceAnalysis):
         solution : xarray.DataArray
             The exact solution as derived from the initial condition
         """
-        ds_mesh = xr.open_dataset(f'mesh_r{refinement_factor:02g}.nc')
+        ds_mesh = open_dataset(f'mesh_r{refinement_factor:02g}.nc')
         exact = ExactSolution(ds_mesh, self.config)
         if field_name != 'ssh':
             raise ValueError(f'{field_name} is not currently supported')

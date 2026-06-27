@@ -1,7 +1,7 @@
 import numpy as np
 import pyproj
-import xarray as xr
 from geometric_features import FeatureCollection
+from mpas_tools.io import open_dataset
 from mpas_tools.mesh.creation.signed_distance import (
     signed_distance_from_geojson,
 )
@@ -84,7 +84,7 @@ class SphericalMesh(QuasiUniformSphericalMeshStep):
         """
         super().run()
 
-        ds = xr.open_dataset('base_mesh_without_xy.nc')
+        ds = open_dataset('base_mesh_without_xy.nc')
         add_isomip_plus_xy(ds)
         ds.to_netcdf('base_mesh.nc')
 

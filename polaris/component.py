@@ -2,9 +2,8 @@ import importlib.resources as imp_res
 import json
 import os
 
-import xarray as xr
 from mache.parallel import ParallelSystem, get_parallel_system
-from mpas_tools.io import write_netcdf
+from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.logging import check_call
 
 from polaris.config import PolarisConfigParser
@@ -288,7 +287,7 @@ class Component:
         ds : xarray.Dataset
             The dataset with variables named as expected in MPAS-Ocean
         """
-        ds = xr.open_dataset(filename, **kwargs)
+        ds = open_dataset(filename, **kwargs)
         return ds
 
     def write_model_dataset(self, ds, filename, config):
