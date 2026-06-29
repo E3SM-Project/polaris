@@ -28,7 +28,11 @@ elif [[ "$CRONJOB_MACHINE" == "pm-cpu" ]]; then
     module load cray-python cmake
     PARMETIS_TPL="/global/cfs/cdirs/e3sm/software/polaris/pm-cpu/spack/dev_polaris_0_10_0_COMPILER_mpich/var/spack/environments/dev_polaris_0_10_0_COMPILER_mpich/.spack-env/view"
 
-elif [[ "$CRONJOB_MACHINE" == "unknown" ]]; then
+elif [[ "$CRONJOB_MACHINE" == "aurora" ]]; then
+    module load python cmake
+    PARMETIS_TPL="/lus/flare/projects/E3SM_Dec/soft/polaris/aurora/spack/dev_polaris_1.0.0/var/spack/environments/spack_env_oneapi-ifx_mpich/.spack-env/view"
+
+elif [[ "${CRONJOB_MACHINE:-unknown}" == "unknown" ]]; then
   echo "CRONJOB_MACHINE is not set."
   exit 1
 
@@ -126,7 +130,21 @@ run_baseline_suite() {
         cd "$polaris_build"
         echo "Submitting baseline job in $(pwd)..."
         # Fire and forget / continue on error
-        sbatch --wait job_script.omega_nightly.sh || true
+	case "${JOB_SCHEDULER}" in
+	  SLURM)
+	    sbatch --wait job_script.omega_nightly.sh || true
+	    ;;
+
+	  PBS)
+	    qsub -W block=true job_script.omega_nightly.sh || true
+	    ;;
+
+	  *)
+	    echo "Error: Unsupported JOB_SCHEDULER='${JOB_SCHEDULER}'." >&2
+	    exit 1
+	    ;;
+	esac
+
     else
         echo "Error: Baseline directory $polaris_build was not created."
     fi
