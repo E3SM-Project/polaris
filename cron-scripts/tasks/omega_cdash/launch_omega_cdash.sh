@@ -57,10 +57,27 @@ export CRONJOB_DATE
 export TESTROOT
 export OMEGA_ROOT
 
-sbatch \
-  --job-name=OmegaCdash \
-  --output="$CRONJOB_LOGDIR/omega_cdash_%j.out" \
-  --error="$CRONJOB_LOGDIR/omega_cdash_%j.err" \
-  "${HERE}/job_${CRONJOB_MACHINE}_omega_cdash.sbatch"
+case "${JOB_SCHEDULER}" in
+  SLURM)
+    sbatch \
+      --job-name=OmegaCdash \
+      --output="${CRONJOB_LOGDIR}/omega_cdash_%j.out" \
+      --error="${CRONJOB_LOGDIR}/omega_cdash_%j.err" \
+      "${HERE}/job_${CRONJOB_MACHINE}_omega_cdash.sbatch"
+    ;;
+
+  PBS)
+    qsub \
+      -N OmegaCdash \
+      -o "${CRONJOB_LOGDIR}/omega_cdash_${PBS_JOBID}.out" \
+      -e "${CRONJOB_LOGDIR}/omega_cdash_${PBS_JOBID}.err" \
+      "${HERE}/job_${CRONJOB_MACHINE}_omega_cdash.pbs"
+    ;;
+
+  *)
+    echo "Error: Unsupported job scheduler '${JOB_SCHEDULER}'." >&2
+    exit 1
+    ;;
+esac
 
 echo "[$(date)] Finished $SCRIPT_NAME"
