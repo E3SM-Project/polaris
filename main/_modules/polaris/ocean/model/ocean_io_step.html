@@ -247,10 +247,12 @@
         <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
             <span class="n">ds_vert_coord</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">vert_coord_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">&#39;Vertical coordinate variables not defined in the Ocean &#39;</span>
-                    <span class="s1">&#39;component&#39;</span>
-                <span class="p">)</span>
+                <span class="c1"># Populate the variable list lazily.  In a full task run it is</span>
+                <span class="c1"># set as a side effect of writing the initial state, but a</span>
+                <span class="c1"># step run on its own (e.g. re-running only a viz step) must</span>
+                <span class="c1"># load it here.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">_read_variables_yaml</span><span class="p">()</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">vert_coord_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">vert_coord_vars</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_init</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
