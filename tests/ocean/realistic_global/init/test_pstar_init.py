@@ -2,10 +2,34 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from polaris.ocean.vertical.ztilde import RhoSw
 from polaris.tasks.ocean.realistic_global.init.pstar_init import (
+    _clamp_geom_z_bot,
     _fill_tracer_columns,
     _geom_z_bot_from_topo,
 )
+
+
+def _sat_column(factor=1.0, nlevels=4, thickness=100.0, ncells=1):
+    """
+    Return (spec_vol, pseudo_thickness, cell_mask) for a uniform saturated
+    column where ``RhoSw * spec_vol == factor`` so the geometric thickness of
+    each layer is ``factor * thickness`` and ``D_max = factor * nlevels *
+    thickness``.
+    """
+    spec_vol = xr.DataArray(
+        np.full((1, ncells, nlevels), factor / RhoSw),
+        dims=['Time', 'nCells', 'nVertLevels'],
+    )
+    pseudo = xr.DataArray(
+        np.full((1, ncells, nlevels), thickness),
+        dims=['Time', 'nCells', 'nVertLevels'],
+    )
+    mask = xr.DataArray(
+        np.ones((ncells, nlevels), dtype=bool),
+        dims=['nCells', 'nVertLevels'],
+    )
+    return spec_vol, pseudo, mask
 
 
 def _make_topo_ds(base_elevations):
@@ -131,3 +155,80 @@ def test_fill_tracer_columns_deep_extrapolation():
     assert ct_out[0, 0, 2] == pytest.approx(5.0), (
         'Level below WOA23 should use deepest value (5.0)'
     )
+
+
+def test_clamp_geom_z_bot_deep_shallow_inrange():
+    """
+    D_max = 400 m, D_min = 300 m (top 3 of 4 layers): a too-deep target is
+    limited to -D_max, a too-shallow target is raised to -D_min, and an
+    in-range target is unchanged.
+    """
+    spec_vol, pseudo, mask = _sat_column(ncells=3)  # factor 1 -> D_max = 400
+    geom_z_bot = xr.DataArray([-10000.0, -350.0, -1.0], dims=['nCells'])
+
+    clamped = _clamp_geom_z_bot(
+        geom_z_bot=geom_z_bot,
+        spec_vol=spec_vol,
+        pseudo_thickness=pseudo,
+        cell_mask=mask,
+        min_bottom_depth=10.0,
+        min_vert_levels=3,
+    )
+
+    assert clamped.values == pytest.approx([-400.0, -350.0, -300.0])
+
+
+def test_clamp_geom_z_bot_min_bottom_depth_floor():
+    """With min_vert_levels=1 the depth floor comes from min_bottom_depth."""
+    spec_vol, pseudo, mask = _sat_column()  # top 1 layer -> 100 m
+    geom_z_bot = xr.DataArray([-1.0], dims=['nCells'])
+
+    clamped = _clamp_geom_z_bot(
+        geom_z_bot=geom_z_bot,
+        spec_vol=spec_vol,
+        pseudo_thickness=pseudo,
+        cell_mask=mask,
+        min_bottom_depth=150.0,
+        min_vert_levels=1,
+    )
+
+    # D_min = max(150, 100) = 150
+    assert clamped.values == pytest.approx([-150.0])
+
+
+def test_clamp_geom_z_bot_density_reduces_dmax():
+    """
+    A denser column (RhoSw*specVol = 0.9) yields a geometric column shorter
+    than its pseudo depth, so D_max = 0.9 * 400 = 360 m.
+    """
+    spec_vol, pseudo, mask = _sat_column(factor=0.9)
+    geom_z_bot = xr.DataArray([-10000.0], dims=['nCells'])
+
+    clamped = _clamp_geom_z_bot(
+        geom_z_bot=geom_z_bot,
+        spec_vol=spec_vol,
+        pseudo_thickness=pseudo,
+        cell_mask=mask,
+        min_bottom_depth=0.0,
+        min_vert_levels=3,
+    )
+
+    assert clamped.values == pytest.approx([-360.0])
+
+
+def test_clamp_geom_z_bot_preserves_attrs():
+    """An in-range target is returned unchanged with its attributes intact."""
+    spec_vol, pseudo, mask = _sat_column()
+    geom_z_bot = xr.DataArray([-350.0], dims=['nCells'], attrs={'units': 'm'})
+
+    clamped = _clamp_geom_z_bot(
+        geom_z_bot=geom_z_bot,
+        spec_vol=spec_vol,
+        pseudo_thickness=pseudo,
+        cell_mask=mask,
+        min_bottom_depth=10.0,
+        min_vert_levels=3,
+    )
+
+    assert clamped.attrs.get('units') == 'm'
+    assert clamped.values == pytest.approx([-350.0])
