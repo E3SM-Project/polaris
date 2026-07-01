@@ -11,9 +11,10 @@ from .cull_topo import CullTopoStep
 from .initial_state import InitialStateStep
 from .pstar_init import RealisticPStarInitStep
 from .remap_woa23 import RemapWoa23Step
+from .viz import VizInitStep
 
 
-def get_realistic_init_steps(component, mesh_name):
+def get_realistic_init_steps(component, mesh_name, include_viz=False):
     """
     Get shared steps for the realistic global ocean initialisation workflow
     for one MPAS mesh.
@@ -43,6 +44,15 @@ def get_realistic_init_steps(component, mesh_name):
 
     mesh_name : str
         The name of the MPAS mesh (e.g. ``'icos240km'``).
+
+    include_viz : bool, optional
+        Whether to include the (shared) :py:class:`.VizInitStep` in the
+        returned steps.  The step is always created as a shared component step
+        so it is part of the workflow, but it is only added to the returned
+        dict (and therefore to a task's ``steps_to_run``) when this is
+        ``True``.  The standalone ``RealisticGlobalInit`` task passes
+        ``include_viz=True``; other consumers that reuse the init outputs as
+        dependencies leave it ``False`` so the plots are not regenerated.
 
     Returns
     -------
@@ -101,12 +111,23 @@ def get_realistic_init_steps(component, mesh_name):
         cull_mesh_step=cull_mesh_step,
     )
 
+    viz_step = component.get_or_create_shared_step(
+        step_cls=VizInitStep,
+        subdir=os.path.join(base_subdir, 'viz'),
+        config=config,
+        config_filename=config_filename,
+        init_step=init_step,
+        cull_mesh_step=cull_mesh_step,
+    )
+
     steps: dict[str, Step] = dict(cull_steps)
     steps.update(woa23_steps)
     steps[cull_topo_step.name] = cull_topo_step
     steps[remap_step.name] = remap_step
     steps[pstar_init_step.name] = pstar_init_step
     steps[init_step.name] = init_step
+    if include_viz:
+        steps[viz_step.name] = viz_step
     return steps, config
 
 
