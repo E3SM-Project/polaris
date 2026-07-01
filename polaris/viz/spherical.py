@@ -185,7 +185,10 @@ def plot_global_mpas_field(
         cbar.set_ticks(ticks)
         cbar.set_ticklabels([f'{tick}' for tick in ticks])
 
-    fig.savefig(out_filename, bbox_inches='tight', pad_inches=0.1)
+    # Let constrained_layout manage the margins; combining it with
+    # bbox_inches='tight' on a fixed-aspect GeoAxes with an attached colorbar
+    # can collapse the map axes so only part of the globe is drawn.
+    fig.savefig(out_filename)
 
 
 def plot_global_lat_lon_field(
