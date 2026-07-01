@@ -4,7 +4,14 @@ import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
 
+from polaris.ocean.eos import compute_specvol
+from polaris.ocean.vertical.grid_1d import generate_1d_grid
 from polaris.ocean.vertical.pstar_init import PStarInitStep
+from polaris.ocean.vertical.ztilde import (
+    Gravity,
+    RhoSw,
+    pressure_from_z_tilde,
+)
 
 
 class RealisticPStarInitStep(PStarInitStep):
@@ -118,8 +125,81 @@ class RealisticPStarInitStep(PStarInitStep):
         ds_topo = xr.open_dataset('topography_culled.nc')
         geom_z_bot = _geom_z_bot_from_topo(ds_topo)
 
+        geom_z_bot = self._clamp_to_representable_depth(ds_mesh, geom_z_bot)
+
         ds_out = self.run_pstar_init(ds_mesh, geom_z_bot)
         write_netcdf(ds_out, 'pstar_init.nc')
+
+    def _clamp_to_representable_depth(self, ds_mesh, geom_z_bot):
+        """
+        Clamp the target seafloor ``geom_z_bot`` into the geometric depth range
+        the p-star reference grid can actually represent, so the downstream
+        :py:meth:`run_pstar_init` fixed-point iteration converges to a resting
+        state (``ssh = 0``) instead of leaving a residual sea-surface height in
+        cells whose bathymetry is deeper than the grid (or too shallow to form
+        a valid column).
+
+        The maximum representable geometric column depth ``D_max`` is the
+        geometric thickness of a fully saturated column (pseudo-thicknesses
+        equal to the full reference grid), computed once here by reusing the
+        inherited :py:meth:`_build_pstar_coord_ds` and this step's
+        :py:meth:`init_tracers`.
+
+        Parameters
+        ----------
+        ds_mesh : xarray.Dataset
+            Horizontal mesh dataset.
+
+        geom_z_bot : xarray.DataArray
+            Target geometric seafloor height (negative, m) with dimension
+            ``nCells``.
+
+        Returns
+        -------
+        xarray.DataArray
+            ``geom_z_bot`` clamped into the representable range.
+        """
+        config = self.config
+
+        interfaces = generate_1d_grid(config=config)
+        max_ref_pseudo_depth = float(interfaces[-1])
+        p_max = RhoSw * Gravity * max_ref_pseudo_depth
+
+        ncells = ds_mesh.sizes['nCells']
+        surface_pressure = xr.DataArray(
+            data=np.zeros(ncells, dtype=float), dims=['nCells']
+        )
+        bottom_pressure = xr.full_like(surface_pressure, p_max)
+
+        ds_sat = self._build_pstar_coord_ds(
+            ds_mesh, bottom_pressure, surface_pressure
+        )
+        ct, sa = self.init_tracers(ds_sat)
+        p_mid = pressure_from_z_tilde(ds_sat.ZTildeMid)
+        spec_vol = compute_specvol(
+            config=config, temperature=ct, salinity=sa, pressure=p_mid
+        )
+
+        min_bottom_depth = config.getfloat('vertical_grid', 'min_bottom_depth')
+        min_vert_levels = config.getint('vertical_grid', 'min_vert_levels')
+
+        clamped = _clamp_geom_z_bot(
+            geom_z_bot=geom_z_bot,
+            spec_vol=spec_vol,
+            pseudo_thickness=ds_sat.PseudoThickness,
+            cell_mask=ds_sat.cellMask,
+            min_bottom_depth=min_bottom_depth,
+            min_vert_levels=min_vert_levels,
+        )
+
+        n_deep = int((clamped > geom_z_bot).sum())
+        n_shallow = int((clamped < geom_z_bot).sum())
+        self.logger.info(
+            'Clamped geom_z_bot to the representable p-star column: '
+            f'{n_deep} cells limited to the reference-grid depth, '
+            f'{n_shallow} cells raised to the minimum depth.'
+        )
+        return clamped
 
     def init_tracers(
         self, ds: xr.Dataset
@@ -196,6 +276,69 @@ class RealisticPStarInitStep(PStarInitStep):
             },
         )
         return ct, sa
+
+
+def _clamp_geom_z_bot(
+    geom_z_bot,
+    spec_vol,
+    pseudo_thickness,
+    cell_mask,
+    min_bottom_depth,
+    min_vert_levels,
+):
+    """
+    Clamp the target seafloor height into the representable geometric depth
+    range ``[-D_max, -D_min]``.
+
+    ``D_max`` is the geometric thickness of the (saturated) column described by
+    ``spec_vol`` and ``pseudo_thickness``; ``D_min`` is the deeper of
+    ``min_bottom_depth`` and the geometric depth needed to supply
+    ``min_vert_levels`` layers (never deeper than ``D_max``).
+
+    Parameters
+    ----------
+    geom_z_bot : xarray.DataArray
+        Target geometric seafloor height (negative, m) with dimension
+        ``nCells``.
+
+    spec_vol : xarray.DataArray
+        Specific volume of the saturated column
+        (``(Time,) nCells, nVertLevels``).
+
+    pseudo_thickness : xarray.DataArray
+        Pseudo-thickness of the saturated column, same shape as ``spec_vol``.
+
+    cell_mask : xarray.DataArray
+        Boolean mask of valid layers (``nCells, nVertLevels``).
+
+    min_bottom_depth : float
+        Minimum geometric water-column depth (m).
+
+    min_vert_levels : int
+        Minimum number of layers a valid column must contain.
+
+    Returns
+    -------
+    xarray.DataArray
+        ``geom_z_bot`` clamped so that ``-D_max <= geom_z_bot <= -D_min``.
+    """
+    geom_thickness = (RhoSw * spec_vol * pseudo_thickness).where(
+        cell_mask, 0.0
+    )
+    if 'Time' in geom_thickness.dims:
+        geom_thickness = geom_thickness.isel(Time=0)
+
+    d_max = geom_thickness.sum(dim='nVertLevels')
+    depth_for_min_levels = geom_thickness.isel(
+        nVertLevels=slice(0, min_vert_levels)
+    ).sum(dim='nVertLevels')
+    d_min = np.minimum(
+        np.maximum(min_bottom_depth, depth_for_min_levels), d_max
+    )
+
+    clamped = np.minimum(np.maximum(geom_z_bot, -d_max), -d_min)
+    clamped.attrs = dict(geom_z_bot.attrs)
+    return clamped
 
 
 def _geom_z_bot_from_topo(ds_topo):
