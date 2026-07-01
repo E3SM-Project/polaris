@@ -77,19 +77,32 @@ class ReferenceColumn:
 
         # Surface anchor. The model honours the surface boundary (sea-surface
         # height and surface pressure), so the reference integral is anchored
-        # there rather than at the seafloor. These are kept fully general so a
-        # follow-up surface-pressure test (nonzero geom_ssh_grad and/or a
-        # nonzero top z_tilde node) is supported without further changes.
-        geom_ssh_grad = section.getfloat('geom_ssh_grad')
+        # there rather than at the seafloor. A nonzero surface gauge pressure
+        # depresses the surface pseudo-height by -p_surf / (RhoSw * Gravity);
+        # its gradient drives the surface-pressure HPGA. A nonzero top z_tilde
+        # node is also supported and adds to the surface pseudo-height.
         z_tilde_mid = section.getnumpy('z_tilde_mid')
         z_tilde_grad = section.getnumpy('z_tilde_grad')
         # the surface is the shallowest (largest) pseudo-height node
         surf_node = int(np.argmax(z_tilde_mid))
 
-        self._z_tilde_surf = float(z_tilde_mid[surf_node])
+        p_surf_mid, p_surf_grad = _get_surface_pressure_mid_grad(config)
+        p_surf_depression = p_surf_mid / (RhoSw * Gravity)
+        p_surf_depression_grad = p_surf_grad / (RhoSw * Gravity)
+
+        self._z_tilde_surf = float(z_tilde_mid[surf_node] - p_surf_depression)
         # Convert config gradients from m/km to m/m; project onto edge normal
+        zt_surf_grad = z_tilde_grad[surf_node] - p_surf_depression_grad
+        self._zt_surf_prime = (zt_surf_grad / 1000.0) * x_sign
+
+        # Sea-surface-height gradient eta'. When geom_ssh is not configured it
+        # defaults to the resting surface-pressure depression gradient,
+        # mirroring the init step's run_pstar_init default.
+        if config.has_option('horiz_press_grad', 'geom_ssh_grad'):
+            geom_ssh_grad = section.getfloat('geom_ssh_grad')
+        else:
+            geom_ssh_grad = -p_surf_depression_grad
         self._eta_prime = (geom_ssh_grad / 1000.0) * x_sign
-        self._zt_surf_prime = (z_tilde_grad[surf_node] / 1000.0) * x_sign
 
         # Evaluate node arrays at x = 0, +eps, -eps in km (config x direction)
         x_eval = np.array([0.0, eps_km, -eps_km])
@@ -238,6 +251,25 @@ class ReferenceColumn:
             if layer_dz[k] > 0.0:
                 result[k] = np.dot(wts_arr[s0:s1], a_arr[s0:s1]) / layer_dz[k]
         return result
+
+
+def _get_surface_pressure_mid_grad(
+    config: PolarisConfigParser,
+) -> tuple[float, float]:
+    """
+    Read the surface gauge pressure midpoint value and gradient (Pa and
+    Pa/km) from the ``horiz_press_grad`` section, defaulting to zero when the
+    options are not configured.
+    """
+    section = config['horiz_press_grad']
+    if config.has_option(
+        'horiz_press_grad', 'surface_pressure_mid'
+    ) and config.has_option('horiz_press_grad', 'surface_pressure_grad'):
+        return (
+            section.getfloat('surface_pressure_mid'),
+            section.getfloat('surface_pressure_grad'),
+        )
+    return 0.0, 0.0
 
 
 class _ClampedInterp:

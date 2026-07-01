@@ -212,11 +212,12 @@ def test_nonzero_surface_pressure_shifts_pressures():
     SSH = -SP/(RhoSw * Gravity).
 
     For constant density equal to RhoSw the coordinate converges in two
-    iterations. The target SSH is -ssp/(RhoSw*Gravity), so bottomDepth equals
-    target_depth - ssp/(RhoSw*Gravity) (the actual water-column thickness
-    between the depressed surface and the seafloor).  The reference grid needs
-    to reach pseudo_bottom_depth = target_depth (not target_depth +
-    ssp/(RhoSw*Gravity)) because the SP terms cancel in the initial BP.
+    iterations. The target SSH is -ssp/(RhoSw*Gravity). bottomDepth is the
+    geometric seafloor depth below z=0 (Omega's BottomGeomDepth), i.e.
+    -geom_z_bot = target_depth, independent of the surface pressure.  The
+    reference grid needs to reach pseudo_bottom_depth = target_depth (not
+    target_depth + ssp/(RhoSw*Gravity)) because the SP terms cancel in the
+    initial BP.
     """
     target_depth = 500.0
     # ~1 m of water-column pressure (well below the 500 m column)
@@ -247,8 +248,9 @@ def test_nonzero_surface_pressure_shifts_pressures():
     ssh = float(ds.ssh.values.flat[0])
     np.testing.assert_allclose(ssh, expected_ssh, rtol=1e-10)
 
-    # bottomDepth is the actual water column: SSH − geom_z_bot.
-    expected_bottom_depth = expected_ssh - float(geom_z_bot.values.flat[0])
+    # bottomDepth is the geometric seafloor depth below z=0 (Omega's
+    # BottomGeomDepth), i.e. −geom_z_bot, independent of the surface pressure.
+    expected_bottom_depth = -float(geom_z_bot.values.flat[0])
     bottom_depth = float(ds.bottomDepth.values.flat[0])
     np.testing.assert_allclose(bottom_depth, expected_bottom_depth, rtol=1e-10)
 
@@ -321,7 +323,8 @@ def test_surface_pressure_total_pseudo_thickness():
 
 def test_two_cell_surface_pressure_gradient():
     """Two cells with different surface pressures each converge to
-    ssh[i] = −SP[i]/(ρ₀g) and bottomDepth[i] = ssh[i] − geom_z_bot.
+    ssh[i] = −SP[i]/(ρ₀g) and bottomDepth[i] = −geom_z_bot (the geometric
+    seafloor depth below z=0, independent of the surface pressure).
     Each cell's ZTildeInterface top equals ssh[i].
 
     This directly mimics the surface_pressure_gradient geometry and
@@ -348,9 +351,7 @@ def test_two_cell_surface_pressure_gradient():
 
     for i in range(ncells):
         expected_ssh = -ssp[i] / (RhoSw * Gravity)
-        expected_bottom_depth = expected_ssh - float(
-            geom_z_bot.isel(nCells=i).values
-        )
+        expected_bottom_depth = -float(geom_z_bot.isel(nCells=i).values)
 
         ssh = float(ds.ssh.isel(nCells=i).values)
         np.testing.assert_allclose(
