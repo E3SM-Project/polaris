@@ -1,6 +1,5 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
@@ -15,7 +14,7 @@ class Init(OceanIOStep):
     test cases
     """
 
-    def __init__(self, component, indir, ideal_age=False):
+    def __init__(self, component, subdir):
         """
         Create the step
 
@@ -27,12 +26,8 @@ class Init(OceanIOStep):
         indir : str
             The subdirectory that the task belongs to, that this step will
             go into a subdirectory of
-
-        ideal_age : bool, optional
-            Whether the initial condition should include the ideal age tracer
         """
-        super().__init__(component=component, name='init', indir=indir)
-        self.ideal_age = ideal_age
+        super().__init__(component=component, name='init', subdir=subdir)
 
     def setup(self):
         super().setup()
@@ -50,7 +45,6 @@ class Init(OceanIOStep):
         logger = self.logger
         config = self.config
         section = config['single_column']
-        ideal_age = self.ideal_age
         resolution = section.getfloat('resolution')
         nx = section.getint('nx')
         ny = section.getint('ny')
@@ -58,7 +52,7 @@ class Init(OceanIOStep):
         ds_mesh = make_planar_hex_mesh(
             nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=False
         )
-        write_netcdf(ds_mesh, 'base_mesh.nc')
+        self.write_model_dataset(ds_mesh, 'base_mesh.nc', config)
         ds_mesh = cull(ds_mesh, logger=logger)
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
@@ -142,8 +136,8 @@ class Init(OceanIOStep):
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
 
-        if ideal_age:
-            ds['idealAgeTracers'] = xr.zeros_like(x_cell)
+        # We include this variable in initial conditions even when unused
+        ds['idealAgeTracers'] = xr.zeros_like(x_cell)
 
         ds['temperature'] = temperature
         ds['salinity'] = salinity
@@ -154,10 +148,9 @@ class Init(OceanIOStep):
         ds.attrs['dc'] = dc
 
         self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
-        self.write_initial_state_dataset(ds, 'init.nc', config)
 
         # create forcing stream
-        ds_forcing = xr.Dataset()
+        ds_forcing = ds.copy()
         forcing_array = xr.ones_like(temperature)
         forcing_array_surface = xr.ones_like(ds.bottomDepth)
         forcing_array_surface = forcing_array_surface.expand_dims(
@@ -240,4 +233,12 @@ class Init(OceanIOStep):
         ds_forcing['icebergFreshWaterFlux'] = (
             iceberg_flux * forcing_array_surface
         )
-        write_netcdf(ds_forcing, 'forcing.nc')
+        restoring_values = np.zeros((2, ds_forcing.sizes['nCells']))
+        restoring_values[0, :] = temperature_surface_restoring_value
+        restoring_values[1, :] = salinity_surface_restoring_value
+        ds_forcing['TracersMonthlySurfClimoCell'] = xr.DataArray(
+            restoring_values[np.newaxis, :, :],
+            dims=('time', 'NTracers', 'NCells'),
+        )
+        self.write_initial_state_dataset(ds_forcing, 'init.nc', config)
+        self.write_model_dataset(ds_forcing, 'forcing.nc', config)

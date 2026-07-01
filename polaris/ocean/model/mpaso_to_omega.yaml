@@ -183,6 +183,21 @@ config:
     config_disable_vel_pgrad: not PressureGradTendencyEnable
 
 - section:
+    debug: Tendencies
+  options:
+    config_disable_vel_vmix: not VelVertMixTendencyEnable
+
+- section:
+    tracer_forcing_activeTracers: SurfaceRestoring
+  options:
+    config_salinity_restoring_constant_piston_velocity: PistonVelocity
+
+- section:
+    tracer_forcing_activeTracers: Tendencies
+  options:
+    config_use_activeTracers_surface_restoring: SurfaceTracerRestoringEnable
+
+- section:
     bottom_drag: Tendencies
   options:
     config_explicit_bottom_drag_coeff: BottomDragCoeff
@@ -228,6 +243,7 @@ config:
     cvmix: [VertMix, Shear]
   options:
     config_use_cvmix_shear: Enable
-    config_cvmix_shear_PP_nu_zero: NuZero
-    config_cvmix_shear_PP_alpha: Alpha
-    config_cvmix_shear_PP_exp: Exponent
+    config_cvmix_shear_KPP_nu_zero: BaseShearValue
+    config_cvmix_shear_KPP_Ri_zero: RiCrit
+    config_cvmix_shear_KPP_exp: Exponent
+    config_cvmix_num_ri_smooth_loops: RiSmoothLoops

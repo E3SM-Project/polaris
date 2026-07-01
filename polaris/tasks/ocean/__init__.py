@@ -652,7 +652,6 @@ def _add_reconstructed_variables_to_dataset(
 ):
     """
     Add reconstructed vector variables to the dataset if requested.
-
     Parameters
     ----------
     ds : xarray.Dataset
@@ -661,8 +660,8 @@ def _add_reconstructed_variables_to_dataset(
     reconstruct_variables : list of str or None
         List of variable names to reconstruct.
 
-    mesh_filename : str
-        Path to the mesh NetCDF file.
+    ds_mesh : xarray.Dataset
+        The mesh dataset
 
     coeffs_filename : str
         Path to the coefficients NetCDF file.
@@ -674,6 +673,12 @@ def _add_reconstructed_variables_to_dataset(
     """
     if reconstruct_variables is None:
         return ds
+
+    if coeffs_filename is None:
+        raise ValueError(
+            'coeffs_filename must be provided to open_model_dataset for '
+            'variable reconstruction'
+        )
 
     for variable in reconstruct_variables:
         if variable not in ds:
@@ -688,9 +693,6 @@ def _add_reconstructed_variables_to_dataset(
             else variable
         )
 
-        if f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds:
-            continue
-
         ds_coeff = xr.open_dataset(coeffs_filename)
         coeffs_reconstruct = ds_coeff.coeffs_reconstruct
 
@@ -699,18 +701,22 @@ def _add_reconstructed_variables_to_dataset(
                 f'The sizes of coefficient dataset do not match mesh '
                 f'dataset; exiting without reconstructing {out_var_name}'
             )
-            continue
 
-        reconstruct_variable(
-            out_var_name,
-            ds[variable],
-            ds_mesh,
-            coeffs_reconstruct,
-            ds,
-            quiet=True,
-        )
+            reconstruct_variable(
+                out_var_name,
+                ds[variable],
+                ds_mesh,
+                coeffs_reconstruct,
+                ds,
+                quiet=True,
+            )
 
-    return ds
+        if not (
+            f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds
+        ):
+            print(f'Failed to reconstruct {out_var_name}')
+
+        return ds
 
 
 # create a single module-level instance available to other components
