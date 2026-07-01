@@ -59,7 +59,8 @@ This design document describes:
 This capability is needed wherever the p-star coordinate must be initialized from a
 known geometric seafloor depth. Its first concrete users are idealized test cases such as
 `ocean/horiz_press_grad`, which already implements the algorithm but embeds it in
-task-specific code, and the planned realistic initialization task. The design is
+task-specific code, and the planned realistic initialization task described in the
+companion design document [global_ocean_init.md](global_ocean_init.md). The design is
 successful if the iteration logic is cleanly separated from the CT/SA initialization
 strategy, and if the same base class and algorithm serve both idealized and realistic use
 cases without modification.
@@ -225,7 +226,7 @@ invoked within the outer loop.
 
 ### Algorithm Design: CT and SA can be initialized on the p-star coordinate through a pluggable interface
 
-Date last modified: 2026/06/13
+Date last modified: 2026/06/14
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -249,7 +250,8 @@ Several concrete initialization strategies are envisioned:
 3. **Observational hydrography** (planned for realistic initialization): CT and SA are
    interpolated from a pre-processed hydrography product that has already been remapped
    to the MPAS horizontal mesh; at each outer iteration, vertical interpolation from the
-   source depth levels to the current p-star midpoints is performed.
+   source depth levels to the current p-star midpoints is performed. This strategy is
+   described in more detail in [global_ocean_init.md](global_ocean_init.md).
 
 The interface constrains only what the method receives and returns; it does not constrain
 how CT and SA are computed. The method may access `self.config`, `self.logger`, or any
@@ -453,7 +455,7 @@ behaviour is unexpected.
 
 ### Implementation: The capability is reusable across idealized and realistic initialization tasks
 
-Date last modified: 2026/06/13
+Date last modified: 2026/06/14
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -469,14 +471,16 @@ it with a per-cell loop that sets a per-cell reference depth in a local config c
 constructing each column's coordinate. This override pattern is consistent in style with
 the `init_tracers` interface and keeps the per-cell logic in the subclass.
 
-The planned realistic initialization step (`ocean/realistic/init`) will subclass
-`PStarInitStep` and implement `init_tracers` to read from the WOA hydrography product.
-In that context, CT/SA initialization at each outer iteration involves sampling a
-pre-computed hydrography product that has been remapped to the MPAS horizontal mesh, then
-interpolating vertically from the source depth levels to the current p-star layer
-midpoints. The mesh file for realistic initialization comes from an upstream `e3sm/init`
-cull step rather than being constructed by the init step itself, so only `vert_coord.nc`
-and `init.nc` are produced by `PStarInitStep` in that context.
+The planned realistic initialization step (`ocean/spherical/realistic_global/init`)
+will subclass `PStarInitStep` as `RealisticPStarInitStep` and implement `init_tracers`
+to read from the WOA hydrography product described in
+[global_ocean_init.md](global_ocean_init.md). In that context, CT/SA initialization at
+each outer iteration involves sampling a pre-computed hydrography product that has been
+remapped to the MPAS horizontal mesh, then interpolating vertically from the source depth
+levels to the current p-star layer midpoints. The mesh file for realistic initialization
+comes from an upstream `e3sm/init` cull step rather than being constructed by the init
+step itself, so only `vert_coord.nc` and `init.nc` are produced by `PStarInitStep` in
+that context.
 
 ## Testing
 
