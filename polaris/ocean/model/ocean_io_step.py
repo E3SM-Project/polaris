@@ -128,7 +128,7 @@ class OceanIOStep(Step, OceanModelFilesMixin):
             if self.component.vert_coord_vars is None:
                 # Populate the variable list lazily.  In a full task run it is
                 # set as a side effect of writing the initial state, but a
-                # step run on its own (e.g. re-running only the viz step) must
+                # step run on its own (e.g. re-running only a viz step) must
                 # load it here.
                 self.component._read_variables_yaml()
             assert self.component.vert_coord_vars is not None
