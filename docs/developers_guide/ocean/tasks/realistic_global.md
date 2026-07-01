@@ -110,3 +110,47 @@ composes the full chain:
    `vert_coord.nc` additionally for Omega).  Tracer fields are kept as CT/SA
    for Omega and converted to potential temperature / practical salinity for
    MPAS-Ocean via GSW.
+5. **viz** ({py:class}`~polaris.tasks.ocean.realistic_global.init.viz.VizInitStep`):
+   visualizes and sanity-checks the initial condition and vertical-coordinate
+   datasets (see below).
+
+### viz
+
+The {py:class}`~polaris.tasks.ocean.realistic_global.init.viz.VizInitStep`
+step is a *shared* step that is only added to a task's `steps_to_run` when
+`get_realistic_init_steps` is called with `include_viz=True` (as the standalone
+`RealisticGlobalInit` task does).  Other consumers that reuse the init outputs
+as dependencies leave it out of their run list so the plots are not
+regenerated.
+
+The step is model-agnostic.  It reads through
+{py:meth}`~polaris.ocean.model.OceanIOStep.open_model_dataset` — which maps
+Omega variable names to their MPAS-Ocean equivalents and reconstructs the
+geometric `layerThickness` from Omega's `PseudoThickness` — and
+{py:meth}`~polaris.ocean.model.OceanIOStep.open_vert_coord_dataset`, so the
+maps and transects use MPAS-Ocean names for both models.  It produces:
+
+* `initial_state_summary.png`: histograms of the initial condition (a
+  de-Haney'd port of Compass' `plot_initial_state`).  The prognostic
+  layer-thickness panel shows each model's *native* variable —
+  `layerThickness` for MPAS-Ocean and `PseudoThickness` for Omega — read from
+  the raw output file.
+* `vertical_coordinate.png`: the vertical-coordinate structure derived from the
+  geometric `restingThickness` of the deepest column (there are no
+  `refMidDepth`/`refBottomDepth` reference profiles in this workflow).
+* global native-mesh maps (via {py:func}`polaris.viz.plot_global_mpas_field`)
+  of temperature and salinity at the depths listed in
+  `[realistic_global_init_viz] depths`, plus surface and seafloor, and
+  `bottomDepth`, `ssh`, `maxLevelCell` and column thickness.  For Omega the
+  more native `surfacePressure` and `bottomPressure` are also plotted when
+  present.
+* vertical transects (via `mpas_tools` `compute_transect`/`plot_transect`) of
+  temperature and salinity along each transect in
+  `[realistic_global_init_viz_transects]`.
+* **Omega only**: a stratification check using the TEOS-10 in-situ `Density`
+  (global surface/seafloor maps and transects).  Density is not plotted for
+  MPAS-Ocean, whose equation of state differs and is not evaluated here.
+* `xdmf/init/` and (Omega) `xdmf/vert_coord/`: XDMF/HDF5 exports for ParaView,
+  produced with {py:class}`mpas_tools.viz.mpas_to_xdmf.MpasToXdmf`.  For Omega
+  the native variable names are preserved and only the dimension names are
+  renamed to their MPAS-Ocean equivalents, as required by the converter.

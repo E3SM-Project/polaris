@@ -82,3 +82,63 @@ extrap_threshold = 0.01
 The local `combine` and `extrapolate` steps run serially. The
 `combine_topo` step is intended to use the cached `e3sm/init` output because
 regenerating the combined topography product is substantially more expensive.
+
+(ocean-realistic-global-init)=
+
+## init
+
+The `init` task creates a mesh-specific ocean initial condition (and, for
+Omega, a vertical-coordinate file) from the WOA23 hydrography and the culled
+mesh from `e3sm/init`.  One `realistic_global_init` task is registered per MPAS
+mesh; the target model (MPAS-Ocean or Omega) is set by the `[ocean] model`
+config option.
+
+### visualization
+
+The task ends in a `viz` step that runs by default and writes sanity-check
+plots and ParaView exports for the initial condition and vertical coordinate:
+an `initial_state_summary.png` figure of histograms, a
+`vertical_coordinate.png` structure figure, global maps of temperature and
+salinity at several depths (plus surface and seafloor) and of topography and
+column diagnostics, vertical transects across the major ocean basins, and
+`xdmf/` subdirectories for ParaView.  For Omega, native surface/bottom pressure
+maps and a TEOS-10 in-situ density (stratification) check are also produced.
+
+### config options
+
+```cfg
+# Options for the realistic global init visualization step
+[realistic_global_init_viz]
+
+# Projection for the global maps, must be supported by polaris.viz
+projection = Robinson
+
+# Longitude of the center of the global maps
+central_longitude = 200.
+
+# Depths (m below the surface) at which to plot global temperature/salinity
+# maps.  One vertical level is selected per depth; its actual depth may vary.
+depths = 0, 100, 500, 1000, 2000, 4000
+
+# the type of norm used in the colormaps (set per-variable at run time)
+norm_type = linear
+
+# additional arguments to provide to the colormap norm (set at run time)
+norm_args = {}
+
+
+# Vertical transects to plot, crossing relevant ocean basins.  Each named
+# transect is a list of an even number (>= 4) of values giving alternating
+# lon, lat waypoints in degrees.
+[realistic_global_init_viz_transects]
+
+# comma-separated list of transects to plot (each defined as an option below)
+transects = atlantic_meridional, pacific_meridional, indian_meridional,
+    southern_ocean_zonal
+
+atlantic_meridional = -30.0, -60.0, -30.0, 65.0
+pacific_meridional = -150.0, -60.0, -150.0, 60.0
+indian_meridional = 80.0, -60.0, 80.0, 25.0
+southern_ocean_zonal = -180.0, -60.0, -90.0, -60.0, 0.0, -60.0, 90.0, -60.0,
+    180.0, -60.0
+```
