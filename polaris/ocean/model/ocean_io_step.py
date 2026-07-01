@@ -126,10 +126,12 @@ class OceanIOStep(Step, OceanModelFilesMixin):
         elif model == 'mpas-ocean':
             ds_vert_coord = xr.Dataset()
             if self.component.vert_coord_vars is None:
-                raise ValueError(
-                    'Vertical coordinate variables not defined in the Ocean '
-                    'component'
-                )
+                # Populate the variable list lazily.  In a full task run it is
+                # set as a side effect of writing the initial state, but a
+                # step run on its own (e.g. re-running only the viz step) must
+                # load it here.
+                self.component._read_variables_yaml()
+            assert self.component.vert_coord_vars is not None
             for var in self.component.vert_coord_vars:
                 if var not in ds_init:
                     raise ValueError(
