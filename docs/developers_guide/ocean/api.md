@@ -589,6 +589,10 @@
    initial_state.InitialStateStep
    initial_state.InitialStateStep.setup
    initial_state.InitialStateStep.run
+
+   viz.VizInitStep
+   viz.VizInitStep.setup
+   viz.VizInitStep.run
 ```
 
 ### seamount
