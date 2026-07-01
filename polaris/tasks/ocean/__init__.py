@@ -4,7 +4,7 @@ from typing import Dict, Tuple, Union
 
 import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
+from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.vector.reconstruct import reconstruct_variable
 from ruamel.yaml import YAML
 
@@ -475,7 +475,7 @@ class Ocean(Component):
         ds : xarray.Dataset
             The dataset with variables named as expected in MPAS-Ocean
         """
-        ds = xr.open_dataset(filename, **kwargs)
+        ds = open_dataset(filename, **kwargs)
         if (
             self.model == 'omega'
             and 'layerThickness' not in ds.keys()
@@ -691,7 +691,7 @@ def _add_reconstructed_variables_to_dataset(
         if f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds:
             continue
 
-        ds_coeff = xr.open_dataset(coeffs_filename)
+        ds_coeff = open_dataset(coeffs_filename)
         coeffs_reconstruct = ds_coeff.coeffs_reconstruct
 
         if ds_coeff.sizes['nCells'] != ds_mesh.sizes['nCells']:

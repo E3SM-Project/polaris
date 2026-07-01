@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 from jigsawpy.savejig import savejig
-from mpas_tools.io import write_netcdf
+from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.logging import check_call
 from mpas_tools.mesh.creation.jigsaw_to_netcdf import jigsaw_to_netcdf
 from mpas_tools.ocean.inject_meshDensity import inject_spherical_meshDensity
@@ -126,7 +126,7 @@ class SphericalBaseStep(Step):
         check_call(args=args, logger=logger)
 
         # open the mesh and rewrite it in the desired NetCDF format
-        ds_mesh = xr.open_dataset(tmp_mesh_filename)
+        ds_mesh = open_dataset(tmp_mesh_filename)
 
         angle_edge = recompute_angle_edge(ds_mesh)
         ds_mesh.angleEdge.values = angle_edge.values
