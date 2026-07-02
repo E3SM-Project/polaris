@@ -146,6 +146,7 @@ Omega:
       Contents:
         - Tracers
         - State
+        - SpecVol
         - VerticalPseudoVelocity
         - TotalVerticalPseudoVelocity
     Highfreq:
