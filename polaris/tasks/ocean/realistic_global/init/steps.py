@@ -69,7 +69,7 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
     woa23_steps, _ = get_woa23_steps(component=component)
     extrapolate_step = woa23_steps['woa23_extrapolate']
 
-    base_subdir = f'spherical/realistic_global/init/{mesh_name}'
+    base_subdir = f'spherical/realistic_global/{mesh_name}/init'
     config_filename = 'realistic_global_init.cfg'
     config = _get_init_config(component, base_subdir, config_filename)
 
