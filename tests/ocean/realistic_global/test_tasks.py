@@ -77,6 +77,43 @@ def test_realistic_global_init_icos240km_steps():
     )
 
 
+def test_add_realistic_global_tasks_registers_forward_for_all_meshes():
+    component = Ocean()
+    add_realistic_global_tasks(component=component)
+
+    expected_mesh_names = list(get_base_mesh_step_names()) + list(
+        UNIFIED_MESH_NAMES
+    )
+    for mesh_name in expected_mesh_names:
+        task_subdir = f'spherical/realistic_global/{mesh_name}/forward/task'
+        assert task_subdir in component.tasks, (
+            f'Expected forward task for mesh={mesh_name!r} not found'
+        )
+
+
+def test_realistic_global_forward_icos240km_steps():
+    component = Ocean()
+    add_realistic_global_tasks(component=component)
+
+    task_subdir = 'spherical/realistic_global/icos240km/forward/task'
+    assert task_subdir in component.tasks
+
+    task = component.tasks[task_subdir]
+
+    # the forward step plus the shared init chain it depends on
+    assert 'forward' in task.steps
+    assert 'initial_state' in task.steps
+    assert 'pstar_init' in task.steps
+
+    assert task.steps['forward'].subdir == (
+        'spherical/realistic_global/icos240km/forward/forward'
+    )
+    # the init step is shared with the init task (same work dir)
+    assert task.steps['initial_state'].subdir == (
+        'spherical/realistic_global/icos240km/init/initial_state'
+    )
+
+
 def test_realistic_global_init_one_task_per_mesh():
     """Exactly one task is registered per mesh (no model variants)."""
     component = Ocean()
