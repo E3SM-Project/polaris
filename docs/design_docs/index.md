@@ -7,6 +7,7 @@
 
 e3sm_init_component_inputs
 global_ocean_dynamic_adjustment
+global_ocean_forward
 global_ocean_init
 horiz_press_grad_reference
 overflow_nonlinear_eos
