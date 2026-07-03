@@ -181,8 +181,9 @@ is added with `run_by_default=False`.
 
 ## init
 
-The `realistic_global/init` task family creates mesh-specific ocean initial
-conditions using WOA23 hydrography and the culled mesh produced by
+The `init` task family (whose steps live under
+`spherical/realistic_global/{mesh_name}/init`) creates mesh-specific ocean
+initial conditions using WOA23 hydrography and the culled mesh produced by
 `e3sm/init`.  One
 {py:class}`polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit`
 task is registered per MPAS mesh; the target ocean model is determined by the
