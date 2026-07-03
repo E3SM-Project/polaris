@@ -45,7 +45,7 @@ def test_add_realistic_global_tasks_registers_init_for_all_meshes():
         UNIFIED_MESH_NAMES
     )
     for mesh_name in expected_mesh_names:
-        task_subdir = f'spherical/realistic_global/init/{mesh_name}/task'
+        task_subdir = f'spherical/realistic_global/{mesh_name}/init/task'
         assert task_subdir in component.tasks, (
             f'Expected init task for mesh={mesh_name!r} not found'
         )
@@ -55,7 +55,7 @@ def test_realistic_global_init_icos240km_steps():
     component = Ocean()
     add_realistic_global_tasks(component=component)
 
-    task_subdir = 'spherical/realistic_global/init/icos240km/task'
+    task_subdir = 'spherical/realistic_global/icos240km/init/task'
     assert task_subdir in component.tasks
 
     task = component.tasks[task_subdir]
@@ -67,13 +67,13 @@ def test_realistic_global_init_icos240km_steps():
     assert 'extrapolate' in task.steps
 
     assert task.steps['remap_woa23'].subdir == (
-        'spherical/realistic_global/init/icos240km/remap_woa23'
+        'spherical/realistic_global/icos240km/init/remap_woa23'
     )
     assert task.steps['pstar_init'].subdir == (
-        'spherical/realistic_global/init/icos240km/pstar_init'
+        'spherical/realistic_global/icos240km/init/pstar_init'
     )
     assert task.steps['initial_state'].subdir == (
-        'spherical/realistic_global/init/icos240km/initial_state'
+        'spherical/realistic_global/icos240km/init/initial_state'
     )
 
 
@@ -86,12 +86,12 @@ def test_realistic_global_init_one_task_per_mesh():
         UNIFIED_MESH_NAMES
     )
     for mesh_name in expected_mesh_names:
-        task_subdir = f'spherical/realistic_global/init/{mesh_name}/task'
+        task_subdir = f'spherical/realistic_global/{mesh_name}/init/task'
         assert task_subdir in component.tasks
         # Confirm there is no model-qualified variant
         for model in ('omega', 'mpas-ocean'):
             model_subdir = (
-                f'spherical/realistic_global/init/{mesh_name}/{model}'
+                f'spherical/realistic_global/{mesh_name}/init/{model}'
             )
             assert model_subdir not in component.tasks, (
                 f'Unexpected per-model task found: {model_subdir!r}'
