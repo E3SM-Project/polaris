@@ -4,11 +4,12 @@ from typing import Any, Dict, Optional
 from polaris.config import PolarisConfigParser
 from polaris.mpas.time import duration_to_seconds, get_time_interval_string
 
-# Time-integrator names that differ between MPAS-Ocean (the neutral naming used
-# throughout the framework) and Omega.
+# Map from the neutral (MPAS-Ocean) time-integrator names to the Omega names.
+# Only integrators with an Omega equivalent appear here; a neutral name that is
+# absent (e.g. ``split_explicit_ab2``) is not yet supported for Omega.  A
+# split-explicit integrator for Omega is in development.
 _OMEGA_TIME_INTEGRATORS = {
     'RK4': 'RungeKutta4',
-    'split_explicit_ab2': 'Forward-Backward',
 }
 
 
@@ -166,15 +167,21 @@ class ForwardStage:
             )
         time_integrator = self.time_integrator
         if model == 'omega':
-            time_integrator = _OMEGA_TIME_INTEGRATORS.get(
-                time_integrator, time_integrator
-            )
+            if time_integrator not in _OMEGA_TIME_INTEGRATORS:
+                supported = ', '.join(sorted(_OMEGA_TIME_INTEGRATORS))
+                raise ValueError(
+                    f'Time integrator {time_integrator!r} is not supported '
+                    f'for Omega; supported integrators are: {supported}.'
+                )
+            time_integrator = _OMEGA_TIME_INTEGRATORS[time_integrator]
         output_freq = int(round(duration_to_seconds(self.output_interval)))
+        restart_freq = int(round(duration_to_seconds(self.restart_interval)))
         return dict(
             run_duration=self.run_duration,
             output_interval=self.output_interval,
             restart_interval=self.restart_interval,
             output_freq=str(output_freq),
+            restart_freq=str(restart_freq),
             dt=dt,
             btr_dt=btr_dt,
             time_integrator=time_integrator,

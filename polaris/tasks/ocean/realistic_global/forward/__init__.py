@@ -1,3 +1,6 @@
+from polaris.tasks.ocean.realistic_global.forward.forward import (
+    Forward as Forward,
+)
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
     DatabaseInitialCondition as DatabaseInitialCondition,
 )
