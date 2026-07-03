@@ -27,7 +27,7 @@ class RealisticGlobalInit(Task):
         mesh_name : str
             The name of the MPAS mesh (e.g. ``'icos240km'``).
         """
-        subdir = f'spherical/realistic_global/init/{mesh_name}/task'
+        subdir = f'spherical/realistic_global/{mesh_name}/init/task'
         super().__init__(
             component=component,
             name='realistic_global_init',
