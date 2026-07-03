@@ -1,0 +1,65 @@
+# Model config for a realistic global ocean forward run.  Input streams (mesh,
+# vertical coordinate, initial state) are added by the shared model_inputs.yaml;
+# this template only sets time management, the time step, and the output and
+# restart streams.  Values in double braces are filled in from a ForwardStage.
+
+# Neutral options that are auto-translated to Omega via mpaso_to_omega.yaml.
+ocean:
+    time_management:
+        config_run_duration: {{ run_duration }}
+        config_stop_time: none
+    time_integration:
+        config_dt: {{ dt }}
+        config_time_integrator: {{ time_integrator }}
+
+mpas-ocean:
+    time_management:
+        config_do_restart: {{ do_restart }}
+        config_start_time: '{{ start_time }}'
+    time_integration:
+        config_btr_dt: {{ btr_dt }}
+    streams:
+        restart:
+            output_interval: {{ restart_interval }}
+        output:
+            type: output
+            filename_template: output.nc
+            output_interval: {{ output_interval }}
+            clobber_mode: truncate
+            contents:
+            - tracers
+            - xtime
+            - normalVelocity
+            - layerThickness
+            - kineticEnergyCell
+            - relativeVorticityCell
+
+Omega:
+    IOStreams:
+        RestartWrite:
+            UsePointerFile: true
+            PointerFilename: ocn.pointer
+            Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+            Mode: write
+            IfExists: replace
+            Precision: double
+            Freq: {{ restart_freq }}
+            FreqUnits: seconds
+            UseStartEnd: false
+            Contents:
+            - Restart
+        History:
+            UsePointerFile: false
+            Filename: output.nc
+            FileFreq: 9999
+            FileFreqUnits: Years
+            Mode: write
+            IfExists: append
+            Precision: double
+            Freq: {{ output_freq }}
+            FreqUnits: seconds
+            UseStartEnd: false
+            Contents:
+            - State
+            - Tracers
+            - KineticEnergyCell
