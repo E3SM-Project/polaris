@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import xarray as xr
 
@@ -24,8 +25,10 @@ class Forward(OceanModelStep):
     init_condition : InitialCondition
         The source of the model input files.
 
-    stage : ForwardStage
-        The model-agnostic settings for this run.
+    stage : ForwardStage or None
+        The model-agnostic settings for this run.  When ``None``, they are
+        built from the ``[realistic_global_forward]`` config section at setup
+        and run time (so user config overrides take effect).
 
     package : str
         The package that contains ``yaml_filename``.
@@ -38,7 +41,7 @@ class Forward(OceanModelStep):
         self,
         component,
         init_condition: InitialCondition,
-        stage: ForwardStage,
+        stage: Optional[ForwardStage] = None,
         name='forward',
         subdir=None,
         indir=None,
@@ -61,8 +64,9 @@ class Forward(OceanModelStep):
             The source of the model input files (a database file or an upstream
             ``realistic_global/init`` step).
 
-        stage : ForwardStage
-            The model-agnostic run settings.
+        stage : ForwardStage, optional
+            The model-agnostic run settings.  When not provided, they are built
+            from the ``[realistic_global_forward]`` config section.
 
         name : str, optional
             The name of the step.
@@ -159,7 +163,11 @@ class Forward(OceanModelStep):
         model = config.get('ocean', 'model')
         min_res = self._get_min_res()
 
-        replacements = self.stage.model_replacements(model, min_res)
+        stage = self.stage
+        if stage is None:
+            stage = ForwardStage.from_config(config)
+
+        replacements = stage.model_replacements(model, min_res)
         self.add_yaml_file(
             self.package,
             self.yaml_filename,
@@ -167,7 +175,7 @@ class Forward(OceanModelStep):
         )
 
         if model == 'mpas-ocean':
-            options = self.stage.bottom_drag_options()
+            options = stage.bottom_drag_options()
             if options:
                 self.add_model_config_options(
                     options=options, config_model='ocean'
