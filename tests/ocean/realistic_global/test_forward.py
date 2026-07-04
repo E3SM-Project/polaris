@@ -99,6 +99,16 @@ def test_model_replacements_omega_maps_rk4():
     assert rep['time_integrator'] == 'RungeKutta4'
 
 
+def test_non_split_integrators_use_the_short_time_step():
+    # RK4 / RungeKutta4 have no barotropic split, so config_dt must be the
+    # short barotropic step (btr_dt_per_km), not the long baroclinic dt_per_km
+    stage = ForwardStage.from_config(_forward_config(time_integrator='RK4'))
+    rep = stage.model_replacements('mpas-ocean', min_res=30.0)
+    assert rep['dt'] == '0000_00:00:45.000'  # 1.5 s/km * 30 km, not 30 s/km
+    rep_omega = stage.model_replacements('omega', min_res=30.0)
+    assert rep_omega['dt'] == '0000_00:00:45.000'
+
+
 def test_model_replacements_omega_rejects_split_explicit():
     stage = ForwardStage.from_config(_forward_config())  # split_explicit_ab2
     with pytest.raises(ValueError, match='not supported for Omega'):
