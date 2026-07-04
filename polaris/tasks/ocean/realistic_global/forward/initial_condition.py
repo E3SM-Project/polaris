@@ -21,12 +21,18 @@ class InitialCondition(ABC):
     min_res : float
         The mesh minimum resolution in km, used to scale per-km time steps.
 
+    approx_cell_count : int or None
+        The approximate number of cells in the mesh, used to size resources
+        during setup before the mesh file exists.  ``None`` when it cannot be
+        estimated for the mesh.
+
     graph_target : str or None
         The graph partition file for the step to use (a work-directory-relative
         path), or ``None`` when no existing graph file is provided.
     """
 
     min_res: float
+    approx_cell_count: Optional[int]
     graph_target: Optional[str] = None
 
     @abstractmethod
@@ -56,7 +62,12 @@ class StepInitialCondition(InitialCondition):
         The ``initial_state`` step whose outputs are consumed.
     """
 
-    def __init__(self, init_step: 'Step', min_res: float) -> None:
+    def __init__(
+        self,
+        init_step: 'Step',
+        min_res: float,
+        approx_cell_count: Optional[int],
+    ) -> None:
         """
         Create the source.
 
@@ -69,9 +80,15 @@ class StepInitialCondition(InitialCondition):
 
         min_res : float
             The mesh minimum resolution in km (from the mesh definition).
+
+        approx_cell_count : int or None
+            The approximate number of cells in the mesh (from the mesh
+            definition), used to size resources during setup before the mesh
+            file exists.
         """
         self.init_step = init_step
         self.min_res = min_res
+        self.approx_cell_count = approx_cell_count
         self.graph_target = f'{init_step.path}/culled_graph.info'
 
     def add_input_files(self, step: 'OceanModelStep') -> None:
@@ -119,12 +136,14 @@ class DatabaseInitialCondition(InitialCondition):
         mesh_name: str,
         mesh_id,
         min_res: float,
+        approx_cell_count: Optional[int],
         eos_type: Optional[str] = None,
         database: str = 'realistic_global',
     ) -> None:
         self.mesh_name = mesh_name
         self.mesh_id = mesh_id
         self.min_res = min_res
+        self.approx_cell_count = approx_cell_count
         self.eos_type = eos_type
         self.database = database
 
