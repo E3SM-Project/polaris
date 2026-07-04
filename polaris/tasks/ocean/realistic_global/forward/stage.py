@@ -12,6 +12,15 @@ _OMEGA_TIME_INTEGRATORS = {
     'RK4': 'RungeKutta4',
 }
 
+# Integrators that use split (barotropic/baroclinic) time stepping.  These use
+# the long ``dt_per_km`` baroclinic step for ``config_dt`` and the short
+# ``btr_dt_per_km`` step for ``config_btr_dt``.  Every other integrator (e.g.
+# RK4 / Omega's RungeKutta4) has no barotropic subcycling and must advance on
+# the short barotropic step.
+_SPLIT_TIME_INTEGRATORS = {
+    'split_explicit_ab2',
+}
+
 
 @dataclass
 class ForwardStage:
@@ -151,20 +160,23 @@ class ForwardStage:
         dict of str
             The template replacements for ``forward.yaml``.
         """
-        dt = self.dt
-        if dt is None:
-            if self.dt_per_km is None:
-                raise ValueError('Set either dt or dt_per_km on the stage')
-            dt = get_time_interval_string(seconds=self.dt_per_km * min_res)
-        btr_dt = self.btr_dt
-        if btr_dt is None:
-            if self.btr_dt_per_km is None:
-                raise ValueError(
-                    'Set either btr_dt or btr_dt_per_km on the stage'
-                )
-            btr_dt = get_time_interval_string(
-                seconds=self.btr_dt_per_km * min_res
+        if self.time_integrator in _SPLIT_TIME_INTEGRATORS:
+            # split time stepping: a long baroclinic step (config_dt) and a
+            # short barotropic subcycling step (config_btr_dt)
+            dt = _time_step_string(
+                self.dt, self.dt_per_km, min_res, 'dt_per_km'
             )
+            btr_dt = _time_step_string(
+                self.btr_dt, self.btr_dt_per_km, min_res, 'btr_dt_per_km'
+            )
+        else:
+            # non-split integrators (RK4, Omega RungeKutta4) have no
+            # barotropic subcycling and must advance on the short barotropic
+            # time step; config_btr_dt is unused, so mirror config_dt into it
+            dt = _time_step_string(
+                self.dt, self.btr_dt_per_km, min_res, 'btr_dt_per_km'
+            )
+            btr_dt = self.btr_dt if self.btr_dt is not None else dt
         time_integrator = self.time_integrator
         if model == 'omega':
             if time_integrator not in _OMEGA_TIME_INTEGRATORS:
@@ -208,6 +220,20 @@ class ForwardStage:
             'config_implicit_bottom_drag_type': 'constant_and_rayleigh',
             'config_Rayleigh_damping_coeff': self.damping,
         }
+
+
+def _time_step_string(
+    explicit: Optional[str],
+    per_km: Optional[float],
+    min_res: float,
+    name: str,
+) -> str:
+    """The explicit time step if set, else ``per_km * min_res`` as a string."""
+    if explicit is not None:
+        return explicit
+    if per_km is None:
+        raise ValueError(f'Set an explicit time step or {name} on the stage')
+    return get_time_interval_string(seconds=per_km * min_res)
 
 
 def _opt_str(
