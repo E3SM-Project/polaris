@@ -1,18 +1,44 @@
 """
 Helpers for looking up properties of a realistic-global mesh from its name,
 using the existing base- and unified-mesh definitions.  Kept in one place so
-that steps (e.g. WOA23 remapping) can size resources before the mesh file
-exists.
+both the init steps (e.g. WOA23 remapping) and the forward step can size
+resources and time steps consistently before the mesh file exists.
 """
 
-from polaris.mesh.base import BASE_MESH_DEFINITIONS
+from polaris.mesh.base import (
+    BASE_MESH_DEFINITIONS,
+    get_base_mesh_definition,
+    get_base_mesh_step_names,
+)
 from polaris.mesh.spherical.unified import (
     UNIFIED_MESH_NAMES,
     get_unified_mesh_config,
 )
+from polaris.mesh.spherical.unified.base_mesh import (
+    get_unified_finest_cell_width,
+)
 from polaris.tasks.ocean.realistic_global.mesh_configs import (
     get_realistic_global_mesh_config,
 )
+
+
+def min_res_for_mesh(mesh_name):
+    """
+    The mesh minimum resolution in km, from the existing mesh definitions.
+
+    Parameters
+    ----------
+    mesh_name : str
+        The MPAS mesh name.
+
+    Returns
+    -------
+    float
+        The minimum cell resolution in km.
+    """
+    if mesh_name in get_base_mesh_step_names():
+        return get_base_mesh_definition(mesh_name).min_res
+    return get_unified_finest_cell_width(get_unified_mesh_config(mesh_name))
 
 
 def estimate_cell_count(mesh_name):
