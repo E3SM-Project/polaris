@@ -161,7 +161,7 @@ class Forward(OceanModelStep):
 
         config = self.config
         model = config.get('ocean', 'model')
-        min_res = self._get_min_res()
+        min_res = self.init_condition.min_res
 
         stage = self.stage
         if stage is None:
@@ -190,14 +190,3 @@ class Forward(OceanModelStep):
             return None
         mesh_path = os.path.join(self.work_dir, self.get_horiz_mesh_filename())
         return mesh_path if os.path.exists(mesh_path) else None
-
-    def _get_min_res(self):
-        """
-        The mesh minimum resolution in km, read from the mesh once it exists
-        and otherwise taken from the configured ``min_res`` fallback.
-        """
-        mesh_path = self._mesh_path()
-        if mesh_path is not None:
-            with xr.open_dataset(mesh_path) as ds:
-                return float(ds.dcEdge.min()) / 1000.0
-        return self.config.getfloat('realistic_global_forward', 'min_res')

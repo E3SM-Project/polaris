@@ -18,11 +18,15 @@ class InitialCondition(ABC):
 
     Attributes
     ----------
+    min_res : float
+        The mesh minimum resolution in km, used to scale per-km time steps.
+
     graph_target : str or None
         The graph partition file for the step to use (a work-directory-relative
         path), or ``None`` when no existing graph file is provided.
     """
 
+    min_res: float
     graph_target: Optional[str] = None
 
     @abstractmethod
@@ -52,7 +56,7 @@ class StepInitialCondition(InitialCondition):
         The ``initial_state`` step whose outputs are consumed.
     """
 
-    def __init__(self, init_step: 'Step') -> None:
+    def __init__(self, init_step: 'Step', min_res: float) -> None:
         """
         Create the source.
 
@@ -62,8 +66,12 @@ class StepInitialCondition(InitialCondition):
             The ``initial_state`` step (from
             :py:func:`~polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps`)
             whose outputs the forward step consumes.
+
+        min_res : float
+            The mesh minimum resolution in km (from the mesh definition).
         """
         self.init_step = init_step
+        self.min_res = min_res
         self.graph_target = f'{init_step.path}/culled_graph.info'
 
     def add_input_files(self, step: 'OceanModelStep') -> None:
@@ -110,11 +118,13 @@ class DatabaseInitialCondition(InitialCondition):
         self,
         mesh_name: str,
         mesh_id,
+        min_res: float,
         eos_type: Optional[str] = None,
         database: str = 'realistic_global',
     ) -> None:
         self.mesh_name = mesh_name
         self.mesh_id = mesh_id
+        self.min_res = min_res
         self.eos_type = eos_type
         self.database = database
 
