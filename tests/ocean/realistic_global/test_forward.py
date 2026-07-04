@@ -115,6 +115,14 @@ def test_model_replacements_omega_rejects_split_explicit():
         stage.model_replacements('omega', min_res=30.0)
 
 
+def test_model_replacements_omega_defers_split_explicit_to_run_time():
+    # at setup the integrator may still be changed before running, so an
+    # unsupported integrator must not raise; the neutral name is left in place
+    stage = ForwardStage.from_config(_forward_config())  # split_explicit_ab2
+    rep = stage.model_replacements('omega', min_res=30.0, at_setup=True)
+    assert rep['time_integrator'] == 'split_explicit_ab2'
+
+
 def test_model_replacements_requires_a_time_step():
     stage = ForwardStage.from_config(_forward_config(dt_per_km=''))
     with pytest.raises(ValueError, match='dt_per_km'):
