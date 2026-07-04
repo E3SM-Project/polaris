@@ -1,13 +1,5 @@
 from polaris import Task
 from polaris.config import PolarisConfigParser
-from polaris.mesh.base import (
-    get_base_mesh_definition,
-    get_base_mesh_step_names,
-)
-from polaris.mesh.spherical.unified import get_unified_mesh_config
-from polaris.mesh.spherical.unified.base_mesh import (
-    get_unified_finest_cell_width,
-)
 from polaris.tasks.ocean.realistic_global.forward.forward import Forward
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
     StepInitialCondition,
@@ -15,13 +7,10 @@ from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
 from polaris.tasks.ocean.realistic_global.init.steps import (
     get_realistic_init_steps,
 )
-
-
-def _min_res_for_mesh(mesh_name):
-    """The mesh minimum resolution in km, from existing mesh definitions."""
-    if mesh_name in get_base_mesh_step_names():
-        return get_base_mesh_definition(mesh_name).min_res
-    return get_unified_finest_cell_width(get_unified_mesh_config(mesh_name))
+from polaris.tasks.ocean.realistic_global.mesh_info import (
+    estimate_cell_count,
+    min_res_for_mesh,
+)
 
 
 class RealisticGlobalForward(Task):
@@ -72,12 +61,17 @@ class RealisticGlobalForward(Task):
             self.add_step(step, symlink=symlink)
 
         init_step = init_steps['initial_state']
-        min_res = _min_res_for_mesh(mesh_name)
+        min_res = min_res_for_mesh(mesh_name)
+        approx_cell_count = estimate_cell_count(mesh_name)
         forward_step = Forward(
             component=component,
             name='forward',
             subdir=f'{base}/forward',
-            init_condition=StepInitialCondition(init_step, min_res=min_res),
+            init_condition=StepInitialCondition(
+                init_step,
+                min_res=min_res,
+                approx_cell_count=approx_cell_count,
+            ),
             validate_vars=[
                 'temperature',
                 'salinity',
