@@ -1,8 +1,6 @@
 import os
 from typing import Optional
 
-import xarray as xr
-
 from polaris.ocean.model import OceanModelStep
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
     InitialCondition,
@@ -142,8 +140,8 @@ class Forward(OceanModelStep):
         """
         mesh_path = self._mesh_path()
         if mesh_path is not None:
-            with xr.open_dataset(mesh_path) as ds:
-                return int(ds.sizes['nCells'])
+            ds = self.component.open_model_dataset(mesh_path, self.config)
+            return int(ds.sizes['nCells'])
         approx = self.init_condition.approx_cell_count
         if approx is None:
             raise ValueError(
