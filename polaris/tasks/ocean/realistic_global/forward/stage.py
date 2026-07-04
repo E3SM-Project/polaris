@@ -137,7 +137,9 @@ class ForwardStage:
             start_time=config.get(section, 'start_time').strip(),
         )
 
-    def model_replacements(self, model: str, min_res: float) -> Dict[str, str]:
+    def model_replacements(
+        self, model: str, min_res: float, at_setup: bool = False
+    ) -> Dict[str, str]:
         """
         Map the stage onto template replacements for ``forward.yaml``.
 
@@ -154,6 +156,12 @@ class ForwardStage:
         min_res : float
             The mesh minimum resolution in km, used to derive the time step
             from ``dt_per_km``/``btr_dt_per_km`` when it is not explicit.
+
+        at_setup : bool, optional
+            Whether the replacements are being built during setup, as opposed
+            to at run time.  An unsupported time integrator is only an error at
+            run time, so that a user can set the step up and change the config
+            option before running.
 
         Returns
         -------
@@ -179,13 +187,16 @@ class ForwardStage:
             btr_dt = self.btr_dt if self.btr_dt is not None else dt
         time_integrator = self.time_integrator
         if model == 'omega':
-            if time_integrator not in _OMEGA_TIME_INTEGRATORS:
+            if time_integrator in _OMEGA_TIME_INTEGRATORS:
+                time_integrator = _OMEGA_TIME_INTEGRATORS[time_integrator]
+            elif not at_setup:
+                # only an error at run time; at setup the user may still change
+                # the config option to a supported integrator before running
                 supported = ', '.join(sorted(_OMEGA_TIME_INTEGRATORS))
                 raise ValueError(
                     f'Time integrator {time_integrator!r} is not supported '
                     f'for Omega; supported integrators are: {supported}.'
                 )
-            time_integrator = _OMEGA_TIME_INTEGRATORS[time_integrator]
         output_freq = int(round(duration_to_seconds(self.output_interval)))
         restart_freq = int(round(duration_to_seconds(self.restart_interval)))
         return dict(
