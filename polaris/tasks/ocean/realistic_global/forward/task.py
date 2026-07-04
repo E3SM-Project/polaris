@@ -19,10 +19,10 @@ class RealisticGlobalForward(Task):
     ocean simulation on one MPAS mesh.
 
     The task runs the shared ``realistic_global/init`` steps for the mesh to
-    produce the initial condition, then a single :py:class:`.Forward` step
-    whose duration and cadence come from the ``[realistic_global_forward]``
-    config section.  The target model is resolved from ``[ocean] model``
-    during component setup.
+    produce the initial condition, then a single short :py:class:`.Forward`
+    run (the ``short`` step, a brief smoke test) whose duration and cadence
+    come from the ``[realistic_global_forward]`` config section.  The target
+    model is resolved from ``[ocean] model`` during component setup.
     """
 
     def __init__(self, component, mesh_name):
@@ -65,8 +65,8 @@ class RealisticGlobalForward(Task):
         approx_cell_count = estimate_cell_count(mesh_name)
         forward_step = Forward(
             component=component,
-            name='forward',
-            subdir=f'{base}/forward',
+            name='short',
+            subdir=f'{base}/short',
             init_condition=StepInitialCondition(
                 init_step,
                 min_res=min_res,

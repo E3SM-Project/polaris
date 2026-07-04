@@ -100,13 +100,13 @@ def test_realistic_global_forward_icos240km_steps():
 
     task = component.tasks[task_subdir]
 
-    # the forward step plus the shared init chain it depends on
-    assert 'forward' in task.steps
+    # the short forward run plus the shared init chain it depends on
+    assert 'short' in task.steps
     assert 'initial_state' in task.steps
     assert 'pstar_init' in task.steps
 
-    assert task.steps['forward'].subdir == (
-        'spherical/realistic_global/icos240km/forward/forward'
+    assert task.steps['short'].subdir == (
+        'spherical/realistic_global/icos240km/forward/short'
     )
     # the init step is shared with the init task (same work dir)
     assert task.steps['initial_state'].subdir == (
