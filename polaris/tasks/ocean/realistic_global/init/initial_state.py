@@ -4,6 +4,7 @@ import gsw
 import numpy as np
 import xarray as xr
 
+from polaris.coriolis import add_coriolis_to_dataset
 from polaris.ocean.model import OceanIOStep
 
 
@@ -89,7 +90,7 @@ class InitialStateStep(OceanIOStep):
             ),
         )
         self.add_input_file(
-            filename='mesh.nc',
+            filename='culled_mesh.nc',
             work_dir_target=os.path.join(
                 self.cull_mesh_step.path,
                 'culled_ocean_mesh.nc',
@@ -117,7 +118,13 @@ class InitialStateStep(OceanIOStep):
         model = config.get('ocean', 'model')
 
         ds = xr.open_dataset('pstar_init.nc')
-        ds_mesh = xr.open_dataset('mesh.nc')
+        ds_mesh = xr.open_dataset('culled_mesh.nc')
+
+        # Add the Coriolis parameter (fCell/fEdge/fVertex) to the horizontal
+        # mesh and write it out; the culled mesh does not include these fields,
+        # which the ocean model requires in its mesh stream.
+        ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
+        self.write_horiz_mesh_dataset(ds_mesh, 'mesh.nc', config)
 
         ds = _add_layer_thickness(ds)
         ds = _add_normal_velocity(ds, ds_mesh)
