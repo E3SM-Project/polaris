@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+from types import SimpleNamespace
 from typing import cast
 
 import pytest
@@ -7,6 +8,7 @@ from polaris import Step
 from polaris.ocean.model import OceanModelStep
 from polaris.tasks.ocean.realistic_global.forward import (
     DatabaseInitialCondition,
+    Forward,
     ForwardStage,
     StepInitialCondition,
 )
@@ -143,9 +145,14 @@ def test_bottom_drag_options():
 
 def test_step_initial_condition_wires_inputs_and_graph():
     path = 'ocean/spherical/realistic_global/icos240km/init/initial_state'
-    ic = StepInitialCondition(cast(Step, _FakeStep(path=path)), min_res=240.0)
+    ic = StepInitialCondition(
+        cast(Step, _FakeStep(path=path)),
+        min_res=240.0,
+        approx_cell_count=10417,
+    )
     assert ic.graph_target == f'{path}/culled_graph.info'
     assert ic.min_res == 240.0
+    assert ic.approx_cell_count == 10417
 
     forward = _FakeStep()
     ic.add_input_files(cast(OceanModelStep, forward))
@@ -158,10 +165,14 @@ def test_step_initial_condition_wires_inputs_and_graph():
 
 def test_database_initial_condition_mpas_ocean():
     ic = DatabaseInitialCondition(
-        mesh_name='QU240km', mesh_id=151209, min_res=240.0
+        mesh_name='QU240km',
+        mesh_id=151209,
+        min_res=240.0,
+        approx_cell_count=10417,
     )
     assert ic.graph_target is None
     assert ic.min_res == 240.0
+    assert ic.approx_cell_count == 10417
 
     step = _FakeStep(model='mpas-ocean', eos_type='teos-10')
     ic.add_input_files(cast(OceanModelStep, step))
@@ -174,7 +185,11 @@ def test_database_initial_condition_mpas_ocean():
 
 def test_database_initial_condition_omega_also_adds_mesh():
     ic = DatabaseInitialCondition(
-        mesh_name='QU240km', mesh_id=151209, min_res=240.0, eos_type='teos10'
+        mesh_name='QU240km',
+        mesh_id=151209,
+        min_res=240.0,
+        approx_cell_count=10417,
+        eos_type='teos10',
     )
     step = _FakeStep(model='omega')
     ic.add_input_files(cast(OceanModelStep, step))
@@ -184,3 +199,24 @@ def test_database_initial_condition_omega_also_adds_mesh():
     assert by_kind['init']['target'] == target
     assert by_kind['horiz_mesh']['target'] == target
     assert by_kind['horiz_mesh']['database'] == 'realistic_global/omega'
+
+
+# --- Forward.compute_cell_count ---
+
+
+def test_compute_cell_count_uses_estimate_before_mesh_exists():
+    # before the mesh exists, the initial condition's estimate is used
+    fake = SimpleNamespace(
+        _mesh_path=lambda: None,
+        init_condition=SimpleNamespace(approx_cell_count=10417),
+    )
+    assert Forward.compute_cell_count(cast(Forward, fake)) == 10417
+
+
+def test_compute_cell_count_raises_when_estimate_missing():
+    fake = SimpleNamespace(
+        _mesh_path=lambda: None,
+        init_condition=SimpleNamespace(approx_cell_count=None),
+    )
+    with pytest.raises(ValueError, match='approx_cell_count'):
+        Forward.compute_cell_count(cast(Forward, fake))
