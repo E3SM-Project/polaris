@@ -167,7 +167,9 @@ class Forward(OceanModelStep):
         if stage is None:
             stage = ForwardStage.from_config(config)
 
-        replacements = stage.model_replacements(model, min_res)
+        replacements = stage.model_replacements(
+            model, min_res, at_setup=at_setup
+        )
         self.add_yaml_file(
             self.package,
             self.yaml_filename,
