@@ -135,8 +135,9 @@ def test_bottom_drag_options():
 
 def test_step_initial_condition_wires_inputs_and_graph():
     path = 'ocean/spherical/realistic_global/icos240km/init/initial_state'
-    ic = StepInitialCondition(cast(Step, _FakeStep(path=path)))
+    ic = StepInitialCondition(cast(Step, _FakeStep(path=path)), min_res=240.0)
     assert ic.graph_target == f'{path}/culled_graph.info'
+    assert ic.min_res == 240.0
 
     forward = _FakeStep()
     ic.add_input_files(cast(OceanModelStep, forward))
@@ -148,8 +149,11 @@ def test_step_initial_condition_wires_inputs_and_graph():
 
 
 def test_database_initial_condition_mpas_ocean():
-    ic = DatabaseInitialCondition(mesh_name='QU240km', mesh_id=151209)
+    ic = DatabaseInitialCondition(
+        mesh_name='QU240km', mesh_id=151209, min_res=240.0
+    )
     assert ic.graph_target is None
+    assert ic.min_res == 240.0
 
     step = _FakeStep(model='mpas-ocean', eos_type='teos-10')
     ic.add_input_files(cast(OceanModelStep, step))
@@ -162,7 +166,7 @@ def test_database_initial_condition_mpas_ocean():
 
 def test_database_initial_condition_omega_also_adds_mesh():
     ic = DatabaseInitialCondition(
-        mesh_name='QU240km', mesh_id=151209, eos_type='teos10'
+        mesh_name='QU240km', mesh_id=151209, min_res=240.0, eos_type='teos10'
     )
     step = _FakeStep(model='omega')
     ic.add_input_files(cast(OceanModelStep, step))
