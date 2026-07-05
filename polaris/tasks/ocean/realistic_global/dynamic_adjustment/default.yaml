@@ -1,0 +1,21 @@
+# Default dynamic-adjustment schedule for coarse (~240 km) global meshes such
+# as the icos240km and qu240km base meshes and the u.oi240.lr240 unified mesh.
+# Ported from Compass' qu240 schedule.  Keys map onto ForwardStage fields; the
+# shared block supplies per-stage defaults.
+dynamic_adjustment:
+  shared:
+    time_integrator: split_explicit_ab2
+    output_interval: 1_00:00:00
+    restart_interval: 1_00:00:00
+    start_time: 0001-01-01_00:00:00
+  stages:
+    damped_adjustment_1:
+      run_duration: 1_00:00:00
+      dt: 02:00:00
+      btr_dt: 00:06:00
+      damping: 1.0e-4
+    simulation:
+      run_duration: 1_00:00:00
+      dt: 02:00:00
+      btr_dt: 00:06:00
+      # damping omitted => no Rayleigh damping
