@@ -588,6 +588,25 @@
    viz.VizInitStep.run
 ```
 
+### realistic_global.dynamic_adjustment
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.dynamic_adjustment
+
+.. autosummary::
+   :toctree: generated/
+
+   tasks.add_realistic_global_dynamic_adjustment_tasks
+
+   task.RealisticGlobalDynamicAdjustment
+   task.RealisticGlobalDynamicAdjustment.configure
+
+   schedule.load_schedule_stages
+
+   validate.Validate
+   validate.Validate.run
+```
+
 ### seamount
 
 ```{eval-rst}
