@@ -249,3 +249,57 @@ maps and transects use MPAS-Ocean names for both models.  It produces:
   produced with {py:class}`mpas_tools.viz.mpas_to_xdmf.MpasToXdmf`.  For Omega
   the native variable names are preserved and only the dimension names are
   renamed to their MPAS-Ocean equivalents, as required by the converter.
+
+(dev-ocean-realistic-global-dynamic-adjustment)=
+
+## dynamic_adjustment
+
+The `dynamic_adjustment` task family (steps under
+`spherical/realistic_global/{mesh_name}/dynamic_adjustment`) runs a
+restart-chained sequence of forward stages from a mesh's realistic initial
+condition.  One
+{py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment`
+task is registered per MPAS mesh.
+
+### schedule parsing
+
+{py:func}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages`
+reads a schedule YAML (the per-mesh `<mesh_name>.yaml` or `default.yaml`, or a
+file named by the `schedule` config option) and returns a list of
+{py:class}`polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage`
+objects.  It merges the `shared` defaults into each stage and computes the
+restart chain: the cumulative `start_time`, `do_restart`, and the shared
+`restart_in` / `restart_out` filenames (`restarts/rst.<stop-time>.nc`).  Every
+schedule key maps onto a `ForwardStage` field, so the parser is a thin adapter
+rather than a second configuration system.
+
+### restart chaining
+
+Each stage is a
+{py:class}`polaris.tasks.ocean.realistic_global.forward.forward.Forward` step
+reused from the forward workflow.  When a stage's `ForwardStage` sets
+`restart_out`, the step writes its restart to the shared `../restarts`
+directory (via `restart_streams.yaml`) and declares it as an output; the next
+stage reads it through `config_do_restart` / `config_start_time`.  Consecutive
+stages are linked with `add_dependency`.  The restart read side is wired for
+MPAS-Ocean; Omega restart reading (which uses a pointer file) is a follow-up,
+and `split_explicit_ab2` is not yet supported for Omega.
+
+### setup-time rebuild
+
+The stages are built in `__init__` from the built-in schedule (so `polaris
+list` shows a representative set) and rebuilt in `configure()`, which runs after
+the user config is merged, following the
+{py:class}`polaris.tasks.ocean.cosine_bell.CosineBell` pattern.  This lets a
+user's setup-time `schedule` override or edited stage options take effect.  The
+step graph is therefore fixed at setup, not run time.
+
+### validation
+
+The
+{py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.Validate`
+step reads each stage's `output.nc` and checks a per-stage `temperature_max`
+threshold and that the maximum `kineticEnergyCell` is flattening over the last
+`ke_check_num_stages` stages.  The final `simulation` stage additionally
+compares its `output.nc` against a baseline via the forward step's
+`validate_vars`.

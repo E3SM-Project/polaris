@@ -591,3 +591,97 @@ use_frazil_ice_formation = False
 # Simulation start time (config_start_time)
 start_time = 0001-01-01_00:00:00
 ```
+
+(ocean-realistic-global-dynamic-adjustment)=
+
+## dynamic_adjustment
+
+The `dynamic_adjustment` task runs a sequence of short forward stages that
+dissipate the fast waves introduced by the initial condition, producing a
+relaxed restart suitable for a longer production run.  One
+`realistic_global_dynamic_adjustment` task is registered per MPAS mesh; the
+target model (MPAS-Ocean or Omega) is set by the `[ocean] model` config
+option.
+
+The task can be set up with:
+
+```bash
+polaris setup -t ocean/spherical/realistic_global/<mesh>/dynamic_adjustment ...
+```
+
+### description
+
+Each stage is a forward run that restarts from the previous stage, with its own
+run duration, time step, output/restart cadence, and (typically decreasing)
+Rayleigh damping.  The stages are read from a schedule YAML: `default.yaml`
+(suitable for ~240 km meshes such as `icos240km`, `qu240km` and the
+`u.oi240.lr240` unified mesh) or a mesh-specific `<mesh_name>.yaml`.  Polaris
+ships schedules for the unified meshes `u.oi30.lr10`, `u.oi6to18.lr6to10` and
+`u.oi.so12to30.lr10` (ported from Compass' `ec30to60`, `rrs6to18` and
+`so12to30`).  The final stage, `simulation`, writes the relaxed restart, and
+its `output.nc` is compared against a baseline when one is provided.
+
+The number and settings of the stages come from the schedule, so a user can
+retune them by editing the checked-in YAML or by pointing the `schedule` config
+option at an alternate file before setup.  Because the Polaris step graph is
+fixed at setup, changing the schedule requires re-running `polaris setup`.
+
+### schedule format
+
+A schedule has a `shared` block of per-stage defaults and an ordered `stages`
+block; every key maps onto a forward-run setting:
+
+```yaml
+dynamic_adjustment:
+  shared:
+    time_integrator: split_explicit_ab2
+    output_interval: 10_00:00:00
+    start_time: 0001-01-01_00:00:00
+  stages:
+    damped_adjustment_1:
+      run_duration: 10_00:00:00
+      restart_interval: 10_00:00:00
+      dt: 00:15:00
+      btr_dt: 00:00:30
+      damping: 1.0e-4
+    simulation:
+      run_duration: 10_00:00:00
+      restart_interval: 10_00:00:00
+      dt: 00:30:00
+      btr_dt: 00:01:00
+      # damping omitted => no Rayleigh damping
+```
+
+Time steps may instead be given per km of mesh minimum resolution with
+`dt_per_km` / `btr_dt_per_km`.
+
+### validation
+
+A final `validate` step checks that the maximum temperature in each stage stays
+below `temperature_max` and that the maximum cell kinetic energy is not
+increasing over the last `ke_check_num_stages` stages (skipped when there are
+fewer stages, as in the coarse default schedule).  These checks are implemented
+for MPAS-Ocean.
+
+### config options
+
+```cfg
+# Options for realistic global ocean dynamic-adjustment runs
+[realistic_global_dynamic_adjustment]
+
+# Path to an alternate schedule YAML that overrides the built-in per-mesh
+# schedule; leave blank to use the checked-in schedule for the mesh
+schedule =
+
+# Maximum allowed temperature (deg C) in any stage's output; exceeding it is
+# treated as numerical blow-up
+temperature_max = 33.0
+
+# Number of trailing stages over which the maximum cell kinetic energy must not
+# increase (the "settling" check)
+ke_check_num_stages = 3
+
+# Fractional tolerance allowed when checking that the maximum cell kinetic
+# energy is not increasing from one stage to the next
+ke_check_rel_tolerance = 0.01
+```
