@@ -1,0 +1,29 @@
+# Dynamic-adjustment schedule for the u.oi30.lr10 unified mesh (~30 km).
+# Ported from Compass' ec30to60 schedule.
+dynamic_adjustment:
+  shared:
+    time_integrator: split_explicit_ab2
+    output_interval: 10_00:00:00
+    restart_interval: 10_00:00:00
+    start_time: 0001-01-01_00:00:00
+  stages:
+    damped_adjustment_1:
+      run_duration: 10_00:00:00
+      dt: 00:15:00
+      btr_dt: 00:00:30
+      damping: 1.0e-4
+    damped_adjustment_2:
+      run_duration: 10_00:00:00
+      dt: 00:15:00
+      btr_dt: 00:00:30
+      damping: 1.0e-5
+    damped_adjustment_3:
+      run_duration: 10_00:00:00
+      dt: 00:20:00
+      btr_dt: 00:00:40
+      damping: 1.0e-6
+    simulation:
+      run_duration: 10_00:00:00
+      dt: 00:30:00
+      btr_dt: 00:01:00
+      # damping omitted => no Rayleigh damping
