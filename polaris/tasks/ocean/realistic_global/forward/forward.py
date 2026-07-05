@@ -138,8 +138,16 @@ class Forward(OceanModelStep):
     def setup(self):
         """
         Add the initial-condition input files, then set up the model step.
+
+        When the step's stage is part of a restart chain (its ``restart_out``
+        is set), the restart it produces in the shared ``restarts`` directory
+        is declared as an output so the chain is inspectable and the next
+        stage's dependency on it is explicit.
         """
         self.init_condition.add_input_files(self)
+        stage = self.stage
+        if stage is not None and stage.restart_out is not None:
+            self.add_output_file(filename=f'../{stage.restart_out}')
         super().setup()
 
     def compute_cell_count(self):
@@ -229,6 +237,15 @@ class Forward(OceanModelStep):
                 self.add_model_config_options(
                     options=options, config_model='ocean'
                 )
+
+        if stage.restart_out is not None:
+            # this stage is part of a restart chain: write its restart to the
+            # shared ``../restarts`` directory (config_do_restart /
+            # config_start_time from forward.yaml drive the read side)
+            self.add_yaml_file(self.package, 'restart_streams.yaml')
+            if self.work_dir is not None:
+                restart_dir = os.path.join(self.work_dir, '..', 'restarts')
+                os.makedirs(restart_dir, exist_ok=True)
 
     def _mesh_path(self):
         """
