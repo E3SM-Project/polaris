@@ -15,7 +15,7 @@ from polaris.mesh.spherical.unified import (
     get_unified_mesh_config,
 )
 from polaris.mesh.spherical.unified.base_mesh import (
-    get_unified_finest_cell_width,
+    get_unified_ocean_finest_cell_width,
 )
 from polaris.tasks.ocean.realistic_global.mesh_configs import (
     get_realistic_global_mesh_config,
@@ -25,6 +25,10 @@ from polaris.tasks.ocean.realistic_global.mesh_configs import (
 def min_res_for_mesh(mesh_name):
     """
     The mesh minimum resolution in km, from the existing mesh definitions.
+
+    For unified meshes this is the finest *ocean* cell width, since the mesh is
+    culled to the ocean and sea-ice domain before MPAS-Ocean runs; the land and
+    river-channel refinement widths are ignored.
 
     Parameters
     ----------
@@ -38,7 +42,9 @@ def min_res_for_mesh(mesh_name):
     """
     if mesh_name in get_base_mesh_step_names():
         return get_base_mesh_definition(mesh_name).min_res
-    return get_unified_finest_cell_width(get_unified_mesh_config(mesh_name))
+    return get_unified_ocean_finest_cell_width(
+        get_unified_mesh_config(mesh_name)
+    )
 
 
 def estimate_cell_count(mesh_name):
