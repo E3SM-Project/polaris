@@ -129,7 +129,15 @@ class ForwardStage:
         The simulation start time.
 
     restart_in : str or None
-        The restart file to continue from when ``do_restart`` is ``True``.
+        The restart file to continue from when ``do_restart`` is ``True``, as a
+        path relative to the task work directory (e.g.
+        ``restarts/rst.0001-01-11_00.00.00.nc``).
+
+    restart_out : str or None
+        The restart file this stage produces for the next stage, as a path
+        relative to the task work directory.  When set, the forward step writes
+        restarts to the shared ``restarts`` directory and declares this file as
+        an output so the chain is inspectable.
     """
 
     name: str = 'forward'
@@ -158,6 +166,7 @@ class ForwardStage:
     do_restart: bool = False
     start_time: str = '0001-01-01_00:00:00'
     restart_in: Optional[str] = None
+    restart_out: Optional[str] = None
 
     @classmethod
     def from_config(
