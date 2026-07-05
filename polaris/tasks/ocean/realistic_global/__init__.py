@@ -1,3 +1,6 @@
+from polaris.tasks.ocean.realistic_global.dynamic_adjustment.tasks import (
+    add_realistic_global_dynamic_adjustment_tasks,
+)
 from polaris.tasks.ocean.realistic_global.forcing.jra55 import (
     Jra55 as Jra55,
 )
@@ -15,8 +18,8 @@ from polaris.tasks.ocean.realistic_global.init.tasks import (
 
 def add_realistic_global_tasks(component):
     """
-    Add tasks for realistic global ocean preprocessing, initialization, and
-    forward runs.
+    Add tasks for realistic global ocean preprocessing, initialization,
+    forward runs, and dynamic adjustment.
 
     Parameters
     ----------
@@ -28,3 +31,4 @@ def add_realistic_global_tasks(component):
     add_realistic_global_init_tasks(component=component)
     add_realistic_global_forward_tasks(component=component)
     add_realistic_global_cached_forward_tasks(component=component)
+    add_realistic_global_dynamic_adjustment_tasks(component=component)
