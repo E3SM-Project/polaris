@@ -105,3 +105,9 @@ def test_estimate_ocean_cell_count_given_config_without_option():
 
 def test_min_res_for_mesh_base_mesh():
     assert min_res_for_mesh('icos240km') == pytest.approx(240.0)
+
+
+def test_min_res_for_mesh_unified_uses_ocean_resolution():
+    """Unified min_res is the ocean resolution, not land/river refinement."""
+    # u.oi30.lr10 has 30 km ocean but 10 km land/river; ocean wins
+    assert min_res_for_mesh('u.oi30.lr10') == pytest.approx(30.0)
