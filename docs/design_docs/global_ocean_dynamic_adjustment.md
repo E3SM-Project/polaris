@@ -2,7 +2,7 @@
 
 date: 2026/03/22
 
-Contributors: Xylar Asay-Davis, Codex
+Contributors: Xylar Asay-Davis, Codex, Claude
 
 ## Summary
 
@@ -110,26 +110,28 @@ restart chaining, or gross excursions in key diagnostics.
 
 ### Algorithm Design: A staged dynamic-adjustment workflow can be created from a global initial condition
 
-Date last modified: 2026/03/22
+Date last modified: 2026/07/05
 
-Contributors: Xylar Asay-Davis, Codex
+Contributors: Xylar Asay-Davis, Codex, Claude
 
-The workflow should be described by an ordered schedule, likely in YAML,
-containing a small number of shared options plus a list of stages. Each stage
-should contain:
+The workflow is described by an ordered schedule in YAML, containing a small
+number of shared options plus a list of stages. Each stage may contain:
 
-1. A stage name.
+1. A stage name (the mapping key).
 2. A run duration.
 3. An output interval.
 4. A restart interval.
-5. Time-step information, either explicit or derived from mesh resolution.
+5. Time-step information, either explicit (`dt`/`btr_dt`) or derived from mesh
+   resolution (`dt_per_km`/`btr_dt_per_km`).
 6. Damping settings, typically decreasing from one stage to the next.
 
-This is directly analogous to the existing Compass design, where meshes provide
-YAML files containing stage sequences such as several `damped_adjustment_*`
-stages followed by a final `simulation` stage. Polaris should preserve this
-basic mental model because it is already easy to understand and has proven
-useful across several global meshes.
+Every schedule key maps directly onto a field of the reusable, model-agnostic
+`ForwardStage` object introduced by the `realistic_global` forward workflow, so
+the schedule parser is a thin adapter rather than a second configuration
+system. The keys use Polaris-native names (`stages`, `damping`) rather than the
+Compass names, but the mental model is the same: a sequence of several
+`damped_adjustment_*` stages followed by a final `simulation` stage, which has
+proven useful across several global meshes.
 
 ### Algorithm Design: The same conceptual workflow supports either MPAS-Ocean or Omega
 
@@ -192,89 +194,102 @@ in Python.
 
 ### Algorithm Design: The workflow includes basic validation that the adjustment remained well behaved
 
-Date last modified: 2026/03/22
+Date last modified: 2026/07/05
 
-Contributors: Xylar Asay-Davis, Codex
+Contributors: Xylar Asay-Davis, Codex, Claude
 
-Validation should focus on clear failure modes rather than exhaustive physical
-assessment. A likely initial strategy is:
+Validation focuses on clear failure modes rather than exhaustive physical
+assessment. The initial strategy is:
 
-1. Confirm that each stage completed and wrote the expected restart.
-2. Confirm that the final stage produced the expected output file.
-3. Record a small set of end-of-stage summary diagnostics so the last several
-   stages can be inspected automatically rather than only by manual plotting.
-4. Check simple global diagnostics or summary statistics against loose
-   thresholds to detect numerical blow-up.
-5. For at least the last three stages, verify that selected adjustment metrics
-   are flattening or decreasing, for example maximum cell kinetic energy,
-   domain-integrated kinetic energy, or sea-surface-height tendency.
-6. Optionally compare a small set of final-state variables against a baseline
+1. Confirm that each stage completed and wrote the restart the next stage
+   consumes (enforced by the Polaris dependency graph and each stage's declared
+   input/output restart files).
+2. Confirm that the final stage produced its `output.nc`.
+3. Check the maximum `temperature` in every stage against a loose threshold to
+   detect numerical blow-up.
+4. For the last few stages, verify that the maximum cell kinetic energy is
+   flattening (does not increase by more than a small tolerance).
+5. Optionally compare a small set of final-state variables against a baseline
    for regression testing.
 
-This is similar in spirit to the existing Compass validation, which checks
-selected output variables and simple thresholds from global statistics.
+Rather than an analysis-member summary, these read `output.nc` directly, since
+it already contains `kineticEnergyCell` and the tracers. This is similar in
+spirit to the existing Compass validation, which checks selected output
+variables and simple thresholds.
 
 ## Implementation
 
 ### Implementation: A staged dynamic-adjustment workflow can be created from a global initial condition
 
-Date last modified: 2026/03/22
-
-Contributors: Xylar Asay-Davis, Codex
-
-Polaris should add a new global-ocean dynamic-adjustment task that consumes the
-outputs of the global-ocean initialization workflow. A likely structure is a
-task or test case that reads a schedule file and instantiates one forward model
-step per stage.
-
-The schedule format can initially stay very close to the Compass format to
-reduce porting effort. For example:
-
-```yaml
-dynamic_adjustment:
-  get_dt_from_min_res: false
-  steps:
-    damped_adjustment_1:
-      run_duration: 02_00:00:00
-      output_interval: 10_00:00:00
-      restart_interval: 02_00:00:00
-      dt: 00:05:00
-      btr_dt: 00:00:15
-      Rayleigh_damping_coeff: 1.0e-4
-    simulation:
-      run_duration: 10_00:00:00
-      output_interval: 10_00:00:00
-      restart_interval: 10_00:00:00
-      dt: 00:10:00
-      btr_dt: 00:00:15
-      Rayleigh_damping_coeff: None
-```
-
-Internally, Polaris may later rename `steps` to `stages` or introduce a more
-structured schema, but preserving the Compass layout initially will make the
-first port much easier.
-
-### Implementation: The same conceptual workflow supports either MPAS-Ocean or Omega
-
-Date last modified: 2026/06/14
+Date last modified: 2026/07/05
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
-Implementation should build on Polaris' existing model-abstraction machinery,
-especially `OceanModelStep` and the existing mapping between common YAML-driven
+Polaris adds a new `realistic_global` dynamic-adjustment task that consumes the
+outputs of the shared `realistic_global/init` steps. The task reads a schedule
+file and instantiates one forward model step per stage, reusing the
+`realistic_global` `Forward` step and its `ForwardStage` settings object.
+
+The schedule uses Polaris-native keys that map onto `ForwardStage` fields. A
+`shared` block supplies per-stage defaults; each stage overrides what it needs.
+For example:
+
+```yaml
+dynamic_adjustment:
+  shared:
+    time_integrator: split_explicit_ab2
+    output_interval: 10_00:00:00
+    start_time: 0001-01-01_00:00:00
+  stages:
+    damped_adjustment_1:
+      run_duration: 02_00:00:00
+      restart_interval: 02_00:00:00
+      dt: 00:05:00
+      btr_dt: 00:00:15
+      damping: 1.0e-4
+    simulation:
+      run_duration: 10_00:00:00
+      restart_interval: 10_00:00:00
+      dt: 00:10:00
+      btr_dt: 00:00:15
+      # damping omitted => no Rayleigh damping
+```
+
+Time steps may instead be given per km of mesh minimum resolution
+(`dt_per_km`/`btr_dt_per_km`), matching the existing `ForwardStage` support.
+The parser computes each stage's cumulative start/stop time and the restart
+filenames, so the restart chain is deterministic and not entered by hand. This
+port renames Compass' `steps` to `stages` and `Rayleigh_damping_coeff` to
+`damping`, and drops `land_ice_flux_mode`, which `realistic_global` does not
+yet model.
+
+### Implementation: The same conceptual workflow supports either MPAS-Ocean or Omega
+
+Date last modified: 2026/07/05
+
+Contributors: Xylar Asay-Davis, Codex, Claude
+
+Implementation builds on Polaris' existing model-abstraction machinery,
+especially `OceanModelStep` and the mapping between common YAML-driven
 configuration and model-specific MPAS-Ocean or Omega settings.
 
-The dynamic-adjustment code should therefore separate:
+The dynamic-adjustment code separates:
 
 1. Schedule parsing and restart sequencing.
-2. Common stage metadata such as duration and cadence.
-3. Model-specific translation of time-step and damping options.
+2. Common stage metadata such as duration and cadence (`ForwardStage`).
+3. Model-specific translation of time-step and damping options
+   (`ForwardStage.model_replacements` / `bottom_drag_options`).
 
-This separation should keep the workflow portable even if Omega ends up needing
-different config names or a different subset of supported damping controls than
-MPAS-Ocean. Since each task targets a single configured model, no within-task
-branching between models is required; the same schedule and translation
-machinery runs once for the configured model.
+This separation keeps the workflow portable even though Omega needs different
+config names and a different subset of controls. Since each task targets a
+single configured model, no within-task branching is required.
+
+The first implementation wires the restart chain end-to-end for **MPAS-Ocean**,
+where restarts are read via `config_do_restart`/`config_start_time` from a
+shared restart stream. The schedule and stage abstraction remain
+model-agnostic, but Omega restart *reading* (which uses a pointer file) is left
+as a documented follow-up, and `split_explicit_ab2` is not yet supported for
+Omega. This matches current Omega limitations for realistic global runs.
 
 ### Implementation: Dynamic adjustment is decomposed into inspectable restart stages
 
@@ -310,31 +325,28 @@ not embedded in Python logic.
 
 ### Implementation: The workflow includes basic validation that the adjustment remained well behaved
 
-Date last modified: 2026/03/22
+Date last modified: 2026/07/05
 
-Contributors: Xylar Asay-Davis, Codex
+Contributors: Xylar Asay-Davis, Codex, Claude
 
-Validation should include lightweight checks in the task or test case, such as
-verifying expected restart files, confirming the final output exists, and
-checking a small set of variables or summary statistics against baseline or
-threshold values.
+Validation is a lightweight `Validate` step plus the built-in baseline
+comparison. Rather than depend on an analysis member, the checks read each
+stage's `output.nc`, which already carries `kineticEnergyCell` and the tracers
+(`temperature`, `salinity`):
 
-The workflow should also produce a compact machine-readable summary of
-stage-end diagnostics, for example one row per stage with metrics such as
-maximum cell kinetic energy, domain-integrated kinetic energy, and one or more
-simple sea-surface-height or tracer tendencies available from the configured
-model. This summary would support both automated checks and quick visual
-inspection at the end of the run.
+1. A baseline comparison of the final `simulation/output.nc`
+   (`temperature`, `salinity`, `layerThickness`, `normalVelocity`), handled by
+   the forward step's built-in `validate_vars` mechanism.
+2. A threshold check that the maximum `temperature` in every stage stays below
+   a configurable limit, to catch numerical blow-up (Compass parity).
+3. A "settling" heuristic requiring that the maximum `kineticEnergyCell` at the
+   end of each of the last few stages does not increase by more than a small
+   configurable tolerance.
 
-An initial heuristic check could require that the maximum cell kinetic energy
-at the end of each of the last three stages decreases monotonically, or at
-least does not increase by more than a small tolerance. Similar checks could
-be applied to one or two other globally aggregated measures once experience
-shows which diagnostics are the most robust indicators of a settling state.
-
-Where MPAS-Ocean and Omega diagnostics differ, the validation API should still
-present a common concept of "stage completed successfully and final adjusted
-state looks reasonable," with model-specific implementations underneath.
+The threshold and kinetic-energy checks are MPAS-Ocean scope for now, matching
+the restart-chain implementation; the abstraction leaves room for Omega
+equivalents. The common concept remains "each stage completed and wrote its
+restart, and the final adjusted state looks reasonable."
 
 ## Testing
 
