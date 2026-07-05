@@ -31,6 +31,32 @@ def get_unified_background_cell_width(config):
     return section.getfloat('ocean_background_max_km')
 
 
+def get_unified_ocean_finest_cell_width(config):
+    """
+    Get the finest configured ocean cell width from unified mesh settings.
+
+    Unlike :py:func:`get_unified_finest_cell_width`, this ignores the land and
+    river-channel refinement widths, since the realistic-global mesh is culled
+    to the ocean and sea-ice domain before MPAS-Ocean runs.  It is therefore
+    the appropriate resolution for sizing ocean-model time steps and resources.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The config for one unified mesh
+
+    Returns
+    -------
+    cell_width : float
+        The smallest configured ocean cell width in km for this mesh
+    """
+    section = config['sizing_field']
+    return min(
+        section.getfloat('ocean_background_min_km'),
+        section.getfloat('ocean_background_max_km'),
+    )
+
+
 def get_unified_finest_cell_width(config):
     """
     Get the finest configured cell width from unified mesh settings.
