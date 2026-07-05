@@ -14,7 +14,7 @@ from polaris.tasks.ocean.realistic_global.init.steps import (
     get_realistic_init_steps,
 )
 from polaris.tasks.ocean.realistic_global.mesh_info import (
-    estimate_cell_count,
+    estimate_ocean_cell_count,
     min_res_for_mesh,
 )
 
@@ -112,7 +112,7 @@ class RealisticGlobalDynamicAdjustment(Task):
 
         init_step = init_steps['initial_state']
         min_res = min_res_for_mesh(mesh_name)
-        approx_cell_count = estimate_cell_count(mesh_name)
+        approx_cell_count = estimate_ocean_cell_count(mesh_name)
 
         stages = load_schedule_stages(mesh_name, config)
 
