@@ -1,0 +1,11 @@
+# Restart-stream overrides applied by the Forward step when a stage is part of
+# a restart chain (its ForwardStage sets restart_out).  Each stage writes its
+# restart to a shared ``../restarts`` directory using a time-stamped filename,
+# so the next stage can read it via config_do_restart / config_start_time.
+# Only the restart stream is touched here; the output_interval already set in
+# forward.yaml is preserved by Polaris' per-stream merge.
+mpas-ocean:
+    streams:
+        restart:
+            filename_template: ../restarts/rst.$Y-$M-$D_$h.$m.$s.nc
+            filename_interval: output_interval
