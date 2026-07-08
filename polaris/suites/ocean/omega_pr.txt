@@ -1,4 +1,6 @@
 ocean/column/horiz_press_grad/salinity_gradient
+ocean/column/vmix_stable
+ocean/column/vmix_unstable
 ocean/planar/baroclinic_channel/10km/default
 ocean/planar/barotropic_gyre/munk/free-slip
 ocean/planar/manufactured_solution/convergence_both/default
@@ -14,3 +16,5 @@ ocean/spherical/icos/cosine_bell/restart
 
 # Supported but fails
 #ocean/planar/barotropic_channel/default
+ocean/column/ekman
+ocean/column/inertial
