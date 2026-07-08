@@ -5,6 +5,9 @@ ocean:
     config_dt: 0000_00:10:00
   forcing:
     config_use_bulk_wind_stress: false
+  hmix_del2:
+    config_use_mom_del2: false
+    config_use_tracer_del2: false
 
 mpas-ocean:
   run_modes:
@@ -23,7 +26,6 @@ Omega:
     PVTendencyEnable: false
     KETendencyEnable: false
     SSHTendencyEnable: false
-    PressureGradTendencyEnable: false
   IOStreams:
     InitialVertCoord:
       UsePointerFile: false
