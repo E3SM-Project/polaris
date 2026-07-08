@@ -71,6 +71,13 @@ class Viz(OceanIOStep):
                 target=f'{comparison_path}/{output_file}',
             )
 
+    def setup(self):
+        if self.config.get('ocean', 'model') == 'omega':
+            self.add_input_file(
+                filename='coeffs.nc',
+                target=f'{next(iter(self.comparisons.values()))}/coeffs.nc',
+            )
+
     def run(self):
         """
         Run this step of the test case
@@ -95,14 +102,15 @@ class Viz(OceanIOStep):
                 comparisons[comparison_name] = self.comparisons[
                     comparison_name
                 ]
+            else:
                 continue
-            if os.path.exists(f'../{comparison_name}/coeffs_reconstruct.nc'):
+            if os.path.exists('coeffs.nc'):
                 ds_comp = self.open_model_dataset(
                     f'{comparison_name}.nc',
                     decode_times=True,
                     mesh_filename='mesh.nc',
                     reconstruct_variables=['normalVelocity'],
-                    coeffs_filename=f'../{comparison_name}/coeffs_reconstruct.nc',
+                    coeffs_filename='coeffs.nc',
                     config=self.config,
                 )
             else:
@@ -115,7 +123,6 @@ class Viz(OceanIOStep):
             t_index = np.argmin(np.abs(t_arr - t_target))
             time_ds.append(float(t_arr[t_index]))
             ds_list.append(ds_comp.isel(Time=t_index))
-
         ds_init = self.open_model_dataset('init.nc', config=self.config)
         ds_init = ds_init.isel(Time=0)
         z_mid_init = ds_init['zMid'].mean(dim='nCells')

@@ -61,18 +61,18 @@ class Analysis(OceanIOStep):
             'output.nc',
             config=config,
             decode_times=True,
-            mesh_filename='../init/initial_state.nc',
+            mesh_filename='../init/culled_mesh.nc',
             reconstruct_variables=['normalVelocity'],
-            coeffs_filename='../forward/coeffs_reconstruct.nc',
+            coeffs_filename='../forward/coeffs.nc',
         )
         t = get_days_since_start(ds)
         s_per_day = 24.0 * 3600.0
         dt = (t[1] - t[0]) * s_per_day
-        t_index = np.argmin(np.abs(t - 1.0))  # ds.sizes['Time'] - 1
         u = ds['velocityZonal'].mean(dim='nCells')
         v = ds['velocityMeridional'].mean(dim='nCells')
-        u_max = np.max(u.values, axis=1)
-        v_max = np.max(v.values, axis=1)
+        u = ds['velocityZonal'].mean(dim='nCells')
+        u_max = u.max(dim='nVertLevels')
+        v_max = v.max(dim='nVertLevels')
 
         # Compute the FFT of the u-component and extract the frequency with
         # the most power
@@ -85,8 +85,8 @@ class Analysis(OceanIOStep):
         # Plot a time series of the maximum u and v components
         plt.figure(figsize=(3, 5))
         ax = plt.subplot(111)
-        ax.plot(t[:t_index], u_max[:t_index], '-b')
-        ax.plot(t[:t_index], v_max[:t_index], '--b')
+        ax.plot(t, u_max, '-b')
+        ax.plot(t, v_max, '--b')
         ymin, ymax = ax.get_ylim()
         ax.plot(
             [expected_period / 24.0, expected_period / 24.0],
