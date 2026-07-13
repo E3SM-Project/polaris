@@ -154,7 +154,7 @@ def convert_to_omega(input_file, output_file, eos_type, visualization=False):
         'Renamed variables to Omega names based on mpaso_to_omega.yaml mapping'
     )
     print('Renamed refLayerThickness to RefPseudoThickness for Omega output')
-    print('Added WindStressZonal and WindStressMeridional fields')
+    print('Added SfcStressZonal and SfcStressMeridional fields')
     print('Removed unnecessary global attributes')
     if visualization:
         print('Saved temperature/salinity percent-difference visualizations')
@@ -513,9 +513,9 @@ def _rename_resting_thickness_for_omega(ds):
 
 def _add_wind_stress(ds):
     """
-    Add a wind stress fields (WindStressZonal and WindStressMeridional).
-    WindStressZonal varies with latitude using piecewise cubic
-    interpolation, while WindStressMeridional is set to zero.
+    Add a wind stress fields (SfcStressZonal and SfcStressMeridional).
+    SfcStressZonal varies with latitude using piecewise cubic
+    interpolation, while SfcStressMeridional is set to zero.
     This is a simplified representation of typical zonal wind stress
     patterns.
 
@@ -526,7 +526,7 @@ def _add_wind_stress(ds):
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset to which WindStressZonal and WindStressMeridional will be
+        Dataset to which SfcStressZonal and SfcStressMeridional will be
         added. Must contain latCell.
     """
     # Fixed latitude-value pairs for cubic interpolation
@@ -559,11 +559,11 @@ def _add_wind_stress(ds):
         wind_stress_zonal_values[np.newaxis, :], (n_time, 1)
     )
 
-    ds['WindStressZonal'] = xr.DataArray(
+    ds['SfcStressZonal'] = xr.DataArray(
         data=wind_stress_zonal,
         dims=[time_dim, ncell_dim],
         attrs={
-            'long_name': 'zonal wind stress',
+            'long_name': 'surface zonal wind stress',
             'units': 'N m^{-2}',
             'standard_name': '',
         },
@@ -571,11 +571,11 @@ def _add_wind_stress(ds):
 
     # Create meridional wind stress field (set to zero)
     wind_stress_merid = np.zeros((n_time, n_cells))
-    ds['WindStressMeridional'] = xr.DataArray(
+    ds['SfcStressMeridional'] = xr.DataArray(
         data=wind_stress_merid,
         dims=[time_dim, ncell_dim],
         attrs={
-            'long_name': 'meridional wind stress',
+            'long_name': 'surface meridional wind stress',
             'units': 'N m^{-2}',
             'standard_name': '',
         },
@@ -846,7 +846,7 @@ def _save_percent_difference_visualizations(
 
     _plot_variable('temperature', 'Temperature')
     _plot_variable('salinity', 'Salinity')
-    _plot_surface_variable('WindStressZonal', 'Zonal Wind Stress', ds_omega)
+    _plot_surface_variable('SfcStressZonal', 'Zonal Wind Stress', ds_omega)
 
 
 def main():
