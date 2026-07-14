@@ -53,3 +53,30 @@ run with cached meshes and initial conditions.
 
 Including the `-v` verbose argument to `polaris list --suites` will
 print the tasks belonging to each given suite.
+
+(debug-suites)=
+
+## Suites that default to the debug queue
+
+Pull-request review is time-sensitive, so a few suites default to the machine's
+**debug** queue, partition, or QOS (whichever the machine provides) to get
+faster turnaround.  By default these are the `omega_pr` and `mpaso_pr` suites,
+controlled by the `debug_suites` option in the `[job]` config section:
+
+```cfg
+[job]
+
+# a comma-separated list of suites that default to the machine's debug
+# queue/partition/qos (if it has one) for fast PR-review turnaround; jobs too
+# large for the debug node limit fall back to the machine's normal default
+debug_suites = omega_pr, mpaso_pr
+```
+
+When you set up one of these suites on a machine that has a debug
+queue/partition/qos, the suite's job script (`job_script.<suite>.sh`) is written
+to use it, and its wall time is capped to the debug limit.  If the suite needs
+more nodes than the debug queue allows, it automatically falls back to the
+machine's normal default queue.  Machines without a debug queue are unaffected.
+
+You can add your own suites to this list (or remove the defaults) by overriding
+`debug_suites` in a user config file passed to `polaris suite`.

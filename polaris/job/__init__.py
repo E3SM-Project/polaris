@@ -1,3 +1,4 @@
+import copy as copy
 import importlib.resources as imp_res
 import os as os
 
@@ -132,6 +133,13 @@ def write_job_script(
 
     desired_wall_time = config.get('job', 'wall_time')
 
+    # some suites (e.g. omega_pr, mpaso_pr) should prefer the machine's debug
+    # queue/partition/qos for fast PR-review turnaround
+    use_debug = bool(suite) and suite in config.getlist('job', 'debug_suites')
+    combined = config.combined
+    if use_debug:
+        combined = _prefer_debug_targets(combined)
+
     if system == 'slurm':
         (
             partition,
@@ -141,7 +149,7 @@ def write_job_script(
             max_wallclock,
             nodes,
         ) = SlurmSystem.get_slurm_options(
-            config=config.combined,
+            config=combined,
             nodes=nodes,
             min_nodes_allowed=min_nodes_allowed,
         )
@@ -163,7 +171,7 @@ def write_job_script(
             filesystems,
             nodes,
         ) = PbsSystem.get_pbs_options(
-            config=config.combined,
+            config=combined,
             nodes=nodes,
             min_nodes_allowed=min_nodes_allowed,
         )
@@ -212,6 +220,27 @@ def write_job_script(
         script_filename = os.path.join(work_dir, script_filename)
     with open(script_filename, 'w') as handle:
         handle.write(text)
+
+
+def _prefer_debug_targets(combined):
+    """Return a copy of the combined config with any 'debug' entry moved to the
+    front of the parallel partitions/qos/queues lists, so mache selects a debug
+    target for jobs small enough to fit its node limit."""
+    combined = copy.deepcopy(combined)
+    for option in ('partitions', 'qos', 'queues'):
+        if not combined.has_option('parallel', option):
+            continue
+        values = [
+            value.strip()
+            for value in combined.get('parallel', option).split(',')
+            if value.strip() != ''
+        ]
+        debug = [value for value in values if 'debug' in value.lower()]
+        if len(debug) == 0:
+            continue
+        others = [value for value in values if 'debug' not in value.lower()]
+        combined.set('parallel', option, ', '.join(debug + others))
+    return combined
 
 
 def _get_min_nodes_allowed(
