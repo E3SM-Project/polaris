@@ -164,9 +164,17 @@ config:
     config_use_bulk_wind_stress: SfcStressForcingTendencyEnable
 
 - section:
-    debug: Tendencies
+    debug: [Tendencies, BottomDragTendency]
   options:
-    config_disable_vel_explicit_bottom_drag: not BottomDragTendencyEnable
+    config_disable_vel_explicit_bottom_drag: not Enable
+
+- section:
+    bottom_drag: [Tendencies, BottomDragTendency]
+  options:
+    config_bottom_drag_mode: Mode
+    config_implicit_bottom_drag_type: Type
+    config_explicit_bottom_drag_coeff: BottomDragCoeff
+    config_implicit_constant_bottom_drag_coeff: BottomDragCoeff
 
 - section:
     debug: Tendencies
@@ -192,11 +200,6 @@ config:
     debug: Tendencies
   options:
     config_disable_vel_pgrad: not PressureGradTendencyEnable
-
-- section:
-    bottom_drag: Tendencies
-  options:
-    config_explicit_bottom_drag_coeff: BottomDragCoeff
 
 - section:
     debug: Tendencies

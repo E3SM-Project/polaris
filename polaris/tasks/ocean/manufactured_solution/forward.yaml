@@ -12,6 +12,7 @@ ocean:
   debug:
     config_disable_vel_vmix: true
     config_disable_tr_vmix: true
+    config_disable_vel_explicit_bottom_drag: true
 
 mpas-ocean:
   bottom_drag:

@@ -36,7 +36,7 @@ mpas-ocean:
   io:
     config_write_output_on_startup: false
   bottom_drag:
-    config_bottom_drag_mode: explicit
+    config_bottom_drag_mode: implicit
   # MPAS-Ocean-only cvmix options with no Omega equivalent (Omega's
   # convective mixing uses a single coefficient for both diffusivity
   # and viscosity)

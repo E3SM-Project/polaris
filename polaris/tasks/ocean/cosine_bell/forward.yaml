@@ -9,6 +9,7 @@ ocean:
     config_disable_vel_pgrad: true
     config_disable_vel_vmix: true
     config_disable_tr_vmix: true
+    config_disable_vel_explicit_bottom_drag: true
 
 mpas-ocean:
   run_modes:
@@ -24,7 +25,6 @@ mpas-ocean:
     config_disable_vel_coriolis: true
     config_disable_vel_hmix: true
     config_disable_vel_surface_stress: true
-    config_disable_vel_explicit_bottom_drag: true
     config_disable_vel_vadv: true
     config_disable_tr_hmix: true
     config_disable_tr_sflux: true
