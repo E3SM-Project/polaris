@@ -40,9 +40,14 @@ Omega:
   TimeIntegration:
     TimeStepper: RungeKutta4
   Tendencies:
-    PressureGradTendencyEnable : false
+    TracerDiffTendencyEnable: false
+    TracerHyperDiffTendencyEnable: false
+    SfcStressForcingTendencyEnable: true
   Tracers:
     Debug: []
+  # AnalysisGroups:
+  # GlobalStats:
+  #   Enable: true
   IOStreams:
     InitialVertCoord:
       Filename: init.nc
