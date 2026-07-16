@@ -6,7 +6,14 @@ from polaris.viz import use_mplstyle
 
 
 class StatsAnalysis(OceanIOStep):
-    def __init__(self, component, name, indir, output_filename, forward_step):
+    def __init__(
+        self,
+        component,
+        indir,
+        output_filename,
+        forward_step,
+        name='global_stats',
+    ):
         # TODO this should be replaced with model-specific state variables
         # read from yaml
         self.variables = [
