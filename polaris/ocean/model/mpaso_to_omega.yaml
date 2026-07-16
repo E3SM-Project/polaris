@@ -97,6 +97,8 @@ variables:
   zInterface: GeomZInterface
   pressure: PressureMid
 
+  # eos
+  BruntVaisalaFreqTop: BruntVaisalaFreqSq
 
 config:
 - section:
