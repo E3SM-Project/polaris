@@ -20,8 +20,6 @@ class AnalysisMembers(Task):
         subdir,
         mesh_name,
         mesh_id,
-        config,
-        config_filename,
         resolution_for_cell_count,
     ):
         """
@@ -45,7 +43,13 @@ class AnalysisMembers(Task):
             component=component, name='analysis_test', subdir=subdir
         )
 
-        self.set_shared_config(config, link=config_filename)
+        config_filename = 'analysis_members.cfg'
+        config = PolarisConfigParser(filepath=f'{subdir}/{config_filename}')
+        config.add_from_package(
+            'polaris.tasks.ocean.realistic_global.analysis_members',
+            config_filename,
+        )
+        # self.set_shared_config(config, link=config_filename)
 
         package = 'polaris.tasks.ocean.realistic_global'
         replacements = {
