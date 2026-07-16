@@ -111,6 +111,17 @@ class Forward(OceanModelStep):
             #    database='realistic_global',
             # )
         else:
+            input_filename = f'{input_filename}.zerovel.nc'
+            self.add_input_file(
+                target=input_filename,
+                filename='OmegaMesh.nc',
+                database=f'realistic_global/{model}',
+            )
+            self.add_input_file(
+                target=input_filename,
+                filename='init.nc',
+                database=f'realistic_global/{model}',
+            )
             self.add_input_file(
                 target=self.graph_filename,
                 filename='graph.info',
