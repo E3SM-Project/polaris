@@ -14,7 +14,7 @@ the vertical dynamics of the ocean model only. The test cases are:
 
 ## suppported models
 
-These tasks support MPAS-Ocean and Omega.
+All but the ideal age task support MPAS-Ocean and Omega, whereas the ideal age task supports MPAS-Ocean only.
 
 ## mesh
 
