@@ -201,7 +201,7 @@ domain is only 16 cells.
 
 The `vmix_stable` test runs a series of forward steps with different namelist
 paramters to test out different vertical mixing options under stable
-stratification.
+stratification. The analysis step then compares the boundary layer depth for the forward step without Coriolis with the analytic solution from equation 35 of Van Roekel et al. (2018) https://doi.org/10.1029/2018MS001336
 
 The temperature and salinity profiles after 10 days are shown here:
 

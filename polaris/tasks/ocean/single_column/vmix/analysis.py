@@ -40,18 +40,6 @@ class Analysis(OceanIOStep):
         """
         Run this step of the test case
         """
-        section = self.config['single_column_forcing']
-        wind_stress = np.sqrt(
-            section.getfloat('wind_stress_zonal') ** 2.0
-            + section.getfloat('wind_stress_meridional') ** 2.0
-        )
-        # u_star = 0.01
-        RhoSw = get_constant('seawater_density_reference')
-        u_star = wind_stress / RhoSw
-        # TODO why is this 0
-        # u_star = ds_diags_1day['surfaceFrictionVelocity'].mean(dim='nCells')
-        # TODO compute this based on config parameters
-        N_sq_init = 1.0e-4
         ds_vert = self.open_model_dataset(
             'vert_coord.nc',
             decode_times=False,
@@ -61,6 +49,12 @@ class Analysis(OceanIOStep):
             ds_diags = self.open_model_dataset(
                 f'{comparison_name}.nc', decode_times=True, config=self.config
             )
+            if 'BruntVaisalaFreqTop' not in ds_diags.keys():
+                self.logger.warn(
+                    f'BruntVailsalaFreqTop not present in ds {comparison_name}'
+                    ' skipping BLD comparison'
+                )
+                continue
             t_target = 1.0  # empirical relationship hold for up to 30h
             t_arr = get_days_since_start(ds_diags)
             t_index = np.argmin(np.abs(t_arr - t_target))
@@ -70,10 +64,8 @@ class Analysis(OceanIOStep):
                     f'{comparison_name}: Time mismatch \n'
                     f'expected {t_target}, got {t_days}'
                 )
-            bld_theory = -u_star * (15.0 * t_days * 86400.0 / N_sq_init) ** (
-                1 / 3
-            )
             ds_diags_1day = ds_diags.isel(Time=t_index)
+            N_sq = ds_diags_1day['BruntVaisalaFreqTop'].mean(dim='nCells')
             if 'zTop' in ds_diags_1day.keys():
                 z_top_final = ds_diags_1day['zTop'].mean(dim='nCells')
             else:
@@ -87,17 +79,26 @@ class Analysis(OceanIOStep):
                 z_top_final = z_top_final.rename(
                     {'nVertLevelsP1': 'nVertLevels'}
                 )
-            if 'BruntVaisalaFreqTop' in ds_diags_1day.keys():
-                N_sq = ds_diags_1day['BruntVaisalaFreqTop'].mean(dim='nCells')
-            else:
-                self.logger.warn(
-                    f'BruntVailsalaFreqTop not present in ds {comparison_name}'
-                    ' skipping BLD comparison'
-                )
-                continue
             index_bld = int(np.nanargmax(N_sq.values))
             bld = z_top_final.isel(nVertLevels=index_bld)
             self.logger.info(
-                f'{comparison_name}: boundary layer depth '
-                f'expected {bld_theory}, actual {bld.values}'
+                f'{comparison_name}: Boundary layer depth computed from '
+                f'max(N^2) depth {bld.values} m'
             )
+            if comparison_name == 'no_hadv':
+                section = self.config['single_column_forcing']
+                wind_stress = np.sqrt(
+                    section.getfloat('wind_stress_zonal') ** 2.0
+                    + section.getfloat('wind_stress_meridional') ** 2.0
+                )
+                RhoSw = get_constant('seawater_density_reference')
+                u_star = wind_stress / RhoSw
+                # N_sq_init only corresponds to the default config parameters
+                # TODO compute this based on config parameters
+                N_sq_init = 1.0e-4
+                bld_theory = -u_star * (
+                    15.0 * t_days * 86400.0 / N_sq_init
+                ) ** (1 / 3)
+                self.logger.info(
+                    f'{comparison_name}: Theoretical BL depth: {bld_theory} m'
+                )
