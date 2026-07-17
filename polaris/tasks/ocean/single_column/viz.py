@@ -18,6 +18,7 @@ class Viz(OceanIOStep):
         self,
         component,
         indir,
+        init,
         name='viz',
         ideal_age=False,
         comparisons=None,
@@ -62,9 +63,11 @@ class Viz(OceanIOStep):
             # Include age tracer
             self.variables['iAge'] = 'seconds'
         self.add_input_file(
-            filename='mesh.nc', target='../init/culled_mesh.nc'
+            filename='mesh.nc', work_dir_target=f'{init.path}/culled_mesh.nc'
         )
-        self.add_input_file(filename='init.nc', target='../init/init.nc')
+        self.add_input_file(
+            filename='init.nc', work_dir_target=f'{init.path}/init.nc'
+        )
         for comparison_name, comparison_path in self.comparisons.items():
             self.add_input_file(
                 filename=f'{comparison_name}.nc',

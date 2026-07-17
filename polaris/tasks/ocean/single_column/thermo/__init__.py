@@ -26,11 +26,15 @@ class Thermo(Task):
         subdir = os.path.join(indir, name)
         super().__init__(component=component, name=name, subdir=subdir)
 
+        self.config.add_from_package('polaris.ocean.eos', 'linear.cfg')
         self.config.add_from_package(
             'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
         )
         self.config.add_from_package(
             'polaris.tasks.ocean.single_column', 'stable_stratification.cfg'
+        )
+        self.config.add_from_package(
+            'polaris.tasks.ocean.single_column', 'wind.cfg'
         )
         self.config.add_from_package(
             f'polaris.tasks.ocean.single_column.{name}', f'{name}.cfg'
@@ -84,6 +88,7 @@ class Thermo(Task):
         self.add_step(
             Viz(
                 component=component,
+                init=init_step,
                 indir=self.subdir,
                 comparisons=comparisons,
             ),

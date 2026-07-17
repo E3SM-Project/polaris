@@ -115,6 +115,7 @@ class VMix(Task):
         self.add_step(
             Viz(
                 component=component,
+                init=init,
                 indir=f'{indir}/{name}',
                 comparisons={
                     'standard': '../forward',
