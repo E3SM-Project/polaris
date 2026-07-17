@@ -46,7 +46,7 @@ mpas-ocean:
   streams:
     forcing_data:
       type: input
-      filename_template: init.nc
+      filename_template: forcing.nc
       input_interval: initial_only
       contents:
       - tracersSurfaceRestoringFields
@@ -110,6 +110,19 @@ mpas-ocean:
       - BruntVaisalaFreqTop
       - vertViscTopOfCell
       - vertDiffTopOfCell
+      - windStressZonal
+      - windStressMeridional
+      - landIceSurfaceTemperature
+      - atmosphericPressure
+      - latentHeatFlux
+      - sensibleHeatFlux
+      - shortWaveHeatFlux
+      - evaporationFlux
+      - rainFlux
+      - seaIceFreshWaterFlux
+      - icebergFreshWaterFlux
+      - riverRunoffFlux
+      - iceRunoffFlux
 
 Omega:
   # This is needed for consistency with MPAS-O
@@ -131,6 +144,7 @@ Omega:
       - Tracers
       - SshCell
       - Eos
+      - Forcing
     Forcing:
       UsePointerFile: false
       Filename: forcing.nc

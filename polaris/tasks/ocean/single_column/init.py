@@ -162,7 +162,8 @@ class Init(OceanIOStep):
         ds.attrs['dc'] = dc
 
         self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
-        self.write_initial_state_dataset(ds, 'init.nc', config)
+
+        model = config.get('ocean', 'model')
 
         # create the forcing dataset, which contains only forcing fields (the
         # initial state stays in ``ds``)
@@ -189,37 +190,37 @@ class Init(OceanIOStep):
         salinity_interior_restoring_rate = section.getfloat(
             'salinity_interior_restoring_rate'
         )
-        ds_forcing['temperaturePistonVelocity'] = (
-            temperature_piston_velocity * forcing_array_surface
-        )
-        ds_forcing['salinityPistonVelocity'] = (
-            salinity_piston_velocity * forcing_array_surface
-        )
-        ds_forcing['temperatureSurfaceRestoringValue'] = (
-            temperature_surface_restoring_value * forcing_array_surface
-        )
-        ds_forcing['salinitySurfaceRestoringValue'] = (
-            salinity_surface_restoring_value * forcing_array_surface
-        )
-        ds_forcing['temperatureInteriorRestoringRate'] = (
-            temperature_interior_restoring_rate * forcing_array
-        )
-        ds_forcing['salinityInteriorRestoringRate'] = (
-            salinity_interior_restoring_rate * forcing_array
-        )
-        model = config.get('ocean', 'model')
         if model == 'mpas-ocean':
+            ds_forcing['temperaturePistonVelocity'] = (
+                temperature_piston_velocity * forcing_array_surface
+            )
+            ds_forcing['salinityPistonVelocity'] = (
+                salinity_piston_velocity * forcing_array_surface
+            )
+            ds_forcing['temperatureSurfaceRestoringValue'] = (
+                temperature_surface_restoring_value * forcing_array_surface
+            )
+            ds_forcing['salinitySurfaceRestoringValue'] = (
+                salinity_surface_restoring_value * forcing_array_surface
+            )
+            ds_forcing['temperatureInteriorRestoringRate'] = (
+                temperature_interior_restoring_rate * forcing_array
+            )
+            ds_forcing['salinityInteriorRestoringRate'] = (
+                salinity_interior_restoring_rate * forcing_array
+            )
             ds_forcing['temperatureInteriorRestoringValue'] = temperature
             ds_forcing['salinityInteriorRestoringValue'] = salinity
         elif model == 'omega':
             # Restoring is applied through a different variable in Omega
-            restoring_values = np.zeros((2, ds_forcing.sizes['nCells']))
+            restoring_values = np.zeros((2, ds.sizes['nCells']))
             restoring_values[0, :] = temperature_surface_restoring_value
             restoring_values[1, :] = salinity_surface_restoring_value
-            ds_forcing['TracersMonthlySurfClimoCell'] = xr.DataArray(
+            ds['TracersMonthlySurfClimoCell'] = xr.DataArray(
                 restoring_values[np.newaxis, :, :],
                 dims=('time', 'NTracers', 'NCells'),
             )
+        self.write_initial_state_dataset(ds, 'init.nc', config)
 
         wind_stress_zonal = section.getfloat('wind_stress_zonal')
         wind_stress_meridional = section.getfloat('wind_stress_meridional')
@@ -230,6 +231,27 @@ class Init(OceanIOStep):
             wind_stress_meridional * forcing_array_surface
         )
 
+        all_forcing_vars = [
+            'latent_heat_flux',
+            'sensible_heat_flux',
+            'short_wave_heat_flux',
+            'long_wave_heat_flux_up',
+            'long_wave_heat_flux_down',
+            'evaporation_flux',
+            'snow_flux',
+            'rain_flux',
+            'river_runoff_flux',
+            'ice_runoff_flux',
+            'sea_ice_fresh_water_flux',
+            'sea_ice_heat_flux',
+            'sea_ice_salinity_flux',
+        ]
+        for forcing_var in all_forcing_vars:
+            parts = forcing_var.split('_')
+            variable_name = parts[0] + ''.join(
+                p.capitalize() for p in parts[1:]
+            )
+            ds_forcing[variable_name] = 0.0 * forcing_array_surface
         for forcing_var in self.forcing_vars:
             # convert snake_case to camelCase (e.g. 'latent_heat_flux' ->
             # 'latentHeatFlux')
