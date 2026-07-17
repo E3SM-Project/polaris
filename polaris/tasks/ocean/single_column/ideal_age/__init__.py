@@ -47,6 +47,7 @@ class IdealAge(Task):
         self.add_step(
             Viz(
                 component=component,
+                init=init,
                 indir=self.subdir,
                 ideal_age=ideal_age,
             ),
