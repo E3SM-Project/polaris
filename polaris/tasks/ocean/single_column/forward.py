@@ -26,6 +26,7 @@ class Forward(OceanModelStep):
         task_name='',
         update_eos=True,
         enable_vadv=True,
+        enable_hadv=True,
         enable_restoring=False,
         constant_diff=False,
     ):
@@ -68,6 +69,8 @@ class Forward(OceanModelStep):
         """
         if not enable_vadv:
             name = f'{name}_no_vadv'
+        if not enable_hadv:
+            name = f'{name}_no_hadv'
         if enable_restoring:
             name = f'{name}_restoring'
         if constant_diff:
@@ -82,8 +85,6 @@ class Forward(OceanModelStep):
             openmp_threads=openmp_threads,
         )
 
-        self.add_yaml_file('polaris.ocean.config', 'output.yaml')
-
         self.add_horiz_mesh_input_file(target='../init/culled_mesh.nc')
         self.add_vert_coord_input_file(target='../init/vert_coord.nc')
         self.add_init_input_file(target='../init/init.nc')
@@ -92,9 +93,11 @@ class Forward(OceanModelStep):
             filename='graph.info', target='../init/culled_graph.info'
         )
 
+        self.add_yaml_file('polaris.ocean.config', 'output.yaml')
         self.add_yaml_file('polaris.tasks.ocean.single_column', 'forward.yaml')
         self.add_yaml_file(
-            f'polaris.tasks.ocean.single_column.{task_name}', 'forward.yaml'
+            f'polaris.tasks.ocean.single_column.{task_name.split("_")[0]}',
+            'forward.yaml',
         )
 
         self.add_output_file(filename='output.nc', validate_vars=validate_vars)
@@ -103,6 +106,7 @@ class Forward(OceanModelStep):
 
         self.task_name = task_name
 
+        self.enable_hadv = enable_hadv
         self.enable_vadv = enable_vadv
         self.enable_restoring = enable_restoring
 
@@ -144,6 +148,7 @@ class Forward(OceanModelStep):
                 )
         else:
             duration_str = str(duration * 86400)
+
         shared_options = {
             'config_time_integrator': time_integrator,
             'config_run_duration': duration_str,
@@ -172,6 +177,16 @@ class Forward(OceanModelStep):
             omega_options.update(
                 {
                     'TracerVertAdvTendencyEnable': False,
+                }
+            )
+        if not self.enable_hadv:
+            # This makes it inconsistent with MPAS-O, which cannot turn off
+            # hadv without also turning off vadv
+            omega_options.update(
+                {
+                    'TracerHorzAdvTendencyEnable': False,
+                    'PVTendencyEnable': False,
+                    'KETendencyEnable': False,
                 }
             )
         if self.enable_restoring:
@@ -206,5 +221,5 @@ class Forward(OceanModelStep):
         )
         self.add_model_config_options(
             options=omega_options,
-            config_model='omega',
+            config_model='Omega',
         )
