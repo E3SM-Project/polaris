@@ -14,7 +14,7 @@ class Init(OceanIOStep):
     test cases
     """
 
-    def __init__(self, component, subdir):
+    def __init__(self, component, subdir, name='init', forcing_vars=None):
         """
         Create the step
 
@@ -27,7 +27,21 @@ class Init(OceanIOStep):
             The subdirectory that the task belongs to, that this step will
             go into a subdirectory of
         """
-        super().__init__(component=component, name='init', subdir=subdir)
+        super().__init__(component=component, name=name, subdir=subdir)
+        if forcing_vars is None:
+            self.forcing_vars = [
+                'latent_heat_flux',
+                'sensible_heat_flux',
+                'shortwave_heat_flux',
+                'evaporation_flux',
+                'rain_flux',
+                'river_runoff_flux',
+                'ice_runoff_flux',
+                'subglacial_runoff_flux',
+                'iceberg_flux',
+            ]
+        else:
+            self.forcing_vars = forcing_vars
 
     def setup(self):
         super().setup()
@@ -148,6 +162,7 @@ class Init(OceanIOStep):
         ds.attrs['dc'] = dc
 
         self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
+        self.write_initial_state_dataset(ds, 'init.nc', config)
 
         # create forcing stream
         ds_forcing = ds.copy()
@@ -173,19 +188,6 @@ class Init(OceanIOStep):
         salinity_interior_restoring_rate = section.getfloat(
             'salinity_interior_restoring_rate'
         )
-
-        latent_heat_flux = section.getfloat('latent_heat_flux')
-        sensible_heat_flux = section.getfloat('sensible_heat_flux')
-        shortwave_heat_flux = section.getfloat('shortwave_heat_flux')
-        evaporation_flux = section.getfloat('evaporation_flux')
-        rain_flux = section.getfloat('rain_flux')
-        river_runoff_flux = section.getfloat('river_runoff_flux')
-        ice_runoff_flux = section.getfloat('ice_runoff_flux')
-        subglacial_runoff_flux = section.getfloat('subglacial_runoff_flux')
-        iceberg_flux = section.getfloat('iceberg_flux')
-        wind_stress_zonal = section.getfloat('wind_stress_zonal')
-        wind_stress_meridional = section.getfloat('wind_stress_meridional')
-
         ds_forcing['temperaturePistonVelocity'] = (
             temperature_piston_velocity * forcing_array_surface
         )
@@ -206,33 +208,8 @@ class Init(OceanIOStep):
         )
         ds_forcing['temperatureInteriorRestoringValue'] = temperature
         ds_forcing['salinityInteriorRestoringValue'] = salinity
-        ds_forcing['windStressZonal'] = (
-            wind_stress_zonal * forcing_array_surface
-        )
-        ds_forcing['windStressMeridional'] = (
-            wind_stress_meridional * forcing_array_surface
-        )
-        ds_forcing['latentHeatFlux'] = latent_heat_flux * forcing_array_surface
-        ds_forcing['sensibleHeatFlux'] = (
-            sensible_heat_flux * forcing_array_surface
-        )
-        ds_forcing['shortWaveHeatFlux'] = (
-            shortwave_heat_flux * forcing_array_surface
-        )
-        ds_forcing['evaporationFlux'] = (
-            evaporation_flux * forcing_array_surface
-        )
-        ds_forcing['rainFlux'] = rain_flux * forcing_array_surface
-        ds_forcing['riverRunoffFlux'] = (
-            river_runoff_flux * forcing_array_surface
-        )
-        ds_forcing['iceRunoffFlux'] = ice_runoff_flux * forcing_array_surface
-        ds_forcing['subglacialRunoffFlux'] = (
-            subglacial_runoff_flux * forcing_array_surface
-        )
-        ds_forcing['icebergFreshWaterFlux'] = (
-            iceberg_flux * forcing_array_surface
-        )
+
+        # Restoring is applied through a different variable in Omega
         restoring_values = np.zeros((2, ds_forcing.sizes['nCells']))
         restoring_values[0, :] = temperature_surface_restoring_value
         restoring_values[1, :] = salinity_surface_restoring_value
@@ -240,5 +217,24 @@ class Init(OceanIOStep):
             restoring_values[np.newaxis, :, :],
             dims=('time', 'NTracers', 'NCells'),
         )
-        self.write_initial_state_dataset(ds_forcing, 'init.nc', config)
+
+        wind_stress_zonal = section.getfloat('wind_stress_zonal')
+        wind_stress_meridional = section.getfloat('wind_stress_meridional')
+        ds_forcing['windStressZonal'] = (
+            wind_stress_zonal * forcing_array_surface
+        )
+        ds_forcing['windStressMeridional'] = (
+            wind_stress_meridional * forcing_array_surface
+        )
+
+        for forcing_var in self.forcing_vars:
+            # convert snake_case to camelCase (e.g. 'latent_heat_flux' ->
+            # 'latentHeatFlux')
+            parts = forcing_var.split('_')
+            variable_name = parts[0] + ''.join(
+                p.capitalize() for p in parts[1:]
+            )
+            forcing_value = section.getfloat(forcing_var)
+            ds_forcing[variable_name] = forcing_value * forcing_array_surface
+
         self.write_model_dataset(ds_forcing, 'forcing.nc', config)

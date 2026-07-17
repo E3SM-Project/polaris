@@ -43,6 +43,7 @@ class Ekman(Task):
         ]
         forward_step = Forward(
             component=component,
+            init=init,
             indir=self.subdir,
             ntasks=1,
             min_tasks=1,
