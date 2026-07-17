@@ -21,11 +21,6 @@ mpas-ocean:
     restart: {}
 
 Omega:
-  Tendencies:
-    ThicknessFluxTendencyEnable: true
-    PVTendencyEnable: false
-    KETendencyEnable: false
-    SSHTendencyEnable: false
   IOStreams:
     InitialVertCoord:
       UsePointerFile: false

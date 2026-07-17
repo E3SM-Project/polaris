@@ -113,10 +113,6 @@ Omega:
   # This is needed for consistency with MPAS-O
   SurfaceRestoring:
     TracersToRestore: [Salinity]
-  Tendencies:
-    # This makes it inconsistent with MPAS-O, which cannot turn off hadv
-    # without also turning off vadv
-    TracerHorzAdvTendencyEnable: true
   IOStreams:
     History:
       Filename: output.nc
