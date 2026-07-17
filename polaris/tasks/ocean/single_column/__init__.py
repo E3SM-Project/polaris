@@ -19,7 +19,7 @@ def add_single_column_tasks(component):
     group_name = 'single_column'
 
     name = 'vmix_stable'
-    forcing = ['wind']
+    forcing = ['wind', 'evap']
     forcing_dir = '_'.join(forcing) if forcing else 'no_forcing'
     filepath = f'{component.name}/column/{name}/{name}.cfg'
     config = PolarisConfigParser(filepath=filepath)
