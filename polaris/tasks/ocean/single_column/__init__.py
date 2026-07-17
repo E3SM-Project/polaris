@@ -3,6 +3,7 @@ from polaris.tasks.ocean.single_column.ekman import Ekman as Ekman
 from polaris.tasks.ocean.single_column.ideal_age import IdealAge as IdealAge
 from polaris.tasks.ocean.single_column.inertial import Inertial as Inertial
 from polaris.tasks.ocean.single_column.init import Init
+from polaris.tasks.ocean.single_column.thermo import Thermo as Thermo
 from polaris.tasks.ocean.single_column.vmix import VMix as VMix
 
 
@@ -34,7 +35,7 @@ def add_single_column_tasks(component):
     )
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
-        subdir=f'column/{forcing_dir}/init_stable',
+        subdir=f'column/init/{forcing_dir}/stable',
         config=config,
         config_filename=f'{name}.cfg',
     )
@@ -65,7 +66,7 @@ def add_single_column_tasks(component):
     )
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
-        subdir=f'column/{forcing_dir}/init_unstable',
+        subdir=f'column/init/{forcing_dir}/unstable',
         config=config,
         config_filename=f'{name}.cfg',
     )
@@ -92,7 +93,7 @@ def add_single_column_tasks(component):
         )
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
-        subdir=f'column/{forcing_name}/init',
+        subdir=f'column/init/{forcing_name}/neutral',
         config=config,
         config_filename=f'{name}.cfg',
     )
@@ -122,7 +123,7 @@ def add_single_column_tasks(component):
     )
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
-        subdir=f'column/{forcing_dir}/init_stable',
+        subdir=f'column/init/{forcing_dir}/stable',
         config=config,
         config_filename=f'{name}.cfg',
     )
@@ -152,7 +153,7 @@ def add_single_column_tasks(component):
     )
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
-        subdir=f'column/{forcing_dir}/init_stable',
+        subdir=f'column/init/{forcing_dir}/stable',
         config=config,
         config_filename=f'{name}.cfg',
     )
@@ -161,6 +162,13 @@ def add_single_column_tasks(component):
             component=component,
             init=init_step,
             config=config,
+            indir='column',
+        )
+    )
+
+    component.add_task(
+        Thermo(
+            component=component,
             indir='column',
         )
     )
