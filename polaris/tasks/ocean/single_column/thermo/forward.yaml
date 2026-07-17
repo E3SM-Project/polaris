@@ -131,6 +131,7 @@ Omega:
       - Tracers
       - SshCell
       - Eos
+      - Forcing
     Forcing:
       UsePointerFile: false
       Filename: forcing.nc
@@ -140,4 +141,18 @@ Omega:
       FreqUnits: OnStartup
       UseStartEnd: false
       Contents:
-      - Forcing
+      - SfcStressZonal
+      - SfcStressMeridional
+      - latentHeatFlux
+      - sensibleHeatFlux
+      - snowFlux
+      - rainFlux
+      - longWaveHeatFluxDown
+      - longWaveHeatFluxUp
+      - seaIceHeatFlux
+      - seaIceSaltFlux
+      - seaIceFreshWaterFlux
+      - riverRunoffFlux
+      - iceRunoffFlux
+      - shortWaveHeatFlux
+      - evaporationFlux
