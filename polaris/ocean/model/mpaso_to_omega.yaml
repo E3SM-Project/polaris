@@ -93,19 +93,19 @@ variables:
   # forcing
   windStressZonal: SfcStressZonal
   windStressMeridional: SfcStressMeridional
-  snowFlux: SnowFlux
-  rainFlux: RainFlux
-  evaporationFlux: EvaporationFlux
-  seaIceFreshWaterFlux: SeaIceFreshWaterFlux
-  iceRunoffFlux: IceRunoffFlux
-  riverRunoffFlux: RiverRunoffFlux
-  latentHeatFlux: LatentHeatFlux
-  sensibleHeatFlux: SensibleHeatFlux
-  longWaveHeatFluxUp: LongWaveHeatFluxUp
-  longWaveHeatFluxDown: LongWaveHeatFluxDown
-  seaIceHeatFlux: SeaIceHeatFlux
-  shortWaveHeatFlux: ShortWaveHeatFlux
-  seaIceSalinityFlux: SeaIceSaltFlux
+  snowFlux: snowFlux
+  rainFlux: rainFlux
+  evaporationFlux: evaporationFlux
+  seaIceFreshWaterFlux: seaIceFreshWaterFlux
+  iceRunoffFlux: iceRunoffFlux
+  riverRunoffFlux: riverRunoffFlux
+  latentHeatFlux: latentHeatFlux
+  sensibleHeatFlux: sensibleHeatFlux
+  longWaveHeatFluxUp: longWaveHeatFluxUp
+  longWaveHeatFluxDown: longWaveHeatFluxDown
+  seaIceHeatFlux: seaIceHeatFlux
+  shortWaveHeatFlux: shortWaveHeatFlux
+  seaIceSalinityFlux: seaIceSaltFlux
 
   # vertical coordinate diagnostics
   zMid: GeomZMid
