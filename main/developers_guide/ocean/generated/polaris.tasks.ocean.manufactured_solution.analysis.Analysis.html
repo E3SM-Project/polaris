@@ -178,7 +178,7 @@ test case</p>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename[, validate_vars, ...])</p></td>
-<td><p>Add the output file that must be produced by this step and may be made available as an input to steps, perhaps in other tasks.</p></td>
+<td><p>Add an output file, optionally resolving <code class="docutils literal notranslate"><span class="pre">validate_class</span></code> to a pre-defined list of variables from the Ocean component.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_files_for_ocean_model_input</span></code>([...])</p></td>
 <td><p>Register output files that will be consumed by the ocean model as inputs (horizontal mesh, initial condition, and model-specific files).</p></td>

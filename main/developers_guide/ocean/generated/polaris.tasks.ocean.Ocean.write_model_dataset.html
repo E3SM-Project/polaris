@@ -139,7 +139,7 @@
 <h1>polaris.tasks.ocean.Ocean.write_model_dataset<a class="headerlink" href="#polaris-tasks-ocean-ocean-write-model-dataset" title="Link to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.Ocean.write_model_dataset">
-<span class="sig-prename descclassname"><span class="pre">Ocean.</span></span><span class="sig-name descname"><span class="pre">write_model_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean.html#Ocean.write_model_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.Ocean.write_model_dataset" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Ocean.</span></span><span class="sig-name descname"><span class="pre">write_model_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contains_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean.html#Ocean.write_model_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.Ocean.write_model_dataset" title="Link to this definition"></a></dt>
 <dd><p>Write out the given dataset, mapping dimension and variable names from
 MPAS-Ocean to Omega names if appropriate</p>
 <dl class="field-list simple">
@@ -150,6 +150,8 @@ MPAS-Ocean to Omega names if appropriate</p>
 <li><p><strong>config</strong> (<a class="reference internal" href="../../generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration for the task; used when the model is Omega to
 convert geometric layer thickness to pseudo-thickness before
 writing.</p></li>
+<li><p><strong>contains_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, perform additional validation that all configured state
+variables are present in the dataset after mapping.</p></li>
 </ul>
 </dd>
 </dl>

@@ -172,7 +172,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_dim_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">tasks</span><span class="p">):</span>
@@ -300,7 +301,7 @@
 
 <div class="viewcode-block" id="Ocean.write_model_dataset">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.tasks.ocean.Ocean.write_model_dataset.html#polaris.tasks.ocean.Ocean.write_model_dataset">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">write_model_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_model_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">contains_state</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write out the given dataset, mapping dimension and variable names from</span>
 <span class="sd">        MPAS-Ocean to Omega names if appropriate</span>
@@ -317,6 +318,10 @@
 <span class="sd">            Configuration for the task; used when the model is Omega to</span>
 <span class="sd">            convert geometric layer thickness to pseudo-thickness before</span>
 <span class="sd">            writing.</span>
+
+<span class="sd">        contains_state : bool, optional</span>
+<span class="sd">            If True, perform additional validation that all configured state</span>
+<span class="sd">            variables are present in the dataset after mapping.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
             <span class="c1"># fields to be converted from geometric to pseudo thickness</span>
@@ -357,10 +362,20 @@
                             <span class="p">)</span>
                             <span class="n">ds</span><span class="p">[</span><span class="n">omega_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">mpas_var</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">spec_vol</span> <span class="o">*</span> <span class="n">RhoSw</span><span class="p">)</span>
 
-        <span class="c1"># After map_to_native_model_vars, the dataset contains</span>
-        <span class="c1"># LayerThickness and PseudoThickness which are both</span>
-        <span class="c1"># pseudo-thickness</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_to_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">contains_state</span><span class="p">:</span>
+            <span class="c1"># After map_to_native_model_vars, the dataset contains</span>
+            <span class="c1"># LayerThickness and PseudoThickness which are both</span>
+            <span class="c1"># pseudo-thickness</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_read_variables_yaml</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_read_var_map</span><span class="p">()</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+            <span class="n">native_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_var_list_to_native_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_vars_present</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="s1">&#39;write_model_dataset&#39;</span><span class="p">)</span>
 
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span></div>
 
@@ -443,7 +458,6 @@
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
         <span class="n">native_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_var_list_to_native_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">!=</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_check_vars_present</span><span class="p">(</span>
                 <span class="n">ds</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="s1">&#39;write_vert_coord_dataset&#39;</span>
@@ -452,6 +466,22 @@
 
         <span class="n">ds_vc</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
+        <span class="c1"># make sure SurfacePressure is present for Omega</span>
+        <span class="k">if</span> <span class="s1">&#39;SurfacePressure&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;surfacePressure&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="c1"># Because &#39;SurfacePressure&#39; is required for Omega only,</span>
+                <span class="c1"># we must use Omega naming</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SurfacePressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">surfacePressure</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s1">&#39;surfacePressure not found in initial_state dataset; &#39;</span>
+                    <span class="s1">&#39;defaulting to zeros&#39;</span>
+                <span class="p">)</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SurfacePressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+                    <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">],</span>
+                    <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;Pa&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Surface Pressure&#39;</span><span class="p">},</span>
+                <span class="p">)</span>
         <span class="c1"># Convert restingThickness (geometric) to RefPseudoThickness (pseudo)</span>
         <span class="k">if</span> <span class="s1">&#39;restingThickness&#39;</span> <span class="ow">in</span> <span class="n">ds_vc</span> <span class="ow">and</span> <span class="s1">&#39;RefPseudoThickness&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_vc</span><span class="p">:</span>
             <span class="n">pseudothickness</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">pseudothickness_from_ds</span><span class="p">(</span>
@@ -462,10 +492,24 @@
                 <span class="k">if</span> <span class="s1">&#39;Time&#39;</span> <span class="ow">in</span> <span class="n">pseudothickness</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
                     <span class="n">pseudothickness</span> <span class="o">=</span> <span class="n">pseudothickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                 <span class="n">ds_vc</span><span class="p">[</span><span class="s1">&#39;RefPseudoThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pseudothickness</span>
+        <span class="k">if</span> <span class="s1">&#39;vertCoordMovementWeights&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_vc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s1">&#39;vertCoordMovementWeights not found in vert_coord dataset; &#39;</span>
+                <span class="s1">&#39;defaulting to ones&#39;</span>
+            <span class="p">)</span>
+            <span class="n">ds_vc</span><span class="p">[</span><span class="s1">&#39;vertCoordMovementWeights&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span>
+                    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ds_vc</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">],</span> <span class="n">ds_vc</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]),</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">],</span>
+                <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Vertical coordinate movement weights&#39;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
 
         <span class="n">ds_vc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_to_native_model_vars</span><span class="p">(</span><span class="n">ds_vc</span><span class="p">)</span>
-        <span class="c1"># native_vars for Omega: [MinLayerCell, MaxLayerCell,</span>
-        <span class="c1">#   BottomGeomDepth, VertCoordMovementWeights, RefPseudoThickness]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_vars_present</span><span class="p">(</span>
             <span class="n">ds_vc</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="s1">&#39;write_vert_coord_dataset&#39;</span>
         <span class="p">)</span>
@@ -516,18 +560,13 @@
 <span class="sd">            Configuration for the task; forwarded to</span>
 <span class="sd">            :py:meth:`write_model_dataset`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_horiz_mesh_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_vert_coord_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 
-            <span class="c1"># make sure surfacePressure is present for Omega</span>
-            <span class="k">if</span> <span class="s1">&#39;surfacePressure&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="s1">&#39;SurfacePressure&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
-                <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;surfacePressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-                    <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-                    <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">],</span>
-                    <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;Pa&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Surface Pressure&#39;</span><span class="p">},</span>
-                <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">contains_state</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Ocean.map_from_native_model_vars">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.tasks.ocean.Ocean.map_from_native_model_vars.html#polaris.tasks.ocean.Ocean.map_from_native_model_vars">[docs]</a>
@@ -766,11 +805,6 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read horiz_mesh_vars and vert_coord_vars from variables.yaml</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">):</span>
-            <span class="k">return</span>
         <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.ocean.model&#39;</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;variables.yaml&#39;</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
@@ -780,6 +814,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
             <span class="n">nested_dict</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">][</span><span class="s1">&#39;vert_coord_variables&#39;</span><span class="p">]</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nested_dict</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">][</span><span class="s1">&#39;state_variables&#39;</span><span class="p">])</span>
         <span class="n">model_section_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span> <span class="s1">&#39;Omega&#39;</span><span class="p">}</span>
         <span class="n">model_key</span> <span class="o">=</span> <span class="n">model_section_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model_key</span><span class="p">:</span>
@@ -787,6 +822,8 @@
                 <span class="s1">&#39;vert_coord_variables&#39;</span><span class="p">,</span> <span class="p">[]</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_key</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;state_variables&#39;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_read_var_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

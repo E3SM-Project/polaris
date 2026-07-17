@@ -16,7 +16,7 @@
       ~OceanModelFilesMixin.__init__
       ~OceanModelFilesMixin.add_horiz_mesh_input_file
       ~OceanModelFilesMixin.add_init_input_file
-      ~OceanModelFilesMixin.add_input_file
+      ~OceanModelFilesMixin.add_output_file
       ~OceanModelFilesMixin.add_vert_coord_input_file
       ~OceanModelFilesMixin.get_horiz_mesh_filename
       ~OceanModelFilesMixin.get_init_filename
@@ -33,5 +33,6 @@
       ~OceanModelFilesMixin.component
       ~OceanModelFilesMixin.config
       ~OceanModelFilesMixin.input_data
+      ~OceanModelFilesMixin.add_input_file
    
    
