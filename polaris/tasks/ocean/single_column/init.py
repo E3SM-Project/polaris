@@ -165,7 +165,7 @@ class Init(OceanIOStep):
         self.write_initial_state_dataset(ds, 'init.nc', config)
 
         # create forcing stream
-        ds_forcing = ds.copy()
+        ds_forcing = xr.Dataset()
         forcing_array = xr.ones_like(temperature)
         forcing_array_surface = xr.ones_like(ds.bottomDepth)
         forcing_array_surface = forcing_array_surface.expand_dims(
@@ -206,17 +206,19 @@ class Init(OceanIOStep):
         ds_forcing['salinityInteriorRestoringRate'] = (
             salinity_interior_restoring_rate * forcing_array
         )
-        ds_forcing['temperatureInteriorRestoringValue'] = temperature
-        ds_forcing['salinityInteriorRestoringValue'] = salinity
-
-        # Restoring is applied through a different variable in Omega
-        restoring_values = np.zeros((2, ds_forcing.sizes['nCells']))
-        restoring_values[0, :] = temperature_surface_restoring_value
-        restoring_values[1, :] = salinity_surface_restoring_value
-        ds_forcing['TracersMonthlySurfClimoCell'] = xr.DataArray(
-            restoring_values[np.newaxis, :, :],
-            dims=('time', 'NTracers', 'NCells'),
-        )
+        model = config.get('ocean', 'model')
+        if model == 'mpas-ocean':
+            ds_forcing['temperatureInteriorRestoringValue'] = temperature
+            ds_forcing['salinityInteriorRestoringValue'] = salinity
+        elif model == 'omega':
+            # Restoring is applied through a different variable in Omega
+            restoring_values = np.zeros((2, ds_forcing.sizes['nCells']))
+            restoring_values[0, :] = temperature_surface_restoring_value
+            restoring_values[1, :] = salinity_surface_restoring_value
+            ds_forcing['TracersMonthlySurfClimoCell'] = xr.DataArray(
+                restoring_values[np.newaxis, :, :],
+                dims=('time', 'NTracers', 'NCells'),
+            )
 
         wind_stress_zonal = section.getfloat('wind_stress_zonal')
         wind_stress_meridional = section.getfloat('wind_stress_meridional')
