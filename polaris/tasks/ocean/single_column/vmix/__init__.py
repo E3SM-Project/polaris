@@ -33,6 +33,7 @@ class VMix(Task):
             'layerThickness',
             'normalVelocity',
         ]
+        # A step to test standard vertical processes
         self.add_step(
             Forward(
                 component=component,
@@ -41,10 +42,11 @@ class VMix(Task):
                 min_tasks=1,
                 openmp_threads=1,
                 validate_vars=validate_vars,
-                task_name='vmix',
-                enable_vadv=True,
+                task_name=name,
+                enable_hadv=False,
             ),
         )
+        # A step to test vertical mixing along with Coriolis
         self.add_step(
             Forward(
                 component=component,
@@ -53,11 +55,24 @@ class VMix(Task):
                 min_tasks=1,
                 openmp_threads=1,
                 validate_vars=validate_vars,
-                task_name='vmix',
-                enable_vadv=True,
+                task_name=name,
+            ),
+        )
+        # A step to test restoring (with vmix and vadv)
+        self.add_step(
+            Forward(
+                component=component,
+                indir=f'{indir}/{name}',
+                ntasks=1,
+                min_tasks=1,
+                openmp_threads=1,
+                validate_vars=validate_vars,
+                task_name=name,
+                enable_hadv=False,
                 enable_restoring=True,
             ),
         )
+        # A step that shows parameterized vertical mixing in near isolation
         self.add_step(
             Forward(
                 component=component,
@@ -66,10 +81,12 @@ class VMix(Task):
                 min_tasks=1,
                 openmp_threads=1,
                 validate_vars=validate_vars,
-                task_name='vmix',
+                task_name=name,
                 enable_vadv=False,
+                enable_hadv=False,
             )
         )
+        # A step that shows implicit vertical mixing in near isolation
         self.add_step(
             Forward(
                 component=component,
@@ -78,9 +95,10 @@ class VMix(Task):
                 min_tasks=1,
                 openmp_threads=1,
                 validate_vars=validate_vars,
-                task_name='vmix',
+                task_name=name,
                 constant_diff=True,
                 enable_vadv=False,
+                enable_hadv=False,
             )
         )
 
@@ -90,9 +108,11 @@ class VMix(Task):
                 indir=f'{indir}/{name}',
                 comparisons={
                     'standard': '../forward',
-                    'no_vadv': '../forward_no_vadv',
-                    'constant': '../forward_no_vadv_constant',
-                    'restoring': '../forward_restoring',
+                    'no_hadv': '../forward_no_hadv',
+                    'constant': '../forward_no_vadv_no_hadv_constant',
+                    'restoring': '../forward_no_hadv_restoring',
+                    # Not plotted by default
+                    # 'no_vadv': '../forward_no_vadv',
                 },
                 variables={
                     'temperature': 'degC',
@@ -104,14 +124,14 @@ class VMix(Task):
             )
         )
 
-        self.add_step(
-            Analysis(
-                component=component,
-                indir=f'{indir}/{name}',
-                comparisons={
-                    'standard': '../forward',
-                    'no_vadv': '../forward_no_vadv',
-                    'constant': '../forward_no_vadv_constant',
-                },
+        if name == 'vmix_stable':
+            self.add_step(
+                Analysis(
+                    component=component,
+                    indir=f'{indir}/{name}',
+                    comparisons={
+                        'standard': '../forward',
+                        'no_hadv': '../forward_no_hadv',
+                    },
+                )
             )
-        )
