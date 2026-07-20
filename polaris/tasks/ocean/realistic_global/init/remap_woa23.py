@@ -136,7 +136,7 @@ class RemapWoa23Step(Step):
         config = self.config
         # WOA23 is remapped onto the culled ocean mesh, so size from the
         # ocean-culled cell count rather than the full unified-mesh estimate.
-        cell_count = estimate_ocean_cell_count(self.mesh_name)
+        cell_count = estimate_ocean_cell_count(self.mesh_name, config=config)
         if cell_count is None:
             return
         section = config['realistic_global_init']
