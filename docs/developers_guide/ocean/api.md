@@ -419,6 +419,22 @@
    :toctree: generated/
 
    add_realistic_global_tasks
+
+   mesh_info.estimate_cell_count
+   mesh_info.estimate_ocean_cell_count
+```
+
+### realistic_global.mesh_configs
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.mesh_configs
+
+.. autosummary::
+   :toctree: generated/
+
+   add_realistic_global_mesh_config
+   get_realistic_global_mesh_config
+   get_mesh_config_names
 ```
 
 ### realistic_global.hydrography.woa23
