@@ -517,6 +517,11 @@
    cull_topo.CullTopoStep.setup
    cull_topo.CullTopoStep.run
 
+   woa23_map.Woa23MapStep
+   woa23_map.Woa23MapStep.setup
+   woa23_map.Woa23MapStep.constrain_resources
+   woa23_map.Woa23MapStep.run
+
    remap_woa23.RemapWoa23Step
    remap_woa23.RemapWoa23Step.setup
    remap_woa23.RemapWoa23Step.run
