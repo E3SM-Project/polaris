@@ -179,6 +179,8 @@ def _get_init_config(component, subdir, config_filename, mesh_name):
     if filepath in component.configs:
         return component.configs[filepath]
     config = PolarisConfigParser(filepath=filepath)
+    # provides [mapping] map_tool, used by MappingFileStep
+    config.add_from_package('polaris.remap', 'mapping.cfg')
     config.add_from_package(
         'polaris.tasks.ocean.realistic_global.init',
         config_filename,
