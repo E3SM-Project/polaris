@@ -78,10 +78,10 @@ def test_update_ntasks_from_cell_count(mesh_name):
     cell_count = estimate_ocean_cell_count(mesh_name, config=config)
     section = config['realistic_global_init']
     expected_ntasks = max(
-        1, round(cell_count / section.getint('remap_cells_per_task'))
+        2, round(cell_count / section.getint('remap_cells_per_task'))
     )
     expected_min = max(
-        1, round(cell_count / section.getint('remap_min_cells_per_task'))
+        2, round(cell_count / section.getint('remap_min_cells_per_task'))
     )
 
     assert step.ntasks == expected_ntasks
@@ -97,6 +97,21 @@ def test_update_ntasks_is_modest_for_a_coarse_mesh():
     step = _make_step('icos240km')
     step._update_ntasks()
     assert step.ntasks < 64
+
+
+@pytest.mark.parametrize(
+    'mesh_name', ['icos480km', 'icos240km', 'icos120km', 'icos60km']
+)
+def test_update_ntasks_never_asks_for_a_single_task(mesh_name):
+    """
+    pyremap partitions the SCRIP files with ``mbpart <ntasks>``, and mbpart
+    refuses to make a single partition, so even the coarsest mesh must ask
+    for at least 2 tasks.
+    """
+    step = _make_step(mesh_name)
+    step._update_ntasks()
+    assert step.ntasks >= 2
+    assert step.min_tasks >= 2
 
 
 def test_update_ntasks_without_cell_count_leaves_defaults():
