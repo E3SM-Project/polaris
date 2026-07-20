@@ -125,5 +125,9 @@ class Woa23MapStep(MappingFileStep):
         section = config['realistic_global_init']
         cells_per_task = section.getint('remap_cells_per_task')
         min_cells_per_task = section.getint('remap_min_cells_per_task')
-        self.ntasks = max(1, round(cell_count / cells_per_task))
-        self.min_tasks = max(1, round(cell_count / min_cells_per_task))
+        # the floor is 2, not 1: pyremap partitions the SCRIP files with
+        # "mbpart <ntasks>", and mbpart rejects a request for a single
+        # partition ("Please specify #parts = 1 to be greater than 1"), so a
+        # mesh small enough to want 1 task would fail outright
+        self.ntasks = max(2, round(cell_count / cells_per_task))
+        self.min_tasks = max(2, round(cell_count / min_cells_per_task))
