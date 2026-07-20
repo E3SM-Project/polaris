@@ -5,6 +5,9 @@ from mpas_tools.io import write_netcdf
 from pyremap import Remapper
 
 from polaris import Step
+from polaris.tasks.ocean.realistic_global.mesh_info import (
+    estimate_ocean_cell_count,
+)
 
 _WOA23_EXTRAP_FILENAME = 'woa23_decav_0.25_jan_extrap.nc'
 
@@ -131,7 +134,9 @@ class RemapWoa23Step(Step):
         estimated.
         """
         config = self.config
-        cell_count = _estimate_cell_count(self.mesh_name)
+        # WOA23 is remapped onto the culled ocean mesh, so size from the
+        # ocean-culled cell count rather than the full unified-mesh estimate.
+        cell_count = estimate_ocean_cell_count(self.mesh_name)
         if cell_count is None:
             return
         section = config['realistic_global_init']
@@ -173,45 +178,3 @@ class RemapWoa23Step(Step):
             ds_out[var].attrs = ds[var].attrs
 
         return ds_out
-
-
-def _estimate_cell_count(mesh_name):
-    """
-    Return an approximate MPAS cell count for the given mesh name, or
-    ``None`` if the count cannot be determined.
-
-    For simple base meshes (icos / qu / rrs / so) the count is derived
-    from the minimum cell resolution via the heuristic
-    ``6e8 / min_res_km**2``.  For unified meshes it is read from the
-    ``approximate_cell_count`` option in the ``[unified_mesh]`` section
-    of the per-mesh config file.
-
-    Parameters
-    ----------
-    mesh_name : str
-        The MPAS mesh name as registered in :py:func:`get_base_mesh_step_names`
-        or :py:data:`polaris.mesh.spherical.unified.UNIFIED_MESH_NAMES`.
-
-    Returns
-    -------
-    int or None
-    """
-    from polaris.mesh.base import BASE_MESH_DEFINITIONS
-
-    if mesh_name in BASE_MESH_DEFINITIONS:
-        min_res = BASE_MESH_DEFINITIONS[mesh_name].min_res  # km
-        return 6e8 / min_res**2
-
-    from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
-
-    if mesh_name in UNIFIED_MESH_NAMES:
-        from polaris.mesh.spherical.unified.configs import (
-            get_unified_mesh_config,
-        )
-
-        cfg = get_unified_mesh_config(mesh_name)
-        return cfg.getint(
-            'unified_mesh', 'approximate_cell_count', fallback=None
-        )
-
-    return None
