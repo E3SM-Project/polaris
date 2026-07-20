@@ -2,10 +2,10 @@
 
 # overflow
 
-The overflow task group is currently comprised of three `smoke_test` tasks
-for quick testing (one for each horizontal advection order: 2, 3, and 4),
+The overflow task group is currently comprised of four `smoke_test` tasks
+for quick testing (one for each horizontal advection order, 2, 3, and 4, and one with horizontal advection order 2 but del4 viscosity enabled),
 and one `rpe` test which shows how the resting potential energy changes across
-forward runs with different viscosities.
+forward runs with different del2 viscosities.
 
 ## framework
 
@@ -61,7 +61,9 @@ task runs the `init` step, a short `forward` step, and (optionally, not run
 by default) the `viz` step. Three instances are created, one for each
 horizontal advection order (2, 3, and 4), producing tasks named
 `smoke_test_horiz_adv_order_2`, `smoke_test_horiz_adv_order_3`, and
-`smoke_test_horiz_adv_order_4`.
+`smoke_test_horiz_adv_order_4`. An additional tests is provided to test del4
+viscosity alonside the overflow topography,
+`smoke_test_horiz_adv_order_2_del4`.
 
 ## rpe
 

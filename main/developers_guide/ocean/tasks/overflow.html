@@ -148,10 +148,10 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="overflow">
 <span id="dev-ocean-overflow"></span><h1>overflow<a class="headerlink" href="#overflow" title="Link to this heading"></a></h1>
-<p>The overflow task group is currently comprised of three <code class="docutils literal notranslate"><span class="pre">smoke_test</span></code> tasks
-for quick testing (one for each horizontal advection order: 2, 3, and 4),
+<p>The overflow task group is currently comprised of four <code class="docutils literal notranslate"><span class="pre">smoke_test</span></code> tasks
+for quick testing (one for each horizontal advection order, 2, 3, and 4, and one with horizontal advection order 2 but del4 viscosity enabled),
 and one <code class="docutils literal notranslate"><span class="pre">rpe</span></code> test which shows how the resting potential energy changes across
-forward runs with different viscosities.</p>
+forward runs with different del2 viscosities.</p>
 <section id="framework">
 <h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
 <p>The shared config options for <code class="docutils literal notranslate"><span class="pre">overflow</span></code> tests  are described in
@@ -202,7 +202,9 @@ task runs the <code class="docutils literal notranslate"><span class="pre">init<
 by default) the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step. Three instances are created, one for each
 horizontal advection order (2, 3, and 4), producing tasks named
 <code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_2</span></code>, <code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_3</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_4</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_4</span></code>. An additional tests is provided to test del4
+viscosity alonside the overflow topography,
+<code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_2_del4</span></code>.</p>
 </section>
 <section id="rpe">
 <h2>rpe<a class="headerlink" href="#rpe" title="Link to this heading"></a></h2>

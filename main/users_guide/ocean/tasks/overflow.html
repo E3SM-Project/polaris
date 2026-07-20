@@ -160,7 +160,14 @@
   <section class="tex2jax_ignore mathjax_ignore" id="overflow">
 <span id="ocean-overflow"></span><h1>overflow<a class="headerlink" href="#overflow" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">ocean/overflow</span></code> test group induces a density current flowing down a
-continental slope and includes four test cases.</p>
+continental slope and includes the following test cases:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_2</span></code> — short (12 min) smoke test using horizontal advection order = 2 for rapid CI checks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_2_del4</span></code> — same as (1) but with del4 viscosity enabled with the default viscosity value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_3</span></code> — short (12 min) smoke test using horizontal advection order = 3 for rapid CI checks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_4</span></code> — short (12 min) smoke test using horizontal advection order = 4 for rapid CI checks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rpe</span></code> — long run (40 days) exploring Resting Potential Energy (RPE) evolution for a set of Laplacian viscosities.</p></li>
+</ol>
 <section id="supported-models">
 <h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
 <p>These tasks support MPAS-Ocean and Omega.</p>

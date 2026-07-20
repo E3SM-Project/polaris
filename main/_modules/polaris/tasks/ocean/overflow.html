@@ -148,6 +148,15 @@
         <span class="p">)</span>
         <span class="n">smoke_test</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
         <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">smoke_test</span><span class="p">)</span>
+    <span class="n">smoke_test</span> <span class="o">=</span> <span class="n">SmokeTest</span><span class="p">(</span>
+        <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+        <span class="n">indir</span><span class="o">=</span><span class="n">taskdir</span><span class="p">,</span>
+        <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
+        <span class="n">horiz_adv_order</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">use_mom_del4</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">smoke_test</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">smoke_test</span><span class="p">)</span>
 
     <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
         <span class="n">Rpe</span><span class="p">(</span>

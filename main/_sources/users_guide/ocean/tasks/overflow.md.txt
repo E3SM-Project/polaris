@@ -3,7 +3,13 @@
 # overflow
 
 The ``ocean/overflow`` test group induces a density current flowing down a
-continental slope and includes four test cases.
+continental slope and includes the following test cases:
+
+1. ``smoke_test_horiz_adv_order_2`` — short (12 min) smoke test using horizontal advection order = 2 for rapid CI checks.
+2. ``smoke_test_horiz_adv_order_2_del4`` — same as (1) but with del4 viscosity enabled with the default viscosity value.
+3. ``smoke_test_horiz_adv_order_3`` — short (12 min) smoke test using horizontal advection order = 3 for rapid CI checks.
+4. ``smoke_test_horiz_adv_order_4`` — short (12 min) smoke test using horizontal advection order = 4 for rapid CI checks.
+5. ``rpe`` — long run (40 days) exploring Resting Potential Energy (RPE) evolution for a set of Laplacian viscosities.
 
 ## supported models
 
