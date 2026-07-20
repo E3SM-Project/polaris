@@ -199,23 +199,31 @@ composes the full chain:
    using `ocean_map_culled_to_base.nc`, producing `topography_culled.nc`.
    The standard topography fields (see `TOPO_VARIABLES`) are validated
    against a baseline when one is provided.
-2. **remap_woa23** ({py:class}`~polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step`):
-   uses pyremap to remap WOA23 conservative temperature and absolute salinity
-   from the 0.25-degree lat-lon grid to the culled MPAS mesh, producing
-   `woa23_on_mesh.nc`.  Task count scales with the approximate cell count
-   recorded in the ``[unified_mesh]`` config section.
-3. **pstar_init** ({py:class}`~polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep`):
+2. **woa23_map** ({py:class}`~polaris.tasks.ocean.realistic_global.init.woa23_map.Woa23MapStep`):
+   a {py:class}`polaris.remap.MappingFileStep` that builds the bilinear
+   mapping file from the 0.25-degree WOA23 lat-lon grid to the culled MPAS
+   mesh.  This is the only MPI step in the WOA23 chain (it runs `mbtempest`
+   or ESMF).  Its task count scales with the approximate culled ocean cell
+   count via the ``remap_cells_per_task`` and ``remap_min_cells_per_task``
+   options in the ``[realistic_global_init]`` config section.
+3. **remap_woa23** ({py:class}`~polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step`):
+   a serial step that applies the weights from **woa23_map** with `ncremap`,
+   remapping WOA23 conservative temperature and absolute salinity to the
+   culled MPAS mesh and producing `woa23_on_mesh.nc`.  The remapper is
+   retrieved from **woa23_map** through the step dependency mechanism, so it
+   is resolved only after that step has run.
+4. **pstar_init** ({py:class}`~polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep`):
    subclass of {py:class}`polaris.ocean.vertical.pstar_init.PStarInitStep`.
    Runs the fixed-point p-star coordinate iteration jointly with WOA23 tracer
    interpolation, writing a model-neutral `pstar_init.nc` that contains
    converged geometric layer interfaces and CT/SA tracer fields.
-4. **initial_state** ({py:class}`~polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep`):
+5. **initial_state** ({py:class}`~polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep`):
    reads `pstar_init.nc` and the model resolved from ``[ocean] model`` to
    produce model-specific output files (`init.nc` for both models;
    `vert_coord.nc` additionally for Omega).  Tracer fields are kept as CT/SA
    for Omega and converted to potential temperature / practical salinity for
    MPAS-Ocean via GSW.
-5. **viz** ({py:class}`~polaris.tasks.ocean.realistic_global.init.viz.VizInitStep`):
+6. **viz** ({py:class}`~polaris.tasks.ocean.realistic_global.init.viz.VizInitStep`):
    visualizes and sanity-checks the initial condition and vertical-coordinate
    datasets (see below).
 
