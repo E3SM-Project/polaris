@@ -10,6 +10,9 @@ from polaris.mesh.spherical.unified import (
     UNIFIED_MESH_NAMES,
     get_unified_mesh_config,
 )
+from polaris.tasks.ocean.realistic_global.mesh_configs import (
+    get_realistic_global_mesh_config,
+)
 
 
 def estimate_cell_count(mesh_name):
@@ -46,31 +49,38 @@ def estimate_cell_count(mesh_name):
     return None
 
 
-def estimate_ocean_cell_count(mesh_name):
+def estimate_ocean_cell_count(mesh_name, config=None):
     """
     Return an approximate cell count for the ocean + sea-ice culled mesh that
-    MPAS-Ocean actually runs, or ``None`` if it cannot be determined.
+    the ocean model actually runs, or ``None`` if it cannot be determined.
 
     This is the appropriate size for ocean-model resources, since the full mesh
     includes finer land and river-channel refinement that is culled away before
-    the ocean model runs.  For unified meshes it is read from the
-    ``culled_ocean_cell_count`` option in the ``[unified_mesh]`` section when
-    set; otherwise it falls back to :py:func:`estimate_cell_count` (the full
-    mesh estimate).
+    the ocean model runs.  It is read from the ``culled_ocean_cell_count``
+    option in the ``[realistic_global_mesh]`` section when set; otherwise it
+    falls back to :py:func:`estimate_cell_count` (the full mesh estimate).
 
     Parameters
     ----------
     mesh_name : str
         The MPAS mesh name.
 
+    config : polaris.config.PolarisConfigParser, optional
+        A config that already includes the per-mesh options for ``mesh_name``.
+        Callers that have one should pass it so that user overrides of
+        ``culled_ocean_cell_count`` are honored.  If it is not given, the
+        per-mesh config file is read directly from the package instead.
+
     Returns
     -------
     int or None
     """
-    if mesh_name in UNIFIED_MESH_NAMES:
-        cfg = get_unified_mesh_config(mesh_name)
-        count = cfg.getint(
-            'unified_mesh', 'culled_ocean_cell_count', fallback=None
+    if config is None:
+        config = get_realistic_global_mesh_config(mesh_name)
+
+    if config is not None:
+        count = config.getint(
+            'realistic_global_mesh', 'culled_ocean_cell_count', fallback=None
         )
         if count is not None:
             return count
