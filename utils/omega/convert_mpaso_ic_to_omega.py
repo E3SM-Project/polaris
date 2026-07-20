@@ -45,6 +45,11 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        '--include-wind-stress',
+        action='store_true',
+        help=('Include wind stress fields.'),
+    )
+    parser.add_argument(
         '--visualization',
         action='store_true',
         help=(
@@ -57,7 +62,13 @@ def parse_args():
     return parser.parse_args()
 
 
-def convert_to_omega(input_file, output_file, eos_type, visualization=False):
+def convert_to_omega(
+    input_file,
+    output_file,
+    eos_type,
+    include_wind_stress=True,
+    visualization=False,
+):
     with xr.open_dataset(input_file, decode_times=False) as ds_in:
         ds_input = ds_in.load()
 
@@ -70,7 +81,12 @@ def convert_to_omega(input_file, output_file, eos_type, visualization=False):
     mpas_velocity_fields = _zero_velocity_fields(ds_mpas_zero)
     if ds_mpas_zero.attrs['sphere_radius'] > 0.0:
         _rescale_sphere_radius(ds_mpas_zero)
-    _add_wind_stress(ds_mpas_zero)
+    if include_wind_stress:
+        _add_wind_stress(
+            ds_mpas_zero,
+            zonal_name='windStressZonal',
+            meridional_name='windStressMeridional',
+        )
     _keep_selected_global_attrs(ds_mpas_zero)
 
     write_netcdf(ds_mpas_zero, zero_velocity_mpas_file)
@@ -79,6 +95,8 @@ def convert_to_omega(input_file, output_file, eos_type, visualization=False):
         'Rescaled MPAS earth radius, coordinates, and areas based on '
         'earth radius in pcd.yaml'
     )
+    if include_wind_stress:
+        print('Added windStressZonal and windStressMeridional fields')
     if mpas_velocity_fields:
         print(f'Zeroed velocity fields: {", ".join(mpas_velocity_fields)}')
     else:
@@ -116,7 +134,13 @@ def convert_to_omega(input_file, output_file, eos_type, visualization=False):
     velocity_fields = _zero_velocity_fields(ds_omega)
     if ds_omega.attrs['sphere_radius'] > 0.0:
         _rescale_sphere_radius(ds_omega)
-    _add_wind_stress(ds_omega)
+    if include_wind_stress:
+        _add_wind_stress(
+            ds_omega,
+            zonal_name='SfcStressZonal',
+            meridional_name='SfcStressMeridional',
+        )
+    _add_surface_pressure(ds_omega)
     if visualization and ds_omega.attrs.get('sphere_radius', 0.0) > 0.0:
         _save_percent_difference_visualizations(
             ds_original=ds_mpas_zero,
@@ -154,7 +178,11 @@ def convert_to_omega(input_file, output_file, eos_type, visualization=False):
         'Renamed variables to Omega names based on mpaso_to_omega.yaml mapping'
     )
     print('Renamed refLayerThickness to RefPseudoThickness for Omega output')
-    print('Added SfcStressZonal and SfcStressMeridional fields')
+    if include_wind_stress:
+        print('Added SfcStressZonal and SfcStressMeridional fields')
+    else:
+        print('Skipped SfcStressZonal and SfcStressMeridional fields')
+    print('Added SurfacePressure field')
     print('Removed unnecessary global attributes')
     if visualization:
         print('Saved temperature/salinity percent-difference visualizations')
@@ -508,27 +536,12 @@ def _map_mpaso_to_omega(ds):
 def _rename_resting_thickness_for_omega(ds):
     if 'restingThickness' in ds.variables:
         ds = ds.rename({'restingThickness': 'RefPseudoThickness'})
+    if 'layerThickness' in ds.variables:
+        ds = ds.rename({'layerThickness': 'GeomLayerThickness'})
     return ds
 
 
-def _add_wind_stress(ds):
-    """
-    Add a wind stress fields (SfcStressZonal and SfcStressMeridional).
-    SfcStressZonal varies with latitude using piecewise cubic
-    interpolation, while SfcStressMeridional is set to zero.
-    This is a simplified representation of typical zonal wind stress
-    patterns.
-
-    The field is added to dimensions (Time, nCells) with values that depend
-    only on latitude, not longitude. Automatically detects whether the dataset
-    uses 'Time' or 'time' and 'NCells' or 'nCells' dimension names.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset to which SfcStressZonal and SfcStressMeridional will be
-        added. Must contain latCell.
-    """
+def _add_wind_stress(ds, zonal_name, meridional_name):
     # Fixed latitude-value pairs for cubic interpolation
     # These can be modified by editing the arrays below
     fixed_latitudes = np.array(
@@ -559,7 +572,7 @@ def _add_wind_stress(ds):
         wind_stress_zonal_values[np.newaxis, :], (n_time, 1)
     )
 
-    ds['SfcStressZonal'] = xr.DataArray(
+    ds[zonal_name] = xr.DataArray(
         data=wind_stress_zonal,
         dims=[time_dim, ncell_dim],
         attrs={
@@ -571,12 +584,33 @@ def _add_wind_stress(ds):
 
     # Create meridional wind stress field (set to zero)
     wind_stress_merid = np.zeros((n_time, n_cells))
-    ds['SfcStressMeridional'] = xr.DataArray(
+    ds[meridional_name] = xr.DataArray(
         data=wind_stress_merid,
         dims=[time_dim, ncell_dim],
         attrs={
             'long_name': 'surface meridional wind stress',
             'units': 'N m^{-2}',
+            'standard_name': '',
+        },
+    )
+
+
+def _add_surface_pressure(ds):
+    # Detect which time dimension name exists in the dataset
+    ncell_dim = 'NCells' if 'NCells' in ds.dims else 'nCells'
+    time_dim = 'Time' if 'Time' in ds.dims else 'time'
+
+    # Create the field with (time_dim, nCells) dimensions
+    n_time = ds.sizes[time_dim]
+    n_cells = ds.sizes[ncell_dim]
+
+    # Create surface pressure field (set to zero)
+    ds['SurfacePressure'] = xr.DataArray(
+        data=np.zeros((n_time, n_cells)),
+        dims=[time_dim, ncell_dim],
+        attrs={
+            'long_name': 'surface pressure',
+            'units': 'Pa',
             'standard_name': '',
         },
     )
@@ -855,6 +889,7 @@ def main():
         args.input_file,
         args.output_file,
         args.eos_type,
+        args.include_wind_stress,
         args.visualization,
     )
 
