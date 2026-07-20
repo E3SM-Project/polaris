@@ -34,11 +34,20 @@ in {ref}`ocean-geostrophic-init` in the User's Guide.
 
 The class {py:class}`polaris.tasks.ocean.geostrophic.forward.Forward`
 descends from {py:class}`polaris.ocean.convergence.spherical.SphericalConvergenceForward`,
-and defines a step for running MPAS-Ocean from an initial condition produced in
-an `init` step. See {ref}`dev-ocean-convergence` for some relevant
-discussion of the parent class. The time step is determined from the resolution
-based on the `dt_per_km` config option in the `[spherical_convergences]`
-section.  Other model config options are taken from `forward.yaml`.
+and defines a step for running either MPAS-Ocean or Omega from an initial
+condition produced in an `init` step. See {ref}`dev-ocean-convergence` for some
+relevant discussion of the parent class. The time step is determined from the
+resolution based on the `dt_per_km` config option in the
+`[spherical_convergences]` section.  Other model config options are taken from
+`forward.yaml`.
+
+The step is constructed with `update_eos=True` so that the model is configured
+with the EOS described by the `[ocean]` `eos_*` config options, the same
+options used by the `init` step to compute `PseudoThickness` and `SpecVol`.
+This matters for Omega, whose pressure gradient is computed from specific
+volume: without it the model would fall back on its own default EOS and
+diagnose a different geometric layer thickness than the initial condition
+assumed.  See {ref}`dev-ocean-framework-eos` for the EOS framework.
 
 ### analysis
 
@@ -60,6 +69,11 @@ The class {py:class}`polaris.tasks.ocean.geostrophic.viz.Viz`
 is a step for plotting the initial and final states of the advection test for
 each resolution.  The colormap is controlled by the config options discussed in
 {ref}`ocean-geostrophic-config`.
+
+This step supports only MPAS-Ocean.  It plots `velocityZonal` and
+`velocityMeridional`, which MPAS-Ocean writes to its output stream but Omega
+does not, and neither Omega nor Polaris can yet reconstruct them from the
+normal velocity on edges.
 
 See {ref}`dev-visualization-global` for more details on the global lat-lon
 plots.

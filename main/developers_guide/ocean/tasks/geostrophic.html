@@ -175,11 +175,19 @@ in <a class="reference internal" href="../../../users_guide/ocean/tasks/geostrop
 <h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.geostrophic.forward.Forward.html#polaris.tasks.ocean.geostrophic.forward.Forward" title="polaris.tasks.ocean.geostrophic.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.geostrophic.forward.Forward</span></code></a>
 descends from <a class="reference internal" href="../generated/polaris.ocean.convergence.spherical.SphericalConvergenceForward.html#polaris.ocean.convergence.spherical.SphericalConvergenceForward" title="polaris.ocean.convergence.spherical.SphericalConvergenceForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceForward</span></code></a>,
-and defines a step for running MPAS-Ocean from an initial condition produced in
-an <code class="docutils literal notranslate"><span class="pre">init</span></code> step. See <a class="reference internal" href="../framework.html#dev-ocean-convergence"><span class="std std-ref">Convergence Tests</span></a> for some relevant
-discussion of the parent class. The time step is determined from the resolution
-based on the <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> config option in the <code class="docutils literal notranslate"><span class="pre">[spherical_convergences]</span></code>
-section.  Other model config options are taken from <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>.</p>
+and defines a step for running either MPAS-Ocean or Omega from an initial
+condition produced in an <code class="docutils literal notranslate"><span class="pre">init</span></code> step. See <a class="reference internal" href="../framework.html#dev-ocean-convergence"><span class="std std-ref">Convergence Tests</span></a> for some
+relevant discussion of the parent class. The time step is determined from the
+resolution based on the <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> config option in the
+<code class="docutils literal notranslate"><span class="pre">[spherical_convergences]</span></code> section.  Other model config options are taken from
+<code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>.</p>
+<p>The step is constructed with <code class="docutils literal notranslate"><span class="pre">update_eos=True</span></code> so that the model is configured
+with the EOS described by the <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> <code class="docutils literal notranslate"><span class="pre">eos_*</span></code> config options, the same
+options used by the <code class="docutils literal notranslate"><span class="pre">init</span></code> step to compute <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code>.
+This matters for Omega, whose pressure gradient is computed from specific
+volume: without it the model would fall back on its own default EOS and
+diagnose a different geometric layer thickness than the initial condition
+assumed.  See <a class="reference internal" href="../framework.html#dev-ocean-framework-eos"><span class="std std-ref">Equations of state (EOS)</span></a> for the EOS framework.</p>
 </section>
 <section id="analysis">
 <h3>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h3>
@@ -200,6 +208,10 @@ as fast as possible when visualization isn’t needed.</p>
 is a step for plotting the initial and final states of the advection test for
 each resolution.  The colormap is controlled by the config options discussed in
 <a class="reference internal" href="../../../users_guide/ocean/tasks/geostrophic.html#ocean-geostrophic-config"><span class="std std-ref">config options</span></a>.</p>
+<p>This step supports only MPAS-Ocean.  It plots <code class="docutils literal notranslate"><span class="pre">velocityZonal</span></code> and
+<code class="docutils literal notranslate"><span class="pre">velocityMeridional</span></code>, which MPAS-Ocean writes to its output stream but Omega
+does not, and neither Omega nor Polaris can yet reconstruct them from the
+normal velocity on edges.</p>
 <p>See <a class="reference internal" href="../../framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots</span></a> for more details on the global lat-lon
 plots.</p>
 </section>

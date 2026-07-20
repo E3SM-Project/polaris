@@ -25,7 +25,12 @@ Visualizations of the fields themselves can be added in viz steps by appending
 
 ## suppported models
 
-These tasks support only MPAS-Ocean.
+These tasks support both MPAS-Ocean and Omega.
+
+The `viz` steps, and therefore the `with_viz` variants of each task, support
+only MPAS-Ocean.  They plot the zonal and meridional components of the
+velocity, which Omega does not yet write out and which Polaris cannot yet
+reconstruct from the normal velocity on edges.
 
 ## mesh
 
@@ -174,6 +179,12 @@ salinity = 35.0
 These are the basic constants used to initialize the test case according to
 the Williams et al. (1992) paper.  The temperature and salinity are arbitrary,
 since they do not vary in space and should not affect the evolution.
+
+These tasks use a constant equation of state, `eos_type = constant` in the
+`[ocean]` section, so that the density is uniform and the dynamics reduce to
+the shallow-water system that the exact solution describes.  The same option is
+used both to construct the initial condition and to configure the model, so
+changing it would make the two inconsistent.
 
 Three additional config options relate to detecting when the convergence rate
 for the water-column thickness (h) and normal velocity (using the L2 norm to
