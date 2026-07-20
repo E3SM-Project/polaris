@@ -29,6 +29,51 @@ _RECONSTRUCTION_FIELD_NAMES: dict[ReconstructionType, dict[str, str]] = {
 }
 
 
+def fix_out_of_bounds_indices(ds: xr.Dataset) -> xr.Dataset:
+    """
+    Replace indices larger than the dimension size in connectivity arrays with
+    zeros.
+
+    Some meshes (e.g. QU240km) don't do masking of ragged indices with zeros,
+    instead they use `nInidices+1` as the invalid value.
+
+    NOTE: Assumes connecitity array are 1-indexed
+
+    Parameters
+    ----------
+    ds: xr.Dataset
+        MPAS mesh dataset containing connectivity arrays
+
+    Returns
+    -------
+    ds: xr.Dataset
+        MPAS mesh dataset with out-of-bounds indices in connectivity arrays
+        set to 0 (invalid)
+    """
+
+    def _is_connectivity_array(da: xr.DataArray) -> bool:
+        # uncapitalize the name
+        name = da.name[0].lower() + da.name[1:]
+        is_int = da.dtype.kind in ('i', 'u')
+
+        return 'On' in name and is_int and name.startswith(('c', 'e', 'v'))
+
+    for var in ds:
+        if _is_connectivity_array(ds[var]):
+            # supports both MPASO and Omega naming conventions
+            prefix = 'N' if var[0].isupper() else 'n'
+            # get the dimension name for the connectivity array
+            dim = prefix + var.split('On')[0].title()
+            # get the maximum valid size for the array to be indexed too
+            max_size = ds.sizes[dim]
+            # get mask of where index is out bounds
+            mask = ds[var] == max_size + 1
+            # where index is out of bounds, set to invalid (i.e. 0)
+            ds[var] = xr.where(mask, 0, ds[var])
+
+    return ds
+
+
 def _stencil_dim(da: xr.DataArray) -> str:
     """Infer the name of the edge-stencil dimension"""
 
