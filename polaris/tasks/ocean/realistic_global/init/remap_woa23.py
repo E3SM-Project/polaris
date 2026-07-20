@@ -2,37 +2,32 @@ import os
 
 import xarray as xr
 from mpas_tools.io import write_netcdf
-from pyremap import Remapper
 
 from polaris import Step
-from polaris.tasks.ocean.realistic_global.mesh_info import (
-    estimate_ocean_cell_count,
-)
 
-_WOA23_EXTRAP_FILENAME = 'woa23_decav_0.25_jan_extrap.nc'
+from .woa23_map import WOA23_EXTRAP_FILENAME
 
 
 class RemapWoa23Step(Step):
     """
-    A step for remapping the extrapolated WOA23 hydrography product from the
-    native 0.25-degree latitude-longitude grid to MPAS cell centres.
+    A step for applying the WOA23 mapping weights built by
+    :py:class:`.Woa23MapStep`, remapping the extrapolated WOA23 hydrography
+    product from the native 0.25-degree latitude-longitude grid to MPAS cell
+    centres.
+
+    This step is serial: the MPI work of building the mapping file happens in
+    :py:class:`.Woa23MapStep`, and ``ncremap`` runs in serial here.
 
     Attributes
     ----------
     extrapolate_step : polaris.Step
         The upstream step that produces the extrapolated WOA23 product.
 
-    cull_mesh_step : polaris.tasks.e3sm.init.topo.cull.cull.CullMeshStep
-        The upstream cull-mesh step whose outputs describe the target MPAS
-        mesh.
-
-    mesh_name : str
-        The name of the MPAS mesh, used to label the mapping file.
+    woa23_map_step : polaris.Step
+        The upstream step that builds the WOA23-to-mesh mapping file.
     """
 
-    def __init__(
-        self, component, subdir, extrapolate_step, cull_mesh_step, mesh_name
-    ):
+    def __init__(self, component, subdir, extrapolate_step, woa23_map_step):
         """
         Create the step.
 
@@ -47,12 +42,8 @@ class RemapWoa23Step(Step):
         extrapolate_step : polaris.Step
             The step that produces ``woa23_decav_0.25_jan_extrap.nc``.
 
-        cull_mesh_step : polaris.tasks.e3sm.init.topo.cull.cull.CullMeshStep
-            The step that produces the culled ocean mesh files.
-
-        mesh_name : str
-            Name label for the MPAS mesh (used in the remapping weight
-            filename).
+        woa23_map_step : polaris.Step
+            The step that builds the WOA23-to-mesh mapping file.
         """
         super().__init__(
             component=component,
@@ -62,37 +53,22 @@ class RemapWoa23Step(Step):
             min_tasks=1,
         )
         self.extrapolate_step = extrapolate_step
-        self.cull_mesh_step = cull_mesh_step
-        self.mesh_name = mesh_name
+        self.woa23_map_step = woa23_map_step
+        self.add_dependency(woa23_map_step, name='woa23_map')
         self.add_output_file('woa23_on_mesh.nc')
 
     def setup(self):
         """
-        Declare input files and compute ntasks from the estimated mesh size.
+        Declare the WOA23 input file.
         """
         super().setup()
         self.add_input_file(
             filename='woa23_extrap.nc',
             work_dir_target=os.path.join(
                 self.extrapolate_step.path,
-                _WOA23_EXTRAP_FILENAME,
+                WOA23_EXTRAP_FILENAME,
             ),
         )
-        self.add_input_file(
-            filename='culled_mesh.nc',
-            work_dir_target=os.path.join(
-                self.cull_mesh_step.path,
-                'culled_ocean_mesh.nc',
-            ),
-        )
-        self._update_ntasks()
-
-    def constrain_resources(self, available_resources):
-        """
-        Update ntasks from cell-count estimate before constraining.
-        """
-        self._update_ntasks()
-        super().constrain_resources(available_resources)
 
     def run(self):
         """
@@ -100,21 +76,10 @@ class RemapWoa23Step(Step):
         MPAS cell centres, writing ``woa23_on_mesh.nc``.
         """
         logger = self.logger
-        config = self.config
-        map_tool = config.get('realistic_global_init', 'map_tool')
+        # the remapper (including the path to the mapping file it built) comes
+        # from the map step, which has already run
+        remapper = self.dependencies['woa23_map'].remapper
 
-        remapper = Remapper(ntasks=self.ntasks, map_tool=map_tool)
-        remapper.src_from_lon_lat(
-            filename='woa23_extrap.nc',
-            mesh_name='woa23_0.25deg',
-            lon_var='lon',
-            lat_var='lat',
-        )
-        remapper.dst_from_mpas(
-            filename='culled_mesh.nc',
-            mesh_name=self.mesh_name,
-        )
-        remapper.build_map(logger=logger)
         remapper.ncremap(
             in_filename='woa23_extrap.nc',
             out_filename='woa23_on_mesh_raw.nc',
@@ -125,25 +90,6 @@ class RemapWoa23Step(Step):
         ds_raw = xr.open_dataset('woa23_on_mesh_raw.nc')
         ds_out = self._postprocess_remapped_output(ds_raw)
         write_netcdf(ds_out, 'woa23_on_mesh.nc')
-
-    def _update_ntasks(self):
-        """
-        Set ntasks and min_tasks from the estimated mesh cell count and the
-        ``remap_cells_per_task`` / ``remap_min_cells_per_task`` config
-        options.  Falls back to ntasks=1 if the cell count cannot be
-        estimated.
-        """
-        config = self.config
-        # WOA23 is remapped onto the culled ocean mesh, so size from the
-        # ocean-culled cell count rather than the full unified-mesh estimate.
-        cell_count = estimate_ocean_cell_count(self.mesh_name, config=config)
-        if cell_count is None:
-            return
-        section = config['realistic_global_init']
-        cells_per_task = section.getint('remap_cells_per_task')
-        min_cells_per_task = section.getint('remap_min_cells_per_task')
-        self.ntasks = max(1, round(cell_count / cells_per_task))
-        self.min_tasks = max(1, round(cell_count / min_cells_per_task))
 
     @staticmethod
     def _postprocess_remapped_output(ds):

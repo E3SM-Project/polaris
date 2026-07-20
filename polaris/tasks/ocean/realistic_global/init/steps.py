@@ -15,6 +15,7 @@ from .initial_state import InitialStateStep
 from .pstar_init import RealisticPStarInitStep
 from .remap_woa23 import RemapWoa23Step
 from .viz import VizInitStep
+from .woa23_map import Woa23MapStep
 
 
 def get_realistic_init_steps(component, mesh_name, include_viz=False):
@@ -28,6 +29,7 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
       :py:func:`~polaris.tasks.e3sm.init.topo.cull.steps.get_cull_topo_steps`)
     * WOA23 hydrography steps (via
       :py:func:`~polaris.tasks.ocean.realistic_global.hydrography.woa23.steps.get_woa23_steps`)
+    * :py:class:`.Woa23MapStep`
     * :py:class:`.RemapWoa23Step`
     * :py:class:`.RealisticPStarInitStep`
     * :py:class:`.InitialStateStep`
@@ -87,14 +89,23 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
         cull_mesh_step=cull_mesh_step,
     )
 
+    woa23_map_step = component.get_or_create_shared_step(
+        step_cls=Woa23MapStep,
+        subdir=os.path.join(base_subdir, 'woa23_map'),
+        config=config,
+        config_filename=config_filename,
+        extrapolate_step=extrapolate_step,
+        cull_mesh_step=cull_mesh_step,
+        mesh_name=mesh_name,
+    )
+
     remap_step = component.get_or_create_shared_step(
         step_cls=RemapWoa23Step,
         subdir=os.path.join(base_subdir, 'remap_woa23'),
         config=config,
         config_filename=config_filename,
         extrapolate_step=extrapolate_step,
-        cull_mesh_step=cull_mesh_step,
-        mesh_name=mesh_name,
+        woa23_map_step=woa23_map_step,
     )
 
     pstar_init_step = component.get_or_create_shared_step(
@@ -128,6 +139,7 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
     steps: dict[str, Step] = dict(cull_steps)
     steps.update(woa23_steps)
     steps[cull_topo_step.name] = cull_topo_step
+    steps[woa23_map_step.name] = woa23_map_step
     steps[remap_step.name] = remap_step
     steps[pstar_init_step.name] = pstar_init_step
     steps[init_step.name] = init_step
