@@ -6,8 +6,10 @@ pool for small integer topology data.
 
 from typing import Literal
 
+import dask
 import numpy as np
 import xarray as xr
+from dask.diagnostics import ProgressBar
 from scipy import linalg
 
 from polaris.mesh.vector import compute_edge_normal_vec
@@ -664,6 +666,69 @@ def cartesian_to_local_geographic(
     return u_zonal, u_merid, u_radial
 
 
+def compute_reconstruction_weights(
+    ds: xr.Dataset, location: ReconstructionType = 'cell'
+) -> xr.Dataset:
+    """
+    Compute the weights and stencil indices needed for recoconstruction
+    a edge normal vector field at cell or vertex centers
+
+    Parameters
+    ----------
+    ds: xr.Dataset
+        MPAS mesh dataset
+    location: str ["cell", "vertex"]
+        Point location where the reconstruction occurs
+
+    Returns
+    -------
+    ds: xr.Dataset
+        A minimal dataset containing the reconstruction stencil, edge-count,
+        and coefficent fields for the requeste reconstruction point location.
+    """
+
+    names = _RECONSTRUCTION_FIELD_NAMES[location]
+
+    if names['coeffs'] in ds:
+        print(
+            f"Warning: overwriting existing '{names['coeffs']}' field "
+            'in the mesh dataset.'
+        )
+
+    # For stencil creation to work all indices in the connectivity arrays must
+    # [0, dim_size], where 0 is the invalid index sentinel
+    ds = fix_out_of_bounds_indices(ds)
+
+    stencil, weights = build_reconstruction_weights(ds, location)
+
+    stencil_dim = _stencil_dim(stencil)
+    n_edges = (stencil != 0).sum(dim=stencil_dim).astype(stencil.dtype)
+
+    stencil = _add_reconstruct_attrs(
+        stencil, 'edge stencil used to reconstruct a vector'
+    )
+    n_edges = _add_reconstruct_attrs(
+        n_edges, 'number of edges in the reconstruction stencil'
+    )
+    weights = _add_reconstruct_attrs(
+        weights,
+        'weights used to reconstruct a Cartesian vector from '
+        'edge-normal values on the reconstruction stencil',
+        units='unitless',
+    )
+
+    with ProgressBar():
+        stencil, n_edges, weights = dask.compute(stencil, n_edges, weights)
+
+    return xr.Dataset(
+        {
+            names['stencil']: stencil,
+            names['n_edges']: n_edges,
+            names['coeffs']: weights,
+        }
+    )
+
+
 def add_reconstruction_weights_to_dataset(
     ds_mesh: xr.Dataset,
     location: ReconstructionType = 'cell',
@@ -686,33 +751,10 @@ def add_reconstruction_weights_to_dataset(
         coefficient fields whose names depend on ``location`` (see
         ``_RECONSTRUCTION_FIELD_NAMES``)
     """
-    names = _RECONSTRUCTION_FIELD_NAMES[location]
 
-    if names['coeffs'] in ds_mesh:
-        print(
-            f"Warning: overwriting existing '{names['coeffs']}' field "
-            'in the mesh dataset.'
-        )
+    weights_ds = compute_reconstruction_weights(ds_mesh, location)
 
-    stencil, weights = build_reconstruction_weights(ds_mesh, location)
-
-    stencil_dim = _stencil_dim(stencil)
-    n_edges = (stencil != 0).sum(dim=stencil_dim).astype(stencil.dtype)
-
-    ds_mesh[names['stencil']] = _add_reconstruct_attrs(
-        stencil, 'edge stencil used to reconstruct a vector'
-    )
-    ds_mesh[names['n_edges']] = _add_reconstruct_attrs(
-        n_edges, 'number of edges in the reconstruction stencil'
-    )
-    ds_mesh[names['coeffs']] = _add_reconstruct_attrs(
-        weights,
-        'weights used to reconstruct a Cartesian vector from '
-        'edge-normal values on the reconstruction stencil',
-        units='unitless',
-    )
-
-    return ds_mesh
+    return ds_mesh.merge(weights_ds)
 
 
 def _add_reconstruct_attrs(
