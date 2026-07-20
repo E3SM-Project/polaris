@@ -1,3 +1,9 @@
+"""
+NOTE: Intermidiate connecitity arrays are computed using the lightweight
+synchronous dask scheduler to avoid the overhead of spinning up a process
+pool for small integer topology data.
+"""
+
 from typing import Literal
 
 import numpy as np
@@ -80,6 +86,8 @@ def construct_edgesOnVerticesOnCell(ds: xr.Dataset) -> xr.DataArray:
 
     maxEdges2 = ds.sizes['maxEdges2']
 
+    ds['verticesOnCell'] = ds.verticesOnCell.compute(scheduler='sync')
+
     conn = ds.edgesOnVertex[ds.verticesOnCell - 1]
     conn = conn.where(ds.verticesOnCell != 0, 0)
 
@@ -95,7 +103,7 @@ def construct_edgesOnVerticesOnCell(ds: xr.Dataset) -> xr.DataArray:
         dask_gufunc_kwargs={
             'output_sizes': {'maxEdges2': maxEdges2},
         },
-    )
+    ).compute(scheduler='sync')
 
 
 def construct_edgesOnVerticesOnVertex(ds: xr.Dataset) -> xr.DataArray:
@@ -120,6 +128,8 @@ def construct_edgesOnVerticesOnVertex(ds: xr.Dataset) -> xr.DataArray:
     vertex_degree = ds.sizes['vertexDegree']
     max_neighbors = 2 * vertex_degree
     nine = 3 * vertex_degree
+
+    ds['edgesOnVertex'] = ds.edgesOnVertex.compute(scheduler='sync')
 
     # one-ring of neighboring vertices (including the vertex itself),
     conn = ds.verticesOnEdge[ds.edgesOnVertex - 1]
@@ -154,7 +164,7 @@ def construct_edgesOnVerticesOnVertex(ds: xr.Dataset) -> xr.DataArray:
         dask_gufunc_kwargs={
             'output_sizes': {'NINE': nine},
         },
-    )
+    ).compute(scheduler='sync')
 
 
 def construct_rotation_matrix(
@@ -217,7 +227,12 @@ def construct_rotation_matrix(
     U_y[:, 2, 0] = s_y
     U_y[:, 2, 2] = c_y
 
-    return xr.DataArray(np.matmul(U_y, U_x), dims=(point_dim, 'd1', 'd2'))
+    # preserve existing chunking along point_dim. If None; use a single chunk
+    point_chunks = ds.chunksizes.get(point_dim, -1)
+
+    return xr.DataArray(
+        np.matmul(U_y, U_x), dims=(point_dim, 'd1', 'd2')
+    ).chunk({point_dim: point_chunks, 'd1': -1, 'd2': -1})
 
 
 def project_edge_normal_to_tangent_plane(
@@ -420,10 +435,10 @@ def build_reconstruction_weights(
 
     # compute the normal vector for each edge in Cartesian coordinates
     cartesian_normal_vector = compute_edge_normal_vec(ds)
-    # build the edge coordinate vectors (nEdges, R3)
+    # build the edge coord vec (nEdges, R3), w/ single chunk along the R3 dim
     cartesian_edge_coords = xr.concat(
         [ds.xEdge, ds.yEdge, ds.zEdge], dim='R3'
-    ).T
+    ).T.chunk({'R3': -1})
 
     # project the normal vector onto the tangent plane at the cell center
     local_normal_vector = project_edge_normal_to_tangent_plane(
@@ -441,6 +456,11 @@ def build_reconstruction_weights(
     matrix = xr.concat(
         [local_normal_vector.isel(R3=[0, 1])] * 3, dim='R3'
     ).rename({'R3': 'SIX'})
+
+    # We just want to parallelize over the reconstruction point dimension
+    # so we set a single chunk along all other dimensions
+    stencil_dim = _stencil_dim(stencil)
+    matrix = matrix.chunk({'SIX': -1, stencil_dim: -1})
 
     matrix.loc[{'SIX': [2, 3]}] *= local_edge_coords.isel(R3=0)
     matrix.loc[{'SIX': [4, 5]}] *= local_edge_coords.isel(R3=1)
