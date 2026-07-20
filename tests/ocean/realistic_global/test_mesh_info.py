@@ -1,6 +1,10 @@
 import pytest
 
+from polaris.config import PolarisConfigParser
 from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
+from polaris.tasks.ocean.realistic_global.mesh_configs import (
+    add_realistic_global_mesh_config,
+)
 from polaris.tasks.ocean.realistic_global.mesh_info import (
     estimate_cell_count,
     estimate_ocean_cell_count,
@@ -70,3 +74,24 @@ def test_unified_meshes_define_ocean_cell_count(mesh_name):
 
 def test_estimate_ocean_cell_count_unknown_mesh():
     assert estimate_ocean_cell_count('nonexistent_mesh_xyz') is None
+
+
+def test_estimate_ocean_cell_count_uses_given_config():
+    """A config passed by the caller is used instead of the package file."""
+    config = PolarisConfigParser()
+    add_realistic_global_mesh_config(config, 'u.oi30.lr10')
+    config.set('realistic_global_mesh', 'culled_ocean_cell_count', '12345')
+    assert estimate_ocean_cell_count('u.oi30.lr10', config=config) == 12345
+    # without the config, the value from the package file is used
+    assert estimate_ocean_cell_count('u.oi30.lr10') == 470000
+
+
+def test_estimate_ocean_cell_count_given_config_without_option():
+    """
+    A config with no culled count still falls back to the full-mesh estimate.
+    """
+    config = PolarisConfigParser()
+    add_realistic_global_mesh_config(config, 'icos240km')
+    assert estimate_ocean_cell_count(
+        'icos240km', config=config
+    ) == estimate_cell_count('icos240km')
