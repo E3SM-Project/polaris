@@ -197,6 +197,8 @@ composes the full chain:
 1. **cull_topo** ({py:class}`~polaris.tasks.ocean.realistic_global.init.cull_topo.CullTopoStep`):
    reindexes remapped topography from the base mesh to the culled ocean mesh
    using `ocean_map_culled_to_base.nc`, producing `topography_culled.nc`.
+   The standard topography fields (see `TOPO_VARIABLES`) are validated
+   against a baseline when one is provided.
 2. **remap_woa23** ({py:class}`~polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step`):
    uses pyremap to remap WOA23 conservative temperature and absolute salinity
    from the 0.25-degree lat-lon grid to the culled MPAS mesh, producing
