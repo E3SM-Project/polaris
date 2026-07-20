@@ -36,14 +36,20 @@ conditions for MPAS-Ocean and Omega when the geometric thickness is the state
 variable for MPAS-Ocean and the pseudo-thickness is the state variable for
 Omega. Similarly,
 {py:meth}`polaris.ocean.model.OceanIOStep.write_initial_state_dataset()`
-ensures that `surfacePressure` is present in initial conditions written for
-Omega, adding it initialized to zero if it is not already set.  This allows
-tasks to share the same initial-state dataset between MPAS-Ocean and Omega
-without needing to explicitly include a `surfacePressure` field. As new
-variables are added to Omega, they should be added to the `variables` section
-in the
+ensures that `SurfacePressure` is present in initial conditions written for
+Omega, adding a spatially uniform field from the
+`vertical_grid:surface_pressure` config option (zero by default) if it is not
+already set.  `SurfacePressure` is a relative (gauge) surface pressure that is
+required by Omega but not by MPAS-Ocean, so it is added only when the model is
+Omega.  It is an Omega-only field with no MPAS-Ocean equivalent (MPAS-Ocean's
+`surfacePressure` is an absolute pressure supplied by the coupler), so it is
+deliberately not included in the
 [mpaso_to_omega.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml)
-file.
+variable map and keeps its Omega name.  Tasks that prescribe a spatially
+varying surface pressure should set `SurfacePressure` themselves, in which case
+it is left as-is.  As new variables that do have an MPAS-Ocean equivalent are
+added to Omega, they should be added to the `variables` section in the
+`mpaso_to_omega.yaml` file.
 
 #### Canonical staged files
 

@@ -121,6 +121,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.surface_pressure</span><span class="w"> </span><span class="kn">import</span> <span class="n">surface_pressure_from_config</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">geom_thickness_from_ds</span><span class="p">,</span>
     <span class="n">pseudothickness_from_ds</span><span class="p">,</span>
@@ -466,26 +467,16 @@
 
         <span class="n">ds_vc</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-        <span class="c1"># make sure SurfacePressure is present for Omega</span>
-        <span class="k">if</span> <span class="s1">&#39;SurfacePressure&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">if</span> <span class="s1">&#39;surfacePressure&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="c1"># Because &#39;SurfacePressure&#39; is required for Omega only,</span>
-                <span class="c1"># we must use Omega naming</span>
-                <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SurfacePressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">surfacePressure</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="s1">&#39;surfacePressure not found in initial_state dataset; &#39;</span>
-                    <span class="s1">&#39;defaulting to zeros&#39;</span>
-                <span class="p">)</span>
-                <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SurfacePressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-                    <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-                    <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">],</span>
-                    <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;Pa&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Surface Pressure&#39;</span><span class="p">},</span>
-                <span class="p">)</span>
-        <span class="c1"># Convert restingThickness (geometric) to RefPseudoThickness (pseudo)</span>
+        <span class="c1"># Convert restingThickness (geometric) to RefPseudoThickness (pseudo).</span>
+        <span class="c1"># Resting thicknesses are defined at zero surface pressure, so the</span>
+        <span class="c1"># conversion must not use whatever surface pressure the dataset</span>
+        <span class="c1"># happens to carry.</span>
         <span class="k">if</span> <span class="s1">&#39;restingThickness&#39;</span> <span class="ow">in</span> <span class="n">ds_vc</span> <span class="ow">and</span> <span class="s1">&#39;RefPseudoThickness&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_vc</span><span class="p">:</span>
             <span class="n">pseudothickness</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">pseudothickness_from_ds</span><span class="p">(</span>
-                <span class="n">ds_vc</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">src_var_name</span><span class="o">=</span><span class="s1">&#39;restingThickness&#39;</span>
+                <span class="n">ds_vc</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">src_var_name</span><span class="o">=</span><span class="s1">&#39;restingThickness&#39;</span><span class="p">,</span>
+                <span class="n">surf_pressure</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">pseudothickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># VertCoordInit stream is time-independent; drop Time dim</span>
@@ -565,6 +556,15 @@
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_horiz_mesh_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_vert_coord_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+            <span class="c1"># Omega requires a surface pressure in its initial state but</span>
+            <span class="c1"># MPAS-Ocean does not, so only add it for Omega.  This is the one</span>
+            <span class="c1"># place the vertical_grid:surface_pressure config option is read</span>
+            <span class="c1"># (it always has a value from ocean.cfg); tasks that prescribe</span>
+            <span class="c1"># their own surface pressure are left untouched.</span>
+            <span class="k">if</span> <span class="s1">&#39;SurfacePressure&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SurfacePressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_pressure_from_config</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span>
+                <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">contains_state</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 

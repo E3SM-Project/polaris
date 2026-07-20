@@ -165,7 +165,11 @@
 <div class="viewcode-block" id="pseudothickness_from_ds">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.pseudothickness_from_ds.html#polaris.ocean.vertical.diagnostics.pseudothickness_from_ds">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">pseudothickness_from_ds</span><span class="p">(</span>
-    <span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">src_var_name</span><span class="o">=</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="n">iter_count</span><span class="o">=</span><span class="kc">None</span>
+    <span class="n">ds</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">,</span>
+    <span class="n">src_var_name</span><span class="o">=</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
+    <span class="n">iter_count</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">surf_pressure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute pseudothickness from temperature and salinity in dataset.</span>
@@ -173,12 +177,12 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xarray.Dataset</span>
-<span class="sd">        An ocean dataset containing &#39;temperature&#39;, &#39;salinity&#39;,</span>
-<span class="sd">        src_var_name, and &#39;SurfacePressure&#39;</span>
+<span class="sd">        An ocean dataset containing &#39;temperature&#39;, &#39;salinity&#39; and</span>
+<span class="sd">        src_var_name, along with &#39;SurfacePressure&#39; if ``surf_pressure`` is</span>
+<span class="sd">        not given</span>
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
-<span class="sd">        Configuration options for the test case, including</span>
-<span class="sd">        &#39;vertical_grid:surface_pressure&#39;</span>
+<span class="sd">        Configuration options for the test case</span>
 
 <span class="sd">    src_var_name : str, optional</span>
 <span class="sd">        The name of the variable in ds to use as the source for the</span>
@@ -188,6 +192,11 @@
 <span class="sd">        The number of iterations to use when computing pressure and</span>
 <span class="sd">        specific volume, by default ``pseudothickness_iter_count`` for teos-10</span>
 <span class="sd">        and 1 for linear or constant EOS.</span>
+
+<span class="sd">    surf_pressure : float or xarray.DataArray, optional</span>
+<span class="sd">        The surface pressure to integrate down from.  Defaults to</span>
+<span class="sd">        ``ds.SurfacePressure``.  Pass 0. for quantities that are defined at</span>
+<span class="sd">        zero surface pressure, such as ``restingThickness``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -210,16 +219,14 @@
     <span class="k">if</span> <span class="n">iter_count</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">iter_count</span> <span class="o">=</span> <span class="n">get_iter_count_for_eos</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s1">&#39;SurfacePressure&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;surface_pressure&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span>
-            <span class="s1">&#39;SurfacePressure not found in dataset. Setting SurfacePressure &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;to </span><span class="si">{</span><span class="n">surface_pressure</span><span class="si">}</span><span class="s1"> from config file&#39;</span>
-        <span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SurfacePressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-            <span class="n">surface_pressure</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">),</span>
-        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">surf_pressure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;SurfacePressure&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;pseudothickness_from_ds() requires SurfacePressure in the &#39;</span>
+                <span class="s1">&#39;dataset or an explicit surf_pressure argument.&#39;</span>
+            <span class="p">)</span>
+        <span class="n">surf_pressure</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span>
+
     <span class="n">src_var</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">src_var_name</span><span class="p">]</span>
     <span class="n">src_has_time</span> <span class="o">=</span> <span class="s1">&#39;Time&#39;</span> <span class="ow">in</span> <span class="n">src_var</span><span class="o">.</span><span class="n">dims</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">src_has_time</span><span class="p">:</span>
@@ -229,7 +236,7 @@
         <span class="n">src_var</span><span class="p">,</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="p">,</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="p">,</span>
+        <span class="n">surf_pressure</span><span class="p">,</span>
         <span class="n">iter_count</span><span class="o">=</span><span class="n">iter_count</span><span class="p">,</span>
     <span class="p">)</span>
 

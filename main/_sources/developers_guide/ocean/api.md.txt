@@ -656,6 +656,18 @@
 
 ```
 
+### Surface pressure
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean
+
+.. autosummary::
+   :toctree: generated/
+
+   surface_pressure.surface_pressure_from_config
+
+```
+
 ### Vertical coordinates
 
 ```{eval-rst}
