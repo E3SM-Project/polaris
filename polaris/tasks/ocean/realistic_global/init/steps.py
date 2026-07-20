@@ -6,6 +6,9 @@ from polaris.tasks.e3sm.init.topo.cull.steps import get_cull_topo_steps
 from polaris.tasks.ocean.realistic_global.hydrography.woa23.steps import (
     get_woa23_steps,
 )
+from polaris.tasks.ocean.realistic_global.mesh_configs import (
+    add_realistic_global_mesh_config,
+)
 
 from .cull_topo import CullTopoStep
 from .initial_state import InitialStateStep
@@ -71,7 +74,9 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
 
     base_subdir = f'spherical/realistic_global/{mesh_name}/init'
     config_filename = 'realistic_global_init.cfg'
-    config = _get_init_config(component, base_subdir, config_filename)
+    config = _get_init_config(
+        component, base_subdir, config_filename, mesh_name
+    )
 
     cull_topo_step = component.get_or_create_shared_step(
         step_cls=CullTopoStep,
@@ -131,9 +136,14 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
     return steps, config
 
 
-def _get_init_config(component, subdir, config_filename):
+def _get_init_config(component, subdir, config_filename, mesh_name):
     """
     Get or create the shared per-mesh config for the realistic init steps.
+
+    Per-mesh overrides from
+    :py:mod:`polaris.tasks.ocean.realistic_global.mesh_configs` are added last
+    so that they take precedence over the defaults in
+    ``realistic_global_init.cfg``.
 
     Parameters
     ----------
@@ -145,6 +155,9 @@ def _get_init_config(component, subdir, config_filename):
 
     config_filename : str
         The config filename (symlinked in each step's work directory).
+
+    mesh_name : str
+        The name of the MPAS mesh, used to find per-mesh overrides.
 
     Returns
     -------
@@ -158,4 +171,5 @@ def _get_init_config(component, subdir, config_filename):
         'polaris.tasks.ocean.realistic_global.init',
         config_filename,
     )
+    add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
     return config
