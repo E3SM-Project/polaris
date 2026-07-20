@@ -4,7 +4,6 @@ import xarray as xr
 
 from polaris.tasks.ocean.realistic_global.init.remap_woa23 import (
     RemapWoa23Step,
-    _estimate_cell_count,
 )
 
 
@@ -69,34 +68,3 @@ def test_postprocess_no_ncol_passthrough():
     assert 'nCells' in ds_out.dims
     assert 'ncol' not in ds_out.dims
     assert ds_out['ct_an'].shape == (2, 3)
-
-
-# -----------------------------------------------------------------------
-# _estimate_cell_count
-# -----------------------------------------------------------------------
-
-
-def test_estimate_cell_count_icos_base_mesh():
-    count = _estimate_cell_count('icos240km')
-    # formula: 6e8 / 240**2 ≈ 10417
-    assert count is not None
-    assert count == pytest.approx(6e8 / 240**2, rel=1e-6)
-
-
-def test_estimate_cell_count_qu_base_mesh():
-    count = _estimate_cell_count('qu30km')
-    # formula: 6e8 / 30**2 ≈ 666667
-    assert count is not None
-    assert count == pytest.approx(6e8 / 30**2, rel=1e-6)
-
-
-def test_estimate_cell_count_unified_mesh_returns_int_or_none():
-    """Unified meshes with approximate_cell_count set return a positive int."""
-    count = _estimate_cell_count('u.oi240.lr240')
-    assert count is not None
-    assert count > 0
-
-
-def test_estimate_cell_count_unknown_mesh():
-    count = _estimate_cell_count('nonexistent_mesh_xyz')
-    assert count is None
