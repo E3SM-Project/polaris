@@ -141,6 +141,71 @@ column diagnostics, vertical transects across the major ocean basins, and
 `xdmf/` subdirectories for ParaView.  For Omega, native surface/bottom pressure
 maps and a TEOS-10 in-situ density (stratification) check are also produced.
 
+(ocean-realistic-global-mesh-configs)=
+
+### per-mesh config options
+
+Some config options need to differ from one mesh to the next.  These live in
+one optional file per mesh, `<mesh_name>.cfg`, under
+`polaris/tasks/ocean/realistic_global/mesh_configs`.  When a
+`realistic_global` task is set up, the options for its mesh are added *after*
+the task's own config file, so they override the defaults.  Most meshes have
+no file there at all and simply use the defaults; you can still override any
+option for a single mesh in your own user config file.
+
+These are separate from the per-mesh files in `polaris/mesh/spherical/unified`.
+The two are joined by the mesh name but have different owners: the mesh
+component describes the mesh itself (resolutions, river networks, sizing
+fields, total cell count), while the ocean component describes what the ocean
+does on that mesh.  An option specific to the ocean belongs in
+`mesh_configs`, not in the mesh component.
+
+Currently:
+
+- `qu240km`, `icos240km` and `u.oi240.lr240` replace the default 80-layer
+  vertical grid with a cheap 16-level `tanh_dz` grid with a 3000 m bottom
+  depth.  The shallow ocean is deliberate: these coarse meshes exist for fast
+  smoke-testing of E3SM, Omega and MPAS-Ocean rather than for physically
+  realistic simulations.
+- All four unified meshes set `culled_ocean_cell_count`, the approximate size
+  of the ocean + sea-ice culled mesh that the ocean model actually runs.  It is
+  used to size MPI task counts and is smaller than the full mesh, which
+  includes land and river-channel refinement that is culled away first.
+
+For example, `u.oi240.lr240.cfg` contains:
+
+```cfg
+# Ocean-specific properties of this mesh
+[realistic_global_mesh]
+
+# Approximate cell count of the ocean + sea-ice culled mesh that the ocean
+# model actually runs, used to size ocean MPI task counts (ntasks/min_tasks).
+culled_ocean_cell_count = 7500
+
+
+# Options related to the vertical grid
+[vertical_grid]
+
+# the type of vertical grid
+grid_type = tanh_dz
+
+# Number of vertical levels
+vert_levels = 16
+
+# Depth of the bottom of the ocean
+bottom_depth = 3000.0
+
+# The minimum layer thickness
+min_layer_thickness = 3.0
+
+# The maximum layer thickness
+max_layer_thickness = 500.0
+```
+
+Options the per-mesh file does not set (`coord_type`, `min_vert_levels`,
+`min_bottom_depth`, and so on) are inherited from the task's config file as
+usual.
+
 ### config options
 
 ```cfg
