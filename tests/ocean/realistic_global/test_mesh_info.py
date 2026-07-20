@@ -1,5 +1,6 @@
 import pytest
 
+from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
 from polaris.tasks.ocean.realistic_global.mesh_info import (
     estimate_cell_count,
     estimate_ocean_cell_count,
@@ -54,6 +55,17 @@ def test_estimate_ocean_cell_count_falls_back_to_full():
     assert estimate_ocean_cell_count('icos240km') == estimate_cell_count(
         'icos240km'
     )
+
+
+@pytest.mark.parametrize('mesh_name', UNIFIED_MESH_NAMES)
+def test_unified_meshes_define_ocean_cell_count(mesh_name):
+    """
+    Every unified mesh sets culled_ocean_cell_count, and it is smaller than
+    the full-mesh count, which includes land and river refinement.
+    """
+    count = estimate_ocean_cell_count(mesh_name)
+    assert count is not None
+    assert 0 < count < estimate_cell_count(mesh_name)
 
 
 def test_estimate_ocean_cell_count_unknown_mesh():
