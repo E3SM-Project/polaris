@@ -5,6 +5,55 @@ import xarray as xr
 from polaris.tasks.ocean.realistic_global.init.remap_woa23 import (
     RemapWoa23Step,
 )
+from polaris.tasks.ocean.realistic_global.init.woa23_map import Woa23MapStep
+
+
+class _FakeComponent:
+    name = 'ocean'
+
+
+class _FakeStep:
+    path = 'fake/step'
+
+
+def _make_steps(mesh_name='icos240km'):
+    map_step = Woa23MapStep(
+        component=_FakeComponent(),
+        subdir=f'{mesh_name}/woa23_map',
+        extrapolate_step=_FakeStep(),
+        cull_mesh_step=_FakeStep(),
+        mesh_name=mesh_name,
+    )
+    remap_step = RemapWoa23Step(
+        component=_FakeComponent(),
+        subdir=f'{mesh_name}/remap_woa23',
+        extrapolate_step=_FakeStep(),
+        woa23_map_step=map_step,
+    )
+    return map_step, remap_step
+
+
+def test_remap_step_is_serial():
+    """
+    The MPI work lives in the map step; ncremap here runs in serial.
+    """
+    _, remap_step = _make_steps()
+    assert remap_step.ntasks == 1
+    assert remap_step.min_tasks == 1
+
+
+def test_remap_step_depends_on_map_step():
+    """
+    The remapper is fetched through the dependency mechanism so that it is
+    resolved only after the map step has run.
+    """
+    map_step, remap_step = _make_steps()
+    assert remap_step.dependencies['woa23_map'] is map_step
+
+
+def test_remap_step_output():
+    _, remap_step = _make_steps()
+    assert 'woa23_on_mesh.nc' in remap_step.outputs[0]
 
 
 def _make_raw_ncremap_output(ncol=4, ndepth=3):
