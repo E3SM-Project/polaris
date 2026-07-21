@@ -7,6 +7,9 @@ from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
 from polaris.tasks.ocean.realistic_global.init.steps import (
     get_realistic_init_steps,
 )
+from polaris.tasks.ocean.realistic_global.mesh_configs import (
+    add_realistic_global_mesh_config,
+)
 from polaris.tasks.ocean.realistic_global.mesh_info import (
     estimate_ocean_cell_count,
     min_res_for_mesh,
@@ -55,6 +58,7 @@ class RealisticGlobalForward(Task):
         config.add_from_package(
             'polaris.tasks.ocean.realistic_global.forward', config_filename
         )
+        add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
         self.set_shared_config(config, link=config_filename)
 
         for symlink, step in init_steps.items():
