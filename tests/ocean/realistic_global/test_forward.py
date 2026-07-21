@@ -26,6 +26,18 @@ def _forward_config(**overrides):
         dt='',
         btr_dt='',
         Rayleigh_damping_coeff='',
+        mom_del2='1.0e3',
+        mom_del4='1.2e11',
+        tracer_del2='',
+        tracer_del4='',
+        use_Leith_del2='False',
+        hmix_scaling='none',
+        hmix_ref_cell_width='30.0e3',
+        use_GM='True',
+        GM_closure='',
+        GM_constant_kappa='',
+        use_Redi='True',
+        use_frazil_ice_formation='False',
         start_time='0001-01-01_00:00:00',
     )
     values.update(overrides)
