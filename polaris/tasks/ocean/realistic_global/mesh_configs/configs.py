@@ -3,8 +3,8 @@ Per-mesh config overrides for ``realistic_global`` ocean tasks.
 
 A ``realistic_global`` task is registered once per MPAS mesh, and some config
 options need to differ from mesh to mesh (the vertical grid, the ocean-culled
-cell count, and later forward-run options).  This package holds one optional
-config file per mesh, named ``<mesh_name>.cfg``.
+cell count, and the resolution-dependent forward-run options).  This package
+holds one optional config file per mesh, named ``<mesh_name>.cfg``.
 
 These files are deliberately separate from the per-mesh configs in
 ``polaris.mesh.spherical.unified``.  The two are joined by the mesh name but
