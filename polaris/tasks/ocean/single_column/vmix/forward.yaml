@@ -44,7 +44,7 @@ mpas-ocean:
   streams:
     forcing_data:
       type: input
-      filename_template: init.nc
+      filename_template: forcing.nc
       input_interval: initial_only
       contents:
       - tracersSurfaceRestoringFields
@@ -129,3 +129,13 @@ Omega:
       - Tracers
       - SshCell
       - Eos
+    Forcing:
+      UsePointerFile: false
+      Filename: forcing.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+      - Forcing

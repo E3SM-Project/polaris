@@ -18,6 +18,8 @@ mpas-ocean:
     config_bulk_wind_stress_interp_isotropic: true
     config_use_bulk_thickness_flux: true
   streams:
+    forcing_data:
+      filename_template: forcing.nc
     restart: {}
 
 Omega:
@@ -45,8 +47,6 @@ Omega:
         - Base
         - Tracers
         - TracersMonthlySurfClimoCell
-        - SfcStressZonal
-        - SfcStressMeridional
     RestartRead:
       UsePointerFile: true
       PointerFilename: ocn.pointer
