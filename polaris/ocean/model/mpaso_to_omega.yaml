@@ -168,6 +168,7 @@ config:
     config_use_mom_del2: VelDiffTendencyEnable
     config_mom_del2: ViscDel2
     config_use_tracer_del2: TracerDiffTendencyEnable
+    config_tracer_del2: EddyDiff2
 
 - section:
     hmix_del4: Tendencies
@@ -175,6 +176,7 @@ config:
     config_use_mom_del4: VelHyperDiffTendencyEnable
     config_mom_del4: ViscDel4
     config_use_tracer_del4: TracerHyperDiffTendencyEnable
+    config_tracer_del4: EddyDiff4
 
 - section:
     forcing: Tendencies
