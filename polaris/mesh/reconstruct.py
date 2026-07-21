@@ -21,12 +21,12 @@ _RECONSTRUCTION_FIELD_NAMES: dict[ReconstructionType, dict[str, str]] = {
     'cell': {
         'stencil': 'reconstructStencilCell',
         'n_edges': 'nCellReconstructEdges',
-        'coeffs': 'reconstructCoefsCell',
+        'weights': 'reconstructWeightsCell',
     },
     'vertex': {
         'stencil': 'reconstructStencilVertex',
         'n_edges': 'nVertexReconstructEdges',
-        'coeffs': 'reconstructVertex',
+        'weights': 'reconstructWeightsVertex',
     },
 }
 
@@ -689,9 +689,9 @@ def compute_reconstruction_weights(
 
     names = _RECONSTRUCTION_FIELD_NAMES[location]
 
-    if names['coeffs'] in ds:
+    if names['weights'] in ds:
         print(
-            f"Warning: overwriting existing '{names['coeffs']}' field "
+            f"Warning: overwriting existing '{names['weights']}' field "
             'in the mesh dataset.'
         )
 
@@ -724,7 +724,7 @@ def compute_reconstruction_weights(
         {
             names['stencil']: stencil,
             names['n_edges']: n_edges,
-            names['coeffs']: weights,
+            names['weights']: weights,
         }
     )
 
