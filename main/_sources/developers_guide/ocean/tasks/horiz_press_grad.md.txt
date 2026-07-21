@@ -6,11 +6,12 @@ The {py:class}`polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask`
 provides two-column Omega tests for pressure-gradient-acceleration (`HPGA`)
 accuracy and convergence across horizontal and vertical resolutions.
 
-The task family includes three variants:
+The task family includes four variants:
 
 - `salinity_gradient`
 - `temperature_gradient`
 - `ztilde_gradient`
+- `surface_pressure_gradient`
 
 ## framework
 

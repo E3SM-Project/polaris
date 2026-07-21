@@ -28,6 +28,7 @@ The tasks currently provided are:
 ocean/column/horiz_press_grad/salinity_gradient
 ocean/column/horiz_press_grad/temperature_gradient
 ocean/column/horiz_press_grad/ztilde_gradient
+ocean/column/horiz_press_grad/surface_pressure_gradient
 ```
 
 ```{image} images/horiz_press_grad_salin_grad.png
@@ -39,6 +40,55 @@ The point of these tasks is not only to verify that Omega can reproduce the
 same discrete answer as the Python initialization, but also to measure how the
 two-column discretization converges toward a more accurate non-local
 approximation of the continuous hydrostatic pressure-gradient force.
+
+Each variant isolates a different way a horizontal pressure gradient can arise:
+
+- `salinity_gradient` and `temperature_gradient` keep the layers level and
+  impose a horizontal density gradient, so the HPGA comes entirely from the
+  baroclinic term.
+- `ztilde_gradient` keeps the water properties horizontally uniform and tilts
+  the z-tilde interfaces, so the HPGA comes entirely from the geometric
+  (layer-slope) term.  This is the classic pressure-gradient-error
+  configuration for a terrain-following coordinate.
+- `surface_pressure_gradient` imposes a horizontally varying surface pressure,
+  as under a floating ice shelf, which tilts the layers through the surface
+  boundary condition rather than through the prescribed z-tilde profile.
+
+### why the `surface_pressure_gradient` variant
+
+Under an ice shelf the ocean surface is not a free surface at zero gauge
+pressure: it carries the weight of the ice above it, and the sea surface is
+depressed by roughly $-p_s / (\rho_0 g)$.  Wherever the ice thickness varies,
+both the surface pressure $p_s$ and the sea-surface height $\eta$ therefore
+vary horizontally, and in the p-star coordinate that depression also compresses
+the column so that *every* layer below is tilted, even though the prescribed
+z-tilde profile is level.
+
+This is precisely the regime in which pressure-gradient errors have
+historically been worst in terrain-following ocean models.  Two things happen at
+once: the layers acquire a steep slope, and the surface boundary term becomes
+large.  In the reference expression below, the two pieces of that boundary term,
+$-g\,\eta'$ and $+g\,\rho_0\,\alpha(\tilde z_s)\,\tilde z_s'$, nearly cancel
+because $\rho_0 \alpha \approx 1$, so the surviving HPGA is a small residual
+between two large numbers.  Any inconsistency in how Omega, the Python
+initialization, or the reference solution treat the surface would show up
+immediately as a large error that fails to converge.
+
+The variant is therefore meant to demonstrate that
+
+- Omega robustly supports a nonzero surface pressure and the corresponding
+  depressed, sloping sea surface;
+- Omega, the Python two-column diagnostic, and the analytic reference all
+  treat the surface boundary term consistently; and
+- Omega still converges to the reference at the same rate, and to comparable
+  accuracy, as in the variants with a flat, unloaded surface.
+
+Together these give confidence that the HPGA will remain consistent beneath real
+ice shelves, where layers can be steeply sloped.  The default configuration is
+sized for that application: `surface_pressure_mid = 8.99e5` Pa is the weight of
+about 100 m of Antarctic ice, and `surface_pressure_grad = 8.99e3` Pa/km
+corresponds to an ice-thickness slope of about 1 m/km (and hence a sea-surface
+slope of about &minus;0.9 m/km).
 
 ## supported models
 
@@ -69,7 +119,10 @@ the `salinity_gradient` and `temperature_gradient` tests, the z-tilde
 interfaces are level, so pressure surfaces are also horizontally level except
 where they intersect the bathymetry.  In the `ztilde_gradient` test, the
 prescribed z-tilde gradient tilts the layers, so the pressure surfaces are
-sloped and the along-layer direction follows those sloping layers.
+sloped and the along-layer direction follows those sloping layers.  In the
+`surface_pressure_gradient` test, a horizontally varying surface pressure
+depresses and tilts the surface pseudo-height (and compresses the column), so
+the layers are sloped even though the z-tilde profile itself is level.
 
 ## reference solution
 
@@ -105,10 +158,13 @@ where:
   $\alpha_{\Theta} = \partial \alpha / \partial \Theta$ are TEOS-10 first derivatives
   of specific volume.
 
-The surface boundary term is kept fully general, so a nonzero sea-surface
-height or surface pressure (nonzero `geom_ssh_grad` and/or surface
-`z_tilde_grad` node) is supported without further changes.  The three task
-variants currently provided all use zero surface slope.
+The surface boundary term is kept fully general, so a nonzero surface pressure
+or sea-surface height is supported.  The `surface_pressure_gradient` variant
+exercises this: a nonzero `surface_pressure_grad` sets the surface
+pseudo-height $\tilde z_s = -p_s / (\rho_0 g)$ and, by default, a matching
+sea-surface-height slope $\eta' = -\partial_x p_s / (\rho_0 g)$ (overridable
+with the optional `geom_ssh_grad`).  The other three variants use zero surface
+slope.
 
 The gradients $\partial_x S_A$ and $\partial_x \Theta$ at fixed $\tilde z$ are
 obtained by centred finite-differencing PCHIP interpolants evaluated at
@@ -185,9 +241,14 @@ horiz_resolutions = [4.0, 3.0, 2.0, 1.5, 1.0, 0.75, 0.5]
 # vertical resolution in m for each two-column setup
 vert_resolutions = [4.0, 3.0, 2.0, 1.5, 1.0, 0.75, 0.5]
 
-# geometric sea-surface and sea-floor midpoint values and x-gradients
-geom_ssh_mid = 0.0
-geom_ssh_grad = 0.0
+# sea-surface gauge pressure midpoint and x-gradient (Pa and Pa/km).  The
+# sea-surface height defaults to the resting depression
+# -surface_pressure / (rho0 * g); add the optional geom_ssh_mid / geom_ssh_grad
+# to override that default.
+surface_pressure_mid = 0.0
+surface_pressure_grad = 0.0
+
+# geometric sea-floor midpoint value and x-gradient
 geom_z_bot_mid = -500.0
 geom_z_bot_grad = 0.0
 
@@ -225,11 +286,14 @@ error at the highest resolution, the allowed power-law convergence slope, and
 the finest horizontal resolution included in the convergence fit (all
 resolutions are still shown in the plots).
 
-The three task variants specialize one horizontal gradient field:
+The four task variants each specialize one horizontal gradient field:
 
 - `salinity_gradient`: nonzero `salinity_grad`
 - `temperature_gradient`: nonzero `temperature_grad`
 - `ztilde_gradient`: nonzero `z_tilde_bot_grad`
+- `surface_pressure_gradient`: nonzero `surface_pressure_mid` and
+  `surface_pressure_grad` (with the sea-surface height following the default
+  surface-pressure depression), representing an overlying ice shelf
 
 ## time step and run duration
 

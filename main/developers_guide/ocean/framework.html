@@ -819,7 +819,10 @@ from within the step’s <code class="docutils literal notranslate"><span class=
 </div>
 <p>At convergence, the returned dataset contains all p-star coordinate variables
 plus <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code>, <code class="docutils literal notranslate"><span class="pre">pressure</span></code>, <code class="docutils literal notranslate"><span class="pre">GeomZMid</span></code>,
-<code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code>, <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code>, and <code class="docutils literal notranslate"><span class="pre">ssh</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code>, <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code>, and <code class="docutils literal notranslate"><span class="pre">ssh</span></code>.  Here <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> is the
+geometric seafloor depth below <span class="math notranslate nohighlight">\(z = 0\)</span> (the negation of the converged bottom
+interface height), which Omega reads as <code class="docutils literal notranslate"><span class="pre">BottomGeomDepth</span></code>; it equals the
+geometric water-column thickness only when <code class="docutils literal notranslate"><span class="pre">ssh</span></code> is zero.</p>
 <p>The iteration is controlled by two <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> config options:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Number of outer iterations</span>
 <span class="na">pseudothickness_iter_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">6</span>

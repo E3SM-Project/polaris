@@ -194,19 +194,32 @@
 
         <span class="c1"># Surface anchor. The model honours the surface boundary (sea-surface</span>
         <span class="c1"># height and surface pressure), so the reference integral is anchored</span>
-        <span class="c1"># there rather than at the seafloor. These are kept fully general so a</span>
-        <span class="c1"># follow-up surface-pressure test (nonzero geom_ssh_grad and/or a</span>
-        <span class="c1"># nonzero top z_tilde node) is supported without further changes.</span>
-        <span class="n">geom_ssh_grad</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;geom_ssh_grad&#39;</span><span class="p">)</span>
+        <span class="c1"># there rather than at the seafloor. A nonzero surface gauge pressure</span>
+        <span class="c1"># depresses the surface pseudo-height by -p_surf / (RhoSw * Gravity);</span>
+        <span class="c1"># its gradient drives the surface-pressure HPGA. A nonzero top z_tilde</span>
+        <span class="c1"># node is also supported and adds to the surface pseudo-height.</span>
         <span class="n">z_tilde_mid</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getnumpy</span><span class="p">(</span><span class="s1">&#39;z_tilde_mid&#39;</span><span class="p">)</span>
         <span class="n">z_tilde_grad</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getnumpy</span><span class="p">(</span><span class="s1">&#39;z_tilde_grad&#39;</span><span class="p">)</span>
         <span class="c1"># the surface is the shallowest (largest) pseudo-height node</span>
         <span class="n">surf_node</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">z_tilde_mid</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_z_tilde_surf</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">z_tilde_mid</span><span class="p">[</span><span class="n">surf_node</span><span class="p">])</span>
+        <span class="n">p_surf_mid</span><span class="p">,</span> <span class="n">p_surf_grad</span> <span class="o">=</span> <span class="n">_get_surface_pressure_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">p_surf_depression</span> <span class="o">=</span> <span class="n">p_surf_mid</span> <span class="o">/</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
+        <span class="n">p_surf_depression_grad</span> <span class="o">=</span> <span class="n">p_surf_grad</span> <span class="o">/</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_z_tilde_surf</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">z_tilde_mid</span><span class="p">[</span><span class="n">surf_node</span><span class="p">]</span> <span class="o">-</span> <span class="n">p_surf_depression</span><span class="p">)</span>
         <span class="c1"># Convert config gradients from m/km to m/m; project onto edge normal</span>
+        <span class="n">zt_surf_grad</span> <span class="o">=</span> <span class="n">z_tilde_grad</span><span class="p">[</span><span class="n">surf_node</span><span class="p">]</span> <span class="o">-</span> <span class="n">p_surf_depression_grad</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_zt_surf_prime</span> <span class="o">=</span> <span class="p">(</span><span class="n">zt_surf_grad</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">x_sign</span>
+
+        <span class="c1"># Sea-surface-height gradient eta&#39;. When geom_ssh is not configured it</span>
+        <span class="c1"># defaults to the resting surface-pressure depression gradient,</span>
+        <span class="c1"># mirroring the init step&#39;s run_pstar_init default.</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">,</span> <span class="s1">&#39;geom_ssh_grad&#39;</span><span class="p">):</span>
+            <span class="n">geom_ssh_grad</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;geom_ssh_grad&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">geom_ssh_grad</span> <span class="o">=</span> <span class="o">-</span><span class="n">p_surf_depression_grad</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eta_prime</span> <span class="o">=</span> <span class="p">(</span><span class="n">geom_ssh_grad</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">x_sign</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_zt_surf_prime</span> <span class="o">=</span> <span class="p">(</span><span class="n">z_tilde_grad</span><span class="p">[</span><span class="n">surf_node</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">x_sign</span>
 
         <span class="c1"># Evaluate node arrays at x = 0, +eps, -eps in km (config x direction)</span>
         <span class="n">x_eval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">eps_km</span><span class="p">,</span> <span class="o">-</span><span class="n">eps_km</span><span class="p">])</span>
@@ -369,6 +382,25 @@
         <span class="k">return</span> <span class="n">result</span></div>
 </div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_surface_pressure_mid_grad</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read the surface gauge pressure midpoint value and gradient (Pa and</span>
+<span class="sd">    Pa/km) from the ``horiz_press_grad`` section, defaulting to zero when the</span>
+<span class="sd">    options are not configured.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span>
+        <span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">,</span> <span class="s1">&#39;surface_pressure_mid&#39;</span>
+    <span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">,</span> <span class="s1">&#39;surface_pressure_grad&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;surface_pressure_mid&#39;</span><span class="p">),</span>
+            <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;surface_pressure_grad&#39;</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">_ClampedInterp</span><span class="p">:</span>

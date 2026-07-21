@@ -465,10 +465,13 @@
         <span class="p">)</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
 
-        <span class="c1"># Use the actual converged water-column thickness (not the target)</span>
-        <span class="c1"># for thermodynamic self-consistency, even when bottom-cell snapping</span>
-        <span class="c1"># prevents an exact match to the target bathymetry.</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_water_column_thickness</span>
+        <span class="c1"># Geometric depth of the seafloor below z=0, i.e. the negation of the</span>
+        <span class="c1"># actual converged bottom interface height (not the water-column</span>
+        <span class="c1"># thickness, which only matches when the sea-surface height is zero).</span>
+        <span class="c1"># Omega reads this as BottomGeomDepth and anchors its column there, so</span>
+        <span class="c1"># it must be the true bathymetric depth for the diagnosed sea-surface</span>
+        <span class="c1"># height (and the resulting geopotential gradient) to be correct.</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">geom_z_max</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;seafloor geometric depth&#39;</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
 
