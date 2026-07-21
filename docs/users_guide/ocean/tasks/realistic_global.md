@@ -266,6 +266,13 @@ Currently:
   of the ocean + sea-ice culled mesh that the ocean model actually runs.  It is
   used to size MPI task counts and is smaller than the full mesh, which
   includes land and river-channel refinement that is culled away first.
+- All four unified meshes, plus `qu240km` and `icos240km`, set the
+  resolution-dependent forward-run options described under
+  [forward](#ocean-realistic-global-forward): the horizontal mixing
+  coefficients, how mixing is scaled across the mesh, which eddy
+  parameterizations are active and, where the default scaling is not
+  appropriate, the time step.  The three 240 km meshes are qualitatively the
+  same mesh and share the same values.
 
 For example, `u.oi240.lr240.cfg` contains:
 
@@ -416,7 +423,6 @@ and shear mixing enabled, and a constant implicit bottom drag coefficient of
 
 The time step and run duration are set per mesh as shown in the table above.
 Output, including the global statistics, is written once per day.
-
 ### config options
 
 ```cfg
@@ -443,3 +449,132 @@ supports the standard Polaris colormap options described in
 The number of cores used by the `forward` step is determined
 algorithmically from the number of cells in the mesh. The `global_stats` and
 `viz` steps run serially.
+
+(ocean-realistic-global-forward)=
+
+## forward
+
+A forward run of the ocean model selected by the `[ocean] model` config option
+(MPAS-Ocean or Omega), starting from a `realistic_global` initial condition.
+The `short` run is a one-day smoke test:
+it checks that the model runs stably on the mesh and initial condition, not that
+the simulation is physically interesting.
+
+There is no surface forcing yet, so the run is a spin-down from the initial
+condition.
+
+### physics options
+
+The horizontal mixing coefficients, the eddy parameterizations and the way
+mixing is scaled across a variable-resolution mesh all depend on the mesh, so
+they are config options rather than fixed values, and most meshes override them
+in their [per-mesh config file](#ocean-realistic-global-mesh-configs).  The
+defaults follow how these meshes are configured in E3SM.
+
+A coefficient and its on/off switch are a single option: leaving `mom_del2`
+blank turns harmonic momentum mixing off, and giving it a value turns it on with
+that coefficient.  This matters more than it might seem — the model defaults
+leave horizontal mixing off entirely, and a global run without it grows
+grid-scale noise until it produces NaNs.
+
+`hmix_scaling` chooses how the coefficients are scaled across the mesh:
+`none` uses them as given, `ref_cell_width` scales them by the cell width
+relative to `hmix_ref_cell_width`, and `scale_with_mesh` scales them with the
+local mesh density.  Quasi-uniform meshes generally use `ref_cell_width`, and
+variable-resolution meshes `scale_with_mesh`.
+
+Gent-McWilliams, Redi, the Leith closure and frazil ice are applied only for
+MPAS-Ocean.  Omega has no equivalent for any of them and is not expected to gain
+GM or Redi, so the two models deliberately differ here; the `short` runs are
+smoke tests rather than a model intercomparison, and a careful comparison would
+need its own config options chosen for that purpose.
+
+### time step and run duration
+
+The time step is derived from the mesh's minimum resolution: `dt_per_km` gives
+the baroclinic step and `btr_dt_per_km` the barotropic subcycling step, each in
+seconds per kilometre.  Setting `dt` or `btr_dt` overrides the derived value.
+Meshes whose stable time step does not follow the default scaling set
+`dt_per_km` and `btr_dt_per_km` in their per-mesh config file.
+
+### config options
+
+```cfg
+# Options for realistic global ocean forward runs
+[realistic_global_forward]
+
+# Time integrator, in neutral (MPAS-Ocean) naming; translated to Omega as
+# needed.
+#   mpas-ocean: {'split_explicit_ab2', 'RK4'}
+#   omega: only 'RK4' (translated to 'RungeKutta4'); 'split_explicit_ab2' is
+#     not yet supported for Omega and will raise an error if selected
+time_integrator = split_explicit_ab2
+
+# Run duration as an MPAS-style duration string (DDDD_HH:MM:SS)
+run_duration = 0001_00:00:00
+
+# Interval between writes to the output stream (DDDD_HH:MM:SS)
+output_interval = 0001_00:00:00
+
+# Interval between writes to the restart stream (DDDD_HH:MM:SS); leave blank to
+# default to run_duration (a single restart at the end of the run)
+restart_interval =
+
+# Baroclinic time step per km of the mesh minimum resolution (s/km).  Only used
+# for split time stepping (split_explicit_ab2).
+dt_per_km = 30.0
+
+# Barotropic time step per km of the mesh minimum resolution (s/km).  Used as
+# config_btr_dt for split time stepping, and as the single time step for
+# non-split integrators such as RK4 and Omega's RungeKutta4.
+btr_dt_per_km = 1.5
+
+# Explicit baroclinic/barotropic time steps (DDDD_HH:MM:SS) that override the
+# *_per_km values when set; leave blank to derive from *_per_km and the mesh
+# minimum resolution
+dt =
+btr_dt =
+
+# Rayleigh damping coefficient (1/s); leave blank for no Rayleigh damping
+Rayleigh_damping_coeff =
+
+# Horizontal mixing coefficients.  A blank value turns the corresponding term
+# off; a number turns it on with that coefficient.  These are usually set per
+# mesh, since the right values depend on the resolution.
+#   mom_del2, mom_del4: harmonic and biharmonic momentum viscosity (m^2/s,
+#     m^4/s)
+#   tracer_del2, tracer_del4: harmonic and biharmonic tracer diffusivity
+#     (m^2/s, m^4/s)
+mom_del2 = 1.0e3
+mom_del4 = 1.2e11
+tracer_del2 =
+tracer_del4 =
+
+# Whether to use the Leith closure for harmonic momentum mixing
+use_Leith_del2 = False
+
+# How horizontal mixing coefficients are scaled across the mesh.  One of:
+#   none            - the coefficients above are used as given
+#   ref_cell_width  - scaled by the cell width relative to hmix_ref_cell_width
+#   scale_with_mesh - scaled with the local mesh density
+hmix_scaling = none
+
+# The reference cell width (m), used only when hmix_scaling = ref_cell_width
+hmix_ref_cell_width = 30.0e3
+
+# Whether to use the Gent-McWilliams eddy transport parameterization, and the
+# closure and constant kappa (m^2/s) it uses.  Leave the closure and kappa blank
+# to use the model defaults.  MPAS-Ocean only; Omega has no GM.
+use_GM = True
+GM_closure =
+GM_constant_kappa =
+
+# Whether to use Redi isopycnal mixing.  MPAS-Ocean only; Omega has no Redi.
+use_Redi = True
+
+# Whether to form frazil ice.  MPAS-Ocean only.
+use_frazil_ice_formation = False
+
+# Simulation start time (config_start_time)
+start_time = 0001-01-01_00:00:00
+```
