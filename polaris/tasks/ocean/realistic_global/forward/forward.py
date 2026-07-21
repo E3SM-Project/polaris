@@ -179,7 +179,17 @@ class Forward(OceanModelStep):
             template_replacements=replacements,
         )
 
+        # horizontal mixing is supported by both models, so it is added in
+        # MPAS-Ocean naming and translated to Omega by OceanModelStep
+        self.add_model_config_options(
+            options=stage.horiz_mixing_options(), config_model='ocean'
+        )
+
         if model == 'mpas-ocean':
+            self.add_model_config_options(
+                options=stage.mpaso_physics_options(),
+                config_model='mpas-ocean',
+            )
             options = stage.bottom_drag_options()
             if options:
                 self.add_model_config_options(
