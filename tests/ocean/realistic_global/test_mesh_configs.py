@@ -3,6 +3,7 @@ import pytest
 from polaris.config import PolarisConfigParser
 from polaris.mesh.base import get_base_mesh_step_names
 from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
+from polaris.tasks.ocean.realistic_global.forward import ForwardStage
 from polaris.tasks.ocean.realistic_global.mesh_configs import (
     add_realistic_global_mesh_config,
     get_mesh_config_names,
@@ -95,3 +96,95 @@ def test_mesh_without_config_keeps_defaults():
     """A mesh with no per-mesh config keeps the default vertical grid."""
     config = _get_init_config('icos120km')
     assert config.get('vertical_grid', 'grid_type') == '80layerE3SMv1'
+
+
+# -----------------------------------------------------------------------
+# forward-run overrides
+# -----------------------------------------------------------------------
+
+
+def _get_forward_stage(mesh_name):
+    """Build the ForwardStage a forward step would use for one mesh."""
+    config = PolarisConfigParser()
+    config.add_from_package(
+        'polaris.tasks.ocean.realistic_global.forward',
+        'realistic_global_forward.cfg',
+    )
+    add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
+    config.combine()
+    return ForwardStage.from_config(config)
+
+
+# expected per-mesh forward settings, ported from the Compass mesh named in
+# the comment.  These are what keep a forward run stable, so they are checked
+# explicitly rather than through a round trip.
+FORWARD_EXPECTED: dict[str, dict[str, object]] = {
+    # Compass qu240
+    'u.oi240.lr240': dict(
+        mom_del2=1.0e3,
+        mom_del4=1.2e11,
+        tracer_del2=10.0,
+        tracer_del4=1.2e11,
+        use_Leith_del2=True,
+        hmix_scaling='ref_cell_width',
+        use_GM=True,
+        use_Redi=True,
+        use_frazil_ice_formation=True,
+    ),
+    # Compass qu
+    'u.oi30.lr10': dict(
+        mom_del2=1.0e3,
+        mom_del4=1.2e11,
+        tracer_del2=None,
+        use_Leith_del2=False,
+        hmix_scaling='ref_cell_width',
+        use_GM=True,
+        use_Redi=True,
+        use_frazil_ice_formation=False,
+    ),
+    # Compass rrs6to18
+    'u.oi6to18.lr6to10': dict(
+        mom_del2=None,
+        mom_del4=3.2e09,
+        hmix_scaling='scale_with_mesh',
+        use_GM=False,
+        use_Redi=False,
+        dt_per_km=10.0,
+        btr_dt_per_km=0.5,
+    ),
+    # Compass so12to30, apart from its time step
+    'u.oi.so12to30.lr10': dict(
+        mom_del2=462.0,
+        mom_del4=1.18e10,
+        hmix_scaling='scale_with_mesh',
+        use_GM=True,
+        GM_closure='constant',
+        GM_constant_kappa=600.0,
+        dt_per_km=30.0,
+        btr_dt_per_km=1.5,
+    ),
+}
+
+
+@pytest.mark.parametrize('mesh_name', sorted(FORWARD_EXPECTED))
+def test_forward_overrides(mesh_name):
+    stage = _get_forward_stage(mesh_name)
+    for option, expected in FORWARD_EXPECTED[mesh_name].items():
+        assert getattr(stage, option) == expected, option
+
+
+@pytest.mark.parametrize('mesh_name', COARSE_MESH_NAMES)
+def test_coarse_meshes_share_forward_settings(mesh_name):
+    """
+    The three 240 km meshes are qualitatively the same mesh and are configured
+    by hand in three separate files, so they must not drift apart.
+    """
+    stage = _get_forward_stage(mesh_name)
+    assert stage == _get_forward_stage('u.oi240.lr240')
+
+
+def test_mesh_without_config_keeps_forward_defaults():
+    stage = _get_forward_stage('icos120km')
+    assert stage.hmix_scaling == 'none'
+    assert stage.mom_del2 == 1.0e3
+    assert not stage.use_Leith_del2
