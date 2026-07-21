@@ -152,6 +152,130 @@ def test_bottom_drag_options():
     }
 
 
+# --- physics options ---
+
+
+def test_from_config_reads_physics_options():
+    stage = ForwardStage.from_config(
+        _forward_config(
+            mom_del2='462.0',
+            tracer_del4='1.2e11',
+            use_Leith_del2='True',
+            hmix_scaling='scale_with_mesh',
+            GM_closure='constant',
+            GM_constant_kappa='600.0',
+            use_Redi='False',
+            use_frazil_ice_formation='True',
+        )
+    )
+    assert stage.mom_del2 == 462.0
+    assert stage.tracer_del2 is None
+    assert stage.tracer_del4 == 1.2e11
+    assert stage.use_Leith_del2
+    assert stage.hmix_scaling == 'scale_with_mesh'
+    assert stage.GM_closure == 'constant'
+    assert stage.GM_constant_kappa == 600.0
+    assert stage.use_GM
+    assert not stage.use_Redi
+    assert stage.use_frazil_ice_formation
+
+
+def test_from_config_rejects_unknown_hmix_scaling():
+    with pytest.raises(ValueError, match='hmix_scaling'):
+        ForwardStage.from_config(_forward_config(hmix_scaling='bogus'))
+
+
+def test_horiz_mixing_options_blank_coefficient_turns_a_term_off():
+    """
+    A blank coefficient turns its term off explicitly rather than leaving the
+    model default, since the MPAS-Ocean Registry defaults are all off and a
+    run without horizontal mixing goes unstable.
+    """
+    options = ForwardStage(
+        mom_del2=None, mom_del4=3.2e09
+    ).horiz_mixing_options()
+    assert options == {
+        'config_use_mom_del2': False,
+        'config_use_mom_del4': True,
+        'config_mom_del4': 3.2e09,
+        'config_use_tracer_del2': False,
+        'config_use_tracer_del4': False,
+    }
+
+
+def test_horiz_mixing_options_are_all_mapped_to_omega():
+    """
+    Every option in the neutral bucket must have an Omega counterpart, since
+    it is added with ``config_model='ocean'``.  An unmapped option would only
+    warn, so the mixing would be silently dropped for Omega.
+    """
+    step = OceanModelStep.__new__(OceanModelStep)
+    step._read_config_map()
+    stage = ForwardStage(
+        mom_del2=1.0e3, mom_del4=1.2e11, tracer_del2=10.0, tracer_del4=1.2e11
+    )
+    for option, value in stage.horiz_mixing_options().items():
+        # raises ValueError if the option has no Omega counterpart
+        step._map_mpaso_to_omega_section_option(option=option, value=value)
+
+
+def test_mpaso_physics_options_hmix_scaling_sets_both_flags():
+    """
+    Both scaling flags are always set, so that turning scaling off in a user
+    config undoes a per-mesh config that turned it on.
+    """
+    options = ForwardStage(
+        hmix_scaling='ref_cell_width'
+    ).mpaso_physics_options()
+    assert options['config_hmix_use_ref_cell_width']
+    assert not options['config_hmix_scaleWithMesh']
+
+    options = ForwardStage(
+        hmix_scaling='scale_with_mesh'
+    ).mpaso_physics_options()
+    assert not options['config_hmix_use_ref_cell_width']
+    assert options['config_hmix_scaleWithMesh']
+
+    options = ForwardStage(hmix_scaling='none').mpaso_physics_options()
+    assert not options['config_hmix_use_ref_cell_width']
+    assert not options['config_hmix_scaleWithMesh']
+
+
+def test_mpaso_physics_options_reference_width_only_when_it_applies():
+    stage = ForwardStage(
+        hmix_scaling='ref_cell_width', hmix_ref_cell_width=1e4
+    )
+    assert stage.mpaso_physics_options()['config_hmix_ref_cell_width'] == 1e4
+
+    stage = ForwardStage(
+        hmix_scaling='scale_with_mesh', hmix_ref_cell_width=1e4
+    )
+    assert 'config_hmix_ref_cell_width' not in stage.mpaso_physics_options()
+
+
+def test_mpaso_physics_options_gm_settings_only_when_gm_is_on():
+    stage = ForwardStage(
+        use_GM=True, GM_closure='constant', GM_constant_kappa=600.0
+    )
+    options = stage.mpaso_physics_options()
+    assert options['config_use_GM']
+    assert options['config_GM_closure'] == 'constant'
+    assert options['config_GM_constant_kappa'] == 600.0
+
+    stage = ForwardStage(
+        use_GM=False, GM_closure='constant', GM_constant_kappa=600.0
+    )
+    options = stage.mpaso_physics_options()
+    assert not options['config_use_GM']
+    assert 'config_GM_closure' not in options
+    assert 'config_GM_constant_kappa' not in options
+
+
+def test_mpaso_physics_options_rejects_unknown_hmix_scaling():
+    with pytest.raises(ValueError, match='hmix_scaling'):
+        ForwardStage(hmix_scaling='bogus').mpaso_physics_options()
+
+
 # --- InitialCondition sources ---
 
 
