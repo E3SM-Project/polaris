@@ -21,6 +21,16 @@ _SPLIT_TIME_INTEGRATORS = {
     'split_explicit_ab2',
 }
 
+# Map from the ``hmix_scaling`` config option to the MPAS-Ocean flag it sets.
+# Polaris exposes one option with a named value rather than MPAS-Ocean's two
+# independent booleans, so that the meaningless "both at once" combination
+# cannot be expressed.
+_HMIX_SCALING_OPTIONS = {
+    'none': None,
+    'ref_cell_width': 'config_hmix_use_ref_cell_width',
+    'scale_with_mesh': 'config_hmix_scaleWithMesh',
+}
+
 
 @dataclass
 class ForwardStage:
@@ -69,6 +79,44 @@ class ForwardStage:
         A Rayleigh damping coefficient (1/s); ``None`` disables Rayleigh
         damping.
 
+    mom_del2 : float or None
+        The harmonic momentum viscosity (m^2/s); ``None`` turns it off.
+
+    mom_del4 : float or None
+        The biharmonic momentum viscosity (m^4/s); ``None`` turns it off.
+
+    tracer_del2 : float or None
+        The harmonic tracer diffusivity (m^2/s); ``None`` turns it off.
+
+    tracer_del4 : float or None
+        The biharmonic tracer diffusivity (m^4/s); ``None`` turns it off.
+
+    use_Leith_del2 : bool
+        Whether to use the Leith closure for harmonic momentum mixing.
+
+    hmix_scaling : str
+        How horizontal mixing coefficients are scaled across the mesh; one of
+        ``'none'``, ``'ref_cell_width'`` or ``'scale_with_mesh'``.
+
+    hmix_ref_cell_width : float or None
+        The reference cell width (m), used only when ``hmix_scaling`` is
+        ``'ref_cell_width'``.
+
+    use_GM : bool
+        Whether to use the Gent-McWilliams eddy transport parameterization.
+
+    GM_closure : str or None
+        The GM closure; ``None`` leaves the model default.
+
+    GM_constant_kappa : float or None
+        The constant GM kappa (m^2/s); ``None`` leaves the model default.
+
+    use_Redi : bool
+        Whether to use Redi isopycnal mixing.
+
+    use_frazil_ice_formation : bool
+        Whether to form frazil ice.
+
     do_restart : bool
         Whether the run continues from an existing restart.
 
@@ -89,6 +137,18 @@ class ForwardStage:
     dt_per_km: Optional[float] = None
     btr_dt_per_km: Optional[float] = None
     damping: Optional[float] = None
+    mom_del2: Optional[float] = None
+    mom_del4: Optional[float] = None
+    tracer_del2: Optional[float] = None
+    tracer_del4: Optional[float] = None
+    use_Leith_del2: bool = False
+    hmix_scaling: str = 'none'
+    hmix_ref_cell_width: Optional[float] = None
+    use_GM: bool = False
+    GM_closure: Optional[str] = None
+    GM_constant_kappa: Optional[float] = None
+    use_Redi: bool = False
+    use_frazil_ice_formation: bool = False
     do_restart: bool = False
     start_time: str = '0001-01-01_00:00:00'
     restart_in: Optional[str] = None
@@ -134,6 +194,22 @@ class ForwardStage:
             dt_per_km=_opt_float(config, section, 'dt_per_km'),
             btr_dt_per_km=_opt_float(config, section, 'btr_dt_per_km'),
             damping=_opt_float(config, section, 'Rayleigh_damping_coeff'),
+            mom_del2=_opt_float(config, section, 'mom_del2'),
+            mom_del4=_opt_float(config, section, 'mom_del4'),
+            tracer_del2=_opt_float(config, section, 'tracer_del2'),
+            tracer_del4=_opt_float(config, section, 'tracer_del4'),
+            use_Leith_del2=config.getboolean(section, 'use_Leith_del2'),
+            hmix_scaling=_hmix_scaling(config, section),
+            hmix_ref_cell_width=_opt_float(
+                config, section, 'hmix_ref_cell_width'
+            ),
+            use_GM=config.getboolean(section, 'use_GM'),
+            GM_closure=_opt_str(config, section, 'GM_closure'),
+            GM_constant_kappa=_opt_float(config, section, 'GM_constant_kappa'),
+            use_Redi=config.getboolean(section, 'use_Redi'),
+            use_frazil_ice_formation=config.getboolean(
+                section, 'use_frazil_ice_formation'
+            ),
             start_time=config.get(section, 'start_time').strip(),
         )
 
@@ -232,6 +308,79 @@ class ForwardStage:
             'config_Rayleigh_damping_coeff': self.damping,
         }
 
+    def horiz_mixing_options(self) -> Dict[str, Any]:
+        """
+        Horizontal mixing options that both models support.
+
+        These are given in MPAS-Ocean naming and applied with
+        ``config_model='ocean'``, so that they are translated to Omega by
+        ``mpaso_to_omega``.  A coefficient of ``None`` turns its term off
+        rather than leaving the model default, so that the config is the only
+        thing deciding whether a term is active.
+
+        Returns
+        -------
+        dict
+            The model config options to add.
+        """
+        options: Dict[str, Any] = {}
+        for coeff, use_option, coeff_option in [
+            (self.mom_del2, 'config_use_mom_del2', 'config_mom_del2'),
+            (self.mom_del4, 'config_use_mom_del4', 'config_mom_del4'),
+            (self.tracer_del2, 'config_use_tracer_del2', 'config_tracer_del2'),
+            (self.tracer_del4, 'config_use_tracer_del4', 'config_tracer_del4'),
+        ]:
+            options[use_option] = coeff is not None
+            if coeff is not None:
+                options[coeff_option] = coeff
+        return options
+
+    def mpaso_physics_options(self) -> Dict[str, Any]:
+        """
+        Physics options that only MPAS-Ocean has.
+
+        The Leith closure, the horizontal-mixing scaling, Gent-McWilliams,
+        Redi and frazil ice have no Omega equivalent, and GM and Redi are not
+        expected to gain one, so these are applied with
+        ``config_model='mpas-ocean'``.
+
+        Returns
+        -------
+        dict
+            The MPAS-Ocean config options to add.
+        """
+        options: Dict[str, Any] = {
+            'config_use_Leith_del2': self.use_Leith_del2,
+            'config_use_GM': self.use_GM,
+            'config_use_Redi': self.use_Redi,
+            'config_use_frazil_ice_formation': self.use_frazil_ice_formation,
+        }
+
+        if self.hmix_scaling not in _HMIX_SCALING_OPTIONS:
+            valid = ', '.join(sorted(_HMIX_SCALING_OPTIONS))
+            raise ValueError(
+                f'Unknown hmix_scaling {self.hmix_scaling!r}; valid options '
+                f'are: {valid}.'
+            )
+        # set every flag, so that turning scaling off in a user config undoes
+        # a per-mesh config that turned it on
+        selected = _HMIX_SCALING_OPTIONS[self.hmix_scaling]
+        for option in _HMIX_SCALING_OPTIONS.values():
+            if option is not None:
+                options[option] = option == selected
+        if (
+            self.hmix_scaling == 'ref_cell_width'
+            and self.hmix_ref_cell_width is not None
+        ):
+            options['config_hmix_ref_cell_width'] = self.hmix_ref_cell_width
+
+        if self.use_GM:
+            if self.GM_closure is not None:
+                options['config_GM_closure'] = self.GM_closure
+            if self.GM_constant_kappa is not None:
+                options['config_GM_constant_kappa'] = self.GM_constant_kappa
+        return options
+
 
 def _time_step_string(
     explicit: Optional[str],
@@ -245,6 +394,17 @@ def _time_step_string(
     if per_km is None:
         raise ValueError(f'Set an explicit time step or {name} on the stage')
     return get_time_interval_string(seconds=per_km * min_res)
+
+
+def _hmix_scaling(config: PolarisConfigParser, section: str) -> str:
+    """Read and validate the ``hmix_scaling`` option."""
+    value = config.get(section, 'hmix_scaling').strip()
+    if value not in _HMIX_SCALING_OPTIONS:
+        valid = ', '.join(sorted(_HMIX_SCALING_OPTIONS))
+        raise ValueError(
+            f'Unknown hmix_scaling {value!r}; valid options are: {valid}.'
+        )
+    return value
 
 
 def _opt_str(
