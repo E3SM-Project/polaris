@@ -4,10 +4,34 @@ ocean:
     config_run_duration: {{ run_duration }}
   time_integration:
     config_dt: {{ dt }}
+    config_time_integrator: {{ time_integrator }}
   forcing:
     config_use_bulk_wind_stress: true
+  decomposition:
+    config_block_decomp_file_prefix: '/lcrc/group/e3sm/public_html/polaris/ocean/realistic_global/mpas-ocean/mpas-o.graph.info.200904.part.'
+    config_proc_decomp_file_prefix: '/lcrc/group/e3sm/public_html/polaris/ocean/realistic_global/mpas-ocean/mpas-o.graph.info.200904.part.'
+  advection:
+    config_horiz_tracer_adv_order: 2
+  hmix_del2:
+    config_use_mom_del2: true
+  hmix_del4:
+    config_use_mom_del4: true
+  cvmix:
+    config_use_cvmix_convection: true
+    config_bulk_wind_stress_interp_isotropic: true
+  bottom_drag:
+    config_bottom_drag_mode: explicit
+  debug:
+    config_disable_vel_explicit_bottom_drag: false
 
 mpas-ocean:
+  # If using teos10 for omega
+  #eos:
+  #  config_eos_type: jm
+  cvmix:
+    config_cvmix_use_BLD_smoothing: false
+  frazil_ice:
+    config_frazil_in_open_ocean: false
   streams:
     mesh:
       filename_template: init.nc

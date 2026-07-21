@@ -12,12 +12,12 @@ class Forward(OceanModelStep):
         component,
         package,
         mesh_name,
-        mesh_id,
+        mpaso_id,
+        omega_id,
         name='forward',
         indir=None,
         subdir=None,
         update_eos=False,
-        yaml_filename='forward.yaml',
         output_filename='output.nc',
         ntasks=None,
         min_tasks=None,
@@ -53,18 +53,14 @@ class Forward(OceanModelStep):
             openmp_threads=1,
             graph_target='graph.info',
         )
-        self.mesh_filename = f'{mesh_name}.{mesh_id}'
-        self.graph_filename = f'graph.info.{mesh_id}'
+        self.mesh_name = mesh_name
+        self.mpaso_id = mpaso_id
+        self.omega_id = omega_id
         self.resolution = resolution_for_cell_count
-
+        self.replacements = replacements
+        self.package = package
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
-
-        self.add_yaml_file(
-            package,
-            yaml_filename,
-            template_replacements=replacements,
-        )
 
         if options is not None:
             for config_model in options:
@@ -87,11 +83,11 @@ class Forward(OceanModelStep):
         config = self.config
         model = config.get('ocean', 'model')
         # TODO: remove as soon as Omega no longer hard-codes this file
-        input_filename = f'ocean.{self.mesh_filename}'
+        input_filename = f'ocean.{self.mesh_name}.{self.mpaso_id}'
         if model == 'omega':
             # TODO eos_type = self.config.get('ocean', 'eos_type')
             eos_type = 'teos10'
-            input_filename = f'{input_filename}.{eos_type}.nc'
+            input_filename = f'{input_filename}.{eos_type}.{self.omega_id}.nc'
             self.add_input_file(
                 target=input_filename,
                 filename='OmegaMesh.nc',
@@ -111,6 +107,7 @@ class Forward(OceanModelStep):
             #    database='realistic_global',
             # )
         else:
+            self.replacements['time_integrator'] = 'RK4'
             input_filename = f'{input_filename}.zerovel.nc'
             self.add_input_file(
                 target=input_filename,
@@ -124,9 +121,15 @@ class Forward(OceanModelStep):
             )
             self.add_input_file(
                 target=self.graph_filename,
-                filename='graph.info',
+                filename=f'graph.info.{self.mpaso_id}',
                 database=f'realistic_global/{model}',
             )
+        print(self.replacements)
+        self.add_yaml_file(
+            package=self.package,
+            yaml='forward.yaml',
+            template_replacements=self.replacements,
+        )
 
     def compute_cell_count(self):
         """
