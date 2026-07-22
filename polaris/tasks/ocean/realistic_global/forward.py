@@ -51,7 +51,7 @@ class Forward(OceanModelStep):
             min_tasks=min_tasks,
             update_eos=update_eos,
             openmp_threads=1,
-            graph_target='graph.info',
+            graph_target=f'graph.info.{mpaso_id}',
         )
         self.mesh_name = mesh_name
         self.mpaso_id = mpaso_id
@@ -79,9 +79,10 @@ class Forward(OceanModelStep):
         """
         TEMP: symlink initial condition to name hard-coded in Omega
         """
-        super().setup()
         config = self.config
         model = config.get('ocean', 'model')
+        self.target_location = f'realistic_global/{model}'
+        super().setup()
         # TODO: remove as soon as Omega no longer hard-codes this file
         input_filename = f'ocean.{self.mesh_name}.{self.mpaso_id}'
         if model == 'omega':
@@ -98,14 +99,6 @@ class Forward(OceanModelStep):
                 filename='init.nc',
                 database=f'realistic_global/{model}',
             )
-            # TODO we need to add this file to input database if we want to
-            # reconstruct zonal, meridional components before Omega has those
-            # capabilities natively
-            # self.add_input_file(
-            #    target='coeffs.nc',
-            #    filename='coeffs.nc',
-            #    database='realistic_global',
-            # )
         else:
             self.replacements['time_integrator'] = 'RK4'
             input_filename = f'{input_filename}.zerovel.nc'
@@ -119,12 +112,6 @@ class Forward(OceanModelStep):
                 filename='init.nc',
                 database=f'realistic_global/{model}',
             )
-            self.add_input_file(
-                target=self.graph_filename,
-                filename=f'graph.info.{self.mpaso_id}',
-                database=f'realistic_global/{model}',
-            )
-        print(self.replacements)
         self.add_yaml_file(
             package=self.package,
             yaml='forward.yaml',
