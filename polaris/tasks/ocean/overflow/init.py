@@ -1,13 +1,14 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.mesh.conversion import convert, cull
-from mpas_tools.planar_hex import make_planar_hex_mesh
 
-from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.coriolis import add_coriolis_to_dataset
 from polaris.ocean.eos import compute_density
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
+from polaris.tasks.ocean.overflow.mesh import (
+    build_overflow_mesh,
+    compute_bottom_depth,
+    compute_initial_temperature,
+)
 
 
 class Init(OceanIOStep):
@@ -45,44 +46,13 @@ class Init(OceanIOStep):
         Run this step of the test case
         """
         config = self.config
-        logger = self.logger
 
-        section = config['overflow']
-        lx = section.getfloat('lx')
-        ly = section.getfloat('ly')
-        resolution = section.getfloat('resolution')
-
-        nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
-        dc = 1e3 * resolution
-        ds_mesh = make_planar_hex_mesh(
-            nx=nx, ny=ny, dc=dc, nonperiodic_x=True, nonperiodic_y=False
-        )
-        self.write_model_dataset(ds_mesh, 'base_mesh.nc', config)
-
-        ds_mesh = cull(ds_mesh, logger=logger)
-        ds_mesh = convert(
-            ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
-        )
-        ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
-        self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)
-
-        max_bottom_depth = section.getfloat('max_bottom_depth')
-        shelf_depth = section.getfloat('shelf_depth')
-        x_slope = section.getfloat('x_slope')
-        l_slope = section.getfloat('l_slope')
+        ds_mesh = build_overflow_mesh(self)
 
         ds = ds_mesh.copy()
 
         # Form a continental shelf-like bathymetry
-        ds['bottomDepth'] = shelf_depth + 0.5 * (
-            max_bottom_depth - shelf_depth
-        ) * (
-            1.0
-            + np.tanh(
-                (ds.xCell - ds.xCell.min() - x_slope * 1.0e3)
-                / (l_slope * 1.0e3)
-            )
-        )
+        ds['bottomDepth'] = compute_bottom_depth(config, ds.xCell)
 
         # ssh is zero
         ds['ssh'] = xr.zeros_like(ds.xCell)
@@ -91,14 +61,10 @@ class Init(OceanIOStep):
 
         # initial temperature is constant except for a block of cold water on
         # the shelf
-        x_dense = section.getfloat('x_dense')
-        lower_temperature = section.getfloat('lower_temperature')
-        higher_temperature = section.getfloat('higher_temperature')
-        _, x = np.meshgrid(np.zeros(ds.sizes['nVertLevels']), ds.xCell)
-        temperature = np.where(
-            (x - ds.xCell.min().values) < x_dense * 1.0e3,
-            lower_temperature,
-            higher_temperature,
+        temp_cell = compute_initial_temperature(config, ds.xCell)
+        temperature = np.broadcast_to(
+            temp_cell.values[:, np.newaxis],
+            (ds.sizes['nCells'], ds.sizes['nVertLevels']),
         )
         ds['temperature'] = (
             (
@@ -110,7 +76,7 @@ class Init(OceanIOStep):
         )
 
         # initial salinity is constant
-        salinity = section.getfloat('salinity') * np.ones_like(temperature)
+        salinity = config.getfloat('overflow', 'salinity')
         ds['salinity'] = salinity * xr.ones_like(ds.temperature)
 
         ds['density'] = compute_density(config, ds.temperature, ds.salinity)
