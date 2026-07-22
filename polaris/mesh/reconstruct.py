@@ -252,6 +252,14 @@ def construct_rotation_matrix(
     # directly from the coordinate arrays, rather than hard-coding it
     point_dim = x_hat.dims[0]
     n_points = x_hat.sizes[point_dim]
+    # preserve existing chunking along point_dim. If None; use a single chunk
+    point_chunks = ds.chunksizes.get(point_dim, -1)
+
+    # return identity matrix for planar meshes
+    if ds.attrs['on_a_sphere'] == 'NO':
+        return xr.DataArray(
+            np.ones((n_points, 3, 3)), dims=(point_dim, 'd1', 'd2')
+        ).chunk({point_dim: point_chunks, 'd1': -1, 'd2': -1})
 
     c_y = np.sqrt(y_hat**2 + z_hat**2)
     s_y = x_hat
@@ -273,9 +281,6 @@ def construct_rotation_matrix(
     U_y[:, 1, 1] = 1.0
     U_y[:, 2, 0] = s_y
     U_y[:, 2, 2] = c_y
-
-    # preserve existing chunking along point_dim. If None; use a single chunk
-    point_chunks = ds.chunksizes.get(point_dim, -1)
 
     return xr.DataArray(
         np.matmul(U_y, U_x), dims=(point_dim, 'd1', 'd2')
@@ -324,22 +329,22 @@ def project_edge_normal_to_tangent_plane(
 
 
 def compute_lstsq_weights(
+    ds: xr.Dataset,
     local_edge_coords: xr.DataArray,
     stencil: xr.DataArray,
-    sphere_radius: float,
 ) -> xr.DataArray:
     """
     Compute the least squares weights as described by Renka (1984) pg. 422.
 
     Parameters
     ----------
+    ds: xr.Dataset
+        MPAS mesh dataset
     local_edge_coords: xr.DataArray (nCells or nVertices, maxEdges2/NINE, R3)
         Edge coordinate vectors projected onto the local tangent plane at the
         the reconstruction point
     stencil: xr.DataArray (nCells or nVertices, maxEdges2 or NINE)
         A two level stencil of edges neighboring the reconstruction point
-    sphere_radius: float
-        Radius of the sphere for the mesh
 
     Returns
     -------
@@ -348,20 +353,43 @@ def compute_lstsq_weights(
     """
     stencil_dim = _stencil_dim(stencil)
     valid = stencil != 0
+    planar = ds.attrs['on_a_sphere'] == 'NO'
 
-    # normalize the rotated z coord onto the unit sphere to match Renka (1984)
-    # z_hat = 1 at reconstruction point and decreases with increasing angular
-    # distance from the reconstruction point.
-    z_hat = local_edge_coords.isel(R3=2) / sphere_radius
-
-    if bool((z_hat.where(valid) < 0).any()):
-        raise ValueError(
-            'A stencil edge has been rotated into the lower hemisphere of the'
-            'local tangent plane. This is not expexted for realistic MPAS mesh'
-            'resolution; check for degenerate or high distorted cells'
+    if planar:
+        # planar: use actual distance from reconstruction point as D
+        point_dim = local_edge_coords.dims[0]
+        if point_dim in ('nCells', 'NCells'):
+            ref_point = xr.concat([ds.xCell, ds.yCell], dim='R3').T
+        elif point_dim in ('nVertices', 'NVertices'):
+            ref_point = xr.concat([ds.xVertex, ds.yVertex], dim='R3').T
+        else:
+            raise ValueError(
+                'Could not infer the reconstruction point location from '
+                f"dimension '{point_dim}'. Expected 'nCells'/'NCells' or "
+                "'nVertices'/'NVertices'."
+            )
+        D = np.sqrt(
+            ((local_edge_coords.isel(R3=[0, 1]) - ref_point) ** 2).sum(
+                dim='R3'
+            )
         )
+    else:
+        # normalize the rotated z coord onto the unit sphere to match
+        # Renka (1984): z_hat = 1 at the reconstruction point and
+        # decreases with increasing angular distance from it.
+        z_hat = local_edge_coords.isel(R3=2) / ds.sphere_radius
 
-    D = xr.where(valid, 1.0 - z_hat, np.nan)
+        if bool((z_hat.where(valid) < 0).any()):
+            raise ValueError(
+                'A stencil edge has been rotated into the lower '
+                'hemisphere of the local tangent plane. This is not '
+                'expexted for realistic MPAS mesh resolution; check for '
+                'degenerate or high distorted cells'
+            )
+
+        D = 1.0 - z_hat
+
+    D = xr.where(valid, D, np.nan)
 
     # Unlike Renka (1984) we use a static stencil, so R_k is set to the
     # maximum distance of the stencil edges from the reconstruction
@@ -497,7 +525,7 @@ def build_reconstruction_weights(
     )
 
     # weight the LSTSQ matrix following Renka (1984) pg. 422
-    w = compute_lstsq_weights(local_edge_coords, stencil, ds.sphere_radius)
+    w = compute_lstsq_weights(ds, local_edge_coords, stencil)
 
     # Build Eqn. 20 from Piexoto and Barros (2014)
     matrix = xr.concat(
@@ -640,9 +668,9 @@ def cartesian_to_local_geographic(
     """
     # infer whether these are cell- or vertex-centered values from the
     # dimensions of u_x, rather than requiring a separate location arg
-    if 'nCells' in u_x.dims:
+    if 'nCells' in u_x.dims or 'NCells' in u_x.dims:
         lon, lat = ds.lonCell, ds.latCell
-    elif 'nVertices' in u_x.dims:
+    elif 'nVertices' in u_x.dims or 'NVertices' in u_x.dims:
         lon, lat = ds.lonVertex, ds.latVertex
     else:
         raise ValueError(
