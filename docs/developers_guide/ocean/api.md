@@ -390,6 +390,15 @@
    init.Init.setup
    init.Init.run
 
+   mesh.build_overflow_mesh
+   mesh.compute_bottom_depth
+   mesh.compute_initial_temperature
+
+   pstar_init.PStarInit
+   pstar_init.PStarInit.setup
+   pstar_init.PStarInit.run
+   pstar_init.PStarInit.init_tracers
+
    rpe.Rpe
    rpe.Rpe.configure
 
@@ -705,4 +714,8 @@
    vertical.pstar_init.PStarInitStep
    vertical.pstar_init.PStarInitStep.init_tracers
    vertical.pstar_init.PStarInitStep.run_pstar_init
+   vertical.pstar_state.layer_thickness_from_geom_interfaces
+   vertical.pstar_state.add_quiescent_normal_velocity
+   vertical.pstar_state.add_density_from_specvol
+   vertical.pstar_state.convert_tracers_to_mpas_ocean
 ```

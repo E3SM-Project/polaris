@@ -11,6 +11,21 @@ continental slope and includes the following test cases:
 4. ``smoke_test_horiz_adv_order_4`` — short (12 min) smoke test using horizontal advection order = 4 for rapid CI checks.
 5. ``rpe`` — long run (40 days) exploring Resting Potential Energy (RPE) evolution for a set of Laplacian viscosities.
 
+Each of these tasks (plus the `_del4` variants of orders 3 and 4) is
+available in three variants that combine the equation of state (EOS) with
+the vertical coordinate used for the initial condition:
+
+- ``ocean/planar/overflow/linear/zstar`` — linear EOS with a z-star
+  initial condition (the original configuration).
+- ``ocean/planar/overflow/linear/pstar`` — linear EOS with a p-star
+  initial condition, to isolate the effect of the vertical coordinate.
+- ``ocean/planar/overflow/nonlinear/pstar`` — nonlinear EOS with a p-star
+  initial condition, mirroring the configuration of the realistic global
+  tasks in a small, fast-running idealized setting.
+
+The nonlinear EOS is TEOS-10 for Omega and Jackett-McDougall (`jm`), the
+closest available nonlinear EOS, for MPAS-Ocean.
+
 ## supported models
 
 These tasks support MPAS-Ocean and Omega.
@@ -75,6 +90,36 @@ coord_type = z-star
 partial_cell_type = None
 ```
 
+The two `pstar` trees override the vertical grid to use the p-star
+coordinate.  Pseudo-depth is not geometric depth, so the pseudo-height grid
+must reach deeper than the pressure at the deepest geometric bathymetry or
+the domain would be artificially truncated.  The grid is 2300 m deep with
+69 uniform levels (a ~14% buffer over the worst case while preserving the
+~33.3 m layer spacing of the z-star grid), and the geometric bottom depth
+remains 2000 m:
+
+```cfg
+# Options related to the vertical grid
+[vertical_grid]
+
+# The type of vertical coordinate (e.g. z-level, z-star)
+coord_type = p-star
+
+# Pseudo-depth of the bottom of the pseudo-height grid (m)
+bottom_depth = 2300.0
+
+# Number of vertical levels
+vert_levels = 69
+
+
+# Options related to the overflow case
+[overflow]
+
+# Bottom depth at bottom of overflow (m): the geometric bottom depth,
+# decoupled from the deeper pseudo-depth grid above
+max_bottom_depth = 2000.0
+```
+
 ## initial conditions
 
 Salinity is constant throughout the domain (at 35 PSU).  The
@@ -87,6 +132,18 @@ This perturbation initiates slumping of the cold, denser water mass and flow
 down the slope as a bottom boundary current.
 
 The initial state is at rest. The coriolis parameter is set to 0.
+
+In the `nonlinear` tree, the temperature and salinity profiles are
+interpreted as conservative temperature (CT) and absolute salinity (SA).
+Omega receives CT and SA directly.  For MPAS-Ocean, CT is converted to
+potential temperature and SA to practical salinity using the
+[GSW toolkit](https://teos-10.github.io/GSW-Python/), evaluated at a
+nominal lon/lat location (config options `overflow:nominal_lon` and
+`overflow:nominal_lat`, both defaulting to 0 degrees) since the planar
+mesh has no geographic location.  The Polaris-side (diagnostic) density
+uses TEOS-10 for both models; this is a documented approximation of
+MPAS-Ocean's Jackett-McDougall EOS, acceptable because neither model
+reads the initial density.
 
 ## forcing
 
@@ -133,14 +190,8 @@ x_slope = 40.0
 # Length-scale of the slope (km)
 L_slope = 7.0
 
-# Beta in eos
-eos_linear_beta = 0.8
-
-# Initial salinity throughout the domain (PSU)
+# Constant salinity (PSU)
 salinity = 35.0
-
-# Reference salinity (PSU)
-eos_linear_Sref = ${overflow:salinity}
 
 # Lower temperature (deg C)
 lower_temperature = 10.0
@@ -151,13 +202,18 @@ higher_temperature = 20.0
 # Default viscosity (m^2/s)
 default_viscosity = 1000.0
 
+# Default biharmonic (del4) viscosity (m^4/s), scaled ~ dx^3 for 2 km resolution
+default_del4_viscosity = 5.0e7
+
 # Default horizontal advection order
 default_horiz_adv_order = 2
 ```
 
-The linear EOS is used because it is convenient for computing RPE. The
-namelist parameters for the linear EOS can be altered using config options
-`overflow:eos_linear_beta` and `overflow:eos_linear_Sref`.
+The two `linear` trees use the shared linear EOS from
+`polaris.ocean.eos` `linear.cfg` (see the `[ocean]` config section), which
+is convenient for computing RPE.  The `nonlinear` tree instead uses the
+shared `teos10.cfg`, which sets `eos_type = teos-10` (mapped to
+Jackett-McDougall for MPAS-Ocean).
 
 ## cores
 
@@ -254,7 +310,7 @@ run_duration = 40.
 run_duration_units = days
 
 # Output interval
-output_interval = 1.
+output_interval = 6.
 
 output_interval_units = hours
 
@@ -263,4 +319,13 @@ viscosities = 1, 5, 10, 100, 1000
 
 # The time at which to plot cross-sections in the analysis step (days)
 plot_time = ${overflow_rpe:run_duration}
+
+# min and max temperature range for transect plots
+min_temp = ${overflow:lower_temperature}
+max_temp = ${overflow:higher_temperature}
 ```
+
+Note that in the `nonlinear` tree, the RPE analysis sorts the in-situ
+density from a nonlinear EOS, so the result is only an approximate RPE
+measure (with a nonlinear EOS, the potential energy of the sorted state
+depends on the pressure at which density is evaluated).

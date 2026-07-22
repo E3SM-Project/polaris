@@ -325,6 +325,25 @@ options such as `eos_linear_alpha`, `eos_linear_beta`, `eos_linear_rhoref`,
 `eos_linear_Tref`, and `eos_linear_Sref`.  TEOS-10 requires pressure to be
 provided when calling the high-level EOS functions.
 
+Tasks select an EOS by adding one of the shared config files from the
+`polaris.ocean.eos` package to their shared config parser:
+
+- `constant.cfg` sets `eos_type = constant` along with linear-EOS options
+  that make the linear EOS constant.
+- `linear.cfg` sets `eos_type = linear` along with default linear-EOS
+  coefficients.
+- `teos10.cfg` sets `eos_type = teos-10` and defines no linear-EOS
+  options.
+
+Forward steps created with `update_eos=True` call
+{py:meth}`polaris.ocean.model.OceanModelStep.update_namelist_eos()`, which
+translates `eos_type` (and, for the linear and constant EOS, the
+`eos_linear_*` options) into model config options.  For `teos-10`,
+MPAS-Ocean has no TEOS-10 option, so `config_eos_type` is set to `jm`
+(Jackett-McDougall), the closest available nonlinear EOS; Omega receives
+`teos-10` unchanged.  For `constant`, MPAS-Ocean similarly falls back to
+its linear EOS with constant coefficients.
+
 
 (dev-ocean-spherical-meshes)=
 
@@ -767,6 +786,25 @@ example because the z-tilde bottom varies spatially), the semi-private method
 ``init_pstar_vertical_coord()`` per cell with cell-specific config options,
 as done in
 {py:class}`polaris.tasks.ocean.horiz_press_grad.init.Init`.
+
+The `polaris.ocean.vertical.pstar_state` module provides helpers for
+converting a converged p-star dataset into the fields the ocean models
+read:
+
+- {py:func}`polaris.ocean.vertical.pstar_state.layer_thickness_from_geom_interfaces()`
+  adds ``restingThickness`` and ``layerThickness`` computed from the
+  converged ``GeomZInterface``, masked by ``cellMask``.
+- {py:func}`polaris.ocean.vertical.pstar_state.add_quiescent_normal_velocity()`
+  adds an all-zero ``normalVelocity``.
+- {py:func}`polaris.ocean.vertical.pstar_state.add_density_from_specvol()`
+  adds an in-situ ``Density`` field as the inverse of ``SpecVol``.
+- {py:func}`polaris.ocean.vertical.pstar_state.convert_tracers_to_mpas_ocean()`
+  converts conservative temperature to potential temperature
+  (`gsw.pt_from_CT`) and absolute salinity to practical salinity
+  (`gsw.SP_from_SA`) for MPAS-Ocean, using the p-star ``pressure`` field
+  and either a nominal scalar lon/lat (for planar meshes) or per-cell
+  arrays.  Omega receives conservative temperature and absolute salinity
+  directly, so no conversion is needed.
 
 For sigma coordinates, shared functionality for direct thickness computation is
 available in
