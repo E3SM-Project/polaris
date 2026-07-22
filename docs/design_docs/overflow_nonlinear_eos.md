@@ -146,11 +146,12 @@ domain would be artificially truncated. The pseudo-depth needed for the
 2000 m geometric bottom is roughly $2000 \, \bar{\rho} / \rho_{sw}$:
 ~1950 m for the linear EOS (mean density ≈ 998 kg m$^{-3}$ with the
 shared `linear.cfg` values) and ~2015 m for TEOS-10 (in-situ density up
-to ~1037 kg m$^{-3}$ at depth). The pseudo grid is therefore 2300 m
-deep (~14% buffer over the worst case) with 69 uniform levels,
+to ~1037 kg m$^{-3}$ at depth). The pseudo grid is therefore 2400 m
+deep (~19% buffer over the worst case) with 72 uniform levels,
 preserving the ~33.3 m layer spacing of the 60-level, 2000 m z-star
-grid. This mirrors the buffer used in `horiz_press_grad` (576 m pseudo
-bottom for a 500 m geometric bottom).
+grid while making the number of levels a multiple of 16, which is
+preferred for Omega performance. This mirrors the buffer used in
+`horiz_press_grad` (576 m pseudo bottom for a 500 m geometric bottom).
 
 ### Algorithm Design: Model-specific tracer and state conversions are shared framework code
 
@@ -229,7 +230,7 @@ A new `PStarInit(PStarInitStep)` step in
 Each variant gets its own `PolarisConfigParser` and its own shared init
 step, and the same set of smoke-test and RPE tasks as today. A new
 `overflow_pstar.cfg` adds the p-star `[vertical_grid]` overrides
-(including the 2300 m / 69-level pseudo grid) for the two p-star trees.
+(including the 2400 m / 72-level pseudo grid) for the two p-star trees.
 The p-star iteration uses the shared `ocean.cfg` defaults
 (`pseudothickness_iter_count = 6`,
 `water_col_adjust_frac_change_threshold = 1.0e-12`).

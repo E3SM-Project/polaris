@@ -93,10 +93,11 @@ partial_cell_type = None
 The two `pstar` trees override the vertical grid to use the p-star
 coordinate.  Pseudo-depth is not geometric depth, so the pseudo-height grid
 must reach deeper than the pressure at the deepest geometric bathymetry or
-the domain would be artificially truncated.  The grid is 2300 m deep with
-69 uniform levels (a ~14% buffer over the worst case while preserving the
-~33.3 m layer spacing of the z-star grid), and the geometric bottom depth
-remains 2000 m:
+the domain would be artificially truncated.  The grid is 2400 m deep with
+72 uniform levels (a ~19% buffer over the worst case while preserving the
+~33.3 m layer spacing of the z-star grid and making the number of levels
+a multiple of 16, preferred for Omega performance), and the geometric
+bottom depth remains 2000 m:
 
 ```cfg
 # Options related to the vertical grid
@@ -106,10 +107,10 @@ remains 2000 m:
 coord_type = p-star
 
 # Pseudo-depth of the bottom of the pseudo-height grid (m)
-bottom_depth = 2300.0
+bottom_depth = 2400.0
 
 # Number of vertical levels
-vert_levels = 69
+vert_levels = 72
 
 
 # Options related to the overflow case
