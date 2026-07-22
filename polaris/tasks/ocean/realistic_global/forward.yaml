@@ -7,9 +7,6 @@ ocean:
     config_time_integrator: {{ time_integrator }}
   forcing:
     config_use_bulk_wind_stress: true
-  decomposition:
-    config_block_decomp_file_prefix: '/lcrc/group/e3sm/public_html/polaris/ocean/realistic_global/mpas-ocean/mpas-o.graph.info.200904.part.'
-    config_proc_decomp_file_prefix: '/lcrc/group/e3sm/public_html/polaris/ocean/realistic_global/mpas-ocean/mpas-o.graph.info.200904.part.'
   advection:
     config_horiz_tracer_adv_order: 2
   hmix_del2:
@@ -18,18 +15,21 @@ ocean:
     config_use_mom_del4: true
   cvmix:
     config_use_cvmix_convection: true
-    config_bulk_wind_stress_interp_isotropic: true
-  bottom_drag:
-    config_bottom_drag_mode: explicit
   debug:
     config_disable_vel_explicit_bottom_drag: false
 
 mpas-ocean:
+  decomposition:
+    config_block_decomp_file_prefix: '/lcrc/group/e3sm/public_html/polaris/ocean/realistic_global/mpas-ocean/mpas-o.graph.info.200904.part.'
+    config_proc_decomp_file_prefix: '/lcrc/group/e3sm/public_html/polaris/ocean/realistic_global/mpas-ocean/mpas-o.graph.info.200904.part.'
   # If using teos10 for omega
   #eos:
   #  config_eos_type: jm
+  bottom_drag:
+    config_bottom_drag_mode: explicit
   cvmix:
     config_cvmix_use_BLD_smoothing: false
+    config_bulk_wind_stress_interp_isotropic: true
   frazil_ice:
     config_frazil_in_open_ocean: false
   streams:
@@ -80,8 +80,6 @@ Omega:
       Contents:
         - State
         - Tracers
-        - WindStressZonal
-        - WindStressMeridional
     History:
       Filename: output.nc
       Freq: {{ output_freq }}
@@ -98,3 +96,40 @@ Omega:
         - SshCell
         - KineticEnergyCell
         - Eos
+    Forcing:
+      UsePointerFile: false
+      Filename: init.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: Never
+      UseStartEnd: false
+      Contents:
+        - SfcStressZonal
+        - SfcStressMeridional
+    RestartRead:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: true
+      StartTime: 0005-06-01_00:00:00
+      EndTime: 99999-12-31_00:00:00
+      Contents:
+        - Restart
+    RestartWrite:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Filename: restart/ocn.restart.$Y-$M-$D_$h.$m.$s
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: 100
+      FreqUnits: Days
+      UseStartEnd: false
+      Contents:
+        - Restart
+        - SfcStressZonal
+        - SfcStressMeridional
