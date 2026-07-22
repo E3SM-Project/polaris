@@ -29,9 +29,10 @@ The shared config options for `overflow` tests  are described in
 {ref}`ocean-overflow` in the User's Guide.
 
 Additionally, the tests share a `forward.yaml` file with a few common model
-config options related to time management, time integration, and Laplacian
-viscosity, as well as defining `mesh`, `input`, `restart`, and `output`
-streams.
+config options related to time management, time integration, Laplacian
+viscosity, and vertical mixing (constant background plus convective
+mixing, matching the compass configuration of this test), as well as
+defining `mesh`, `input`, `restart`, and `output` streams.
 
 ### mesh
 

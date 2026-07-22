@@ -150,6 +150,22 @@ reads the initial density.
 
 N/A
 
+## vertical mixing
+
+The tasks run with the same vertical mixing as the compass version of this
+test: constant background mixing (diffusivity 1.0e-5 m$^2$/s, viscosity
+1.0e-4 m$^2$/s) plus convective mixing (diffusivity and viscosity of
+1.0 m$^2$/s wherever the water column is statically unstable).  Shear
+mixing is disabled.  MPAS-Ocean uses CVMix (the `constant` background
+scheme and CVMix convection); Omega uses its implicit `VertMix`
+background and convective mixing, which is equivalent for this
+configuration.
+
+Compared with the compass version of this test, split-explicit time
+stepping and implicit bottom drag remain disabled because they are not yet
+available in Omega: the tasks use the RK4 time integrator, and implicit
+bottom drag will be enabled in both models once Omega supports it.
+
 ## config options
 
 These config options are common to all overflow tests:
