@@ -233,9 +233,9 @@ class Init(OceanIOStep):
         all_forcing_vars = [
             'latent_heat_flux',
             'sensible_heat_flux',
-            'shortwave_heat_flux',
-            'longwave_heat_flux_up',
-            'longwave_heat_flux_down',
+            'short_wave_heat_flux',
+            'long_wave_heat_flux_up',
+            'long_wave_heat_flux_down',
             'evaporation_flux',
             'snow_flux',
             'rain_flux',
