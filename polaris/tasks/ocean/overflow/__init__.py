@@ -14,7 +14,7 @@ def add_overflow_tasks(component):
     component : polaris.ocean.Ocean
         the ocean component that the task will be added to
     """
-    taskdir = 'planar/overflow'
+    taskdir = 'planar/overflow/linear/zstar'
     config_filename = 'overflow.cfg'
     config = PolarisConfigParser(
         filepath=os.path.join(component.name, taskdir, config_filename)
