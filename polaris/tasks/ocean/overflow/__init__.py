@@ -21,6 +21,7 @@ def add_overflow_tasks(component):
     for eos_type, coord_type in [
         ('linear', 'zstar'),
         ('linear', 'pstar'),
+        ('nonlinear', 'pstar'),
     ]:
         _add_overflow_variant_tasks(component, eos_type, coord_type)
 
