@@ -6,6 +6,10 @@ machines:
         compiler: oneapi-ifx
         mpi: mpich
         mpas_target: null
+      - model: Omega
+        compiler: oneapi-ifxgpu
+        mpi: mpich
+        mpas_target: null
 
   - name: chrysalis
     models:
