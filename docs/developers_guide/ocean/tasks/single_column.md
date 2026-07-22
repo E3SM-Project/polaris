@@ -130,3 +130,44 @@ compares the inertial frequency with its theoretical value and induces a
 failure if the frequency is more than a given fractional difference from
 theory, as determined by the config option
 `single_column_inertial:period_tolerance_fraction`.
+
+## thermo
+
+The {py:class}`polaris.tasks.ocean.single_column.thermo.Thermo` test performs
+a separate 10-day forward run for each supported surface thermodynamic forcing
+variable (latent, sensible, shortwave and longwave heat fluxes; evaporation,
+snow, rain, river- and ice-runoff and sea-ice freshwater fluxes; and the
+sea-ice heat and salinity fluxes).  Each `init`/`forward` pair applies a single
+nonzero forcing variable so that the individual forcing terms can be verified
+in isolation.  Then the analysis step is run, and the viz step is optionally
+run.
+
+### analysis
+
+The {py:class}`polaris.tasks.ocean.single_column.thermo.analysis.Analysis`
+verifies conservation of mass, heat and salt for each forward run.  For every
+run it compares the change in the column-integrated content against the surface
+forcing flux accumulated over the run.  For a budget driven by a nonzero flux
+the error is measured relative to that accumulated flux; for a budget with no
+expected flux the residual is compared against the config option
+`single_column_thermo:conservation_error_tolerance` times the initial total
+column content.  A failure is induced if any budget's error exceeds that
+tolerance.
+
+The budgets follow exactly what the model integrates.  For Omega, the mass
+coordinate is the pseudo-thickness `h` (`RhoSw * h` is the mass per area), so
+the checks use the native `PseudoThickness`, `Temperature` and `Salinity`
+fields rather than the reconstructed geometric thickness.  The column budgets
+per unit area are:
+
+- mass: `RhoSw * sum_k(dh_k)` vs the accumulated freshwater plus sea-ice salt
+  flux (both enter Omega's thickness equation),
+- heat: `RhoSw * Cp0Sw * sum_k(d(h_k T_k))` vs the accumulated direct heat
+  flux, and
+- salt: `(RhoSw / 1000) * sum_k(d(h_k S_k))` vs the accumulated sea-ice
+  salinity flux.
+
+Because the freshwater mass fluxes (rain, river runoff, snow and ice runoff)
+also carry an SST-/freezing-point-dependent enthalpy heat flux, the heat
+budget is skipped for those runs.  For MPAS-Ocean (Boussinesq), which has no
+pseudo-thickness, the geometric `layerThickness` is used instead.

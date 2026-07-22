@@ -113,7 +113,15 @@ class Forward(OceanModelStep):
             task_package = f'polaris.tasks.ocean.single_column.{task_name}'
         self.add_yaml_file(task_package, 'forward.yaml')
 
-        self.add_output_file(filename='output.nc', validate_vars=validate_vars)
+        self.add_output_file(
+            filename='output.nc',
+            validate_vars=validate_vars,
+            check_properties=[
+                'mass conservation',
+                'salt conservation',
+                'energy conservation',
+            ],
+        )
 
         self.resources_fixed = ntasks is not None
 

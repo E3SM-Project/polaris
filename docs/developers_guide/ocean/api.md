@@ -526,6 +526,10 @@
    init.Init
    init.Init.run
 
+   thermo.Thermo
+   thermo.analysis.Analysis
+   thermo.analysis.Analysis.run
+
    viz.Viz
    viz.Viz.run
 ```

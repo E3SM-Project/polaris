@@ -505,3 +505,73 @@ All config options shown in {ref}`ocean-single-column` are also used.
 ### cores
 
 See {ref}`ocean-single-column`.
+
+## thermo
+
+### description
+
+The `thermo` test verifies that the ocean model conserves mass, heat and salt
+under surface thermodynamic forcing.  It performs a separate 10-day forward run
+for each supported surface forcing variable, applying a single nonzero forcing
+value per run so that each forcing term is exercised in isolation.  The
+analysis step then compares, for each run, the change in the column-integrated
+content of mass, heat and salt against the surface forcing flux accumulated
+over the run.  For a budget driven by a nonzero flux the error is measured
+relative to that accumulated flux; for a budget with no expected flux the
+residual is compared against
+`single_column_thermo:conservation_error_tolerance` times the initial total
+column content.  The test fails if any checked budget's error exceeds that
+tolerance.
+
+Because the freshwater mass fluxes (rain, river runoff, snow and ice runoff)
+also carry an enthalpy heat flux that depends on the evolving surface state,
+the heat budget is skipped for those runs; their mass (and, where applicable,
+salt) budgets are still checked.
+
+### mesh
+
+See {ref}`ocean-single-column`.
+
+### vertical grid
+
+See {ref}`ocean-single-column`.
+
+### initial conditions
+
+The temperature and salinity are constant with depth. See
+{ref}`ocean-single-column`.
+
+### forcing
+
+Each run applies a single nonzero surface forcing variable from the
+`[single_column_forcing]` section (for example `latent_heat_flux`,
+`evaporation_flux` or `sea_ice_salinity_flux`).  The values used by this test
+override the defaults in {ref}`ocean-single-column`.
+
+### time step and run duration
+
+The time step is given in {ref}`ocean-single-column`. The run duration is 10
+days.
+
+### config options
+
+The config option specific to this test case is the conservation tolerance:
+
+```cfg
+[single_column_thermo]
+
+# Relative tolerance for the conservation check.  The analysis step compares
+# the accumulated surface forcing flux of mass, heat and salt against the
+# change in the column-integrated content over the run.  For a budget driven by
+# a nonzero flux the error is relative to that accumulated flux; for a budget
+# with no expected flux the residual is compared against this tolerance times
+# the initial total column content.  The check fails if any budget's error
+# exceeds this value.
+conservation_error_tolerance = 1e-10
+```
+
+All config options shown in {ref}`ocean-single-column` are also used.
+
+### cores
+
+See {ref}`ocean-single-column`.

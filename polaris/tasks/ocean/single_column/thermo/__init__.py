@@ -3,6 +3,7 @@ import os
 from polaris import Task
 from polaris.tasks.ocean.single_column.forward import Forward
 from polaris.tasks.ocean.single_column.init import Init
+from polaris.tasks.ocean.single_column.thermo.analysis import Analysis
 from polaris.tasks.ocean.single_column.viz import Viz
 
 
@@ -50,9 +51,9 @@ class Thermo(Task):
         forcing_vars = [
             'latent_heat_flux',
             'sensible_heat_flux',
-            'shortwave_heat_flux',
-            'longwave_heat_flux_up',
-            'longwave_heat_flux_down',
+            'short_wave_heat_flux',
+            'long_wave_heat_flux_up',
+            'long_wave_heat_flux_down',
             'evaporation_flux',
             'snow_flux',
             'rain_flux',
@@ -85,6 +86,14 @@ class Thermo(Task):
             )
             self.add_step(forward_step)
             comparisons[f'{forcing_var}'] = f'../forward_{forcing_var}'
+        self.add_step(
+            Analysis(
+                component=component,
+                indir=self.subdir,
+                init=init_step,
+                comparisons=comparisons,
+            )
+        )
         self.add_step(
             Viz(
                 component=component,

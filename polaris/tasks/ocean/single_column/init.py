@@ -32,7 +32,7 @@ class Init(OceanIOStep):
             self.forcing_vars = [
                 'latent_heat_flux',
                 'sensible_heat_flux',
-                'shortwave_heat_flux',
+                'short_wave_heat_flux',
                 'evaporation_flux',
                 'rain_flux',
                 'river_runoff_flux',
