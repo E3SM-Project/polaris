@@ -56,6 +56,7 @@ class Viz(OceanIOStep):
             reconstruct_variables=['normalVelocity'],
             mesh_filename='mesh.nc',
             coeffs_filename='coeffs.nc',
+            reconstruct_method='RBF',
         )
 
         cell_mask = ds_vert_coord.maxLevelCell >= 1
