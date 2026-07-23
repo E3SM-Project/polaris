@@ -60,6 +60,7 @@ def test_topo_configs_inherit_base_mesh_convention():
     cull_config = _get_cull_topo_config(
         filepath='test/QU240/topo/cull/cull_topo.cfg',
         base_mesh_step=base_mesh_step,
+        mesh_name='QU240',
     )
 
     for config in [remap_config, cull_config]:
