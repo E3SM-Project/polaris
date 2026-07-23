@@ -48,8 +48,27 @@ The culling steps are configured through the `[cull_mesh]` section in the config
   considered to belong to land ice.
 - `land_ice_min_fraction`: Minimum land-ice fraction for flood-filling the
   land-ice mask.
+- `min_dc_edge_ratio` and `max_dc_edge_ratio`: The allowed range of `dcEdge`
+  relative to the local ocean background cell width in the culled
+  ocean/sea-ice domain (unified meshes only).
 
 See `cull.cfg` for the full set of options.
+
+## dcEdge Diagnostic for Unified Meshes
+
+For unified meshes, land/river regions are typically meshed at finer
+resolution than the CFL-limited ocean/sea-ice regions, so resolution
+"leaking" across the coastline into the culled ocean mesh can destabilize
+forward runs. After all masks are written, `CullMaskStep` calls
+{py:func}`polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge`,
+which compares `dcEdge` on base-mesh edges interior to the ocean cull mask
+against the ocean background cell width sampled from the mesh's sizing
+field, writes `ocean_dc_edge_diagnostics.nc`, and raises an error listing
+the worst violation clusters if any ratio falls outside
+`[min_dc_edge_ratio, max_dc_edge_ratio]`. For simple base meshes there is
+no sizing field and the check is skipped. The motivation, mechanisms and
+threshold justification are documented in the `unified_mesh_cull_leak`
+design doc (see {ref}`design-docs`).
 
 The Antarctic land-ice ownership mask also includes southern cells that have
 already been removed from the open-ocean cull mask, so the cull workflow
