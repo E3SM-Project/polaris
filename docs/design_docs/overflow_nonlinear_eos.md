@@ -322,16 +322,20 @@ Date last modified: 2026/07/23
 Contributors: Xylar Asay-Davis, Claude
 
 Dependency-light helpers factored out of `InitialStateStep` on the
-`add-realistic-ocean-init` branch, in the module
-`polaris/ocean/vertical/pstar_state.py`:
+`add-realistic-ocean-init` branch, in a new `polaris/ocean/init_state/`
+package (per review feedback: the helpers are general initial-state
+utilities, not p-star specific, and a package rather than a single
+module leaves room to grow without bloat; one small module per concern):
 
-- `layer_thickness_from_geom_interfaces(ds)` — `restingThickness` and
-  `layerThickness` from converged `GeomZInterface`, masked by
-  `cellMask`;
-- `add_quiescent_normal_velocity(ds, ds_mesh)` — zero
+- `thickness.py`: `layer_thickness_from_geom_interfaces(ds)` —
+  `restingThickness` and `layerThickness` from converged
+  `GeomZInterface`, masked by `cellMask`;
+- `velocity.py`: `add_quiescent_normal_velocity(ds, ds_mesh)` — zero
   `normalVelocity`;
-- `add_density_from_specvol(ds)` — `Density = 1 / SpecVol` with
-  attributes.
+- `density.py`: `add_density_from_specvol(ds)` — `Density = 1 /
+  SpecVol` with attributes.
+
+All three are re-exported from `polaris.ocean.init_state`.
 
 The CT/SA conversion helper `convert_tracers_to_mpas_ocean(ds, lon,
 lat)` — CT → potential temperature via `gsw.pt_from_CT` and SA →
@@ -426,7 +430,8 @@ Date last modified: 2026/07/23
 
 Contributors: Xylar Asay-Davis, Claude
 
-Unit tests for each helper in `pstar_state.py` and for
+Unit tests for each helper in the `polaris.ocean.init_state` package
+(`tests/ocean/init_state/test_init_state.py`) and for
 `convert_tracers_to_mpas_ocean()` in `tests/ocean/eos/test_teos10.py`,
 including the CT/SA → potential-temperature/practical-salinity round
 trip against direct `gsw` calls.

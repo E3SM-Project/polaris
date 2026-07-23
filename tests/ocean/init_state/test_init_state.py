@@ -2,7 +2,7 @@ import numpy as np
 import xarray as xr
 from numpy.testing import assert_allclose
 
-from polaris.ocean.vertical.pstar_state import (
+from polaris.ocean.init_state import (
     add_density_from_specvol,
     add_quiescent_normal_velocity,
     layer_thickness_from_geom_interfaces,

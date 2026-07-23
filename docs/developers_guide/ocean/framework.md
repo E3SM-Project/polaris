@@ -796,16 +796,16 @@ example because the z-tilde bottom varies spatially), the semi-private method
 as done in
 {py:class}`polaris.tasks.ocean.horiz_press_grad.init.Init`.
 
-The `polaris.ocean.vertical.pstar_state` module provides helpers for
-converting a converged p-star dataset into the fields the ocean models
-read:
+The `polaris.ocean.init_state` package provides general helpers for
+building the initial-state fields the ocean models read (for example
+from a converged p-star dataset):
 
-- {py:func}`polaris.ocean.vertical.pstar_state.layer_thickness_from_geom_interfaces()`
-  adds ``restingThickness`` and ``layerThickness`` computed from the
-  converged ``GeomZInterface``, masked by ``cellMask``.
-- {py:func}`polaris.ocean.vertical.pstar_state.add_quiescent_normal_velocity()`
+- {py:func}`polaris.ocean.init_state.layer_thickness_from_geom_interfaces()`
+  adds ``restingThickness`` and ``layerThickness`` computed from
+  ``GeomZInterface``, masked by ``cellMask``.
+- {py:func}`polaris.ocean.init_state.add_quiescent_normal_velocity()`
   adds an all-zero ``normalVelocity``.
-- {py:func}`polaris.ocean.vertical.pstar_state.add_density_from_specvol()`
+- {py:func}`polaris.ocean.init_state.add_density_from_specvol()`
   adds an in-situ ``Density`` field as the inverse of ``SpecVol``.
 
 For MPAS-Ocean, the TEOS-10 tracers can be converted to potential

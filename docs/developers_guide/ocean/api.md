@@ -654,6 +654,20 @@
 ```
 
 
+### Initial state
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.init_state
+
+.. autosummary::
+   :toctree: generated/
+
+   layer_thickness_from_geom_interfaces
+   add_quiescent_normal_velocity
+   add_density_from_specvol
+```
+
+
 ### Reference Potential Energy (RPE)
 
 ```{eval-rst}
@@ -715,7 +729,4 @@
    vertical.pstar_init.PStarInitStep
    vertical.pstar_init.PStarInitStep.init_tracers
    vertical.pstar_init.PStarInitStep.run_pstar_init
-   vertical.pstar_state.layer_thickness_from_geom_interfaces
-   vertical.pstar_state.add_quiescent_normal_velocity
-   vertical.pstar_state.add_density_from_specvol
 ```
