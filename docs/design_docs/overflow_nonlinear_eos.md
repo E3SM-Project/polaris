@@ -317,13 +317,13 @@ In passing, two pieces of cleanup in `overflow.cfg`:
 
 ### Implementation: Model-specific tracer and state conversions are shared framework code
 
-Date last modified: 2026/07/22
+Date last modified: 2026/07/23
 
 Contributors: Xylar Asay-Davis, Claude
 
-A new dependency-light module `polaris/ocean/vertical/pstar_state.py`
-with helpers factored out of `InitialStateStep` on the
-`add-realistic-ocean-init` branch:
+Dependency-light helpers factored out of `InitialStateStep` on the
+`add-realistic-ocean-init` branch, in the module
+`polaris/ocean/vertical/pstar_state.py`:
 
 - `layer_thickness_from_geom_interfaces(ds)` — `restingThickness` and
   `layerThickness` from converged `GeomZInterface`, masked by
@@ -331,10 +331,15 @@ with helpers factored out of `InitialStateStep` on the
 - `add_quiescent_normal_velocity(ds, ds_mesh)` — zero
   `normalVelocity`;
 - `add_density_from_specvol(ds)` — `Density = 1 / SpecVol` with
-  attributes;
-- `convert_tracers_to_mpas_ocean(ds, lon, lat)` — CT → potential
-  temperature via `gsw.pt_from_CT` and SA → practical salinity via
-  `gsw.SP_from_SA`, with pressure from the p-star product.
+  attributes.
+
+The CT/SA conversion helper `convert_tracers_to_mpas_ocean(ds, lon,
+lat)` — CT → potential temperature via `gsw.pt_from_CT` and SA →
+practical salinity via `gsw.SP_from_SA`, with pressure from the p-star
+product — lives in `polaris/ocean/eos/teos10.py` and is exported from
+`polaris.ocean.eos` (per review feedback: it is an EOS/tracer-convention
+conversion, so developers should find it with the other TEOS-10 code
+rather than reimplementing it).
 
 When `add-realistic-ocean-init` merges, its `InitialStateStep` is
 refactored to call these (a follow-up on that branch).
@@ -417,13 +422,14 @@ RPE measure (documented in the user's guide).
 
 ### Testing and Validation: Model-specific tracer and state conversions are shared framework code
 
-Date last modified: 2026/07/22
+Date last modified: 2026/07/23
 
 Contributors: Xylar Asay-Davis, Claude
 
-Unit tests for each helper in `pstar_state.py`, including the
-CT/SA → potential-temperature/practical-salinity round trip against
-direct `gsw` calls.
+Unit tests for each helper in `pstar_state.py` and for
+`convert_tracers_to_mpas_ocean()` in `tests/ocean/eos/test_teos10.py`,
+including the CT/SA → potential-temperature/practical-salinity round
+trip against direct `gsw` calls.
 
 ### Testing and Validation: Existing overflow answers are preserved during refactoring
 

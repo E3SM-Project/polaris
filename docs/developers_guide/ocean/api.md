@@ -646,6 +646,7 @@
 
    compute_density
    compute_specvol
+   convert_tracers_to_mpas_ocean
 
    constant.compute_constant_density
    linear.compute_linear_density
@@ -717,5 +718,4 @@
    vertical.pstar_state.layer_thickness_from_geom_interfaces
    vertical.pstar_state.add_quiescent_normal_velocity
    vertical.pstar_state.add_density_from_specvol
-   vertical.pstar_state.convert_tracers_to_mpas_ocean
 ```

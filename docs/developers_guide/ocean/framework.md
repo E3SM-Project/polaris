@@ -344,6 +344,15 @@ MPAS-Ocean has no TEOS-10 option, so `config_eos_type` is set to `jm`
 `teos-10` unchanged.  For `constant`, MPAS-Ocean similarly falls back to
 its linear EOS with constant coefficients.
 
+For initial conditions defined in terms of the TEOS-10 tracers
+(conservative temperature and absolute salinity),
+{py:func}`polaris.ocean.eos.convert_tracers_to_mpas_ocean()` converts
+conservative temperature to potential temperature (`gsw.pt_from_CT`) and
+absolute salinity to practical salinity (`gsw.SP_from_SA`), the tracer
+conventions MPAS-Ocean expects.  The conversion uses a co-located
+``pressure`` field and either a nominal scalar lon/lat (for planar
+meshes) or per-cell arrays.
+
 
 (dev-ocean-spherical-meshes)=
 
@@ -798,13 +807,14 @@ read:
   adds an all-zero ``normalVelocity``.
 - {py:func}`polaris.ocean.vertical.pstar_state.add_density_from_specvol()`
   adds an in-situ ``Density`` field as the inverse of ``SpecVol``.
-- {py:func}`polaris.ocean.vertical.pstar_state.convert_tracers_to_mpas_ocean()`
-  converts conservative temperature to potential temperature
-  (`gsw.pt_from_CT`) and absolute salinity to practical salinity
-  (`gsw.SP_from_SA`) for MPAS-Ocean, using the p-star ``pressure`` field
-  and either a nominal scalar lon/lat (for planar meshes) or per-cell
-  arrays.  Omega receives conservative temperature and absolute salinity
-  directly, so no conversion is needed.
+
+For MPAS-Ocean, the TEOS-10 tracers can be converted to potential
+temperature and practical salinity with
+{py:func}`polaris.ocean.eos.convert_tracers_to_mpas_ocean()` (see
+{ref}`dev-ocean-framework-eos`), using the p-star ``pressure`` field
+and either a nominal scalar lon/lat (for planar meshes) or per-cell
+arrays.  Omega receives conservative temperature and absolute salinity
+directly, so no conversion is needed.
 
 For sigma coordinates, shared functionality for direct thickness computation is
 available in

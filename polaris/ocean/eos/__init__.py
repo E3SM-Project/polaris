@@ -5,6 +5,9 @@ from polaris.config import PolarisConfigParser
 from .constant import compute_constant_density
 from .linear import compute_linear_density
 from .teos10 import compute_specvol as compute_teos10_specvol
+from .teos10 import (
+    convert_tracers_to_mpas_ocean as convert_tracers_to_mpas_ocean,
+)
 
 
 def compute_density(

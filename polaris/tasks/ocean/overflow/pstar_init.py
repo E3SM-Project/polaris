@@ -1,11 +1,11 @@
 import xarray as xr
 
+from polaris.ocean.eos import convert_tracers_to_mpas_ocean
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.pstar_init import PStarInitStep
 from polaris.ocean.vertical.pstar_state import (
     add_density_from_specvol,
     add_quiescent_normal_velocity,
-    convert_tracers_to_mpas_ocean,
     layer_thickness_from_geom_interfaces,
 )
 from polaris.tasks.ocean.overflow.mesh import (
