@@ -19,6 +19,9 @@ from polaris import Step
 from polaris.mesh.spherical.critical_transects import (
     load_default_critical_transects,
 )
+from polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics import (
+    check_ocean_dc_edge,
+)
 
 
 class CullMaskStep(Step):
@@ -36,6 +39,11 @@ class CullMaskStep(Step):
     unsmoothed_topo_step : polaris.tasks.e3sm.init.topo.RemapTopoStep
         The step for remapping the topography to the MPAS base mesh without
         smoothing
+
+    sizing_field_step : polaris.Step or None
+        For unified meshes, the sizing-field build step whose
+        ``sizing_field.nc`` provides the ocean background cell width used
+        by the ``dcEdge`` diagnostic
     """
 
     def __init__(
@@ -45,6 +53,7 @@ class CullMaskStep(Step):
         unsmoothed_topo_step,
         name,
         subdir,
+        sizing_field_step=None,
     ):
         """
         Create a new step
@@ -66,6 +75,11 @@ class CullMaskStep(Step):
 
         subdir : str
             the subdirectory for the step
+
+        sizing_field_step : polaris.Step, optional
+            For unified meshes, the sizing-field build step whose
+            ``sizing_field.nc`` provides the ocean background cell width
+            used by the ``dcEdge`` diagnostic
         """
         super().__init__(
             component,
@@ -76,6 +90,7 @@ class CullMaskStep(Step):
         )
         self.base_mesh_step = base_mesh_step
         self.unsmoothed_topo_step = unsmoothed_topo_step
+        self.sizing_field_step = sizing_field_step
 
         self.add_input_file(
             filename='south_pole.geojson',
@@ -110,6 +125,15 @@ class CullMaskStep(Step):
                 self.unsmoothed_topo_step.path, topo_filename
             ),
         )
+
+        if self.sizing_field_step is not None:
+            self.add_input_file(
+                filename='sizing_field.nc',
+                work_dir_target=os.path.join(
+                    self.sizing_field_step.path,
+                    self.sizing_field_step.sizing_field_filename,
+                ),
+            )
 
         self.cpus_per_task = section.getint('cpus_per_task')
         self.min_cpus_per_task = section.getint('min_cpus_per_task')
@@ -368,6 +392,7 @@ class CullMaskStep(Step):
         self._create_ocean_no_cavities_cull_mask()
         self._create_land_cull_mask()
         self._combine_masks()
+        self._check_ocean_dc_edge()
         logger.info('Completed CullMaskStep run sequence.')
 
     def _create_critical_transects(self):
@@ -683,6 +708,37 @@ class CullMaskStep(Step):
 
         write_netcdf(ds_masks, 'cull_masks.nc')
         logger.info('Wrote cull_masks.nc.')
+
+    def _check_ocean_dc_edge(self):
+        """
+        Check that dcEdge in the ocean/sea-ice domain stays within
+        bounds relative to the local ocean background cell width (only
+        available for unified meshes with a sizing-field step).
+        """
+        logger = self.logger
+        if self.sizing_field_step is None:
+            logger.info(
+                'No sizing-field step, skipping the dcEdge diagnostic.'
+            )
+            return
+
+        config = self.config
+        section = config['cull_mesh']
+        min_ratio = section.getfloat('min_dc_edge_ratio')
+        max_ratio = section.getfloat('max_dc_edge_ratio')
+
+        ds_base_mesh = open_dataset('base_mesh.nc')
+        ds_masks = open_dataset('cull_masks.nc')
+        ds_sizing = open_dataset('sizing_field.nc')
+
+        check_ocean_dc_edge(
+            ds_base_mesh=ds_base_mesh,
+            ocean_cull_mask=ds_masks.oceanCullMask.values,
+            ds_sizing=ds_sizing,
+            min_ratio=min_ratio,
+            max_ratio=max_ratio,
+            logger=logger,
+        )
 
     @staticmethod
     def _antarctic_land_ice_ownership(

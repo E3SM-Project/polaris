@@ -1,6 +1,7 @@
 import os
 
 from polaris.config import PolarisConfigParser
+from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
 from polaris.step import Step
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.topo.cull.cull import CullMeshStep
@@ -41,6 +42,9 @@ def get_cull_topo_steps(mesh_name, include_viz=False):
     )
     base_mesh_step = remap_steps['base_mesh']
     unsmoothed_topo_step = remap_steps['remap_unsmoothed_topo']
+    # only unified meshes have a sizing-field step, used by the dcEdge
+    # diagnostic in the cull-mask step
+    sizing_field_step = remap_steps.get('sizing_field', None)
 
     config_filename = 'cull_topo.cfg'
     filepath = os.path.join(
@@ -49,6 +53,7 @@ def get_cull_topo_steps(mesh_name, include_viz=False):
     config = _get_cull_topo_config(
         filepath=filepath,
         base_mesh_step=base_mesh_step,
+        mesh_name=mesh_name,
     )
 
     steps: dict[str, Step] = dict(remap_steps)
@@ -63,6 +68,7 @@ def get_cull_topo_steps(mesh_name, include_viz=False):
         base_mesh_step=base_mesh_step,
         unsmoothed_topo_step=unsmoothed_topo_step,
         name=step_name,
+        sizing_field_step=sizing_field_step,
     )
     steps['cull_mask'] = cull_mask_step
 
@@ -82,7 +88,7 @@ def get_cull_topo_steps(mesh_name, include_viz=False):
     return steps, config
 
 
-def _get_cull_topo_config(filepath, base_mesh_step):
+def _get_cull_topo_config(filepath, base_mesh_step, mesh_name):
     component = e3sm_init
     if filepath in component.configs:
         return component.configs[filepath]
@@ -90,6 +96,16 @@ def _get_cull_topo_config(filepath, base_mesh_step):
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package('polaris.tasks.e3sm.init.topo.cull', 'cull.cfg')
     config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
+
+    if mesh_name in UNIFIED_MESH_NAMES:
+        # unified-mesh config options (e.g. per-mesh overrides of the
+        # dcEdge diagnostic thresholds)
+        config.add_from_package(
+            'polaris.mesh.spherical.unified', 'unified_mesh.cfg'
+        )
+        config.add_from_package(
+            'polaris.mesh.spherical.unified', f'{mesh_name}.cfg'
+        )
 
     convention = base_mesh_step.config.get(
         'spherical_mesh', 'antarctic_boundary_convention'
