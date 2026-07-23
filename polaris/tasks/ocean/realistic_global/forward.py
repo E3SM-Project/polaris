@@ -91,7 +91,12 @@ class Forward(OceanModelStep):
             input_filename = f'{input_filename}.{eos_type}.{self.omega_id}.nc'
             self.add_input_file(
                 target=input_filename,
-                filename='OmegaMesh.nc',
+                filename='mesh.nc',
+                database=f'realistic_global/{model}',
+            )
+            self.add_input_file(
+                target=input_filename,
+                filename='vert_coord.nc',
                 database=f'realistic_global/{model}',
             )
             self.add_input_file(
@@ -104,7 +109,7 @@ class Forward(OceanModelStep):
             input_filename = f'{input_filename}.zerovel.nc'
             self.add_input_file(
                 target=input_filename,
-                filename='OmegaMesh.nc',
+                filename='mesh.nc',
                 database=f'realistic_global/{model}',
             )
             self.add_input_file(
@@ -134,5 +139,6 @@ class Forward(OceanModelStep):
                 'Resolution for cell count is required for realistic_global '
                 'tests'
             )
-        cell_count = 4e8 / self.resolution**2
+        # cell_count = 4e8 / self.resolution**2
+        cell_count = 236853
         return cell_count

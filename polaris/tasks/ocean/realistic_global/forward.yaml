@@ -19,9 +19,6 @@ ocean:
     config_disable_vel_explicit_bottom_drag: false
 
 mpas-ocean:
-  decomposition:
-    config_block_decomp_file_prefix: '/lcrc/group/e3sm/public_html/polaris/ocean/realistic_global/mpas-ocean/mpas-o.graph.info.200904.part.'
-    config_proc_decomp_file_prefix: '/lcrc/group/e3sm/public_html/polaris/ocean/realistic_global/mpas-ocean/mpas-o.graph.info.200904.part.'
   # If using teos10 for omega
   #eos:
   #  config_eos_type: jm
