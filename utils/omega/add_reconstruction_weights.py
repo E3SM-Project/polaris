@@ -72,7 +72,7 @@ class MeshConverter:
 
         if is_omega and is_mpas:
             raise ValueError(
-                'Invlaid input: dataset contains both MPASO and Omega '
+                'Invalid input: dataset contains both MPASO and Omega '
                 'dimensions names.'
             )
 
