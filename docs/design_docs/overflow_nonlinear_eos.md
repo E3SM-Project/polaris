@@ -354,7 +354,7 @@ refactored to call these (a follow-up on that branch).
 
 ### Implementation: Existing overflow answers are preserved during refactoring
 
-Date last modified: 2026/07/22
+Date last modified: 2026/07/23
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -362,8 +362,11 @@ The existing tasks keep their step and task classes; only the task
 directory changes from `planar/overflow` to
 `planar/overflow/linear/zstar`. The overflow paths in
 `polaris/suites/ocean/omega_nightly.txt`, `omega_pr.txt`, and
-`mpaso_pr.txt` are updated accordingly; no new suite entries are added
-for now.
+`mpaso_pr.txt` are updated accordingly. In addition, one new suite
+entry is added (per review feedback, to keep TEOS-10 coverage in PR
+testing until more tests use it):
+`planar/overflow/nonlinear/pstar/smoke_test_horiz_adv_order_4_del4` in
+both `mpaso_pr.txt` and `omega_pr.txt`.
 
 ### Implementation: Vertical mixing uses constant background mixing
 
