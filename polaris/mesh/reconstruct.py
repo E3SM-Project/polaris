@@ -1,5 +1,5 @@
 """
-NOTE: Intermidiate connecitity arrays are computed using the lightweight
+NOTE: Intermediate connectivity arrays are computed using the lightweight
 synchronous dask scheduler to avoid the overhead of spinning up a process
 pool for small integer topology data.
 """
@@ -39,7 +39,7 @@ def fix_out_of_bounds_indices(ds: xr.Dataset) -> xr.Dataset:
     Some meshes (e.g. QU240km) don't do masking of ragged indices with zeros,
     instead they use `nInidices+1` as the invalid value.
 
-    NOTE: Assumes connecitity array are 1-indexed
+    NOTE: Assumes connectivity array are 1-indexed
 
     Parameters
     ----------
@@ -219,7 +219,7 @@ def construct_rotation_matrix(
 ) -> xr.DataArray:
     """
     Construct a rotation matrix from Cartesian coordinates to local orthogonal
-    projection to a tangent plane at the recoconstruction point.
+    projection to a tangent plane at the reconstruction point.
 
     The projection is done in two steps: first a rotation about the x-axis and
     then a rotation about the y-axis.
@@ -383,7 +383,7 @@ def compute_lstsq_weights(
             raise ValueError(
                 'A stencil edge has been rotated into the lower '
                 'hemisphere of the local tangent plane. This is not '
-                'expexted for realistic MPAS mesh resolution; check for '
+                'expected for realistic MPAS mesh resolution; check for '
                 'degenerate or high distorted cells'
             )
 
@@ -549,12 +549,12 @@ def build_reconstruction_weights(
     weights = solve_psuedo_inverse(matrix)
     weights *= np.sqrt(w)
 
-    # Becuase we only support reconstruction at the reconstruction points
+    # Because we only support reconstruction at the reconstruction points
     # (i.e. cell or vertex centers) we only need to keep the first two rows
     # of the weights matrix. But that will produce a vector reconstructed on
     # the tangent plane. So, we keep an extra column of the weights matrix,
     # and assume the z component to be zero, in order to be able to apply the
-    # inverse of 3x3 rotation matrix resiluting in a catesian vector
+    # inverse of 3x3 rotation matrix resulting in a Cartesian vector
     weights = weights.isel(SIX=[0, 1, 2]).rename({'SIX': 'R3'})
     weights.loc[{'R3': 2}] = 0.0
 
@@ -698,7 +698,7 @@ def compute_reconstruction_weights(
     ds: xr.Dataset, location: ReconstructionType = 'cell'
 ) -> xr.Dataset:
     """
-    Compute the weights and stencil indices needed for recoconstruction
+    Compute the weights and stencil indices needed for reconstruction
     a edge normal vector field at cell or vertex centers
 
     Parameters
@@ -712,7 +712,7 @@ def compute_reconstruction_weights(
     -------
     ds: xr.Dataset
         A minimal dataset containing the reconstruction stencil, edge-count,
-        and coefficent fields for the requeste reconstruction point location.
+        and coefficient fields for the requested reconstruction point location.
     """
 
     names = _RECONSTRUCTION_FIELD_NAMES[location]
