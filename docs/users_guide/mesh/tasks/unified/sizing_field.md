@@ -58,6 +58,20 @@ Reduces the target cell width to `river_channel_km` on rasterized river
 channels. This aligns mesh edges with river centerlines in the final JIGSAW
 mesh.
 
+## Cull emulation
+
+By default (`enable_cull_emulation`), the coastline used for the land-side
+blend is not the shared coastline product directly but an *effective*
+coastline that anticipates which cells the MPAS cull in `e3sm/init` will
+keep as ocean/sea-ice: the below-sea-level fraction is averaged at the local
+ocean-background scale, critical ocean passages are widened in proportion to
+the local resolution, and the result is flood filled and unioned with the
+shared coastline mask. This prevents land/river refinement from leaking
+into the CFL-limited ocean/sea-ice domain (e.g. in coastal lagoons whose
+thin barriers are not resolved at mesh scale). The design and validation
+are documented in the `unified_mesh_cull_leak` design doc (see
+{ref}`design-docs`).
+
 ## Configuration
 
 The sizing-field task shares the mesh's `sizing_field.cfg` file. The
@@ -81,6 +95,15 @@ relevant options are in the `[sizing_field]` section:
 - `enable_river_channel_refinement`: whether to refine cells on the
   river-channel mask.
 - `river_channel_km`: target cell width in km along river channels.
+- `enable_cull_emulation`: whether to build the effective ocean mask by
+  emulating the MPAS cull at mesh scale (see above).
+- `cull_emulation_grow_threshold`: hysteresis lower bound on the mesh-scale
+  candidate-ocean fraction for growing the emulated ocean into
+  threshold-ambiguous fringes.
+- `passage_widen_factor` and `passage_widen_factor_high_lat`: width of the
+  swath around critical ocean passages that receives ocean-background
+  sizing, in units of the local ocean background cell width, equatorward
+  and poleward of `passage_widen_latitude_threshold` respectively.
 
 Visualization options are in `[sizing_field_viz]`:
 
