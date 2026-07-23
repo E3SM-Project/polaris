@@ -222,13 +222,18 @@ EOS-specific changes are needed. Convective and shear mixing remain
 off in both models (compass used convective mixing, but this test
 should not produce convection).
 
-Bottom drag is out of scope: Omega's implicit bottom drag is pending
+Bottom drag: both models run with explicit bottom drag (coefficient
+0.01). MPAS-Ocean uses `config_bottom_drag_mode = explicit`; Omega has
+no equivalent of the bottom-drag mode option, so its
+`BottomDragTendencyEnable` is turned on through the mapped MPAS-Ocean
+debug flag (`config_disable_vel_explicit_bottom_drag = false` in the
+shared `debug` section of `forward.yaml`) — an interim approach
+suggested in review. Omega's implicit bottom drag is pending
 ([polaris #659](https://github.com/E3SM-Project/polaris/pull/659),
-[Omega #469](https://github.com/E3SM-Project/Omega/pull/469)). Until
-that merges, Omega runs the overflow with no bottom drag (only the
-drag coefficient is mapped, not the enable flag) while MPAS-Ocean uses
-explicit drag — a known, temporary parity gap that #659 resolves by
-switching both models to implicit drag.
+[Omega #469](https://github.com/E3SM-Project/Omega/pull/469)); once
+that merges, both models are expected to switch to implicit drag, and
+whichever PR merges second will need a small rebase of this
+configuration.
 
 ## Implementation
 
