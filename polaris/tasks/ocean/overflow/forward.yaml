@@ -13,12 +13,11 @@ ocean:
     config_use_mom_del4: {{ use_mom_del4 }}
     config_mom_del4: {{ nu4 }}
     config_use_tracer_del4: false
-  # background + convective vertical mixing matching the compass
-  # configuration of this test; shear mixing stays off
+  # background-only vertical mixing (the compass configuration of this
+  # test also used convective mixing, but the test should not produce
+  # convection); shear mixing stays off
   cvmix:
-    config_use_cvmix_convection: true
-    config_cvmix_convective_diffusion: 1.0
-    config_cvmix_convective_triggerBVF: 0.0
+    config_use_cvmix_convection: false
     config_use_cvmix_shear: false
     config_cvmix_background_diffusion: 1.0e-5
     config_cvmix_background_viscosity: 1.0e-4
@@ -32,12 +31,9 @@ mpas-ocean:
     config_write_output_on_startup: false
   bottom_drag:
     config_bottom_drag_mode: explicit
-  # MPAS-Ocean-only cvmix options with no Omega equivalent (Omega's
-  # convective mixing uses a single coefficient for both diffusivity
-  # and viscosity)
+  # MPAS-Ocean-only master switch for cvmix (no Omega equivalent)
   cvmix:
     config_use_cvmix: true
-    config_cvmix_convective_viscosity: 1.0
   split_explicit_ts:
     config_btr_dt: {{ btr_dt }}
   streams:

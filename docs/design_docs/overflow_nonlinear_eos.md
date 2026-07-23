@@ -60,10 +60,12 @@ of the overflow test ran with constant background mixing and convective
 mixing; these were disabled in the Polaris port
 ([PR #572](https://github.com/E3SM-Project/polaris/pull/572)) because
 Omega had no vertical-mixing support at the time. Omega's `VertMix` now
-provides both, so they are restored for both models. Unlike the
-refactoring, this change is intentionally answer-changing (see the
-answer-preservation requirement, which is scoped to the commits before
-vertical mixing is enabled).
+provides both, so background mixing is restored for both models.
+Convective mixing is intentionally not restored (per review feedback):
+this test should not produce convection, so background mixing suffices.
+Unlike the refactoring, this change is intentionally answer-changing
+(see the answer-preservation requirement, which is scoped to the
+commits before vertical mixing is enabled).
 
 Success means: the `linear/zstar` tree is bit-for-bit with the current
 tasks before vertical mixing is enabled, the two new trees set up and
@@ -128,19 +130,19 @@ subsequent vertical-mixing commit (next requirement) intentionally
 changes answers in all three trees and requires baselines to be
 re-blessed.
 
-### Requirement: Vertical mixing matches the compass configuration
+### Requirement: Vertical mixing uses constant background mixing
 
-Date last modified: 2026/07/22
+Date last modified: 2026/07/23
 
 Contributors: Xylar Asay-Davis, Claude
 
-The overflow tasks must run with the vertical mixing that the compass
-version of the test used: constant background mixing (diffusivity
-1.0e-5 m²/s, viscosity 1.0e-4 m²/s) plus convective mixing
-(diffusivity and viscosity 1.0 m²/s where the water column is
-statically unstable), with shear mixing off, in both MPAS-Ocean and
-Omega. The configuration must work with the RK4 time integrator and
-with both the linear and nonlinear EOS.
+The overflow tasks must run with the constant background vertical
+mixing that the compass version of the test used (diffusivity 1.0e-5
+m²/s, viscosity 1.0e-4 m²/s), with shear mixing off, in both
+MPAS-Ocean and Omega. Unlike compass, convective mixing stays off (per
+review feedback): this test should not produce convection, so
+background mixing suffices. The configuration must work with the RK4
+time integrator and with both the linear and nonlinear EOS.
 
 ## Algorithm Design
 
@@ -204,25 +206,21 @@ Note that the `add-realistic-ocean-init` branch currently uses
 temperature, so the shared helper uses `pt_from_CT` and that branch
 picks up the fix when it adopts this module.
 
-### Algorithm Design: Vertical mixing matches the compass configuration
+### Algorithm Design: Vertical mixing uses constant background mixing
 
-Date last modified: 2026/07/22
+Date last modified: 2026/07/23
 
 Contributors: Xylar Asay-Davis, Claude
 
 No new algorithms in Polaris; both models already implement the needed
-schemes. MPAS-Ocean uses CVMix with the `constant` background scheme
-and CVMix convection, exactly as compass did. Omega's `VertMix`
-provides the equivalents: constant `Background` diffusivity/viscosity,
-and `Convective` mixing that adds a constant coefficient to both
-diffusivity and viscosity wherever $N^2$ is below a trigger value
-(compass/CVMix used equal convective diffusivity and viscosity, so
-Omega's single coefficient is an exact match). Omega applies the
-mixing implicitly via a tridiagonal solve, operator-split at the end of
-each step in all its time steppers (including `RungeKutta4`), and
-computes $N^2$ from the active EOS (linear or TEOS-10), so no
-time-step or EOS-specific changes are needed. Shear mixing remains off
-in both models, matching compass.
+schemes. MPAS-Ocean uses CVMix with the `constant` background scheme.
+Omega's `VertMix` provides the equivalent constant `Background`
+diffusivity/viscosity. Omega applies the mixing implicitly via a
+tridiagonal solve, operator-split at the end of each step in all its
+time steppers (including `RungeKutta4`), so no time-step or
+EOS-specific changes are needed. Convective and shear mixing remain
+off in both models (compass used convective mixing, but this test
+should not produce convection).
 
 Bottom drag is out of scope: Omega's implicit bottom drag is pending
 ([polaris #659](https://github.com/E3SM-Project/polaris/pull/659),
@@ -362,29 +360,27 @@ directory changes from `planar/overflow` to
 `mpaso_pr.txt` are updated accordingly; no new suite entries are added
 for now.
 
-### Implementation: Vertical mixing matches the compass configuration
+### Implementation: Vertical mixing uses constant background mixing
 
-Date last modified: 2026/07/22
+Date last modified: 2026/07/23
 
 Contributors: Xylar Asay-Davis, Claude
 
 The change is config-only. In the shared `ocean:` section of
 `polaris/tasks/ocean/overflow/forward.yaml`, the `cvmix` options that
-Polaris maps to Omega's `VertMix` config are restored to the compass
-values:
+Polaris maps to Omega's `VertMix` config restore the compass
+background-mixing values, with convection explicitly off:
 
 ```yaml
   cvmix:
-    config_use_cvmix_convection: true
-    config_cvmix_convective_diffusion: 1.0
-    config_cvmix_convective_triggerBVF: 0.0
+    config_use_cvmix_convection: false
+    config_use_cvmix_shear: false
     config_cvmix_background_diffusion: 1.0e-5
     config_cvmix_background_viscosity: 1.0e-4
 ```
 
-The `mpas-ocean:` section adds the MPAS-only options with no Omega
-equivalent (`config_use_cvmix = true` and
-`config_cvmix_convective_viscosity = 1.0`; the background scheme
+The `mpas-ocean:` section adds the MPAS-only master switch with no
+Omega equivalent (`config_use_cvmix = true`; the background scheme
 already defaults to `constant`). Omega's tendency enable flags
 (`VelVertMixTendencyEnable`, `TracerVertMixTendencyEnable`) already
 default to `true`, so no yaml change is needed for them.
@@ -449,9 +445,9 @@ moved). The updated suites are exercised by the usual nightly and PR
 testing. This comparison applies to the refactoring commits only,
 before vertical mixing is enabled.
 
-### Testing and Validation: Vertical mixing matches the compass configuration
+### Testing and Validation: Vertical mixing uses constant background mixing
 
-Date last modified: 2026/07/22
+Date last modified: 2026/07/23
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -461,9 +457,9 @@ models and compare against pre-change baselines
 Diffs are expected in both models — vertical mixing was previously off
 — and are blessed after inspection. Checks:
 
-- the Omega log reports `VertMix::init: Convective mixing is enabled.`
-  and the background coefficients appear in the generated `omega.yml`;
-- the `viz` transects show convective mixing homogenizing statically
-  unstable columns at the plume head, with qualitatively similar plume
-  structure in the two models (differences from the bottom-drag parity
-  gap are expected until polaris #659).
+- the background coefficients appear in the generated `omega.yml` and
+  the Omega log does *not* report convective mixing as enabled;
+- the `viz` transects show a plume with qualitatively similar structure
+  in the two models and no artifacts attributable to unmixed static
+  instability (if such artifacts appear, revisit the decision to leave
+  convective mixing off).

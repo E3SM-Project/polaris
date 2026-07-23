@@ -152,14 +152,13 @@ N/A
 
 ## vertical mixing
 
-The tasks run with the same vertical mixing as the compass version of this
-test: constant background mixing (diffusivity 1.0e-5 m$^2$/s, viscosity
-1.0e-4 m$^2$/s) plus convective mixing (diffusivity and viscosity of
-1.0 m$^2$/s wherever the water column is statically unstable).  Shear
-mixing is disabled.  MPAS-Ocean uses CVMix (the `constant` background
-scheme and CVMix convection); Omega uses its implicit `VertMix`
-background and convective mixing, which is equivalent for this
-configuration.
+The tasks run with constant background vertical mixing (diffusivity
+1.0e-5 m$^2$/s, viscosity 1.0e-4 m$^2$/s).  Convective and shear mixing
+are disabled: the compass version of this test also used convective
+mixing, but this test should not produce convection, so background
+mixing suffices.  MPAS-Ocean uses CVMix (the `constant` background
+scheme); Omega uses its implicit `VertMix` background mixing, which is
+equivalent for this configuration.
 
 Compared with the compass version of this test, split-explicit time
 stepping and implicit bottom drag remain disabled because they are not yet

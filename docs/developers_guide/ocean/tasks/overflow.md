@@ -30,9 +30,9 @@ The shared config options for `overflow` tests  are described in
 
 Additionally, the tests share a `forward.yaml` file with a few common model
 config options related to time management, time integration, Laplacian
-viscosity, and vertical mixing (constant background plus convective
-mixing, matching the compass configuration of this test), as well as
-defining `mesh`, `input`, `restart`, and `output` streams.
+viscosity, and vertical mixing (constant background mixing only; unlike
+the compass configuration of this test, convective mixing stays off), as
+well as defining `mesh`, `input`, `restart`, and `output` streams.
 
 ### init_utils
 
