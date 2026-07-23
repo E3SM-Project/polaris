@@ -8,7 +8,7 @@ from polaris.ocean.init_state import (
 )
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.pstar_init import PStarInitStep
-from polaris.tasks.ocean.overflow.mesh import (
+from polaris.tasks.ocean.overflow.init_utils import (
     build_overflow_mesh,
     compute_bottom_depth,
     compute_initial_temperature,

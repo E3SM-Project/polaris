@@ -268,8 +268,9 @@ A new `PStarInit(PStarInitStep)` step in
 `polaris/tasks/ocean/overflow/pstar_init.py`:
 
 - builds the same planar hex mesh as the existing `Init` step, culls
-  it, and adds Coriolis via a mesh helper factored out of `Init.run()`;
-  writes `base_mesh.nc`, `culled_mesh.nc`, and `culled_graph.info`;
+  it, and adds Coriolis via a helper in the shared `init_utils` module
+  factored out of `Init.run()`; writes `base_mesh.nc`,
+  `culled_mesh.nc`, and `culled_graph.info`;
 - computes `geom_z_bot` from the existing tanh shelf profile;
 - uses zero surface pressure;
 - implements `init_tracers()` as the existing

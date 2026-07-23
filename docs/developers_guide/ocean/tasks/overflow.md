@@ -34,16 +34,16 @@ viscosity, and vertical mixing (constant background plus convective
 mixing, matching the compass configuration of this test), as well as
 defining `mesh`, `input`, `restart`, and `output` streams.
 
-### mesh
+### init_utils
 
-The module `polaris.tasks.ocean.overflow.mesh` contains helpers shared by
-the two init steps:
-{py:func}`polaris.tasks.ocean.overflow.mesh.build_overflow_mesh()` builds
-and culls the planar hex mesh, adds the Coriolis parameter and writes the
-mesh files;
-{py:func}`polaris.tasks.ocean.overflow.mesh.compute_bottom_depth()`
+The module `polaris.tasks.ocean.overflow.init_utils` contains helpers
+shared by the two init steps:
+{py:func}`polaris.tasks.ocean.overflow.init_utils.build_overflow_mesh()`
+builds and culls the planar hex mesh, adds the Coriolis parameter and
+writes the mesh files;
+{py:func}`polaris.tasks.ocean.overflow.init_utils.compute_bottom_depth()`
 computes the tanh shelf bathymetry; and
-{py:func}`polaris.tasks.ocean.overflow.mesh.compute_initial_temperature()`
+{py:func}`polaris.tasks.ocean.overflow.init_utils.compute_initial_temperature()`
 computes the cold-block temperature profile.
 
 ### init
@@ -63,7 +63,8 @@ The class {py:class}`polaris.tasks.ocean.overflow.pstar_init.PStarInit`
 defines the p-star init step used by the two `pstar` trees.  It builds on
 {py:class}`polaris.ocean.vertical.pstar_init.PStarInitStep` (see
 {ref}`dev-ocean-framework-vertical`): it builds the same mesh and tanh
-shelf bathymetry as `Init` (via the shared mesh helpers), iterates the
+shelf bathymetry as `Init` (via the shared `init_utils` helpers),
+iterates the
 p-star coordinate to convergence with zero surface pressure, and
 implements `init_tracers()` as the overflow profile (interpreted as
 conservative temperature and absolute salinity) evaluated at the current

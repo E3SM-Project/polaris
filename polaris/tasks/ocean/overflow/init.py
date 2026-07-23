@@ -4,7 +4,7 @@ import xarray as xr
 from polaris.ocean.eos import compute_density
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
-from polaris.tasks.ocean.overflow.mesh import (
+from polaris.tasks.ocean.overflow.init_utils import (
     build_overflow_mesh,
     compute_bottom_depth,
     compute_initial_temperature,

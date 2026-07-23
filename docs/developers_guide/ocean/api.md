@@ -390,9 +390,9 @@
    init.Init.setup
    init.Init.run
 
-   mesh.build_overflow_mesh
-   mesh.compute_bottom_depth
-   mesh.compute_initial_temperature
+   init_utils.build_overflow_mesh
+   init_utils.compute_bottom_depth
+   init_utils.compute_initial_temperature
 
    pstar_init.PStarInit
    pstar_init.PStarInit.setup

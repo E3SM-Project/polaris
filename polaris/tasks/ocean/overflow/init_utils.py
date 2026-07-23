@@ -1,7 +1,7 @@
 """
-Shared helpers for building the overflow mesh and its idealized
-bathymetry and initial-temperature profiles, used by both the z-star
-and p-star init steps.
+Shared helpers for the overflow init steps: building the mesh and
+computing the idealized bathymetry and initial-temperature profiles,
+used by both the z-star and p-star init steps.
 """
 
 import numpy as np
