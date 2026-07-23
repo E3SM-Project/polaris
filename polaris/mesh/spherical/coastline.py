@@ -138,6 +138,81 @@ def build_coastline_dataset(
     return ds_coastlines[convention]
 
 
+def signed_distance_from_ocean_mask(
+    ocean_mask,
+    lon,
+    lat,
+    distance_chunk_size=64,
+    workers=1,
+):
+    """
+    Compute the signed distance to the coastline of an ocean mask.
+
+    Parameters
+    ----------
+    ocean_mask : numpy.ndarray
+        A boolean ocean mask with dimensions ``(lat, lon)``
+
+    lon : numpy.ndarray
+        The longitude coordinate in degrees
+
+    lat : numpy.ndarray
+        The latitude coordinate in degrees
+
+    distance_chunk_size : int, optional
+        Number of latitude rows per signed-distance query chunk
+
+    workers : int, optional
+        Number of workers to use in KD-tree queries
+
+    Returns
+    -------
+    signed_distance : numpy.ndarray
+        The signed distance in meters to the nearest coastline sample
+        (positive over ocean, negative over land)
+    """
+    edge_east, edge_north = _coastline_edges(ocean_mask)
+    return _signed_distance_from_mask(
+        ocean_mask=ocean_mask,
+        edge_east=edge_east,
+        edge_north=edge_north,
+        lon=lon,
+        lat=lat,
+        chunk_size=distance_chunk_size,
+        workers=workers,
+    )
+
+
+def rasterize_critical_transects(critical_transects, lon, lat):
+    """
+    Rasterize critical land blockages and passages onto a lat-lon grid.
+
+    Parameters
+    ----------
+    critical_transects : CriticalTransects or None
+        Critical land blockages and passages (a
+        :py:class:`polaris.mesh.spherical.critical_transects.CriticalTransects`
+        object) to rasterize
+
+    lon : numpy.ndarray
+        The longitude coordinate in degrees
+
+    lat : numpy.ndarray
+        The latitude coordinate in degrees
+
+    Returns
+    -------
+    land_blockages : numpy.ndarray
+        A boolean mask of rasterized land blockages
+
+    passages : numpy.ndarray
+        A boolean mask of rasterized ocean passages
+    """
+    return _rasterize_critical_transects(
+        critical_transects=critical_transects, lon=lon, lat=lat
+    )
+
+
 def _build_single_coastline_dataset(
     convention,
     ds_topo,

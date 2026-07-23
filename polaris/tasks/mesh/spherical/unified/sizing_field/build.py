@@ -2,8 +2,21 @@ import os
 
 import numpy as np
 import xarray as xr
+from geometric_features import GeometricFeatures
 
+from polaris.mesh.spherical.coastline import (
+    rasterize_critical_transects,
+    signed_distance_from_ocean_mask,
+)
+from polaris.mesh.spherical.critical_transects import (
+    load_default_critical_transects,
+)
 from polaris.mesh.spherical.unified import get_unified_mesh_family
+from polaris.mesh.spherical.unified.effective_ocean import (
+    block_average,
+    build_effective_ocean_mask,
+)
+from polaris.mesh.spherical.unified.resolutions import FINEST_RESOLUTION
 from polaris.step import Step
 
 
@@ -15,6 +28,12 @@ class BuildSizingFieldStep(Step):
     mesh, delegates ocean-background construction to the mesh family, and
     writes a multi-variable sizing-field dataset to ``sizing_field.nc``.
 
+    When cull emulation is enabled (the default), the shared coastline
+    ocean mask and signed distance are replaced by *effective* fields
+    that anticipate what the MPAS cull will keep as ocean/sea-ice (see
+    the ``unified_mesh_cull_leak`` design doc), so that land/river
+    refinement never leaks into the CFL-limited ocean/sea-ice domain.
+
     Attributes
     ----------
     coastline_step : polaris.Step
@@ -23,11 +42,17 @@ class BuildSizingFieldStep(Step):
     river_step : polaris.Step
         The shared lat-lon river-network step whose masks are consumed
 
+    fine_topo_step : polaris.tasks.e3sm.init.topo.combine.CombineStep
+        The step with combined topography at the finest lat-lon
+        resolution, used for the cull-emulation candidate fraction
+
     sizing_field_filename : str
         Name of the output sizing-field NetCDF file
     """
 
-    def __init__(self, component, coastline_step, river_step, subdir):
+    def __init__(
+        self, component, coastline_step, river_step, fine_topo_step, subdir
+    ):
         """
         Create a new step.
 
@@ -42,6 +67,10 @@ class BuildSizingFieldStep(Step):
         river_step : polaris.Step
             The shared lat-lon river-network step
 
+        fine_topo_step : polaris.tasks.e3sm.init.topo.combine.CombineStep
+            The step with combined topography at the finest lat-lon
+            resolution, used for the cull-emulation candidate fraction
+
         subdir : str
             The subdirectory within the component work directory where the
             step runs
@@ -55,6 +84,7 @@ class BuildSizingFieldStep(Step):
         )
         self.coastline_step = coastline_step
         self.river_step = river_step
+        self.fine_topo_step = fine_topo_step
         self.sizing_field_filename = 'sizing_field.nc'
 
     def setup(self):
@@ -83,6 +113,13 @@ class BuildSizingFieldStep(Step):
                 self.river_step.path, self.river_step.masks_filename
             ),
         )
+        self.add_input_file(
+            filename='topography_finest.nc',
+            work_dir_target=os.path.join(
+                self.fine_topo_step.path,
+                self.fine_topo_step.combined_filename,
+            ),
+        )
         self._get_mesh_family().setup_sizing_field_step(self)
         self.add_output_file(filename=self.sizing_field_filename)
 
@@ -98,11 +135,23 @@ class BuildSizingFieldStep(Step):
         section = self.config['sizing_field']
         unified_section = self.config['unified_mesh']
 
+        enable_cull_emulation = section.getboolean('enable_cull_emulation')
+
         with xr.open_dataset('coastline.nc') as ds_coastline:
             with xr.open_dataset('river_network.nc') as ds_river:
                 ocean_background = self._get_ocean_background(
                     ds_coastline=ds_coastline, section=section
                 )
+                emulation_fields = None
+                if enable_cull_emulation:
+                    ds_coastline, emulation_fields = (
+                        self._apply_cull_emulation(
+                            ds_coastline=ds_coastline,
+                            ocean_background=ocean_background,
+                            section=section,
+                            unified_section=unified_section,
+                        )
+                    )
                 ds_sizing = sizing_field_dataset(
                     ds_coastline=ds_coastline,
                     ds_river=ds_river,
@@ -122,9 +171,105 @@ class BuildSizingFieldStep(Step):
                     river_channel_km=section.getfloat('river_channel_km'),
                 )
 
+        if emulation_fields is not None:
+            dims = ('lat', 'lon')
+            for var_name, values in emulation_fields.items():
+                ds_sizing[var_name] = xr.DataArray(values, dims=dims)
+            ds_sizing.emulated_ocean_mask.attrs['long_name'] = (
+                'Mesh-scale emulation of the MPAS ocean cull'
+            )
+            ds_sizing.effective_ocean_mask.attrs['long_name'] = (
+                'Union of the shared coastline and emulated ocean masks'
+            )
+        ds_sizing.attrs['cull_emulation'] = str(enable_cull_emulation)
+
         ds_sizing.attrs['source_coastline_step'] = self.coastline_step.subdir
         ds_sizing.attrs['source_river_step'] = self.river_step.subdir
         ds_sizing.to_netcdf(self.sizing_field_filename)
+
+    def _apply_cull_emulation(
+        self, ds_coastline, ocean_background, section, unified_section
+    ):
+        """
+        Replace the shared coastline ocean mask and signed distance
+        with effective fields that anticipate the MPAS cull.
+        """
+        logger = self.logger
+        lat = ds_coastline.lat.values
+        lon = ds_coastline.lon.values
+        resolution = unified_section.getfloat('resolution_latlon')
+
+        logger.info('Cull emulation: computing candidate fraction.')
+        factor = int(round(resolution / FINEST_RESOLUTION))
+        with xr.open_dataset('topography_finest.nc') as ds_topo:
+            fraction = ds_topo.ocean_mask.transpose(
+                'lat', 'lon'
+            ).values.astype(np.float64)
+        fraction = np.where(np.isfinite(fraction), fraction, 0.0)
+        candidate_fraction = block_average(fraction, factor)
+
+        logger.info('Cull emulation: rasterizing critical transects.')
+        critical_transects = load_default_critical_transects()
+        land_blockages, passages = rasterize_critical_transects(
+            critical_transects=critical_transects, lon=lon, lat=lat
+        )
+
+        gf = GeometricFeatures()
+        fc_seed = gf.read(
+            componentName='ocean', objectType='point', tags=['seed_point']
+        )
+        seed_points = [
+            feature['geometry']['coordinates'][:2]
+            for feature in fc_seed.features
+        ]
+
+        logger.info('Cull emulation: building effective ocean mask.')
+        fields = build_effective_ocean_mask(
+            candidate_fraction=candidate_fraction,
+            shared_ocean_mask=ds_coastline.ocean_mask.values > 0,
+            ocean_background=np.asarray(ocean_background, dtype=float),
+            lat=lat,
+            lon=lon,
+            resolution=resolution,
+            land_blockages=land_blockages,
+            passages=passages,
+            seed_points=seed_points,
+            grow_threshold=section.getfloat('cull_emulation_grow_threshold'),
+            passage_widen_factor=section.getfloat('passage_widen_factor'),
+            passage_widen_factor_high_lat=section.getfloat(
+                'passage_widen_factor_high_lat'
+            ),
+            passage_widen_latitude_threshold=section.getfloat(
+                'passage_widen_latitude_threshold'
+            ),
+        )
+
+        logger.info('Cull emulation: computing effective signed distance.')
+        effective = fields['effective_ocean_mask']
+        signed_distance = signed_distance_from_ocean_mask(
+            ocean_mask=effective,
+            lon=lon,
+            lat=lat,
+            workers=self.cpus_per_task,
+        )
+
+        ds_effective = ds_coastline.copy()
+        ds_effective['ocean_mask'] = xr.DataArray(
+            effective.astype(np.int8), dims=('lat', 'lon')
+        )
+        ds_effective['signed_distance'] = xr.DataArray(
+            signed_distance.astype(np.float32), dims=('lat', 'lon')
+        )
+
+        emulation_fields = dict(
+            effective_ocean_mask=effective.astype(np.int8),
+            emulated_ocean_mask=fields['emulated_ocean_mask'].astype(np.int8),
+            mesh_scale_ocean_fraction=fields['mesh_scale_fraction'].astype(
+                np.float32
+            ),
+            passages_widened=fields['passages_widened'].astype(np.int8),
+        )
+        return ds_effective, emulation_fields
 
     def _get_ocean_background(self, ds_coastline, section):
         """

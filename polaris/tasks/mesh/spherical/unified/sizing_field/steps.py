@@ -1,5 +1,7 @@
 import os
 
+from polaris.e3sm.init.topo import format_lat_lon_resolution_name
+from polaris.mesh.spherical.unified.resolutions import FINEST_RESOLUTION
 from polaris.step import Step
 from polaris.tasks.mesh.spherical.unified.river.steps import (
     get_unified_mesh_river_steps,
@@ -64,6 +66,12 @@ def get_unified_mesh_sizing_field_steps(
 
     coastline_step = river_steps['coastline_final']
     river_step = river_steps['river_rasterize']
+    # the finest-resolution combined-topography step (an ancestor of the
+    # coastline steps) provides the candidate fraction for cull emulation
+    fine_resolution_name = format_lat_lon_resolution_name(FINEST_RESOLUTION)
+    fine_topo_step = river_steps[
+        f'combine_topo_lat_lon_{fine_resolution_name}'
+    ]
 
     subdir = os.path.join(
         'spherical',
@@ -80,6 +88,7 @@ def get_unified_mesh_sizing_field_steps(
         config_filename=config_filename,
         coastline_step=coastline_step,
         river_step=river_step,
+        fine_topo_step=fine_topo_step,
     )
 
     steps: dict[str, Step] = dict(river_steps)
