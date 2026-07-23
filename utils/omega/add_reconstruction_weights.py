@@ -20,8 +20,7 @@ from ruamel.yaml import YAML
 
 from polaris.mesh.reconstruct import compute_reconstruction_weights
 
-# TODO: pick a more sensible default based on typical mesh sizes
-DEFAULT_CHUNK_SIZE = 10_000
+DEFAULT_CHUNK_SIZE = 1_000
 
 # Dimensions found only on large, multi-level/time-resolved/tracer
 # fields (e.g. layerThickness(nCells, nVertLevels)) that are never

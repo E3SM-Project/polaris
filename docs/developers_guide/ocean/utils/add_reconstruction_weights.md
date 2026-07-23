@@ -30,7 +30,7 @@ skipped, making it safe to run on production meshes.
 | `-i` / `--input_file`  | Input mesh file (MPAS-Ocean or Omega format) |
 | `-o` / `--output_file` | Output file (copy of input with weights appended) |
 | `-w` / `--num_workers` | Number of dask worker processes (enables parallel mode) |
-| `-c` / `--chunk_size`  | Cells per dask chunk (default: 10 000) |
+| `-c` / `--chunk_size`  | Cells per dask chunk (default: 1000) |
 
 Passing either `-w` or `-c` enables dask parallelism. If `-c` is given
 without `-w`, the worker count is inferred from mache (requires running
@@ -44,9 +44,9 @@ EC30to60 mesh (~1.8 M cells, 32 workers):
 
 | `num_workers` | `chunk_size` | wall time |
 |:---:|---:|---:|
-| 32 | 7 000 | ~5m 57s |
-| 32 | 3 700 | ~4m 42s |
-| 32 | 1 850 | ~4m 16s |
+| 32 | 7000 | ~5m 57s |
+| 32 | 3700 | ~4m 42s |
+| 32 | 1850 | ~4m 16s |
 
 **Fewer workers with more, smaller chunks per worker tends to be faster
 than filling each worker with one large chunk.**  Start with a chunk size
