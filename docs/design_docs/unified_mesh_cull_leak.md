@@ -32,11 +32,6 @@ Success means (a) all four unified meshes rebuild with no ocean/sea-ice edge
 below the diagnostic threshold, and (b) any future regression of this kind is
 caught at the cull-mask step rather than by a forward-run crash.
 
-The offline analysis and validation prototype behind this design live in
-`utils/unified_mesh/cull_leak/`. This document is the canonical explanation
-of the design; user- and developer-guide pages describe only configuration and
-behavior and link here.
-
 ## Diagnosis
 
 Analysis of the `test_20260721` results on Chrysalis (all four unified
@@ -132,9 +127,19 @@ and form `ratio = dcEdge / background`. Fail if
 `min(ratio) < min_dc_edge_ratio` or `max(ratio) > max_dc_edge_ratio`.
 
 Threshold justification (from `test_20260721`): clean jigsaw noise spans
-[0.76, 1.39] x background; the contaminated meshes reached 0.29. Defaults
-`min_dc_edge_ratio = 0.65` and `max_dc_edge_ratio = 1.5` leave margin on
-both sides while failing the contaminated meshes decisively.
+[0.76, 1.39] x background; the contaminated meshes reached 0.29. The
+lower bound is the meaningful guard, since fine cells leaking into the
+ocean are a CFL hazard; `min_dc_edge_ratio = 0.65` leaves margin above the
+clean noise floor while failing the contaminated meshes decisively.
+
+The upper bound only flags anomalously coarse edges, which are a mild
+mesh-quality issue rather than a stability hazard. It must tolerate
+isolated jigsaw outliers whose magnitude grows with the number of edges:
+across the four regenerated meshes the maximum ratio rose monotonically
+with edge count (1.32 at 21k edges, 1.42 at 1.4M, 1.50 at 2.4M, 1.51 at
+12M), so a tight ceiling is fragile. `max_dc_edge_ratio = 2.0` still
+catches an edge that is genuinely double the intended resolution while
+tolerating lone coarse jigsaw blips on large meshes.
 
 ### Algorithm Design: effective ocean mask via mesh-scale cull emulation
 
@@ -178,10 +183,9 @@ overlap with river channels.
 
 ### Prototype validation (2026/07/23)
 
-The algorithm was prototyped offline (`utils/unified_mesh/cull_leak/
-emulate_cull.py`) with `grow_threshold = 0.35` and passage widening of
-1.5x / 3.0x L equatorward/poleward of 43 degrees, and validated against the
-actual cull masks of the `test_20260721` runs:
+The algorithm was prototyped offline with `grow_threshold = 0.35`
+and passage widening of 1.5x / 3.0x L equatorward/poleward of 43 degrees, and
+validated against the actual cull masks of the `test_20260721` runs:
 
 | mesh | kept cells | under-pred (base -> emul) | over-pred (on river) | current min ratio | predicted min ratio |
 | --- | --- | --- | --- | --- | --- |
