@@ -144,9 +144,12 @@ def _add_layer_thickness(ds):
     Compute ``restingThickness`` and ``layerThickness`` from the converged
     geometric interface heights in ``ds``.
 
-    Both fields equal the converged geometric layer thickness (appropriate
-    for a quiescent initialisation with zero SSH).  Layers below the
-    seafloor are zeroed out using ``cellMask``.
+    Both fields equal the converged geometric layer thickness.  They coincide
+    here only because ``SurfacePressure = 0`` (so ``ssh = 0``); once surface
+    loading (atmosphere, sea ice, ice shelves) gives a nonzero
+    ``SurfacePressure`` and hence a nonzero ``ssh``, ``layerThickness`` would
+    differ from ``restingThickness``.  Layers below the seafloor are zeroed out
+    using ``cellMask``.
 
     Parameters
     ----------

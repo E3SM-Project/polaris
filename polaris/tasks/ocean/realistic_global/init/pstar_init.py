@@ -134,10 +134,10 @@ class RealisticPStarInitStep(PStarInitStep):
         """
         Clamp the target seafloor ``geom_z_bot`` into the geometric depth range
         the p-star reference grid can actually represent, so the downstream
-        :py:meth:`run_pstar_init` fixed-point iteration converges to a resting
-        state (``ssh = 0``) instead of leaving a residual sea-surface height in
-        cells whose bathymetry is deeper than the grid (or too shallow to form
-        a valid column).
+        :py:meth:`run_pstar_init` fixed-point iteration can make ``ssh`` match
+        its prescribed value (0 here, because ``SurfacePressure = 0``) instead
+        of leaving a residual sea-surface height in cells whose bathymetry is
+        deeper than the grid (or too shallow to form a valid column).
 
         The maximum representable geometric column depth ``D_max`` is the
         geometric thickness of a fully saturated column (pseudo-thicknesses
