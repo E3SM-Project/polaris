@@ -856,6 +856,14 @@ example because the z-tilde bottom varies spatially), the semi-private method
 as done in
 {py:class}`polaris.tasks.ocean.horiz_press_grad.init.Init`.
 
+{py:func}`polaris.ocean.vertical.bathymetry_holes.fill_max_level_holes`
+removes isolated bathymetry holes, as MPAS-Ocean's init mode does: it caps
+each cell's `maxLevelCell` at that of its deepest ocean neighbor until no cell
+is deeper than all of its neighbors.
+{py:class}`polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep`
+uses it after each solve, capping each hole's seafloor at the converged bottom
+of the new level and solving again.
+
 (dev-ocean-framework-init-state)=
 
 ### Initial state
