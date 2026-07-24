@@ -82,6 +82,7 @@ variables:
   windStressZonal: SfcStressZonal
   windStressMeridional: SfcStressMeridional
   relativeVorticity: RelVortVertex
+  kineticEnergyCell: KineticEnergyCell
 
   # vertical coordinate diagnostics
   zMid: GeomZMid
@@ -232,10 +233,13 @@ config:
     config_cvmix_convective_diffusion: Diffusivity
     config_cvmix_convective_triggerBVF: TriggerBVF
 
+# Omega's shear mixing is the LMD94/KPP interior scheme, so only the
+# MPAS-Ocean KPP shear options have Omega equivalents (there is no
+# analog of the Pacanowski-Philander scheme or its PP_* options)
 - section:
     cvmix: [VertMix, Shear]
   options:
     config_use_cvmix_shear: Enable
-    config_cvmix_shear_PP_nu_zero: NuZero
-    config_cvmix_shear_PP_alpha: Alpha
-    config_cvmix_shear_PP_exp: Exponent
+    config_cvmix_shear_KPP_nu_zero: BaseShearValue
+    config_cvmix_shear_KPP_Ri_zero: RiCrit
+    config_cvmix_shear_KPP_exp: Exponent

@@ -1,4 +1,5 @@
 import gsw
+import numpy as np
 import xarray as xr
 
 
@@ -59,6 +60,76 @@ def compute_specvol(
     )
 
     return specvol
+
+
+def convert_tracers_to_mpas_ocean(ds, lon, lat):
+    """
+    Convert conservative temperature and absolute salinity in ``ds`` to the
+    MPAS-Ocean tracer conventions (potential temperature and practical
+    salinity) using GSW.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset with ``temperature`` (conservative temperature, degC),
+        ``salinity`` (absolute salinity, g/kg), and ``pressure`` (Pa),
+        each with dimensions ``(Time, nCells, nVertLevels)``.
+
+    lon : float or numpy.ndarray
+        Longitude(s) in degrees used in the practical-salinity conversion,
+        either a nominal scalar value (e.g. on a planar mesh) or an array
+        with dimension ``nCells``.
+
+    lat : float or numpy.ndarray
+        Latitude(s) in degrees, a scalar or an array with dimension
+        ``nCells``, as for ``lon``.
+
+    Returns
+    -------
+    xarray.Dataset
+        Dataset with ``temperature`` as potential temperature (degC) and
+        ``salinity`` as practical salinity (PSU).
+    """
+    ct = ds['temperature'].values  # (Time, nCells, nVertLevels)
+    sa = ds['salinity'].values
+    p_pa = ds['pressure'].values  # Pa
+    p_dbar = p_pa / 1e4  # Pa -> dbar  (1 dbar = 1e4 Pa)
+
+    lon_arr = np.asarray(lon, dtype=float)
+    lat_arr = np.asarray(lat, dtype=float)
+    if lon_arr.ndim == 1:
+        # (nCells,) -> (Time, nCells, nVertLevels) broadcast shape
+        lon_arr = lon_arr[np.newaxis, :, np.newaxis]
+        lat_arr = lat_arr[np.newaxis, :, np.newaxis]
+    lon_3d = np.broadcast_to(lon_arr, ct.shape)
+    lat_3d = np.broadcast_to(lat_arr, ct.shape)
+
+    valid = np.isfinite(ct) & np.isfinite(sa)
+    pot_temp = np.full_like(ct, np.nan)
+    prac_sal = np.full_like(sa, np.nan)
+
+    pot_temp[valid] = gsw.pt_from_CT(sa[valid], ct[valid])
+    prac_sal[valid] = gsw.SP_from_SA(
+        sa[valid], p_dbar[valid], lon_3d[valid], lat_3d[valid]
+    )
+
+    ds['temperature'] = xr.DataArray(
+        data=pot_temp,
+        dims=ds['temperature'].dims,
+        attrs={
+            'long_name': 'potential temperature',
+            'units': 'degC',
+        },
+    )
+    ds['salinity'] = xr.DataArray(
+        data=prac_sal,
+        dims=ds['salinity'].dims,
+        attrs={
+            'long_name': 'practical salinity',
+            'units': 'PSU',
+        },
+    )
+    return ds
 
 
 def _align_data_arrays(

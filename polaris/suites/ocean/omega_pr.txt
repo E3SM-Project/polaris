@@ -5,9 +5,10 @@ ocean/planar/manufactured_solution/convergence_both/default
 ocean/planar/manufactured_solution/convergence_both/del2
 ocean/planar/manufactured_solution/convergence_both/del4
 ocean/planar/merry_go_round/default
-ocean/planar/overflow/smoke_test_horiz_adv_order_2_del4
-ocean/planar/overflow/smoke_test_horiz_adv_order_3
-ocean/planar/overflow/smoke_test_horiz_adv_order_4
+ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_2_del4
+ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_3
+ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_4
+ocean/planar/overflow/nonlinear/pstar/smoke_test_horiz_adv_order_4_del4
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
 

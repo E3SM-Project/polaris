@@ -27,6 +27,7 @@ suite is designed for use with MPAS-Ocean but not fully supported by Omega.
 ocean/planar/baroclinic_channel/10km/threads
 ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
+ocean/planar/barotropic_channel/default
 ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
 ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/inertial_gravity_wave/convergence_both
@@ -34,8 +35,15 @@ ocean/planar/internal_wave/standard/default
 ocean/planar/internal_wave/vlr/default
 # currently not converging in MPAS-Ocean
 # ocean/planar/manufactured_solution/convergence_both
+ocean/planar/merry_go_round/default
+ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_2
+ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_3
+ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_4
+ocean/planar/overflow/nonlinear/pstar/smoke_test_horiz_adv_order_4_del4
 ocean/single_column/cvmix
+ocean/single_column/ekman
 ocean/single_column/ideal_age
+ocean/single_column/inertial
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
 ```
@@ -68,8 +76,17 @@ Polaris changes on Omega results.
 
 Here are the tests in the suite:
 ```none
+ocean/column/horiz_press_grad/salinity_gradient
+ocean/planar/baroclinic_channel/10km/default
+ocean/planar/barotropic_gyre/munk/free-slip
 ocean/planar/manufactured_solution/convergence_both/default
-ocean/spherical/icos/rotation_2d
+ocean/planar/manufactured_solution/convergence_both/del2
+ocean/planar/manufactured_solution/convergence_both/del4
+ocean/planar/merry_go_round/default
+ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_2_del4
+ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_3
+ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_4
+ocean/planar/overflow/nonlinear/pstar/smoke_test_horiz_adv_order_4_del4
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
 ```

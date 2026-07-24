@@ -390,6 +390,15 @@
    init.Init.setup
    init.Init.run
 
+   init_utils.build_overflow_mesh
+   init_utils.compute_bottom_depth
+   init_utils.compute_initial_temperature
+
+   pstar_init.PStarInit
+   pstar_init.PStarInit.setup
+   pstar_init.PStarInit.run
+   pstar_init.PStarInit.init_tracers
+
    rpe.Rpe
    rpe.Rpe.configure
 
@@ -637,10 +646,25 @@
 
    compute_density
    compute_specvol
+   convert_tracers_to_mpas_ocean
 
    constant.compute_constant_density
    linear.compute_linear_density
    teos10.compute_specvol
+```
+
+
+### Initial state
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.init_state
+
+.. autosummary::
+   :toctree: generated/
+
+   layer_thickness_from_geom_interfaces
+   add_quiescent_normal_velocity
+   add_density_from_specvol
 ```
 
 

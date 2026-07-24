@@ -405,21 +405,46 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         section = config['ocean']
 
         eos_type = section.get('eos_type')
+        model = config.get('ocean', 'model')
+
+        if eos_type.lower() in ('linear', 'constant'):
+            replacements = self._get_linear_eos_replacements(
+                eos_type=eos_type, model=model
+            )
+        elif eos_type.lower() == 'teos-10':
+            replacements = self._get_teos10_eos_replacements(
+                eos_type=eos_type, model=model
+            )
+        else:
+            raise ValueError(f'Unsupported equation of state: {eos_type}')
+
+        self.add_model_config_options(
+            options=replacements, config_model='ocean'
+        )
+
+    def _get_linear_eos_replacements(
+        self, eos_type: str, model: str
+    ) -> Dict[str, OptionValue]:
+        """
+        Get model config replacements for the linear or constant EOS
+        """
+        section = self.config['ocean']
         eos_linear_alpha = section.getfloat('eos_linear_alpha')
         eos_linear_beta = section.getfloat('eos_linear_beta')
         eos_linear_rhoref = section.getfloat('eos_linear_rhoref')
         eos_linear_Tref = section.getfloat('eos_linear_Tref')
         eos_linear_Sref = section.getfloat('eos_linear_Sref')
 
-        replacements = {
+        replacements: Dict[str, OptionValue] = {
             'config_eos_type': eos_type,
             'config_eos_linear_alpha': eos_linear_alpha,
             'config_eos_linear_beta': eos_linear_beta,
             'config_eos_linear_densityref': eos_linear_rhoref,
         }
-        model = config.get('ocean', 'model')
         if model == 'mpas-ocean':
             if eos_type.lower() == 'constant':
+                # MPAS-Ocean has no constant EOS; the constant.cfg options
+                # make its linear EOS constant
                 eos_type = 'linear'
             replacements.update(
                 {
@@ -434,10 +459,22 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                     'Nonzero Tref and Sref are not supported for Omega '
                     'model since they do not affect the linear EOS'
                 )
+        return replacements
 
-        self.add_model_config_options(
-            options=replacements, config_model='ocean'
-        )
+    def _get_teos10_eos_replacements(
+        self, eos_type: str, model: str
+    ) -> Dict[str, OptionValue]:
+        """
+        Get model config replacements for the TEOS-10 EOS
+        """
+        if model == 'mpas-ocean':
+            # MPAS-Ocean has no TEOS-10 option; Jackett-McDougall is the
+            # closest available nonlinear EOS
+            eos_type = 'jm'
+        replacements: Dict[str, OptionValue] = {
+            'config_eos_type': eos_type,
+        }
+        return replacements
 
     def check_properties(self):
         checked = False
