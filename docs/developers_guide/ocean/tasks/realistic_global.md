@@ -131,7 +131,10 @@ composes the full chain:
    produce model-specific output files (`init.nc` for both models;
    `vert_coord.nc` additionally for Omega).  Tracer fields are kept as CT/SA
    for Omega and converted to potential temperature / practical salinity for
-   MPAS-Ocean via GSW.
+   MPAS-Ocean; the conversion itself is the framework's (see
+   {ref}`dev-ocean-framework-init-state`), with this step supplying the
+   per-cell longitude and latitude from the culled mesh because
+   `pstar_init.nc` has no horizontal mesh fields.
 6. **viz** ({py:class}`~polaris.tasks.ocean.realistic_global.init.viz.VizInitStep`):
    visualizes and sanity-checks the initial condition and vertical-coordinate
    datasets (see below).
