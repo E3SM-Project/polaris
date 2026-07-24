@@ -2,10 +2,26 @@
 
 # overflow
 
-The overflow task group is currently comprised of four `smoke_test` tasks
-for quick testing (one for each horizontal advection order, 2, 3, and 4, and one with horizontal advection order 2 but del4 viscosity enabled),
-and one `rpe` test which shows how the resting potential energy changes across
-forward runs with different del2 viscosities.
+The overflow task group is comprised of six `smoke_test` tasks for quick
+testing (one for each horizontal advection order, 2, 3, and 4, each with
+and without del4 viscosity enabled) and one `rpe` test which shows how the
+resting potential energy changes across forward runs with different del2
+viscosities.
+
+The tasks are created in three trees by
+{py:func}`polaris.tasks.ocean.overflow.add_overflow_tasks()`, which loops
+over combinations of the equation of state (EOS) and the vertical
+coordinate used for the initial condition:
+
+| subdir                            | EOS cfg      | init step class | coord  |
+|-----------------------------------|--------------|-----------------|--------|
+| `planar/overflow/linear/zstar`    | `linear.cfg` | `Init`          | z-star |
+| `planar/overflow/linear/pstar`    | `linear.cfg` | `PStarInit`     | p-star |
+| `planar/overflow/nonlinear/pstar` | `teos10.cfg` | `PStarInit`     | p-star |
+
+Each tree has its own shared config parser (combining the shared EOS
+config file, `overflow.cfg` and — for the p-star trees —
+`overflow_pstar.cfg`) and its own shared `init` step.
 
 ## framework
 
@@ -13,20 +29,53 @@ The shared config options for `overflow` tests  are described in
 {ref}`ocean-overflow` in the User's Guide.
 
 Additionally, the tests share a `forward.yaml` file with a few common model
-config options related to time management, time integration, and Laplacian
-viscosity, as well as defining `mesh`, `input`, `restart`, and `output`
-streams.
+config options related to time management, time integration, Laplacian
+viscosity, and vertical mixing (constant background plus convective
+mixing, matching the compass configuration of this test), as well as
+defining `mesh`, `input`, `restart`, and `output` streams.
+
+### init_utils
+
+The module `polaris.tasks.ocean.overflow.init_utils` contains helpers
+shared by the two init steps:
+{py:func}`polaris.tasks.ocean.overflow.init_utils.build_overflow_mesh()`
+builds and culls the planar hex mesh, adds the Coriolis parameter and
+writes the mesh files;
+{py:func}`polaris.tasks.ocean.overflow.init_utils.compute_bottom_depth()`
+computes the tanh shelf bathymetry; and
+{py:func}`polaris.tasks.ocean.overflow.init_utils.compute_initial_temperature()`
+computes the cold-block temperature profile.
 
 ### init
 
 The class {py:class}`polaris.tasks.ocean.overflow.init.Init`
-defines a step for setting up the initial state for each test case.
+defines a step for setting up the z-star initial state for each test case.
 
 First, a mesh appropriate for the resolution is generated using
 {py:func}`mpas_tools.planar_hex.make_planar_hex_mesh()`.  Then, the mesh is
 culled to remove periodicity in the x and y directions.  The bottom topography
 is defined along with a vertical grid with 60 layers by default.  Next, the
 ocean state is generated with cold water on the continental shelf.
+
+### pstar_init
+
+The class {py:class}`polaris.tasks.ocean.overflow.pstar_init.PStarInit`
+defines the p-star init step used by the two `pstar` trees.  It builds on
+{py:class}`polaris.ocean.vertical.pstar_init.PStarInitStep` (see
+{ref}`dev-ocean-framework-vertical`): it builds the same mesh and tanh
+shelf bathymetry as `Init` (via the shared `init_utils` helpers),
+iterates the
+p-star coordinate to convergence with zero surface pressure, and
+implements `init_tracers()` as the overflow profile (interpreted as
+conservative temperature and absolute salinity) evaluated at the current
+p-star layer midpoints.  After convergence, the shared
+`polaris.ocean.init_state` helpers add layer thickness,
+quiescent velocity and density, and (for MPAS-Ocean)
+{py:func}`polaris.ocean.eos.convert_tracers_to_mpas_ocean()` converts the
+tracers to potential temperature and practical salinity at a nominal
+lon/lat.
+The step writes `vert_coord.nc` and `init.nc` with the same filenames as
+`Init`, so the `forward`, `viz` and `analysis` steps need no retargeting.
 
 ### forward
 
@@ -58,12 +107,11 @@ final temperature along a transect perpendicular to the continental slope.
 
 The {py:class}`polaris.tasks.ocean.overflow.smoke_test.SmokeTest`
 task runs the `init` step, a short `forward` step, and (optionally, not run
-by default) the `viz` step. Three instances are created, one for each
-horizontal advection order (2, 3, and 4), producing tasks named
-`smoke_test_horiz_adv_order_2`, `smoke_test_horiz_adv_order_3`, and
-`smoke_test_horiz_adv_order_4`. An additional tests is provided to test del4
-viscosity alonside the overflow topography,
-`smoke_test_horiz_adv_order_2_del4`.
+by default) the `viz` step. In each task tree, six instances are created,
+one for each horizontal advection order (2, 3, and 4) with and without
+del4 viscosity enabled, producing tasks named
+`smoke_test_horiz_adv_order_{2,3,4}` and
+`smoke_test_horiz_adv_order_{2,3,4}_del4`.
 
 ## rpe
 

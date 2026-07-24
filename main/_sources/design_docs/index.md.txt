@@ -6,6 +6,7 @@
 :titlesonly: true
 
 horiz_press_grad_reference
+overflow_nonlinear_eos
 pstar_init
 shared_steps
 unified_base_mesh

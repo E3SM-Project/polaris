@@ -536,21 +536,46 @@
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
 
         <span class="n">eos_type</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;eos_type&#39;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">eos_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">):</span>
+            <span class="n">replacements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_linear_eos_replacements</span><span class="p">(</span>
+                <span class="n">eos_type</span><span class="o">=</span><span class="n">eos_type</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">eos_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;teos-10&#39;</span><span class="p">:</span>
+            <span class="n">replacements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_teos10_eos_replacements</span><span class="p">(</span>
+                <span class="n">eos_type</span><span class="o">=</span><span class="n">eos_type</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported equation of state: </span><span class="si">{</span><span class="n">eos_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_linear_eos_replacements</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">eos_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get model config replacements for the linear or constant EOS</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
         <span class="n">eos_linear_alpha</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_alpha&#39;</span><span class="p">)</span>
         <span class="n">eos_linear_beta</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_beta&#39;</span><span class="p">)</span>
         <span class="n">eos_linear_rhoref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_rhoref&#39;</span><span class="p">)</span>
         <span class="n">eos_linear_Tref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_Tref&#39;</span><span class="p">)</span>
         <span class="n">eos_linear_Sref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_Sref&#39;</span><span class="p">)</span>
 
-        <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">replacements</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;config_eos_type&#39;</span><span class="p">:</span> <span class="n">eos_type</span><span class="p">,</span>
             <span class="s1">&#39;config_eos_linear_alpha&#39;</span><span class="p">:</span> <span class="n">eos_linear_alpha</span><span class="p">,</span>
             <span class="s1">&#39;config_eos_linear_beta&#39;</span><span class="p">:</span> <span class="n">eos_linear_beta</span><span class="p">,</span>
             <span class="s1">&#39;config_eos_linear_densityref&#39;</span><span class="p">:</span> <span class="n">eos_linear_rhoref</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">eos_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;constant&#39;</span><span class="p">:</span>
+                <span class="c1"># MPAS-Ocean has no constant EOS; the constant.cfg options</span>
+                <span class="c1"># make its linear EOS constant</span>
                 <span class="n">eos_type</span> <span class="o">=</span> <span class="s1">&#39;linear&#39;</span>
             <span class="n">replacements</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
@@ -565,10 +590,22 @@
                     <span class="s1">&#39;Nonzero Tref and Sref are not supported for Omega &#39;</span>
                     <span class="s1">&#39;model since they do not affect the linear EOS&#39;</span>
                 <span class="p">)</span>
+        <span class="k">return</span> <span class="n">replacements</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
-            <span class="n">options</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span>
-        <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_teos10_eos_replacements</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">eos_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get model config replacements for the TEOS-10 EOS</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
+            <span class="c1"># MPAS-Ocean has no TEOS-10 option; Jackett-McDougall is the</span>
+            <span class="c1"># closest available nonlinear EOS</span>
+            <span class="n">eos_type</span> <span class="o">=</span> <span class="s1">&#39;jm&#39;</span>
+        <span class="n">replacements</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;config_eos_type&#39;</span><span class="p">:</span> <span class="n">eos_type</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">replacements</span>
 
 <div class="viewcode-block" id="OceanModelStep.check_properties">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.check_properties.html#polaris.ocean.model.OceanModelStep.check_properties">[docs]</a>

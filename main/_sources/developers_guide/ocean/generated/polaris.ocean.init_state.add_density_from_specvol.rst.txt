@@ -1,0 +1,6 @@
+﻿polaris.ocean.init\_state.add\_density\_from\_specvol
+=====================================================
+
+.. currentmodule:: polaris.ocean.init_state
+
+.. autofunction:: add_density_from_specvol

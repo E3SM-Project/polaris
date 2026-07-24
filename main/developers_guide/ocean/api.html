@@ -741,7 +741,7 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.add_overflow_tasks.html#polaris.tasks.ocean.overflow.add_overflow_tasks" title="polaris.tasks.ocean.overflow.add_overflow_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_overflow_tasks</span></code></a>(component)</p></td>
-<td><p>Add a task following the overflow test case of Petersen et al. (2015) doi:10.1016/j.ocemod.2014.12.004.</p></td>
+<td><p>Add tasks following the overflow test case of Petersen et al. (2015) doi:10.1016/j.ocemod.2014.12.004.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.smoke_test.SmokeTest.html#polaris.tasks.ocean.overflow.smoke_test.SmokeTest" title="polaris.tasks.ocean.overflow.smoke_test.SmokeTest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smoke_test.SmokeTest</span></code></a>(component, indir, init, ...)</p></td>
 <td><p>The short overflow smoke test simply creates the mesh and initial condition, then performs a short forward run on 4 cores.</p></td>
@@ -764,22 +764,43 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.init.Init.run.html#polaris.tasks.ocean.overflow.init.Init.run" title="polaris.tasks.ocean.overflow.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.rpe.Rpe.html#polaris.tasks.ocean.overflow.rpe.Rpe" title="polaris.tasks.ocean.overflow.rpe.Rpe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.Rpe</span></code></a>(component, indir, init, config)</p></td>
-<td><p>The overflow reference potential energy (RPE) test case performs a 40-day integration of the model forward in time at 5 different values of the viscosity at the given resolution.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.init_utils.build_overflow_mesh.html#polaris.tasks.ocean.overflow.init_utils.build_overflow_mesh" title="polaris.tasks.ocean.overflow.init_utils.build_overflow_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_utils.build_overflow_mesh</span></code></a>(step)</p></td>
+<td><p>Build the overflow planar hex mesh, cull it, and add the Coriolis parameter, writing out <code class="docutils literal notranslate"><span class="pre">base_mesh.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">culled_mesh.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">culled_graph.info</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.rpe.Rpe.configure.html#polaris.tasks.ocean.overflow.rpe.Rpe.configure" title="polaris.tasks.ocean.overflow.rpe.Rpe.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.Rpe.configure</span></code></a>()</p></td>
-<td><p>Modify the configuration options for this test case.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.init_utils.compute_bottom_depth.html#polaris.tasks.ocean.overflow.init_utils.compute_bottom_depth" title="polaris.tasks.ocean.overflow.init_utils.compute_bottom_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_utils.compute_bottom_depth</span></code></a>(config, x_cell)</p></td>
+<td><p>Compute the overflow continental shelf-like bathymetry, a tanh profile between the shelf depth and the maximum bottom depth.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.rpe.analysis.Analysis.html#polaris.tasks.ocean.overflow.rpe.analysis.Analysis" title="polaris.tasks.ocean.overflow.rpe.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis</span></code></a>(component, indir, ...)</p></td>
-<td><p>A step for plotting the results of a series of overflow RPE runs</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.init_utils.compute_initial_temperature.html#polaris.tasks.ocean.overflow.init_utils.compute_initial_temperature" title="polaris.tasks.ocean.overflow.init_utils.compute_initial_temperature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_utils.compute_initial_temperature</span></code></a>(...)</p></td>
+<td><p>Compute the overflow initial temperature, constant except for a block of cold water on the shelf.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.rpe.analysis.Analysis.run.html#polaris.tasks.ocean.overflow.rpe.analysis.Analysis.run" title="polaris.tasks.ocean.overflow.rpe.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.pstar_init.PStarInit.html#polaris.tasks.ocean.overflow.pstar_init.PStarInit" title="polaris.tasks.ocean.overflow.pstar_init.PStarInit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pstar_init.PStarInit</span></code></a>(component[, name, indir])</p></td>
+<td><p>A step for creating a mesh and initial condition for overflow test cases on the p-star vertical coordinate.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.pstar_init.PStarInit.setup.html#polaris.tasks.ocean.overflow.pstar_init.PStarInit.setup" title="polaris.tasks.ocean.overflow.pstar_init.PStarInit.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pstar_init.PStarInit.setup</span></code></a>()</p></td>
+<td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.pstar_init.PStarInit.run.html#polaris.tasks.ocean.overflow.pstar_init.PStarInit.run" title="polaris.tasks.ocean.overflow.pstar_init.PStarInit.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pstar_init.PStarInit.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.viz.Viz.html#polaris.tasks.ocean.overflow.viz.Viz" title="polaris.tasks.ocean.overflow.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, dependencies, taskdir)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.pstar_init.PStarInit.init_tracers.html#polaris.tasks.ocean.overflow.pstar_init.PStarInit.init_tracers" title="polaris.tasks.ocean.overflow.pstar_init.PStarInit.init_tracers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pstar_init.PStarInit.init_tracers</span></code></a>(ds)</p></td>
+<td><p>Initialize conservative temperature and absolute salinity at the current p-star layer midpoints: the overflow profile of constant temperature except for a block of cold water on the shelf, and constant salinity.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.rpe.Rpe.html#polaris.tasks.ocean.overflow.rpe.Rpe" title="polaris.tasks.ocean.overflow.rpe.Rpe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.Rpe</span></code></a>(component, indir, init, config)</p></td>
+<td><p>The overflow reference potential energy (RPE) test case performs a 40-day integration of the model forward in time at 5 different values of the viscosity at the given resolution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.rpe.Rpe.configure.html#polaris.tasks.ocean.overflow.rpe.Rpe.configure" title="polaris.tasks.ocean.overflow.rpe.Rpe.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.Rpe.configure</span></code></a>()</p></td>
+<td><p>Modify the configuration options for this test case.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.rpe.analysis.Analysis.html#polaris.tasks.ocean.overflow.rpe.analysis.Analysis" title="polaris.tasks.ocean.overflow.rpe.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis</span></code></a>(component, indir, ...)</p></td>
+<td><p>A step for plotting the results of a series of overflow RPE runs</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.rpe.analysis.Analysis.run.html#polaris.tasks.ocean.overflow.rpe.analysis.Analysis.run" title="polaris.tasks.ocean.overflow.rpe.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.analysis.Analysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.viz.Viz.html#polaris.tasks.ocean.overflow.viz.Viz" title="polaris.tasks.ocean.overflow.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, dependencies, taskdir)</p></td>
 <td><p>A step for plotting the results of the default overflow forward step Similar viz is duplicated for the RPE task in its analysis step</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.viz.Viz.run.html#polaris.tasks.ocean.overflow.viz.Viz.run" title="polaris.tasks.ocean.overflow.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.overflow.viz.Viz.run.html#polaris.tasks.ocean.overflow.viz.Viz.run" title="polaris.tasks.ocean.overflow.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the task</p></td>
 </tr>
 </tbody>
@@ -1162,14 +1183,33 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.compute_specvol.html#polaris.ocean.eos.compute_specvol" title="polaris.ocean.eos.compute_specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_specvol</span></code></a>(config, temperature, salinity)</p></td>
 <td><p>Compute the specific volume of seawater based on the equation of state specified in the configuration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.constant.compute_constant_density.html#polaris.ocean.eos.constant.compute_constant_density" title="polaris.ocean.eos.constant.compute_constant_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constant.compute_constant_density</span></code></a>(config, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.convert_tracers_to_mpas_ocean.html#polaris.ocean.eos.convert_tracers_to_mpas_ocean" title="polaris.ocean.eos.convert_tracers_to_mpas_ocean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_tracers_to_mpas_ocean</span></code></a>(ds, lon, lat)</p></td>
+<td><p>Convert conservative temperature and absolute salinity in <code class="docutils literal notranslate"><span class="pre">ds</span></code> to the MPAS-Ocean tracer conventions (potential temperature and practical salinity) using GSW.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.constant.compute_constant_density.html#polaris.ocean.eos.constant.compute_constant_density" title="polaris.ocean.eos.constant.compute_constant_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constant.compute_constant_density</span></code></a>(config, ...)</p></td>
 <td><p>Compute the density of seawater based on the constant equation of state with the value specified in the configuration.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.linear.compute_linear_density.html#polaris.ocean.eos.linear.compute_linear_density" title="polaris.ocean.eos.linear.compute_linear_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linear.compute_linear_density</span></code></a>(config, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.linear.compute_linear_density.html#polaris.ocean.eos.linear.compute_linear_density" title="polaris.ocean.eos.linear.compute_linear_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linear.compute_linear_density</span></code></a>(config, ...)</p></td>
 <td><p>Compute the density of seawater based on the the linear equation of state with coefficients specified in the configuration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.teos10.compute_specvol.html#polaris.ocean.eos.teos10.compute_specvol" title="polaris.ocean.eos.teos10.compute_specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">teos10.compute_specvol</span></code></a>(sa, ct, p)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.teos10.compute_specvol.html#polaris.ocean.eos.teos10.compute_specvol" title="polaris.ocean.eos.teos10.compute_specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">teos10.compute_specvol</span></code></a>(sa, ct, p)</p></td>
 <td><p>Compute specific volume from co-located p, CT and SA.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="initial-state">
+<h3>Initial state<a class="headerlink" href="#initial-state" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.init_state.layer_thickness_from_geom_interfaces.html#polaris.ocean.init_state.layer_thickness_from_geom_interfaces" title="polaris.ocean.init_state.layer_thickness_from_geom_interfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layer_thickness_from_geom_interfaces</span></code></a>(ds)</p></td>
+<td><p>Compute <code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> from geometric interface heights in <code class="docutils literal notranslate"><span class="pre">ds</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.init_state.add_quiescent_normal_velocity.html#polaris.ocean.init_state.add_quiescent_normal_velocity" title="polaris.ocean.init_state.add_quiescent_normal_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_quiescent_normal_velocity</span></code></a>(ds, ds_mesh)</p></td>
+<td><p>Add a quiescent <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> field (all zeros) to <code class="docutils literal notranslate"><span class="pre">ds</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.init_state.add_density_from_specvol.html#polaris.ocean.init_state.add_density_from_specvol" title="polaris.ocean.init_state.add_density_from_specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_density_from_specvol</span></code></a>(ds)</p></td>
+<td><p>Add an in-situ <code class="docutils literal notranslate"><span class="pre">Density</span></code> field computed from <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code> to <code class="docutils literal notranslate"><span class="pre">ds</span></code>.</p></td>
 </tr>
 </tbody>
 </table>

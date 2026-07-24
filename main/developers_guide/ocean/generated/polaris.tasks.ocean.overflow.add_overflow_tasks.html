@@ -140,8 +140,10 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.overflow.add_overflow_tasks">
 <span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.overflow.</span></span><span class="sig-name descname"><span class="pre">add_overflow_tasks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/overflow.html#add_overflow_tasks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.overflow.add_overflow_tasks" title="Link to this definition"></a></dt>
-<dd><p>Add a task following the overflow test case of Petersen et al. (2015)
+<dd><p>Add tasks following the overflow test case of Petersen et al. (2015)
 doi:10.1016/j.ocemod.2014.12.004</p>
+<p>Variants combine the equation of state (linear or nonlinear) with the
+vertical coordinate used for the initial condition (z-star or p-star).</p>
 <dl class="simple">
 <dt>component<span class="classifier">polaris.ocean.Ocean</span></dt><dd><p>the ocean component that the task will be added to</p>
 </dd>

@@ -433,6 +433,32 @@ The linear EOS coefficients and reference values are set with ocean config
 options such as <code class="docutils literal notranslate"><span class="pre">eos_linear_alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_linear_beta</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_linear_rhoref</span></code>,
 <code class="docutils literal notranslate"><span class="pre">eos_linear_Tref</span></code>, and <code class="docutils literal notranslate"><span class="pre">eos_linear_Sref</span></code>.  TEOS-10 requires pressure to be
 provided when calling the high-level EOS functions.</p>
+<p>Tasks select an EOS by adding one of the shared config files from the
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos</span></code> package to their shared config parser:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">constant.cfg</span></code> sets <code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">constant</span></code> along with linear-EOS options
+that make the linear EOS constant.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">linear.cfg</span></code> sets <code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">linear</span></code> along with default linear-EOS
+coefficients.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">teos10.cfg</span></code> sets <code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">teos-10</span></code> and defines no linear-EOS
+options.</p></li>
+</ul>
+<p>Forward steps created with <code class="docutils literal notranslate"><span class="pre">update_eos=True</span></code> call
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep.update_namelist_eos()</span></code>, which
+translates <code class="docutils literal notranslate"><span class="pre">eos_type</span></code> (and, for the linear and constant EOS, the
+<code class="docutils literal notranslate"><span class="pre">eos_linear_*</span></code> options) into model config options.  For <code class="docutils literal notranslate"><span class="pre">teos-10</span></code>,
+MPAS-Ocean has no TEOS-10 option, so <code class="docutils literal notranslate"><span class="pre">config_eos_type</span></code> is set to <code class="docutils literal notranslate"><span class="pre">jm</span></code>
+(Jackett-McDougall), the closest available nonlinear EOS; Omega receives
+<code class="docutils literal notranslate"><span class="pre">teos-10</span></code> unchanged.  For <code class="docutils literal notranslate"><span class="pre">constant</span></code>, MPAS-Ocean similarly falls back to
+its linear EOS with constant coefficients.</p>
+<p>For initial conditions defined in terms of the TEOS-10 tracers
+(conservative temperature and absolute salinity),
+<a class="reference internal" href="generated/polaris.ocean.eos.convert_tracers_to_mpas_ocean.html#polaris.ocean.eos.convert_tracers_to_mpas_ocean" title="polaris.ocean.eos.convert_tracers_to_mpas_ocean"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.convert_tracers_to_mpas_ocean()</span></code></a> converts
+conservative temperature to potential temperature (<code class="docutils literal notranslate"><span class="pre">gsw.pt_from_CT</span></code>) and
+absolute salinity to practical salinity (<code class="docutils literal notranslate"><span class="pre">gsw.SP_from_SA</span></code>), the tracer
+conventions MPAS-Ocean expects.  The conversion uses a co-located
+<code class="docutils literal notranslate"><span class="pre">pressure</span></code> field and either a nominal scalar lon/lat (for planar
+meshes) or per-cell arrays.</p>
 </section>
 <section id="quasi-uniform-and-icosahedral-spherical-meshes">
 <span id="dev-ocean-spherical-meshes"></span><h2>Quasi-uniform and Icosahedral Spherical Meshes<a class="headerlink" href="#quasi-uniform-and-icosahedral-spherical-meshes" title="Link to this heading"></a></h2>
@@ -838,6 +864,25 @@ example because the z-tilde bottom varies spatially), the semi-private method
 <code class="docutils literal notranslate"><span class="pre">init_pstar_vertical_coord()</span></code> per cell with cell-specific config options,
 as done in
 <a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init" title="polaris.tasks.ocean.horiz_press_grad.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.init.Init</span></code></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.init_state</span></code> package provides general helpers for
+building the initial-state fields the ocean models read (for example
+from a converged p-star dataset):</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="generated/polaris.ocean.init_state.layer_thickness_from_geom_interfaces.html#polaris.ocean.init_state.layer_thickness_from_geom_interfaces" title="polaris.ocean.init_state.layer_thickness_from_geom_interfaces"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.init_state.layer_thickness_from_geom_interfaces()</span></code></a>
+adds <code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> computed from
+<code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code>, masked by <code class="docutils literal notranslate"><span class="pre">cellMask</span></code>.</p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.init_state.add_quiescent_normal_velocity.html#polaris.ocean.init_state.add_quiescent_normal_velocity" title="polaris.ocean.init_state.add_quiescent_normal_velocity"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.init_state.add_quiescent_normal_velocity()</span></code></a>
+adds an all-zero <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code>.</p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.init_state.add_density_from_specvol.html#polaris.ocean.init_state.add_density_from_specvol" title="polaris.ocean.init_state.add_density_from_specvol"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.init_state.add_density_from_specvol()</span></code></a>
+adds an in-situ <code class="docutils literal notranslate"><span class="pre">Density</span></code> field as the inverse of <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code>.</p></li>
+</ul>
+<p>For MPAS-Ocean, the TEOS-10 tracers can be converted to potential
+temperature and practical salinity with
+<a class="reference internal" href="generated/polaris.ocean.eos.convert_tracers_to_mpas_ocean.html#polaris.ocean.eos.convert_tracers_to_mpas_ocean" title="polaris.ocean.eos.convert_tracers_to_mpas_ocean"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.convert_tracers_to_mpas_ocean()</span></code></a> (see
+<a class="reference internal" href="#dev-ocean-framework-eos"><span class="std std-ref">Equations of state (EOS)</span></a>), using the p-star <code class="docutils literal notranslate"><span class="pre">pressure</span></code> field
+and either a nominal scalar lon/lat (for planar meshes) or per-cell
+arrays.  Omega receives conservative temperature and absolute salinity
+directly, so no conversion is needed.</p>
 <p>For sigma coordinates, shared functionality for direct thickness computation is
 available in
 <a class="reference internal" href="generated/polaris.ocean.vertical.sigma.compute_sigma_layer_thickness.html#polaris.ocean.vertical.sigma.compute_sigma_layer_thickness" title="polaris.ocean.vertical.sigma.compute_sigma_layer_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.sigma.compute_sigma_layer_thickness()</span></code></a>.</p>
