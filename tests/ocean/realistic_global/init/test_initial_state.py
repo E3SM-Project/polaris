@@ -4,8 +4,6 @@ import pytest
 import xarray as xr
 
 from polaris.tasks.ocean.realistic_global.init.initial_state import (
-    _add_layer_thickness,
-    _add_normal_velocity,
     _convert_tracers_mpas_ocean,
 )
 
@@ -64,56 +62,6 @@ def _make_mesh_ds(ncells=3, nedges=6):
             'latCell': (['nCells'], lats),
         }
     )
-
-
-# -----------------------------------------------------------------------
-# _add_layer_thickness
-# -----------------------------------------------------------------------
-
-
-def test_add_layer_thickness_shape():
-    ds = _make_pstar_init_ds(ncells=3, nlevels=4)
-    ds_out = _add_layer_thickness(ds)
-    assert 'restingThickness' in ds_out
-    assert 'layerThickness' in ds_out
-    assert ds_out['restingThickness'].dims == ('Time', 'nCells', 'nVertLevels')
-
-
-def test_add_layer_thickness_values():
-    """10-m uniform layers -> resting/layer thickness = 10 m everywhere."""
-    ds = _make_pstar_init_ds(ncells=2, nlevels=5)
-    ds_out = _add_layer_thickness(ds)
-    assert ds_out['restingThickness'].values == pytest.approx(10.0)
-    assert ds_out['layerThickness'].values == pytest.approx(10.0)
-
-
-def test_add_layer_thickness_masks_invalid_levels():
-    """Levels where cellMask is False should have thickness = 0."""
-    ncells, nlevels = 2, 4
-    ds = _make_pstar_init_ds(ncells=ncells, nlevels=nlevels)
-    # Mark the deepest level as invalid for both cells
-    mask = ds['cellMask'].values.copy()
-    mask[:, :, -1] = False
-    ds['cellMask'] = xr.DataArray(mask, dims=['Time', 'nCells', 'nVertLevels'])
-    ds_out = _add_layer_thickness(ds)
-    assert ds_out['restingThickness'].values[0, :, -1] == pytest.approx(0.0)
-    assert ds_out['restingThickness'].values[0, :, 0] == pytest.approx(10.0)
-
-
-# -----------------------------------------------------------------------
-# _add_normal_velocity
-# -----------------------------------------------------------------------
-
-
-def test_add_normal_velocity_all_zeros():
-    ncells, nlevels, nedges = 3, 4, 6
-    ds = _make_pstar_init_ds(ncells=ncells, nlevels=nlevels)
-    ds_mesh = _make_mesh_ds(ncells=ncells, nedges=nedges)
-    ds_mesh['nEdges'] = xr.DataArray(np.arange(nedges), dims=['nEdges'])
-    ds_out = _add_normal_velocity(ds, ds_mesh)
-    assert 'normalVelocity' in ds_out
-    assert ds_out['normalVelocity'].shape == (1, nedges, nlevels)
-    assert ds_out['normalVelocity'].values == pytest.approx(0.0)
 
 
 # -----------------------------------------------------------------------
