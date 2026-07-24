@@ -5,6 +5,7 @@ import xarray as xr
 from mpas_tools.io import write_netcdf
 
 from polaris.ocean.eos import compute_specvol
+from polaris.ocean.vertical.bathymetry_holes import fill_max_level_holes
 from polaris.ocean.vertical.grid_1d import generate_1d_grid
 from polaris.ocean.vertical.pstar_init import PStarInitStep
 from polaris.ocean.vertical.ztilde import (
@@ -127,7 +128,7 @@ class RealisticPStarInitStep(PStarInitStep):
 
         geom_z_bot = self._clamp_to_representable_depth(ds_mesh, geom_z_bot)
 
-        ds_out = self.run_pstar_init(ds_mesh, geom_z_bot)
+        ds_out = self._run_pstar_init_filling_holes(ds_mesh, geom_z_bot)
         write_netcdf(ds_out, 'pstar_init.nc')
 
     def _clamp_to_representable_depth(self, ds_mesh, geom_z_bot):
@@ -200,6 +201,89 @@ class RealisticPStarInitStep(PStarInitStep):
             f'{n_shallow} cells raised to the minimum depth.'
         )
         return clamped
+
+    def _run_pstar_init_filling_holes(self, ds_mesh, geom_z_bot):
+        """
+        Run :py:meth:`run_pstar_init`, filling isolated bathymetry "holes"
+        until none remain.
+
+        A hole is an ocean cell whose converged ``maxLevelCell`` is deeper than
+        that of every one of its horizontal ocean neighbors; its deepest layers
+        have no neighbor at the same level to exchange with, so they are
+        effectively inert.  MPAS-Ocean's init mode removes these by capping
+        ``maxLevelCell`` at the deepest neighbor.  Here we do the equivalent as
+        a bathymetry correction: after each p-star solve we cap each hole's
+        seafloor at the converged geometric height of the bottom interface of
+        its deepest-neighbor level, then re-solve.  Because the column is
+        anchored at the prescribed sea surface, this only shortens the affected
+        columns and ``ssh`` keeps matching its prescribed value.
+
+        Holes are detected on the *converged* ``maxLevelCell`` (the equation of
+        state can nudge a neighbor's level by one relative to any pre-iteration
+        estimate), and capping only ever reduces ``maxLevelCell``, so the loop
+        is monotone and terminates.
+
+        Parameters
+        ----------
+        ds_mesh : xarray.Dataset
+            Horizontal mesh dataset (provides ``cellsOnCell`` and
+            ``nEdgesOnCell``).
+
+        geom_z_bot : xarray.DataArray
+            Target geometric seafloor height (negative, m) with dimension
+            ``nCells``, already clamped to the representable range.
+
+        Returns
+        -------
+        xarray.Dataset
+            The converged p-star init dataset with holes filled.
+        """
+        cells_on_cell = ds_mesh.cellsOnCell.values - 1
+        n_edges_on_cell = ds_mesh.nEdgesOnCell.values
+        max_passes = 20
+
+        ds_out = self.run_pstar_init(ds_mesh, geom_z_bot)
+        for outer in range(max_passes):
+            max_level_cell = ds_out.maxLevelCell.values
+            filled = fill_max_level_holes(
+                max_level_cell=max_level_cell,
+                cells_on_cell=cells_on_cell,
+                n_edges_on_cell=n_edges_on_cell,
+            )
+            is_filled = filled < max_level_cell
+            n_filled = int(is_filled.sum())
+            if n_filled == 0:
+                if outer > 0:
+                    self.logger.info(
+                        f'No bathymetry holes remain after {outer} pass(es).'
+                    )
+                return ds_out
+
+            # converged geometric height of the bottom interface of the capped
+            # level (0-based interface index == 1-based capped level)
+            new_geom_z_bot = ds_out.GeomZInterface.isel(
+                Time=0,
+                nVertLevelsP1=xr.DataArray(filled, dims='nCells'),
+            )
+            geom_z_bot = xr.where(
+                xr.DataArray(is_filled, dims=['nCells']),
+                new_geom_z_bot,
+                geom_z_bot,
+            )
+            geom_z_bot.attrs['long_name'] = 'seafloor geometric height'
+            geom_z_bot.attrs['units'] = 'm'
+
+            self.logger.info(
+                f'Bathymetry-hole pass {outer}: capping {n_filled} holes at '
+                'the deepest ocean neighbor and re-running p-star init.'
+            )
+            ds_out = self.run_pstar_init(ds_mesh, geom_z_bot)
+
+        self.logger.warning(
+            f'Bathymetry-hole filling did not fully converge after '
+            f'{max_passes} passes.'
+        )
+        return ds_out
 
     def init_tracers(
         self, ds: xr.Dataset
