@@ -937,6 +937,7 @@
    :toctree: generated/
 
    vertical.init_vertical_coord
+   vertical.bathymetry_holes.fill_max_level_holes
    vertical.diagnostics.geom_thickness_from_ds
    vertical.diagnostics.pseudothickness_from_ds
    vertical.diagnostics.spec_vol_from_ds
