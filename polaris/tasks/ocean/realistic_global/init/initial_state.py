@@ -5,6 +5,11 @@ import numpy as np
 import xarray as xr
 
 from polaris.ocean.coriolis import add_coriolis_to_dataset
+from polaris.ocean.init_state import (
+    add_density_from_specvol,
+    add_quiescent_normal_velocity,
+    layer_thickness_from_geom_interfaces,
+)
 from polaris.ocean.model import OceanIOStep
 
 
@@ -126,86 +131,15 @@ class InitialStateStep(OceanIOStep):
         ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
         self.write_horiz_mesh_dataset(ds_mesh, 'mesh.nc', config)
 
-        ds = _add_layer_thickness(ds)
-        ds = _add_normal_velocity(ds, ds_mesh)
-        ds['Density'] = 1.0 / ds['SpecVol']
-        ds.Density.attrs['long_name'] = 'in-situ density'
-        ds.Density.attrs['units'] = 'kg m-3'
+        ds = layer_thickness_from_geom_interfaces(ds)
+        ds = add_quiescent_normal_velocity(ds, ds_mesh)
+        ds = add_density_from_specvol(ds)
 
         if model == 'mpas-ocean':
             ds = _convert_tracers_mpas_ocean(ds, ds_mesh)
 
         self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
         self.write_initial_state_dataset(ds, 'init.nc', config)
-
-
-def _add_layer_thickness(ds):
-    """
-    Compute ``restingThickness`` and ``layerThickness`` from the converged
-    geometric interface heights in ``ds``.
-
-    Both fields equal the converged geometric layer thickness.  They coincide
-    here only because ``SurfacePressure = 0`` (so ``ssh = 0``); once surface
-    loading (atmosphere, sea ice, ice shelves) gives a nonzero
-    ``SurfacePressure`` and hence a nonzero ``ssh``, ``layerThickness`` would
-    differ from ``restingThickness``.  Layers below the seafloor are zeroed out
-    using ``cellMask``.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        P-star init dataset containing ``GeomZInterface`` and
-        ``cellMask``.
-
-    Returns
-    -------
-    xarray.Dataset
-        Dataset with ``restingThickness`` and ``layerThickness`` added.
-    """
-    geom_z_inter = ds['GeomZInterface']  # (Time, nCells, nVertLevelsP1)
-    layer_thick = (
-        geom_z_inter.isel(nVertLevelsP1=slice(None, -1))
-        - geom_z_inter.isel(nVertLevelsP1=slice(1, None))
-    ).rename({'nVertLevelsP1': 'nVertLevels'})
-
-    cell_mask = ds['cellMask'].astype(bool)
-    layer_thick = layer_thick.where(cell_mask, other=0.0)
-    layer_thick.attrs['long_name'] = 'layer thickness'
-    layer_thick.attrs['units'] = 'm'
-
-    ds['restingThickness'] = layer_thick
-    ds.restingThickness.attrs['long_name'] = 'resting layer thickness'
-    ds.restingThickness.attrs['units'] = 'm'
-
-    ds['layerThickness'] = layer_thick
-    return ds
-
-
-def _add_normal_velocity(ds, ds_mesh):
-    """
-    Add a quiescent ``normalVelocity`` field (all zeros) to ``ds``.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset to add the field to.
-
-    ds_mesh : xarray.Dataset
-        Culled mesh dataset, used to determine ``nEdges``.
-
-    Returns
-    -------
-    xarray.Dataset
-        Dataset with ``normalVelocity`` added.
-    """
-    nedges = ds_mesh.sizes['nEdges']
-    nlevels = ds.sizes['nVertLevels']
-    ds['normalVelocity'] = xr.DataArray(
-        data=np.zeros((1, nedges, nlevels), dtype=float),
-        dims=['Time', 'nEdges', 'nVertLevels'],
-        attrs={'long_name': 'normal velocity', 'units': 'm s-1'},
-    )
-    return ds
 
 
 def _convert_tracers_mpas_ocean(ds, ds_mesh):
