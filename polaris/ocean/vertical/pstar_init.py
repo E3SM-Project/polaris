@@ -124,9 +124,12 @@ class PStarInitStep(Step, ABC):
 
         At convergence the returned dataset contains all p-star coordinate
         variables, converged tracer fields, specific volume, pressure,
-        geometric height at layer midpoints and interfaces, ``bottomDepth``
-        set to the actual converged geometric water-column thickness, and
-        ``ssh`` computed as the diagnostic geometric sea-surface height.
+        geometric height at layer midpoints and interfaces, ``ssh`` set to the
+        prescribed ``sea_surface_height``, and ``bottomDepth`` diagnosed as the
+        geometric depth of the (surface-anchored) column.  The two agree with
+        the target bathymetry where the iteration converges; where partial-cell
+        snapping prevents an exact match, the residual adjusts ``bottomDepth``
+        (the representable bathymetry) rather than ``ssh``.
 
         Parameters
         ----------
@@ -336,6 +339,23 @@ class PStarInitStep(Step, ABC):
         ds.pressure.attrs['long_name'] = 'pressure at layer midpoints'
         ds.pressure.attrs['units'] = 'Pa'
 
+        # Anchor the geometric column at the prescribed free surface: ``ssh``
+        # is prescribed (``sea_surface_height``) and ``bottomDepth`` is the
+        # diagnosed geometric depth of the column.
+        # ``geom_height_from_pseudo_height`` builds the column anchored at the
+        # seafloor (its bottom interface equals the raw target ``geom_z_bot``),
+        # so we shift the whole column vertically so its top interface lands on
+        # ``sea_surface_height`` instead.  For cells the iteration can
+        # represent this shift is zero; for partial-cell-snapped cells (whose
+        # geometric column thickness cannot exactly match the target
+        # bathymetry) the snap residual then correctly adjusts ``bottomDepth``
+        # rather than ``ssh`` — the same tradeoff z-star partial cells make.
+        # ``ssh`` therefore matches its prescribed value (0 here, because
+        # ``SurfacePressure = 0``) to machine precision.
+        shift = sea_surface_height - geom_z_min
+        geom_z_mid = geom_z_mid + shift
+        geom_z_inter = geom_z_inter + shift
+
         ds['GeomZMid'] = geom_z_mid
         ds.GeomZMid.attrs['long_name'] = 'geometric height at layer midpoints'
         ds.GeomZMid.attrs['units'] = 'm'
@@ -347,16 +367,17 @@ class PStarInitStep(Step, ABC):
         ds.GeomZInterface.attrs['units'] = 'm'
 
         # Geometric depth of the seafloor below z=0, i.e. the negation of the
-        # actual converged bottom interface height (not the water-column
-        # thickness, which only matches when the sea-surface height is zero).
-        # Omega reads this as BottomGeomDepth and anchors its column there, so
-        # it must be the true bathymetric depth for the diagnosed sea-surface
-        # height (and the resulting geopotential gradient) to be correct.
-        ds['bottomDepth'] = -geom_z_max
+        # (shifted) bottom interface height.  With the surface-anchored column
+        # this is the representable bathymetry consistent with the pseudo
+        # column: it equals the raw target where the iteration converges, and
+        # the partial-cell-snapped depth otherwise.  Omega reads this as
+        # BottomGeomDepth and anchors its column there, so that (together with
+        # BottomPressure) it recovers the same prescribed ``ssh``.
+        ds['bottomDepth'] = -(geom_z_max + shift)
         ds.bottomDepth.attrs['long_name'] = 'seafloor geometric depth'
         ds.bottomDepth.attrs['units'] = 'm'
 
-        ds['ssh'] = geom_z_min
+        ds['ssh'] = sea_surface_height
         ds.ssh.attrs['long_name'] = 'sea surface geometric height'
         ds.ssh.attrs['units'] = 'm'
 
