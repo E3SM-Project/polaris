@@ -1,9 +1,12 @@
+import logging
+
 import numpy as np
 import pytest
 import xarray as xr
 
 from polaris.ocean.vertical.ztilde import RhoSw
 from polaris.tasks.ocean.realistic_global.init.pstar_init import (
+    RealisticPStarInitStep,
     _clamp_geom_z_bot,
     _fill_tracer_columns,
     _geom_z_bot_from_topo,
@@ -294,3 +297,78 @@ def test_clamp_geom_z_bot_preserves_attrs():
 
     assert clamped.attrs.get('units') == 'm'
     assert clamped.values == pytest.approx([-350.0])
+
+
+def test_filling_holes_caps_a_hole_and_returns():
+    """A hole that the re-solve removes ends the loop without an error."""
+    step = _StubPStarInitStep(hole_persists=False)
+
+    ds_out = step._run_pstar_init_filling_holes(
+        _line_mesh(), xr.DataArray([-300.0, -500.0, -300.0], dims='nCells')
+    )
+
+    assert ds_out.maxLevelCell.values.tolist() == [3, 3, 3]
+    # the hole's seafloor is capped at the bottom of its neighbors' level
+    assert step.geom_z_bots[-1].values == pytest.approx([-300.0] * 3)
+
+
+def test_filling_holes_raises_if_holes_remain():
+    """Holes that survive every pass are an error, not a warning."""
+    step = _StubPStarInitStep(hole_persists=True)
+
+    with pytest.raises(ValueError, match='Bathymetry holes remain'):
+        step._run_pstar_init_filling_holes(
+            _line_mesh(),
+            xr.DataArray([-300.0, -500.0, -300.0], dims='nCells'),
+        )
+
+
+class _StubPStarInitStep(RealisticPStarInitStep):
+    """
+    A p-star init step whose solve is a stub: the middle of three cells
+    reaches level 5 while its neighbors stop at level 3, unless its target
+    seafloor has been raised to theirs and ``hole_persists`` is False.
+    Interfaces are every 100 m, so level k's bottom is at -100 k.
+    """
+
+    def __init__(self, hole_persists):
+        self.logger = logging.getLogger('test')
+        self.hole_persists = hole_persists
+        self.geom_z_bots = []
+
+    def run_pstar_init(
+        self,
+        ds_mesh,
+        geom_z_bot,
+        surface_pressure=None,
+        sea_surface_height=None,
+    ):
+        self.geom_z_bots.append(geom_z_bot)
+        filled = float(geom_z_bot.values[1]) > -301.0
+        if filled and not self.hole_persists:
+            max_level_cell = [3, 3, 3]
+        else:
+            max_level_cell = [3, 5, 3]
+        geom_z_interface = -100.0 * np.tile(np.arange(6.0), (1, 3, 1))
+        return xr.Dataset(
+            data_vars={
+                'maxLevelCell': (['nCells'], np.array(max_level_cell)),
+                'GeomZInterface': (
+                    ['Time', 'nCells', 'nVertLevelsP1'],
+                    geom_z_interface,
+                ),
+            }
+        )
+
+
+def _line_mesh():
+    """Return a mesh of three cells in a line, each the next's neighbor."""
+    return xr.Dataset(
+        data_vars={
+            'cellsOnCell': (
+                ['nCells', 'maxEdges'],
+                np.array([[2, 0], [1, 3], [2, 0]]),
+            ),
+            'nEdgesOnCell': (['nCells'], np.array([1, 2, 1])),
+        }
+    )
