@@ -153,14 +153,14 @@ N/A
 ## vertical mixing
 
 The tasks run with constant background vertical mixing (diffusivity
-1.0e-5 m$^2$/s, viscosity 1.0e-4 m$^2$/s).  Convective and shear mixing
-are disabled: the compass version of this test also used convective
-mixing, but this test should not produce convection, so background
-mixing suffices.  MPAS-Ocean uses CVMix (the `constant` background
-scheme); Omega uses its implicit `VertMix` background mixing, which is
-equivalent for this configuration.
+1.0e-5 m$^2$/s, viscosity 1.0e-4 m$^2$/s) plus convective mixing
+(convective diffusivity and viscosity 1.0 m$^2$/s), matching the compass
+version of this test; shear mixing is disabled.  MPAS-Ocean uses CVMix
+(the `constant` background scheme); Omega uses its implicit `VertMix`
+background and convective mixing, which is equivalent for this
+configuration.
 
-Both models run with explicit bottom drag (drag coefficient 0.01).  For
+Both models run with explicit bottom drag (drag coefficient 1.0e-3).  For
 Omega, the bottom-drag tendency is enabled through the mapped MPAS-Ocean
 debug flag `config_disable_vel_explicit_bottom_drag = false`, an interim
 approach until Omega supports implicit bottom drag.  Compared with the
