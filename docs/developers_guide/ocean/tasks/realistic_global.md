@@ -114,7 +114,18 @@ composes the full chain:
    subclass of {py:class}`polaris.ocean.vertical.pstar_init.PStarInitStep`.
    Runs the fixed-point p-star coordinate iteration jointly with WOA23 tracer
    interpolation, writing a model-neutral `pstar_init.nc` that contains
-   converged geometric layer interfaces and CT/SA tracer fields.
+   converged geometric layer interfaces and CT/SA tracer fields.  The column
+   is anchored at the prescribed sea surface, so `ssh` matches its prescribed
+   value (0 here, because `SurfacePressure = 0`) to machine precision and
+   `bottomDepth` is the diagnosed geometric depth of the column.  Where
+   partial-cell snapping (enforced on the bottom layer's *pseudo*-thickness)
+   prevents the geometric column from exactly matching the target bathymetry,
+   the residual adjusts `bottomDepth` — the representable bathymetry — rather
+   than `ssh`, mirroring z-star partial cells.  Isolated bathymetry "holes"
+   (cells whose `maxLevelCell` is deeper than every ocean neighbor) are filled
+   by capping each hole's seafloor at its deepest-neighbor level and
+   re-solving, via
+   {py:func}`polaris.ocean.vertical.bathymetry_holes.fill_max_level_holes`.
 5. **initial_state** ({py:class}`~polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep`):
    reads `pstar_init.nc` and the model resolved from ``[ocean] model`` to
    produce model-specific output files (`init.nc` for both models;
