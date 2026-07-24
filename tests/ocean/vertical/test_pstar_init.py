@@ -529,6 +529,38 @@ def test_geom_height_round_trips_from_written_bottom_depth(
     )
 
 
+def test_partial_cell_snap_keeps_ssh_at_prescribed_value():
+    """A target seafloor inside the partial-cell snap band keeps ``ssh`` at
+    its prescribed value; the snap residual adjusts ``bottomDepth`` instead.
+
+    The uniform grid has interfaces at 0/100/200/300/400 m and
+    ``min_pc_fraction = 0.1``, so the bottom partial cell must be at least
+    10 m thick.  A target of 307 m (only 7 m into the bottom layer) is snapped
+    deeper to 310 m.  With the column anchored at the free surface, ``ssh``
+    stays exactly 0 and ``bottomDepth`` becomes the snapped 310 m — not the raw
+    307 m target.
+    """
+    target_depth = 307.0
+    config = _make_config(
+        rhoref=RhoSw, bottom_depth=400.0, partial_cell_type='partial'
+    )
+    step = _make_step(_ConstantTracerPStarStep, config)
+
+    ds_mesh = _make_ds_mesh(1)
+    geom_z_bot = xr.DataArray(np.full(1, -target_depth), dims=['nCells'])
+
+    ds = step.run_pstar_init(ds_mesh, geom_z_bot)
+
+    # ssh stays exactly at its prescribed value (0), not the ~3 m snap residual
+    ssh = float(ds.ssh.values.flat[0])
+    np.testing.assert_allclose(ssh, 0.0, atol=1e-10)
+
+    # the snap residual lands in bottomDepth: the representable (snapped) depth
+    bottom_depth = float(ds.bottomDepth.values.flat[0])
+    np.testing.assert_allclose(bottom_depth, 310.0, rtol=1e-10)
+    assert abs(bottom_depth - target_depth) > 1.0
+
+
 def test_snap_stagnation_message_and_early_exit(caplog):
     """When _build_pstar_coord_ds always returns the same BottomPressure
     (simulating cell snapping) the stagnation check should fire and the loop
