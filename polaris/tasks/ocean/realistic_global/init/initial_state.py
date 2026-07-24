@@ -1,6 +1,5 @@
 import os
 
-import gsw
 import numpy as np
 import xarray as xr
 
@@ -25,12 +24,12 @@ class InitialStateStep(OceanIOStep):
     coordinate variables) and ``init.nc`` (tracer and dynamical fields).
     For MPAS-Ocean all variables remain in ``init.nc``.
 
-    Tracer conventions differ between the two models:
-
-    * **Omega**: conservative temperature (CT) and absolute salinity (SA)
-      are written directly.
-    * **MPAS-Ocean**: CT is converted to potential temperature via GSW and
-      SA is converted to practical salinity.
+    The tracers in ``pstar_init.nc`` are conservative temperature and
+    absolute salinity (the TEOS-10 convention).  Converting them to the
+    convention the target model expects is the framework's job, done in
+    :py:meth:`polaris.ocean.model.OceanIOStep.write_initial_state_dataset`,
+    so this step only has to supply the per-cell locations the conversion
+    needs (``pstar_init.nc`` carries no horizontal mesh fields).
 
     Both models receive the same converged geometric layer thicknesses as
     ``restingThickness`` (and ``layerThickness`` at quiescent
@@ -120,7 +119,6 @@ class InitialStateStep(OceanIOStep):
         Build model-specific initial condition files from ``pstar_init.nc``.
         """
         config = self.config
-        model = config.get('ocean', 'model')
 
         ds = xr.open_dataset('pstar_init.nc')
         ds_mesh = xr.open_dataset('culled_mesh.nc')
@@ -135,69 +133,12 @@ class InitialStateStep(OceanIOStep):
         ds = add_quiescent_normal_velocity(ds, ds_mesh)
         ds = add_density_from_specvol(ds)
 
-        if model == 'mpas-ocean':
-            ds = _convert_tracers_mpas_ocean(ds, ds_mesh)
+        # the tracer conversion happens on write and needs per-cell locations,
+        # which only the horizontal mesh has
+        lon = np.rad2deg(ds_mesh['lonCell'].values)
+        lat = np.rad2deg(ds_mesh['latCell'].values)
 
         self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
-        self.write_initial_state_dataset(ds, 'init.nc', config)
-
-
-def _convert_tracers_mpas_ocean(ds, ds_mesh):
-    """
-    Convert conservative temperature and absolute salinity in ``ds`` to the
-    MPAS-Ocean tracer conventions (potential temperature and practical
-    salinity) using GSW.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        P-star init dataset with ``temperature`` (CT, degC),
-        ``salinity`` (SA, g/kg), and ``pressure`` (Pa).
-
-    ds_mesh : xarray.Dataset
-        Culled mesh dataset with ``lonCell`` and ``latCell`` (radians).
-
-    Returns
-    -------
-    xarray.Dataset
-        Dataset with ``temperature`` as potential temperature (degC) and
-        ``salinity`` as practical salinity (PSU).
-    """
-    ct = ds['temperature'].values  # (1, nCells, nVertLevels)
-    sa = ds['salinity'].values
-    p_pa = ds['pressure'].values  # Pa
-    p_dbar = p_pa / 1e4  # Pa -> dbar  (1 dbar = 1e4 Pa)
-
-    lon_deg = np.rad2deg(ds_mesh['lonCell'].values)  # (nCells,)
-    lat_deg = np.rad2deg(ds_mesh['latCell'].values)
-
-    # Broadcast lon/lat to (1, nCells, nVertLevels) for GSW
-    lon_3d = lon_deg[np.newaxis, :, np.newaxis] * np.ones_like(ct)
-    lat_3d = lat_deg[np.newaxis, :, np.newaxis] * np.ones_like(ct)
-
-    valid = np.isfinite(ct) & np.isfinite(sa)
-    pot_temp = np.full_like(ct, np.nan)
-    prac_sal = np.full_like(sa, np.nan)
-
-    pot_temp[valid] = gsw.t_from_CT(sa[valid], ct[valid], p_dbar[valid])
-    prac_sal[valid] = gsw.SP_from_SA(
-        sa[valid], p_dbar[valid], lon_3d[valid], lat_3d[valid]
-    )
-
-    ds['temperature'] = xr.DataArray(
-        data=pot_temp,
-        dims=ds['temperature'].dims,
-        attrs={
-            'long_name': 'potential temperature',
-            'units': 'degC',
-        },
-    )
-    ds['salinity'] = xr.DataArray(
-        data=prac_sal,
-        dims=ds['salinity'].dims,
-        attrs={
-            'long_name': 'practical salinity',
-            'units': 'PSU',
-        },
-    )
-    return ds
+        self.write_initial_state_dataset(
+            ds, 'init.nc', config, lon=lon, lat=lat
+        )
