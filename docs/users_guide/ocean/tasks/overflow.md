@@ -87,7 +87,7 @@ grid_type = uniform
 coord_type = z-star
 
 # Whether to use "partial" or "full", or "None" to not alter the topography
-partial_cell_type = None
+partial_cell_type = partial
 ```
 
 The two `pstar` trees override the vertical grid to use the p-star

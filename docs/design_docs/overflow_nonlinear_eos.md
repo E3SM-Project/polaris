@@ -62,7 +62,7 @@ mixing; these were disabled in the Polaris port
 Omega had no vertical-mixing support at the time. Omega's `VertMix` now
 provides both, so background and convective mixing are restored for
 both models, matching the compass configuration. (An interim
-background-only configuration was tried, but with bottom drag on the
+background-only configuration was tried, but when bottom drag is enabled,
 plume overrides the ambient bottom water at its nose, creating static
 instability that only convective mixing removes; review therefore
 restored convection and reduced the bottom-drag coefficient, see below.)
