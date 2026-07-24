@@ -82,6 +82,7 @@ variables:
   windStressZonal: SfcStressZonal
   windStressMeridional: SfcStressMeridional
   relativeVorticity: RelVortVertex
+  kineticEnergyCell: KineticEnergyCell
 
   # vertical coordinate diagnostics
   zMid: GeomZMid

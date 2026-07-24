@@ -63,6 +63,7 @@ mpas-ocean:
       - density
       - daysSinceStartOfSim
       - relativeVorticity
+      - kineticEnergyCell
 
 Omega:
   Tendencies:

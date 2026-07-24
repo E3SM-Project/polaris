@@ -57,6 +57,7 @@ class Viz(OceanIOStep):
         self.dependencies_dict = dependencies
         self.add_output_file(filename='init_temperature_section.png')
         self.add_output_file(filename='final_temperature_section.png')
+        self.add_output_file(filename='final_kineticEnergyCell_section.png')
 
     def setup(self):
         """
@@ -155,5 +156,19 @@ class Viz(OceanIOStep):
             vmax=vmax,
             cmap='cmo.thermal',
             colorbar_label=r'$^\circ$C',
+            color_start_and_end=False,
+        )
+
+        field_name = 'kineticEnergyCell'
+        mpas_field = ds[field_name].isel(Time=t_index)
+        plot_transect(
+            ds_transect=ds_transect,
+            mpas_field=mpas_field,
+            title=f'kinetic energy at y={1e-3 * y_mid:.1f} km',
+            out_filename=f'final_{field_name}_section.png',
+            vmin=0.0,
+            vmax=2.5,
+            cmap='cmo.speed',
+            colorbar_label=r'm$^2$ s$^{-2}$',
             color_start_and_end=False,
         )
