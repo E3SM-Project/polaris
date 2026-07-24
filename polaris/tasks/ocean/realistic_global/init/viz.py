@@ -418,11 +418,12 @@ def _plot_vertical_coord(ds_init, ds_vert_coord):
     """
     Plot the vertical-coordinate structure from the geometric layer thickness
     of the deepest column in the mesh.  There is no reference profile in this
-    workflow, so the structure is derived from the initial (resting) geometric
-    layer thickness directly.  ``layerThickness`` equals the resting thickness
-    at initialization and is available for both models (reconstructed from
-    ``PseudoThickness`` for Omega), whereas ``restingThickness`` has no Omega
-    equivalent in the vert_coord file.
+    workflow, so the structure is derived from the initial geometric layer
+    thickness directly.  ``layerThickness`` equals ``restingThickness`` at this
+    initialization (because ``SurfacePressure = 0``, so ``ssh = 0``) and is
+    available for both models (reconstructed from ``PseudoThickness`` for
+    Omega), whereas ``restingThickness`` has no Omega equivalent in the
+    vert_coord file.
     """
     kmax = int(ds_vert_coord.maxLevelCell.max().values)
     deepest = int(np.argmax(ds_vert_coord.maxLevelCell.values))
