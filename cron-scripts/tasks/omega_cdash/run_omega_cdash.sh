@@ -78,6 +78,6 @@ for COMPILER in "${!COMPILER_MAP[@]}"; do
       -DCTEST_BUILD_COMMAND="${WORKDIR}/omega_build.sh" \
       -DCTEST_BUILD_CONFIGURATION="Release" \
       -DCTEST_DROP_SITE_CDASH=TRUE \
-      -DCTEST_SUBMIT_URL="https://my.cdash.org/submit.php?project=E3SM";
+      -DCTEST_SUBMIT_URL="https://my.cdash.org/submit.php?project=omega";
 
 done

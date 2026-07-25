@@ -69,8 +69,9 @@ case "${JOB_SCHEDULER}" in
   PBS)
     qsub \
       -N OmegaCdash \
-      -o "${CRONJOB_LOGDIR}/omega_cdash_${PBS_JOBID}.out" \
-      -e "${CRONJOB_LOGDIR}/omega_cdash_${PBS_JOBID}.err" \
+      -V \
+      -o "${CRONJOB_LOGDIR}/" \
+      -e "${CRONJOB_LOGDIR}/" \
       "${HERE}/job_${CRONJOB_MACHINE}_omega_cdash.pbs"
     ;;
 
