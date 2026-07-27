@@ -17,6 +17,8 @@ ocean:
     config_use_cvmix_convection: true
   debug:
     config_disable_vel_explicit_bottom_drag: false
+  bottom_drag:
+    config_explicit_bottom_drag_coeff: 1.0e-3
 
 mpas-ocean:
   # If using teos10 for omega
