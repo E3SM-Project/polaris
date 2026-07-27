@@ -99,7 +99,7 @@ Omega:
       Mode: read
       Precision: double
       Freq: 1
-      FreqUnits: Never
+      FreqUnits: OnStartup
       UseStartEnd: false
       Contents:
         - SfcStressZonal
