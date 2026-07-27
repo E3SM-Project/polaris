@@ -45,7 +45,8 @@ class AnalysisMembers(Task):
         )
 
         config_filename = 'analysis_members.cfg'
-        config = PolarisConfigParser(filepath=f'{subdir}/{config_filename}')
+        config_path = f'{component.name}/{subdir}/{config_filename}'
+        config = PolarisConfigParser(filepath=config_path)
         config.add_from_package(
             'polaris.tasks.ocean.realistic_global.analysis_members',
             config_filename,
