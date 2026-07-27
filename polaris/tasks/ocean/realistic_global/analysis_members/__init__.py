@@ -56,7 +56,7 @@ class AnalysisMembers(Task):
         replacements = {
             'time_integrator': 'RungeKutta4',
             'run_duration': '0030_00:00:00',
-            'dt': '00:01:30',
+            'dt': '00:00:45',
             'output_interval': '0001_00:00:00',
             'output_freq': '1',
             'output_freq_units': 'days',
