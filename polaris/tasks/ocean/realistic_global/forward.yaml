@@ -89,9 +89,11 @@ Omega:
     SfcStressForcingTendencyEnable: true
   Tracers:
     Debug: []
-  # AnalysisGroups:
-  # GlobalStats:
-  #   Enable: true
+  Analysis:
+    GlobalStats:
+      Enable: true
+      ReductionPeriod: ["1Day"]
+      SnapshotPeriod: ["1Day"]
   IOStreams:
     InitialVertCoord:
       Filename: init.nc
