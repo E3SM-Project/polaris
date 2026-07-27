@@ -15,6 +15,13 @@ ocean:
     config_use_mom_del4: true
   cvmix:
     config_use_cvmix_convection: true
+    # shear mixing is off by default in MPAS-Ocean and on by default in
+    # Omega, so set it (and its parameters) explicitly for both
+    config_use_cvmix_shear: true
+    config_cvmix_shear_KPP_nu_zero: 0.005
+    config_cvmix_shear_KPP_Ri_zero: 0.7
+    config_cvmix_shear_KPP_exp: 3.0
+    config_cvmix_num_ri_smooth_loops: 2
   debug:
     config_disable_vel_explicit_bottom_drag: false
   bottom_drag:
@@ -29,6 +36,9 @@ mpas-ocean:
   cvmix:
     config_cvmix_use_BLD_smoothing: false
     config_bulk_wind_stress_interp_isotropic: true
+    # Omega implements only the LMD94 shear form, so there is no
+    # counterpart option to translate; MPAS-Ocean defaults to 'PP'
+    config_cvmix_shear_mixing_scheme: KPP
   frazil_ice:
     config_frazil_in_open_ocean: false
   AM_globalStats:
