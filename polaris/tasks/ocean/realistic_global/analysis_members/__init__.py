@@ -55,9 +55,9 @@ class AnalysisMembers(Task):
         package = 'polaris.tasks.ocean.realistic_global'
         replacements = {
             'time_integrator': 'RungeKutta4',
-            'run_duration': '0030_00-00-00',
+            'run_duration': '0030_00:00:00',
             'dt': '00:01:30',
-            'output_interval': '0001_00-00-00',
+            'output_interval': '0001_00:00:00',
             'output_freq': '1',
             'output_freq_units': 'days',
         }
