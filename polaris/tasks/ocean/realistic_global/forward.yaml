@@ -22,8 +22,8 @@ ocean:
 
 mpas-ocean:
   # If using teos10 for omega
-  #eos:
-  #  config_eos_type: jm
+  eos:
+    config_eos_type: jm
   bottom_drag:
     config_bottom_drag_mode: explicit
   cvmix:
