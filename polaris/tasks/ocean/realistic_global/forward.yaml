@@ -31,6 +31,12 @@ mpas-ocean:
     config_bulk_wind_stress_interp_isotropic: true
   frazil_ice:
     config_frazil_in_open_ocean: false
+  AM_globalStats:
+    config_AM_globalStats_enable: true
+    config_AM_globalStats_compute_interval: output_interval
+    config_AM_globalStats_compute_on_startup: true
+    config_AM_globalStats_write_on_startup: true
+    config_AM_globalStats_text_file: false
   streams:
     mesh:
       filename_template: init.nc
@@ -58,6 +64,21 @@ mpas-ocean:
       - layerThickness
       - kineticEnergyCell
       - relativeVorticityCell
+    globalStatsOutput:
+      type: output
+      filename_template: global_stats.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      reference_time: 0001-01-01_00:00:00
+      packages: globalStatsAMPKG
+      contents:
+      - xtime
+      - daysSinceStartOfSim
+      - CFLNumberGlobal
+      - minGlobalStats
+      - maxGlobalStats
+      - avgGlobalStats
+      - rmsGlobalStats
 
 Omega:
   TimeIntegration:

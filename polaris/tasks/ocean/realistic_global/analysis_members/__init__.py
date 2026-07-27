@@ -78,7 +78,7 @@ class AnalysisMembers(Task):
             component=component,
             name=f'{mesh_name}_global_stats',
             indir=subdir,
-            output_filename='output.nc',
+            output_filename='global_stats.nc',
             forward_step=forward_step,
         )
         stats_analysis.set_shared_config(config, link=config_filename)
