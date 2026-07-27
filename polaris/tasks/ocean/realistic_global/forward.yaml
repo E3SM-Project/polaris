@@ -158,8 +158,16 @@ Omega:
       Mode: write
       IfExists: replace
       Precision: double
-      Freq: 100
-      FreqUnits: Days
+      # Write a restart at the end of the run, matching the MPAS-Ocean
+      # restart stream above, whose output_interval is the run duration.
+      # OnShutdown is used rather than an interval templated from
+      # run_duration so that the two cannot drift apart when the run
+      # duration changes.  The previous value (Freq: 100, FreqUnits: Days)
+      # was inherited from Omega's configs/Default.yml and meant that runs
+      # shorter than 100 days -- i.e. all of them -- wrote no restart at
+      # all and could not be continued.
+      Freq: 1
+      FreqUnits: OnShutdown
       UseStartEnd: false
       Contents:
         - Restart

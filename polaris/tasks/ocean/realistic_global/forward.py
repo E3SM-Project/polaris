@@ -1,3 +1,5 @@
+import os
+
 from polaris.ocean.model import OceanModelStep
 
 
@@ -122,6 +124,28 @@ class Forward(OceanModelStep):
             yaml='forward.yaml',
             template_replacements=self.replacements,
         )
+        self._make_restart_dir()
+
+    def runtime_setup(self):
+        """
+        Make sure the restart directory exists before the model runs
+        """
+        super().runtime_setup()
+        self._make_restart_dir()
+
+    def _make_restart_dir(self):
+        """
+        Create the directory Omega's ``RestartWrite`` stream writes into.
+
+        Omega does not create it, so without this the restart write fails at
+        the end of the run and the run cannot be continued.  MPAS-Ocean needs
+        no equivalent: the MPAS framework creates stream directories itself
+        (``xml_stream_parser.c``).  The path matches ``IOStreams:
+        RestartWrite: Filename`` in ``forward.yaml``.
+        """
+        if self.config.get('ocean', 'model') != 'omega':
+            return
+        os.makedirs(os.path.join(self.work_dir, 'restart'), exist_ok=True)
 
     def compute_cell_count(self):
         """
