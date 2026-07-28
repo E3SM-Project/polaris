@@ -282,6 +282,16 @@
    task.HorizPressGradTask
    task.HorizPressGradTask.configure
 
+   resting_state_task.HorizPressGradRestingStateTask
+   resting_state_task.HorizPressGradRestingStateTask.configure
+
+   metrics.get_internal_edge
+   metrics.rms
+   metrics.power_law_fit
+   metrics.write_metric_dataset
+   metrics.format_value_list
+   metrics.format_value_error_pairs
+
    reference.ReferenceColumn
    reference.ReferenceColumn.specvol
    reference.ReferenceColumn.dalpha_dx
@@ -297,6 +307,11 @@
    analysis.Analysis
    analysis.Analysis.setup
    analysis.Analysis.run
+
+   resting_analysis.RestingAnalysis
+   resting_analysis.RestingAnalysis.setup
+   resting_analysis.RestingAnalysis.run
+   resting_analysis.sweep_suffix
 ```
 
 ### ice_shelf_2d
