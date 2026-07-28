@@ -199,6 +199,16 @@ class Init(PStarInitStep, OceanIOStep):
 
         self._check_reference_grid_head_room(ds=ds, x=x)
 
+        # The requested bathymetry, kept alongside the achieved bottomDepth so
+        # analysis can tell whether the vertical-grid construction moved the
+        # sea floor (partial-cell snapping does).  bottomDepth itself is a
+        # vert-coord variable and is written to vert_coord.nc, not init.nc.
+        ds['bottomDepthRequested'] = -geom_z_bot
+        ds.bottomDepthRequested.attrs = {
+            'long_name': 'requested seafloor geometric depth',
+            'units': 'm',
+        }
+
         ds = add_density_from_specvol(ds)
 
         nvertlevels = ds.sizes['nVertLevels']

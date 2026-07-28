@@ -69,17 +69,17 @@ resting-state property shall be a consequence of the configuration
 as functions of pseudo-height, with no surface-pressure gradient), not an
 approximation.
 
-### Requirement: The resting-state premise is verified, not assumed
+### Requirement: The geometry under test is verified, not assumed
 
 Date last modified: 2026/07/28
 
 Contributors: Xylar Asay-Davis, Claude
 
-The analysis shall confirm at run time that each configuration really is a
-resting state, and shall fail loudly if it is not. It shall not report a large
-HPGA as a discretization error when that HPGA is in fact a real, physical
-pressure gradient created by the vertical-grid construction failing to honour
-the requested bathymetry.
+The analysis shall confirm at run time that the geometry actually built is the
+geometry the configuration asked for, and shall fail loudly if it is not. A
+sweep whose swept parameter has been silently altered by the vertical-grid
+construction reports an error level for a configuration that was never tested,
+in either direction — too large or too small.
 
 ### Requirement: The test reaches the severity at which the centered scheme fails
 
@@ -301,39 +301,56 @@ difference quotient is unchanged. The horizontal sweep is therefore reduced to
 two resolutions — enough to confirm the same independence holds in Omega, which
 has not been checked — rather than the seven the existing variants use.
 
-### Algorithm Design: The resting-state guard
+### Algorithm Design: The bathymetry guard
 
 Date last modified: 2026/07/28
 
 Contributors: Xylar Asay-Davis, Claude
 
-A resting state has a flat sea surface. If the two columns' diagnosed
-sea-surface heights differ, the configuration carries a genuine barotropic
-pressure gradient and the measured HPGA is physics, not error. The analysis
+The swept tilt has to be the geometry actually under test. The analysis
 therefore checks
 
 $$
-\lvert \eta_1 - \eta_0 \rvert \;<\; \texttt{resting\_state\_max\_ssh\_diff}
+\max_i \lvert \texttt{bottomDepth}_i - \texttt{bottomDepthRequested}_i \rvert
+   \;<\; \texttt{resting\_state\_max\_bathy\_error}
 $$
 
-at every point in the sweep and fails otherwise.
+at every point in the sweep and fails otherwise, with `Init` writing the
+requested bathymetry alongside the achieved one.
 
-This is not hypothetical. With `partial_cell_type = partial`, the partial-cell
-snap in `_snap_partial_cells` moves the column bottom to enforce
-`min_pc_fraction`, while the p-star iteration in `run_pstar_init` moves
-`BottomPressure` to enforce the requested bathymetry. For sea-floor steps that
-land near a snapping threshold the two fight, the iteration stalls, and the
-columns converge to sea-surface heights differing by **12 m** — producing an
-apparent "error" of $3\times10^{-2}$ m s$^{-2}$ that is entirely real physics
-from a tilted sea surface. Without the guard this would be read as a
-catastrophic pressure-gradient error.
+The thing this guards against is partial-cell snapping. `min_pc_fraction`
+forbids bottom cells thinner than a set fraction of a layer, so the achievable
+pseudo-bottom depths are quantized and a requested bathymetry can fall in a gap
+between them; `_snap_partial_cells` then moves the sea floor to the nearest
+representable depth.
 
-Both new variants therefore set `partial_cell_type = None`, which leaves the
-requested bathymetry untouched. This does **not** cost partial-cell coverage:
-in a p-star column the reference grid is clipped at the pseudo-bottom depth
-regardless, so the deepest layer is a partial cell either way. The option
-controls only whether the topography is snapped. The guard remains in place so
-that anyone who later enables snapping finds out immediately.
+That does **not** break the resting state. Since `run_pstar_init` anchors the
+geometric column at the prescribed sea surface, `ssh` is exact by construction,
+the sea surface stays level, and the state remains exactly at rest. What breaks
+is the *meaning of the sweep*. This matters most for `bathymetry_step`, where
+the swept parameter is the sea floor itself: offline replication shows that at
+a nominal gradient of 100 m km$^{-1}$ over 4 km, snapping moves both columns to
+the same representable depth, so a nominal 400 m step becomes no step, and the
+measured RMS HPGA falls to $4\times10^{-16}$ m s$^{-2}$ — which would read as a
+spectacular pass rather than a test that had stopped testing anything.
+
+A guard on `ssh` would be useless here, and was: an earlier version of this
+design checked $\lvert \eta_1 - \eta_0 \rvert$, which is identically zero once
+the column is surface-anchored and therefore can never fire.
+
+Both new variants set `partial_cell_type = None`, which leaves the requested
+bathymetry untouched. This does **not** cost partial-cell coverage: in a p-star
+column the reference grid is clipped at the pseudo-bottom depth regardless, so
+the deepest layer is a partial cell either way. The option controls only
+whether the topography is snapped. The guard remains in place so that anyone
+who later enables snapping finds out immediately.
+
+> **Historical note.** Before `run_pstar_init` anchored the column at the
+> prescribed sea surface, the same snapping surfaced as a spurious *sea-surface*
+> tilt — up to 12 m between adjacent columns in this configuration, producing an
+> apparent "error" of $3\times10^{-2}$ m s$^{-2}$ that was entirely real
+> barotropic physics. That is fixed in the framework (see the p-star
+> partial-cell work), and this branch is rebased onto that fix.
 
 ## Implementation
 
@@ -416,7 +433,8 @@ existing step is untouched. Per sweep point it:
 5. RMS-differences the two and applies `omega_vs_polaris_rms_threshold`, which
    is retained: it confirms Omega implements the discretization Polaris thinks
    it does, independently of the resting-state property;
-6. applies the resting-state guard to `ssh` from `init.nc`.
+6. applies the bathymetry guard, comparing `bottomDepth` from
+   `vert_coord.nc` against `bottomDepthRequested` from `init.nc`.
 
 It then groups the sweep by resolution pair, fits `power_law_fit` over the
 points with tilt $\le$ `tilt_fit_max` when `tilt_fit` is true, writes
@@ -493,7 +511,7 @@ tilt_fit = False
 ```
 
 Both set `partial_cell_type = None` in `[vertical_grid]`, for the reason given
-under the resting-state guard above.
+under the bathymetry guard above.
 
 `forward.yaml` is unchanged for phase 1: the new variants run the existing
 `Centered` scheme. It gains a `PressureGrad` block in phase 2, once the Omega
@@ -545,11 +563,11 @@ Date last modified: 2026/07/28
 
 Contributors: Xylar Asay-Davis, Claude
 
-- **Resting-state guard.** Confirm it passes for both variants as configured,
-  and confirm it *fires* for a deliberately broken configuration — set
+- **Bathymetry guard.** Confirm it passes for both variants as configured, and
+  confirm it *fires* for a deliberately broken configuration — set
   `partial_cell_type = partial` on `bathymetry_step` with a sea-floor gradient
-  of 32 m km$^{-1}$, which offline replication shows drives the two columns'
-  sea-surface heights 12 m apart.
+  of 32 m km$^{-1}$, which offline replication shows moves the sea floor
+  12.33 m from the request.
 - **Zero-tilt sanity.** With the swept parameter set to zero the RMS HPGA must
   be exactly zero (offline replication gives 0.0, not merely round-off), since
   the two columns become identical.
