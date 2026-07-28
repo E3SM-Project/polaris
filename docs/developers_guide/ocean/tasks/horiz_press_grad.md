@@ -6,12 +6,19 @@ The {py:class}`polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask`
 provides two-column Omega tests for pressure-gradient-acceleration (`HPGA`)
 accuracy and convergence across horizontal and vertical resolutions.
 
-The task family includes four variants:
+The task family includes four such variants:
 
 - `salinity_gradient`
 - `temperature_gradient`
 - `ztilde_gradient`
 - `surface_pressure_gradient`
+
+{py:class}`polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask`
+provides two further variants that are exact resting states, in which the true
+HPGA is identically zero and no reference solution is used:
+
+- `hydrostatic_consistency`
+- `bathymetry_step`
 
 ## framework
 
@@ -26,6 +33,15 @@ the code.
 The task dynamically rebuilds `init` and `forward` steps in `configure()` so
 user-supplied `horiz_resolutions` and `vert_resolutions` in config files are
 reflected in the work directory setup.
+
+### metrics
+
+{py:mod}`polaris.tasks.ocean.horiz_press_grad.metrics` is a dependency-light
+leaf module (numpy and xarray only) holding the pieces both analysis steps
+need: `get_internal_edge()`, `rms()`, `power_law_fit()`,
+`write_metric_dataset()`, `format_value_list()` and
+`format_value_error_pairs()`.  It exists so the two step modules can share them
+without importing private names from one another.
 
 ### reference
 
@@ -147,5 +163,69 @@ resolutions.  For each resolution it:
    from `init.nc` HPGA.
 
 The forward solution always comes from `output.nc` via `NormalVelocityTend`.
-Helper routines `_rms_error()` and `_power_law_fit()` produce the convergence
-datasets and plots.
+`rms()` and `power_law_fit()` from `metrics` produce the convergence datasets
+and plots.
+
+## the resting-state variants
+
+{py:class}`polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask`
+is a sibling of `HorizPressGradTask` rather than a mode of it.  The existing
+task pairs each entry of `horiz_resolutions` with one entry of
+`vert_resolutions` and keys its step dictionaries by horizontal resolution
+alone, so it cannot express the repeated horizontal resolutions the tilt sweep
+needs.  The resting-state task keys its steps by the
+`(horiz_res, vert_res, tilt)` triple instead, and builds the outer product of
+the resolution pairs with `tilt_values`.
+
+`Init` and `Forward` are reused unchanged apart from two optional arguments:
+
+- `subdir_suffix` replaces the horizontal resolution in the step name, so
+  repeated horizontal resolutions do not collide.  It is built by
+  `sweep_suffix(horiz_res, vert_res, tilt)`, giving names like
+  `init_4km_256m_tilt0p5`.  When it is not given, the existing
+  `init_<res>` / `forward_<res>` naming is used, so the four gradient variants
+  keep their work directories.
+- `tilt_option` and `tilt` (on `Init` only) name a `[horiz_press_grad]` config
+  option that `Init.run()` sets in its own config before building the columns,
+  in the same way it already sets `vertical_grid:vert_levels`.
+
+`Init.run()` also calls `_check_reference_grid_head_room()` after
+`run_pstar_init()`.  The p-star iteration converges to a pseudo-bottom depth
+somewhat greater than the geometric water-column thickness, because in-situ
+density exceeds `RhoSw` at depth.  If a tilt makes a column's `z_tilde_bot`
+shallower than that, the reference grid cannot span the water column, the
+iteration diverges, and the resulting HPGA is of order 1 m s$^{-2}$ rather than
+the order 1e-5 m s$^{-2}$ being measured.  The guard raises with the head room
+available in each column.
+
+### resting_analysis
+
+{py:class}`polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis`
+replaces `Analysis` for these variants.  Per sweep point it:
+
+1. locates the internal edge with `get_internal_edge()`;
+2. forms the valid layer range `0 .. min(maxLevelCell) - 1`, **inclusive** of
+   the deepest layer valid in both columns — `Analysis` drops that layer, but
+   it is the bottom partial cell and carries the entire `bathymetry_step`
+   signal;
+3. takes the RMS of Omega's `NormalVelocityTend` at that edge over those
+   layers.  The truth is zero, so this is the error, not a difference from a
+   reference;
+4. does the same for the Polaris-side `HPGA` from `init.nc` and RMS-differences
+   the two.
+
+It then groups the sweep by resolution pair, fits the tilt exponent within each
+group over the points at or below `tilt_fit_max` when `tilt_fit` is set, writes
+`resting_state.nc` and `resting_state.png`, and applies four checks:
+
+- `_check_resting_state()` — the two columns' sea-surface heights must agree to
+  `resting_state_max_ssh_diff`.  A larger difference means the vertical-grid
+  construction moved the sea floor off the requested bathymetry, so the
+  measured HPGA is real physics rather than error;
+- `_check_omega_vs_polaris()` — the retained `omega_vs_polaris_rms_threshold`
+  consistency check, which is independent of the resting-state property;
+- `_check_sensitivity()` — the largest RMS anywhere in the sweep must reach
+  `resting_state_sensitivity_min_rms`, or the sweep is not exercising the
+  failure mode and must be redesigned;
+- `_check_max_rms()` — the consistency gate, skipped while
+  `resting_state_max_rms` is `none`.
