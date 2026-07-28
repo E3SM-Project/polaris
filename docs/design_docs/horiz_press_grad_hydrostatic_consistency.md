@@ -114,11 +114,20 @@ Date last modified: 2026/07/28
 
 Contributors: Xylar Asay-Davis, Claude
 
-The error metric for the resting-state variants shall include the deepest layer
-that is valid in both columns bounding the edge. That layer is the bottom
-partial cell, and it is where the global bottom-layer error is concentrated;
-excluding it, as the reference-based analysis does, removes the signal the test
-exists to measure.
+The error metric shall include the deepest layer that is valid in both columns
+bounding the edge. That layer is the bottom partial cell, and it is where the
+pressure-gradient error concentrates; excluding it removes the signal these
+tests exist to measure.
+
+This applies to the **reference-based `Analysis` step as well as** to the new
+resting-state analysis. `Analysis` currently drops that layer, which is a
+leftover from the previous five-column finite-difference reference whose
+stencil could not be formed where a neighbouring column's collocation point
+fell below its own bathymetry. The reference is now a single analytic column at
+the edge, documented as valid to the seafloor, so the exclusion no longer has a
+basis. Fixing it is in scope here because it is the same decision, and because
+leaving the two analysis steps disagreeing about which layers count would be
+incoherent.
 
 ### Requirement: The existing variants and their pass criteria are untouched
 
@@ -343,6 +352,51 @@ step modules, move them to a new dependency-light leaf module
 `format_value_list`, `format_value_error_pairs`) and have `analysis.py` import
 them. This commit is a pure refactor with no behaviour change.
 
+### Implementation: including the bottom layer in the reference-based analysis
+
+Date last modified: 2026/07/28
+
+Contributors: Xylar Asay-Davis, Claude
+
+In `analysis.py`, take one more interface and one more layer:
+
+```python
+# was: [: max_level_index + 1]  and  hpga_forward[:max_level_index]
+z_tilde_inter_for_ref = z_tilde_inter_edge[: max_level_index + 2]
+hpga_ref_diff = hpga_forward[: max_level_index + 1] - ref_layer_mean
+```
+
+This is safe with respect to interface masking: `ZTildeInterface` is valid for
+indices `0 .. maxLevelCell` in each column and `max_level_index` is
+`min(maxLevelCell) - 1`, so interfaces `0 .. max_level_index + 1` are finite in
+both columns by construction. The `omega_vs_python` comparison in the same
+function already used `[: max_level_index + 1]`, so after this change the two
+comparisons agree about which layers count.
+
+**Measured effect.** Running the real `Init` arithmetic and the real
+`ReferenceColumn` against a synthetic two-cell mesh (only mesh generation
+bypassed), with the Polaris HPGA standing in for Omega's tendency:
+
+| variant | fitted slope | RMS at 0.5 km |
+| --- | --- | --- |
+| `salinity_gradient` | 1.787 → 1.799 | 2.600e-07 → 2.601e-07 |
+| `surface_pressure_gradient` | 2.014 → 2.012 | 1.137e-11 → 1.136e-11 |
+| `temperature_gradient` | 1.625 → 1.625 | 2.770e-07 → 2.770e-07 |
+| `ztilde_gradient` | 2.003 → 1.119 | 6.779e-12 → 4.954e-11 |
+
+The first three are unaffected. `ztilde_gradient` is the only variant with a
+tilted coordinate, so its two columns clip the bottom layer at different
+thicknesses; that cell carries `-1.55e-09` m s$^{-2}$ at 0.5 km against an
+interior RMS of `6.8e-12`, converges at roughly first order, and pulls the
+fitted slope down. That is a real first-order error in the bottom partial cell
+which the exclusion was hiding — the same behaviour `hydrostatic_consistency`
+measures directly, and what the higher-order scheme exists to fix.
+
+`ztilde_gradient.cfg` therefore takes its own convergence band, provisionally
+`[0.9, 1.4]`, marked in the file as requiring re-tuning from the first real
+Omega run. The shared `omega_vs_reference_high_res_rms_threshold` of 1e-6 needs
+no change.
+
 ### Implementation: the reference-free analysis step
 
 Date last modified: 2026/07/28
@@ -503,8 +557,11 @@ Contributors: Xylar Asay-Davis, Claude
   must pass at every sweep point. Its present value of $10^{-10}$ was tuned for
   errors of order $10^{-7}$; it may need re-tuning for a signal of order
   $10^{-5}$ and should be set from the observed differences.
-- **Regression.** Run the four existing variants and confirm their results,
-  step names, and work directories are unchanged.
+- **Regression.** Run the four existing variants and confirm their step names
+  and work directories are unchanged. Their *results* change, because the
+  bottom layer is now included: three are unaffected in practice, while
+  `ztilde_gradient`'s convergence slope drops from ~2.0 to ~1.1 and its
+  provisional band must be re-tuned from the observed value.
 
 ### Testing and Validation: phase 2 (deferred)
 
