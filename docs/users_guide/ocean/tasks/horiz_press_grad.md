@@ -336,10 +336,20 @@ depth, so a nominal 400 m step becomes no step at all and the measured RMS HPGA
 drops to round-off — which would read as a spectacular pass rather than a
 configuration that stopped testing anything.
 
-Setting `partial_cell_type = None` does not cost partial-cell coverage: the
-p-star reference grid is clipped at the pseudo-bottom depth regardless, so the
-deepest layer is a partial cell either way.  The option controls only whether
-the topography is snapped.
+`partial_cell_type = None` does **not** mean "no partial cells", despite how it
+reads.  The p-star reference grid is clipped at each column's pseudo-bottom
+depth unconditionally, so a partial bottom cell is produced either way.  The
+option controls only whether the sea floor is *moved* before that clipping:
+`None` leaves it alone, `partial` moves it so the bottom cell is at least
+`min_pc_fraction` of a full layer, and `full` moves it to a reference boundary
+— `full` is the setting that actually removes partial cells.
+
+The cost of `None` is that there is no minimum-thickness floor, so a sweep can
+include bottom cells thinner than a realistic run would use (as thin as 0.002
+of a layer in the shipped `bathymetry_step` sweep).  The state is exactly at
+rest however thin the cell, so the measurement stays valid; but it is why the
+error tracks the *contrast* in bottom-cell fraction between the two columns
+rather than the nominal gradient, and hence why that variant is a staircase.
 
 (Before the p-star column was anchored at the prescribed sea surface, this same
 snapping surfaced as a spurious *sea-surface* tilt of many metres, which was a
