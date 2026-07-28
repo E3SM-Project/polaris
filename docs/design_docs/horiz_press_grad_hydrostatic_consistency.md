@@ -409,31 +409,37 @@ Date last modified: 2026/07/28
 
 Contributors: Xylar Asay-Davis, Claude
 
-`horiz_press_grad.cfg` gains the resting-state options with defaults that leave
-the four existing variants inert (`resting_state = False`). The new variant
-`.cfg` files set the deep column, the coarse vertical resolutions, the sweep,
-and the gates:
+`horiz_press_grad.cfg` gains the resting-state options with inert defaults, so
+the four existing variants are unaffected. Which task class a variant uses is
+decided by name in `__init__.py`, so no separate "this is a resting state" flag
+is needed. The new variant `.cfg` files set the deep column, the coarse
+vertical resolutions, and the sweep:
 
 ```
 # hydrostatic_consistency.cfg (abridged)
-resting_state = True
+geom_z_bot_mid = -3500.0
+z_tilde_bot_mid = -4096.0
+horiz_resolutions = [4.0, 4.0, 4.0, 1.0]
+vert_resolutions = [256.0, 128.0, 64.0, 256.0]
 tilt_option = z_tilde_bot_grad
 tilt_values = [0.05, 0.1, 0.5, 1.0, 5.0, 10.0, 50.0]
 tilt_fit = True
 tilt_fit_max = 10.0
-horiz_resolutions = [4.0, 4.0, 4.0, 1.0]
-vert_resolutions = [256.0, 128.0, 64.0, 256.0]
 ```
 
 ```
 # bathymetry_step.cfg (abridged)
-resting_state = True
+geom_z_bot_mid = -3500.0
+z_tilde_bot_mid = -4096.0
+horiz_resolutions = [4.0, 4.0]
+vert_resolutions = [256.0, 128.0]
 tilt_option = geom_z_bot_grad
 tilt_values = [1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 200.0]
 tilt_fit = False
-horiz_resolutions = [4.0, 4.0]
-vert_resolutions = [256.0, 128.0]
 ```
+
+Both set `partial_cell_type = None` in `[vertical_grid]`, for the reason given
+under the resting-state guard above.
 
 `forward.yaml` is unchanged for phase 1: the new variants run the existing
 `Centered` scheme. It gains a `PressureGrad` block in phase 2, once the Omega
