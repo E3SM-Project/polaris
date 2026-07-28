@@ -221,10 +221,12 @@ It then groups the sweep by resolution pair, fits the tilt exponent within each
 group over the points at or below `tilt_fit_max` when `tilt_fit` is set, writes
 `resting_state.nc` and `resting_state.png`, and applies four checks:
 
-- `_check_resting_state()` — the two columns' sea-surface heights must agree to
-  `resting_state_max_ssh_diff`.  A larger difference means the vertical-grid
-  construction moved the sea floor off the requested bathymetry, so the
-  measured HPGA is real physics rather than error;
+- `_check_bathymetry()` — `bottomDepth` must match the `bottomDepthRequested`
+  written by `Init` to within `resting_state_max_bathy_error`.  The p-star
+  column is anchored at the prescribed sea surface, so `ssh` is exact by
+  construction and cannot reveal a problem; partial-cell snapping instead moves
+  the sea floor, which leaves the state at rest but means the swept tilt is no
+  longer the geometry under test;
 - `_check_omega_vs_polaris()` — the retained `omega_vs_polaris_rms_threshold`
   consistency check, which is independent of the resting-state property;
 - `_check_sensitivity()` — the largest RMS anywhere in the sweep must reach

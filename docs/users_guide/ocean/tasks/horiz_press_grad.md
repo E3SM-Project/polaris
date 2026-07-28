@@ -316,25 +316,36 @@ At a fixed tilt gradient the RMS HPGA is independent of horizontal resolution,
 because the cross-edge offset and the cell spacing scale together.  The
 horizontal sweep is therefore short; the vertical resolution is what matters.
 
-### the resting-state guard
+### the bathymetry guard
 
-A resting state has a level sea surface.  The analysis checks that the two
-columns' sea-surface heights agree to within `resting_state_max_ssh_diff` and
-fails otherwise.
+Both variants set `partial_cell_type = None`, and the analysis checks that the
+sea floor really is where the configuration asked for it, to within
+`resting_state_max_bathy_error`.
 
-This is not hypothetical.  Both variants set `partial_cell_type = None`,
-because partial-cell snapping moves the column bottom to enforce
-`min_pc_fraction` while the p-star iteration moves `BottomPressure` to enforce
-the requested bathymetry.  For sea-floor steps that land near a snapping
-threshold the two fight, and the columns can converge to sea-surface heights
-more than 10 m apart.  The resulting HPGA is then real barotropic physics, not
-discretization error — the guard exists so that this fails loudly instead of
-being read as a catastrophic pressure-gradient error.
+The reason is that partial-cell snapping moves the sea floor to the nearest
+*representable* depth, since `min_pc_fraction` forbids bottom cells thinner
+than a set fraction of a layer.  The p-star column is anchored at the
+prescribed sea surface, so this does **not** break the resting state — the sea
+surface stays exactly level and the state is still exactly at rest.  What it
+breaks is the meaning of the sweep: the tilt actually tested is no longer the
+tilt configured.
+
+That matters most for `bathymetry_step`, where the swept parameter *is* the sea
+floor.  At some gradients snapping moves both columns to the same representable
+depth, so a nominal 400 m step becomes no step at all and the measured RMS HPGA
+drops to round-off — which would read as a spectacular pass rather than a
+configuration that stopped testing anything.
 
 Setting `partial_cell_type = None` does not cost partial-cell coverage: the
 p-star reference grid is clipped at the pseudo-bottom depth regardless, so the
 deepest layer is a partial cell either way.  The option controls only whether
 the topography is snapped.
+
+(Before the p-star column was anchored at the prescribed sea surface, this same
+snapping surfaced as a spurious *sea-surface* tilt of many metres, which was a
+real barotropic pressure gradient masquerading as discretization error.  That
+is fixed in the framework; the guard here is about the geometry under test, not
+about the resting state.)
 
 (ocean-horiz-press-grad-config)=
 ## config options
@@ -424,8 +435,9 @@ resting_state_sensitivity_min_rms = 1.0e-6
 # unenforced
 resting_state_max_rms = none
 
-# maximum allowed difference between the two columns' sea-surface heights
-resting_state_max_ssh_diff = 1.0e-9
+# maximum allowed |bottomDepth - requested|, so the swept tilt describes the
+# geometry actually tested
+resting_state_max_bathy_error = 1.0e-6
 ```
 
 `resting_state_max_rms` is deliberately unset.  The centered scheme is expected
