@@ -378,10 +378,10 @@ def test_two_cell_surface_pressure_gradient():
         )
 
 
-def test_full_cell_stagnation_warning_and_early_exit(caplog):
+def test_snap_stagnation_message_and_early_exit(caplog):
     """When _build_pstar_coord_ds always returns the same BottomPressure
-    (simulating full-cell snapping) the stagnation check should fire and the
-    loop should stop with a warning, without raising an exception.
+    (simulating cell snapping) the stagnation check should fire and the loop
+    should stop with an informational message, without raising an exception.
     """
 
     class _StagnantStep(_ConstantTracerPStarStep):
@@ -406,6 +406,10 @@ def test_full_cell_stagnation_warning_and_early_exit(caplog):
             ds['BottomPressure'] = fixed_pressure
             return ds
 
+    # The stagnation message and the snapped-bathymetry report are both
+    # logged at INFO: an unreachable bathymetry is the intended outcome of
+    # snapping, not a failure.
+
     config = _make_config(iter_count=10)
     step = _make_step(_StagnantStep, config)
 
@@ -413,9 +417,11 @@ def test_full_cell_stagnation_warning_and_early_exit(caplog):
     ds_mesh = _make_ds_mesh(ncells)
     geom_z_bot = xr.DataArray(np.full(ncells, -500.0), dims=['nCells'])
 
-    with caplog.at_level(logging.WARNING, logger='test_pstar_init'):
+    with caplog.at_level(logging.INFO, logger='test_pstar_init'):
         ds = step.run_pstar_init(ds_mesh, geom_z_bot)
 
-    assert 'full-cell snap' in caplog.text
+    assert 'cell snapping is holding BottomPressure constant' in caplog.text
+    # The post-loop report describes how far the sea floor had to move
+    assert 'cell snapping cannot represent' in caplog.text
     # Must still return a usable dataset
     assert 'bottomDepth' in ds

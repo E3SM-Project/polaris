@@ -300,23 +300,21 @@ class PStarInitStep(Step, ABC):
             # The column is anchored at the prescribed sea surface below, so
             # the residual moves bottomDepth (the representable bathymetry)
             # and leaves ssh exact.
+            #
+            # This only fires when *every* column is frozen; on a mesh where
+            # some columns are still converging, the loop simply runs out of
+            # iterations.  Either way, the post-loop report below describes
+            # how far the sea floor had to move.
             if (
                 prev_adjusted_bottom_pressure is not None
                 and (
                     adjusted_bottom_pressure == prev_adjusted_bottom_pressure
                 ).all()
             ):
-                shortfall = (
-                    goal_geom_water_column_thickness
-                    - geom_water_column_thickness
-                )
                 logger.info(
                     f'Iteration {iteration}: cell snapping is holding '
-                    'BottomPressure constant, so the requested bathymetry is '
-                    'not exactly representable — stopping early. bottomDepth '
-                    'will be the nearest representable depth, moved by up to '
-                    f'{np.abs(shortfall).max().item():.3f} m from the target; '
-                    'ssh is unaffected.'
+                    'BottomPressure constant in every column — stopping '
+                    'early.'
                 )
                 break
 
@@ -338,6 +336,18 @@ class PStarInitStep(Step, ABC):
 
             prev_adjusted_bottom_pressure = adjusted_bottom_pressure
             prev_geom_water_column_thickness = geom_water_column_thickness
+
+        # Report the columns the iteration could not place on the requested
+        # bathymetry, however the loop ended (stagnation, or simply running
+        # out of iterations while other columns were still converging).
+        _report_snapped_bathymetry(
+            logger=logger,
+            goal_geom_water_column_thickness=(
+                goal_geom_water_column_thickness
+            ),
+            geom_water_column_thickness=geom_water_column_thickness,
+            frac_change_threshold=water_col_adjust_frac_change_threshold,
+        )
 
         # Assemble the output dataset from the converged state
         ds['temperature'] = ct
@@ -410,3 +420,33 @@ class PStarInitStep(Step, ABC):
         ds.PseudoThickness.attrs['units'] = 'm'
 
         return ds
+
+
+def _report_snapped_bathymetry(
+    logger,
+    goal_geom_water_column_thickness,
+    geom_water_column_thickness,
+    frac_change_threshold,
+):
+    """
+    Log how far the sea floor had to move in columns where cell snapping
+    kept the iteration from reaching the requested bathymetry.  ``ssh`` is
+    prescribed, so the residual shows up in ``bottomDepth``.
+    """
+    residual = goal_geom_water_column_thickness - geom_water_column_thickness
+    frac_residual = np.abs(residual) / goal_geom_water_column_thickness
+    snapped = frac_residual > frac_change_threshold
+    count = int(snapped.sum().item())
+    if count == 0:
+        return
+
+    total = int(snapped.count().item())
+    max_move = np.abs(residual).where(snapped).max().item()
+    mean_move = np.abs(residual).where(snapped).mean().item()
+    logger.info(
+        f'{count} of {total} columns ({100.0 * count / total:.2f}%) have a '
+        'requested bathymetry that cell snapping cannot represent. '
+        'bottomDepth is the nearest representable depth, moved from the '
+        f'target by up to {max_move:.3f} m (mean {mean_move:.3f} m); ssh is '
+        'unaffected.'
+    )
