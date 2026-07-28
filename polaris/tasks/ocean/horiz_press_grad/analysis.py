@@ -4,6 +4,14 @@ import xarray as xr
 
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.ztilde import Gravity, RhoSw
+from polaris.tasks.ocean.horiz_press_grad.metrics import (
+    format_value_error_pairs,
+    format_value_list,
+    get_internal_edge,
+    power_law_fit,
+    rms,
+    write_metric_dataset,
+)
 from polaris.tasks.ocean.horiz_press_grad.reference import ReferenceColumn
 from polaris.viz import use_mplstyle
 
@@ -150,7 +158,7 @@ class Analysis(OceanIOStep):
                 decode_times=False,
             )
 
-            edge_index, cells_on_edge = _get_internal_edge(ds_mesh)
+            edge_index, cells_on_edge = get_internal_edge(ds_mesh)
             cell0, cell1 = cells_on_edge
 
             z_tilde_forward = _get_forward_z_tilde_edge_mid(
@@ -204,7 +212,7 @@ class Analysis(OceanIOStep):
 
             ref_layer_mean = ref.layer_mean_hpga(z_tilde_inter_for_ref)
             hpga_ref_diff = hpga_forward[:max_level_index] - ref_layer_mean
-            ref_errors.append(_rms_error(hpga_ref_diff))
+            ref_errors.append(rms(hpga_ref_diff))
 
             z_tilde_init = (
                 0.5
@@ -225,7 +233,7 @@ class Analysis(OceanIOStep):
 
             hpga_init = ds_init.HPGA.isel(Time=0).values
             hpga_diff = hpga_forward - hpga_init
-            py_errors.append(_rms_error(hpga_diff[forward_valid_mask]))
+            py_errors.append(rms(hpga_diff[forward_valid_mask]))
 
         resolution_array = np.asarray(horiz_resolutions, dtype=float)
         ref_error_array = np.asarray(ref_errors, dtype=float)
@@ -236,13 +244,13 @@ class Analysis(OceanIOStep):
             <= omega_vs_reference_convergence_fit_max_resolution
         )
 
-        ref_fit, ref_slope, ref_intercept = _power_law_fit(
+        ref_fit, ref_slope, ref_intercept = power_law_fit(
             x=resolution_array,
             y=ref_error_array,
             fit_mask=fit_mask,
         )
 
-        _write_dataset(
+        write_metric_dataset(
             filename='omega_vs_reference.nc',
             resolution_km=resolution_array,
             rms_error=ref_error_array,
@@ -252,7 +260,7 @@ class Analysis(OceanIOStep):
             y_name='rms_error_vs_reference',
             y_units='m s-2',
         )
-        _write_dataset(
+        write_metric_dataset(
             filename='omega_vs_python.nc',
             resolution_km=resolution_array,
             rms_error=py_error_array,
@@ -280,9 +288,9 @@ class Analysis(OceanIOStep):
         logger.info(f'Omega-vs-reference convergence slope: {ref_slope:1.3f}')
         logger.info(
             'Omega-vs-reference fit uses resolutions (km): '
-            f'{_format_resolution_list(resolution_array[fit_mask])}'
+            f'{format_value_list(resolution_array[fit_mask])}'
         )
-        res_error_pairs = _format_resolution_error_pairs(
+        res_error_pairs = format_value_error_pairs(
             resolution_array, ref_error_array
         )
         logger.info(
@@ -333,33 +341,6 @@ class Analysis(OceanIOStep):
                 f'[{omega_vs_reference_convergence_rate_min:.3f}, '
                 f'{omega_vs_reference_convergence_rate_max:.3f}]'
             )
-
-
-def _get_internal_edge(ds_mesh: xr.Dataset) -> tuple[int, tuple[int, int]]:
-    """
-    Determine the edge that connects the two valid cells in the two-column
-    mesh.
-    """
-    if 'cellsOnEdge' not in ds_mesh:
-        raise ValueError('cellsOnEdge is required in culled_mesh.nc')
-
-    cells_on_edge = ds_mesh.cellsOnEdge.values.astype(int)
-    if cells_on_edge.ndim != 2 or cells_on_edge.shape[1] != 2:
-        raise ValueError('cellsOnEdge must have shape (nEdges, 2).')
-
-    valid = np.logical_and(cells_on_edge[:, 0] > 0, cells_on_edge[:, 1] > 0)
-    valid_edges = np.where(valid)[0]
-    if len(valid_edges) != 1:
-        raise ValueError(
-            'Expected exactly one edge with two valid cells in the '
-            f'two-column mesh, found {len(valid_edges)}.'
-        )
-
-    edge_index = int(valid_edges[0])
-    # convert from 1-based MPAS indexing to 0-based indexing
-    cell0 = int(cells_on_edge[edge_index, 0] - 1)
-    cell1 = int(cells_on_edge[edge_index, 1] - 1)
-    return edge_index, (cell0, cell1)
 
 
 def _get_forward_z_tilde_edge_mid(
@@ -416,115 +397,6 @@ def _check_vertical_match(
         raise ValueError(
             f'{msg}: max |dz| = {float(np.max(diff))}, exceeds tolerance.'
         )
-
-
-def _rms_error(values: np.ndarray) -> float:
-    """
-    Compute RMS over finite values.
-    """
-    values = np.asarray(values, dtype=float)
-    valid = np.isfinite(values)
-    if not np.any(valid):
-        raise ValueError('No finite values available for RMS error.')
-    return float(np.sqrt(np.mean(values[valid] ** 2)))
-
-
-def _format_resolution_list(resolution_km: np.ndarray) -> str:
-    """
-    Format a resolution array as a compact list of floats.
-    """
-    values = [f'{float(resolution):g}' for resolution in resolution_km]
-    return f'[{", ".join(values)}]'
-
-
-def _format_resolution_error_pairs(
-    resolution_km: np.ndarray,
-    rms_error: np.ndarray,
-) -> str:
-    """
-    Format resolution/error pairs as readable key-value text.
-    """
-    pairs = [
-        f'{float(resolution):g} km: {float(error):.3e}'
-        for resolution, error in zip(resolution_km, rms_error, strict=True)
-    ]
-    return '; '.join(pairs)
-
-
-def _power_law_fit(
-    x: np.ndarray,
-    y: np.ndarray,
-    fit_mask: np.ndarray | None = None,
-) -> tuple[np.ndarray, float, float]:
-    """
-    Fit y = 10**b * x**m in log10 space.
-    """
-    x = np.asarray(x, dtype=float)
-    y = np.asarray(y, dtype=float)
-    valid = np.logical_and.reduce(
-        (np.isfinite(x), np.isfinite(y), x > 0.0, y > 0.0)
-    )
-    if fit_mask is not None:
-        fit_mask = np.asarray(fit_mask, dtype=bool)
-        if fit_mask.shape != x.shape:
-            raise ValueError(
-                'fit_mask must have the same shape as x and y for '
-                'power-law fitting.'
-            )
-        valid = np.logical_and(valid, fit_mask)
-
-    if np.count_nonzero(valid) < 2:
-        raise ValueError(
-            'At least two positive finite points are required for fit.'
-        )
-
-    poly = np.polyfit(np.log10(x[valid]), np.log10(y[valid]), 1)
-    slope = float(poly[0])
-    intercept = float(poly[1])
-    fit = x**slope * 10.0**intercept
-    return fit, slope, intercept
-
-
-def _write_dataset(
-    filename: str,
-    resolution_km: np.ndarray,
-    rms_error: np.ndarray,
-    y_name: str,
-    y_units: str,
-    fit: np.ndarray | None = None,
-    slope: float | None = None,
-    intercept: float | None = None,
-) -> None:
-    """
-    Write data used in a convergence plot to netCDF.
-    """
-    nres = len(resolution_km)
-    ds = xr.Dataset()
-    ds['resolution_km'] = xr.DataArray(
-        data=resolution_km,
-        dims=['nResolutions'],
-        attrs={'long_name': 'horizontal resolution', 'units': 'km'},
-    )
-    ds[y_name] = xr.DataArray(
-        data=rms_error,
-        dims=['nResolutions'],
-        attrs={'long_name': y_name.replace('_', ' '), 'units': y_units},
-    )
-    if fit is not None:
-        ds['power_law_fit'] = xr.DataArray(
-            data=fit,
-            dims=['nResolutions'],
-            attrs={
-                'long_name': 'power-law fit to rms error',
-                'units': y_units,
-            },
-        )
-    if slope is not None:
-        ds.attrs['fit_slope'] = slope
-    if intercept is not None:
-        ds.attrs['fit_intercept_log10'] = intercept
-    ds.attrs['nResolutions'] = nres
-    ds.to_netcdf(filename)
 
 
 def _plot_errors(
