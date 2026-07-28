@@ -114,6 +114,7 @@ class Viz(OceanIOStep):
             coeffs_filename='coeffs.nc',
             decode_times=False,
             reconstruct_variables=['normalVelocity'],
+            reconstruct_method='RBF',
         )
         x_min = ds_mesh.xVertex.min().values
         x_max = ds_mesh.xVertex.max().values

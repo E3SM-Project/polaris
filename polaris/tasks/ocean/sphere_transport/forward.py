@@ -1,4 +1,3 @@
-from polaris.mesh.base import parse_mesh_filepath
 from polaris.ocean.convergence.spherical import SphericalConvergenceForward
 
 
@@ -85,17 +84,3 @@ class Forward(SphericalConvergenceForward):
             refinement=refinement,
         )
         self.mesh_path = base_mesh.path
-
-    def setup(self):
-        super().setup()
-        model = self.config.get('ocean', 'model')
-        if model == 'omega':
-            component, database, mesh_name = parse_mesh_filepath(
-                self.mesh_path
-            )
-            self.add_input_file(
-                filename='coeffs.nc',
-                target=f'{mesh_name}_coeffs.nc',
-                database_component=component,
-                database=database,
-            )

@@ -1,6 +1,6 @@
 import importlib.resources as imp_res
 import os
-from typing import Dict, Tuple, Union
+from typing import Dict, Literal, Tuple, Union
 
 import numpy as np
 import xarray as xr
@@ -10,6 +10,10 @@ from ruamel.yaml import YAML
 
 from polaris import Component
 from polaris.constants import get_constant
+from polaris.mesh.reconstruct import (
+    cartesian_to_local_geographic,
+    tangential_reconstruction,
+)
 from polaris.ocean.surface_pressure import surface_pressure_from_config
 from polaris.ocean.vertical.diagnostics import (
     geom_thickness_from_ds,
@@ -514,6 +518,7 @@ class Ocean(Component):
         vert_filename=None,
         reconstruct_variables=None,
         coeffs_filename=None,
+        reconstruct_method: Literal['RBF', 'LSTSQ'] = 'LSTSQ',
         **kwargs,
     ):
         """
@@ -530,13 +535,19 @@ class Ocean(Component):
             compute geometric layer thickness from pseudo-thickness.
 
         mesh_filename : str, optional
-            Path to the mesh NetCDF file.
+            Path to the mesh NetCDF file. Should contain the reconstruction
+            weights if using the LSTSQ reconstruction method.
 
         reconstruct_variables : list of str, optional
             List of variable names to reconstruct in the dataset.
 
         coeffs_filename : str, optional
             Path to the coefficients NetCDF file.
+
+        reonstruct_method : {'RBF', 'LSTSQ'}, optional
+            Method to use for reconstructing vector variables.
+            RBF: Radial Basis Function; approach used in MPAS-Ocean.
+            LSTSQ: Least-squares reconstruction; new approach in Omega
 
         kwargs
             keyword arguments passed to `xarray.open_dataset()`
@@ -620,17 +631,27 @@ class Ocean(Component):
                     'mesh_filename must be provided to open_model_dataset '
                     'for variable reconstruction'
                 )
-            if coeffs_filename is None:
+            if reconstruct_method == 'RBF' and coeffs_filename is None:
                 raise ValueError(
                     'coeffs_filename must be provided to open_model_dataset '
                     'for variable reconstruction'
                 )
             ds_mesh = self.open_model_dataset(mesh_filename, config)
+            if (
+                reconstruct_method == 'LSTSQ'
+                and not _reconstruction_weights_in_dataset(ds_mesh)
+            ):
+                raise ValueError(
+                    'Reconstruction weights are not present in the mesh '
+                    'dataset; cannot reconstruct variables using LSTSQ method'
+                )
+
             ds = _add_reconstructed_variables_to_dataset(
                 ds,
                 reconstruct_variables,
                 ds_mesh,
                 coeffs_filename,
+                reconstruct_method,
             )
         return ds
 
@@ -776,7 +797,11 @@ class Ocean(Component):
 
 
 def _add_reconstructed_variables_to_dataset(
-    ds, reconstruct_variables, ds_mesh, coeffs_filename
+    ds,
+    reconstruct_variables,
+    ds_mesh,
+    coeffs_filename,
+    reconstruct_method: Literal['RBF', 'LSTSQ'],
 ):
     """
     Add reconstructed vector variables to the dataset if requested.
@@ -789,11 +814,14 @@ def _add_reconstructed_variables_to_dataset(
     reconstruct_variables : list of str or None
         List of variable names to reconstruct.
 
-    mesh_filename : str
-        Path to the mesh NetCDF file.
+    ds_mesh : xarray.Dataset
+        Mesh dataset on which to perform the reconstruction.
 
     coeffs_filename : str
         Path to the coefficients NetCDF file.
+
+    reconstruct_method : {'RBF', 'LSTSQ'}
+        Method to use for reconstructing vector variables.
 
     Returns
     -------
@@ -802,6 +830,17 @@ def _add_reconstructed_variables_to_dataset(
     """
     if reconstruct_variables is None:
         return ds
+
+    if reconstruct_method == 'RBF':
+        ds_coeff = open_dataset(coeffs_filename)
+        coeffs_reconstruct = ds_coeff.coeffs_reconstruct
+
+        if ds_coeff.sizes['nCells'] != ds_mesh.sizes['nCells']:
+            print(
+                f'The sizes of coefficient dataset do not match mesh dataset;'
+                f' exiting without reconstructing {reconstruct_variables}'
+            )
+            return ds
 
     for variable in reconstruct_variables:
         if variable not in ds:
@@ -819,26 +858,61 @@ def _add_reconstructed_variables_to_dataset(
         if f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds:
             continue
 
-        ds_coeff = open_dataset(coeffs_filename)
-        coeffs_reconstruct = ds_coeff.coeffs_reconstruct
-
-        if ds_coeff.sizes['nCells'] != ds_mesh.sizes['nCells']:
-            print(
-                f'The sizes of coefficient dataset do not match mesh '
-                f'dataset; exiting without reconstructing {out_var_name}'
+        if reconstruct_method == 'RBF':
+            reconstruct_variable(
+                out_var_name,
+                ds[variable],
+                ds_mesh,
+                coeffs_reconstruct,
+                ds,
+                quiet=True,
             )
-            continue
 
-        reconstruct_variable(
-            out_var_name,
-            ds[variable],
-            ds_mesh,
-            coeffs_reconstruct,
-            ds,
-            quiet=True,
-        )
+        elif reconstruct_method == 'LSTSQ':
+            stencil = ds_mesh.reconstructStencilCell
+            weights = ds_mesh.reconstructWeightsCell
+
+            u_x, u_y, u_z = tangential_reconstruction(
+                ds_mesh, ds[variable], stencil=stencil, weights=weights
+            )
+            if ds_mesh.attrs['on_a_sphere'] == 'NO':
+                ds[f'{out_var_name}X'] = u_x
+                ds[f'{out_var_name}Y'] = u_y
+            else:
+                u_zonal, u_merid, _ = cartesian_to_local_geographic(
+                    ds_mesh, u_x, u_y, u_z
+                )
+
+                ds[f'{out_var_name}Zonal'] = u_zonal
+                ds[f'{out_var_name}Meridional'] = u_merid
 
     return ds
+
+
+def _reconstruction_weights_in_dataset(ds, vertices=False):
+    """
+    Check if the reconstruction weights are present in the dataset.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The dataset to check for reconstruction weights.
+    vertices: bool, optional (default False)
+        Whether to check for vertex centered reconstruction weights
+
+    Returns
+    -------
+    present
+        True if reconstruction weights are present, False otherwise.
+    """
+    present = any(var.lower() == 'reconstructstencilcell' for var in ds)
+    present &= any(var.lower() == 'reconstructweightscell' for var in ds)
+
+    if vertices:
+        present &= any(var.lower() == 'reconstructstencilvertex' for var in ds)
+        present &= any(var.lower() == 'reconstructweightsvertex' for var in ds)
+
+    return present
 
 
 # create a single module-level instance available to other components

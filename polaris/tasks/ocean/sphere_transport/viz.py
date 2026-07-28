@@ -48,7 +48,7 @@ class Viz(OceanIOStep):
         super().__init__(component=component, name=name, subdir=subdir)
         self.add_input_file(
             filename='mesh.nc',
-            work_dir_target=f'{base_mesh.path}/base_mesh.nc',
+            work_dir_target=f'{init.path}/base_mesh_with_weights.nc',
         )
         self.add_input_file(
             filename='initial_state.nc',
@@ -75,15 +75,6 @@ class Viz(OceanIOStep):
             self.add_output_file(f'{var}_final.png')
             self.add_output_file(f'{var}_diff.png')
 
-    def setup(self):
-        model = self.config.get('ocean', 'model')
-        # TODO: remove as soon as Omega no longer needs this file
-        if model == 'omega':
-            self.add_input_file(
-                filename='coeffs.nc',
-                work_dir_target=f'{self.forward.path}/coeffs.nc',
-            )
-
     def run(self):
         """
         Run this step of the test case
@@ -101,7 +92,6 @@ class Viz(OceanIOStep):
             decode_times=False,
             mesh_filename='mesh.nc',
             reconstruct_variables=['normalVelocity'],
-            coeffs_filename='coeffs.nc',
         )
         variables_in_init = [
             var for var in variables_to_plot.keys() if var in ds_init.variables
@@ -114,7 +104,6 @@ class Viz(OceanIOStep):
             decode_times=False,
             mesh_filename='mesh.nc',
             reconstruct_variables=['normalVelocity'],
-            coeffs_filename='coeffs.nc',
         )
         s_per_hour = 3600.0
 
