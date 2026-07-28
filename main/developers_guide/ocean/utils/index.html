@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tasks</title>
+  <title>Ocean utilities</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,8 +19,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="baroclinic_channel" href="baroclinic_channel.html" />
-    <link rel="prev" title="Ocean component" href="../index.html" />
+    <link rel="next" title="add_reconstruction_weights" href="add_reconstruction_weights.html" />
+    <link rel="prev" title="MPAS-Ocean" href="../models/mpas_ocean.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -65,33 +65,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Tasks</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
-<li class="toctree-l3"><a class="reference internal" href="barotropic_channel.html">barotropic_channel</a></li>
-<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic_gyre</a></li>
-<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated_tracers_2d</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine_bell</a></li>
-<li class="toctree-l3"><a class="reference internal" href="customizable_viz.html">customizable_viz</a></li>
-<li class="toctree-l3"><a class="reference internal" href="external_gravity_wave.html">external_gravity_wave</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
-<li class="toctree-l3"><a class="reference internal" href="horiz_press_grad.html">horiz_press_grad</a></li>
-<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent_2d</a></li>
-<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice_shelf_2d</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial_gravity_wave</a></li>
-<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal_wave</a></li>
-<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured_solution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
-<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent_2d</a></li>
-<li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
-<li class="toctree-l3"><a class="reference internal" href="realistic_global.html">realistic_global</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation_2d</a></li>
-<li class="toctree-l3"><a class="reference internal" href="seamount.html">seamount</a></li>
-<li class="toctree-l3"><a class="reference internal" href="single_column.html">single_column</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/index.html">Tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../framework.html">Ocean framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../utils/index.html">Ocean utilities</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Ocean utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="add_reconstruction_weights.html">add_reconstruction_weights</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
@@ -131,9 +111,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
-      <li class="breadcrumb-item active">Tasks</li>
+      <li class="breadcrumb-item active">Ocean utilities</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/tasks/index.md.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/utils/index.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -141,31 +121,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="tasks">
-<span id="dev-ocean-tasks"></span><h1>Tasks<a class="headerlink" href="#tasks" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-utilities">
+<span id="dev-ocean-utils"></span><h1>Ocean utilities<a class="headerlink" href="#ocean-utilities" title="Link to this heading"></a></h1>
+<p>Developer utilities for the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
-<li class="toctree-l1"><a class="reference internal" href="barotropic_channel.html">barotropic_channel</a></li>
-<li class="toctree-l1"><a class="reference internal" href="barotropic_gyre.html">barotropic_gyre</a></li>
-<li class="toctree-l1"><a class="reference internal" href="correlated_tracers_2d.html">correlated_tracers_2d</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cosine_bell.html">cosine_bell</a></li>
-<li class="toctree-l1"><a class="reference internal" href="customizable_viz.html">customizable_viz</a></li>
-<li class="toctree-l1"><a class="reference internal" href="external_gravity_wave.html">external_gravity_wave</a></li>
-<li class="toctree-l1"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
-<li class="toctree-l1"><a class="reference internal" href="horiz_press_grad.html">horiz_press_grad</a></li>
-<li class="toctree-l1"><a class="reference internal" href="divergent_2d.html">divergent_2d</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ice_shelf_2d.html">ice_shelf_2d</a></li>
-<li class="toctree-l1"><a class="reference internal" href="inertial_gravity_wave.html">inertial_gravity_wave</a></li>
-<li class="toctree-l1"><a class="reference internal" href="internal_wave.html">internal_wave</a></li>
-<li class="toctree-l1"><a class="reference internal" href="manufactured_solution.html">manufactured_solution</a></li>
-<li class="toctree-l1"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nondivergent_2d.html">nondivergent_2d</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overflow.html">overflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="realistic_global.html">realistic_global</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rotation_2d.html">rotation_2d</a></li>
-<li class="toctree-l1"><a class="reference internal" href="seamount.html">seamount</a></li>
-<li class="toctree-l1"><a class="reference internal" href="single_column.html">single_column</a></li>
+<li class="toctree-l1"><a class="reference internal" href="add_reconstruction_weights.html">add_reconstruction_weights</a></li>
 </ul>
 </div>
 </section>
@@ -174,8 +135,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../index.html" class="btn btn-neutral float-left" title="Ocean component" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="baroclinic_channel.html" class="btn btn-neutral float-right" title="baroclinic_channel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../models/mpas_ocean.html" class="btn btn-neutral float-left" title="MPAS-Ocean" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="add_reconstruction_weights.html" class="btn btn-neutral float-right" title="add_reconstruction_weights" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
