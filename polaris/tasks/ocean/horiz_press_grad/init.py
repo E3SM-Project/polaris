@@ -29,12 +29,29 @@ class Init(PStarInitStep, OceanIOStep):
     vert_res : float
         The vertical resolution in m
 
+    tilt_option : str or None
+        The name of a ``horiz_press_grad`` config option to override with
+        ``tilt`` before building the columns, or ``None`` to leave the
+        configuration alone.
+
+    tilt : float or None
+        The value to give ``tilt_option`` in m/km.
+
     x : numpy.ndarray
         The x-coordinates of the two columns in km, used by
         :py:meth:`init_tracers` and :py:meth:`_build_pstar_coord_ds`.
     """
 
-    def __init__(self, component, horiz_res, vert_res, indir):
+    def __init__(
+        self,
+        component,
+        horiz_res,
+        vert_res,
+        indir,
+        subdir_suffix=None,
+        tilt_option=None,
+        tilt=None,
+    ):
         """
         Create the step
 
@@ -52,11 +69,27 @@ class Init(PStarInitStep, OceanIOStep):
         indir : str
             The subdirectory that the task belongs to, that this step will
             go into a subdirectory of
+
+        subdir_suffix : str, optional
+            A suffix used in place of the horizontal resolution in the step
+            name, for sweeps that repeat a horizontal resolution
+
+        tilt_option : str, optional
+            The name of a ``horiz_press_grad`` config option to override with
+            ``tilt`` before building the columns
+
+        tilt : float, optional
+            The value to give ``tilt_option`` in m/km
         """
         self.horiz_res = horiz_res
         self.vert_res = vert_res
+        self.tilt_option = tilt_option
+        self.tilt = tilt
         self.x: np.ndarray = np.array([])
-        name = f'init_{resolution_to_string(horiz_res)}'
+        if subdir_suffix is None:
+            name = f'init_{resolution_to_string(horiz_res)}'
+        else:
+            name = f'init_{subdir_suffix}'
         super().__init__(component=component, name=name, indir=indir)
 
     def setup(self):
@@ -80,6 +113,14 @@ class Init(PStarInitStep, OceanIOStep):
 
         horiz_res = self.horiz_res
         vert_res = self.vert_res
+
+        # a tilt sweep overrides one config option per step, in the same way
+        # vert_levels is set from the vertical resolution below
+        if self.tilt_option is not None:
+            config.set('horiz_press_grad', self.tilt_option, str(self.tilt))
+            logger.info(
+                f'Setting horiz_press_grad:{self.tilt_option} = {self.tilt}'
+            )
 
         z_tilde_bot_mid = hpg_section.getfloat('z_tilde_bot_mid')
 
@@ -153,6 +194,8 @@ class Init(PStarInitStep, OceanIOStep):
             surface_pressure=surface_pressure,
             sea_surface_height=geom_ssh,
         )
+
+        self._check_reference_grid_head_room(ds=ds, x=x)
 
         ds['Density'] = 1.0 / ds['SpecVol']
         ds.Density.attrs['long_name'] = 'density'
@@ -385,6 +428,43 @@ class Init(PStarInitStep, OceanIOStep):
             'long_name': 'Gradient of absolute salinity at layer midpoints',
             'units': 'g kg-1 m-1',
         }
+
+    def _check_reference_grid_head_room(
+        self, ds: xr.Dataset, x: np.ndarray
+    ) -> None:
+        """
+        Verify that each column's reference pseudo-grid extends below its
+        converged pseudo-bottom depth.
+
+        The p-star iteration converges to a pseudo-bottom depth somewhat
+        greater than the geometric water-column thickness, because in-situ
+        density exceeds ``RhoSw`` at depth.  When a tilt makes one column's
+        ``z_tilde_bot`` shallower than that, the reference grid cannot span
+        the water column, the iteration diverges, and the resulting HPGA is
+        meaningless (order 1 m s-2 rather than the order 1e-5 m s-2 the test
+        measures).  Fail with a clear message rather than reporting nonsense.
+        """
+        z_tilde_bot = get_array_from_mid_grad(self.config, 'z_tilde_bot', x)
+        pseudo_bottom_depth = (
+            ds.BottomPressure / (RhoSw * Gravity)
+        ).values.ravel()
+
+        head_room = -np.asarray(z_tilde_bot) - pseudo_bottom_depth
+        if np.all(head_room > 0.0):
+            return
+
+        details = '; '.join(
+            f'column {icell}: |z_tilde_bot| = {-z_tilde_bot[icell]:.3f} m, '
+            f'pseudo-bottom depth = {pseudo_bottom_depth[icell]:.3f} m, '
+            f'head room = {head_room[icell]:.3f} m'
+            for icell in range(len(head_room))
+        )
+        raise ValueError(
+            'The p-star reference grid does not extend below the converged '
+            'pseudo-bottom depth in every column, so the vertical coordinate '
+            'cannot span the water column. Deepen "z_tilde_bot_mid", make '
+            '"geom_z_bot_mid" shallower, or reduce the tilt. ' + details
+        )
 
     def _get_geom_z_bot(self, x: np.ndarray) -> xr.DataArray:
         """

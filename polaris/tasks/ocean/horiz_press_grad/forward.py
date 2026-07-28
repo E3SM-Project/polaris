@@ -9,7 +9,7 @@ class Forward(OceanModelStep):
     acceleration) along with other diagnostics.
     """
 
-    def __init__(self, component, horiz_res, init, indir):
+    def __init__(self, component, horiz_res, init, indir, subdir_suffix=None):
         """
         Create the step
 
@@ -27,9 +27,16 @@ class Forward(OceanModelStep):
         indir : str
             The subdirectory that the task belongs to, that this step will
             go into a subdirectory of
+
+        subdir_suffix : str, optional
+            A suffix used in place of the horizontal resolution in the step
+            name, for sweeps that repeat a horizontal resolution
         """
         self.horiz_res = horiz_res
-        name = f'forward_{resolution_to_string(horiz_res)}'
+        if subdir_suffix is None:
+            name = f'forward_{resolution_to_string(horiz_res)}'
+        else:
+            name = f'forward_{subdir_suffix}'
         super().__init__(
             component=component,
             name=name,
