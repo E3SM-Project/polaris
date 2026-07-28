@@ -149,7 +149,9 @@ class PStarInitStep(Step, ABC):
             geom_z_bot``; the iteration adjusts ``BottomPressure`` until
             this target is met, so the converged ``ssh`` equals this value.
             Defaults to ``-surface_pressure / (RhoSw * Gravity)``, i.e. the
-            resting surface-pressure depression for a reference-density fluid.
+            sea-surface depression that balances the surface pressure for a
+            reference-density fluid.  (Being at rest does not imply
+            ``ssh = 0``; surface loading depresses ``ssh`` even at rest.)
 
         Returns
         -------

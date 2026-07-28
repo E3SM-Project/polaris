@@ -98,12 +98,12 @@ def init_pstar_vertical_coord(config, ds):
         config, pseudo_bottom_depth, ref_pseudo_depth_bot, max_level_cell
     )
 
-    # Update BottomPressure after partial-cell snap.  The resting depth
+    # Update BottomPressure after partial-cell snap.  The reference depth
     # (SurfacePressure = 0) determines the snap; SurfacePressure then scales
     # the layers uniformly, analogous to ssh in z-star.
     ds['BottomPressure'] = pseudo_bottom_depth * (RhoSw * Gravity)
 
-    # Resting pseudo-thicknesses (as if SurfacePressure = 0), then scale by
+    # Reference pseudo-thicknesses (as if SurfacePressure = 0), then scale by
     # (BottomPressure - SurfacePressure) / BottomPressure to account for the
     # surface pressure squashing the column — the p-star analogue of z-star's
     # layerThickness = restingThickness * (ssh + bottomDepth) / bottomDepth.
@@ -268,7 +268,7 @@ def _compute_ref_pseudo_thickness(
     max_level_cell,
 ):
     """
-    Compute resting p-star pseudo-thicknesses (as if SurfacePressure = 0)
+    Compute reference p-star pseudo-thicknesses (as if SurfacePressure = 0)
     by clipping reference layers at ``pseudo_bottom_depth``.
     """
     n_vert_levels = ref_pseudo_depth_bot.sizes['nVertLevels']
