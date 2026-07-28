@@ -116,7 +116,7 @@ class RestingAnalysis(OceanIOStep):
         sensitivity_min_rms = section.getfloat(
             'resting_state_sensitivity_min_rms'
         )
-        max_ssh_diff = section.getfloat('resting_state_max_ssh_diff')
+        max_bathy_error = section.getfloat('resting_state_max_bathy_error')
         omega_vs_polaris_rms_threshold = section.getfloat(
             'omega_vs_polaris_rms_threshold'
         )
@@ -126,7 +126,7 @@ class RestingAnalysis(OceanIOStep):
         omega_rms = []
         polaris_rms = []
         diff_rms = []
-        ssh_diff = []
+        bathy_error = []
         n_layers = []
 
         for key in self.sweep_keys:
@@ -169,14 +169,27 @@ class RestingAnalysis(OceanIOStep):
             polaris_rms.append(rms(hpga_polaris))
             diff_rms.append(rms(hpga_omega - hpga_polaris))
 
-            ssh = ds_init.ssh.isel(Time=0).values
-            ssh_diff.append(abs(float(ssh[cell1] - ssh[cell0])))
+            # The p-star column is anchored at the prescribed sea surface,
+            # so ssh is exact by construction and cannot reveal a problem.
+            # Partial-cell snapping instead moves the sea floor, which
+            # silently changes the geometry being swept -- see
+            # _check_bathymetry.
+            bathy_error.append(
+                float(
+                    np.max(
+                        np.abs(
+                            ds_vc.bottomDepth.values.ravel()
+                            - ds_init.bottomDepthRequested.values.ravel()
+                        )
+                    )
+                )
+            )
 
         tilts = np.array([key[2] for key in self.sweep_keys], dtype=float)
         omega_rms = np.asarray(omega_rms, dtype=float)
         polaris_rms = np.asarray(polaris_rms, dtype=float)
         diff_rms = np.asarray(diff_rms, dtype=float)
-        ssh_diff = np.asarray(ssh_diff, dtype=float)
+        bathy_error = np.asarray(bathy_error, dtype=float)
 
         groups = _group_by_resolution(self.sweep_keys)
         exponents = _fit_exponents(
@@ -193,7 +206,7 @@ class RestingAnalysis(OceanIOStep):
             omega_rms=omega_rms,
             polaris_rms=polaris_rms,
             diff_rms=diff_rms,
-            ssh_diff=ssh_diff,
+            bathy_error=bathy_error,
             n_layers=np.asarray(n_layers, dtype=int),
             exponents=exponents,
             tilt_option=tilt_option,
@@ -221,29 +234,35 @@ class RestingAnalysis(OceanIOStep):
                     f'{format_value_list(tilts[indices][tilts[indices] <= tilt_fit_max])}'  # noqa: E501
                 )
 
-        self._check_resting_state(ssh_diff, max_ssh_diff)
+        self._check_bathymetry(bathy_error, max_bathy_error)
         self._check_omega_vs_polaris(diff_rms, omega_vs_polaris_rms_threshold)
         self._check_sensitivity(omega_rms, sensitivity_min_rms)
         self._check_max_rms(omega_rms, max_rms)
 
-    def _check_resting_state(self, ssh_diff, max_ssh_diff):
+    def _check_bathymetry(self, bathy_error, max_bathy_error):
         """
-        Fail if the two columns' sea surfaces are not level, which means the
-        configuration is not the resting state the analysis assumes.
+        Fail if the sea floor is not where the configuration asked for it.
+
+        The resting-state property survives a moved sea floor -- the state is
+        still exactly at rest -- but the swept parameter stops meaning what it
+        says, because the geometry actually tested is no longer the configured
+        one.  Partial-cell snapping moves the sea floor to the nearest
+        representable depth, and at some gradients that collapses the step
+        between the two columns to nothing, so the test would report a
+        near-zero error for a configuration nominally carrying a large step.
         """
-        failing = ssh_diff > max_ssh_diff
+        failing = bathy_error > max_bathy_error
         if not np.any(failing):
             return
         raise ValueError(
-            'The two columns do not have a level sea surface, so this is not '
-            'a resting state and the measured HPGA is real physics rather '
-            'than discretization error. This usually means the vertical-grid '
-            'construction moved the sea floor away from the requested '
-            'bathymetry (for example partial-cell snapping fighting the '
-            'p-star iteration). Max |ssh difference| = '
-            f'{float(np.max(ssh_diff)):.3e} m exceeds '
-            f'resting_state_max_ssh_diff={max_ssh_diff:.3e} m at: '
-            f'{self._failing_text(failing, ssh_diff)}'
+            'The sea floor is not at the requested depth, so the swept tilt '
+            'is not the geometry actually being tested. This means the '
+            'vertical-grid construction moved the bathymetry -- normally '
+            'partial-cell snapping to the nearest representable depth. Set '
+            '"partial_cell_type = None" for resting-state variants. Max '
+            f'|bottomDepth - requested| = {float(np.max(bathy_error)):.3e} m '
+            f'exceeds resting_state_max_bathy_error={max_bathy_error:.3e} m '
+            f'at: {self._failing_text(failing, bathy_error)}'
         )
 
     def _check_omega_vs_polaris(self, diff_rms, threshold):
@@ -377,7 +396,7 @@ def _write_resting_dataset(
     omega_rms,
     polaris_rms,
     diff_rms,
-    ssh_diff,
+    bathy_error,
     n_layers,
     exponents,
     tilt_option,
@@ -425,12 +444,11 @@ def _write_resting_dataset(
             'units': 'm s-2',
         },
     )
-    ds['ssh_difference'] = xr.DataArray(
-        data=ssh_diff,
+    ds['bathymetry_error'] = xr.DataArray(
+        data=bathy_error,
         dims=['nSweep'],
         attrs={
-            'long_name': 'absolute sea-surface height difference between the '
-            'two columns',
+            'long_name': 'max |bottomDepth - requested| over the two columns',
             'units': 'm',
         },
     )
