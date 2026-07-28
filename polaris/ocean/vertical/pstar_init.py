@@ -288,20 +288,35 @@ class PStarInitStep(Step, ABC):
                     )
                     break
 
-            # full-cell stagnation check — convergence check above takes
+            # Snap stagnation check — the convergence check above takes
             # priority so that a perfect initial guess (scaling = 1) exits
-            # cleanly rather than triggering this warning.
+            # cleanly rather than reporting a snap that did not happen.
+            #
+            # Partial- and full-cell snapping quantize the achievable
+            # pseudo-bottom depth, so a requested bathymetry between two
+            # representable depths cannot be reached: the snap keeps pushing
+            # BottomPressure back and the iteration cannot converge.  This is
+            # expected, not a failure — it is what min_pc_fraction asks for.
+            # The column is anchored at the prescribed sea surface below, so
+            # the residual moves bottomDepth (the representable bathymetry)
+            # and leaves ssh exact.
             if (
                 prev_adjusted_bottom_pressure is not None
                 and (
                     adjusted_bottom_pressure == prev_adjusted_bottom_pressure
                 ).all()
             ):
-                logger.warning(
-                    f'Iteration {iteration}: full-cell snap is holding '
-                    'BottomPressure constant — stopping early to avoid '
-                    'non-convergence. bottomDepth will reflect the actual '
-                    'cell bottom rather than the target bathymetry.'
+                shortfall = (
+                    goal_geom_water_column_thickness
+                    - geom_water_column_thickness
+                )
+                logger.info(
+                    f'Iteration {iteration}: cell snapping is holding '
+                    'BottomPressure constant, so the requested bathymetry is '
+                    'not exactly representable — stopping early. bottomDepth '
+                    'will be the nearest representable depth, moved by up to '
+                    f'{np.abs(shortfall).max().item():.3f} m from the target; '
+                    'ssh is unaffected.'
                 )
                 break
 
