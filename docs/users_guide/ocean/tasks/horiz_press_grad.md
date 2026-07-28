@@ -186,9 +186,10 @@ default).
 For comparison with a layer-averaged Omega tendency, the `analysis` step
 averages $a(\tilde z)$ over the model's actual pseudo-height layer bounds using
 4-point Gauss–Legendre quadrature with `reference_quadrature_subdivisions`
-sub-panels per layer.  The deepest valid layer (which abuts the bathymetry) is
-excluded from the RMS error calculation, because partial bottom cells make that
-layer's geometric extent differ from the smooth reference geometry.
+sub-panels per layer.  Every layer valid in both columns is included, down to
+and including the deepest, which abuts the bathymetry.  That layer is the bottom
+partial cell, and it is where pressure-gradient error is largest; excluding it
+would hide exactly what the test should be measuring.
 
 ## python HPGA in the `init` step
 
@@ -450,10 +451,17 @@ The corresponding tabulated data are written to
 
 For the Omega-versus-reference comparison, the analytic reference
 $a(\tilde z)$ is layer-averaged over the model's actual pseudo-height layer
-bounds (from `init.nc`) using 4-point Gauss–Legendre quadrature.  The deepest
-valid layer is excluded from the RMS error calculation because that layer abuts
-the bathymetry, where partial bottom cells make the model layer's geometric
-extent differ from the smooth reference geometry.
+bounds (from `init.nc`) using 4-point Gauss–Legendre quadrature.  All layers
+valid in both columns are included, down to and including the deepest.
+
+Earlier versions excluded that bottom layer.  That was a limitation of the
+*previous* reference solution, which took a fourth-order finite difference
+across five columns and could not form its stencil where a neighbouring column's
+collocation point fell below its own bathymetry.  The reference is now a single
+analytic column evaluated at the edge, valid all the way to the seafloor, so the
+exclusion no longer has a basis and has been removed.  The Omega-versus-Python
+comparison always included the layer, so the two comparisons now agree about
+which layers count.
 
 For the Omega-versus-Python comparison, the analysis uses the HPGA written by
 the `init` step in `init.nc`, so this second metric should be read as an

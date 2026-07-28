@@ -156,8 +156,12 @@ resolutions.  For each resolution it:
 2. identifies the single internal edge via `_get_internal_edge()` and derives
    the forward pseudo-heights via `_get_forward_z_tilde_edge_mid()`;
 3. constructs a `ReferenceColumn` with the mesh-derived `x_sign` and calls
-   `ref.layer_mean_hpga()` on the edge interface pseudo-heights from
-   `init.nc`, dropping the deepest valid layer (which abuts bathymetry);
+   `ref.layer_mean_hpga()` on the edge interface pseudo-heights from `init.nc`,
+   over interfaces `0 .. max_level_index + 1` so that every layer valid in both
+   columns is included, down to and including the bottom partial cell.  An
+   earlier version dropped that layer because the then-current five-column
+   finite-difference reference could not form its stencil there; the analytic
+   single-column reference is valid to the seafloor, so it is now kept;
 4. checks that Python and Omega pseudo-heights agree with
    `_check_vertical_match()`, then computes the Omega-vs-Python RMS difference
    from `init.nc` HPGA.
@@ -205,9 +209,8 @@ replaces `Analysis` for these variants.  Per sweep point it:
 
 1. locates the internal edge with `get_internal_edge()`;
 2. forms the valid layer range `0 .. min(maxLevelCell) - 1`, **inclusive** of
-   the deepest layer valid in both columns — `Analysis` drops that layer, but
-   it is the bottom partial cell and carries the entire `bathymetry_step`
-   signal;
+   the deepest layer valid in both columns — the bottom partial cell, which
+   carries the entire `bathymetry_step` signal.  `Analysis` includes it too;
 3. takes the RMS of Omega's `NormalVelocityTend` at that edge over those
    layers.  The truth is zero, so this is the error, not a difference from a
    reference;
