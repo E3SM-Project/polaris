@@ -205,13 +205,21 @@ class Analysis(OceanIOStep):
                 + ds_init.ZTildeInterface.isel(Time=0, nCells=cell1).values
             )
 
-            # Interfaces for valid layers (0..max_level_index), then drop
-            # the deepest valid layer (abuts bathymetry): keep
-            # max_level_index layers using max_level_index+1 interfaces.
-            z_tilde_inter_for_ref = z_tilde_inter_edge[: max_level_index + 1]
+            # All layers valid in both columns (0..max_level_index), bounded
+            # by interfaces 0..max_level_index+1.  The deepest of these abuts
+            # the bathymetry and is deliberately kept: it is the bottom
+            # partial cell, where pressure-gradient error concentrates.  It
+            # was excluded when the reference was a cross-column
+            # finite-difference stencil that could not be formed there; the
+            # reference is now a single analytic column at the edge (see
+            # ReferenceColumn), valid to the seafloor, so the exclusion no
+            # longer has a basis.
+            z_tilde_inter_for_ref = z_tilde_inter_edge[: max_level_index + 2]
 
             ref_layer_mean = ref.layer_mean_hpga(z_tilde_inter_for_ref)
-            hpga_ref_diff = hpga_forward[:max_level_index] - ref_layer_mean
+            hpga_ref_diff = (
+                hpga_forward[: max_level_index + 1] - ref_layer_mean
+            )
             ref_errors.append(rms(hpga_ref_diff))
 
             z_tilde_init = (
