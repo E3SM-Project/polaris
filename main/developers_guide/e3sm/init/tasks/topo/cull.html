@@ -174,8 +174,27 @@ ocean cells.</p></li>
 considered to belong to land ice.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">land_ice_min_fraction</span></code>: Minimum land-ice fraction for flood-filling the
 land-ice mask.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code> and <code class="docutils literal notranslate"><span class="pre">max_dc_edge_ratio</span></code>: The allowed range of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>
+relative to the local ocean background cell width in the culled
+ocean/sea-ice domain (unified meshes only).</p></li>
 </ul>
 <p>See <code class="docutils literal notranslate"><span class="pre">cull.cfg</span></code> for the full set of options.</p>
+</section>
+<section id="dcedge-diagnostic-for-unified-meshes">
+<h2>dcEdge Diagnostic for Unified Meshes<a class="headerlink" href="#dcedge-diagnostic-for-unified-meshes" title="Link to this heading"></a></h2>
+<p>For unified meshes, land/river regions are typically meshed at finer
+resolution than the CFL-limited ocean/sea-ice regions, so resolution
+“leaking” across the coastline into the culled ocean mesh can destabilize
+forward runs. After all masks are written, <code class="docutils literal notranslate"><span class="pre">CullMaskStep</span></code> calls
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge.html#polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge" title="polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge()</span></code></a>,
+which compares <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> on base-mesh edges interior to the ocean cull mask
+against the ocean background cell width sampled from the mesh’s sizing
+field, writes <code class="docutils literal notranslate"><span class="pre">ocean_dc_edge_diagnostics.nc</span></code>, and raises an error listing
+the worst violation clusters if any ratio falls outside
+<code class="docutils literal notranslate"><span class="pre">[min_dc_edge_ratio,</span> <span class="pre">max_dc_edge_ratio]</span></code>. For simple base meshes there is
+no sizing field and the check is skipped. The motivation, mechanisms and
+threshold justification are documented in the <code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code>
+design doc (see <a class="reference internal" href="../../../../../design_docs/index.html#design-docs"><span class="std std-ref">Design Documents</span></a>).</p>
 <p>The Antarctic land-ice ownership mask also includes southern cells that have
 already been removed from the open-ocean cull mask, so the cull workflow
 remains consistent with the remapped topography masks.</p>

@@ -112,6 +112,7 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.unified</span><span class="w"> </span><span class="kn">import</span> <span class="n">UNIFIED_MESH_NAMES</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">e3sm_init</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.cull.cull</span><span class="w"> </span><span class="kn">import</span> <span class="n">CullMeshStep</span>
@@ -154,6 +155,9 @@
     <span class="p">)</span>
     <span class="n">base_mesh_step</span> <span class="o">=</span> <span class="n">remap_steps</span><span class="p">[</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">]</span>
     <span class="n">unsmoothed_topo_step</span> <span class="o">=</span> <span class="n">remap_steps</span><span class="p">[</span><span class="s1">&#39;remap_unsmoothed_topo&#39;</span><span class="p">]</span>
+    <span class="c1"># only unified meshes have a sizing-field step, used by the dcEdge</span>
+    <span class="c1"># diagnostic in the cull-mask step</span>
+    <span class="n">sizing_field_step</span> <span class="o">=</span> <span class="n">remap_steps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sizing_field&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;cull_topo.cfg&#39;</span>
     <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -162,6 +166,7 @@
     <span class="n">config</span> <span class="o">=</span> <span class="n">_get_cull_topo_config</span><span class="p">(</span>
         <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span>
         <span class="n">base_mesh_step</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
+        <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">steps</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">remap_steps</span><span class="p">)</span>
@@ -176,6 +181,7 @@
         <span class="n">base_mesh_step</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
         <span class="n">unsmoothed_topo_step</span><span class="o">=</span><span class="n">unsmoothed_topo_step</span><span class="p">,</span>
         <span class="n">name</span><span class="o">=</span><span class="n">step_name</span><span class="p">,</span>
+        <span class="n">sizing_field_step</span><span class="o">=</span><span class="n">sizing_field_step</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">steps</span><span class="p">[</span><span class="s1">&#39;cull_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cull_mask_step</span>
 
@@ -196,7 +202,7 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_cull_topo_config</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">base_mesh_step</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_cull_topo_config</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">):</span>
     <span class="n">component</span> <span class="o">=</span> <span class="n">e3sm_init</span>
     <span class="k">if</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">configs</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">component</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span>
@@ -204,6 +210,16 @@
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.e3sm.init.topo.cull&#39;</span><span class="p">,</span> <span class="s1">&#39;cull.cfg&#39;</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.mesh.spherical&#39;</span><span class="p">,</span> <span class="s1">&#39;spherical.cfg&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mesh_name</span> <span class="ow">in</span> <span class="n">UNIFIED_MESH_NAMES</span><span class="p">:</span>
+        <span class="c1"># unified-mesh config options (e.g. per-mesh overrides of the</span>
+        <span class="c1"># dcEdge diagnostic thresholds)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">&#39;polaris.mesh.spherical.unified&#39;</span><span class="p">,</span> <span class="s1">&#39;unified_mesh.cfg&#39;</span>
+        <span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">&#39;polaris.mesh.spherical.unified&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+        <span class="p">)</span>
 
     <span class="n">convention</span> <span class="o">=</span> <span class="n">base_mesh_step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
         <span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;antarctic_boundary_convention&#39;</span>

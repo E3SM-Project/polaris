@@ -239,6 +239,12 @@ land-locked ocean cells.</p></li>
 critical land transects as land ice.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">land_ice_min_fraction</span></code>: Minimum land-ice fraction used in south-pole flood
 filling for the land-ice mask.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code> and <code class="docutils literal notranslate"><span class="pre">max_dc_edge_ratio</span></code>: For unified meshes, the allowed
+range of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> relative to the local ocean background cell width in the
+culled ocean/sea-ice domain.  The mask step fails if resolution intended for
+the land/river domain has leaked into the CFL-limited ocean/sea-ice domain
+(see the <a class="reference internal" href="../../../../design_docs/index.html#design-docs"><span class="std std-ref">design doc</span></a> <code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code> for the
+motivation and choice of defaults).</p></li>
 </ul>
 </section>
 </section>

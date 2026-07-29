@@ -1,0 +1,519 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Vector Reconstruction at MPAS Cell Centers" href="vector_reconstruction.html" />
+    <link rel="prev" title="Unified Mesh: Base-Mesh Creation and Downstream Integration" href="unified_mesh_create_base_mesh.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#diagnosis">Diagnosis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mechanism-a-dominant-flood-fill-connectivity-is-resolution-dependent">Mechanism A (dominant): flood-fill connectivity is resolution dependent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mechanism-b-secondary-critical-passages-preserved-wider-on-mpas">Mechanism B (secondary): critical passages preserved wider on MPAS</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-dcedge-ratio-diagnostic-in-the-cull-mask-step">Requirement: dcEdge ratio diagnostic in the cull-mask step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-sizing-field-consistent-with-the-mpas-mesh-view-of-topography">Requirement: sizing field consistent with the MPAS-mesh view of topography</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-dcedge-ratio-diagnostic-in-the-cull-mask-step">Algorithm Design: dcEdge ratio diagnostic in the cull-mask step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-effective-ocean-mask-via-mesh-scale-cull-emulation">Algorithm Design: effective ocean mask via mesh-scale cull emulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#prototype-validation-2026-07-23">Prototype validation (2026/07/23)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-dcedge-ratio-diagnostic-in-the-cull-mask-step">Implementation: dcEdge ratio diagnostic in the cull-mask step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-effective-ocean-mask-via-mesh-scale-cull-emulation">Implementation: effective ocean mask via mesh-scale cull emulation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-dcedge-ratio-diagnostic-in-the-cull-mask-step">Testing and Validation: dcEdge ratio diagnostic in the cull-mask step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-effective-ocean-mask-via-mesh-scale-cull-emulation">Testing and Validation: effective ocean mask via mesh-scale cull emulation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/unified_mesh_cull_leak.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="unified-mesh-fixing-resolution-leakage-into-the-ocean-sea-ice-domain">
+<h1>Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain<a class="headerlink" href="#unified-mesh-fixing-resolution-leakage-into-the-ocean-sea-ice-domain" title="Link to this heading"></a></h1>
+<p>date: 2026/07/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>Unified meshes prescribe finer resolution for the land/river domain than for
+parts of the ocean/sea-ice domain (e.g. 10 km land vs 30 km ocean in
+<code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code>). The ocean and sea ice are CFL limited, so land/river
+resolution “leaking” into the culled ocean/sea-ice meshes causes forward-run
+instability: <code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code> was found to contain edges with <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> down to
+9.16 km against a 30 km nominal ocean background, and the MPAS-Ocean <code class="docutils literal notranslate"><span class="pre">short</span></code>
+forward run produced NaNs precisely at the finest cells.</p>
+<p>This design adds two capabilities:</p>
+<ol class="arabic simple">
+<li><p>A <strong>ratio-based <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> diagnostic</strong> in the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> <code class="docutils literal notranslate"><span class="pre">topo/cull</span></code> mask
+step that fails loudly if the culled ocean/sea-ice domain contains edges
+whose <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> deviates too far from the local ocean background cell width,
+before any forward run is attempted.</p></li>
+<li><p>An <strong>effective ocean mask</strong> for the unified sizing field that anticipates
+what the MPAS cull will keep, by emulating the cull on the lat/lon sizing
+grid at mesh scale, so the sizing field never prescribes land/river
+resolution in regions that end up in the ocean/sea-ice domain.</p></li>
+</ol>
+<p>Success means (a) all four unified meshes rebuild with no ocean/sea-ice edge
+below the diagnostic threshold, and (b) any future regression of this kind is
+caught at the cull-mask step rather than by a forward-run crash.</p>
+</section>
+<section id="diagnosis">
+<h2>Diagnosis<a class="headerlink" href="#diagnosis" title="Link to this heading"></a></h2>
+<p>Analysis of the <code class="docutils literal notranslate"><span class="pre">test_20260721</span></code> results on Chrysalis (all four unified
+meshes: <code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code>, <code class="docutils literal notranslate"><span class="pre">u.oi240.lr240</span></code>, <code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code>,
+<code class="docutils literal notranslate"><span class="pre">u.oi.so12to30.lr10</span></code>) established two mechanisms. Defining the <em>ratio</em> of an
+edge as <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> divided by the ocean background cell width at the edge
+location, clean jigsaw noise spans about [0.76, 1.39]; every mesh except the
+uniform-resolution <code class="docutils literal notranslate"><span class="pre">u.oi240.lr240</span></code> had edges with ratios of 0.29–0.34.</p>
+<section id="mechanism-a-dominant-flood-fill-connectivity-is-resolution-dependent">
+<h3>Mechanism A (dominant): flood-fill connectivity is resolution dependent<a class="headerlink" href="#mechanism-a-dominant-flood-fill-connectivity-is-resolution-dependent" title="Link to this heading"></a></h3>
+<p>Coastal lagoons and shallow banks (Banc d’Arguin, Chukotka lagoons, Exmouth
+Gulf, the Vistula/Curonian Lagoons, Gulf of Sidra, …) are below sea level
+but sit behind thin barriers (spits, tidal flats). At the 1/32-degree
+resolution of the shared coastline products, the barrier is <em>resolved</em>: the
+coastline flood fill classifies the whole lagoon as land, so the sizing field
+places it in the land-side coastline blend (10 -&gt; 30 km for <code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code>).
+On the MPAS mesh, however, the same cells have <code class="docutils literal notranslate"><span class="pre">ocean_frac</span></code> of 0.5–1.0 (the
+conservative remap of the same source ocean mask is correct — most of their
+<em>area</em> is below sea level), the barrier occupies too little area of any
+mesh-scale cell to pull <code class="docutils literal notranslate"><span class="pre">ocean_frac</span></code> below 0.5, and a connected path of
+candidate-ocean cells reaches the lagoon, so the MPAS flood fill keeps it.</p>
+<p>No land cell is promoted to ocean anywhere in this mechanism: the two grids
+simply see different topology at different resolutions. The lagoon is culled
+on the fine lat/lon grid but retained on the coarse MPAS mesh because
+averaging erases the narrow land barrier.</p>
+</section>
+<section id="mechanism-b-secondary-critical-passages-preserved-wider-on-mpas">
+<h3>Mechanism B (secondary): critical passages preserved wider on MPAS<a class="headerlink" href="#mechanism-b-secondary-critical-passages-preserved-wider-on-mpas" title="Link to this heading"></a></h3>
+<p>Critical ocean passages (Fury &amp; Hecla Strait, the Northwest Passage, Nares
+Strait, Akimiski Strait, Ilulissat, Carroll Inlet) are preserved on the MPAS
+mesh via transect cell masks plus <code class="docutils literal notranslate"><span class="pre">widen_transect_edge_masks</span></code> — a swath 1–3
+cells wide — while the lat/lon rasterization of the same transects is a
+single grid cell (~0.125 degree) wide. Cells with <code class="docutils literal notranslate"><span class="pre">ocean_frac</span></code> as low as
+0.10 are kept inside a region the sizing field classifies as land-side blend.</p>
+</section>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-dcedge-ratio-diagnostic-in-the-cull-mask-step">
+<h3>Requirement: dcEdge ratio diagnostic in the cull-mask step<a class="headerlink" href="#requirement-dcedge-ratio-diagnostic-in-the-cull-mask-step" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/23</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>For unified meshes, the <code class="docutils literal notranslate"><span class="pre">topo/cull</span></code> mask step of the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> component
+must fail with an informative error if the ocean/sea-ice domain implied by
+the ocean cull mask contains base-mesh edges whose <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> is below
+<code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code> times, or above <code class="docutils literal notranslate"><span class="pre">max_dc_edge_ratio</span></code> times, the local
+ocean background cell width. The thresholds must be config options so each
+unified mesh can override them. The check must be ratio based (not absolute)
+so it applies to variable-resolution meshes. The error must localize the
+violations (worst clusters in lat/lon) and a diagnostics file must be
+written to aid debugging.</p>
+</section>
+<section id="requirement-sizing-field-consistent-with-the-mpas-mesh-view-of-topography">
+<h3>Requirement: sizing field consistent with the MPAS-mesh view of topography<a class="headerlink" href="#requirement-sizing-field-consistent-with-the-mpas-mesh-view-of-topography" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/23</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The unified sizing field must prescribe (approximately) the full ocean
+background cell width everywhere the MPAS cull will keep as ocean/sea-ice,
+while preserving land/river refinement elsewhere. Constraints agreed during
+design:</p>
+<ul class="simple">
+<li><p>The cull masks themselves stay on the MPAS mesh; culling from a remapped
+lat/lon coastline is not an option because much of the cull logic is mesh
+dependent.</p></li>
+<li><p>The shared coastline products (<code class="docutils literal notranslate"><span class="pre">prepare_coastline</span></code>) stay mesh independent
+and unchanged; all mesh-dependent adjustments happen per mesh in the
+sizing-field step.</p></li>
+<li><p>Widening of critical passages for sizing must be proportional to the local
+ocean background resolution.</p></li>
+<li><p>Exact prediction of the cull is impossible (the outcome near the
+<code class="docutils literal notranslate"><span class="pre">ocean_frac</span></code> = 0.5 threshold depends on the exact MPAS cell tiling), so
+the prediction must be deliberately generous toward ocean, with the
+diagnostic from the first requirement as the backstop.</p></li>
+</ul>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-dcedge-ratio-diagnostic-in-the-cull-mask-step">
+<h3>Algorithm Design: dcEdge ratio diagnostic in the cull-mask step<a class="headerlink" href="#algorithm-design-dcedge-ratio-diagnostic-in-the-cull-mask-step" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/23</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>After the ocean cull mask is created, select base-mesh edges whose two
+adjacent cells are both kept (the interior edges of the future culled ocean
+mesh). Sample the ocean background cell width from the mesh’s sizing-field
+product (nearest neighbor on the lat/lon sizing grid) at each edge location
+and form <code class="docutils literal notranslate"><span class="pre">ratio</span> <span class="pre">=</span> <span class="pre">dcEdge</span> <span class="pre">/</span> <span class="pre">background</span></code>. Fail if
+<code class="docutils literal notranslate"><span class="pre">min(ratio)</span> <span class="pre">&lt;</span> <span class="pre">min_dc_edge_ratio</span></code> or <code class="docutils literal notranslate"><span class="pre">max(ratio)</span> <span class="pre">&gt;</span> <span class="pre">max_dc_edge_ratio</span></code>.</p>
+<p>Threshold justification (from <code class="docutils literal notranslate"><span class="pre">test_20260721</span></code>): clean jigsaw noise spans
+[0.76, 1.39] x background; the contaminated meshes reached 0.29. The
+lower bound is the meaningful guard, since fine cells leaking into the
+ocean are a CFL hazard; <code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span> <span class="pre">=</span> <span class="pre">0.65</span></code> leaves margin above the
+clean noise floor while failing the contaminated meshes decisively.</p>
+<p>The upper bound only flags anomalously coarse edges, which are a mild
+mesh-quality issue rather than a stability hazard. It must tolerate
+isolated jigsaw outliers whose magnitude grows with the number of edges:
+across the four regenerated meshes the maximum ratio rose monotonically
+with edge count (1.32 at 21k edges, 1.42 at 1.4M, 1.50 at 2.4M, 1.51 at
+12M), so a tight ceiling is fragile. <code class="docutils literal notranslate"><span class="pre">max_dc_edge_ratio</span> <span class="pre">=</span> <span class="pre">2.0</span></code> still
+catches an edge that is genuinely double the intended resolution while
+tolerating lone coarse jigsaw blips on large meshes.</p>
+</section>
+<section id="algorithm-design-effective-ocean-mask-via-mesh-scale-cull-emulation">
+<h3>Algorithm Design: effective ocean mask via mesh-scale cull emulation<a class="headerlink" href="#algorithm-design-effective-ocean-mask-via-mesh-scale-cull-emulation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/23</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Build a per-mesh <em>effective ocean mask</em> on the lat/lon sizing grid:</p>
+<ol class="arabic simple">
+<li><p><strong>Candidate fraction</strong>: start from the combined-topography <code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code>
+fraction (the same source field that becomes <code class="docutils literal notranslate"><span class="pre">ocean_frac</span></code> on the MPAS
+mesh) block-averaged from the finest (1/32-degree) grid to the mesh’s
+sizing grid.</p></li>
+<li><p><strong>Mesh-scale averaging</strong>: box-average the fraction over the local ocean
+background cell width L(x) — emulating <code class="docutils literal notranslate"><span class="pre">ocean_frac</span></code> on mesh-scale cells —
+and threshold at 0.5. The local window is quantized into geometric bins;
+the longitude window grows as 1/cos(latitude).</p></li>
+<li><p><strong>Critical transects</strong>: remove rasterized land blockages; add ocean
+passages dilated to a swath of <code class="docutils literal notranslate"><span class="pre">passage_widen_factor</span></code> x L (a larger
+factor poleward of the sea-ice latitude threshold, mimicking
+<code class="docutils literal notranslate"><span class="pre">widen_transect_edge_masks</span></code>).</p></li>
+<li><p><strong>Flood fill</strong> from the standard ocean seed points (as the MPAS cull
+does), with periodic longitude connectivity.</p></li>
+<li><p><strong>Hysteresis growth</strong>: extend the flood-filled mask into connected
+regions whose fraction is at least <code class="docutils literal notranslate"><span class="pre">grow_threshold</span></code> (&lt; 0.5). This covers
+cells whose fate at the strict threshold depends on the exact MPAS cell
+tiling, without promoting isolated inland regions.</p></li>
+<li><p><strong>Union</strong> with the shared flood-filled coastline <code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code>. The union
+never demotes shared-mask ocean, so true coastlines are unaffected.</p></li>
+</ol>
+<p>Recompute the signed distance from the effective coastline (reusing the
+existing KD-tree machinery) and apply the existing land-side blend to the
+effective signed distance.</p>
+<p>The trade-off is asymmetric by construction: over-prediction (effective
+ocean that the actual cull removes) only coarsens land/river sizing toward
+the ocean background — no CFL hazard — while under-prediction is caught by
+the diagnostic. Prototype validation on all four meshes (see below) showed
+over-prediction of 2.4–3.7% of the ocean cell count with essentially no
+overlap with river channels.</p>
+</section>
+<section id="prototype-validation-2026-07-23">
+<h3>Prototype validation (2026/07/23)<a class="headerlink" href="#prototype-validation-2026-07-23" title="Link to this heading"></a></h3>
+<p>The algorithm was prototyped offline with <code class="docutils literal notranslate"><span class="pre">grow_threshold</span> <span class="pre">=</span> <span class="pre">0.35</span></code>
+and passage widening of 1.5x / 3.0x L equatorward/poleward of 43 degrees, and
+validated against the actual cull masks of the <code class="docutils literal notranslate"><span class="pre">test_20260721</span></code> runs:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>mesh</p></th>
+<th class="head"><p>kept cells</p></th>
+<th class="head"><p>under-pred (base -&gt; emul)</p></th>
+<th class="head"><p>over-pred (on river)</p></th>
+<th class="head"><p>current min ratio</p></th>
+<th class="head"><p>predicted min ratio</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>u.oi30.lr10</p></td>
+<td><p>462,924</p></td>
+<td><p>1,328 -&gt; 335</p></td>
+<td><p>16,943 (0)</p></td>
+<td><p>0.31</p></td>
+<td><p>0.76</p></td>
+</tr>
+<tr class="row-odd"><td><p>u.oi240.lr240</p></td>
+<td><p>7,313</p></td>
+<td><p>125 -&gt; 1</p></td>
+<td><p>185 (0)</p></td>
+<td><p>0.80 (clean)</p></td>
+<td><p>1.00</p></td>
+</tr>
+<tr class="row-even"><td><p>u.oi6to18.lr6to10</p></td>
+<td><p>4,015,940</p></td>
+<td><p>5,930 -&gt; 1,168</p></td>
+<td><p>30,287 (19)</p></td>
+<td><p>0.34</p></td>
+<td><p>0.86</p></td>
+</tr>
+<tr class="row-odd"><td><p>u.oi.so12to30.lr10</p></td>
+<td><p>794,665</p></td>
+<td><p>1,179 -&gt; 181</p></td>
+<td><p>18,927 (0)</p></td>
+<td><p>0.29</p></td>
+<td><p>0.82</p></td>
+</tr>
+</tbody>
+</table>
+<p>“Predicted min ratio” is the minimum, over the current culled-mesh edges, of
+the sizing the effective coastline would prescribe relative to the ocean
+background; it exceeds the 0.65 diagnostic threshold on every mesh (no
+edge below threshold), with residual under-predicted cells all lying close
+enough to the effective coastline that the blend keeps them near the ocean
+background.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-dcedge-ratio-diagnostic-in-the-cull-mask-step">
+<h3>Implementation: dcEdge ratio diagnostic in the cull-mask step<a class="headerlink" href="#implementation-dcedge-ratio-diagnostic-in-the-cull-mask-step" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/23</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<ul class="simple">
+<li><p>The ratio check is a testable public function in
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/e3sm/init/topo/cull/dc_edge_diagnostics.py</span></code>; it writes
+<code class="docutils literal notranslate"><span class="pre">ocean_dc_edge_diagnostics.nc</span></code> (per-edge ratio and violation masks), logs
+a summary with the worst violation clusters, and raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> on
+failure.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CullMaskStep</span></code> gains an optional <code class="docutils literal notranslate"><span class="pre">sizing_field_step</span></code>; when set (unified
+meshes), <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code> is linked as an input and the check runs at
+the end of <code class="docutils literal notranslate"><span class="pre">run()</span></code>, after all masks are written, using <code class="docutils literal notranslate"><span class="pre">oceanCullMask</span></code>
+(the ocean/sea-ice domain including cavities).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_cull_topo_steps()</span></code> passes the sizing-field build step (already
+constructed upstream for unified meshes) to <code class="docutils literal notranslate"><span class="pre">CullMaskStep</span></code>; for simple
+meshes the diagnostic is skipped.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_get_cull_topo_config()</span></code> additionally merges the unified-mesh configs
+(<code class="docutils literal notranslate"><span class="pre">unified_mesh.cfg</span></code> and <code class="docutils literal notranslate"><span class="pre">{mesh_name}.cfg</span></code>) so per-mesh threshold
+overrides are honored; defaults live in
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/e3sm/init/topo/cull/cull.cfg</span></code> (<code class="docutils literal notranslate"><span class="pre">[cull_mesh]</span></code>
+<code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code>, <code class="docutils literal notranslate"><span class="pre">max_dc_edge_ratio</span></code>).</p></li>
+</ul>
+</section>
+<section id="implementation-effective-ocean-mask-via-mesh-scale-cull-emulation">
+<h3>Implementation: effective ocean mask via mesh-scale cull emulation<a class="headerlink" href="#implementation-effective-ocean-mask-via-mesh-scale-cull-emulation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/23</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<ul class="simple">
+<li><p>Reusable helpers in a dependency-light leaf module
+<code class="docutils literal notranslate"><span class="pre">polaris/mesh/spherical/unified/effective_ocean.py</span></code>: mesh-scale variable
+box averaging, passage widening, seeded flood fill, hysteresis growth,
+and effective-mask assembly.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BuildSizingFieldStep</span></code> links the finest-resolution combined topography
+(for the candidate fraction) as an additional input, builds the effective
+ocean mask and effective signed distance, and passes them (instead of the
+shared coastline fields) to <code class="docutils literal notranslate"><span class="pre">sizing_field_dataset()</span></code>. New diagnostic
+variables are added to <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>: the effective and emulated
+ocean masks, the widened passages and the effective signed distance.</p></li>
+<li><p>New config options in <code class="docutils literal notranslate"><span class="pre">[sizing_field]</span></code>: <code class="docutils literal notranslate"><span class="pre">enable_cull_emulation</span></code> (default
+<code class="docutils literal notranslate"><span class="pre">true</span></code>), <code class="docutils literal notranslate"><span class="pre">cull_emulation_grow_threshold</span></code> (0.35), <code class="docutils literal notranslate"><span class="pre">passage_widen_factor</span></code>
+(1.5), <code class="docutils literal notranslate"><span class="pre">passage_widen_factor_high_lat</span></code> (3.0) and
+<code class="docutils literal notranslate"><span class="pre">passage_widen_latitude_threshold</span></code> (43 degrees).</p></li>
+<li><p>The base meshes change as a result; downstream cached products (sizing
+field, base mesh and <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> topography products) are regenerated,
+while shared coastline caches are unaffected.</p></li>
+</ul>
+<p>Development takes place on the <code class="docutils literal notranslate"><span class="pre">fix-uoi30lr10-cull</span></code> branch; see
+<code class="docutils literal notranslate"><span class="pre">PLAN_fix_unified_mesh_cull_leak.md</span></code> there for the commit series.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-dcedge-ratio-diagnostic-in-the-cull-mask-step">
+<h3>Testing and Validation: dcEdge ratio diagnostic in the cull-mask step<a class="headerlink" href="#testing-and-validation-dcedge-ratio-diagnostic-in-the-cull-mask-step" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/23</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests in <code class="docutils literal notranslate"><span class="pre">tests/e3sm/init/topo/test_cull_mask.py</span></code> exercise the pure
+ratio-check function with small synthetic meshes and sizing fields: a
+passing case, a min-ratio failure, a max-ratio failure, correct edge
+selection (only edges with both cells kept), and the contents of the
+diagnostics file. Integration-wise, re-running only the mask step against
+the existing <code class="docutils literal notranslate"><span class="pre">test_20260721</span></code> work directories must fail on the current
+contaminated masks and pass after the meshes are regenerated with the fix.</p>
+</section>
+<section id="testing-and-validation-effective-ocean-mask-via-mesh-scale-cull-emulation">
+<h3>Testing and Validation: effective ocean mask via mesh-scale cull emulation<a class="headerlink" href="#testing-and-validation-effective-ocean-mask-via-mesh-scale-cull-emulation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/23</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests for <code class="docutils literal notranslate"><span class="pre">effective_ocean.py</span></code> construct synthetic topographies where
+the expected behavior is known: a thin-barrier lagoon that must be included
+at a coarse mesh scale and excluded at a fine one; hysteresis growth that
+adds threshold-ambiguous fringes connected to the ocean but not isolated
+inland depressions; passage widening whose swath width scales with the
+local background. <code class="docutils literal notranslate"><span class="pre">test_sizing_field.py</span></code> is extended to verify the
+integration (effective fields present in the output, ocean-background
+sizing on emulated-ocean cells). Final validation is the regeneration of
+all four unified meshes with the Part 1 diagnostic active, which must pass,
+plus spot checks of the former hotspots.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="unified_mesh_create_base_mesh.html" class="btn btn-neutral float-left" title="Unified Mesh: Base-Mesh Creation and Downstream Integration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="vector_reconstruction.html" class="btn btn-neutral float-right" title="Vector Reconstruction at MPAS Cell Centers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

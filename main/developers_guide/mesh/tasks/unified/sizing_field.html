@@ -167,8 +167,10 @@ plus:</p>
 <section id="build-py">
 <h3><code class="docutils literal notranslate"><span class="pre">build.py</span></code><a class="headerlink" href="#build-py" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">BuildSizingFieldStep.setup()</span></code> links the coastline convention file from
-the upstream coastline step and <code class="docutils literal notranslate"><span class="pre">river_network.nc</span></code> from the upstream
-lat-lon rasterize step.  It also calls the mesh-family hook
+the upstream coastline step, <code class="docutils literal notranslate"><span class="pre">river_network.nc</span></code> from the upstream
+lat-lon rasterize step, and <code class="docutils literal notranslate"><span class="pre">topography_finest.nc</span></code> from the
+finest-resolution combined-topography step (used for cull emulation).
+It also calls the mesh-family hook
 <code class="docutils literal notranslate"><span class="pre">setup_sizing_field_step()</span></code> so family-specific inputs (e.g. the Southern
 Ocean high-resolution region GeoJSON for <code class="docutils literal notranslate"><span class="pre">so_region</span></code> meshes) can be
 registered.</p>
@@ -178,6 +180,18 @@ delegates ocean-background construction to the mesh family via
 <a class="reference internal" href="../../generated/polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset.html#polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset" title="polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset()</span></code></a>
 to compose the full sizing field.  The resulting dataset is written to
 <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">enable_cull_emulation</span></code> is true (the default), the shared coastline
+<code class="docutils literal notranslate"><span class="pre">ocean_mask</span></code> and <code class="docutils literal notranslate"><span class="pre">signed_distance</span></code> are first replaced by <em>effective</em>
+fields built with the helpers in
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified.effective_ocean</span></code> (mesh-scale averaging of
+the candidate-ocean fraction, critical-transect handling with
+resolution-proportional passage widening, a seeded flood fill and
+hysteresis growth) and
+<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.spherical.coastline.signed_distance_from_ocean_mask()</span></code>.
+Diagnostic variables (<code class="docutils literal notranslate"><span class="pre">effective_ocean_mask</span></code>, <code class="docutils literal notranslate"><span class="pre">emulated_ocean_mask</span></code>,
+<code class="docutils literal notranslate"><span class="pre">mesh_scale_ocean_fraction</span></code>, <code class="docutils literal notranslate"><span class="pre">passages_widened</span></code>) are stored in
+<code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>.  The rationale and validation are in the
+<code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code> design doc.</p>
 <p>The public helper <code class="docutils literal notranslate"><span class="pre">sizing_field_dataset()</span></code> combines:</p>
 <ul class="simple">
 <li><p>the ocean background from the mesh family (a 2-D cell-width array on the
@@ -220,6 +234,13 @@ for the ocean background</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">coastline_transition_land_km</span></code> — width of the land-side transition zone</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_river_channel_refinement</span></code> — toggle river-channel refinement</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">river_channel_km</span></code> — target cell width along river channels</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">enable_cull_emulation</span></code> — toggle the effective ocean mask built by
+emulating the MPAS cull at mesh scale</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cull_emulation_grow_threshold</span></code> — hysteresis lower bound on the
+mesh-scale candidate fraction</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">passage_widen_factor</span></code>, <code class="docutils literal notranslate"><span class="pre">passage_widen_factor_high_lat</span></code> and
+<code class="docutils literal notranslate"><span class="pre">passage_widen_latitude_threshold</span></code> — width of the passage swath that
+receives ocean-background sizing, relative to the local background</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">VizSizingFieldStep</span></code> consumes the <code class="docutils literal notranslate"><span class="pre">[sizing_field_viz]</span></code> section:</p>
 <ul class="simple">

@@ -41,8 +41,10 @@ plus:
 ### `build.py`
 
 `BuildSizingFieldStep.setup()` links the coastline convention file from
-the upstream coastline step and `river_network.nc` from the upstream
-lat-lon rasterize step.  It also calls the mesh-family hook
+the upstream coastline step, `river_network.nc` from the upstream
+lat-lon rasterize step, and `topography_finest.nc` from the
+finest-resolution combined-topography step (used for cull emulation).
+It also calls the mesh-family hook
 `setup_sizing_field_step()` so family-specific inputs (e.g. the Southern
 Ocean high-resolution region GeoJSON for `so_region` meshes) can be
 registered.
@@ -53,6 +55,19 @@ delegates ocean-background construction to the mesh family via
 {py:func}`polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset`
 to compose the full sizing field.  The resulting dataset is written to
 `sizing_field.nc`.
+
+When `enable_cull_emulation` is true (the default), the shared coastline
+`ocean_mask` and `signed_distance` are first replaced by *effective*
+fields built with the helpers in
+`polaris.mesh.spherical.unified.effective_ocean` (mesh-scale averaging of
+the candidate-ocean fraction, critical-transect handling with
+resolution-proportional passage widening, a seeded flood fill and
+hysteresis growth) and
+{py:func}`polaris.mesh.spherical.coastline.signed_distance_from_ocean_mask`.
+Diagnostic variables (`effective_ocean_mask`, `emulated_ocean_mask`,
+`mesh_scale_ocean_fraction`, `passages_widened`) are stored in
+`sizing_field.nc`.  The rationale and validation are in the
+`unified_mesh_cull_leak` design doc.
 
 The public helper `sizing_field_dataset()` combines:
 
@@ -95,6 +110,13 @@ All sizing-field steps use mesh-specific configs built through
 - `coastline_transition_land_km` — width of the land-side transition zone
 - `enable_river_channel_refinement` — toggle river-channel refinement
 - `river_channel_km` — target cell width along river channels
+- `enable_cull_emulation` — toggle the effective ocean mask built by
+  emulating the MPAS cull at mesh scale
+- `cull_emulation_grow_threshold` — hysteresis lower bound on the
+  mesh-scale candidate fraction
+- `passage_widen_factor`, `passage_widen_factor_high_lat` and
+  `passage_widen_latitude_threshold` — width of the passage swath that
+  receives ocean-background sizing, relative to the local background
 
 `VizSizingFieldStep` consumes the `[sizing_field_viz]` section:
 

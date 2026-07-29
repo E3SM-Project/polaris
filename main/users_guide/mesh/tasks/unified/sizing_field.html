@@ -183,6 +183,20 @@ Reduces the target cell width to <code class="docutils literal notranslate"><spa
 channels. This aligns mesh edges with river centerlines in the final JIGSAW
 mesh.</p>
 </section>
+<section id="cull-emulation">
+<h2>Cull emulation<a class="headerlink" href="#cull-emulation" title="Link to this heading"></a></h2>
+<p>By default (<code class="docutils literal notranslate"><span class="pre">enable_cull_emulation</span></code>), the coastline used for the land-side
+blend is not the shared coastline product directly but an <em>effective</em>
+coastline that anticipates which cells the MPAS cull in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> will
+keep as ocean/sea-ice: the below-sea-level fraction is averaged at the local
+ocean-background scale, critical ocean passages are widened in proportion to
+the local resolution, and the result is flood filled and unioned with the
+shared coastline mask. This prevents land/river refinement from leaking
+into the CFL-limited ocean/sea-ice domain (e.g. in coastal lagoons whose
+thin barriers are not resolved at mesh scale). The design and validation
+are documented in the <code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code> design doc (see
+<a class="reference internal" href="../../../../design_docs/index.html#design-docs"><span class="std std-ref">Design Documents</span></a>).</p>
+</section>
 <section id="configuration">
 <h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
 <p>The sizing-field task shares the mesh’s <code class="docutils literal notranslate"><span class="pre">sizing_field.cfg</span></code> file. The
@@ -206,6 +220,15 @@ raster edge.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_river_channel_refinement</span></code>: whether to refine cells on the
 river-channel mask.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">river_channel_km</span></code>: target cell width in km along river channels.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">enable_cull_emulation</span></code>: whether to build the effective ocean mask by
+emulating the MPAS cull at mesh scale (see above).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cull_emulation_grow_threshold</span></code>: hysteresis lower bound on the mesh-scale
+candidate-ocean fraction for growing the emulated ocean into
+threshold-ambiguous fringes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">passage_widen_factor</span></code> and <code class="docutils literal notranslate"><span class="pre">passage_widen_factor_high_lat</span></code>: width of the
+swath around critical ocean passages that receives ocean-background
+sizing, in units of the local ocean background cell width, equatorward
+and poleward of <code class="docutils literal notranslate"><span class="pre">passage_widen_latitude_threshold</span></code> respectively.</p></li>
 </ul>
 <p>Visualization options are in <code class="docutils literal notranslate"><span class="pre">[sizing_field_viz]</span></code>:</p>
 <ul class="simple">

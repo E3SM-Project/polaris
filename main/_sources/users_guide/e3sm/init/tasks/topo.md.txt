@@ -125,3 +125,9 @@ Common user-tunable options are:
 	critical land transects as land ice.
 - `land_ice_min_fraction`: Minimum land-ice fraction used in south-pole flood
 	filling for the land-ice mask.
+- `min_dc_edge_ratio` and `max_dc_edge_ratio`: For unified meshes, the allowed
+	range of `dcEdge` relative to the local ocean background cell width in the
+	culled ocean/sea-ice domain.  The mask step fails if resolution intended for
+	the land/river domain has leaked into the CFL-limited ocean/sea-ice domain
+	(see the {ref}`design doc <design-docs>` `unified_mesh_cull_leak` for the
+	motivation and choice of defaults).

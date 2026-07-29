@@ -256,6 +256,81 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">signed_distance_from_ocean_mask</span><span class="p">(</span>
+    <span class="n">ocean_mask</span><span class="p">,</span>
+    <span class="n">lon</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">,</span>
+    <span class="n">distance_chunk_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+    <span class="n">workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the signed distance to the coastline of an ocean mask.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ocean_mask : numpy.ndarray</span>
+<span class="sd">        A boolean ocean mask with dimensions ``(lat, lon)``</span>
+
+<span class="sd">    lon : numpy.ndarray</span>
+<span class="sd">        The longitude coordinate in degrees</span>
+
+<span class="sd">    lat : numpy.ndarray</span>
+<span class="sd">        The latitude coordinate in degrees</span>
+
+<span class="sd">    distance_chunk_size : int, optional</span>
+<span class="sd">        Number of latitude rows per signed-distance query chunk</span>
+
+<span class="sd">    workers : int, optional</span>
+<span class="sd">        Number of workers to use in KD-tree queries</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    signed_distance : numpy.ndarray</span>
+<span class="sd">        The signed distance in meters to the nearest coastline sample</span>
+<span class="sd">        (positive over ocean, negative over land)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">edge_east</span><span class="p">,</span> <span class="n">edge_north</span> <span class="o">=</span> <span class="n">_coastline_edges</span><span class="p">(</span><span class="n">ocean_mask</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_signed_distance_from_mask</span><span class="p">(</span>
+        <span class="n">ocean_mask</span><span class="o">=</span><span class="n">ocean_mask</span><span class="p">,</span>
+        <span class="n">edge_east</span><span class="o">=</span><span class="n">edge_east</span><span class="p">,</span>
+        <span class="n">edge_north</span><span class="o">=</span><span class="n">edge_north</span><span class="p">,</span>
+        <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+        <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+        <span class="n">chunk_size</span><span class="o">=</span><span class="n">distance_chunk_size</span><span class="p">,</span>
+        <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">rasterize_critical_transects</span><span class="p">(</span><span class="n">critical_transects</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rasterize critical land blockages and passages onto a lat-lon grid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    critical_transects : CriticalTransects or None</span>
+<span class="sd">        Critical land blockages and passages (a</span>
+<span class="sd">        :py:class:`polaris.mesh.spherical.critical_transects.CriticalTransects`</span>
+<span class="sd">        object) to rasterize</span>
+
+<span class="sd">    lon : numpy.ndarray</span>
+<span class="sd">        The longitude coordinate in degrees</span>
+
+<span class="sd">    lat : numpy.ndarray</span>
+<span class="sd">        The latitude coordinate in degrees</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    land_blockages : numpy.ndarray</span>
+<span class="sd">        A boolean mask of rasterized land blockages</span>
+
+<span class="sd">    passages : numpy.ndarray</span>
+<span class="sd">        A boolean mask of rasterized ocean passages</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_rasterize_critical_transects</span><span class="p">(</span>
+        <span class="n">critical_transects</span><span class="o">=</span><span class="n">critical_transects</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">lat</span>
+    <span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_build_single_coastline_dataset</span><span class="p">(</span>
     <span class="n">convention</span><span class="p">,</span>
     <span class="n">ds_topo</span><span class="p">,</span>

@@ -131,23 +131,30 @@
 <h1>polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep<a class="headerlink" href="#polaris-tasks-mesh-spherical-unified-sizing-field-buildsizingfieldstep" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.mesh.spherical.unified.sizing_field.</span></span><span class="sig-name descname"><span class="pre">BuildSizingFieldStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coastline_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/mesh/spherical/unified/sizing_field/build.html#BuildSizingFieldStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.mesh.spherical.unified.sizing_field.</span></span><span class="sig-name descname"><span class="pre">BuildSizingFieldStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coastline_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fine_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/mesh/spherical/unified/sizing_field/build.html#BuildSizingFieldStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep" title="Link to this definition"></a></dt>
 <dd><p>Build a unified sizing field on a shared lat-lon target grid.</p>
 <p>The step reads the prepared coastline and river-network products for one
 mesh, delegates ocean-background construction to the mesh family, and
 writes a multi-variable sizing-field dataset to <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>.</p>
+<p>When cull emulation is enabled (the default), the shared coastline
+ocean mask and signed distance are replaced by <em>effective</em> fields
+that anticipate what the MPAS cull will keep as ocean/sea-ice (see
+the <code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code> design doc), so that land/river
+refinement never leaks into the CFL-limited ocean/sea-ice domain.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>coastline_step</strong> (<a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – The shared coastline-preparation step whose outputs are consumed</p></li>
 <li><p><strong>river_step</strong> (<a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – The shared lat-lon river-network step whose masks are consumed</p></li>
+<li><p><strong>fine_topo_step</strong> (<a class="reference internal" href="../../e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="polaris.tasks.e3sm.init.topo.combine.CombineStep"><em>polaris.tasks.e3sm.init.topo.combine.CombineStep</em></a>) – The step with combined topography at the finest lat-lon
+resolution, used for the cull-emulation candidate fraction</p></li>
 <li><p><strong>sizing_field_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the output sizing-field NetCDF file</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coastline_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/mesh/spherical/unified/sizing_field/build.html#BuildSizingFieldStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coastline_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fine_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/mesh/spherical/unified/sizing_field/build.html#BuildSizingFieldStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create a new step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -155,6 +162,8 @@ writes a multi-variable sizing-field dataset to <code class="docutils literal no
 <li><p><strong>component</strong> (<a class="reference internal" href="../../generated/polaris.Component.html#polaris.Component" title="polaris.Component"><em>polaris.Component</em></a>) – The component the step belongs to</p></li>
 <li><p><strong>coastline_step</strong> (<a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – The shared coastline-preparation step for the lat-lon grid</p></li>
 <li><p><strong>river_step</strong> (<a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – The shared lat-lon river-network step</p></li>
+<li><p><strong>fine_topo_step</strong> (<a class="reference internal" href="../../e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="polaris.tasks.e3sm.init.topo.combine.CombineStep"><em>polaris.tasks.e3sm.init.topo.combine.CombineStep</em></a>) – The step with combined topography at the finest lat-lon
+resolution, used for the cull-emulation candidate fraction</p></li>
 <li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The subdirectory within the component work directory where the
 step runs</p></li>
 </ul>

@@ -131,7 +131,7 @@
 <h1>polaris.tasks.e3sm.init.topo.cull.CullMaskStep<a class="headerlink" href="#polaris-tasks-e3sm-init-topo-cull-cullmaskstep" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.cull.CullMaskStep">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.cull.</span></span><span class="sig-name descname"><span class="pre">CullMaskStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mesh_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsmoothed_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/cull/mask.html#CullMaskStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.cull.CullMaskStep" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.cull.</span></span><span class="sig-name descname"><span class="pre">CullMaskStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mesh_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsmoothed_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sizing_field_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/cull/mask.html#CullMaskStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.cull.CullMaskStep" title="Link to this definition"></a></dt>
 <dd><p>A step for creating the masks that will be used to cull land and
 ocean/sea-ice meshes based on critical land and ocean/sea-ice transects,
 handling land-locked cells, and flood-filling to make sure that Antarctic
@@ -142,12 +142,15 @@ land ice and ocean are both contiguous.</p>
 <li><p><strong>base_mesh_step</strong> (<a class="reference internal" href="../../../generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.spherical.SphericalBaseStep" title="polaris.mesh.spherical.SphericalBaseStep"><em>polaris.mesh.spherical.SphericalBaseStep</em></a>) – The base mesh step containing input files to this step</p></li>
 <li><p><strong>unsmoothed_topo_step</strong> (<em>polaris.tasks.e3sm.init.topo.RemapTopoStep</em>) – The step for remapping the topography to the MPAS base mesh without
 smoothing</p></li>
+<li><p><strong>sizing_field_step</strong> (<a class="reference internal" href="../../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a><em> or </em><em>None</em>) – For unified meshes, the sizing-field build step whose
+<code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code> provides the ocean background cell width used
+by the <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> diagnostic</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mesh_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsmoothed_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/cull/mask.html#CullMaskStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mesh_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsmoothed_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sizing_field_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/cull/mask.html#CullMaskStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create a new step</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -158,6 +161,9 @@ smoothing</p></li>
 smoothing</p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – the name of the step</p></li>
 <li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – the subdirectory for the step</p></li>
+<li><p><strong>sizing_field_step</strong> (<a class="reference internal" href="../../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a><em>, </em><em>optional</em>) – For unified meshes, the sizing-field build step whose
+<code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code> provides the ocean background cell width
+used by the <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> diagnostic</p></li>
 </ul>
 </dd>
 </dl>
@@ -166,7 +172,7 @@ smoothing</p></li>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.__init__" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, base_mesh_step, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.__init__" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, base_mesh_step, ...[, ...])</p></td>
 <td><p>Create a new step</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dependency</span></code>(step[, name])</p></td>
