@@ -96,7 +96,6 @@ Omega:
   Tendencies:
     TracerDiffTendencyEnable: false
     TracerHyperDiffTendencyEnable: false
-    SfcStressForcingTendencyEnable: true
   Tracers:
     Debug: []
   Analysis:
