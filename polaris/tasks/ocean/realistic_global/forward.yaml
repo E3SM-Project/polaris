@@ -22,17 +22,15 @@ ocean:
     config_cvmix_shear_KPP_Ri_zero: 0.7
     config_cvmix_shear_KPP_exp: 3.0
     config_cvmix_num_ri_smooth_loops: 2
-  debug:
-    config_disable_vel_explicit_bottom_drag: false
   bottom_drag:
-    config_explicit_bottom_drag_coeff: 1.0e-3
+    config_bottom_drag_mode: implicit
+    config_implicit_bottom_drag_type: constant
+    config_implicit_constant_bottom_drag_coeff: 1.0e-3
 
 mpas-ocean:
   # If using teos10 for omega
   eos:
     config_eos_type: jm
-  bottom_drag:
-    config_bottom_drag_mode: explicit
   cvmix:
     config_cvmix_use_BLD_smoothing: false
     config_bulk_wind_stress_interp_isotropic: true
@@ -102,7 +100,8 @@ Omega:
     GlobalStats:
       Enable: true
       ReductionPeriod: ["1Day"]
-      SnapshotPeriod: ["1Day"]
+      SnapshotPeriod: []
+      Filename: global_stats
   IOStreams:
     InitialVertCoord:
       Filename: init.nc
