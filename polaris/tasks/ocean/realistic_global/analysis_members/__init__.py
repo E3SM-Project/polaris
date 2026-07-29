@@ -21,7 +21,7 @@ class AnalysisMembers(Task):
         mesh_name,
         mpaso_id,
         omega_id,
-        resolution_for_cell_count,
+        ncells,
     ):
         """
         Create the test case
@@ -53,11 +53,15 @@ class AnalysisMembers(Task):
         )
         # self.set_shared_config(config, link=config_filename)
 
+        mesh_info = {
+            'QU.240km': dict(dt='00:10:00'),
+            'EC30to60E2r2': dict(dt='00:00:45'),
+        }
         package = 'polaris.tasks.ocean.realistic_global'
         replacements = {
             'time_integrator': 'RungeKutta4',
             'run_duration': '0030_00:00:00',
-            'dt': '00:00:45',
+            'dt': mesh_info[mesh_name]['dt'],
             'output_interval': '0001_00:00:00',
             'output_freq': '1',
             'output_freq_units': 'days',
@@ -69,17 +73,15 @@ class AnalysisMembers(Task):
             mesh_name=mesh_name,
             mpaso_id=mpaso_id,
             omega_id=omega_id,
+            ncells=ncells,
             replacements=replacements,
-            resolution_for_cell_count=resolution_for_cell_count,
         )
         forward_step.set_shared_config(config, link=config_filename)
         self.add_step(forward_step)
 
         stats_analysis = StatsAnalysis(
             component=component,
-            name=f'{mesh_name}_global_stats',
             indir=subdir,
-            output_filename='global_stats.nc',
             forward_step=forward_step,
         )
         stats_analysis.set_shared_config(config, link=config_filename)

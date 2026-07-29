@@ -16,6 +16,7 @@ class Forward(OceanModelStep):
         mesh_name,
         mpaso_id,
         omega_id,
+        ncells=None,
         name='forward',
         indir=None,
         subdir=None,
@@ -27,7 +28,6 @@ class Forward(OceanModelStep):
         replacements=None,
         validate_vars=None,
         check_properties=None,
-        resolution_for_cell_count=None,
     ):
         """
         Create a new step
@@ -58,7 +58,7 @@ class Forward(OceanModelStep):
         self.mesh_name = mesh_name
         self.mpaso_id = mpaso_id
         self.omega_id = omega_id
-        self.resolution = resolution_for_cell_count
+        self.ncells = ncells
         self.replacements = replacements
         self.package = package
         # make sure output is double precision
@@ -157,12 +157,8 @@ class Forward(OceanModelStep):
         cell_count : int or None
             The approximate number of cells in the mesh
         """
-        # Consider getting ds_mesh.sizes['nCells'] from file in input database
-        if self.resolution is None:
+        if self.ncells is None:
             raise ValueError(
-                'Resolution for cell count is required for realistic_global '
-                'tests'
+                'Cell count is required for realistic_global tests'
             )
-        # cell_count = 4e8 / self.resolution**2
-        cell_count = 236853
-        return cell_count
+        return self.ncells

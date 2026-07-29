@@ -17,17 +17,19 @@ def add_realistic_global_tasks(component):
     """
     component.add_task(Woa23(component=component))
 
-    # ncells 236853
-    mesh_list = [('QU240km', 151209, 260720), ('EC30to60E2r2', 200908, 260720)]
-    for mesh_name, mpaso_id, omega_id in mesh_list:
+    mesh_dict = {
+        'QU.240km': dict(mpaso_id=151209, omega_id=260720, ncells=7153),
+        'EC30to60E2r2': dict(mpaso_id=200908, omega_id=260720, ncells=236853),
+    }
+    for mesh_name, mesh_info in mesh_dict.items():
         subdir = f'spherical/realistic_global/{mesh_name}'
         component.add_task(
             AnalysisMembers(
                 component=component,
                 subdir=subdir,
                 mesh_name=mesh_name,
-                mpaso_id=mpaso_id,
-                omega_id=omega_id,
-                resolution_for_cell_count=240,
+                mpaso_id=mesh_info['mpaso_id'],
+                omega_id=mesh_info['omega_id'],
+                ncells=mesh_info['ncells'],
             )
         )
