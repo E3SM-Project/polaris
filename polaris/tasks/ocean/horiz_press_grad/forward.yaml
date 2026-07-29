@@ -11,7 +11,8 @@ Omega:
     VelDiffTendencyEnable: false
     VelHyperDiffTendencyEnable: false
     SfcStressForcingTendencyEnable: false
-    BottomDragTendencyEnable: false
+    BottomDragTendency:
+      Enable: false
     TracerHorzAdvTendencyEnable: false
     TracerDiffTendencyEnable: false
     TracerHyperDiffTendencyEnable: false
