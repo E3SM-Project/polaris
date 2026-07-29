@@ -17,5 +17,6 @@ COMPILER_MAP["craycray"]="SERIAL"
 COMPILER_MAP["crayamd"]="SERIAL"
 
 export COMPILER_MAP_DEF=$(declare -p COMPILER_MAP)
+export JOB_SCHEDULER=SLURM
 
 mkdir -p "$CRONJOB_BASEDIR"
