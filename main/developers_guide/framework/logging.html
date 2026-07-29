@@ -14,8 +14,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -134,8 +134,8 @@
 either stdout/stderr or to a log file is needed between polaris and
 <code class="docutils literal notranslate"><span class="pre">mpas_tools</span></code>.  To get details on how this module works in general, see
 <a class="reference external" href="http://mpas-dev.github.io/MPAS-Tools/stable/logging.html">MPAS-Tools’ Logging</a>
-as well as the APIs for <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.logging.LoggingContext.html#mpas_tools.logging.LoggingContext" title="(in mpas_tools vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.logging.LoggingContext</span></code></a> and
-<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.logging.check_call.html#mpas_tools.logging.check_call" title="(in mpas_tools vmaster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.logging.check_call()</span></code></a>.</p>
+as well as the APIs for <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.logging.LoggingContext.html#mpas_tools.logging.LoggingContext" title="(in mpas_tools master)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.logging.LoggingContext</span></code></a> and
+<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.logging.check_call.html#mpas_tools.logging.check_call" title="(in mpas_tools master)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.logging.check_call()</span></code></a>.</p>
 <p>For the most part, the polaris framework handles logging for you, so
 task developers won’t have to create their own <code class="docutils literal notranslate"><span class="pre">logger</span></code> objects.  They
 are attributes that belong to the step or task.  If you run a step on its
@@ -149,7 +149,7 @@ directory.</p>
 idea to call <code class="docutils literal notranslate"><span class="pre">logger.info</span></code> instead of <code class="docutils literal notranslate"><span class="pre">print</span></code> to be explicit about the
 expectation that the output may go to a log file.</p>
 <p>Even more important, subprocesses that produce output should always be called
-with <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.logging.check_call.html#mpas_tools.logging.check_call" title="(in mpas_tools vmaster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.logging.check_call()</span></code></a>, passing in the <code class="docutils literal notranslate"><span class="pre">logger</span></code> that
+with <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.logging.check_call.html#mpas_tools.logging.check_call" title="(in mpas_tools master)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.logging.check_call()</span></code></a>, passing in the <code class="docutils literal notranslate"><span class="pre">logger</span></code> that
 belongs to the step.  Otherwise, output will go to <code class="docutils literal notranslate"><span class="pre">stdout</span></code>/<code class="docutils literal notranslate"><span class="pre">stderr</span></code> even
 when the intention is to write all output to a log file.  Whereas logging can
 capture <code class="docutils literal notranslate"><span class="pre">stdout</span></code>/<code class="docutils literal notranslate"><span class="pre">stderr</span></code> to make sure that the <code class="docutils literal notranslate"><span class="pre">print</span></code> statements
