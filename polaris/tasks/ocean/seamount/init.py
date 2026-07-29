@@ -90,8 +90,10 @@ class Init(OceanIOStep):
             'seamount_density_depth_exp'
         )
         eos_linear_rhoref = self.config.getfloat('ocean', 'eos_linear_rhoref')
-        eos_linear_tref = self.config.getfloat('ocean', 'eos_linear_tref')
+        eos_linear_tref = self.config.getfloat('ocean', 'eos_linear_Tref')
+        eos_linear_sref = self.config.getfloat('ocean', 'eos_linear_Sref')
         eos_linear_alpha = self.config.getfloat('ocean', 'eos_linear_alpha')
+        eos_linear_beta = self.config.getfloat('ocean', 'eos_linear_beta')
         seamount_height = section.getfloat('seamount_height')
         seamount_width = section.getfloat('seamount_width')
         constant_salinity = section.getfloat('constant_salinity')
@@ -132,15 +134,25 @@ class Init(OceanIOStep):
                 * np.exp(z_mid / seamount_density_depth_exp)
             )
 
-        # Back-solve linear EOS for temperature, with S=S_ref
-        # T = T_ref - (rho - rho_ref)/alpha
+        salinity = constant_salinity * xr.ones_like(densityCell)
+
+        # Back-solve the linear EOS that both Polaris and the ocean model
+        # apply, rho = rho_ref - alpha * (T - T_ref) + beta * (S - S_ref),
+        # for the temperature that reproduces the target density.  The
+        # salinity term matters: dropping it leaves the model's density
+        # offset from the Beckmann and Haidvogel profile by beta * S.
         temperature = (
             eos_linear_tref
-            - (densityCell - eos_linear_rhoref) / eos_linear_alpha
+            + (
+                eos_linear_rhoref
+                + eos_linear_beta * (salinity - eos_linear_sref)
+                - densityCell
+            )
+            / eos_linear_alpha
         )
 
         ds['temperature'] = temperature
-        ds['salinity'] = constant_salinity * xr.ones_like(temperature)
+        ds['salinity'] = salinity
         ds['normalVelocity'] = (
             (
                 'Time',
