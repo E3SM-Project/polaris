@@ -112,16 +112,31 @@ class Forward(OceanModelStep):
         super().dynamic_model_config(at_setup=at_setup)
 
         config = self.config
-        resolution = config.getfloat('seamount', 'resolution')
-        dt_per_km = config.getfloat('seamount', 'dt_per_km')
-        btr_dt_per_km = config.getfloat('seamount', 'btr_dt_per_km')
+        section = config['seamount']
+        model = config.get('ocean', 'model')
+        resolution = section.getfloat('resolution')
+
+        # MPAS-Ocean resolves the barotropic mode with a sub-step, so it can
+        # take a much longer baroclinic step than Omega, which has no
+        # split-explicit integrator
+        if model == 'omega':
+            dt_per_km = section.getfloat('omega_dt_per_km')
+            time_integrator = _omega_time_integrator(
+                section.get('omega_time_integrator')
+            )
+        else:
+            dt_per_km = section.getfloat('dt_per_km')
+            time_integrator = section.get('time_integrator')
+
+        btr_dt_per_km = section.getfloat('btr_dt_per_km')
         dt_str = get_time_interval_string(seconds=dt_per_km * resolution)
         btr_dt_str = get_time_interval_string(
             seconds=btr_dt_per_km * resolution
         )
-        section = config[f'seamount_{self.task_name}']
-        run_duration = section.getfloat('run_duration')
-        output_interval = section.getfloat('output_interval')
+
+        task_section = config[f'seamount_{self.task_name}']
+        run_duration = task_section.getfloat('run_duration')
+        output_interval = task_section.getfloat('output_interval')
         run_duration_str = get_time_interval_string(
             seconds=run_duration * 86400.0
         )
@@ -132,8 +147,15 @@ class Forward(OceanModelStep):
         replacements = dict(
             dt=dt_str,
             btr_dt=btr_dt_str,
+            time_integrator=time_integrator,
             run_duration=run_duration_str,
             output_interval=output_interval_str,
+            # Omega's History stream takes an integer frequency, so express
+            # the interval in seconds to avoid truncating a fractional hour
+            output_freq=f'{round(output_interval * 3600.0)}',
+            output_freq_units='seconds',
+            horiz_adv_order=section.getint('horiz_adv_order'),
+            bottom_drag_coeff=section.getfloat('bottom_drag_coeff'),
             nu=self.nu,
         )
         self.add_yaml_file(
@@ -159,3 +181,14 @@ class Forward(OceanModelStep):
         nx, ny = compute_planar_hex_nx_ny(lx, ly, resolution)
         cell_count = nx * ny
         return cell_count
+
+
+def _omega_time_integrator(time_integrator):
+    """
+    Map an MPAS-Ocean time-integrator name to its Omega equivalent, leaving
+    names that are already Omega's alone.
+    """
+    time_integrator_map = dict([('RK4', 'RungeKutta4')])
+    if time_integrator in time_integrator_map:
+        return time_integrator_map[time_integrator]
+    return time_integrator
