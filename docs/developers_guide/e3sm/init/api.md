@@ -121,5 +121,7 @@
 
    get_cull_topo_steps
    add_cull_topo_tasks
+
+   dc_edge_diagnostics.check_ocean_dc_edge
 ```
 

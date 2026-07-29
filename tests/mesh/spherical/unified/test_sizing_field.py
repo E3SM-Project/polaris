@@ -416,6 +416,11 @@ def test_so_mesh_family_links_shared_region_and_builds_field(
         path='river',
         masks_filename='river_network.nc',
     )
+    fine_topo_step = SimpleNamespace(
+        subdir='topo/combine_bedmap3_gebco2023/lat_lon/0.03125_degree',
+        path='combine',
+        combined_filename='topography_finest.nc',
+    )
     config = get_sizing_field_config(
         mesh_name='u.oi.so12to30.lr10',
         filepath='mesh/spherical/unified/'
@@ -425,6 +430,7 @@ def test_so_mesh_family_links_shared_region_and_builds_field(
         component=component,
         coastline_step=coastline_step,
         river_step=river_step,
+        fine_topo_step=fine_topo_step,
         subdir='spherical/unified/u.oi.so12to30.lr10/sizing_field/build',
     )
     step.set_shared_config(config, link='sizing_field.cfg')
