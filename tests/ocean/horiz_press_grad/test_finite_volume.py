@@ -31,17 +31,30 @@ _HPG_PKG = 'polaris.tasks.ocean.horiz_press_grad'
 # there is error, and they are the only ones that sweep a tilt.
 _VARIANTS = ['hydrostatic_consistency', 'bathymetry_step']
 
+# The four gradient variants, which sweep resolution rather than tilt.  They
+# add nothing to the algebra but a good deal to the states it is checked on:
+# temperature and salinity contrasts across the edge, pseudo-height nodes that
+# move with x, and -- in surface_pressure_gradient -- a different surface
+# pressure in the two columns, so that Delta_e q is nonzero at the top
+# interface and not only in the interior.
+_GRADIENT_VARIANTS = [
+    'temperature_gradient',
+    'salinity_gradient',
+    'ztilde_gradient',
+    'surface_pressure_gradient',
+]
+
 # Machine-precision tolerance, as a multiple of the hydrostatic scale rather
 # than as an absolute number (``PGradHighOrder.md`` §3.7.5).  The largest
-# discrepancy measured over the two sweeps is 0.45 * eps of that scale, so this
-# leaves a factor of ~100.  It is still far from vacuous: the closest plausible
-# mis-derivation tried -- a cell-local rather than edge-averaged specific
-# volume -- misses by 700 times this tolerance at the smallest tilt in the
-# sweep, and dropping the pressure term misses by 1e9 times it.
+# discrepancy measured over every state below is 0.5 * eps of that scale, so
+# this leaves a factor of ~90.  It is still far from vacuous: the closest
+# plausible mis-derivation tried -- a cell-local rather than an edge-averaged
+# specific volume -- misses by 700 times this tolerance at the smallest tilt in
+# the sweep, and dropping the pressure term misses by 1e9 times it.
 _ROUNDOFF_TOL = 1.0e-14
 
-# Built states are reused across tests: 42 sweep points at ~0.25 s each.
-_STATE_CACHE: dict[tuple[str, float, float, float], xr.Dataset] = {}
+# Built states are reused across tests, at roughly 0.25 s each.
+_STATE_CACHE: dict[tuple[str, float, float, float | None], xr.Dataset] = {}
 
 
 # ---------------------------------------------------------------------------
@@ -73,11 +86,30 @@ def _sweep(variant: str) -> list[tuple[float, float, float]]:
     ]
 
 
+def _resolution_pairs(variant: str) -> list[tuple[float, float]]:
+    """The coarsest and finest ``(horiz_res, vert_res)`` pairs of a sweep."""
+    section = _make_config(variant)['horiz_press_grad']
+    pairs = [
+        (float(horiz_res), float(vert_res))
+        for horiz_res, vert_res in zip(
+            section.getexpression('horiz_resolutions'),
+            section.getexpression('vert_resolutions'),
+            strict=True,
+        )
+    ]
+    return [pairs[0], pairs[-1]]
+
+
 def _build_state(
-    variant: str, horiz_res: float, vert_res: float, tilt: float
+    variant: str, horiz_res: float, vert_res: float, tilt: float | None
 ) -> xr.Dataset:
     """
     Build (or return a cached) two-column state for one sweep point.
+
+    ``tilt`` is the value of the variant's ``tilt_option``, or ``None`` for the
+    gradient variants, which override no option -- exactly as
+    :py:class:`~polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask`
+    constructs the step.
 
     The Polaris ``Step`` constructor is bypassed, as in
     ``tests/ocean/vertical/test_pstar_init.py``, so that no component, work
@@ -93,7 +125,10 @@ def _build_state(
     step.logger = logging.getLogger('test_finite_volume')
     step.horiz_res = horiz_res
     step.vert_res = vert_res
-    step.tilt_option = config.get('horiz_press_grad', 'tilt_option')
+    if tilt is None:
+        step.tilt_option = None
+    else:
+        step.tilt_option = config.get('horiz_press_grad', 'tilt_option')
     step.tilt = tilt
     step.x = np.array([])
 
@@ -153,6 +188,38 @@ def test_centered_shift_reproduces_centered_hpga(
         f'{variant} at horiz_res={horiz_res} km, vert_res={vert_res} m, '
         f'tilt={tilt} m/km: max |S-derived HPGA - Init HPGA| = '
         f'{max_diff:.3e} m s-2 exceeds {tol:.3e} m s-2'
+    )
+
+
+@pytest.mark.parametrize(
+    'variant, horiz_res, vert_res',
+    [
+        (variant, *pair)
+        for variant in _GRADIENT_VARIANTS
+        for pair in _resolution_pairs(variant)
+    ],
+)
+def test_centered_shift_with_horizontal_structure(
+    variant, horiz_res, vert_res
+):
+    """The same identity on the four gradient variants.
+
+    The resting-state configurations are horizontally uniform in temperature
+    and salinity, and their surface pressure is the same in both columns, so
+    ``Delta_e q`` vanishes at the top interface there.  These configurations
+    put horizontal structure in the state instead, and
+    ``surface_pressure_gradient`` differs in surface pressure across the edge.
+    The identity is algebraic and should not care, which is the point of
+    checking.
+    """
+    ds = _build_state(variant, horiz_res, vert_res, None)
+    hpga, reference, tol = _valid_hpga(ds, horiz_res)
+
+    max_diff = float(np.max(np.abs(hpga - reference)))
+    assert max_diff <= tol, (
+        f'{variant} at horiz_res={horiz_res} km, vert_res={vert_res} m: '
+        f'max |S-derived HPGA - Init HPGA| = {max_diff:.3e} m s-2 exceeds '
+        f'{tol:.3e} m s-2'
     )
 
 
