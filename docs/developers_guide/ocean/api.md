@@ -215,11 +215,17 @@
    column.get_pchip_interpolator
    column.get_pchip_layer_mean
 
+   edge.edge_delta
+   edge.edge_mean
+
+   eos_expansion.specvol_coefficients
+   eos_expansion.edge_expansion
+   eos_expansion.edge_specvol
+   eos_expansion.edge_specvol_layer_mean
+
    finite_volume.centered_shift
    finite_volume.hpga_from_shift
    finite_volume.hydrostatic_scale
-   finite_volume.edge_delta
-   finite_volume.edge_mean
 
    metrics.get_internal_edge
    metrics.rms
