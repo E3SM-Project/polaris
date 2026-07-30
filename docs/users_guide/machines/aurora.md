@@ -40,12 +40,15 @@ software_compiler = oneapi-ifx
 # the system MPI library to use for oneapi-ifx compiler
 mpi_oneapi_ifx = mpich
 
+# the system MPI library to use for oneapi-ifxgpu compiler
+mpi_oneapi_ifxgpu = mpich
+
 # the base path for spack environments used by polaris
 spack = /lus/flare/projects/E3SM_Dec/soft/polaris/aurora/spack
 
 # whether to use the same modules for hdf5, netcdf-c, netcdf-fortran and
 # pnetcdf as E3SM (spack modules are used otherwise)
-use_e3sm_hdf5_netcdf = False
+use_e3sm_hdf5_netcdf = True
 
 
 # Config options related to creating a job script
