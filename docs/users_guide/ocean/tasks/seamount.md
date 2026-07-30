@@ -29,20 +29,43 @@ two are configured separately, through `dt_per_km` and `omega_dt_per_km`.
 
 (ocean-seamount-variants)=
 
-## coordinate variants
+## variants
 
-Each task exists in two trees, one per vertical coordinate for the initial
-condition:
+Each task exists in four trees, combining the equation of state with the
+vertical coordinate used for the initial condition:
+`planar/seamount/{linear,nonlinear}/{sigma,zstar}`.
 
-- `planar/seamount/sigma` — the terrain-following coordinate, and the main
-  target.  Every layer is tilted relative to the isobars by construction, so
-  the pressure gradient error is exercised throughout the water column.
-- `planar/seamount/zstar` — the control.  Layers are nearly level, so the
-  spurious velocity should be much smaller.  Partial bottom cells are used
-  here: z-star cuts the reference grid at the seafloor, and without snapping
-  the seamount flanks produce bottom cells only centimetres thick.  Set
+The coordinate chooses how much the layers tilt:
+
+- `sigma` — the terrain-following coordinate, and the main target.  Every
+  layer is tilted relative to the isobars by construction, so the pressure
+  gradient error is exercised throughout the water column.
+- `zstar` — the control.  Layers are nearly level, so the spurious velocity
+  should be much smaller.  Partial bottom cells are used here: z-star cuts
+  the reference grid at the seafloor, and without snapping the seamount
+  flanks produce bottom cells only centimetres thick.  Set
   `partial_cell_type = full` for the limiting case in which the layers are
   exactly level and the pressure gradient vanishes to machine precision.
+
+The equation of state chooses whether density depends on pressure:
+
+- `linear` — `rho = rhoref - alpha * (T - Tref) + beta * (S - Sref)`, with
+  no pressure dependence at all.
+- `nonlinear` — TEOS-10 for Omega and Jackett-McDougall (`jm`) for
+  MPAS-Ocean, the closest nonlinear equation of state it has.  The thermal
+  expansion coefficient then varies along a tilted layer, which the linear
+  trees cannot represent.
+
+The two equations of state are given the same buoyancy stratification, as
+described under {ref}`ocean-seamount-init`, so a difference in spurious
+velocity between the `linear` and `nonlinear` trees is attributable to the
+equation of state and not to a different `N^2`.
+
+One caveat on cross-model comparison: TEOS-10 and Jackett-McDougall are
+genuinely different functions, not two implementations of one, so the two
+models are only expected to agree qualitatively in the `nonlinear` trees.
+In the `linear` trees they solve the same equation of state and can be
+compared directly.
 
 (ocean-seamount-default)=
 
@@ -84,6 +107,9 @@ The coordinate is set by the task tree, `sigma` or `zstar`, as described in
 `seamount_sigma.cfg` / `seamount_zstar.cfg` rather than in the shared config
 below. One may also test `coord_type = z-level`.
 
+All of these are geometric coordinates, so all of them reach Omega through
+the same pseudo-height conversion, under either equation of state.
+
 The 32 levels divide the 5000 m bottom depth into exact 156.25 m layers. That
 is a multiple of 16, which Omega prefers, and it sits in the range the
 literature uses for this case (20 in Beckmann and Haidvogel, 20-30 in
@@ -117,19 +143,44 @@ partial_cell_type = None
 min_pc_fraction = 0.1
 ```
 
+(ocean-seamount-init)=
+
 ### initial conditions
 
 Salinity is constant throughout the domain at the value given by the config
-option ``constant_salinity`` (35 PSU by default).  The initial density 
+option ``constant_salinity`` (35 by default), read as practical salinity in
+the `linear` trees and as absolute salinity in the `nonlinear` ones.  The
+initial density
 is based on the formulas given in [Beckmann and Haidvogel (1993)](https://journals.ametsoc.org/view/journals/phoc/23/8/1520-0485_1993_023_1736_nsofaa_2_0_co_2.xml) equations 15-16.
-The initial temperature is back-computed from this density by inverting the
-linear equation of state that Polaris and both ocean models apply,
-`rho = rhoref - alpha * (T - Tref) + beta * (S - Sref)`, using the
-`eos_linear_*` options in the `ocean` section. The salinity term matters:
-dropping it would leave the model's density offset from the Beckmann and
-Haidvogel profile by `beta * S`, which is harmless in MPAS-Ocean but not in
-Omega, where the geometric-to-pseudo-height mapping depends on the absolute
-density.
+Temperature is then back-computed from that density, so the profile rather
+than the temperature is what the two equations of state have in common.
+
+In the `linear` trees the inversion is algebraic: the equation of state that
+Polaris and both ocean models apply,
+`rho = rhoref - alpha * (T - Tref) + beta * (S - Sref)`, is solved for `T`
+using the `eos_linear_*` options in the `ocean` section. The salinity term
+matters: dropping it would leave the model's density offset from the
+Beckmann and Haidvogel profile by `beta * S`, which is harmless in
+MPAS-Ocean but not in Omega, where the geometric-to-pseudo-height mapping
+depends on the absolute density.
+
+In the `nonlinear` trees the profile is read as a **potential density
+referenced to the surface**, and conservative temperature comes from
+`gsw.CT_from_rho` at zero reference pressure.  It cannot be read as in-situ
+density: TEOS-10 in-situ density at 5000 m is near 1050 kg m^{-3} from
+compression alone, well outside the 1025-1028 kg m^{-3} range the profile
+spans, so no temperature would reproduce it below about 1000 m.  Referencing
+to the surface also means the `linear` and `nonlinear` trees share a
+buoyancy stratification exactly while their in-situ densities differ by more
+than 20 kg m^{-3} at depth — which is the point, since that difference is
+what a nonlinear equation of state contributes to the pressure gradient
+error.
+
+Omega receives conservative temperature and absolute salinity directly.  For
+MPAS-Ocean the `nonlinear` tracers are converted to potential temperature and
+practical salinity at a nominal lon/lat location (config options
+`ocean:nominal_lon` and `ocean:nominal_lat`, both defaulting to 0 degrees)
+since the planar mesh has no geographic location.
 
 ### forcing
 
@@ -240,9 +291,15 @@ seamount_height = 4500.0
 # Width parameter of sea mount, e-folding length (m)
 seamount_width = 40.0e3
 
-# Salinity of the water in the entire domain (PSU)
+# Salinity of the water in the entire domain, read as practical salinity
+# (PSU) for the linear trees and as absolute salinity (g kg^-1) for the
+# nonlinear ones
 constant_salinity = 35.0
 ```
+
+The `nonlinear` trees add no config options of their own; they take their
+equation of state from `polaris.ocean.eos`'s `teos10.cfg` and the nominal
+location for the salinity conversion from the shared `ocean` section.
 
 The Coriolis parameter is set in the shared `coriolis` section:
 
@@ -257,13 +314,15 @@ type = constant
 constant_f = -1.0e-4
 ```
 
-The linear equation of state used to back-compute temperature from the target
-density is configured in the `ocean` section. `eos_linear_Tref` must be zero,
-because Omega's linear equation of state has no reference temperature; the
-Beckmann and Haidvogel reference state (1028 kg m^{-3} at T = 5 C, S = 35 PSU)
-is folded into `eos_linear_rhoref` instead, as
+The `linear` trees configure their equation of state in `ocean`, through
+`seamount_linear.cfg`. `eos_linear_Tref` must be zero, because Omega's
+linear equation of state has no reference temperature; the Beckmann and
+Haidvogel reference state (1028 kg m^{-3} at T = 5 C, S = 35 PSU) is folded
+into `eos_linear_rhoref` instead, as
 `1028.0 + 0.2 * 5.0 - 0.8 * 35.0 = 1001.0`. `eos_linear_beta` and
-`eos_linear_Sref` come from `polaris.ocean.eos`'s `linear.cfg`.
+`eos_linear_Sref` come from `polaris.ocean.eos`'s `linear.cfg`. These
+options have no meaning in the `nonlinear` trees, which is why they live in
+a per-variant config rather than the shared one.
 
 ```cfg
 # Options related the ocean component
@@ -278,6 +337,10 @@ eos_linear_alpha = 0.2
 # Equation of state reference temperature
 eos_linear_Tref = 0.
 ```
+
+The `nonlinear` trees instead pick up `polaris.ocean.eos`'s `teos10.cfg`,
+which sets `eos_type = teos-10` and nothing else; Polaris maps that to `jm`
+for MPAS-Ocean.
 
 ### cores
 
