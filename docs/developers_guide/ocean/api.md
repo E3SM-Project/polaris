@@ -227,6 +227,10 @@
    finite_volume.hpga_from_shift
    finite_volume.hydrostatic_scale
 
+   reconstruction.linear_slope
+   reconstruction.layer_deviation
+   reconstruction.reconstruct
+
    metrics.get_internal_edge
    metrics.rms
    metrics.power_law_fit
