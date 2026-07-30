@@ -5,8 +5,8 @@ configurations.
 All tests are self-contained: no file I/O, no mesh generation and no Omega
 build.  Each builds the same two-column state
 :py:class:`~polaris.tasks.ocean.horiz_press_grad.init.Init` writes to
-``init.nc``, from the packaged config of a resting-state variant, and compares
-the new code against the ``HPGA`` field that step already produces.
+``init.nc``, from the packaged config of one of the task's variants, and
+compares the new code against the ``HPGA`` field that step already produces.
 """
 
 import logging
@@ -17,6 +17,9 @@ import xarray as xr
 
 from polaris.config import PolarisConfigParser
 from polaris.ocean.vertical.ztilde import Gravity
+from polaris.tasks.ocean.horiz_press_grad.column import (
+    get_array_from_mid_grad,
+)
 from polaris.tasks.ocean.horiz_press_grad.finite_volume import (
     centered_shift,
     hpga_from_shift,
@@ -63,7 +66,7 @@ _STATE_CACHE: dict[tuple[str, float, float, float | None], xr.Dataset] = {}
 
 
 def _make_config(variant: str) -> PolarisConfigParser:
-    """Load the packaged config for one resting-state variant."""
+    """Load the packaged config for one variant of the task."""
     config = PolarisConfigParser()
     config.add_from_package('polaris.ocean', 'ocean.cfg')
     config.add_from_package(_HPG_PKG, 'horiz_press_grad.cfg')
@@ -221,6 +224,64 @@ def test_centered_shift_with_horizontal_structure(
         f'max |S-derived HPGA - Init HPGA| = {max_diff:.3e} m s-2 exceeds '
         f'{tol:.3e} m s-2'
     )
+
+
+@pytest.mark.parametrize(
+    'variant, horiz_res, vert_res, tilt',
+    [(variant, *point) for variant in _VARIANTS for point in _sweep(variant)]
+    + [
+        (variant, *pair, None)
+        for variant in _GRADIENT_VARIANTS
+        for pair in _resolution_pairs(variant)
+    ],
+)
+def test_state_is_valid_exactly_where_the_column_is(
+    variant, horiz_res, vert_res, tilt
+):
+    """Temperature and salinity are finite in every valid layer and no others.
+
+    The layer means are taken over each layer's two interfaces, and in every
+    configuration the outermost interfaces sit on the outermost profile nodes
+    up to round-off -- the column is summed upward from the sea floor, so
+    whether the top interface lands just inside or just outside its node is the
+    sign of a round-off error.  Landing outside yields a NaN there, which then
+    feeds back through the p-star iteration and corrupts the whole column.  The
+    corruption is silent: the HPGA identity above still holds on a corrupted
+    state, since both sides are computed from it, and the masked comparison
+    simply skips the NaN.  Measured with the clipping in
+    ``get_pchip_layer_mean`` removed, this test fires on
+    ``temperature_gradient`` while every other test in this file still passes.
+    """
+    ds = _build_state(variant, horiz_res, vert_res, tilt)
+
+    level = xr.DataArray(
+        np.arange(ds.sizes['nVertLevels']), dims=['nVertLevels']
+    )
+    # minLevelCell and maxLevelCell are 1-based
+    expected = np.logical_and(
+        level >= ds.minLevelCell - 1, level <= ds.maxLevelCell - 1
+    )
+
+    for field in ['temperature', 'salinity', 'SpecVol']:
+        finite = np.isfinite(ds[field].isel(Time=0))
+        assert bool((finite == expected).all()), (
+            f'{variant} at horiz_res={horiz_res} km, vert_res={vert_res} m, '
+            f'tilt={tilt}: {field} is finite in '
+            f'{int(finite.sum())} layers but the columns span '
+            f'{int(expected.sum())}'
+        )
+
+    # a mean of a monotone profile cannot leave the range of its own nodes
+    config = _make_config(variant)
+    x = horiz_res * np.array([-0.5, 0.5])
+    for field in ['temperature', 'salinity']:
+        nodes = get_array_from_mid_grad(config, field, x)
+        values = ds[field].isel(Time=0).values
+        for icell in range(ds.sizes['nCells']):
+            column = values[icell, :]
+            column = column[np.isfinite(column)]
+            assert column.min() >= nodes[icell, :].min() - 1e-10
+            assert column.max() <= nodes[icell, :].max() + 1e-10
 
 
 @pytest.mark.parametrize('variant', _VARIANTS)

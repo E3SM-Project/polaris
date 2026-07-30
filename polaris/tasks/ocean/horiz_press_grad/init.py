@@ -12,7 +12,7 @@ from polaris.ocean.vertical.ztilde import Gravity, RhoSw
 from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.horiz_press_grad.column import (
     get_array_from_mid_grad,
-    get_pchip_interpolator,
+    get_pchip_layer_mean,
 )
 
 
@@ -265,10 +265,12 @@ class Init(PStarInitStep, OceanIOStep):
         self, ds: xr.Dataset
     ) -> tuple[xr.DataArray, xr.DataArray]:
         """
-        Interpolate conservative temperature and absolute salinity from
-        piecewise pseudo-height profiles defined in the configuration.
+        Compute layer-mean conservative temperature and absolute salinity from
+        the piecewise pseudo-height profiles defined in the configuration.
         """
-        return self._interpolate_t_s(ds=ds, z_tilde_mid=ds.ZTildeMid, x=self.x)
+        return self._interpolate_t_s(
+            ds=ds, z_tilde_interface=ds.ZTildeInterface, x=self.x
+        )
 
     def _build_pstar_coord_ds(
         self,
@@ -595,12 +597,20 @@ class Init(PStarInitStep, OceanIOStep):
     def _interpolate_t_s(
         self,
         ds: xr.Dataset,
-        z_tilde_mid: xr.DataArray,
+        z_tilde_interface: xr.DataArray,
         x: np.ndarray,
     ) -> tuple[xr.DataArray, xr.DataArray]:
         """
-        Interpolate temperature and salinity to p-star layer midpoints using
+        Average temperature and salinity over each p-star layer, using the
         piecewise pseudo-height profiles from configuration.
+
+        Omega's prognostic temperature and salinity are layer means, and the
+        higher-order pressure gradient reconstructs them as mean-preserving
+        polynomials in pressure, so the initial condition supplies layer means
+        rather than samples at layer midpoints.  The two coincide exactly for a
+        profile that is linear in pressure and differ at O(h^2) otherwise, so
+        the choice does not affect a configuration in the scheme's exact set
+        but does affect the residual measured off it.
         """
         z_tilde_node, t_node, s_node = self._get_z_tilde_t_s_nodes(x)
 
@@ -626,11 +636,17 @@ class Init(PStarInitStep, OceanIOStep):
                 'number of mesh columns.'
             )
 
+        z_tilde_top = z_tilde_interface.isel(
+            Time=0, nVertLevelsP1=slice(0, -1)
+        ).values
+        z_tilde_bot = z_tilde_interface.isel(
+            Time=0, nVertLevelsP1=slice(1, None)
+        ).values
+
         for icell in range(ncells):
             z_tilde = z_tilde_node[icell, :]
             temperatures = t_node[icell, :]
             salinities = s_node[icell, :]
-            z_tilde_mid_col = z_tilde_mid.isel(Time=0, nCells=icell).values
 
             if len(z_tilde) < 2:
                 raise ValueError(
@@ -638,24 +654,27 @@ class Init(PStarInitStep, OceanIOStep):
                     'define piecewise linear initial conditions.'
                 )
 
-            t_interp = get_pchip_interpolator(
+            t_mean = get_pchip_layer_mean(
                 z_tilde_nodes=z_tilde,
                 values_nodes=temperatures,
                 name='temperature',
             )
-            s_interp = get_pchip_interpolator(
+            s_mean = get_pchip_layer_mean(
                 z_tilde_nodes=z_tilde,
                 values_nodes=salinities,
                 name='salinity',
             )
-            valid = np.isfinite(z_tilde_mid_col)
+            top = z_tilde_top[icell, :]
+            bot = z_tilde_bot[icell, :]
+            # a layer is valid only where both of its interfaces are
+            valid = np.logical_and(np.isfinite(top), np.isfinite(bot))
             temperature_np[0, icell, :] = np.nan
             salinity_np[0, icell, :] = np.nan
             if np.any(valid):
-                temperature_np[0, icell, valid] = t_interp(
-                    z_tilde_mid_col[valid]
+                temperature_np[0, icell, valid] = t_mean(
+                    top[valid], bot[valid]
                 )
-                salinity_np[0, icell, valid] = s_interp(z_tilde_mid_col[valid])
+                salinity_np[0, icell, valid] = s_mean(top[valid], bot[valid])
 
         temperature = xr.DataArray(
             data=temperature_np,

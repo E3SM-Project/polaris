@@ -211,6 +211,10 @@
    resting_state_task.HorizPressGradRestingStateTask
    resting_state_task.HorizPressGradRestingStateTask.configure
 
+   column.get_array_from_mid_grad
+   column.get_pchip_interpolator
+   column.get_pchip_layer_mean
+
    finite_volume.centered_shift
    finite_volume.hpga_from_shift
    finite_volume.hydrostatic_scale
