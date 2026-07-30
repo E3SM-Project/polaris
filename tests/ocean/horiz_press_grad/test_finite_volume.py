@@ -32,7 +32,15 @@ _HPG_PKG = 'polaris.tasks.ocean.horiz_press_grad'
 # The resting-state variants and their sweeps.  These are the configurations
 # whose true HPGA is identically zero, so whatever the centered scheme returns
 # there is error, and they are the only ones that sweep a tilt.
-_VARIANTS = ['hydrostatic_consistency', 'bathymetry_step']
+_VARIANTS = [
+    'hydrostatic_consistency',
+    'hydrostatic_consistency_linear',
+    'bathymetry_step',
+]
+
+# The one variant whose profile is linear in pressure, and so the only one in
+# the finite-volume scheme's exact set.
+_LINEAR_VARIANT = 'hydrostatic_consistency_linear'
 
 # The four gradient variants, which sweep resolution rather than tilt.  They
 # add nothing to the algebra but a good deal to the states it is checked on:
@@ -55,6 +63,13 @@ _GRADIENT_VARIANTS = [
 # specific volume -- misses by 700 times this tolerance at the smallest tilt in
 # the sweep, and dropping the pressure term misses by 1e9 times it.
 _ROUNDOFF_TOL = 1.0e-14
+
+# Tolerance for "exactly linear in pressure", relative to the magnitude of the
+# field.  The largest departure measured over the linear variant's sweep is
+# 2.3 * eps, so this leaves a factor of ~200; a genuinely curved profile like
+# hydrostatic_consistency's departs by ~3e-3 of its salinity, ten orders of
+# magnitude above this.
+_LINEARITY_TOL = 1.0e-13
 
 # Built states are reused across tests, at roughly 0.25 s each.
 _STATE_CACHE: dict[tuple[str, float, float, float | None], xr.Dataset] = {}
@@ -161,6 +176,75 @@ def _valid_hpga(
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize('horiz_res, vert_res, tilt', _sweep(_LINEAR_VARIANT))
+def test_linear_variant_is_in_the_exact_set(horiz_res, vert_res, tilt):
+    """``hydrostatic_consistency_linear`` puts the state in the exact set.
+
+    Two conditions have to hold, and they are different claims:
+
+    1. In each column, the layer-mean temperature and salinity are exactly
+       linear functions of the layer-mean pressure.  This is what a linear
+       mean-preserving reconstruction can reproduce exactly, and it is what
+       makes ``PGradHighOrder.md`` §3.7.3's "linear in pressure" row apply.
+    2. The two columns give the *same* line.  This is the condition that
+       actually matters (§3.7.2, condition 1): the two columns must describe
+       one water column as a function of pressure, however differently their
+       layers are distributed.  It holds here even at large tilt, where the
+       two columns' layer means differ substantially, because the map from
+       pressure to state is universal.
+
+    Without this test the exactness measurement in a later commit could be run
+    on a configuration that cannot show exactness -- which is finding F-P1, and
+    is the case for the curved ``hydrostatic_consistency`` variant.
+    """
+    ds = _build_state(_LINEAR_VARIANT, horiz_res, vert_res, tilt)
+
+    for field in ['temperature', 'salinity']:
+        # tolerances are relative to the size of the values being differenced,
+        # not to the profile's range, since that is what sets the round-off
+        lines = []
+        ranges = []
+        magnitude = float(np.abs(ds[field]).max())
+        tol = _LINEARITY_TOL * magnitude
+
+        for icell in range(ds.sizes['nCells']):
+            pressure = ds.pressure.isel(Time=0, nCells=icell).values
+            values = ds[field].isel(Time=0, nCells=icell).values
+            valid = np.logical_and(np.isfinite(pressure), np.isfinite(values))
+            pressure = pressure[valid]
+            values = values[valid]
+            assert len(pressure) >= 3
+
+            # the line through the shallowest and deepest valid layers
+            slope = (values[-1] - values[0]) / (pressure[-1] - pressure[0])
+
+            def line(at, values=values, pressure=pressure, slope=slope):
+                return values[0] + slope * (at - pressure[0])
+
+            residual = float(np.max(np.abs(values - line(pressure))))
+            assert residual <= tol, (
+                f'{field} in column {icell} at vert_res={vert_res} m, '
+                f'tilt={tilt} m/km departs from a line in pressure by '
+                f'{residual:.3e}, more than {tol:.3e}'
+            )
+            lines.append(line)
+            ranges.append((pressure[0], pressure[-1]))
+
+        # The two columns must describe the same function of pressure.  Compare
+        # the two lines over the pressures both columns span, rather than
+        # comparing slopes and intercepts, so the check is in the units of the
+        # field and does not amplify by an extrapolation distance.
+        low = max(ranges[0][0], ranges[1][0])
+        high = min(ranges[0][1], ranges[1][1])
+        probe = np.array([low, 0.5 * (low + high), high])
+        disagreement = float(np.max(np.abs(lines[0](probe) - lines[1](probe))))
+        assert disagreement <= tol, (
+            f'{field} at vert_res={vert_res} m, tilt={tilt} m/km: the two '
+            f'columns describe functions of pressure differing by '
+            f'{disagreement:.3e}, more than {tol:.3e}'
+        )
 
 
 @pytest.mark.parametrize(
