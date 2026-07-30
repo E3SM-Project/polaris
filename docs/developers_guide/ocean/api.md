@@ -224,6 +224,8 @@
    eos_expansion.edge_specvol_layer_mean
 
    finite_volume.centered_shift
+   finite_volume.centered_shift_accumulated
+   finite_volume.shift_increments
    finite_volume.hpga_from_shift
    finite_volume.hydrostatic_scale
 

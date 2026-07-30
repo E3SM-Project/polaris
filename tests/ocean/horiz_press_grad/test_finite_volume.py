@@ -13,14 +13,16 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from polaris.ocean.vertical.ztilde import Gravity
+from polaris.ocean.vertical.ztilde import Gravity, RhoSw
 from polaris.tasks.ocean.horiz_press_grad.column import (
     get_array_from_mid_grad,
 )
 from polaris.tasks.ocean.horiz_press_grad.finite_volume import (
     centered_shift,
+    centered_shift_accumulated,
     hpga_from_shift,
     hydrostatic_scale,
+    shift_increments,
 )
 
 from .two_column import (
@@ -60,6 +62,7 @@ def _valid_hpga(
     """
     Return the HPGA from ``centered_shift``, the HPGA the ``Init`` step wrote,
     and the round-off tolerance, over the layers valid in both columns.
+
     """
     dx = 1e3 * horiz_res
     hpga = hpga_from_shift(centered_shift(ds), dx)
@@ -95,6 +98,7 @@ def test_linear_variant_is_in_the_exact_set(horiz_res, vert_res, tilt):
     Without this test the exactness measurement in a later commit could be run
     on a configuration that cannot show exactness -- which is finding F-P1, and
     is the case for the curved ``hydrostatic_consistency`` variant.
+
     """
     ds = build_state(LINEAR_VARIANT, horiz_res, vert_res, tilt)
 
@@ -163,6 +167,7 @@ def test_centered_shift_reproduces_centered_hpga(
 
     Run at every tilt because the identity is claimed to be exact at any tilt;
     a single-tilt check could pass by coincidence.
+
     """
     ds = build_state(variant, horiz_res, vert_res, tilt)
     hpga, reference, tol = _valid_hpga(ds, horiz_res)
@@ -195,6 +200,7 @@ def test_centered_shift_with_horizontal_structure(
     ``surface_pressure_gradient`` differs in surface pressure across the edge.
     The identity is algebraic and should not care, which is the point of
     checking.
+
     """
     ds = build_state(variant, horiz_res, vert_res, None)
     hpga, reference, tol = _valid_hpga(ds, horiz_res)
@@ -232,6 +238,7 @@ def test_state_is_valid_exactly_where_the_column_is(
     simply skips the NaN.  Measured with the clipping in
     ``get_pchip_layer_mean`` removed, this test fires on
     ``temperature_gradient`` while every other test in this file still passes.
+
     """
     ds = build_state(variant, horiz_res, vert_res, tilt)
 
@@ -277,6 +284,7 @@ def test_centered_shift_grows_with_tilt(variant):
     the two columns' ``maxLevelCell`` values start to differ and the config
     itself declares the response a staircase rather than a power law.  Across
     the whole sweep only overall growth is required.
+
     """
     config = make_config(variant)
     section = config['horiz_press_grad']
@@ -318,4 +326,231 @@ def test_centered_shift_grows_with_tilt(variant):
             f'{variant}: RMS HPGA from S does not increase from '
             f'tilt={tilt} ({value:.3e}) to tilt={next_tilt} '
             f'({next_value:.3e} m s-2)'
+        )
+
+
+# ---------------------------------------------------------------------------
+# 9d: the cancellation-free accumulation
+# ---------------------------------------------------------------------------
+
+# A representative handful of states rather than the full sweeps: the identity
+# these check is state-independent, and the sweeps are already covered above.
+_ACCUMULATION_CASES = [
+    ('hydrostatic_consistency', 4.0, 256.0, 50.0),
+    ('hydrostatic_consistency', 4.0, 64.0, 50.0),
+    ('hydrostatic_consistency_linear', 4.0, 256.0, 0.05),
+    ('bathymetry_step', 4.0, 128.0, 200.0),
+    ('temperature_gradient', 4.0, 4.0, None),
+]
+
+
+@pytest.mark.parametrize(
+    'variant, horiz_res, vert_res, tilt', _ACCUMULATION_CASES
+)
+def test_accumulated_shift_matches_the_direct_form(
+    variant, horiz_res, vert_res, tilt
+):
+    """``[gamma-increments]`` reproduces ``[centered-shift]`` to round-off.
+
+    The two evaluate the same quantity in a different order, so §3.9's
+    reduction to the centered scheme becomes algebraic rather than bit-for-bit
+    -- the trade §3.5.1 accepts in exchange for never forming the two large
+    terms.
+    """
+    ds = build_state(variant, horiz_res, vert_res, tilt)
+    direct = centered_shift(ds)
+    accumulated = centered_shift_accumulated(ds)
+
+    valid = np.logical_and(np.isfinite(direct), np.isfinite(accumulated))
+    difference = float(
+        np.max(np.abs((direct - accumulated).values[valid.values]))
+    )
+    tolerance = _ROUNDOFF_TOL * hydrostatic_scale(ds)
+    assert difference <= tolerance, (
+        f'{variant} at vert_res={vert_res} m, tilt={tilt}: accumulated and '
+        f'direct forms of S differ by {difference:.3e} m, more than '
+        f'{tolerance:.3e} m'
+    )
+
+
+@pytest.mark.parametrize(
+    'variant, horiz_res, vert_res, tilt', _ACCUMULATION_CASES
+)
+def test_both_anchors_agree(variant, horiz_res, vert_res, tilt):
+    """Accumulating from the surface or from the bathymetry gives the same S.
+
+    §3.7.4 leaves the choice of end open, calling it a round-off question
+    rather than a consistency one.  This settles it by measurement for double
+    precision: the two agree to round-off, so the choice is free here.
+    """
+    ds = build_state(variant, horiz_res, vert_res, tilt)
+    from_surface = centered_shift_accumulated(ds, anchor='surface')
+    from_bathymetry = centered_shift_accumulated(ds, anchor='bathymetry')
+
+    valid = np.logical_and(
+        np.isfinite(from_surface), np.isfinite(from_bathymetry)
+    )
+    difference = float(
+        np.max(np.abs((from_surface - from_bathymetry).values[valid.values]))
+    )
+    tolerance = _ROUNDOFF_TOL * hydrostatic_scale(ds)
+    assert difference <= tolerance, (
+        f'{variant} at vert_res={vert_res} m, tilt={tilt}: the two anchors '
+        f'differ by {difference:.3e} m, more than {tolerance:.3e} m'
+    )
+
+
+@pytest.mark.parametrize(
+    'variant, horiz_res, vert_res, tilt', _ACCUMULATION_CASES
+)
+def test_increments_are_small_against_the_terms_they_replace(
+    variant, horiz_res, vert_res, tilt
+):
+    """Deliverable D7: how much precision the accumulation actually saves.
+
+    ``[centered-shift]`` differences ``Delta_e Z`` directly, which reaches 160
+    m
+    at 50 m/km of tilt.  The increments of ``[gamma-increments]`` are products
+    of a small factor with a bounded one, so they are far smaller, and the
+    ratio is the quantitative form of "no large-number cancellation occurs".
+
+    Measured: 1.1e-3 on ``hydrostatic_consistency`` at 256 m layers and 50
+    m/km, 2.7e-4 at 64 m, 2.0e-4 on ``bathymetry_step`` -- roughly three
+    decimal digits of headroom recovered, against the five §3.7.5 estimates are
+    consumed in
+    ``[centered-shift]``.  The gradient variants sit near 7e-2 because their
+    coordinate is flat, so ``Delta_e Z`` is only 0.18 m to begin with and there
+    is little to save; the bound below is loose enough to cover both regimes.
+
+    """
+    ds = build_state(variant, horiz_res, vert_res, tilt)
+    increments = shift_increments(ds)
+
+    largest = max(
+        float(np.abs(increments.within_layer).max()),
+        float(np.abs(increments.between_layers).max()),
+    )
+    replaced = float(np.abs(increments.delta_z_interface).max())
+    assert largest < 0.2 * replaced, (
+        f'{variant} at vert_res={vert_res} m, tilt={tilt}: largest increment '
+        f'{largest:.3e} m against max |Delta_e Z| {replaced:.3e} m'
+    )
+
+
+def _redistribution_state(equal_totals: bool) -> tuple[xr.Dataset, dict]:
+    """A synthetic state in the limit ``[centered-error]`` is written for.
+
+    Specific volume horizontally uniform within each layer, equal surface
+    pressure and equal surface height, so ``Gamma_0 = 0``.  ``equal_totals``
+    selects whether the coordinate merely *redistributes* thickness between the
+    columns (``sum_j Delta_e htilde_j = 0``) or also changes the total, which
+    is what a ``z_tilde_bot`` tilt does.
+    """
+    alpha = np.array([9.60e-4, 9.65e-4, 9.72e-4, 9.78e-4, 9.83e-4, 9.90e-4])
+    thickness_0 = np.array([200.0, 260.0, 300.0, 340.0, 380.0, 420.0])
+    if equal_totals:
+        offset = np.array([30.0, -10.0, 20.0, -25.0, -40.0, 25.0])
+    else:
+        offset = np.array([30.0, -10.0, 20.0, -25.0, -40.0, 60.0])
+    thickness_1 = thickness_0 + offset
+
+    thickness = np.stack([thickness_0, thickness_1])
+    q = np.zeros((2, len(alpha) + 1))
+    z = np.zeros((2, len(alpha) + 1))
+    for icell in range(2):
+        for level in range(len(alpha)):
+            q[icell, level + 1] = (
+                q[icell, level] + RhoSw * Gravity * thickness[icell, level]
+            )
+            z[icell, level + 1] = (
+                z[icell, level]
+                - RhoSw * alpha[level] * thickness[icell, level]
+            )
+
+    ds = xr.Dataset(
+        {
+            'GeomZInterface': xr.DataArray(
+                z[np.newaxis, ...], dims=['Time', 'nCells', 'nVertLevelsP1']
+            ),
+            'ZTildeInterface': xr.DataArray(
+                -q[np.newaxis, ...] / (RhoSw * Gravity),
+                dims=['Time', 'nCells', 'nVertLevelsP1'],
+            ),
+            'SpecVol': xr.DataArray(
+                np.broadcast_to(alpha, (1, 2, len(alpha))).copy(),
+                dims=['Time', 'nCells', 'nVertLevels'],
+            ),
+            'PseudoThickness': xr.DataArray(
+                thickness[np.newaxis, ...],
+                dims=['Time', 'nCells', 'nVertLevels'],
+            ),
+        }
+    )
+    return ds, {'alpha': alpha, 'delta_thickness': offset}
+
+
+@pytest.mark.parametrize('equal_totals', [True, False])
+def test_centered_error_reconciliation(equal_totals):
+    """Reconcile ``[gamma-increments]`` against ``[centered-error]`` (§3.5.1).
+
+    In the limit ``[centered-error]`` is written for -- specific volume
+    horizontally uniform within each layer -- summation by parts gives
+
+        S_k = rho0 sum_{j>k} (alpha_j - alpha_k) d_j
+              + C + rho0 * alpha_k * sum_j d_j
+        C   = Gamma_0 - rho0 sum_j d_j alpha_j
+
+    with ``d_j = Delta_e htilde_j``.  The constant ``C`` is identified
+    explicitly rather than fitted, and it is set by the anchor.
+
+    The sharper half, which is why the plan asks for the check *without*
+    assuming
+    ``sum_j d_j = 0``: the two expressions agree up to a k-independent constant
+    **only** when the two columns have the same total pseudo-thickness.
+    Otherwise the extra ``rho0 alpha_k sum_j d_j`` depends on k through
+    ``alpha_k`` and cannot be absorbed into an anchor.  That case is the normal
+    one here -- a ``z_tilde_bot`` tilt gives the two columns different
+    pseudo-bottom depths -- so the design's expectation holds only in the
+    redistribution limit its own text assumes.
+
+    """
+    ds, parts = _redistribution_state(equal_totals)
+    alpha = parts['alpha']
+    delta_thickness = parts['delta_thickness']
+
+    shift = centered_shift_accumulated(ds).values[0, :]
+
+    layers = len(alpha)
+    centered_error = np.array(
+        [
+            RhoSw
+            * np.sum(
+                (alpha[level + 1 :] - alpha[level])
+                * delta_thickness[level + 1 :]
+            )
+            for level in range(layers)
+        ]
+    )
+    # Gamma_0 is zero by construction: equal surface pressure and height
+    constant = -RhoSw * np.sum(delta_thickness * alpha)
+    extra = RhoSw * alpha * np.sum(delta_thickness)
+
+    # atol because the shallowest layer's value is an exact zero here, which a
+    # relative tolerance cannot express; the terms being summed are ~4e2, so
+    # 1e-12 m is about ten times their round-off
+    np.testing.assert_allclose(
+        shift, centered_error + constant + extra, rtol=1e-12, atol=1e-12
+    )
+
+    residual = shift - centered_error
+    if equal_totals:
+        assert np.allclose(np.sum(delta_thickness), 0.0, atol=1e-12)
+        # k-independent: the residual is the anchor constant and nothing else
+        np.testing.assert_allclose(residual, constant, rtol=1e-12, atol=1e-12)
+    else:
+        assert abs(np.sum(delta_thickness)) > 1.0
+        # not k-independent, and demonstrably so
+        assert np.ptp(residual) > 1.0e-3 * abs(constant)
+        np.testing.assert_allclose(
+            residual, constant + extra, rtol=1e-12, atol=1e-12
         )
