@@ -37,6 +37,10 @@ from polaris.ocean.vertical.ztilde import (
     RhoSw,
     pressure_from_z_tilde,
 )
+from polaris.tasks.ocean.horiz_press_grad import (
+    eos_expansion,
+    reconstruction,
+)
 from polaris.tasks.ocean.horiz_press_grad.edge import edge_delta, edge_mean
 
 __all__ = [
@@ -45,6 +49,9 @@ __all__ = [
     'shift_increments',
     'hpga_from_shift',
     'hydrostatic_scale',
+    'matched_pressure_pieces',
+    'layer_containing_pressure',
+    'delta_specvol_at_pressure',
 ]
 
 
@@ -82,6 +89,7 @@ def centered_shift(ds: xr.Dataset) -> xr.DataArray:
     shift : xarray.DataArray
         ``S_{e,k}`` at layer midpoints, in m, with the ``nCells`` dimension
         contracted away by the edge operator.
+
 
     """
     # PressureInterface is not carried in the dataset; pseudo-height is, and
@@ -128,6 +136,7 @@ def hpga_from_shift(shift: xr.DataArray, dx: float) -> xr.DataArray:
     hpga : xarray.DataArray
         The edge-normal pressure-gradient acceleration in m s-2.
 
+
     """
     if dx == 0.0:
         raise ValueError('dx must be non-zero for finite differences.')
@@ -164,6 +173,7 @@ def hydrostatic_scale(ds: xr.Dataset) -> float:
         The bound, in m.  Multiply by ``Gravity / dx`` to scale a tolerance on
         an acceleration.
 
+
     """
     q = pressure_from_z_tilde(ds.ZTildeInterface)
     z_magnitude = float(np.abs(ds.GeomZInterface).max())
@@ -175,6 +185,7 @@ def _layer_top(field: xr.DataArray) -> xr.DataArray:
     """
     The value at each layer's top interface, as a layer-indexed field.
 
+
     """
     return field.isel(nVertLevelsP1=slice(0, -1)).rename(
         {'nVertLevelsP1': 'nVertLevels'}
@@ -184,6 +195,7 @@ def _layer_top(field: xr.DataArray) -> xr.DataArray:
 def _layer_bot(field: xr.DataArray) -> xr.DataArray:
     """
     The value at each layer's bottom interface, as a layer-indexed field.
+
 
     """
     return field.isel(nVertLevelsP1=slice(1, None)).rename(
@@ -234,6 +246,7 @@ def centered_shift_accumulated(
     -------
     shift : xarray.DataArray
         ``S_{e,k}`` at layer midpoints, in m.
+
 
     """
     if anchor not in ('surface', 'bathymetry'):
@@ -304,6 +317,7 @@ def shift_increments(ds: xr.Dataset) -> xr.Dataset:
         (``Gamma_{k+1} - Gamma^+_k``), and ``delta_z_interface``
         (``Delta_e Z`` at interfaces) to scale them against.  All in m.
 
+
     """
     pieces = _shift_pieces(ds)
     return xr.Dataset(
@@ -318,6 +332,7 @@ def shift_increments(ds: xr.Dataset) -> xr.Dataset:
 def _shift_pieces(ds: xr.Dataset) -> dict:
     """The increments and anchors of ``[gamma-increments]``, and the mask of
     layers valid in both columns.
+
     """
     q = pressure_from_z_tilde(ds.ZTildeInterface)
     delta_q = edge_delta(q)
@@ -375,3 +390,150 @@ def _at_valid_end(
             continue
         result[index] = values[index][levels[0 if first else -1]]
     return xr.DataArray(data=result, dims=field.dims[:-1])
+
+
+def matched_pressure_pieces(ds: xr.Dataset) -> dict:
+    """
+    Everything the matched-pressure integrand needs, computed once per state.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The two-column state, which must contain ``temperature``, ``salinity``,
+        ``pressure``, ``ZTildeInterface`` and ``maxLevelCell``.
+
+    Returns
+    -------
+    pieces : dict
+        ``expansion`` (the edge-shared coefficients per edge layer),
+        ``theta``/``salinity`` and their reconstruction ``slope``s and
+        ``pressure_mid``, each column's ``interface`` pressures and its
+        ``deepest`` valid layer, and the edge-layer interface pressures
+        ``edge_interface``.
+
+    """
+    interface = pressure_from_z_tilde(ds.ZTildeInterface).isel(Time=0).values
+    deepest = ds.maxLevelCell.values.astype(int) - 1
+
+    return {
+        'expansion': eos_expansion.edge_expansion(
+            ds.temperature, ds.salinity, ds.pressure
+        ).isel(Time=0),
+        'theta': ds.temperature.isel(Time=0).values,
+        'salinity': ds.salinity.isel(Time=0).values,
+        'slope_theta': reconstruction.linear_slope(ds.temperature, ds.pressure)
+        .isel(Time=0)
+        .values,
+        'slope_salinity': reconstruction.linear_slope(ds.salinity, ds.pressure)
+        .isel(Time=0)
+        .values,
+        'pressure_mid': ds.pressure.isel(Time=0).values,
+        'interface': interface,
+        'deepest': deepest,
+        'edge_interface': 0.5 * (interface[0, :] + interface[1, :]),
+    }
+
+
+def layer_containing_pressure(
+    pieces: dict, icell: int, pressure: np.ndarray
+) -> np.ndarray:
+    """
+    The index of *column* ``icell``'s own layer containing each pressure.
+
+    This is the lookup the whole scheme turns on, and writing it as a lookup
+    rather than assuming "edge layer ``k`` means column layer ``k``" is the
+    difference between comparing at matched pressure and comparing at matched
+    index.  Under tilt the two columns' layer ``k`` span different pressure
+    ranges -- at 50 m/km and 64 m layers they are offset by nearly three layer
+    thicknesses and do not overlap at all -- so assuming the index is not a
+    small approximation, it is a different scheme, and it is the defect that
+    the previous formulation failed on.
+
+    Pressures above the column's surface or below its floor are clamped to the
+    outermost valid layer, which extrapolates that layer's reconstruction.
+    Exactness does not depend on this (design §3.5, consequence 3): an
+    extrapolated reconstruction still reproduces a profile it resolves, so the
+    difference is still zero on the exact set.  What it costs off the exact set
+    is deliverable D8'.
+
+    Parameters
+    ----------
+    pieces : dict
+        From :py:func:`matched_pressure_pieces`.
+
+    icell : int
+        Which column.
+
+    pressure : numpy.ndarray
+        Sea gauge pressures in Pa.
+
+    Returns
+    -------
+    index : numpy.ndarray
+        Zero-based layer indices, in ``[0, maxLevelCell - 1]``.
+
+    """
+    deepest = int(pieces['deepest'][icell])
+    interface = pieces['interface'][icell, : deepest + 2]
+    index = np.searchsorted(interface, np.asarray(pressure), side='right') - 1
+    return np.clip(index, 0, deepest)
+
+
+def delta_specvol_at_pressure(
+    pieces: dict, edge_layer: int, pressure: np.ndarray
+) -> np.ndarray:
+    """
+    The design's ``[dalpha]``: the fixed-pressure contrast in specific volume.
+
+    .. math::
+
+        \\Delta_e\\hat\\alpha(p) =
+        \\bar\\alpha_\\Theta^{e,k}\\,\\Delta_e\\Theta(p)
+        + \\bar\\alpha_S^{e,k}\\,\\Delta_e S(p)
+
+    Both columns use the edge-shared coefficients of **edge layer**
+    ``edge_layer``, and each supplies its own :math:`\\Theta(p)`, :math:`S(p)`
+    from whichever of *its own* layers contains ``p``.  The
+    :math:`\\bar\\alpha_0` and :math:`\\bar\\alpha_p(p-\\bar p^e)` terms are
+    the same numbers in both columns and cancel, so they are not formed at all.
+
+    This is the central property of the scheme: the result is a coefficient
+    times a horizontal contrast at matched pressure, so it is **identically
+    zero pointwise** whenever the two columns' reconstructions describe the
+    same water -- independently of the coefficients, of the quadrature, and of
+    whether the interfaces line up.
+
+    Parameters
+    ----------
+    pieces : dict
+        From :py:func:`matched_pressure_pieces`.
+
+    edge_layer : int
+        The edge layer whose shared coefficient set to use.
+
+    pressure : numpy.ndarray
+        Sea gauge pressures in Pa, all within edge layer ``edge_layer``.
+
+    Returns
+    -------
+    delta_specvol : numpy.ndarray
+        :math:`\\Delta_e\\hat\\alpha(p)` in m3 kg-1.
+
+    """
+    pressure = np.atleast_1d(np.asarray(pressure, dtype=float))
+    expansion = pieces['expansion'].isel(nVertLevels=edge_layer)
+
+    contrast = {}
+    for name in ['theta', 'salinity']:
+        values = np.empty((2, len(pressure)))
+        for icell in range(2):
+            level = layer_containing_pressure(pieces, icell, pressure)
+            values[icell] = pieces[name][icell, level] + pieces[
+                f'slope_{name}'
+            ][icell, level] * (pressure - pieces['pressure_mid'][icell, level])
+        contrast[name] = values[1] - values[0]
+
+    return (
+        float(expansion.alpha_theta) * contrast['theta']
+        + float(expansion.alpha_s) * contrast['salinity']
+    )
