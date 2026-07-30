@@ -228,6 +228,9 @@
    finite_volume.shift_increments
    finite_volume.hpga_from_shift
    finite_volume.hydrostatic_scale
+   finite_volume.matched_pressure_pieces
+   finite_volume.layer_containing_pressure
+   finite_volume.delta_specvol_at_pressure
 
    reconstruction.linear_slope
    reconstruction.layer_deviation
