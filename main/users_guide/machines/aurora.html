@@ -165,12 +165,15 @@ a Aurora login node (or specified <code class="docutils literal notranslate"><sp
 <span class="c1"># the system MPI library to use for oneapi-ifx compiler</span>
 <span class="na">mpi_oneapi_ifx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
 
+<span class="c1"># the system MPI library to use for oneapi-ifxgpu compiler</span>
+<span class="na">mpi_oneapi_ifxgpu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpich</span>
+
 <span class="c1"># the base path for spack environments used by polaris</span>
 <span class="na">spack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/lus/flare/projects/E3SM_Dec/soft/polaris/aurora/spack</span>
 
 <span class="c1"># whether to use the same modules for hdf5, netcdf-c, netcdf-fortran and</span>
 <span class="c1"># pnetcdf as E3SM (spack modules are used otherwise)</span>
-<span class="na">use_e3sm_hdf5_netcdf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">use_e3sm_hdf5_netcdf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
 
 
 <span class="c1"># Config options related to creating a job script</span>

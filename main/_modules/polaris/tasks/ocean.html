@@ -966,6 +966,28 @@
     <span class="k">if</span> <span class="n">reconstruct_variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ds</span>
 
+    <span class="n">out_var_names</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">reconstruct_variables</span><span class="p">:</span>
+        <span class="n">out_var_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">variable</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;normal&#39;</span> <span class="ow">in</span> <span class="n">variable</span>
+            <span class="k">else</span> <span class="n">variable</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal&#39;</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="c1"># already reconstructed, e.g. by MPAS-Ocean itself</span>
+            <span class="k">continue</span>
+        <span class="n">out_var_names</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_var_name</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_var_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">out_var_names</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;User requested vector reconstruction for &#39;</span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                <span class="s2">&quot;but it isn&#39;t present in the dataset.&quot;</span>
+            <span class="p">)</span>
+
     <span class="k">if</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">&#39;RBF&#39;</span><span class="p">:</span>
         <span class="n">ds_coeff</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="n">coeffs_filename</span><span class="p">)</span>
         <span class="n">coeffs_reconstruct</span> <span class="o">=</span> <span class="n">ds_coeff</span><span class="o">.</span><span class="n">coeffs_reconstruct</span>
@@ -977,22 +999,7 @@
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">ds</span>
 
-    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">reconstruct_variables</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;User requested vector reconstruction for &#39;</span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                <span class="s2">&quot;but it isn&#39;t present in the dataset.&quot;</span>
-            <span class="p">)</span>
-
-        <span class="n">out_var_name</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">variable</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="k">if</span> <span class="s1">&#39;normal&#39;</span> <span class="ow">in</span> <span class="n">variable</span>
-            <span class="k">else</span> <span class="n">variable</span>
-        <span class="p">)</span>
-
-        <span class="k">if</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal&#39;</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
-            <span class="k">continue</span>
-
+    <span class="k">for</span> <span class="n">variable</span><span class="p">,</span> <span class="n">out_var_name</span> <span class="ow">in</span> <span class="n">out_var_names</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">&#39;RBF&#39;</span><span class="p">:</span>
             <span class="n">reconstruct_variable</span><span class="p">(</span>
                 <span class="n">out_var_name</span><span class="p">,</span>

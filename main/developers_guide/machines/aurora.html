@@ -71,6 +71,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#supported-machines">Supported Machines</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Aurora</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#oneapi-ifx">oneapi-ifx</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#oneapi-ifxgpu">oneapi-ifxgpu</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
@@ -134,6 +135,15 @@
 <p>This is the default polaris compiler on Aurora.  If the environment has
 been set up properly (see <a class="reference internal" href="../quick_start.html#dev-conda-env"><span class="std std-ref">Polaris pixi and spack environments, compilers and system modules</span></a>), you should be able to source:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_aurora_oneapi-ifx_mpich.sh
+</pre></div>
+</div>
+</section>
+<section id="oneapi-ifxgpu">
+<h2>oneapi-ifxgpu<a class="headerlink" href="#oneapi-ifxgpu" title="Link to this heading"></a></h2>
+<p>To build Omega with GPU support on Aurora, use the <code class="docutils literal notranslate"><span class="pre">oneapi-ifxgpu</span></code> compiler
+instead.  If the environment has been set up properly (see
+<a class="reference internal" href="../quick_start.html#dev-conda-env"><span class="std std-ref">Polaris pixi and spack environments, compilers and system modules</span></a>), you should be able to source:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_aurora_oneapi-ifxgpu_mpich.sh
 </pre></div>
 </div>
 <p>MPAS components do not yet support Aurora, but Omega does.</p>
