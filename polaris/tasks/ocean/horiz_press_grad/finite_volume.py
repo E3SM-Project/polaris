@@ -22,26 +22,23 @@ trapezoid-averaged over the layer's two interfaces.  It is exactly what the
 centered scheme computes, so ``R_{e,k}`` is the whole difference between the
 two schemes.  Only ``S`` is implemented so far.
 
-Every horizontal difference here is the two-column edge operator.  The mesh has
-exactly two cells and one internal edge, and the edge normal points from cell 0
-to cell 1, so ``Delta_e f = f_1 - f_0`` and ``[grad_n f]_e = Delta_e f / d_e``.
-That is the convention
+Every horizontal difference here is the two-column edge operator of
+:py:mod:`~polaris.tasks.ocean.horiz_press_grad.edge`.  The identity in
+:py:func:`centered_shift` holds against
 :py:meth:`polaris.tasks.ocean.horiz_press_grad.init.Init._compute_montgomery_and_hpga`
-uses, and the identity in :py:func:`centered_shift` holds against that function
-and not against an idealized centered form.
+itself, not against an idealized centered form.
 """
 
 import numpy as np
 import xarray as xr
 
 from polaris.ocean.vertical.ztilde import Gravity, pressure_from_z_tilde
+from polaris.tasks.ocean.horiz_press_grad.edge import edge_delta, edge_mean
 
 __all__ = [
     'centered_shift',
     'hpga_from_shift',
     'hydrostatic_scale',
-    'edge_delta',
-    'edge_mean',
 ]
 
 
@@ -163,56 +160,6 @@ def hydrostatic_scale(ds: xr.Dataset) -> float:
     z_magnitude = float(np.abs(ds.GeomZInterface).max())
     pressure_magnitude = float(ds.SpecVol.max() * np.abs(q).max() / Gravity)
     return z_magnitude + pressure_magnitude
-
-
-def edge_delta(field: xr.DataArray) -> xr.DataArray:
-    """
-    The two-column edge difference ``Delta_e f = f_1 - f_0``, the numerator of
-    the TRiSK gradient operator for the single internal edge.
-
-    Parameters
-    ----------
-    field : xarray.DataArray
-        A field with an ``nCells`` dimension of size 2.
-
-    Returns
-    -------
-    delta : xarray.DataArray
-        The difference, with ``nCells`` contracted away.
-    """
-    _check_two_columns(field)
-    return field.isel(nCells=1) - field.isel(nCells=0)
-
-
-def edge_mean(field: xr.DataArray) -> xr.DataArray:
-    """
-    The two-column edge average ``0.5 * (f_0 + f_1)``.
-
-    Parameters
-    ----------
-    field : xarray.DataArray
-        A field with an ``nCells`` dimension of size 2.
-
-    Returns
-    -------
-    mean : xarray.DataArray
-        The average, with ``nCells`` contracted away.
-    """
-    _check_two_columns(field)
-    return 0.5 * (field.isel(nCells=0) + field.isel(nCells=1))
-
-
-def _check_two_columns(field: xr.DataArray) -> None:
-    """
-    Verify that ``field`` spans exactly the two columns the edge operator is
-    defined for.
-    """
-    ncells = field.sizes.get('nCells', 0)
-    if ncells != 2:
-        raise ValueError(
-            'The two-column edge operator requires exactly 2 cells, but the '
-            f'field has {ncells}.'
-        )
 
 
 def _layer_top(field: xr.DataArray) -> xr.DataArray:
