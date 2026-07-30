@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from polaris.ocean.model import OceanIOStep
+from polaris.ocean.model.time import get_days_since_start
 from polaris.viz import use_mplstyle
 
 
@@ -10,18 +11,12 @@ class StatsAnalysis(OceanIOStep):
         self,
         component,
         indir,
-        output_filename,
         forward_step,
+        output_filename='global_stats.nc',
         name='global_stats',
     ):
         # TODO this should be replaced with model-specific state variables
         # read from yaml
-        self.variables = [
-            'temperature',
-            'salinity',
-            'layerThickness',
-            'normalVelocity',
-        ]
         self.forward_step = forward_step
         self.output_filename = output_filename
         super().__init__(
@@ -29,20 +24,31 @@ class StatsAnalysis(OceanIOStep):
             name=name,
             indir=indir,
         )
+        if component.state_vars is None:
+            component._read_variables_yaml()
+        self.variables = component.state_vars
 
     def setup(self):
+        model = self.config.get('ocean', 'model')
+        if model == 'omega':
+            filename = self.output_filename.split('.')[0]
+            target = f'{self.forward_step.path}/{filename}_1DayTimeStats'
+        else:
+            target = f'{self.forward_step.path}/{self.output_filename}'
         self.add_input_file(
             filename='output.nc',
-            target=f'../{self.forward_step.path}/{self.output_filename}',
+            work_dir_target=target,
         )
         for variable_name in self.variables:
             self.add_output_file(f'{variable_name}_stats.png')
 
     def run(self):
         use_mplstyle()
+        model = self.config.get('ocean', 'model')
         ds = self.open_model_dataset('output.nc', self.config)
-        time_variable = 'daysSinceStartOfSim'
-        time = ds[time_variable]
+        if 'Scalar' in ds.dims:
+            ds = ds.isel(Scalar=0)
+        time = get_days_since_start(ds)
         for variable_name in self.variables:
             fig, axes = plt.subplots(
                 nrows=2, ncols=1, sharex=True, sharey=False, figsize=(5, 8)
@@ -60,12 +66,15 @@ class StatsAnalysis(OceanIOStep):
             axes[0].plot(time, var_mean, '-k', label=suffix)
             axes[1].plot(time, var_mean - var_mean[0], '-k', label=suffix)
             suffix = 'Rms'
-            var_rms = ds[f'{variable_name}{suffix}']
-            var_std = np.sqrt(var_rms.values**2.0 - var_mean.values**2.0)
+            if model == 'omega':
+                var_std = ds[f'{variable_name}{suffix}'].values
+            else:
+                var_rms = ds[f'{variable_name}{suffix}']
+                var_std = np.sqrt(var_rms.values**2.0 - var_mean.values**2.0)
             axes[0].fill_between(
                 time,
-                var_mean + var_std,
-                var_mean - var_std,
+                var_mean.values + var_std,
+                var_mean.values - var_std,
                 color='k',
                 alpha=0.5,
                 label='SD',
