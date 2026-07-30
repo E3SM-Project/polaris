@@ -9,13 +9,10 @@ build.  Each builds the same two-column state
 compares the new code against the ``HPGA`` field that step already produces.
 """
 
-import logging
-
 import numpy as np
 import pytest
 import xarray as xr
 
-from polaris.config import PolarisConfigParser
 from polaris.ocean.vertical.ztilde import Gravity
 from polaris.tasks.ocean.horiz_press_grad.column import (
     get_array_from_mid_grad,
@@ -25,35 +22,16 @@ from polaris.tasks.ocean.horiz_press_grad.finite_volume import (
     hpga_from_shift,
     hydrostatic_scale,
 )
-from polaris.tasks.ocean.horiz_press_grad.init import Init
 
-_HPG_PKG = 'polaris.tasks.ocean.horiz_press_grad'
-
-# The resting-state variants and their sweeps.  These are the configurations
-# whose true HPGA is identically zero, so whatever the centered scheme returns
-# there is error, and they are the only ones that sweep a tilt.
-_VARIANTS = [
-    'hydrostatic_consistency',
-    'hydrostatic_consistency_linear',
-    'bathymetry_step',
-]
-
-# The one variant whose profile is linear in pressure, and so the only one in
-# the finite-volume scheme's exact set.
-_LINEAR_VARIANT = 'hydrostatic_consistency_linear'
-
-# The four gradient variants, which sweep resolution rather than tilt.  They
-# add nothing to the algebra but a good deal to the states it is checked on:
-# temperature and salinity contrasts across the edge, pseudo-height nodes that
-# move with x, and -- in surface_pressure_gradient -- a different surface
-# pressure in the two columns, so that Delta_e q is nonzero at the top
-# interface and not only in the interior.
-_GRADIENT_VARIANTS = [
-    'temperature_gradient',
-    'salinity_gradient',
-    'ztilde_gradient',
-    'surface_pressure_gradient',
-]
+from .two_column import (
+    GRADIENT_VARIANTS,
+    LINEAR_VARIANT,
+    VARIANTS,
+    build_state,
+    make_config,
+    resolution_pairs,
+    sweep,
+)
 
 # Machine-precision tolerance, as a multiple of the hydrostatic scale rather
 # than as an absolute number (``PGradHighOrder.md`` §3.7.5).  The largest
@@ -71,90 +49,9 @@ _ROUNDOFF_TOL = 1.0e-14
 # magnitude above this.
 _LINEARITY_TOL = 1.0e-13
 
-# Built states are reused across tests, at roughly 0.25 s each.
-_STATE_CACHE: dict[tuple[str, float, float, float | None], xr.Dataset] = {}
-
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
-
-
-def _make_config(variant: str) -> PolarisConfigParser:
-    """Load the packaged config for one variant of the task."""
-    config = PolarisConfigParser()
-    config.add_from_package('polaris.ocean', 'ocean.cfg')
-    config.add_from_package(_HPG_PKG, 'horiz_press_grad.cfg')
-    config.add_from_package(_HPG_PKG, f'{variant}.cfg')
-    return config
-
-
-def _sweep(variant: str) -> list[tuple[float, float, float]]:
-    """The ``(horiz_res, vert_res, tilt)`` points of a variant's sweep."""
-    section = _make_config(variant)['horiz_press_grad']
-    horiz_resolutions = section.getexpression('horiz_resolutions')
-    vert_resolutions = section.getexpression('vert_resolutions')
-    tilt_values = section.getexpression('tilt_values')
-    return [
-        (float(horiz_res), float(vert_res), float(tilt))
-        for horiz_res, vert_res in zip(
-            horiz_resolutions, vert_resolutions, strict=True
-        )
-        for tilt in tilt_values
-    ]
-
-
-def _resolution_pairs(variant: str) -> list[tuple[float, float]]:
-    """The coarsest and finest ``(horiz_res, vert_res)`` pairs of a sweep."""
-    section = _make_config(variant)['horiz_press_grad']
-    pairs = [
-        (float(horiz_res), float(vert_res))
-        for horiz_res, vert_res in zip(
-            section.getexpression('horiz_resolutions'),
-            section.getexpression('vert_resolutions'),
-            strict=True,
-        )
-    ]
-    return [pairs[0], pairs[-1]]
-
-
-def _build_state(
-    variant: str, horiz_res: float, vert_res: float, tilt: float | None
-) -> xr.Dataset:
-    """
-    Build (or return a cached) two-column state for one sweep point.
-
-    ``tilt`` is the value of the variant's ``tilt_option``, or ``None`` for the
-    gradient variants, which override no option -- exactly as
-    :py:class:`~polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask`
-    constructs the step.
-
-    The Polaris ``Step`` constructor is bypassed, as in
-    ``tests/ocean/vertical/test_pstar_init.py``, so that no component, work
-    directory or config file is needed.
-    """
-    key = (variant, horiz_res, vert_res, tilt)
-    if key in _STATE_CACHE:
-        return _STATE_CACHE[key]
-
-    config = _make_config(variant)
-    step = object.__new__(Init)
-    step.config = config
-    step.logger = logging.getLogger('test_finite_volume')
-    step.horiz_res = horiz_res
-    step.vert_res = vert_res
-    if tilt is None:
-        step.tilt_option = None
-    else:
-        step.tilt_option = config.get('horiz_press_grad', 'tilt_option')
-    step.tilt = tilt
-    step.x = np.array([])
-
-    ds_mesh = xr.Dataset({'xCell': xr.DataArray(np.zeros(2), dims=['nCells'])})
-    ds = step.build_column_state(ds_mesh)
-
-    _STATE_CACHE[key] = ds
-    return ds
 
 
 def _valid_hpga(
@@ -178,7 +75,7 @@ def _valid_hpga(
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize('horiz_res, vert_res, tilt', _sweep(_LINEAR_VARIANT))
+@pytest.mark.parametrize('horiz_res, vert_res, tilt', sweep(LINEAR_VARIANT))
 def test_linear_variant_is_in_the_exact_set(horiz_res, vert_res, tilt):
     """``hydrostatic_consistency_linear`` puts the state in the exact set.
 
@@ -199,7 +96,7 @@ def test_linear_variant_is_in_the_exact_set(horiz_res, vert_res, tilt):
     on a configuration that cannot show exactness -- which is finding F-P1, and
     is the case for the curved ``hydrostatic_consistency`` variant.
     """
-    ds = _build_state(_LINEAR_VARIANT, horiz_res, vert_res, tilt)
+    ds = build_state(LINEAR_VARIANT, horiz_res, vert_res, tilt)
 
     for field in ['temperature', 'salinity']:
         # tolerances are relative to the size of the values being differenced,
@@ -249,7 +146,7 @@ def test_linear_variant_is_in_the_exact_set(horiz_res, vert_res, tilt):
 
 @pytest.mark.parametrize(
     'variant, horiz_res, vert_res, tilt',
-    [(variant, *point) for variant in _VARIANTS for point in _sweep(variant)],
+    [(variant, *point) for variant in VARIANTS for point in sweep(variant)],
 )
 def test_centered_shift_reproduces_centered_hpga(
     variant, horiz_res, vert_res, tilt
@@ -267,7 +164,7 @@ def test_centered_shift_reproduces_centered_hpga(
     Run at every tilt because the identity is claimed to be exact at any tilt;
     a single-tilt check could pass by coincidence.
     """
-    ds = _build_state(variant, horiz_res, vert_res, tilt)
+    ds = build_state(variant, horiz_res, vert_res, tilt)
     hpga, reference, tol = _valid_hpga(ds, horiz_res)
 
     max_diff = float(np.max(np.abs(hpga - reference)))
@@ -282,8 +179,8 @@ def test_centered_shift_reproduces_centered_hpga(
     'variant, horiz_res, vert_res',
     [
         (variant, *pair)
-        for variant in _GRADIENT_VARIANTS
-        for pair in _resolution_pairs(variant)
+        for variant in GRADIENT_VARIANTS
+        for pair in resolution_pairs(variant)
     ],
 )
 def test_centered_shift_with_horizontal_structure(
@@ -299,7 +196,7 @@ def test_centered_shift_with_horizontal_structure(
     The identity is algebraic and should not care, which is the point of
     checking.
     """
-    ds = _build_state(variant, horiz_res, vert_res, None)
+    ds = build_state(variant, horiz_res, vert_res, None)
     hpga, reference, tol = _valid_hpga(ds, horiz_res)
 
     max_diff = float(np.max(np.abs(hpga - reference)))
@@ -312,11 +209,11 @@ def test_centered_shift_with_horizontal_structure(
 
 @pytest.mark.parametrize(
     'variant, horiz_res, vert_res, tilt',
-    [(variant, *point) for variant in _VARIANTS for point in _sweep(variant)]
+    [(variant, *point) for variant in VARIANTS for point in sweep(variant)]
     + [
         (variant, *pair, None)
-        for variant in _GRADIENT_VARIANTS
-        for pair in _resolution_pairs(variant)
+        for variant in GRADIENT_VARIANTS
+        for pair in resolution_pairs(variant)
     ],
 )
 def test_state_is_valid_exactly_where_the_column_is(
@@ -336,7 +233,7 @@ def test_state_is_valid_exactly_where_the_column_is(
     ``get_pchip_layer_mean`` removed, this test fires on
     ``temperature_gradient`` while every other test in this file still passes.
     """
-    ds = _build_state(variant, horiz_res, vert_res, tilt)
+    ds = build_state(variant, horiz_res, vert_res, tilt)
 
     level = xr.DataArray(
         np.arange(ds.sizes['nVertLevels']), dims=['nVertLevels']
@@ -356,7 +253,7 @@ def test_state_is_valid_exactly_where_the_column_is(
         )
 
     # a mean of a monotone profile cannot leave the range of its own nodes
-    config = _make_config(variant)
+    config = make_config(variant)
     x = horiz_res * np.array([-0.5, 0.5])
     for field in ['temperature', 'salinity']:
         nodes = get_array_from_mid_grad(config, field, x)
@@ -368,7 +265,7 @@ def test_state_is_valid_exactly_where_the_column_is(
             assert column.max() <= nodes[icell, :].max() + 1e-10
 
 
-@pytest.mark.parametrize('variant', _VARIANTS)
+@pytest.mark.parametrize('variant', VARIANTS)
 def test_centered_shift_grows_with_tilt(variant):
     """``S`` is not identically zero and grows with tilt.
 
@@ -381,7 +278,7 @@ def test_centered_shift_grows_with_tilt(variant):
     itself declares the response a staircase rather than a power law.  Across
     the whole sweep only overall growth is required.
     """
-    config = _make_config(variant)
+    config = make_config(variant)
     section = config['horiz_press_grad']
     horiz_res = float(section.getexpression('horiz_resolutions')[0])
     vert_res = float(section.getexpression('vert_resolutions')[0])
@@ -391,7 +288,7 @@ def test_centered_shift_grows_with_tilt(variant):
 
     rms = []
     for tilt in tilts:
-        ds = _build_state(variant, horiz_res, vert_res, tilt)
+        ds = build_state(variant, horiz_res, vert_res, tilt)
         hpga, _, _ = _valid_hpga(ds, horiz_res)
         rms.append(float(np.sqrt(np.mean(hpga**2))))
 
