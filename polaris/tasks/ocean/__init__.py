@@ -831,6 +831,28 @@ def _add_reconstructed_variables_to_dataset(
     if reconstruct_variables is None:
         return ds
 
+    out_var_names = {}
+    for variable in reconstruct_variables:
+        out_var_name = (
+            variable.replace('normal', '').lower()
+            if 'normal' in variable
+            else variable
+        )
+        if f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds:
+            # already reconstructed, e.g. by MPAS-Ocean itself
+            continue
+        out_var_names[variable] = out_var_name
+
+    if len(out_var_names) == 0:
+        return ds
+
+    for variable in out_var_names:
+        if variable not in ds:
+            raise ValueError(
+                f"User requested vector reconstruction for '{variable}' "
+                "but it isn't present in the dataset."
+            )
+
     if reconstruct_method == 'RBF':
         ds_coeff = open_dataset(coeffs_filename)
         coeffs_reconstruct = ds_coeff.coeffs_reconstruct
@@ -842,22 +864,7 @@ def _add_reconstructed_variables_to_dataset(
             )
             return ds
 
-    for variable in reconstruct_variables:
-        if variable not in ds:
-            raise ValueError(
-                f"User requested vector reconstruction for '{variable}' "
-                "but it isn't present in the dataset."
-            )
-
-        out_var_name = (
-            variable.replace('normal', '').lower()
-            if 'normal' in variable
-            else variable
-        )
-
-        if f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds:
-            continue
-
+    for variable, out_var_name in out_var_names.items():
         if reconstruct_method == 'RBF':
             reconstruct_variable(
                 out_var_name,
