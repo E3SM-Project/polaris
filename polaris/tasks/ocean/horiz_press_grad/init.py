@@ -104,7 +104,6 @@ class Init(PStarInitStep, OceanIOStep):
         """
         logger = self.logger
         config = self.config
-        hpg_section = config['horiz_press_grad']
         if config.get('ocean', 'model') != 'omega':
             raise ValueError(
                 'The horiz_press_grad test case is only supported for the '
@@ -112,41 +111,10 @@ class Init(PStarInitStep, OceanIOStep):
             )
 
         horiz_res = self.horiz_res
-        vert_res = self.vert_res
-
-        # a tilt sweep overrides one config option per step, in the same way
-        # vert_levels is set from the vertical resolution below
-        if self.tilt_option is not None:
-            config.set('horiz_press_grad', self.tilt_option, str(self.tilt))
-            logger.info(
-                f'Setting horiz_press_grad:{self.tilt_option} = {self.tilt}'
-            )
-
-        z_tilde_bot_mid = hpg_section.getfloat('z_tilde_bot_mid')
-
-        assert z_tilde_bot_mid is not None, (
-            'The "z_tilde_bot_mid" configuration option must be set in the '
-            '"horiz_press_grad" section.'
-        )
-
-        # it needs to be an error if the full water column can't be evenly
-        # divided by the resolution, because the later analysis will fail
-        if (-z_tilde_bot_mid / vert_res) % 1 != 0:
-            raise ValueError(
-                'The "z_tilde_bot_mid" value must be an integer multiple of '
-                'the vertical resolution to ensure that the vertical grid can '
-                'be evenly divided into layers. Currently, z_tilde_bot_mid = '
-                f'{z_tilde_bot_mid} and vert_res = {vert_res}, which results '
-                f'in {-z_tilde_bot_mid / vert_res} layers.'
-            )
-        vert_levels = int(-z_tilde_bot_mid / vert_res)
-
-        config.set('vertical_grid', 'vert_levels', str(vert_levels))
 
         nx = 2
         ny = 2
         dc = 1e3 * horiz_res
-        dx = 1e3 * horiz_res
         ds_mesh = make_planar_hex_mesh(
             nx=nx, ny=ny, dc=dc, nonperiodic_x=True, nonperiodic_y=True
         )
@@ -173,6 +141,84 @@ class Init(PStarInitStep, OceanIOStep):
                 f'2 cells, but the culled mesh has '
                 f'{ncells} cells.'
             )
+
+        ds = self.build_column_state(ds_mesh)
+
+        nvertlevels = ds.sizes['nVertLevels']
+        nedges = ds_mesh.sizes['nEdges']
+
+        ds['normalVelocity'] = xr.DataArray(
+            data=np.zeros((1, nedges, nvertlevels), dtype=float),
+            dims=['Time', 'nEdges', 'nVertLevels'],
+            attrs={
+                'long_name': 'normal velocity',
+                'units': 'm s-1',
+            },
+        )
+        ds.attrs['nx'] = nx
+        ds.attrs['ny'] = ny
+        ds.attrs['dc'] = dc
+
+        self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
+        self.write_initial_state_dataset(ds, 'init.nc', config)
+
+    def build_column_state(self, ds_mesh: xr.Dataset) -> xr.Dataset:
+        """
+        Build the two-column state on ``ds_mesh``: the p-star vertical
+        coordinate, the tracers, specific volume, pressure, geometric height,
+        and the diagnostic Montgomery potential and HPGA.
+
+        :py:meth:`run` calls this once the mesh exists.  It is separate from
+        :py:meth:`run` so that unit tests can build the same state from a
+        minimal two-cell mesh dataset, without mesh generation or file I/O.
+
+        Parameters
+        ----------
+        ds_mesh : xarray.Dataset
+            The horizontal mesh, which must have exactly 2 cells.  Only the
+            ``nCells`` dimension is required, so a stub dataset is enough for
+            testing.
+
+        Returns
+        -------
+        ds : xarray.Dataset
+            The two-column state.
+        """
+        logger = self.logger
+        config = self.config
+        horiz_res = self.horiz_res
+        vert_res = self.vert_res
+        dx = 1e3 * horiz_res
+
+        # a tilt sweep overrides one config option per step, in the same way
+        # vert_levels is set from the vertical resolution below
+        if self.tilt_option is not None:
+            config.set('horiz_press_grad', self.tilt_option, str(self.tilt))
+            logger.info(
+                f'Setting horiz_press_grad:{self.tilt_option} = {self.tilt}'
+            )
+
+        hpg_section = config['horiz_press_grad']
+        z_tilde_bot_mid = hpg_section.getfloat('z_tilde_bot_mid')
+
+        assert z_tilde_bot_mid is not None, (
+            'The "z_tilde_bot_mid" configuration option must be set in the '
+            '"horiz_press_grad" section.'
+        )
+
+        # it needs to be an error if the full water column can't be evenly
+        # divided by the resolution, because the later analysis will fail
+        if (-z_tilde_bot_mid / vert_res) % 1 != 0:
+            raise ValueError(
+                'The "z_tilde_bot_mid" value must be an integer multiple of '
+                'the vertical resolution to ensure that the vertical grid can '
+                'be evenly divided into layers. Currently, z_tilde_bot_mid = '
+                f'{z_tilde_bot_mid} and vert_res = {vert_res}, which results '
+                f'in {-z_tilde_bot_mid / vert_res} layers.'
+            )
+        vert_levels = int(-z_tilde_bot_mid / vert_res)
+
+        config.set('vertical_grid', 'vert_levels', str(vert_levels))
 
         x = horiz_res * np.array([-0.5, 0.5], dtype=float)
         # Store x so init_tracers and _build_pstar_coord_ds can access it
@@ -211,25 +257,9 @@ class Init(PStarInitStep, OceanIOStep):
         ds.Density.attrs['long_name'] = 'density'
         ds.Density.attrs['units'] = 'kg m-3'
 
-        nvertlevels = ds.sizes['nVertLevels']
-        nedges = ds_mesh.sizes['nEdges']
-
-        ds['normalVelocity'] = xr.DataArray(
-            data=np.zeros((1, nedges, nvertlevels), dtype=float),
-            dims=['Time', 'nEdges', 'nVertLevels'],
-            attrs={
-                'long_name': 'normal velocity',
-                'units': 'm s-1',
-            },
-        )
-        ds.attrs['nx'] = nx
-        ds.attrs['ny'] = ny
-        ds.attrs['dc'] = dc
-
         self._compute_montgomery_and_hpga(ds=ds, dx=dx, p_mid=ds.pressure)
 
-        self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
-        self.write_initial_state_dataset(ds, 'init.nc', config)
+        return ds
 
     def init_tracers(
         self, ds: xr.Dataset

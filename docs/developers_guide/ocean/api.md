@@ -211,6 +211,12 @@
    resting_state_task.HorizPressGradRestingStateTask
    resting_state_task.HorizPressGradRestingStateTask.configure
 
+   finite_volume.centered_shift
+   finite_volume.hpga_from_shift
+   finite_volume.hydrostatic_scale
+   finite_volume.edge_delta
+   finite_volume.edge_mean
+
    metrics.get_internal_edge
    metrics.rms
    metrics.power_law_fit
@@ -226,6 +232,7 @@
 
    init.Init
    init.Init.run
+   init.Init.build_column_state
 
    forward.Forward
    forward.Forward.setup
