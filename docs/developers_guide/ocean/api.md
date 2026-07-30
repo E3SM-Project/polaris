@@ -648,10 +648,12 @@
    compute_specvol
    convert_tracer_pair
    convert_tracers
+   ct_from_potential_density
 
    constant.compute_constant_density
    linear.compute_linear_density
    teos10.compute_specvol
+   teos10.ct_from_potential_density
 ```
 
 

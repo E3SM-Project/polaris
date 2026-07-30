@@ -10,6 +10,9 @@ from .teos10 import TRACER_CONVENTIONS as TRACER_CONVENTIONS
 from .teos10 import compute_specvol as compute_teos10_specvol
 from .teos10 import convert_tracer_pair as convert_tracer_pair
 from .teos10 import convert_tracers as convert_tracers
+from .teos10 import (
+    ct_from_potential_density as ct_from_potential_density,
+)
 
 
 def compute_density(
