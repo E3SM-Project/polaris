@@ -88,7 +88,7 @@ class Forward(OceanModelStep):
         # TODO: remove as soon as Omega no longer hard-codes this file
         input_filename = f'ocean.{self.mesh_name}.{self.mpaso_id}'
         if model == 'omega':
-            # TODO eos_type = self.config.get('ocean', 'eos_type')
+            # Currently, only TEOS-10 is supported
             eos_type = 'teos10'
             input_filename = f'{input_filename}.{eos_type}.{self.omega_id}.nc'
             self.add_input_file(
