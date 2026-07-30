@@ -462,6 +462,9 @@
    init.Init.setup
    init.Init.run
 
+   init_utils.compute_target_density
+   init_utils.compute_tracers
+
    viz.Viz
    viz.Viz.run
 ```
