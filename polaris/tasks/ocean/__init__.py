@@ -644,16 +644,17 @@ class Ocean(Component):
             and 'Salinity' in ds.keys()
             and 'SurfacePressure' in ds.keys()
         ):
+            ds_mpas = self.map_from_native_model_vars(ds)
             iter_count = get_iter_count_for_eos(config)
             _, _, spec_vol = pressure_and_spec_vol_from_state_at_geom_height(
                 config,
-                ds.layerThickness,
-                ds.Temperature,
-                ds.Salinity,
-                ds.SurfacePressure,
+                ds_mpas.layerThickness,
+                ds_mpas.temperature,
+                ds_mpas.salinity,
+                ds_mpas.SurfacePressure,
                 iter_count=iter_count,
             )
-            ds.SpecVol = spec_vol
+            ds['SpecVol'] = spec_vol
         if (
             self.model == 'omega'
             and 'vertVelocityTop' not in ds.keys()
