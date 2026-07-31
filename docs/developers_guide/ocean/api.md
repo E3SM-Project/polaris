@@ -231,6 +231,9 @@
    finite_volume.matched_pressure_pieces
    finite_volume.layer_containing_pressure
    finite_volume.delta_specvol_at_pressure
+   finite_volume.anchor_difference
+   finite_volume.column_scan
+   finite_volume.scan_increments
 
    reconstruction.linear_slope
    reconstruction.layer_deviation
