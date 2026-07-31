@@ -92,9 +92,21 @@ class Viz(OceanIOStep):
         """
         config = self.config
         ds_mesh = self.open_model_dataset('mesh.nc', config=config)
-        ds_init = self.open_model_dataset('init.nc', config=config)
+        # under TEOS-10, plot conservative temperature whichever model ran,
+        # so that MPAS-Ocean and Omega results can be compared directly
+        ds_init = self.open_model_dataset(
+            'init.nc',
+            config=config,
+            mesh_filename='mesh.nc',
+            tracer_convention='teos-10',
+        )
         ds_vert_coord = self.open_vert_coord_dataset(ds_init)
-        ds = self.open_model_dataset('output.nc', config=config)
+        ds = self.open_model_dataset(
+            'output.nc',
+            config=config,
+            mesh_filename='mesh.nc',
+            tracer_convention='teos-10',
+        )
 
         x_min = ds_mesh.xVertex.min().values
         x_max = ds_mesh.xVertex.max().values
