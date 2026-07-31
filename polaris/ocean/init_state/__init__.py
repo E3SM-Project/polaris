@@ -1,6 +1,9 @@
 from polaris.ocean.init_state.density import (
     add_density_from_specvol as add_density_from_specvol,
 )
+from polaris.ocean.init_state.pressure import (
+    pressure_for_tracer_conversion as pressure_for_tracer_conversion,
+)
 from polaris.ocean.init_state.thickness import (
     layer_thickness_from_geom_interfaces as layer_thickness_from_geom_interfaces,  # noqa: E501
 )
