@@ -796,6 +796,63 @@ class Ocean(Component):
         return all_found
 
 
+def _lon_lat_for_tracer_conversion(ds, config, lon=None, lat=None):
+    """
+    Determine the longitude and latitude (in degrees) at which to convert
+    tracers between the TEOS-10 and MPAS-Ocean conventions.
+
+    Explicit ``lon`` and ``lat`` arguments win.  Otherwise, per-cell
+    ``lonCell`` and ``latCell`` (converted from radians) are used on a
+    spherical mesh and the nominal location from config options is used on a
+    planar mesh.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset with MPAS-Ocean variable names, including ``lonCell`` and
+        ``latCell`` if the mesh is on a sphere
+
+    config : polaris.config.PolarisConfigParser
+        Configuration options, including ``nominal_lon`` and ``nominal_lat``
+        in the ``ocean`` section
+
+    lon : float or xarray.DataArray, optional
+        An explicit longitude (or longitudes) in degrees
+
+    lat : float or xarray.DataArray, optional
+        An explicit latitude (or latitudes) in degrees
+
+    Returns
+    -------
+    lon : float or xarray.DataArray
+        The longitude(s) in degrees
+
+    lat : float or xarray.DataArray
+        The latitude(s) in degrees
+    """
+    if (lon is None) != (lat is None):
+        raise ValueError(
+            'lon and lat must either both be given or both be omitted'
+        )
+    if lon is not None:
+        return lon, lat
+
+    on_a_sphere = str(ds.attrs.get('on_a_sphere', 'NO')).strip().lower()
+    if on_a_sphere == 'yes':
+        # planar meshes carry meaningless lonCell/latCell, so they may only
+        # be used when the mesh really is on a sphere
+        missing = [name for name in ('lonCell', 'latCell') if name not in ds]
+        if missing:
+            raise ValueError(
+                'A tracer conversion on a spherical mesh requires per-cell '
+                'locations but the dataset is missing: ' + ', '.join(missing)
+            )
+        return np.rad2deg(ds.lonCell), np.rad2deg(ds.latCell)
+
+    section = config['ocean']
+    return section.getfloat('nominal_lon'), section.getfloat('nominal_lat')
+
+
 def _add_reconstructed_variables_to_dataset(
     ds,
     reconstruct_variables,
