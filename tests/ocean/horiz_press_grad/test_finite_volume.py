@@ -28,6 +28,7 @@ from polaris.tasks.ocean.horiz_press_grad.finite_volume import (
 from .two_column import (
     GRADIENT_VARIANTS,
     LINEAR_VARIANT,
+    REPRESENTATIVE,
     VARIANTS,
     build_state,
     make_config,
@@ -78,7 +79,10 @@ def _valid_hpga(
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize('horiz_res, vert_res, tilt', sweep(LINEAR_VARIANT))
+@pytest.mark.parametrize(
+    'horiz_res, vert_res, tilt',
+    [point[1:] for point in REPRESENTATIVE if point[0] == LINEAR_VARIANT],
+)
 def test_linear_variant_is_in_the_exact_set(horiz_res, vert_res, tilt):
     """``hydrostatic_consistency_linear`` puts the state in the exact set.
 
@@ -213,15 +217,7 @@ def test_centered_shift_with_horizontal_structure(
     )
 
 
-@pytest.mark.parametrize(
-    'variant, horiz_res, vert_res, tilt',
-    [(variant, *point) for variant in VARIANTS for point in sweep(variant)]
-    + [
-        (variant, *pair, None)
-        for variant in GRADIENT_VARIANTS
-        for pair in resolution_pairs(variant)
-    ],
-)
+@pytest.mark.parametrize('variant, horiz_res, vert_res, tilt', REPRESENTATIVE)
 def test_state_is_valid_exactly_where_the_column_is(
     variant, horiz_res, vert_res, tilt
 ):

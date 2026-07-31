@@ -355,25 +355,41 @@ def test_scan_round_trips(vert_res, tilt):
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize(
-    'vert_res, tilt', [(256.0, 1.0), (256.0, 50.0), (64.0, 50.0)]
-)
-def test_assembled_hpga_is_zero_on_the_exact_set(vert_res, tilt):
-    """D4'': the assembled tendency is machine zero on the exact set.
+@pytest.mark.parametrize('horiz_res, vert_res, tilt', sweep(LINEAR_VARIANT))
+def test_assembled_hpga_is_zero_on_the_exact_set(horiz_res, vert_res, tilt):
+    """C2 / D4'': the assembled tendency is machine zero on the exact set.
 
-    Measured at 3.7e-18 m s-2 against ``PressureGradCentered``'s 6.9e-05 on the
-    same state -- thirteen orders.  This is the property the whole exercise is
-    for.
+    Run across the whole tilt sweep at three vertical resolutions, because this
+    is the measurement the entire exercise exists to make.
+
+    The tolerance is a multiple of the *hydrostatic scale*, not an absolute
+    number, and that is not pedantry here.  At the smallest tilts the residual
+    sits at 2e-14 m s-2 rather than the 2e-18 at larger ones -- not because
+    the scheme is worse there, but because the floor is round-off of the ~7e3 m
+    of column the scan works against, which is about 5 eps and independent of
+    how small the signal is.  An absolute threshold tight enough to be
+    meaningful at 50 m/km would fail at 0.05 m/km for no reason.
+
+    The comparison that matters is against ``PressureGradCentered`` on the same
+    state, which ranges from 6.8e-10 to 2.6e-05 m s-2 across this sweep.
     """
-    ds = build_state(LINEAR_VARIANT, 4.0, vert_res, tilt)
-    hpga = finite_volume_hpga(ds, 4.0e3)
+    ds = build_state(LINEAR_VARIANT, horiz_res, vert_res, tilt)
+    hpga = finite_volume_hpga(ds, 1.0e3 * horiz_res)
 
     valid = np.isfinite(hpga.values)
     worst = float(np.max(np.abs(hpga.values[valid])))
     centered = float(np.abs(ds.HPGA).max())
-    assert worst < 1.0e-15, (
+    tolerance = (
+        _ROUNDOFF_TOL * hydrostatic_scale(ds) * Gravity / (1.0e3 * horiz_res)
+    )
+    assert worst <= tolerance, (
         f'vert_res={vert_res} m, tilt={tilt} m/km: max |HPGA| = {worst:.3e} '
-        f'm s-2 (centered gives {centered:.3e})'
+        f'm s-2, more than {tolerance:.3e} (centered gives {centered:.3e})'
+    )
+    assert worst < 1.0e-4 * centered, (
+        f'vert_res={vert_res} m, tilt={tilt} m/km: the scheme is only '
+        f'{centered / worst:.1f} times better than centered, so this '
+        'configuration is no longer showing exactness'
     )
 
 
@@ -535,3 +551,36 @@ def test_operator_is_antisymmetric_under_swapping_the_columns():
         f'swapping the columns left {residual:.3e} against a signal of '
         f'{scale:.3e}'
     )
+
+
+@pytest.mark.parametrize('tilt', [1.0, 10.0])
+def test_second_order_off_the_exact_set(tilt):
+    """C3: the residual shrinks like h^2 under vertical refinement.
+
+    Without this, C2 could pass for a scheme that returned zero for the wrong
+    reason -- a scheme insensitive to the state would also be "exact".
+
+    Measured order on ``hydrostatic_consistency``'s curved profile is 1.55 to
+    2.02 across 256 -> 128 -> 64 m, consistent with the O(h^2) design §3.7.3
+    gives Phase 1 for a generally smooth profile.
+
+    Worth recording alongside: ``PressureGradCentered`` converges *faster* than
+    this on the same profile (1.88 to 2.93), from a much larger starting value,
+    so the finite-volume advantage narrows with refinement -- 6.5x at 256 m,
+    2.4x at 64 m.  The orders-of-magnitude win is on the exact set, not here.
+    That anomaly in the centered scheme's order is the one noted in the
+    findings document and is not yet explained.
+    """
+    errors = []
+    for vert_res in [256.0, 128.0, 64.0]:
+        ds = build_state('hydrostatic_consistency', 4.0, vert_res, tilt)
+        hpga = finite_volume_hpga(ds, 4.0e3)
+        valid = np.isfinite(hpga.values)
+        errors.append(float(np.sqrt(np.mean(hpga.values[valid] ** 2))))
+
+    for coarse, fine in zip(errors[:-1], errors[1:], strict=True):
+        order = np.log2(coarse / fine)
+        assert 1.4 < order < 2.6, (
+            f'tilt={tilt} m/km: observed order {order:.2f}, outside the range '
+            'a second-order scheme should show'
+        )
