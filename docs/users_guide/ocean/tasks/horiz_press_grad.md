@@ -237,6 +237,46 @@ This Python HPGA is not the main reference solution.  Instead, it checks
 whether Omega's one-step tendency matches the expected two-column discrete
 calculation from the initialized state.
 
+(ocean-horiz-press-grad-finite-volume)=
+## the finite-volume HPGA
+
+The `init` step also writes a second field, `HPGAFiniteVolume`, alongside
+`HPGA`.  `HPGA` is unchanged in name, meaning and values -- it remains the
+centered scheme, and the recorded baselines for all seven variants are
+unaffected by the new field.
+
+`HPGAFiniteVolume` is the Python counterpart of Omega's higher-order
+`PressureGradFiniteVolume` scheme.  Where the centered scheme compares the two
+columns at a fixed *layer index*, this one compares them at a fixed *pressure*:
+it differences the specific volume of the two columns at matched pressure and
+integrates that difference down the column.  Because the difference is
+identically zero whenever the two columns describe the same water, the scheme
+returns zero for a resting ocean regardless of how the coordinate is tilted.
+
+What that buys, measured on `hydrostatic_consistency_linear` -- the one variant
+whose temperature and salinity are exactly linear in pressure, and so the only
+one where machine precision is the correct expectation:
+
+| coordinate tilt | `HPGA` (centered) | `HPGAFiniteVolume` |
+| --- | --- | --- |
+| 0.05 m/km | 2.6e-08 m s⁻² | 2.2e-15 m s⁻² |
+| 1 m/km | 5.2e-07 m s⁻² | 7.2e-18 m s⁻² |
+| 50 m/km | 2.1e-05 m s⁻² | 2.3e-18 m s⁻² |
+
+at 256 m layers.  The finite-volume values are round-off; they do not grow with
+tilt, which is the property the whole scheme exists for.
+
+Away from that exact set the gain is real but far smaller, because the scheme
+is then second-order accurate rather than exact.  On the curved
+`hydrostatic_consistency` profile it is about six times better than centered at
+256 m layers and about twice as good at 64 m, both converging.  On
+`bathymetry_step`, the variant that most resembles the bottom-layer error seen
+in realistic global runs, it is roughly 400 times better.
+
+Nothing selects between the two fields yet: both are written, and which one the
+analysis steps compare against Omega is decided once the corresponding Omega
+option exists.
+
 (ocean-horiz-press-grad-resting)=
 ## the resting-state variants
 
