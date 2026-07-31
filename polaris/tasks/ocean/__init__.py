@@ -452,7 +452,7 @@ class Ocean(Component):
         lon : float or xarray.DataArray, optional
             The longitude(s) in degrees at which to convert tracers, if not
             the location implied by the mesh (see
-            :ref:`dev-ocean-framework-eos`)
+            :ref:`dev-ocean-framework-init-state`)
 
         lat : float or xarray.DataArray, optional
             The latitude(s) in degrees at which to convert tracers, as for

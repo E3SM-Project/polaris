@@ -69,11 +69,12 @@ p-star coordinate to convergence with zero surface pressure, and
 implements `init_tracers()` as the overflow profile (interpreted as
 conservative temperature and absolute salinity) evaluated at the current
 p-star layer midpoints.  After convergence, the shared
-`polaris.ocean.init_state` helpers add layer thickness,
-quiescent velocity and density, and (for MPAS-Ocean)
-{py:func}`polaris.ocean.eos.convert_tracers_to_mpas_ocean()` converts the
-tracers to potential temperature and practical salinity at a nominal
-lon/lat.
+`polaris.ocean.init_state` helpers add layer thickness, quiescent
+velocity and density.  In the `nonlinear` tree, the framework converts
+the tracers to potential temperature and practical salinity at the
+nominal lon/lat when the model is MPAS-Ocean (see
+{ref}`dev-ocean-framework-init-state`); the step itself does nothing
+model-specific.
 The step writes `vert_coord.nc` and `init.nc` with the same filenames as
 `Init`, so the `forward`, `viz` and `analysis` steps need no retargeting.
 

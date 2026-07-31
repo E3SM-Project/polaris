@@ -344,14 +344,25 @@ MPAS-Ocean has no TEOS-10 option, so `config_eos_type` is set to `jm`
 `teos-10` unchanged.  For `constant`, MPAS-Ocean similarly falls back to
 its linear EOS with constant coefficients.
 
-For initial conditions defined in terms of the TEOS-10 tracers
-(conservative temperature and absolute salinity),
-{py:func}`polaris.ocean.eos.convert_tracers_to_mpas_ocean()` converts
-conservative temperature to potential temperature (`gsw.pt_from_CT`) and
-absolute salinity to practical salinity (`gsw.SP_from_SA`), the tracer
-conventions MPAS-Ocean expects.  The conversion uses a co-located
-``pressure`` field and either a nominal scalar lon/lat (for planar
-meshes) or per-cell arrays.
+The two models also disagree about what the `temperature` and `salinity`
+tracers mean under TEOS-10: Omega expects conservative temperature (CT)
+and absolute salinity (SA) while MPAS-Ocean expects potential temperature
+(PT) and practical salinity (SP).  For any other `eos_type` the models
+apply the same algebraic formula, so the distinction is meaningless.
+
+{py:func}`polaris.ocean.eos.convert_tracers()` converts between the two
+conventions in either direction: `gsw.pt_from_CT()` and `gsw.SP_from_SA()`
+going to the MPAS-Ocean convention, `gsw.CT_from_pt()` and
+`gsw.SA_from_SP()` coming back.  It takes the pressure and the lon/lat
+(in degrees) at which to convert, does not modify the dataset it is given,
+and takes a `tracer_pairs` argument for converting variables other than
+`temperature` and `salinity` (surface restoring fields, for example).
+Cells where either tracer is NaN, such as those below the bathymetry, stay
+NaN.
+
+Init steps do not normally call `convert_tracers()` themselves; the
+framework converts the tracers as it writes the initial state (see
+{ref}`dev-ocean-framework-init-state`).
 
 
 (dev-ocean-spherical-meshes)=
@@ -796,6 +807,10 @@ example because the z-tilde bottom varies spatially), the semi-private method
 as done in
 {py:class}`polaris.tasks.ocean.horiz_press_grad.init.Init`.
 
+(dev-ocean-framework-init-state)=
+
+### Initial state
+
 The `polaris.ocean.init_state` package provides general helpers for
 building the initial-state fields the ocean models read (for example
 from a converged p-star dataset):
@@ -808,13 +823,43 @@ from a converged p-star dataset):
 - {py:func}`polaris.ocean.init_state.add_density_from_specvol()`
   adds an in-situ ``Density`` field as the inverse of ``SpecVol``.
 
-For MPAS-Ocean, the TEOS-10 tracers can be converted to potential
-temperature and practical salinity with
-{py:func}`polaris.ocean.eos.convert_tracers_to_mpas_ocean()` (see
-{ref}`dev-ocean-framework-eos`), using the p-star ``pressure`` field
-and either a nominal scalar lon/lat (for planar meshes) or per-cell
-arrays.  Omega receives conservative temperature and absolute salinity
-directly, so no conversion is needed.
+#### Tracer conventions
+
+An init step builds ``temperature`` and ``salinity`` in whatever
+convention is natural for its physics and hands them over;
+``write_initial_state_dataset()`` converts them to the convention the
+ocean model expects (see {ref}`dev-ocean-framework-eos`) as it writes the
+file.  A step should not convert the tracers itself.
+
+By default, the step is assumed to have built its tracers in the
+convention implied by the ``eos_type`` config option: conservative
+temperature and absolute salinity for `teos-10` and, for any other EOS,
+tracers that need no conversion.  A step that builds potential
+temperature and practical salinity under TEOS-10 anyway (for example
+because it is initialized from an E3SM restart) says so with
+``tracer_convention='mpas-ocean'``, and the framework converts in the
+other direction if the model is Omega.
+
+The conversion happens on a copy just before the file is written, so it
+cannot contaminate an in-memory dataset that is also used to write the
+vertical coordinate.  It needs two things beyond the tracers themselves:
+
+- **Pressure.**
+  {py:func}`polaris.ocean.init_state.pressure_for_tracer_conversion()`
+  uses the ``pressure`` field if the dataset has one (as p-star initial
+  conditions do) and otherwise computes it from ``layerThickness``, the
+  tracers and ``SurfacePressure`` (zero if absent).  Since the pressure
+  only enters through the absolute-to-practical salinity correction, it
+  does not need to be accurate.  The ``pressure`` field itself is dropped
+  from the initial state, whether or not any conversion happens.
+- **Location**, for the same salinity correction.  Explicit ``lon`` and
+  ``lat`` arguments (in degrees) win.  Otherwise, ``lonCell`` and
+  ``latCell`` are used, converted from radians, if the mesh has the
+  ``on_a_sphere`` attribute set to ``YES``; a spherical mesh missing them
+  is an error rather than a fallback.  On a planar mesh, whose
+  ``lonCell``/``latCell`` are meaningless, the ``nominal_lon`` and
+  ``nominal_lat`` config options in the ``ocean`` section are used
+  instead.
 
 For sigma coordinates, shared functionality for direct thickness computation is
 available in
