@@ -17,6 +17,7 @@ from polaris.config import PolarisConfigParser
 from polaris.tasks.ocean.horiz_press_grad.init import Init
 
 __all__ = [
+    'REPRESENTATIVE',
     'VARIANTS',
     'LINEAR_VARIANT',
     'GRADIENT_VARIANTS',
@@ -56,6 +57,26 @@ GRADIENT_VARIANTS = [
 
 # Built states are reused across tests, at roughly 0.25 s each.
 _STATE_CACHE: dict[tuple[str, float, float, float | None], xr.Dataset] = {}
+
+
+# A representative subset of the sweeps, for tests whose point is not "at every
+# tilt".  The full sweeps are kept only for the S identity, which is the
+# cheapest test and the one whose whole claim is that it holds everywhere.
+# Trimming this rather than the number of test functions is what keeps the
+# collected count reasonable: the functions are few, the parametrization was
+# what grew.
+REPRESENTATIVE = [
+    ('hydrostatic_consistency', 4.0, 256.0, 0.05),
+    ('hydrostatic_consistency', 4.0, 64.0, 50.0),
+    ('hydrostatic_consistency_linear', 4.0, 256.0, 0.05),
+    ('hydrostatic_consistency_linear', 4.0, 256.0, 50.0),
+    ('hydrostatic_consistency_linear', 4.0, 64.0, 50.0),
+    ('bathymetry_step', 4.0, 256.0, 1.0),
+    ('bathymetry_step', 4.0, 128.0, 200.0),
+    ('temperature_gradient', 4.0, 4.0, None),
+    ('surface_pressure_gradient', 4.0, 4.0, None),
+    ('ztilde_gradient', 0.5, 0.5, None),
+]
 
 
 def make_config(variant: str) -> PolarisConfigParser:
