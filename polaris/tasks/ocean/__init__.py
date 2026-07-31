@@ -14,6 +14,8 @@ from polaris.mesh.reconstruct import (
     cartesian_to_local_geographic,
     tangential_reconstruction,
 )
+from polaris.ocean.eos import convert_tracers
+from polaris.ocean.init_state import pressure_for_tracer_conversion
 from polaris.ocean.surface_pressure import surface_pressure_from_config
 from polaris.ocean.vertical.diagnostics import (
     geom_thickness_from_ds,
@@ -409,9 +411,19 @@ class Ocean(Component):
             ds = ds.drop_vars(drop)
         return ds
 
-    def write_initial_state_dataset(self, ds, filename, config):
+    def write_initial_state_dataset(
+        self,
+        ds,
+        filename,
+        config,
+        tracer_convention=None,
+        lon=None,
+        lat=None,
+        logger=None,
+    ):
         """
-        Write an initial-state dataset, omitting horizontal mesh fields and
+        Write an initial-state dataset, converting the tracers to the
+        convention the model expects and omitting horizontal mesh fields and
         (for Omega) vertical coordinate fields.
 
         For MPAS-Ocean the vertical coordinate variables remain in the initial
@@ -421,7 +433,8 @@ class Ocean(Component):
         Parameters
         ----------
         ds : xarray.Dataset
-            A dataset containing MPAS-Ocean variable names
+            A dataset containing MPAS-Ocean variable names.  Its tracers are
+            converted on a copy, so they are left untouched.
 
         filename : str
             The path for the NetCDF file to write
@@ -429,9 +442,41 @@ class Ocean(Component):
         config : polaris.config.PolarisConfigParser
             Configuration for the task; forwarded to
             :py:meth:`write_model_dataset`.
+
+        tracer_convention : {'teos-10', 'mpas-ocean'}, optional
+            The convention of ``temperature`` and ``salinity`` in ``ds``.  The
+            default is to assume the convention implied by the ``eos_type``
+            config option: ``'teos-10'`` for the TEOS-10 equation of state and
+            no conversion otherwise.
+
+        lon : float or xarray.DataArray, optional
+            The longitude(s) in degrees at which to convert tracers, if not
+            the location implied by the mesh (see
+            :ref:`dev-ocean-framework-eos`)
+
+        lat : float or xarray.DataArray, optional
+            The latitude(s) in degrees at which to convert tracers, as for
+            ``lon``
+
+        logger : logging.Logger, optional
+            A logger for logging EOS iteration information if a pressure needs
+            to be computed for the tracer conversion
         """
         if self.model is None:
             self.model = config.get('ocean', 'model')
+        ds = self._convert_tracers_for_model(
+            ds,
+            config,
+            tracer_convention=tracer_convention,
+            lon=lon,
+            lat=lat,
+            logger=logger,
+        )
+        if 'pressure' in ds:
+            # pressure is a diagnostic that neither model reads, and it is
+            # only present for some vertical coordinates, so drop it to keep
+            # initial conditions consistent with one another
+            ds = ds.drop_vars('pressure')
         ds = self.remove_horiz_mesh_vars(ds)
         if self.model == 'omega':
             ds = self.remove_vert_coord_vars(ds)
@@ -654,6 +699,45 @@ class Ocean(Component):
                 reconstruct_method,
             )
         return ds
+
+    def _convert_tracers_for_model(
+        self, ds, config, tracer_convention, lon, lat, logger
+    ):
+        """
+        Convert ``temperature`` and ``salinity`` from the convention they are
+        given in to the one the ocean model expects: conservative temperature
+        and absolute salinity for Omega, potential temperature and practical
+        salinity for MPAS-Ocean.
+
+        The conventions only differ for the TEOS-10 equation of state, so this
+        is a no-op for any other ``eos_type``, as it is when the tracers are
+        already in the model's convention.
+        """
+        if not config.has_option('ocean', 'eos_type'):
+            return ds
+        if config.get('ocean', 'eos_type').strip() != 'teos-10':
+            return ds
+
+        if tracer_convention is None:
+            # tasks build their initial condition in the convention implied by
+            # the equation of state unless they say otherwise
+            tracer_convention = 'teos-10'
+
+        target = 'teos-10' if self.model == 'omega' else 'mpas-ocean'
+        if tracer_convention == target:
+            return ds
+
+        pressure = pressure_for_tracer_conversion(ds, config, logger=logger)
+        lon, lat = _lon_lat_for_tracer_conversion(ds, config, lon=lon, lat=lat)
+
+        return convert_tracers(
+            ds,
+            source=tracer_convention,
+            target=target,
+            pressure=pressure,
+            lon=lon,
+            lat=lat,
+        )
 
     def _check_vars_present(self, ds, native_vars, context):
         """
