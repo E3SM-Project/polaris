@@ -1,6 +1,6 @@
 import xarray as xr
 
-from polaris.ocean.eos import convert_tracers_to_mpas_ocean
+from polaris.ocean.eos import convert_tracers
 from polaris.ocean.init_state import (
     add_density_from_specvol,
     add_quiescent_normal_velocity,
@@ -77,8 +77,13 @@ class PStarInit(PStarInitStep, OceanIOStep):
             section = config['overflow']
             nominal_lon = section.getfloat('nominal_lon')
             nominal_lat = section.getfloat('nominal_lat')
-            ds = convert_tracers_to_mpas_ocean(
-                ds, lon=nominal_lon, lat=nominal_lat
+            ds = convert_tracers(
+                ds,
+                source='teos-10',
+                target='mpas-ocean',
+                pressure=ds.pressure,
+                lon=nominal_lon,
+                lat=nominal_lat,
             )
 
         self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)

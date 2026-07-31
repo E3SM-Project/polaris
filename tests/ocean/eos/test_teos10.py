@@ -3,7 +3,7 @@ import numpy as np
 import xarray as xr
 from numpy.testing import assert_allclose
 
-from polaris.ocean.eos import convert_tracers_to_mpas_ocean
+from polaris.ocean.eos import convert_tracers
 
 
 def _make_tracer_ds():
@@ -27,7 +27,14 @@ def test_convert_tracers_to_mpas_ocean_nominal_location():
     lon = 0.0
     lat = 0.0
 
-    ds = convert_tracers_to_mpas_ocean(ds, lon=lon, lat=lat)
+    ds = convert_tracers(
+        ds,
+        source='teos-10',
+        target='mpas-ocean',
+        pressure=ds.pressure,
+        lon=lon,
+        lat=lat,
+    )
 
     valid = np.isfinite(ct)
     expected_pt = gsw.pt_from_CT(sa[valid], ct[valid])
@@ -49,7 +56,14 @@ def test_convert_tracers_to_mpas_ocean_per_cell_location():
     lon = np.array([0.0, 180.0])
     lat = np.array([-60.0, 30.0])
 
-    ds = convert_tracers_to_mpas_ocean(ds, lon=lon, lat=lat)
+    ds = convert_tracers(
+        ds,
+        source='teos-10',
+        target='mpas-ocean',
+        pressure=ds.pressure,
+        lon=lon,
+        lat=lat,
+    )
 
     # check a single valid (cell, level) against a direct gsw call
     expected_sp = gsw.SP_from_SA(sa[0, 1, 0], p_dbar[0, 1, 0], lon[1], lat[1])
