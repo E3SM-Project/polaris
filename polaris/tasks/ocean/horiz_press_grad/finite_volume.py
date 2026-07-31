@@ -50,6 +50,9 @@ __all__ = [
     'hpga_from_shift',
     'hydrostatic_scale',
     'matched_pressure_pieces',
+    'anchor_difference',
+    'column_scan',
+    'scan_increments',
     'layer_containing_pressure',
     'delta_specvol_at_pressure',
 ]
@@ -89,6 +92,7 @@ def centered_shift(ds: xr.Dataset) -> xr.DataArray:
     shift : xarray.DataArray
         ``S_{e,k}`` at layer midpoints, in m, with the ``nCells`` dimension
         contracted away by the edge operator.
+
 
 
     """
@@ -137,6 +141,7 @@ def hpga_from_shift(shift: xr.DataArray, dx: float) -> xr.DataArray:
         The edge-normal pressure-gradient acceleration in m s-2.
 
 
+
     """
     if dx == 0.0:
         raise ValueError('dx must be non-zero for finite differences.')
@@ -174,6 +179,7 @@ def hydrostatic_scale(ds: xr.Dataset) -> float:
         an acceleration.
 
 
+
     """
     q = pressure_from_z_tilde(ds.ZTildeInterface)
     z_magnitude = float(np.abs(ds.GeomZInterface).max())
@@ -186,6 +192,7 @@ def _layer_top(field: xr.DataArray) -> xr.DataArray:
     The value at each layer's top interface, as a layer-indexed field.
 
 
+
     """
     return field.isel(nVertLevelsP1=slice(0, -1)).rename(
         {'nVertLevelsP1': 'nVertLevels'}
@@ -195,6 +202,7 @@ def _layer_top(field: xr.DataArray) -> xr.DataArray:
 def _layer_bot(field: xr.DataArray) -> xr.DataArray:
     """
     The value at each layer's bottom interface, as a layer-indexed field.
+
 
 
     """
@@ -246,6 +254,7 @@ def centered_shift_accumulated(
     -------
     shift : xarray.DataArray
         ``S_{e,k}`` at layer midpoints, in m.
+
 
 
     """
@@ -318,6 +327,7 @@ def shift_increments(ds: xr.Dataset) -> xr.Dataset:
         (``Delta_e Z`` at interfaces) to scale them against.  All in m.
 
 
+
     """
     pieces = _shift_pieces(ds)
     return xr.Dataset(
@@ -332,6 +342,7 @@ def shift_increments(ds: xr.Dataset) -> xr.Dataset:
 def _shift_pieces(ds: xr.Dataset) -> dict:
     """The increments and anchors of ``[gamma-increments]``, and the mask of
     layers valid in both columns.
+
 
     """
     q = pressure_from_z_tilde(ds.ZTildeInterface)
@@ -411,6 +422,7 @@ def matched_pressure_pieces(ds: xr.Dataset) -> dict:
         ``deepest`` valid layer, and the edge-layer interface pressures
         ``edge_interface``.
 
+
     """
     interface = pressure_from_z_tilde(ds.ZTildeInterface).isel(Time=0).values
     deepest = ds.maxLevelCell.values.astype(int) - 1
@@ -431,6 +443,9 @@ def matched_pressure_pieces(ds: xr.Dataset) -> dict:
         'interface': interface,
         'deepest': deepest,
         'edge_interface': 0.5 * (interface[0, :] + interface[1, :]),
+        'surface_height': ds.GeomZInterface.isel(
+            Time=0, nVertLevelsP1=0
+        ).values,
     }
 
 
@@ -471,6 +486,7 @@ def layer_containing_pressure(
     -------
     index : numpy.ndarray
         Zero-based layer indices, in ``[0, maxLevelCell - 1]``.
+
 
     """
     deepest = int(pieces['deepest'][icell])
@@ -519,6 +535,7 @@ def delta_specvol_at_pressure(
     delta_specvol : numpy.ndarray
         :math:`\\Delta_e\\hat\\alpha(p)` in m3 kg-1.
 
+
     """
     pressure = np.atleast_1d(np.asarray(pressure, dtype=float))
     expansion = pieces['expansion'].isel(nVertLevels=edge_layer)
@@ -537,3 +554,145 @@ def delta_specvol_at_pressure(
         float(expansion.alpha_theta) * contrast['theta']
         + float(expansion.alpha_s) * contrast['salinity']
     )
+
+
+def anchor_difference(pieces: dict, order: int = 4) -> float:
+    """
+    The design's ``[anchor]``: the fixed-pressure height difference at the
+    edge's topmost interface.
+
+    .. math::
+
+        D_1 = \\Delta_e Z_1 - \\frac{1}{g}\\,\\Delta_e
+        \\int_{p^{\\rm surf}_i}^{\\bar q_1} \\hat\\alpha^{(e)}_i(p)\\,dp
+
+    The two columns sit at different surface pressures, so this is the
+    sea-surface height difference corrected to the common pressure
+    :math:`\\bar q_1`.  The two short integrals are over *different* pressure
+    ranges and so cannot be combined into a matched-pressure difference the way
+    the interior can; each is taken inside that column's own top layer.
+
+    For a resting ocean whose sea surface satisfies the inverse-barometer
+    relation this is zero, and **exactness of the whole scheme inherits that**
+    (design §3.5.1).  It is the one place the scheme's robustness depends on
+    something outside the pressure gradient, namely the consistency of the
+    initialized sea-surface height with the surface pressure.
+
+    Parameters
+    ----------
+    pieces : dict
+        From :py:func:`matched_pressure_pieces`.
+
+    order : int
+        Gauss-Legendre order.  The integrand is linear in pressure within a
+        layer, so 2 already integrates it exactly; the default is the same rule
+        the scan uses.
+
+    Returns
+    -------
+    anchor : float
+        :math:`D_1` in m.
+
+    """
+    nodes, weights = np.polynomial.legendre.leggauss(order)
+    common = pieces['edge_interface'][0]
+
+    correction = np.empty(2)
+    for icell in range(2):
+        surface = pieces['interface'][icell, 0]
+        middle = 0.5 * (surface + common)
+        half = 0.5 * (common - surface)
+        probe = middle + half * nodes
+        level = layer_containing_pressure(pieces, icell, probe)
+        theta = pieces['theta'][icell, level] + pieces['slope_theta'][
+            icell, level
+        ] * (probe - pieces['pressure_mid'][icell, level])
+        salinity = pieces['salinity'][icell, level] + pieces['slope_salinity'][
+            icell, level
+        ] * (probe - pieces['pressure_mid'][icell, level])
+        expansion = pieces['expansion'].isel(nVertLevels=0)
+        specvol = (
+            float(expansion.alpha_0)
+            + float(expansion.alpha_theta)
+            * (theta - float(expansion.theta_ref))
+            + float(expansion.alpha_s) * (salinity - float(expansion.s_ref))
+            + float(expansion.alpha_p) * (probe - float(expansion.p_ref))
+        )
+        correction[icell] = half * float(np.sum(weights * specvol))
+
+    delta_z = pieces['surface_height'][1] - pieces['surface_height'][0]
+    return float(delta_z - (correction[1] - correction[0]) / Gravity)
+
+
+def column_scan(pieces: dict, order: int = 4) -> np.ndarray:
+    """
+    The design's ``[d-recurrence]``: :math:`D_k = \\Delta_e z(\\bar q_k)`
+    accumulated down the edge's column from the sea surface.
+
+    .. math::
+
+        D_{k+1} = D_k - \\frac{1}{g}
+        \\int_{\\bar q_k}^{\\bar q_{k+1}} \\Delta_e\\hat\\alpha(p)\\,dp
+
+    Every quantity here is small.  :math:`D_k` is a fixed-pressure height
+    difference -- order :math:`10^{-1}` m for a realistic baroclinic column and
+    zero for a resting one -- against the :math:`10^{2}` m height differences
+    at fixed layer index that a scheme comparing at fixed index has to form and
+    cancel.  The increments are smaller still, being integrals of a horizontal
+    contrast.  There is no cancellation of large quantities anywhere.
+
+    Parameters
+    ----------
+    pieces : dict
+        From :py:func:`matched_pressure_pieces`.
+
+    order : int
+        Gauss-Legendre order for the layer integrals.
+
+    Returns
+    -------
+    difference : numpy.ndarray
+        :math:`D_k` at every edge interface valid in both columns, in m, with
+        ``difference[0]`` the anchor.
+
+    """
+    nodes, weights = np.polynomial.legendre.leggauss(order)
+    edges = pieces['edge_interface']
+    deepest = int(min(pieces['deepest']))
+
+    difference = np.empty(deepest + 2)
+    difference[0] = anchor_difference(pieces, order=order)
+    for edge_layer in range(deepest + 1):
+        top, bot = edges[edge_layer], edges[edge_layer + 1]
+        middle, half = 0.5 * (top + bot), 0.5 * (bot - top)
+        contrast = delta_specvol_at_pressure(
+            pieces, edge_layer, middle + half * nodes
+        )
+        integral = half * float(np.sum(weights * contrast))
+        difference[edge_layer + 1] = (
+            difference[edge_layer] - integral / Gravity
+        )
+
+    return difference
+
+
+def scan_increments(pieces: dict, order: int = 4) -> np.ndarray:
+    """
+    The per-layer increments of :py:func:`column_scan`, for the smallness
+    assertion of §3.7.5.
+
+    Parameters
+    ----------
+    pieces : dict
+        From :py:func:`matched_pressure_pieces`.
+
+    order : int
+        Gauss-Legendre order.
+
+    Returns
+    -------
+    increments : numpy.ndarray
+        ``D_{k+1} - D_k`` for each edge layer, in m.
+
+    """
+    return np.diff(column_scan(pieces, order=order))
