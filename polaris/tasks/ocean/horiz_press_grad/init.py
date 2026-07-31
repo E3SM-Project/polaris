@@ -14,6 +14,9 @@ from polaris.tasks.ocean.horiz_press_grad.column import (
     get_array_from_mid_grad,
     get_pchip_layer_mean,
 )
+from polaris.tasks.ocean.horiz_press_grad.finite_volume import (
+    finite_volume_hpga,
+)
 
 
 class Init(PStarInitStep, OceanIOStep):
@@ -258,6 +261,14 @@ class Init(PStarInitStep, OceanIOStep):
         ds.Density.attrs['units'] = 'kg m-3'
 
         self._compute_montgomery_and_hpga(ds=ds, dx=dx, p_mid=ds.pressure)
+
+        # The finite-volume scheme, written alongside the centered one rather
+        # than in place of it: HPGA keeps its name, its meaning and its values,
+        # so the four gradient variants and the resting-state sweeps are
+        # unaffected and their recorded baselines stay valid.  Which of the two
+        # the analysis steps compare is decided in step 10, once the Omega-side
+        # option exists.
+        ds['HPGAFiniteVolume'] = finite_volume_hpga(ds=ds, dx=dx)
 
         return ds
 
