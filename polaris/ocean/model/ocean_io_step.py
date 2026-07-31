@@ -302,7 +302,16 @@ class OceanIOStep(OceanModelFilesMixin, Step):
         """
         return self.component.map_from_native_model_vars(ds)
 
-    def open_model_dataset(self, filename, config, **kwargs):
+    def open_model_dataset(
+        self,
+        filename,
+        config,
+        tracer_convention=None,
+        lon=None,
+        lat=None,
+        logger=None,
+        **kwargs,
+    ):
         """
         Open the given dataset, mapping variable and dimension names from Omega
         to MPAS-Ocean names if appropriate
@@ -315,14 +324,43 @@ class OceanIOStep(OceanModelFilesMixin, Step):
         config : polaris.config.PolarisConfigParser
             Configuration for the task; forwarded to the Ocean component.
 
+        tracer_convention : {'teos-10', 'mpas-ocean'}, optional
+            The convention of ``temperature`` and ``salinity`` in the dataset
+            that is returned.  The default is to leave the tracers in the
+            convention the ocean model wrote them in.  The locations needed
+            for the conversion come from ``mesh_filename`` unless ``lon`` and
+            ``lat`` are given.
+
+        lon : float or xarray.DataArray, optional
+            The longitude(s) in degrees at which to convert tracers, if not
+            the location implied by the mesh
+
+        lat : float or xarray.DataArray, optional
+            The latitude(s) in degrees at which to convert tracers, as for
+            ``lon``
+
+        logger : logging.Logger, optional
+            A logger for logging EOS iteration information; defaults to the
+            step's logger
+
         kwargs
-            keyword arguments passed to `xarray.open_dataset()`
+            keyword arguments passed to
+            :py:meth:`polaris.tasks.ocean.Ocean.open_model_dataset()` and on
+            to `xarray.open_dataset()`
 
         Returns
         -------
         ds : xarray.Dataset
             The dataset with variables named as expected in MPAS-Ocean
         """
+        if logger is None:
+            logger = self.logger
         return self.component.open_model_dataset(
-            filename, config=config, **kwargs
+            filename,
+            config=config,
+            tracer_convention=tracer_convention,
+            lon=lon,
+            lat=lat,
+            logger=logger,
+            **kwargs,
         )
