@@ -34,7 +34,9 @@ reconstruction coefficient files. In addition,
 is not present in the dataset. This provides a way of using the same initial
 conditions for MPAS-Ocean and Omega when the geometric thickness is the state
 variable for MPAS-Ocean and the pseudo-thickness is the state variable for
-Omega. Similarly,
+Omega. It can also convert `temperature` and `salinity` to a requested
+convention, so that analysis and visualization do not have to care which model
+ran (see {ref}`dev-ocean-framework-tracer-conventions-on-read`). Similarly,
 {py:meth}`polaris.ocean.model.OceanIOStep.write_initial_state_dataset()`
 ensures that `SurfacePressure` is present in initial conditions written for
 Omega, adding a spatially uniform field from the
@@ -358,11 +360,20 @@ going to the MPAS-Ocean convention, `gsw.CT_from_pt()` and
 and takes a `tracer_pairs` argument for converting variables other than
 `temperature` and `salinity` (surface restoring fields, for example).
 Cells where either tracer is NaN, such as those below the bathymetry, stay
-NaN.
+NaN.  {py:func}`polaris.ocean.eos.convert_tracer_pair()` does the same for
+tracers that are in hand rather than in a dataset.
 
-Init steps do not normally call `convert_tracers()` themselves; the
-framework converts the tracers as it writes the initial state (see
-{ref}`dev-ocean-framework-init-state`).
+Steps do not normally call either function themselves.  The framework
+converts the tracers as it writes the initial state and, if asked, as it
+opens a dataset (see {ref}`dev-ocean-framework-init-state` and
+{ref}`dev-ocean-framework-tracer-conventions-on-read`).
+
+Because TEOS-10 requires CT and SA,
+{py:func}`polaris.ocean.eos.compute_density()` takes a
+`tracer_convention` argument saying which convention its `temperature`
+and `salinity` are in.  It defaults to `'teos-10'`; pass
+`tracer_convention='mpas-ocean'`, along with `lon` and `lat`, for tracers
+straight out of MPAS-Ocean.
 
 
 (dev-ocean-spherical-meshes)=
@@ -823,6 +834,16 @@ from a converged p-star dataset):
 - {py:func}`polaris.ocean.init_state.add_density_from_specvol()`
   adds an in-situ ``Density`` field as the inverse of ``SpecVol``.
 
+For sigma coordinates, shared functionality for direct thickness computation is
+available in
+{py:func}`polaris.ocean.vertical.sigma.compute_sigma_layer_thickness()`.
+
+The `polaris.ocean.vertical.diagnostics` module provides utilities:
+
+- {py:func}`polaris.ocean.vertical.diagnostics.geom_thickness_from_ds()`
+- {py:func}`polaris.ocean.vertical.diagnostics.pseudothickness_from_ds()`
+- {py:func}`polaris.ocean.vertical.diagnostics.depth_from_thickness()`
+
 #### Tracer conventions
 
 An init step builds ``temperature`` and ``salinity`` in whatever
@@ -861,15 +882,35 @@ vertical coordinate.  It needs two things beyond the tracers themselves:
   ``nominal_lat`` config options in the ``ocean`` section are used
   instead.
 
-For sigma coordinates, shared functionality for direct thickness computation is
-available in
-{py:func}`polaris.ocean.vertical.sigma.compute_sigma_layer_thickness()`.
+(dev-ocean-framework-tracer-conventions-on-read)=
 
-The `polaris.ocean.vertical.diagnostics` module provides utilities:
+#### Tracer conventions on read
 
-- {py:func}`polaris.ocean.vertical.diagnostics.geom_thickness_from_ds()`
-- {py:func}`polaris.ocean.vertical.diagnostics.pseudothickness_from_ds()`
-- {py:func}`polaris.ocean.vertical.diagnostics.depth_from_thickness()`
+{py:meth}`polaris.ocean.model.OceanIOStep.open_model_dataset()` takes the
+same ``tracer_convention`` argument, so that visualization and analysis
+can work in one convention no matter which model ran.  In both cases the
+argument is the convention on the Polaris side of the boundary --- the
+tracers a step hands over on write, the tracers it gets back on read ---
+and the ocean model supplies the other side.
+
+The defaults differ, though.  On write, a step that says nothing is
+assumed to have built its tracers in the convention implied by
+``eos_type``.  On read, a caller that says nothing gets the tracers
+exactly as the model wrote them, since only the caller knows whether it
+wants the model's own convention or a common one.
+
+The pressure comes from the same rules as on write.  The location does
+not: a dataset being read has had its horizontal mesh variables removed
+(or never had them), so ``lonCell`` and ``latCell`` come from the file
+named by the ``mesh_filename`` argument.  A conversion with neither
+``mesh_filename`` nor an explicit ``lon`` and ``lat`` is an error, as is
+a mesh file with no ``on_a_sphere`` attribute, since assuming such a mesh
+were planar would silently convert a global ocean at (0, 0).
+
+The conversion is the last thing that happens to the tracers, after the
+Omega-only derivations of ``layerThickness``, ``SpecVol`` and
+``vertVelocityTop``, which read the model's own tracers and would be
+wrong if they were converted first.
 
 (dev-ocean-rpe)=
 

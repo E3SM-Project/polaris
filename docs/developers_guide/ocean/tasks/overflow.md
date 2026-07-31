@@ -101,6 +101,9 @@ calling {ref}`dev-polaris-setup`.
 
 The {py:class}`polaris.tasks.ocean.overflow.viz.Viz` plots the initial and
 final temperature along a transect perpendicular to the continental slope.
+In the nonlinear variants, it asks for conservative temperature so that
+MPAS-Ocean and Omega plots mean the same thing (see
+{ref}`dev-ocean-framework-tracer-conventions-on-read`).
 
 (dev-ocean-overflow-smoke-test)=
 

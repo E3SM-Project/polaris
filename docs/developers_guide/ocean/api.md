@@ -646,6 +646,7 @@
 
    compute_density
    compute_specvol
+   convert_tracer_pair
    convert_tracers
 
    constant.compute_constant_density
