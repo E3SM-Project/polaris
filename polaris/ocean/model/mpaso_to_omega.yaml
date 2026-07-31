@@ -76,8 +76,7 @@ variables:
   tracer3: Debug3
 
   # state
-  # Note: layerThickness in MPAS-Ocean requires conversion to
-  #       PseudoThickness in Omega (handled in write_model_dataset)
+  layerThickness: GeomLayerThickness
   normalVelocity: NormalVelocity
   # Note: vertVelocityTop in MPAS-Ocean has no Omega equivalent and
   #       VerticalPseudoVelocity in Omega has no MPAS-Ocean equivalent
