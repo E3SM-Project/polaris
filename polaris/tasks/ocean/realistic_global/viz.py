@@ -75,21 +75,32 @@ class Viz(OceanIOStep):
         ds_init = self.open_model_dataset(
             'init.nc',
             config,
-            decode_times=False,
+            decode_times=True,
             mesh_filename='mesh.nc',
         )
         ds_init = ds_init.isel(Time=0, nVertLevels=0)
-
         ds_out = self.open_model_dataset(
             'output.nc',
             config,
-            decode_times=False,
+            decode_times=True,
             mesh_filename='mesh.nc',
         )
 
         time = get_days_since_start(ds_out)
         ds_final = ds_out.isel(Time=-1, nVertLevels=0)
         t_days = int(round(time[-1]))
+
+        for var in ['windStressZonal', 'windStressMeridional']:
+            plot_global_mpas_field(
+                mesh_filename='mesh.nc',
+                da=ds_init[var],
+                out_filename=f'{var}.png',
+                config=config,
+                colormap_section='realistic_global_viz_windStress',
+                title=var,
+                plot_land=True,
+                central_longitude=180.0,
+            )
 
         for var in variables_to_plot:
             print(f'Plotting {var}')
