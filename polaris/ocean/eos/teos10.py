@@ -170,7 +170,7 @@ def convert_tracers(
                     f"convert_tracers() requires '{name}', which is missing "
                     'from the dataset'
                 )
-        temperature, salinity = _convert_tracer_pair(
+        temperature, salinity = convert_tracer_pair(
             temperature=ds[temperature_name],
             salinity=ds[salinity_name],
             target=target,
@@ -184,17 +184,63 @@ def convert_tracers(
     return ds_out
 
 
-def _convert_tracer_pair(
-    temperature: xr.DataArray,
-    salinity: xr.DataArray,
+def convert_tracer_pair(
+    temperature: xr.DataArray | np.ndarray | float,
+    salinity: xr.DataArray | np.ndarray | float,
     target: str,
     pressure: xr.DataArray | float,
     lon: xr.DataArray | np.ndarray | float,
     lat: xr.DataArray | np.ndarray | float,
 ) -> tuple[xr.DataArray, xr.DataArray]:
     """
-    Convert a single temperature/salinity pair to the ``target`` convention.
+    Convert a single temperature and salinity pair to the ``target``
+    convention.
+
+    This is the array-level counterpart of :py:func:`convert_tracers()`, for
+    callers that have tracers in hand rather than in a dataset.  See that
+    function for the accuracy of ``pressure``.
+
+    Parameters
+    ----------
+    temperature : float, numpy.ndarray or xarray.DataArray
+        Conservative or potential temperature, according to the convention
+        being converted from.
+
+    salinity : float, numpy.ndarray or xarray.DataArray
+        Absolute or practical salinity, at the same points as
+        ``temperature``.
+
+    target : {'teos-10', 'mpas-ocean'}
+        The tracer convention to convert to.
+
+    pressure : float or xarray.DataArray
+        Sea (gauge) pressure in Pa, broadcastable against the tracers.
+
+    lon : float, numpy.ndarray or xarray.DataArray
+        Longitude(s) in degrees, either a nominal scalar value (e.g. on a
+        planar mesh) or an array with dimension ``nCells``.
+
+    lat : float, numpy.ndarray or xarray.DataArray
+        Latitude(s) in degrees, a scalar or an array with dimension
+        ``nCells``, as for ``lon``.
+
+    Returns
+    -------
+    temperature : xarray.DataArray
+        The temperature in the ``target`` convention.
+
+    salinity : xarray.DataArray
+        The salinity in the ``target`` convention.
     """
+    if target not in TRACER_CONVENTIONS:
+        raise ValueError(
+            f'Unknown tracer convention {target!r}; expected one of '
+            + ', '.join(repr(name) for name in TRACER_CONVENTIONS)
+        )
+
+    temperature = _as_data_array(temperature)
+    salinity = _as_data_array(salinity)
+
     temperature_b, salinity_b, pressure_b, lon_b, lat_b = xr.broadcast(
         temperature,
         salinity,
