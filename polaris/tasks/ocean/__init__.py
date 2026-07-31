@@ -660,7 +660,9 @@ class Ocean(Component):
             and 'PseudoThickness' in ds.keys()
             and 'SpecVol' in ds.keys()
             and 'VerticalPseudoVelocity' in ds.keys()
-            and mesh_filename is not None
+            # the vertical coordinate file, not the mesh, is what this
+            # derivation reads
+            and vert_filename is not None
         ):
             ds_vert = self.open_model_dataset(vert_filename, config)
             geom_z_inter, geom_z_mid = geom_height_from_pseudo_height(
