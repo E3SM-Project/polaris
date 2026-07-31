@@ -43,6 +43,51 @@ need: `get_internal_edge()`, `rms()`, `power_law_fit()`,
 `format_value_error_pairs()`.  It exists so the two step modules can share them
 without importing private names from one another.
 
+### the finite-volume pressure gradient
+
+Four leaf modules implement the `FiniteVolume` scheme of the
+`PGradHighOrder.md` design, as the Python counterpart of Omega's
+`PressureGradFiniteVolume`.  They are written from that design rather than from
+the C++, so that the Omega-vs-Polaris comparison in `analysis` compares two
+independent implementations.
+
+{py:mod}`polaris.tasks.ocean.horiz_press_grad.edge` holds the two-column edge
+operator, `edge_delta()` and `edge_mean()`.  It has no dependencies inside the
+package so the modules below can share it without importing one another.
+
+{py:mod}`polaris.tasks.ocean.horiz_press_grad.eos_expansion` gives the four
+Taylor coefficients of the equation of state from one `gsw` evaluation per cell
+per layer, averages them and the reference state to the edge, and evaluates the
+resulting shared profile.  Note that `gsw.specvol_first_derivatives()` takes
+pressure in dbar but returns the pressure derivative per Pa; the tests assert
+this rather than trusting it.
+
+{py:mod}`polaris.tasks.ocean.horiz_press_grad.reconstruction` builds the
+mean-preserving linear reconstruction of temperature and salinity in pressure.
+The slope is a centred difference of the layer means against *mid-layer
+pressure*, which is what makes it exact on a non-uniform grid.
+
+{py:mod}`polaris.tasks.ocean.horiz_press_grad.finite_volume` assembles the
+scheme.  The essential piece is `delta_specvol_at_pressure()`, which
+differences the integrand at **matched pressure** rather than at matched layer
+index: for each quadrature point, `layer_containing_pressure()` finds the layer
+of *each column* that contains that pressure.  Under tilt those are not the
+same layer -- at 50 m/km and 64 m layers the two columns' layer `k` do not
+overlap in pressure at all -- and getting this wrong silently turns the scheme
+into a different one.  `column_scan()` then accumulates the fixed-pressure
+height difference down the column from `anchor_difference()`, and
+`finite_volume_hpga()` forms the layer mean and the tendency.
+
+The module also retains `centered_shift()` and `centered_shift_accumulated()`.
+These are no longer on the computational path; they are kept as diagnostics,
+because `hpga_from_shift(centered_shift(ds), dx)` reproduces the centered
+scheme's `HPGA` exactly and is the cheapest available regression test of it.
+
+`finite_volume_hpga()` accepts a `guards` argument holding verification-only
+switches, each deliberately breaking one rule of the design.  They exist to
+confirm the test suite can detect a broken implementation; they are not
+supported settings.
+
 ### reference
 
 The class
