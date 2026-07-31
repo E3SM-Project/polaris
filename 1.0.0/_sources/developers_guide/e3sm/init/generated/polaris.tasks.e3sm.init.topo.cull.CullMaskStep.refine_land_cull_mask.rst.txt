@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine\_land\_cull\_mask
+=======================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.cull
+
+.. automethod:: CullMaskStep.refine_land_cull_mask

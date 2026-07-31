@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.barotropic\_channel.forward.Forward.dynamic\_model\_config
+==============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.barotropic_channel.forward
+
+.. automethod:: Forward.dynamic_model_config

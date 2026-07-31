@@ -1,0 +1,510 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>horizontal pressure gradient</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="divergent 2-d" href="divergent_2d.html" />
+    <link rel="prev" title="realistic_global" href="realistic_global.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_channel.html">barotropic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated tracers 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customizable_viz.html">customizable viz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_gravity_wave.html">external gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="realistic_global.html">realistic_global</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">horizontal pressure gradient</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#description">description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reference-solution">reference solution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#python-hpga-in-the-init-step">python HPGA in the <code class="docutils literal notranslate"><span class="pre">init</span></code> step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analysis">analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice shelf 2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seamount.html">seamount</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">horizontal pressure gradient</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/users_guide/ocean/tasks/horiz_press_grad.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="horizontal-pressure-gradient">
+<span id="ocean-horiz-press-grad"></span><h1>horizontal pressure gradient<a class="headerlink" href="#horizontal-pressure-gradient" title="Link to this heading"></a></h1>
+<section id="description">
+<h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code> tasks in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad</span></code>
+exercise Omega’s hydrostatic pressure-gradient acceleration (<code class="docutils literal notranslate"><span class="pre">HPGA</span></code>)
+for a two-column configuration with prescribed horizontal gradients.</p>
+<p>The analysis uses two different baselines, each with a different purpose:</p>
+<ul class="simple">
+<li><p>an analytic reference solution evaluated inside the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step that is
+used as the main accuracy target, and</p></li>
+<li><p>a Python-computed two-column HPGA diagnostic from the <code class="docutils literal notranslate"><span class="pre">init</span></code> step that is
+used as a consistency check against Omega.</p></li>
+</ul>
+<p>Each task includes:</p>
+<ul class="simple">
+<li><p>an <code class="docutils literal notranslate"><span class="pre">init</span></code> step at each horizontal/vertical resolution pair,</p></li>
+<li><p>a single-time-step <code class="docutils literal notranslate"><span class="pre">forward</span></code> run at each horizontal resolution, and</p></li>
+<li><p>an <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step that evaluates the analytic reference and compares Omega
+output with both the reference and the Python-initialized HPGA.</p></li>
+</ul>
+<p>The tasks currently provided are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="o">/</span><span class="n">column</span><span class="o">/</span><span class="n">horiz_press_grad</span><span class="o">/</span><span class="n">salinity_gradient</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">column</span><span class="o">/</span><span class="n">horiz_press_grad</span><span class="o">/</span><span class="n">temperature_gradient</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">column</span><span class="o">/</span><span class="n">horiz_press_grad</span><span class="o">/</span><span class="n">ztilde_gradient</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">column</span><span class="o">/</span><span class="n">horiz_press_grad</span><span class="o">/</span><span class="n">surface_pressure_gradient</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../../../_images/horiz_press_grad_salin_grad.png"><img alt="../../../_images/horiz_press_grad_salin_grad.png" class="align-center" src="../../../_images/horiz_press_grad_salin_grad.png" style="width: 600px;" />
+</a>
+<p>The point of these tasks is not only to verify that Omega can reproduce the
+same discrete answer as the Python initialization, but also to measure how the
+two-column discretization converges toward a more accurate non-local
+approximation of the continuous hydrostatic pressure-gradient force.</p>
+<p>Each variant isolates a different way a horizontal pressure gradient can arise:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code> and <code class="docutils literal notranslate"><span class="pre">temperature_gradient</span></code> keep the layers level and
+impose a horizontal density gradient, so the HPGA comes entirely from the
+baroclinic term.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code> keeps the water properties horizontally uniform and tilts
+the z-tilde interfaces, so the HPGA comes entirely from the geometric
+(layer-slope) term.  This is the classic pressure-gradient-error
+configuration for a terrain-following coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">surface_pressure_gradient</span></code> imposes a horizontally varying surface pressure,
+as under a floating ice shelf, which tilts the layers through the surface
+boundary condition rather than through the prescribed z-tilde profile.</p></li>
+</ul>
+<section id="why-the-surface-pressure-gradient-variant">
+<h3>why the <code class="docutils literal notranslate"><span class="pre">surface_pressure_gradient</span></code> variant<a class="headerlink" href="#why-the-surface-pressure-gradient-variant" title="Link to this heading"></a></h3>
+<p>Under an ice shelf the ocean surface is not a free surface at zero gauge
+pressure: it carries the weight of the ice above it, and the sea surface is
+depressed by roughly <span class="math notranslate nohighlight">\(-p_s / (\rho_0 g)\)</span>.  Wherever the ice thickness varies,
+both the surface pressure <span class="math notranslate nohighlight">\(p_s\)</span> and the sea-surface height <span class="math notranslate nohighlight">\(\eta\)</span> therefore
+vary horizontally, and in the p-star coordinate that depression also compresses
+the column so that <em>every</em> layer below is tilted, even though the prescribed
+z-tilde profile is level.</p>
+<p>This is precisely the regime in which pressure-gradient errors have
+historically been worst in terrain-following ocean models.  Two things happen at
+once: the layers acquire a steep slope, and the surface boundary term becomes
+large.  In the reference expression below, the two pieces of that boundary term,
+<span class="math notranslate nohighlight">\(-g\,\eta'\)</span> and <span class="math notranslate nohighlight">\(+g\,\rho_0\,\alpha(\tilde z_s)\,\tilde z_s'\)</span>, nearly cancel
+because <span class="math notranslate nohighlight">\(\rho_0 \alpha \approx 1\)</span>, so the surviving HPGA is a small residual
+between two large numbers.  Any inconsistency in how Omega, the Python
+initialization, or the reference solution treat the surface would show up
+immediately as a large error that fails to converge.</p>
+<p>The variant is therefore meant to demonstrate that</p>
+<ul class="simple">
+<li><p>Omega robustly supports a nonzero surface pressure and the corresponding
+depressed, sloping sea surface;</p></li>
+<li><p>Omega, the Python two-column diagnostic, and the analytic reference all
+treat the surface boundary term consistently; and</p></li>
+<li><p>Omega still converges to the reference at the same rate, and to comparable
+accuracy, as in the variants with a flat, unloaded surface.</p></li>
+</ul>
+<p>Together these give confidence that the HPGA will remain consistent beneath real
+ice shelves, where layers can be steeply sloped.  The default configuration is
+sized for that application: <code class="docutils literal notranslate"><span class="pre">surface_pressure_mid</span> <span class="pre">=</span> <span class="pre">8.99e5</span></code> Pa is the weight of
+about 100 m of Antarctic ice, and <code class="docutils literal notranslate"><span class="pre">surface_pressure_grad</span> <span class="pre">=</span> <span class="pre">8.99e3</span></code> Pa/km
+corresponds to an ice-thickness slope of about 1 m/km (and hence a sea-surface
+slope of about −0.9 m/km).</p>
+</section>
+</section>
+<section id="supported-models">
+<h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
+<p>These tasks currently support Omega only.</p>
+</section>
+<section id="mesh">
+<h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
+<p>The mesh is planar with two adjacent ocean cells.  For each resolution in
+<code class="docutils literal notranslate"><span class="pre">horiz_resolutions</span></code>, the spacing between the two columns is set by that value
+(in km).</p>
+<p>The HPGA diagnostic is evaluated on the single internal horizontal edge that
+connects the two columns, at each layer midpoint.  In this page, <code class="docutils literal notranslate"><span class="pre">x</span></code> denotes
+the along-layer horizontal direction used by Omega’s horizontal gradient
+operator.  In the idealized two-column planar geometry, this direction follows
+the line joining the two cell centers.  It is therefore related to the shared
+edge normal, but it is not intended to define a separate exact geometric
+edge-normal coordinate.</p>
+</section>
+<section id="vertical-grid">
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
+<p>The vertical coordinate is <code class="docutils literal notranslate"><span class="pre">p-star</span></code> (see <a class="reference internal" href="../framework/vertical.html#ocean-p-star"><span class="std std-ref">p-star</span></a>), Omega’s ALE
+pseudo-compressible variant of the z-tilde coordinate, with a uniform
+pseudo-height spacing for each test in <code class="docutils literal notranslate"><span class="pre">vert_resolutions</span></code>.</p>
+<p>The meaning of the along-layer <code class="docutils literal notranslate"><span class="pre">x</span></code> direction depends on the task variant.  In
+the <code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code> and <code class="docutils literal notranslate"><span class="pre">temperature_gradient</span></code> tests, the z-tilde
+interfaces are level, so pressure surfaces are also horizontally level except
+where they intersect the bathymetry.  In the <code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code> test, the
+prescribed z-tilde gradient tilts the layers, so the pressure surfaces are
+sloped and the along-layer direction follows those sloping layers.  In the
+<code class="docutils literal notranslate"><span class="pre">surface_pressure_gradient</span></code> test, a horizontally varying surface pressure
+depresses and tilts the surface pseudo-height (and compresses the column), so
+the layers are sloped even though the z-tilde profile itself is level.</p>
+</section>
+<section id="reference-solution">
+<h2>reference solution<a class="headerlink" href="#reference-solution" title="Link to this heading"></a></h2>
+<p>The reference HPGA is evaluated analytically at the edge (<span class="math notranslate nohighlight">\(x = 0\)</span>) using the
+chain-rule / Leibniz expansion of the horizontal pressure-gradient force in
+pseudo-height coordinates.  Because the continuous pressure-gradient force is
+coordinate-invariant, the along-pseudo-height formula equals
+<span class="math notranslate nohighlight">\(-g\,\partial z / \partial x\big|_{\tilde z}\)</span> exactly, including near the
+seafloor.</p>
+<p>The reference is <strong>anchored at the surface</strong> rather than the seafloor, because
+the surface is the boundary the model honours: <code class="docutils literal notranslate"><span class="pre">Init</span></code>/Omega build the p-star
+column from the prescribed sea-surface height and surface pressure, so the HPGA
+vanishes at the surface (for zero surface slope) and grows downward.</p>
+<p>The reference acceleration at pseudo-height <span class="math notranslate nohighlight">\(\tilde z\)</span> is</p>
+<div class="math notranslate nohighlight">
+\[
+a(\tilde z) = -g\left[\eta' - \rho_0\,\alpha(\tilde z_s)\,\tilde z_s'
+  + \rho_0 \int_{\tilde z_s}^{\tilde z}
+  \bigl(\alpha_{S_A}\,\partial_x S_A + \alpha_{\Theta}\,\partial_x \Theta\bigr)\,
+  d\tilde z'\right],
+\]</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\eta' = \partial_x \eta\)</span> is the sea-surface-height gradient,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\tilde z_s\)</span> is the surface pseudo-height
+(<span class="math notranslate nohighlight">\(\tilde z_s = -p_s / (\rho_0 g)\)</span>, zero only when the surface pressure is
+zero) and <span class="math notranslate nohighlight">\(\tilde z_s' = \partial_x \tilde z_s\)</span> is its gradient,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\alpha\)</span> is specific volume from the TEOS-10 equation of state,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\alpha_{S_A} = \partial \alpha / \partial S_A\)</span> and
+<span class="math notranslate nohighlight">\(\alpha_{\Theta} = \partial \alpha / \partial \Theta\)</span> are TEOS-10 first derivatives
+of specific volume.</p></li>
+</ul>
+<p>The surface boundary term is kept fully general, so a nonzero surface pressure
+or sea-surface height is supported.  The <code class="docutils literal notranslate"><span class="pre">surface_pressure_gradient</span></code> variant
+exercises this: a nonzero <code class="docutils literal notranslate"><span class="pre">surface_pressure_grad</span></code> sets the surface
+pseudo-height <span class="math notranslate nohighlight">\(\tilde z_s = -p_s / (\rho_0 g)\)</span> and, by default, a matching
+sea-surface-height slope <span class="math notranslate nohighlight">\(\eta' = -\partial_x p_s / (\rho_0 g)\)</span> (overridable
+with the optional <code class="docutils literal notranslate"><span class="pre">geom_ssh_grad</span></code>).  The other three variants use zero surface
+slope.</p>
+<p>The gradients <span class="math notranslate nohighlight">\(\partial_x S_A\)</span> and <span class="math notranslate nohighlight">\(\partial_x \Theta\)</span> at fixed <span class="math notranslate nohighlight">\(\tilde z\)</span> are
+obtained by centred finite-differencing PCHIP interpolants evaluated at
+<span class="math notranslate nohighlight">\(x = \pm\varepsilon\)</span>, where <span class="math notranslate nohighlight">\(\varepsilon =\)</span> <code class="docutils literal notranslate"><span class="pre">reference_horiz_eps_km</span></code> (1 m by
+default).  This handles moving-node inputs correctly, so it is valid for the
+<code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code> task as well as the level-layer tasks.</p>
+<p>The integral in the formula is evaluated by composite quadrature.  The number
+of sub-panels per interval is set by <code class="docutils literal notranslate"><span class="pre">reference_quadrature_subdivisions</span></code> (4 by
+default).</p>
+<p>For comparison with a layer-averaged Omega tendency, the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step
+averages <span class="math notranslate nohighlight">\(a(\tilde z)\)</span> over the model’s actual pseudo-height layer bounds using
+4-point Gauss–Legendre quadrature with <code class="docutils literal notranslate"><span class="pre">reference_quadrature_subdivisions</span></code>
+sub-panels per layer.  The deepest valid layer (which abuts the bathymetry) is
+excluded from the RMS error calculation, because partial bottom cells make that
+layer’s geometric extent differ from the smooth reference geometry.</p>
+</section>
+<section id="python-hpga-in-the-init-step">
+<h2>python HPGA in the <code class="docutils literal notranslate"><span class="pre">init</span></code> step<a class="headerlink" href="#python-hpga-in-the-init-step" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> step computes a second HPGA estimate directly from the initialized
+two-column state.  This calculation is intentionally much closer to the
+discrete Omega formulation than the high-fidelity reference is.</p>
+<p>First, the step constructs the two-cell mesh and the test vertical grid for the
+requested <code class="docutils literal notranslate"><span class="pre">(horiz_res,</span> <span class="pre">vert_res)</span></code> pair.  Because the geometric water-column
+thickness depends on the equation of state through the mapping from z-tilde to
+geometric height, the step iteratively rescales the pseudo-bottom depth so that
+the resulting geometric water-column thickness matches the prescribed
+sea-surface and bottom geometry.  This fixed-point iteration is provided by
+<a class="reference internal" href="../../../developers_guide/ocean/generated/polaris.ocean.vertical.pstar_init.PStarInitStep.html#polaris.ocean.vertical.pstar_init.PStarInitStep" title="polaris.ocean.vertical.pstar_init.PStarInitStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.vertical.pstar_init.PStarInitStep</span></code></a> (see
+<a class="reference internal" href="../../../developers_guide/ocean/framework.html#dev-ocean-framework-vertical"><span class="std std-ref">Vertical coordinate</span></a>), from which <code class="docutils literal notranslate"><span class="pre">Init</span></code> inherits.</p>
+<p>Once the initialized state is available, the Python diagnostic computes the
+same thermodynamic quantities used by Omega: pressure, specific volume,
+geometric height, and Montgomery potential.  It then forms a two-column finite
+difference,</p>
+<div class="math notranslate nohighlight">
+\[
+\frac{\partial M}{\partial x} \approx \frac{M_R - M_L}{\Delta x},
+\qquad
+\frac{\partial \alpha}{\partial x} \approx
+\frac{\alpha_R - \alpha_L}{\Delta x},
+\]</div>
+<p>with edge pressure</p>
+<div class="math notranslate nohighlight">
+\[
+p_{\mathrm{edge}} = \frac{p_L + p_R}{2},
+\]</div>
+<p>and writes the corresponding diagnostic</p>
+<div class="math notranslate nohighlight">
+\[
+\mathrm{HPGA}_{\mathrm{python}} = -\frac{\partial M}{\partial x}
++ p_{\mathrm{edge}}\frac{\partial \alpha}{\partial x}
+\]</div>
+<p>to <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>.</p>
+<p>This Python HPGA is not the main reference solution.  Instead, it checks
+whether Omega’s one-step tendency matches the expected two-column discrete
+calculation from the initialized state.</p>
+</section>
+<section id="config-options">
+<span id="ocean-horiz-press-grad-config"></span><h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
+<p>Shared options are in section <code class="docutils literal notranslate"><span class="pre">[horiz_press_grad]</span></code>:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># resolutions in km (distance between the two columns)</span>
+<span class="na">horiz_resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[4.0, 3.0, 2.0, 1.5, 1.0, 0.75, 0.5]</span>
+
+<span class="c1"># vertical resolution in m for each two-column setup</span>
+<span class="na">vert_resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[4.0, 3.0, 2.0, 1.5, 1.0, 0.75, 0.5]</span>
+
+<span class="c1"># sea-surface gauge pressure midpoint and x-gradient (Pa and Pa/km).  The</span>
+<span class="c1"># sea-surface height defaults to the resting depression</span>
+<span class="c1"># -surface_pressure / (rho0 * g); add the optional geom_ssh_mid / geom_ssh_grad</span>
+<span class="c1"># to override that default.</span>
+<span class="na">surface_pressure_mid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+<span class="na">surface_pressure_grad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># geometric sea-floor midpoint value and x-gradient</span>
+<span class="na">geom_z_bot_mid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-500.0</span>
+<span class="na">geom_z_bot_grad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># pseudo-height bottom midpoint and x-gradient</span>
+<span class="na">z_tilde_bot_mid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-576.0</span>
+<span class="na">z_tilde_bot_grad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+
+<span class="c1"># midpoint and gradient node values for piecewise profiles</span>
+<span class="na">z_tilde_mid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[0.0, -48.0, -144.0, -288.0, -576.0]</span>
+<span class="na">z_tilde_grad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[0.0, 0.0, 0.0, 0.0, 0.0]</span>
+
+<span class="na">temperature_mid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[22.0, 20.0, 14.0, 8.0, 5.0]</span>
+<span class="na">temperature_grad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[0.0, 0.0, 0.0, 0.0, 0.0]</span>
+
+<span class="na">salinity_mid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[35.6, 35.4, 35.0, 34.8, 34.75]</span>
+<span class="na">salinity_grad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[0.0, 0.0, 0.0, 0.0, 0.0]</span>
+
+<span class="c1"># reference settings</span>
+<span class="na">reference_quadrature_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">gauss4</span>
+<span class="na">reference_quadrature_subdivisions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
+<span class="na">reference_horiz_eps_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-3</span>
+
+<span class="c1"># regression thresholds and convergence checks</span>
+<span class="na">omega_vs_polaris_rms_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-10</span>
+<span class="na">omega_vs_reference_high_res_rms_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-6</span>
+<span class="na">omega_vs_reference_convergence_rate_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.5</span>
+<span class="na">omega_vs_reference_convergence_rate_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.1</span>
+<span class="na">omega_vs_reference_convergence_fit_max_resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.0</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">omega_vs_polaris_rms_threshold</span></code> bounds the RMS difference between the Omega
+forward HPGA and the Python-initialized HPGA (the consistency check).  The
+<code class="docutils literal notranslate"><span class="pre">omega_vs_reference_*</span></code> options bound the Omega-vs-reference accuracy: the RMS
+error at the highest resolution, the allowed power-law convergence slope, and
+the finest horizontal resolution included in the convergence fit (all
+resolutions are still shown in the plots).</p>
+<p>The four task variants each specialize one horizontal gradient field:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code>: nonzero <code class="docutils literal notranslate"><span class="pre">salinity_grad</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">temperature_gradient</span></code>: nonzero <code class="docutils literal notranslate"><span class="pre">temperature_grad</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code>: nonzero <code class="docutils literal notranslate"><span class="pre">z_tilde_bot_grad</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">surface_pressure_gradient</span></code>: nonzero <code class="docutils literal notranslate"><span class="pre">surface_pressure_mid</span></code> and
+<code class="docutils literal notranslate"><span class="pre">surface_pressure_grad</span></code> (with the sea-surface height following the default
+surface-pressure depression), representing an overlying ice shelf</p></li>
+</ul>
+</section>
+<section id="time-step-and-run-duration">
+<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">forward</span></code> step performs one model time step and outputs pressure-gradient
+diagnostics used in the analysis.</p>
+</section>
+<section id="analysis">
+<h2>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step computes and plots:</p>
+<ul class="simple">
+<li><p>Omega RMS error versus reference (<code class="docutils literal notranslate"><span class="pre">omega_vs_reference.png</span></code>), including a
+power-law fit and convergence slope, and</p></li>
+<li><p>Omega RMS difference versus Python initialization (<code class="docutils literal notranslate"><span class="pre">omega_vs_python.png</span></code>).</p></li>
+</ul>
+<p>The corresponding tabulated data are written to
+<code class="docutils literal notranslate"><span class="pre">omega_vs_reference.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">omega_vs_python.nc</span></code>.</p>
+<p>For the Omega-versus-reference comparison, the analytic reference
+<span class="math notranslate nohighlight">\(a(\tilde z)\)</span> is layer-averaged over the model’s actual pseudo-height layer
+bounds (from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>) using 4-point Gauss–Legendre quadrature.  The deepest
+valid layer is excluded from the RMS error calculation because that layer abuts
+the bathymetry, where partial bottom cells make the model layer’s geometric
+extent differ from the smooth reference geometry.</p>
+<p>For the Omega-versus-Python comparison, the analysis uses the HPGA written by
+the <code class="docutils literal notranslate"><span class="pre">init</span></code> step in <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>, so this second metric should be read as an
+implementation-consistency check rather than as an accuracy measure against the
+high-fidelity reference.</p>
+<p>Implementation details for the <code class="docutils literal notranslate"><span class="pre">ReferenceColumn</span></code> evaluator and the <code class="docutils literal notranslate"><span class="pre">init</span></code> and
+<code class="docutils literal notranslate"><span class="pre">analysis</span></code> steps are described in <a class="reference internal" href="../../../developers_guide/ocean/tasks/horiz_press_grad.html#dev-ocean-horiz-press-grad"><span class="std std-ref">horiz_press_grad</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="realistic_global.html" class="btn btn-neutral float-left" title="realistic_global" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="divergent_2d.html" class="btn btn-neutral float-right" title="divergent 2-d" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="1.0.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

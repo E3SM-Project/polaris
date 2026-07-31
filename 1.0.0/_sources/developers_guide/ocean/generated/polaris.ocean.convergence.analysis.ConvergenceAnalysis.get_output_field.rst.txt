@@ -1,0 +1,6 @@
+﻿polaris.ocean.convergence.analysis.ConvergenceAnalysis.get\_output\_field
+=========================================================================
+
+.. currentmodule:: polaris.ocean.convergence.analysis
+
+.. automethod:: ConvergenceAnalysis.get_output_field

@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.run
+=======================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.coastline
+
+.. automethod:: ComputeCoastlineStep.run

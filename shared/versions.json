@@ -4,6 +4,10 @@
     "url": "/polaris/main/"
   },
   {
+    "version": "1.0.0",
+    "url": "/polaris/1.0.0/"
+  },
+  {
     "version": "0.10.0",
     "url": "/polaris/0.10.0/"
   },

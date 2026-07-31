@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.compute\_zint\_zmid\_from\_layer\_thickness
+==================================================================
+
+.. currentmodule:: polaris.ocean.vertical
+
+.. autofunction:: compute_zint_zmid_from_layer_thickness

@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.grid\_1d.write\_1d\_grid
+===============================================
+
+.. currentmodule:: polaris.ocean.vertical.grid_1d
+
+.. autofunction:: write_1d_grid

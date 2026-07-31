@@ -1,0 +1,25 @@
+﻿polaris.yaml.PolarisYaml
+========================
+
+.. currentmodule:: polaris.yaml
+
+.. autoclass:: PolarisYaml
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PolarisYaml.__init__
+      ~PolarisYaml.read
+      ~PolarisYaml.update
+      ~PolarisYaml.write
+   
+   
+
+   
+   
+   

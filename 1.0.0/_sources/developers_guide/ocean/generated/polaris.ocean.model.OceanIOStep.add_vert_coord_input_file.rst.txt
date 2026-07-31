@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanIOStep.add\_vert\_coord\_input\_file
+=============================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanIOStep.add_vert_coord_input_file

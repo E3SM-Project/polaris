@@ -1,0 +1,6 @@
+﻿polaris.ocean.init\_state.layer\_thickness\_from\_geom\_interfaces
+==================================================================
+
+.. currentmodule:: polaris.ocean.init_state
+
+.. autofunction:: layer_thickness_from_geom_interfaces

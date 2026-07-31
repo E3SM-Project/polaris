@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.remap.get\_remap\_topo\_steps
+==========================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.remap
+
+.. autofunction:: get_remap_topo_steps

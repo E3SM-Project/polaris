@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.pstar\_init.PStarInitStep.init\_tracers
+==============================================================
+
+.. currentmodule:: polaris.ocean.vertical.pstar_init
+
+.. automethod:: PStarInitStep.init_tracers

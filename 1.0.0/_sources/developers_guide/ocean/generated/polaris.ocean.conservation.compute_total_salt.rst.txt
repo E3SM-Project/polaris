@@ -1,0 +1,6 @@
+﻿polaris.ocean.conservation.compute\_total\_salt
+===============================================
+
+.. currentmodule:: polaris.ocean.conservation
+
+.. autofunction:: compute_total_salt

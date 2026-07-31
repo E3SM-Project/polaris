@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.single\_column.ekman.analysis.Analysis.run
+==============================================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.ekman.analysis
+
+.. automethod:: Analysis.run

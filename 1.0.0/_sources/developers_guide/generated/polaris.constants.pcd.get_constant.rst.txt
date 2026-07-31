@@ -1,0 +1,6 @@
+﻿polaris.constants.pcd.get\_constant
+===================================
+
+.. currentmodule:: polaris.constants.pcd
+
+.. autofunction:: get_constant

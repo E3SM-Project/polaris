@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanModelStep.constrain\_resources
+=======================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanModelStep.constrain_resources

@@ -1,0 +1,6 @@
+﻿polaris.logging.log\_method\_call
+=================================
+
+.. currentmodule:: polaris.logging
+
+.. autofunction:: log_method_call

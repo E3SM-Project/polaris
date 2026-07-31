@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.horiz\_press\_grad.analysis.Analysis.setup
+==============================================================
+
+.. currentmodule:: polaris.tasks.ocean.horiz_press_grad.analysis
+
+.. automethod:: Analysis.setup

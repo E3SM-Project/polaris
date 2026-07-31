@@ -1,0 +1,36 @@
+﻿polaris.ocean.vertical.pstar\_init.PStarInitStep
+================================================
+
+.. currentmodule:: polaris.ocean.vertical.pstar_init
+
+.. autoclass:: PStarInitStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PStarInitStep.__init__
+      ~PStarInitStep.add_dependency
+      ~PStarInitStep.add_input_file
+      ~PStarInitStep.add_output_file
+      ~PStarInitStep.check_properties
+      ~PStarInitStep.constrain_resources
+      ~PStarInitStep.init_tracers
+      ~PStarInitStep.process_inputs_and_outputs
+      ~PStarInitStep.run
+      ~PStarInitStep.run_pstar_init
+      ~PStarInitStep.runtime_setup
+      ~PStarInitStep.set_resources
+      ~PStarInitStep.set_shared_config
+      ~PStarInitStep.setup
+      ~PStarInitStep.validate_baselines
+   
+   
+
+   
+   
+   

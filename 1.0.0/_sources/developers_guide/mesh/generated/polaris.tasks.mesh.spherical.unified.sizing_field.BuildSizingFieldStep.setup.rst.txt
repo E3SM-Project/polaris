@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.sizing\_field.BuildSizingFieldStep.setup
+=============================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.sizing_field
+
+.. automethod:: BuildSizingFieldStep.setup

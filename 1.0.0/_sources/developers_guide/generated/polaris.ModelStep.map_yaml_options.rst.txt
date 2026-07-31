@@ -1,0 +1,6 @@
+﻿polaris.ModelStep.map\_yaml\_options
+====================================
+
+.. currentmodule:: polaris
+
+.. automethod:: ModelStep.map_yaml_options

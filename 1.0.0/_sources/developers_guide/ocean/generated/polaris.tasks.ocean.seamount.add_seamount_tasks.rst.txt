@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.seamount.add\_seamount\_tasks
+=================================================
+
+.. currentmodule:: polaris.tasks.ocean.seamount
+
+.. autofunction:: add_seamount_tasks

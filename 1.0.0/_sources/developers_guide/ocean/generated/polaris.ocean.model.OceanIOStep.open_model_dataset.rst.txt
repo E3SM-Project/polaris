@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanIOStep.open\_model\_dataset
+====================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanIOStep.open_model_dataset

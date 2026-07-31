@@ -1,0 +1,6 @@
+﻿polaris.streams.write
+=====================
+
+.. currentmodule:: polaris.streams
+
+.. autofunction:: write

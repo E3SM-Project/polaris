@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.river.VizRiverStep.setup
+=============================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.river
+
+.. automethod:: VizRiverStep.setup

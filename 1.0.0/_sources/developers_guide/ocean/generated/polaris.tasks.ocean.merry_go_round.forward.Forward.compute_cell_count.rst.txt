@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.merry\_go\_round.forward.Forward.compute\_cell\_count
+=========================================================================
+
+.. currentmodule:: polaris.tasks.ocean.merry_go_round.forward
+
+.. automethod:: Forward.compute_cell_count

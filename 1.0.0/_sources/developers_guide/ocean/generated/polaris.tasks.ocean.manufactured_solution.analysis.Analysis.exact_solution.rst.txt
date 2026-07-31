@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.manufactured\_solution.analysis.Analysis.exact\_solution
+============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.manufactured_solution.analysis
+
+.. automethod:: Analysis.exact_solution

@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.inertial\_gravity\_wave.analysis.Analysis.exact\_solution
+=============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.inertial_gravity_wave.analysis
+
+.. automethod:: Analysis.exact_solution

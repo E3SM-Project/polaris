@@ -1,0 +1,6 @@
+﻿polaris.constants.pcd.check\_pcd\_version\_matches\_branch
+==========================================================
+
+.. currentmodule:: polaris.constants.pcd
+
+.. autofunction:: check_pcd_version_matches_branch

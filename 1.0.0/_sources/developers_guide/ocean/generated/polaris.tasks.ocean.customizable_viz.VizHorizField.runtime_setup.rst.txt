@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.customizable\_viz.VizHorizField.runtime\_setup
+==================================================================
+
+.. currentmodule:: polaris.tasks.ocean.customizable_viz
+
+.. automethod:: VizHorizField.runtime_setup

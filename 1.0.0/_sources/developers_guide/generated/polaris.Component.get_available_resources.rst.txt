@@ -1,0 +1,6 @@
+﻿polaris.Component.get\_available\_resources
+===========================================
+
+.. currentmodule:: polaris
+
+.. automethod:: Component.get_available_resources

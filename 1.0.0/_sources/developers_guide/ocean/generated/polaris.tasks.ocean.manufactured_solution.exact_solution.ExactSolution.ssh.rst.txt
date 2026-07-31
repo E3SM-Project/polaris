@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.manufactured\_solution.exact\_solution.ExactSolution.ssh
+============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.manufactured_solution.exact_solution
+
+.. automethod:: ExactSolution.ssh

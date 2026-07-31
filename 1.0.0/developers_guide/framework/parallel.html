@@ -1,0 +1,259 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parallel</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Provenance" href="provenance.html" />
+    <link rel="prev" title="Build utilities" href="build.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="commands.html">Modules for polaris commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Config files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io.html">IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpas.html">MPAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model.html">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build.html">Build utilities</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Parallel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#public-api">Public API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compiler-specific-parallel-configs">Compiler-specific parallel configs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gpu-resources">GPU resources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#supported-parallel-systems">Supported Parallel Systems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#notes">Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html">Provenance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="remapping.html">Remapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#property-checks">Property checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Framework</a></li>
+      <li class="breadcrumb-item active">Parallel</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/framework/parallel.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="parallel">
+<span id="dev-parallel"></span><h1>Parallel<a class="headerlink" href="#parallel" title="Link to this heading"></a></h1>
+<p>Polaris now uses <code class="docutils literal notranslate"><span class="pre">mache.parallel</span></code> for parallel-system selection, resource
+discovery and launcher command construction.</p>
+<p>Within Polaris, a component stores a <code class="docutils literal notranslate"><span class="pre">mache.parallel.ParallelSystem</span></code>
+instance with <a class="reference internal" href="../generated/polaris.Component.set_parallel_system.html#polaris.Component.set_parallel_system" title="polaris.Component.set_parallel_system"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.set_parallel_system()</span></code></a>, then uses it
+for:</p>
+<ul class="simple">
+<li><p>resource queries through <a class="reference internal" href="../generated/polaris.Component.get_available_resources.html#polaris.Component.get_available_resources" title="polaris.Component.get_available_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.get_available_resources()</span></code></a></p></li>
+<li><p>command execution through
+<a class="reference internal" href="../generated/polaris.Component.run_parallel_command.html#polaris.Component.run_parallel_command" title="polaris.Component.run_parallel_command"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.run_parallel_command()</span></code></a></p></li>
+</ul>
+<p>This change adds stronger GPU support, supports compiler-specific parallel
+sections (<code class="docutils literal notranslate"><span class="pre">[parallel.&lt;compiler&gt;]</span></code>) and avoids modifying config options during
+runtime.</p>
+<section id="public-api">
+<h2>Public API<a class="headerlink" href="#public-api" title="Link to this heading"></a></h2>
+<p>The key APIs are now:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.e3sm.org/mache/main/developers_guide/generated/mache.parallel.get_parallel_system.html#mache.parallel.get_parallel_system" title="(in Mache main)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mache.parallel.get_parallel_system()</span></code></a></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">mache.parallel.ParallelSystem</span></code></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.Component.set_parallel_system.html#polaris.Component.set_parallel_system" title="polaris.Component.set_parallel_system"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.set_parallel_system()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.Component.get_available_resources.html#polaris.Component.get_available_resources" title="polaris.Component.get_available_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.get_available_resources()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../generated/polaris.Component.run_parallel_command.html#polaris.Component.run_parallel_command" title="polaris.Component.run_parallel_command"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.run_parallel_command()</span></code></a></p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">ParallelSystem.get_parallel_command()</span></code> supports both CPU and GPU resources
+through <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">gpus_per_task</span></code>.</p>
+</section>
+<section id="compiler-specific-parallel-configs">
+<h2>Compiler-specific parallel configs<a class="headerlink" href="#compiler-specific-parallel-configs" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">mache.parallel</span></code> combines options in <code class="docutils literal notranslate"><span class="pre">[parallel]</span></code> with
+<code class="docutils literal notranslate"><span class="pre">[parallel.&lt;compiler&gt;]</span></code> (if present), where <code class="docutils literal notranslate"><span class="pre">&lt;compiler&gt;</span></code> comes from
+<code class="docutils literal notranslate"><span class="pre">[build]</span> <span class="pre">compiler</span></code>.</p>
+<p>This lets machine configs specify different launcher flags and resource options
+for different compiler toolchains without requiring a single machine-wide
+parallel configuration.</p>
+</section>
+<section id="gpu-resources">
+<h2>GPU resources<a class="headerlink" href="#gpu-resources" title="Link to this heading"></a></h2>
+<p>Polaris step resources now include GPU requirements (<code class="docutils literal notranslate"><span class="pre">gpus_per_task</span></code> and
+<code class="docutils literal notranslate"><span class="pre">min_gpus_per_task</span></code>) in addition to CPU requirements. Resource constraints use
+both CPU and GPU availability when determining whether a step can run.</p>
+<p>For ocean model steps with dynamic sizing, Omega runs on GPU-capable compiler
+configs use:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">goal_cells_per_gpu</span></code> (target; default 8000)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_cells_per_gpu</span></code> (minimum required resources; default 80000)</p></li>
+</ul>
+</section>
+<section id="supported-parallel-systems">
+<h2>Supported Parallel Systems<a class="headerlink" href="#supported-parallel-systems" title="Link to this heading"></a></h2>
+<p>The active system is still selected from <code class="docutils literal notranslate"><span class="pre">[parallel]</span> <span class="pre">system</span></code> and environment
+context (<code class="docutils literal notranslate"><span class="pre">slurm</span></code>, <code class="docutils literal notranslate"><span class="pre">pbs</span></code>, <code class="docutils literal notranslate"><span class="pre">single_node</span></code>, <code class="docutils literal notranslate"><span class="pre">login</span></code>) but implementation is in
+<code class="docutils literal notranslate"><span class="pre">mache.parallel</span></code>:</p>
+<ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">mache.parallel.SingleNodeSystem</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">mache.parallel.LoginSystem</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">mache.parallel.SlurmSystem</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">mache.parallel.PbsSystem</span></code></p></li>
+</ul>
+</section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Polaris no longer provides a <code class="docutils literal notranslate"><span class="pre">polaris.parallel</span></code> module.</p></li>
+<li><p>Runtime no longer rewrites <code class="docutils literal notranslate"><span class="pre">cores_per_node</span></code> in config files.</p></li>
+<li><p>Machine and compiler config should provide the desired parallel options.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="build.html" class="btn btn-neutral float-left" title="Build utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="provenance.html" class="btn btn-neutral float-right" title="Provenance" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="1.0.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

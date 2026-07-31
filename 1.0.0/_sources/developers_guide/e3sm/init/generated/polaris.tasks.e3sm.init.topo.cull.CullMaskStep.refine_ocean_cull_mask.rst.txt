@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine\_ocean\_cull\_mask
+========================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.cull
+
+.. automethod:: CullMaskStep.refine_ocean_cull_mask

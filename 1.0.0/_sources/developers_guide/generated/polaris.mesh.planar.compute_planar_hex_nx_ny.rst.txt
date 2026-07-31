@@ -1,0 +1,6 @@
+﻿polaris.mesh.planar.compute\_planar\_hex\_nx\_ny
+================================================
+
+.. currentmodule:: polaris.mesh.planar
+
+.. autofunction:: compute_planar_hex_nx_ny

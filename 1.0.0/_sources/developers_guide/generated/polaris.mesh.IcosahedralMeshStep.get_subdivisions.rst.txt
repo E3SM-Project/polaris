@@ -1,0 +1,6 @@
+﻿polaris.mesh.IcosahedralMeshStep.get\_subdivisions
+==================================================
+
+.. currentmodule:: polaris.mesh
+
+.. automethod:: IcosahedralMeshStep.get_subdivisions

@@ -1,0 +1,676 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EOS and Vertical-Coordinate Variants of the Overflow Tasks</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="P-Star Coordinate and Tracer Initialization" href="pstar_init.html" />
+    <link rel="prev" title="Reworked HPG Reference Solution" href="horiz_press_grad_reference.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-a-shared-mechanism-for-selecting-a-nonlinear-eos">Requirement: A shared mechanism for selecting a nonlinear EOS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-overflow-initial-conditions-on-the-p-star-coordinate">Requirement: Overflow initial conditions on the p-star coordinate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-model-specific-tracer-and-state-conversions-are-shared-framework-code">Requirement: Model-specific tracer and state conversions are shared framework code</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-existing-overflow-answers-are-preserved-during-refactoring">Requirement: Existing overflow answers are preserved during refactoring</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-vertical-mixing-uses-background-and-convective-mixing">Requirement: Vertical mixing uses background and convective mixing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-a-shared-mechanism-for-selecting-a-nonlinear-eos">Algorithm Design: A shared mechanism for selecting a nonlinear EOS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-overflow-initial-conditions-on-the-p-star-coordinate">Algorithm Design: Overflow initial conditions on the p-star coordinate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-model-specific-tracer-and-state-conversions-are-shared-framework-code">Algorithm Design: Model-specific tracer and state conversions are shared framework code</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-vertical-mixing-uses-background-and-convective-mixing">Algorithm Design: Vertical mixing uses background and convective mixing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-a-shared-mechanism-for-selecting-a-nonlinear-eos">Implementation: A shared mechanism for selecting a nonlinear EOS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-overflow-initial-conditions-on-the-p-star-coordinate">Implementation: Overflow initial conditions on the p-star coordinate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-model-specific-tracer-and-state-conversions-are-shared-framework-code">Implementation: Model-specific tracer and state conversions are shared framework code</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-existing-overflow-answers-are-preserved-during-refactoring">Implementation: Existing overflow answers are preserved during refactoring</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-vertical-mixing-uses-background-and-convective-mixing">Implementation: Vertical mixing uses background and convective mixing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-a-shared-mechanism-for-selecting-a-nonlinear-eos">Testing and Validation: A shared mechanism for selecting a nonlinear EOS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-overflow-initial-conditions-on-the-p-star-coordinate">Testing and Validation: Overflow initial conditions on the p-star coordinate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-model-specific-tracer-and-state-conversions-are-shared-framework-code">Testing and Validation: Model-specific tracer and state conversions are shared framework code</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-existing-overflow-answers-are-preserved-during-refactoring">Testing and Validation: Existing overflow answers are preserved during refactoring</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-vertical-mixing-uses-background-and-convective-mixing">Testing and Validation: Vertical mixing uses background and convective mixing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">EOS and Vertical-Coordinate Variants of the Overflow Tasks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/overflow_nonlinear_eos.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="eos-and-vertical-coordinate-variants-of-the-overflow-tasks">
+<h1>EOS and Vertical-Coordinate Variants of the Overflow Tasks<a class="headerlink" href="#eos-and-vertical-coordinate-variants-of-the-overflow-tasks" title="Link to this heading"></a></h1>
+<p>date: 2026/07/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>The overflow task family currently supports only the linear equation of
+state (EOS) with the z-star vertical coordinate. Instabilities have been
+observed in realistic-global tests, which use the p-star vertical
+coordinate together with a nonlinear EOS (TEOS-10 in Omega). This work
+adds variants of all overflow tasks that mirror that configuration in a
+small, idealized, fast-running setting, so that the two new ingredients
+(nonlinear EOS and p-star coordinate) can be varied independently:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>z-star init</p></th>
+<th class="head"><p>p-star init</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>linear EOS</p></td>
+<td><p>existing tasks (baselines preserved)</p></td>
+<td><p>coordinate discriminator</p></td>
+</tr>
+<tr class="row-odd"><td><p>nonlinear EOS</p></td>
+<td><p>not included</p></td>
+<td><p>mirrors realistic-global</p></td>
+</tr>
+</tbody>
+</table>
+<p>The nonlinear EOS is TEOS-10 for Omega and Jackett-McDougall (<code class="docutils literal notranslate"><span class="pre">jm</span></code>) for
+MPAS-Ocean.</p>
+<p>The result is three task trees under <code class="docutils literal notranslate"><span class="pre">ocean/planar/overflow/</span></code>, each with
+its own shared config file and its own shared <code class="docutils literal notranslate"><span class="pre">init</span></code> step. Paths have
+two levels below <code class="docutils literal notranslate"><span class="pre">overflow</span></code> — the EOS type, then the vertical
+coordinate — for symmetry and so more combinations can be added later:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ocean/planar/overflow/
+├── linear/
+│   ├── zstar/      # existing tasks: z-star + linear EOS (answers unchanged)
+│   │   ├── init                                  (shared step)
+│   │   ├── smoke_test_horiz_adv_order_{2,3,4}
+│   │   ├── smoke_test_horiz_adv_order_{2,3,4}_del4
+│   │   └── rpe
+│   └── pstar/      # p-star init + linear EOS
+│       └── (same tasks)
+└── nonlinear/
+    └── pstar/      # p-star init + TEOS-10 (Omega) / jm (MPAS-Ocean)
+        └── (same tasks)
+</pre></div>
+</div>
+<p>This is 21 tasks total (7 per tree). The <code class="docutils literal notranslate"><span class="pre">linear/zstar</span></code> tree is the
+current set of tasks with only the path changed; its answers must not
+change during the refactoring. Since the goal is debugging, the full
+matrix makes it possible to bisect where problems enter. The smoke
+tests are the primary debugging vehicle. The RPE tasks are included in
+the new trees for completeness but are too expensive to run routinely;
+if supporting them under p-star or the nonlinear EOS proves difficult,
+they can be deferred without blocking the rest of this work.</p>
+<p>A follow-on piece of this work re-enables vertical mixing in all three
+trees. It is only partially related to the EOS and coordinate variants
+but serves the same purpose: making the overflow tasks resemble the
+realistic-global configurations where instabilities are being seen,
+which run with CVMix-style vertical mixing enabled. The compass version
+of the overflow test ran with constant background mixing and convective
+mixing; these were disabled in the Polaris port
+(<a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/572">PR #572</a>) because
+Omega had no vertical-mixing support at the time. Omega’s <code class="docutils literal notranslate"><span class="pre">VertMix</span></code> now
+provides both, so background and convective mixing are restored for
+both models, matching the compass configuration. (An interim
+background-only configuration was tried, but when bottom drag is enabled,
+plume overrides the ambient bottom water at its nose, creating static
+instability that only convective mixing removes; review therefore
+restored convection and reduced the bottom-drag coefficient, see below.)
+Unlike the refactoring, this change is intentionally answer-changing
+(see the answer-preservation requirement, which is scoped to the
+commits before vertical mixing is enabled).</p>
+<p>Success means: the <code class="docutils literal notranslate"><span class="pre">linear/zstar</span></code> tree is bit-for-bit with the current
+tasks before vertical mixing is enabled, the two new trees set up and
+run their smoke tests with both models, vertical mixing is active in
+both models in all three trees, and the shared framework pieces (a
+TEOS-10 EOS config and a p-star state-conversion module) are reusable
+by the realistic-global initialization work.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-a-shared-mechanism-for-selecting-a-nonlinear-eos">
+<h3>Requirement: A shared mechanism for selecting a nonlinear EOS<a class="headerlink" href="#requirement-a-shared-mechanism-for-selecting-a-nonlinear-eos" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Tasks must be able to select a nonlinear EOS via a shared config file,
+in the same way <code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos</span></code> <code class="docutils literal notranslate"><span class="pre">linear.cfg</span></code> and <code class="docutils literal notranslate"><span class="pre">constant.cfg</span></code>
+select the linear and constant EOS today. The forward step must
+translate this selection into valid model config options for both Omega
+(TEOS-10) and MPAS-Ocean (Jackett-McDougall, the closest available
+nonlinear EOS), without requiring the linear-EOS options to be defined.</p>
+</section>
+<section id="requirement-overflow-initial-conditions-on-the-p-star-coordinate">
+<h3>Requirement: Overflow initial conditions on the p-star coordinate<a class="headerlink" href="#requirement-overflow-initial-conditions-on-the-p-star-coordinate" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The overflow initial condition (tanh shelf bathymetry, a block of cold
+water on the shelf, constant salinity, quiescent velocity, zero surface
+pressure) must be producible on the p-star vertical coordinate, with
+output files compatible with the existing overflow <code class="docutils literal notranslate"><span class="pre">Forward</span></code>, <code class="docutils literal notranslate"><span class="pre">Viz</span></code>,
+and RPE <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> steps (same filenames and required variables).</p>
+</section>
+<section id="requirement-model-specific-tracer-and-state-conversions-are-shared-framework-code">
+<h3>Requirement: Model-specific tracer and state conversions are shared framework code<a class="headerlink" href="#requirement-model-specific-tracer-and-state-conversions-are-shared-framework-code" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The conversions from a converged p-star state to model input files —
+layer thickness from geometric interfaces, quiescent velocity, density
+from specific volume, and conversion of conservative temperature /
+absolute salinity to MPAS-Ocean’s potential temperature / practical
+salinity — must live in a shared, dependency-light framework module so
+that both the overflow p-star init and the realistic-global
+initialization (on the <code class="docutils literal notranslate"><span class="pre">add-realistic-ocean-init</span></code> branch) can use them.</p>
+</section>
+<section id="requirement-existing-overflow-answers-are-preserved-during-refactoring">
+<h3>Requirement: Existing overflow answers are preserved during refactoring<a class="headerlink" href="#requirement-existing-overflow-answers-are-preserved-during-refactoring" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The existing z-star + linear-EOS tasks move to
+<code class="docutils literal notranslate"><span class="pre">ocean/planar/overflow/linear/zstar/</span></code> with no answer changes. Test
+suites that reference the old paths must be updated.</p>
+<p>This requirement is scoped to the refactoring and variant commits. The
+subsequent vertical-mixing commit (next requirement) intentionally
+changes answers in all three trees and requires baselines to be
+re-blessed.</p>
+</section>
+<section id="requirement-vertical-mixing-uses-background-and-convective-mixing">
+<h3>Requirement: Vertical mixing uses background and convective mixing<a class="headerlink" href="#requirement-vertical-mixing-uses-background-and-convective-mixing" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/24</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The overflow tasks must run with the constant background and convective
+vertical mixing that the compass version of the test used (background
+diffusivity 1.0e-5 m²/s, viscosity 1.0e-4 m²/s; convective diffusivity
+and viscosity 1.0 m²/s), with shear mixing off, in both MPAS-Ocean and
+Omega. The configuration must work with the RK4 time integrator and
+with both the linear and nonlinear EOS.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-a-shared-mechanism-for-selecting-a-nonlinear-eos">
+<h3>Algorithm Design: A shared mechanism for selecting a nonlinear EOS<a class="headerlink" href="#algorithm-design-a-shared-mechanism-for-selecting-a-nonlinear-eos" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>No new algorithms. Omega’s <code class="docutils literal notranslate"><span class="pre">Eos.cpp</span></code> accepts <code class="docutils literal notranslate"><span class="pre">teos10</span></code>, <code class="docutils literal notranslate"><span class="pre">teos-10</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">TEOS-10</span></code> for <code class="docutils literal notranslate"><span class="pre">EosType</span></code>, so the Polaris <code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">teos-10</span></code> value
+passes through unchanged. MPAS-Ocean has no TEOS-10 option; its
+Jackett-McDougall EOS (<code class="docutils literal notranslate"><span class="pre">config_eos_type</span> <span class="pre">=</span> <span class="pre">jm</span></code>) is used as a documented
+approximation. Polaris-side (Python) density calculations use TEOS-10
+via the <code class="docutils literal notranslate"><span class="pre">gsw</span></code> package for both models; the initial-condition density is
+diagnostic only (neither model reads it), so the TEOS-10-vs-<code class="docutils literal notranslate"><span class="pre">jm</span></code>
+mismatch for MPAS-Ocean is acceptable.</p>
+</section>
+<section id="algorithm-design-overflow-initial-conditions-on-the-p-star-coordinate">
+<h3>Algorithm Design: Overflow initial conditions on the p-star coordinate<a class="headerlink" href="#algorithm-design-overflow-initial-conditions-on-the-p-star-coordinate" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The p-star initialization uses the fixed-point iteration from the
+<a class="reference internal" href="pstar_init.html"><span class="std std-doc">p-star init design</span></a> (<code class="docutils literal notranslate"><span class="pre">PStarInitStep.run_pstar_init()</span></code>)
+with zero surface pressure. The overflow tracer profile (cold block on
+the shelf, constant salinity) is evaluated at the current p-star layer
+midpoints each outer iteration and interpreted as conservative
+temperature (CT) and absolute salinity (SA).</p>
+<p>Because pseudo-depth is not geometric depth
+(<span class="math notranslate nohighlight">\(dz_{geom} = \nu \, \rho_{sw} \, d\tilde{z}\)</span>, with specific volume
+<span class="math notranslate nohighlight">\(\nu\)</span> and <span class="math notranslate nohighlight">\(\rho_{sw} = 1026\)</span> kg m<span class="math notranslate nohighlight">\(^{-3}\)</span>), the pseudo grid must reach
+deeper than the pressure at the deepest geometric bathymetry or the
+domain would be artificially truncated. The pseudo-depth needed for the
+2000 m geometric bottom is roughly <span class="math notranslate nohighlight">\(2000 \, \bar{\rho} / \rho_{sw}\)</span>:
+~1950 m for the linear EOS (mean density ≈ 998 kg m<span class="math notranslate nohighlight">\(^{-3}\)</span> with the
+shared <code class="docutils literal notranslate"><span class="pre">linear.cfg</span></code> values) and ~2015 m for TEOS-10 (in-situ density up
+to ~1037 kg m<span class="math notranslate nohighlight">\(^{-3}\)</span> at depth). The pseudo grid is therefore 2400 m
+deep (~19% buffer over the worst case) with 72 uniform levels,
+preserving the ~33.3 m layer spacing of the 60-level, 2000 m z-star
+grid while making the number of levels a multiple of 16, which is
+preferred for Omega performance. This mirrors the buffer used in
+<code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code> (576 m pseudo bottom for a 500 m geometric bottom).</p>
+</section>
+<section id="algorithm-design-model-specific-tracer-and-state-conversions-are-shared-framework-code">
+<h3>Algorithm Design: Model-specific tracer and state conversions are shared framework code<a class="headerlink" href="#algorithm-design-model-specific-tracer-and-state-conversions-are-shared-framework-code" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Omega receives CT and SA directly. For MPAS-Ocean, CT is converted to
+potential temperature via <code class="docutils literal notranslate"><span class="pre">gsw.pt_from_CT</span></code> and SA to practical salinity
+via <code class="docutils literal notranslate"><span class="pre">gsw.SP_from_SA</span></code>, with pressure from the p-star product. The
+<code class="docutils literal notranslate"><span class="pre">SP_from_SA</span></code> conversion needs a nominal longitude/latitude on a planar
+mesh; this defaults to (0°, 0°) and is exposed as config options.</p>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">add-realistic-ocean-init</span></code> branch currently uses
+<code class="docutils literal notranslate"><span class="pre">gsw.t_from_CT</span></code> (in-situ temperature); MPAS-Ocean expects <em>potential</em>
+temperature, so the shared helper uses <code class="docutils literal notranslate"><span class="pre">pt_from_CT</span></code> and that branch
+picks up the fix when it adopts this module.</p>
+</section>
+<section id="algorithm-design-vertical-mixing-uses-background-and-convective-mixing">
+<h3>Algorithm Design: Vertical mixing uses background and convective mixing<a class="headerlink" href="#algorithm-design-vertical-mixing-uses-background-and-convective-mixing" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/24</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>No new algorithms in Polaris; both models already implement the needed
+schemes. MPAS-Ocean uses CVMix with the <code class="docutils literal notranslate"><span class="pre">constant</span></code> background scheme.
+Omega’s <code class="docutils literal notranslate"><span class="pre">VertMix</span></code> provides the equivalent constant <code class="docutils literal notranslate"><span class="pre">Background</span></code>
+diffusivity/viscosity, plus the matching <code class="docutils literal notranslate"><span class="pre">Convective</span></code> mixing. Omega
+applies the mixing implicitly via a tridiagonal solve, operator-split
+at the end of each step in all its time steppers (including
+<code class="docutils literal notranslate"><span class="pre">RungeKutta4</span></code>), so no time-step or EOS-specific changes are needed.
+Convective mixing is enabled in both models (matching compass); shear
+mixing remains off.</p>
+<p>Bottom drag: both models run with explicit bottom drag (coefficient
+1.0e-3). MPAS-Ocean uses <code class="docutils literal notranslate"><span class="pre">config_bottom_drag_mode</span> <span class="pre">=</span> <span class="pre">explicit</span></code>; Omega has
+no equivalent of the bottom-drag mode option, so its
+<code class="docutils literal notranslate"><span class="pre">BottomDragTendencyEnable</span></code> is turned on through the mapped MPAS-Ocean
+debug flag (<code class="docutils literal notranslate"><span class="pre">config_disable_vel_explicit_bottom_drag</span> <span class="pre">=</span> <span class="pre">false</span></code> in the
+shared <code class="docutils literal notranslate"><span class="pre">debug</span></code> section of <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>) — an interim approach
+suggested in review. Omega’s implicit bottom drag is pending
+(<a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/659">polaris #659</a>,
+<a class="reference external" href="https://github.com/E3SM-Project/Omega/pull/469">Omega #469</a>); once
+that merges, both models are expected to switch to implicit drag, and
+whichever PR merges second will need a small rebase of this
+configuration.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-a-shared-mechanism-for-selecting-a-nonlinear-eos">
+<h3>Implementation: A shared mechanism for selecting a nonlinear EOS<a class="headerlink" href="#implementation-a-shared-mechanism-for-selecting-a-nonlinear-eos" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A new shared config file <code class="docutils literal notranslate"><span class="pre">polaris/ocean/eos/teos10.cfg</span></code> contains only</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean]</span>
+<span class="na">eos_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">teos-10</span>
+</pre></div>
+</div>
+<p>(no linear parameters). <code class="docutils literal notranslate"><span class="pre">OceanModelStep.update_namelist_eos()</span></code>, which
+currently reads the <code class="docutils literal notranslate"><span class="pre">eos_linear_*</span></code> options unconditionally, is
+restructured to branch on <code class="docutils literal notranslate"><span class="pre">eos_type</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">linear</span></code> / <code class="docutils literal notranslate"><span class="pre">constant</span></code>: current behavior (read <code class="docutils literal notranslate"><span class="pre">eos_linear_*</span></code>, map
+<code class="docutils literal notranslate"><span class="pre">constant</span></code> → <code class="docutils literal notranslate"><span class="pre">linear</span></code> for MPAS-Ocean, reject nonzero <code class="docutils literal notranslate"><span class="pre">Tref</span></code>/<code class="docutils literal notranslate"><span class="pre">Sref</span></code>
+for Omega).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">teos-10</span></code>: for MPAS-Ocean, set <code class="docutils literal notranslate"><span class="pre">config_eos_type</span> <span class="pre">=</span> <span class="pre">jm</span></code> and do not
+touch <code class="docutils literal notranslate"><span class="pre">config_eos_linear_*</span></code>; for Omega, pass <code class="docutils literal notranslate"><span class="pre">teos-10</span></code> through
+unchanged. The <code class="docutils literal notranslate"><span class="pre">eos_linear_*</span></code> options are not read at all.</p></li>
+</ul>
+</section>
+<section id="implementation-overflow-initial-conditions-on-the-p-star-coordinate">
+<h3>Implementation: Overflow initial conditions on the p-star coordinate<a class="headerlink" href="#implementation-overflow-initial-conditions-on-the-p-star-coordinate" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A new <code class="docutils literal notranslate"><span class="pre">PStarInit(PStarInitStep)</span></code> step in
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/overflow/pstar_init.py</span></code>:</p>
+<ul class="simple">
+<li><p>builds the same planar hex mesh as the existing <code class="docutils literal notranslate"><span class="pre">Init</span></code> step, culls
+it, and adds Coriolis via a helper in the shared <code class="docutils literal notranslate"><span class="pre">init_utils</span></code> module
+factored out of <code class="docutils literal notranslate"><span class="pre">Init.run()</span></code>; writes <code class="docutils literal notranslate"><span class="pre">base_mesh.nc</span></code>,
+<code class="docutils literal notranslate"><span class="pre">culled_mesh.nc</span></code>, and <code class="docutils literal notranslate"><span class="pre">culled_graph.info</span></code>;</p></li>
+<li><p>computes <code class="docutils literal notranslate"><span class="pre">geom_z_bot</span></code> from the existing tanh shelf profile;</p></li>
+<li><p>uses zero surface pressure;</p></li>
+<li><p>implements <code class="docutils literal notranslate"><span class="pre">init_tracers()</span></code> as the existing
+cold-block-on-the-shelf profile evaluated at the current p-star layer
+midpoints, interpreted as CT/SA;</p></li>
+<li><p>after <code class="docutils literal notranslate"><span class="pre">run_pstar_init()</span></code> converges, uses the shared state-conversion
+helpers to add layer thickness, quiescent velocity, and density,
+converts tracers for MPAS-Ocean, and writes <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code> and
+<code class="docutils literal notranslate"><span class="pre">init.nc</span></code> with the same filenames as the existing <code class="docutils literal notranslate"><span class="pre">Init</span></code> step so
+<code class="docutils literal notranslate"><span class="pre">Forward</span></code>, <code class="docutils literal notranslate"><span class="pre">Viz</span></code>, and <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> need no retargeting.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">add_overflow_tasks()</span></code> loops over the three variants:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>subdir</p></th>
+<th class="head"><p>EOS cfg</p></th>
+<th class="head"><p>init step class</p></th>
+<th class="head"><p>coord</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">planar/overflow/linear/zstar</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">linear.cfg</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Init</span></code></p></td>
+<td><p>z-star</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">planar/overflow/linear/pstar</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">linear.cfg</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PStarInit</span></code></p></td>
+<td><p>p-star</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">planar/overflow/nonlinear/pstar</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">teos10.cfg</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PStarInit</span></code></p></td>
+<td><p>p-star</p></td>
+</tr>
+</tbody>
+</table>
+<p>Each variant gets its own <code class="docutils literal notranslate"><span class="pre">PolarisConfigParser</span></code> and its own shared init
+step, and the same set of smoke-test and RPE tasks as today. A new
+<code class="docutils literal notranslate"><span class="pre">overflow_pstar.cfg</span></code> adds the p-star <code class="docutils literal notranslate"><span class="pre">[vertical_grid]</span></code> overrides
+(including the 2400 m / 72-level pseudo grid) for the two p-star trees.
+The p-star iteration uses the shared <code class="docutils literal notranslate"><span class="pre">ocean.cfg</span></code> defaults
+(<code class="docutils literal notranslate"><span class="pre">pseudothickness_iter_count</span> <span class="pre">=</span> <span class="pre">6</span></code>,
+<code class="docutils literal notranslate"><span class="pre">water_col_adjust_frac_change_threshold</span> <span class="pre">=</span> <span class="pre">1.0e-12</span></code>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">forward.py</span></code> / <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> are expected to be unchanged:
+<code class="docutils literal notranslate"><span class="pre">update_eos=True</span></code> already routes EOS settings through
+<code class="docutils literal notranslate"><span class="pre">update_namelist_eos()</span></code>, and <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code> demonstrates that Omega
+needs no extra <code class="docutils literal notranslate"><span class="pre">VertCoord</span></code> settings in the forward yaml for p-star (the
+coordinate comes from <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code>). MPAS-Ocean runs its usual
+coordinate initialized from the converged geometric thicknesses.</p>
+<p>In passing, two pieces of cleanup in <code class="docutils literal notranslate"><span class="pre">overflow.cfg</span></code>:</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">[overflow]</span></code> options <code class="docutils literal notranslate"><span class="pre">eos_linear_beta</span></code> and <code class="docutils literal notranslate"><span class="pre">eos_linear_Sref</span></code> are
+dead leftovers from the compass port (the shared <code class="docutils literal notranslate"><span class="pre">linear.cfg</span></code>
+<code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> section is the source of truth) and are deleted.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rpe/analysis.py</span></code> reads <code class="docutils literal notranslate"><span class="pre">min_temp</span></code> and <code class="docutils literal notranslate"><span class="pre">max_temp</span></code> from
+<code class="docutils literal notranslate"><span class="pre">[overflow_rpe]</span></code>, which never defines them, so the RPE analysis step
+would fail at runtime today. They are added following the
+<code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code> precedent, tracking the initial-condition
+temperatures.</p></li>
+</ul>
+</section>
+<section id="implementation-model-specific-tracer-and-state-conversions-are-shared-framework-code">
+<h3>Implementation: Model-specific tracer and state conversions are shared framework code<a class="headerlink" href="#implementation-model-specific-tracer-and-state-conversions-are-shared-framework-code" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/23</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Dependency-light helpers factored out of <code class="docutils literal notranslate"><span class="pre">InitialStateStep</span></code> on the
+<code class="docutils literal notranslate"><span class="pre">add-realistic-ocean-init</span></code> branch, in a new <code class="docutils literal notranslate"><span class="pre">polaris/ocean/init_state/</span></code>
+package (per review feedback: the helpers are general initial-state
+utilities, not p-star specific, and a package rather than a single
+module leaves room to grow without bloat; one small module per concern):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">thickness.py</span></code>: <code class="docutils literal notranslate"><span class="pre">layer_thickness_from_geom_interfaces(ds)</span></code> —
+<code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> from converged
+<code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code>, masked by <code class="docutils literal notranslate"><span class="pre">cellMask</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">velocity.py</span></code>: <code class="docutils literal notranslate"><span class="pre">add_quiescent_normal_velocity(ds,</span> <span class="pre">ds_mesh)</span></code> — zero
+<code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">density.py</span></code>: <code class="docutils literal notranslate"><span class="pre">add_density_from_specvol(ds)</span></code> — <code class="docutils literal notranslate"><span class="pre">Density</span> <span class="pre">=</span> <span class="pre">1</span> <span class="pre">/</span> <span class="pre">SpecVol</span></code> with attributes.</p></li>
+</ul>
+<p>All three are re-exported from <code class="docutils literal notranslate"><span class="pre">polaris.ocean.init_state</span></code>.</p>
+<p>The CT/SA conversion helper <code class="docutils literal notranslate"><span class="pre">convert_tracers_to_mpas_ocean(ds,</span> <span class="pre">lon,</span> <span class="pre">lat)</span></code> — CT → potential temperature via <code class="docutils literal notranslate"><span class="pre">gsw.pt_from_CT</span></code> and SA →
+practical salinity via <code class="docutils literal notranslate"><span class="pre">gsw.SP_from_SA</span></code>, with pressure from the p-star
+product — lives in <code class="docutils literal notranslate"><span class="pre">polaris/ocean/eos/teos10.py</span></code> and is exported from
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos</span></code> (per review feedback: it is an EOS/tracer-convention
+conversion, so developers should find it with the other TEOS-10 code
+rather than reimplementing it).</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">add-realistic-ocean-init</span></code> merges, its <code class="docutils literal notranslate"><span class="pre">InitialStateStep</span></code> is
+refactored to call these (a follow-up on that branch).</p>
+</section>
+<section id="implementation-existing-overflow-answers-are-preserved-during-refactoring">
+<h3>Implementation: Existing overflow answers are preserved during refactoring<a class="headerlink" href="#implementation-existing-overflow-answers-are-preserved-during-refactoring" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/23</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The existing tasks keep their step and task classes; only the task
+directory changes from <code class="docutils literal notranslate"><span class="pre">planar/overflow</span></code> to
+<code class="docutils literal notranslate"><span class="pre">planar/overflow/linear/zstar</span></code>. The overflow paths in
+<code class="docutils literal notranslate"><span class="pre">polaris/suites/ocean/omega_nightly.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">omega_pr.txt</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">mpaso_pr.txt</span></code> are updated accordingly. In addition, one new suite
+entry is added (per review feedback, to keep TEOS-10 coverage in PR
+testing until more tests use it):
+<code class="docutils literal notranslate"><span class="pre">planar/overflow/nonlinear/pstar/smoke_test_horiz_adv_order_4_del4</span></code> in
+both <code class="docutils literal notranslate"><span class="pre">mpaso_pr.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">omega_pr.txt</span></code>.</p>
+</section>
+<section id="implementation-vertical-mixing-uses-background-and-convective-mixing">
+<h3>Implementation: Vertical mixing uses background and convective mixing<a class="headerlink" href="#implementation-vertical-mixing-uses-background-and-convective-mixing" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/24</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The change is config-only. In the shared <code class="docutils literal notranslate"><span class="pre">ocean:</span></code> section of
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/overflow/forward.yaml</span></code>, the <code class="docutils literal notranslate"><span class="pre">cvmix</span></code> options that
+Polaris maps to Omega’s <code class="docutils literal notranslate"><span class="pre">VertMix</span></code> config restore the compass background
+and convective mixing values, with shear mixing off:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="nt">cvmix</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config_use_cvmix_convection</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">config_cvmix_convective_diffusion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<span class="w">    </span><span class="nt">config_cvmix_convective_triggerBVF</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="w">    </span><span class="nt">config_use_cvmix_shear</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">config_cvmix_background_diffusion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0e-5</span>
+<span class="w">    </span><span class="nt">config_cvmix_background_viscosity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0e-4</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">mpas-ocean:</span></code> section adds the MPAS-only master switch with no
+Omega equivalent (<code class="docutils literal notranslate"><span class="pre">config_use_cvmix</span> <span class="pre">=</span> <span class="pre">true</span></code>; the background scheme
+already defaults to <code class="docutils literal notranslate"><span class="pre">constant</span></code>) and the MPAS-only convective viscosity
+(<code class="docutils literal notranslate"><span class="pre">config_cvmix_convective_viscosity</span> <span class="pre">=</span> <span class="pre">1.0</span></code>; Omega uses a single
+convective coefficient for both diffusivity and viscosity). Omega’s
+tendency enable flags
+(<code class="docutils literal notranslate"><span class="pre">VelVertMixTendencyEnable</span></code>, <code class="docutils literal notranslate"><span class="pre">TracerVertMixTendencyEnable</span></code>) already
+default to <code class="docutils literal notranslate"><span class="pre">true</span></code>, so no yaml change is needed for them.</p>
+<p>In passing, the <code class="docutils literal notranslate"><span class="pre">cvmix</span> <span class="pre">→</span> <span class="pre">[VertMix,</span> <span class="pre">Shear]</span></code> entry in
+<code class="docutils literal notranslate"><span class="pre">polaris/ocean/model/mpaso_to_omega.yaml</span></code> is corrected: it mapped the
+MPAS-Ocean Pacanowski–Philander parameter names
+(<code class="docutils literal notranslate"><span class="pre">config_cvmix_shear_PP_*</span></code> → <code class="docutils literal notranslate"><span class="pre">NuZero</span></code>/<code class="docutils literal notranslate"><span class="pre">Alpha</span></code>/<code class="docutils literal notranslate"><span class="pre">Exponent</span></code>), but Omega’s
+shear scheme is the LMD94/KPP interior scheme, so the KPP names are
+the correct correspondence
+(<code class="docutils literal notranslate"><span class="pre">config_cvmix_shear_KPP_nu_zero</span></code> → <code class="docutils literal notranslate"><span class="pre">BaseShearValue</span></code>,
+<code class="docutils literal notranslate"><span class="pre">config_cvmix_shear_KPP_Ri_zero</span></code> → <code class="docutils literal notranslate"><span class="pre">RiCrit</span></code>,
+<code class="docutils literal notranslate"><span class="pre">config_cvmix_shear_KPP_exp</span></code> → <code class="docutils literal notranslate"><span class="pre">Exponent</span></code>). No current test sets the
+PP options, so this mapping fix changes no answers.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-a-shared-mechanism-for-selecting-a-nonlinear-eos">
+<h3>Testing and Validation: A shared mechanism for selecting a nonlinear EOS<a class="headerlink" href="#testing-and-validation-a-shared-mechanism-for-selecting-a-nonlinear-eos" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests cover <code class="docutils literal notranslate"><span class="pre">update_namelist_eos()</span></code> for all <code class="docutils literal notranslate"><span class="pre">eos_type</span></code> × model
+combinations. Manual testing: set up and run the smoke tests from the
+<code class="docutils literal notranslate"><span class="pre">nonlinear/pstar</span></code> tree with both models (where builds are available).</p>
+</section>
+<section id="testing-and-validation-overflow-initial-conditions-on-the-p-star-coordinate">
+<h3>Testing and Validation: Overflow initial conditions on the p-star coordinate<a class="headerlink" href="#testing-and-validation-overflow-initial-conditions-on-the-p-star-coordinate" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Manual testing: set up and run the smoke tests from the <code class="docutils literal notranslate"><span class="pre">linear/pstar</span></code>
+and <code class="docutils literal notranslate"><span class="pre">nonlinear/pstar</span></code> trees with both models, checking that the
+converged bathymetry matches the tanh shelf profile and the runs are
+stable. The RPE tasks are validated opportunistically; note that
+sorting in-situ density from a nonlinear EOS gives only an approximate
+RPE measure (documented in the user’s guide).</p>
+</section>
+<section id="testing-and-validation-model-specific-tracer-and-state-conversions-are-shared-framework-code">
+<h3>Testing and Validation: Model-specific tracer and state conversions are shared framework code<a class="headerlink" href="#testing-and-validation-model-specific-tracer-and-state-conversions-are-shared-framework-code" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/23</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests for each helper in the <code class="docutils literal notranslate"><span class="pre">polaris.ocean.init_state</span></code> package
+(<code class="docutils literal notranslate"><span class="pre">tests/ocean/init_state/test_init_state.py</span></code>) and for
+<code class="docutils literal notranslate"><span class="pre">convert_tracers_to_mpas_ocean()</span></code> in <code class="docutils literal notranslate"><span class="pre">tests/ocean/eos/test_teos10.py</span></code>,
+including the CT/SA → potential-temperature/practical-salinity round
+trip against direct <code class="docutils literal notranslate"><span class="pre">gsw</span></code> calls.</p>
+</section>
+<section id="testing-and-validation-existing-overflow-answers-are-preserved-during-refactoring">
+<h3>Testing and Validation: Existing overflow answers are preserved during refactoring<a class="headerlink" href="#testing-and-validation-existing-overflow-answers-are-preserved-during-refactoring" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Manual testing: compare the <code class="docutils literal notranslate"><span class="pre">linear/zstar</span></code> smoke tests against a
+baseline from <code class="docutils literal notranslate"><span class="pre">main</span></code> to confirm answers are unchanged (only the path
+moved). The updated suites are exercised by the usual nightly and PR
+testing. This comparison applies to the refactoring commits only,
+before vertical mixing is enabled.</p>
+</section>
+<section id="testing-and-validation-vertical-mixing-uses-background-and-convective-mixing">
+<h3>Testing and Validation: Vertical mixing uses background and convective mixing<a class="headerlink" href="#testing-and-validation-vertical-mixing-uses-background-and-convective-mixing" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/24</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Manual testing: run the smoke tests for all three trees with both
+models and compare against pre-change baselines
+(<code class="docutils literal notranslate"><span class="pre">test_20260722/overflow-4th-order-del4-{omega2,mpaso}</span></code> on chrysalis).
+Diffs are expected in both models — vertical mixing was previously off
+— and are blessed after inspection. Checks:</p>
+<ul class="simple">
+<li><p>the background and convective coefficients appear in the generated
+<code class="docutils literal notranslate"><span class="pre">omega.yml</span></code> and the Omega log reports convective mixing as enabled;</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">viz</span></code> transects show a plume with qualitatively similar structure
+in the two models, with the dense plume hugging the bottom and no
+spurious warm layer beneath the cold plume nose.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="horiz_press_grad_reference.html" class="btn btn-neutral float-left" title="Reworked HPG Reference Solution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pstar_init.html" class="btn btn-neutral float-right" title="P-Star Coordinate and Tracer Initialization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="1.0.0">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

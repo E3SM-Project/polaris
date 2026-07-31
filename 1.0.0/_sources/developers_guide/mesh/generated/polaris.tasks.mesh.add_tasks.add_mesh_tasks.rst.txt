@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.add\_tasks.add\_mesh\_tasks
+==============================================
+
+.. currentmodule:: polaris.tasks.mesh.add_tasks
+
+.. autofunction:: add_mesh_tasks

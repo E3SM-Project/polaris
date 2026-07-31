@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.merry\_go\_round.add\_merry\_go\_round\_tasks
+=================================================================
+
+.. currentmodule:: polaris.tasks.ocean.merry_go_round
+
+.. autofunction:: add_merry_go_round_tasks

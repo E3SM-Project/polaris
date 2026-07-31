@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mesh</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="polaris.tasks.mesh.add_tasks.add_mesh_tasks" href="generated/polaris.tasks.mesh.add_tasks.add_mesh_tasks.html" />
+    <link rel="prev" title="polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge" href="../e3sm/init/generated/polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#components">Components</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../e3sm/init/api.html">e3sm/init</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">mesh</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.tasks.mesh.add_tasks.add_mesh_tasks.html">polaris.tasks.mesh.add_tasks.add_mesh_tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tasks">Tasks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../ocean/api.html">ocean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../seaice/api.html">seaice</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#polaris-framework">polaris framework</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API reference</a></li>
+      <li class="breadcrumb-item active">mesh</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/mesh/api.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="mesh">
+<h1>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h1>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.add_tasks.add_mesh_tasks.html#polaris.tasks.mesh.add_tasks.add_mesh_tasks" title="polaris.tasks.mesh.add_tasks.add_mesh_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_mesh_tasks</span></code></a>(component)</p></td>
+<td><p>Add all tasks to the mesh component</p></td>
+</tr>
+</tbody>
+</table>
+<section id="tasks">
+<h2>Tasks<a class="headerlink" href="#tasks" title="Link to this heading"></a></h2>
+<section id="base-mesh-tasks">
+<h3>Base Mesh Tasks<a class="headerlink" href="#base-mesh-tasks" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.base.add_base_mesh_tasks.html#polaris.tasks.mesh.base.add_base_mesh_tasks" title="polaris.tasks.mesh.base.add_base_mesh_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_base_mesh_tasks</span></code></a>(component)</p></td>
+<td><p>Add tasks for uniform spherical base meshes to the mesh component</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.base.BaseMeshTask.html#polaris.tasks.mesh.base.BaseMeshTask" title="polaris.tasks.mesh.base.BaseMeshTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseMeshTask</span></code></a>(component, base_mesh_step)</p></td>
+<td><p>A task for creating a uniform spherical mesh with a given resolution</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="unified-coastline-tasks">
+<h3>Unified Coastline Tasks<a class="headerlink" href="#unified-coastline-tasks" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.CONVENTIONS.html#polaris.tasks.mesh.spherical.unified.coastline.CONVENTIONS" title="polaris.tasks.mesh.spherical.unified.coastline.CONVENTIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CONVENTIONS</span></code></a></p></td>
+<td><p>Built-in immutable sequence.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep" title="polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputeCoastlineStep</span></code></a>(component, ...)</p></td>
+<td><p>Prepare coastline masks and signed-distance fields on a lat-lon grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.setup.html#polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.setup" title="polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputeCoastlineStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including linking inputs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.run.html#polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.run" title="polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputeCoastlineStep.run</span></code></a>()</p></td>
+<td><p>Run this step.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep" title="polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapCoastlineStep</span></code></a>(component, ...)</p></td>
+<td><p>Remap coastline products from the finest lat-lon grid to a coarser one.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.setup.html#polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.setup" title="polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapCoastlineStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including linking inputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.run.html#polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.run" title="polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapCoastlineStep.run</span></code></a>()</p></td>
+<td><p>Run this step.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.build_coastline_datasets.html#polaris.tasks.mesh.spherical.unified.coastline.build_coastline_datasets" title="polaris.tasks.mesh.spherical.unified.coastline.build_coastline_datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_coastline_datasets</span></code></a>(ds_topo, resolution)</p></td>
+<td><p>Build coastline datasets from combined topography.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.build_coastline_dataset.html#polaris.tasks.mesh.spherical.unified.coastline.build_coastline_dataset" title="polaris.tasks.mesh.spherical.unified.coastline.build_coastline_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_coastline_dataset</span></code></a>(ds_topo, resolution, ...)</p></td>
+<td><p>Build a coastline dataset for one coastline convention.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.get_unified_mesh_coastline_steps.html#polaris.tasks.mesh.spherical.unified.coastline.get_unified_mesh_coastline_steps" title="polaris.tasks.mesh.spherical.unified.coastline.get_unified_mesh_coastline_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unified_mesh_coastline_steps</span></code></a>(resolution)</p></td>
+<td><p>Get shared coastline-preparation steps for a lat-lon target grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.LatLonCoastlineTask.html#polaris.tasks.mesh.spherical.unified.coastline.LatLonCoastlineTask" title="polaris.tasks.mesh.spherical.unified.coastline.LatLonCoastlineTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LatLonCoastlineTask</span></code></a>(component, resolution)</p></td>
+<td><p>A task for preparing coastline products on a latitude-longitude grid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.add_coastline_tasks.html#polaris.tasks.mesh.spherical.unified.coastline.add_coastline_tasks" title="polaris.tasks.mesh.spherical.unified.coastline.add_coastline_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_coastline_tasks</span></code></a>(component)</p></td>
+<td><p>Add standalone coastline tasks for each supported lat-lon target grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep" title="polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizCoastlineStep</span></code></a>(component, coastline_step, ...)</p></td>
+<td><p>A step for visualizing coastline diagnostics.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.setup.html#polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.setup" title="polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizCoastlineStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including linking inputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.run.html#polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.run" title="polaris.tasks.mesh.spherical.unified.coastline.VizCoastlineStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizCoastlineStep.run</span></code></a>()</p></td>
+<td><p>Run this step.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="unified-river-tasks">
+<h3>Unified River Tasks<a class="headerlink" href="#unified-river-tasks" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.html#polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep" title="polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimplifyRiverNetworkStep</span></code></a>(component, subdir)</p></td>
+<td><p>Prepare a simplified, source-grid-independent river network.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.setup.html#polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.setup" title="polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimplifyRiverNetworkStep.setup</span></code></a>()</p></td>
+<td><p>Add the HydroRIVERS shapefile archive input and declare outputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.run.html#polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.run" title="polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimplifyRiverNetworkStep.run</span></code></a>()</p></td>
+<td><p>Download, unpack, convert, and simplify HydroRIVERS source data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.simplify_river_network_feature_collection.html#polaris.tasks.mesh.spherical.unified.river.simplify_river_network_feature_collection" title="polaris.tasks.mesh.spherical.unified.river.simplify_river_network_feature_collection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simplify_river_network_feature_collection</span></code></a>(...)</p></td>
+<td><p>Simplify a HydroRIVERS-style feature collection.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.html#polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep" title="polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RasterizeRiverLatLonStep</span></code></a>(component, ...)</p></td>
+<td><p>Rasterize a simplified river network onto a shared lat-lon target grid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.setup.html#polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.setup" title="polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RasterizeRiverLatLonStep.setup</span></code></a>()</p></td>
+<td><p>Link shared source and coastline inputs and declare outputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.run.html#polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.run" title="polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RasterizeRiverLatLonStep.run</span></code></a>()</p></td>
+<td><p>Build the target-grid river-channel mask.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.build_river_network_dataset.html#polaris.tasks.mesh.spherical.unified.river.build_river_network_dataset" title="polaris.tasks.mesh.spherical.unified.river.build_river_network_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_river_network_dataset</span></code></a>(...[, ...])</p></td>
+<td><p>Rasterize a simplified river network onto a regular lat-lon grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.html#polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep" title="polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ClipRiverNetworkStep</span></code></a>(component, ...)</p></td>
+<td><p>Prepare clipped river products for base-mesh consumers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.setup.html#polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.setup" title="polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ClipRiverNetworkStep.setup</span></code></a>()</p></td>
+<td><p>Link simplified river and coastline products and declare outputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.run.html#polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.run" title="polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ClipRiverNetworkStep.run</span></code></a>()</p></td>
+<td><p>Clip and simplify the retained river network for base-mesh use.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.get_unified_mesh_river_steps.html#polaris.tasks.mesh.spherical.unified.river.get_unified_mesh_river_steps" title="polaris.tasks.mesh.spherical.unified.river.get_unified_mesh_river_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unified_mesh_river_steps</span></code></a>(mesh_name[, ...])</p></td>
+<td><p>Get shared river-network steps for one mesh (source, lat-lon, base-mesh).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.VizRiverStep.html#polaris.tasks.mesh.spherical.unified.river.VizRiverStep" title="polaris.tasks.mesh.spherical.unified.river.VizRiverStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizRiverStep</span></code></a>(component, simplify_step, ...)</p></td>
+<td><p>A step for visualizing river-network diagnostics.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.VizRiverStep.setup.html#polaris.tasks.mesh.spherical.unified.river.VizRiverStep.setup" title="polaris.tasks.mesh.spherical.unified.river.VizRiverStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizRiverStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including linking inputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.VizRiverStep.run.html#polaris.tasks.mesh.spherical.unified.river.VizRiverStep.run" title="polaris.tasks.mesh.spherical.unified.river.VizRiverStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizRiverStep.run</span></code></a>()</p></td>
+<td><p>Run this step.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.UnifiedRiverNetworkTask.html#polaris.tasks.mesh.spherical.unified.river.UnifiedRiverNetworkTask" title="polaris.tasks.mesh.spherical.unified.river.UnifiedRiverNetworkTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnifiedRiverNetworkTask</span></code></a>(component, mesh_name)</p></td>
+<td><p>A standalone task for preparing all river-network products for one mesh.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.river.add_river_tasks.html#polaris.tasks.mesh.spherical.unified.river.add_river_tasks" title="polaris.tasks.mesh.spherical.unified.river.add_river_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_river_tasks</span></code></a>(component)</p></td>
+<td><p>Add standalone river-network tasks.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="unified-sizing-field-tasks">
+<h3>Unified Sizing-Field Tasks<a class="headerlink" href="#unified-sizing-field-tasks" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep" title="polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BuildSizingFieldStep</span></code></a>(component, ...)</p></td>
+<td><p>Build a unified sizing field on a shared lat-lon target grid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.setup.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.setup" title="polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BuildSizingFieldStep.setup</span></code></a>()</p></td>
+<td><p>Link coastline and river products, configure the mesh family, and declare outputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.run.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.run" title="polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BuildSizingFieldStep.run</span></code></a>()</p></td>
+<td><p>Build the sizing-field dataset and write it to NetCDF.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset.html#polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset" title="polaris.tasks.mesh.spherical.unified.sizing_field.sizing_field_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sizing_field_dataset</span></code></a>(ds_coastline, ds_river, ...)</p></td>
+<td><p>Build the unified sizing-field dataset from coastline and river products.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.html#polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep" title="polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizSizingFieldStep</span></code></a>(component, sizing_step, ...)</p></td>
+<td><p>Visualize sizing-field diagnostics produced by <a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep" title="polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildSizingFieldStep</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.setup.html#polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.setup" title="polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizSizingFieldStep.setup</span></code></a>()</p></td>
+<td><p>Link the sizing-field dataset and declare outputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.run.html#polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.run" title="polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizSizingFieldStep.run</span></code></a>()</p></td>
+<td><p>Create simple global diagnostic plots and a text summary.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask.html#polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask" title="polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SizingFieldTask</span></code></a>(component, mesh_name)</p></td>
+<td><p>A standalone task for building one named unified sizing field.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.add_sizing_field_tasks.html#polaris.tasks.mesh.spherical.unified.sizing_field.add_sizing_field_tasks" title="polaris.tasks.mesh.spherical.unified.sizing_field.add_sizing_field_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_sizing_field_tasks</span></code></a>(component)</p></td>
+<td><p>Add standalone sizing-field tasks for all supported unified meshes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.get_unified_mesh_sizing_field_steps.html#polaris.tasks.mesh.spherical.unified.sizing_field.get_unified_mesh_sizing_field_steps" title="polaris.tasks.mesh.spherical.unified.sizing_field.get_unified_mesh_sizing_field_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unified_mesh_sizing_field_steps</span></code></a>(mesh_name)</p></td>
+<td><p>Get shared sizing-field steps for one named mesh.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.sizing_field.get_sizing_field_config.html#polaris.tasks.mesh.spherical.unified.sizing_field.get_sizing_field_config" title="polaris.tasks.mesh.spherical.unified.sizing_field.get_sizing_field_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sizing_field_config</span></code></a>(mesh_name[, filepath])</p></td>
+<td><p>Load one unified mesh config with sizing-field defaults.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="unified-base-mesh-tasks">
+<h3>Unified Base-Mesh Tasks<a class="headerlink" href="#unified-base-mesh-tasks" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.base_mesh.BaseMeshTask.html#polaris.tasks.mesh.spherical.unified.base_mesh.BaseMeshTask" title="polaris.tasks.mesh.spherical.unified.base_mesh.BaseMeshTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseMeshTask</span></code></a>(component, mesh_name)</p></td>
+<td><p>A standalone task for creating one named unified base mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.base_mesh.VizBaseMeshStep.html#polaris.tasks.mesh.spherical.unified.base_mesh.VizBaseMeshStep" title="polaris.tasks.mesh.spherical.unified.base_mesh.VizBaseMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizBaseMeshStep</span></code></a>(component, base_mesh_step, ...)</p></td>
+<td><p>Visualize the final unified base mesh together with key inputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.base_mesh.VizBaseMeshStep.setup.html#polaris.tasks.mesh.spherical.unified.base_mesh.VizBaseMeshStep.setup" title="polaris.tasks.mesh.spherical.unified.base_mesh.VizBaseMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizBaseMeshStep.setup</span></code></a>()</p></td>
+<td><p>Link the final mesh, sizing field and retained river geometry.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.base_mesh.VizBaseMeshStep.run.html#polaris.tasks.mesh.spherical.unified.base_mesh.VizBaseMeshStep.run" title="polaris.tasks.mesh.spherical.unified.base_mesh.VizBaseMeshStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VizBaseMeshStep.run</span></code></a>()</p></td>
+<td><p>Create durable mesh, sizing-field and river-alignment diagnostics.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.base_mesh.add_unified_base_mesh_tasks.html#polaris.tasks.mesh.spherical.unified.base_mesh.add_unified_base_mesh_tasks" title="polaris.tasks.mesh.spherical.unified.base_mesh.add_unified_base_mesh_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_unified_base_mesh_tasks</span></code></a>(component)</p></td>
+<td><p>Add standalone base-mesh tasks for the supported unified meshes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.unified.base_mesh.get_unified_base_mesh_steps.html#polaris.tasks.mesh.spherical.unified.base_mesh.get_unified_base_mesh_steps" title="polaris.tasks.mesh.spherical.unified.base_mesh.get_unified_base_mesh_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unified_base_mesh_steps</span></code></a>(mesh_name[, ...])</p></td>
+<td><p>Get shared steps for building one named unified base mesh.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../e3sm/init/generated/polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge.html" class="btn btn-neutral float-left" title="polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="generated/polaris.tasks.mesh.add_tasks.add_mesh_tasks.html" class="btn btn-neutral float-right" title="polaris.tasks.mesh.add_tasks.add_mesh_tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="1.0.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.combine.VizCombinedStep.setup
+==========================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.combine
+
+.. automethod:: VizCombinedStep.setup

@@ -1,0 +1,6 @@
+﻿polaris.yaml.main\_mpas\_to\_yaml
+=================================
+
+.. currentmodule:: polaris.yaml
+
+.. autofunction:: main_mpas_to_yaml

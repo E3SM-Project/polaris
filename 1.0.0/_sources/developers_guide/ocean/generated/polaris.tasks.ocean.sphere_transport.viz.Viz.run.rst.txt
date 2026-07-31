@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.sphere\_transport.viz.Viz.run
+=================================================
+
+.. currentmodule:: polaris.tasks.ocean.sphere_transport.viz
+
+.. automethod:: Viz.run

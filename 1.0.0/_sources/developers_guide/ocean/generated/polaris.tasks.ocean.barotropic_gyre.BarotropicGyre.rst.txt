@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.barotropic\_gyre.BarotropicGyre
+===================================================
+
+.. currentmodule:: polaris.tasks.ocean.barotropic_gyre
+
+.. autoclass:: BarotropicGyre
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BarotropicGyre.__init__
+      ~BarotropicGyre.add_step
+      ~BarotropicGyre.configure
+      ~BarotropicGyre.remove_step
+      ~BarotropicGyre.set_shared_config
+   
+   
+
+   
+   
+   

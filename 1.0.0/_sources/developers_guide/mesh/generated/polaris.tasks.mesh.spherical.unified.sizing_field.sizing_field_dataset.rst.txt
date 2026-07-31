@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.sizing\_field.sizing\_field\_dataset
+=========================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.sizing_field
+
+.. autofunction:: sizing_field_dataset

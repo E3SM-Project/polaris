@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.single\_column.inertial.analysis.Analysis.run
+=================================================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.inertial.analysis
+
+.. automethod:: Analysis.run

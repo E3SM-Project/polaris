@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.inertial\_gravity\_wave.exact\_solution.ExactSolution.ssh
+=============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.inertial_gravity_wave.exact_solution
+
+.. automethod:: ExactSolution.ssh

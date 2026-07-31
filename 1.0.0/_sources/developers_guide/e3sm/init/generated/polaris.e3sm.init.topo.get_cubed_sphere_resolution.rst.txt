@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.topo.get\_cubed\_sphere\_resolution
+=====================================================
+
+.. currentmodule:: polaris.e3sm.init.topo
+
+.. autofunction:: get_cubed_sphere_resolution
