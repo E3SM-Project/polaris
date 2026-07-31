@@ -9,6 +9,7 @@ import logging
 from configparser import ConfigParser
 
 import numpy as np
+import pytest
 import xarray as xr
 
 from polaris.ocean.vertical.pstar_init import PStarInitStep
@@ -71,6 +72,56 @@ def _make_step(cls, config, logger=None):
     step.config = config
     step.logger = logger or logging.getLogger('test_pstar_init')
     return step
+
+
+def _omega_geom_z_interface(ds):
+    """Rebuild the geometric column the way Omega does, from what Polaris
+    wrote.
+
+    This is a deliberate transcription of ``VertCoord::computeGeomZHeight``
+    (``components/omega/src/ocn/VertCoord.cpp``): anchor at
+    ``-BottomGeomDepth`` (Polaris' ``bottomDepth``), scan upward, and
+    accumulate ``RhoSw * SpecVol * PseudoThickness``.  It must *not* call
+    ``geom_height_from_pseudo_height``: re-anchoring the written column with
+    the helper that built it is an identity and would pass unconditionally.
+
+    ``minLevelCell`` / ``maxLevelCell`` are 1-based in the dataset (Omega
+    converts to its 0-based ``MinLayerCell`` / ``MaxLayerCell`` on read), so
+    they are converted here.  Interfaces outside the valid range are left as
+    NaN, matching what Polaris masks out.
+
+    Returns
+    -------
+    z_inter : numpy.ndarray
+        Interface heights with shape ``(nCells, nVertLevels + 1)``.
+    ssh : numpy.ndarray
+        The topmost valid interface of each column, which is what Omega
+        stores as ``ssh``.
+    """
+    ncells = ds.sizes['nCells']
+    nvertlevels = ds.sizes['nVertLevels']
+    bottom_depth = ds.bottomDepth.values
+    spec_vol = ds.SpecVol.isel(Time=0).values
+    # PseudoThickness is NaN outside the valid range; invalid layers must
+    # contribute nothing, as the helper's mid_mask enforces.
+    h_tilde = np.nan_to_num(ds.PseudoThickness.isel(Time=0).values)
+    min_level_cell = ds.minLevelCell.values - 1
+    max_level_cell = ds.maxLevelCell.values - 1
+
+    z_inter = np.full((ncells, nvertlevels + 1), np.nan)
+    ssh = np.full(ncells, np.nan)
+    for icell in range(ncells):
+        k_min = min_level_cell[icell]
+        k_max = max_level_cell[icell]
+        z_bot = -bottom_depth[icell]
+        accum = 0.0
+        z_inter[icell, k_max + 1] = z_bot
+        for k_lyr in range(k_max, k_min - 1, -1):
+            accum += RhoSw * spec_vol[icell, k_lyr] * h_tilde[icell, k_lyr]
+            z_inter[icell, k_lyr] = z_bot + accum
+        ssh[icell] = z_inter[icell, k_min]
+
+    return z_inter, ssh
 
 
 class _ConstantTracerPStarStep(PStarInitStep):
@@ -376,6 +427,99 @@ def test_two_cell_surface_pressure_gradient():
             rtol=1e-10,
             err_msg=f'cell {i} ZTildeInterface top',
         )
+
+
+@pytest.mark.parametrize(
+    'partial_cell_type, target_depths, ssp_metres, snapped',
+    [
+        # The 4-level, 600 m reference grid puts layer interfaces at 0, 150,
+        # 300, 450 and 600 m.  With min_pc_fraction = 0.1 a target of 455 m is
+        # too shallow to keep as a partial cell and snaps up to 450 m, while
+        # 460 m snaps down to the 465 m minimum partial-cell depth.  Either
+        # way the written bottomDepth differs from the target and the
+        # surface-anchoring shift is nonzero.
+        ('partial', [455.0], 0.0, True),
+        ('partial', [455.0], 1.0, True),
+        ('partial', [455.0, 460.0], 0.0, True),
+        (None, [455.0], 0.0, False),
+    ],
+    ids=[
+        'snapped_zero_surface_pressure',
+        'snapped_nonzero_surface_pressure',
+        'snapped_two_cells',
+        'converged_control',
+    ],
+)
+def test_geom_height_round_trips_from_written_bottom_depth(
+    partial_cell_type, target_depths, ssp_metres, snapped
+):
+    """Omega must recover Polaris' column from the fields Polaris writes.
+
+    Polaris builds the geometric column anchored at the prescribed sea
+    surface and writes back the *shifted* seafloor as ``bottomDepth``; Omega
+    reads that as ``BottomGeomDepth``, anchors its column there and
+    accumulates upward to recover ``ssh``.  This test closes that loop by
+    reimplementing Omega's accumulation (see ``_omega_geom_z_interface``) and
+    checking it reproduces ``GeomZInterface`` and ``ssh``.
+
+    The check only has content where the surface-anchoring shift is nonzero,
+    i.e. where partial-cell snapping keeps the iteration from reaching the
+    requested bathymetry; writing the raw pre-shift target instead of the
+    shifted one is invisible everywhere else.  The unsnapped case is included
+    as a control precisely to mark that boundary.
+    """
+    config = _make_config(
+        rhoref=RhoSw,
+        partial_cell_type=partial_cell_type,
+        bottom_depth=600.0,
+    )
+    step = _make_step(_ConstantTracerPStarStep, config)
+
+    ncells = len(target_depths)
+    ds_mesh = _make_ds_mesh(ncells)
+    geom_z_bot = xr.DataArray(-np.array(target_depths), dims=['nCells'])
+    surface_pressure = xr.DataArray(
+        np.full(ncells, RhoSw * Gravity * ssp_metres), dims=['nCells']
+    )
+
+    ds = step.run_pstar_init(
+        ds_mesh, geom_z_bot, surface_pressure=surface_pressure
+    )
+
+    # Does the configuration have teeth?  Where the written bottomDepth
+    # equals the target bathymetry the shift is zero and the round trip is
+    # insensitive to which of the two was written.
+    bottom_depth = ds.bottomDepth.values
+    depth_move = np.abs(bottom_depth - np.array(target_depths))
+    if snapped:
+        assert depth_move.min() > 1.0, (
+            'this case is meant to snap, but the written bottomDepth '
+            f'{bottom_depth} is within {depth_move.max():.3e} m of the '
+            f'target {target_depths}; with a zero shift the test cannot '
+            'distinguish the shifted bathymetry from the raw one and is '
+            'not testing anything'
+        )
+    else:
+        assert depth_move.max() < 1e-10, (
+            'the control case is meant to converge without snapping'
+        )
+
+    z_inter, ssh = _omega_geom_z_interface(ds)
+
+    # atol is a few epsilon of the ~500 m column: the reconstruction is the
+    # same floating-point operations in the same order as Polaris'.
+    np.testing.assert_allclose(
+        z_inter,
+        ds.GeomZInterface.isel(Time=0).values,
+        atol=1e-10,
+        err_msg='Omega-style reconstruction differs from GeomZInterface',
+    )
+    np.testing.assert_allclose(
+        ssh,
+        ds.ssh.values,
+        atol=1e-10,
+        err_msg='topmost reconstructed interface differs from ssh',
+    )
 
 
 def test_snap_stagnation_message_and_early_exit(caplog):
