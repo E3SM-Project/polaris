@@ -234,6 +234,8 @@
    finite_volume.anchor_difference
    finite_volume.column_scan
    finite_volume.scan_increments
+   finite_volume.layer_mean_difference
+   finite_volume.finite_volume_hpga
 
    reconstruction.linear_slope
    reconstruction.layer_deviation

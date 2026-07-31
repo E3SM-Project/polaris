@@ -53,6 +53,8 @@ __all__ = [
     'anchor_difference',
     'column_scan',
     'scan_increments',
+    'layer_mean_difference',
+    'finite_volume_hpga',
     'layer_containing_pressure',
     'delta_specvol_at_pressure',
 ]
@@ -92,8 +94,6 @@ def centered_shift(ds: xr.Dataset) -> xr.DataArray:
     shift : xarray.DataArray
         ``S_{e,k}`` at layer midpoints, in m, with the ``nCells`` dimension
         contracted away by the edge operator.
-
-
 
     """
     # PressureInterface is not carried in the dataset; pseudo-height is, and
@@ -140,8 +140,6 @@ def hpga_from_shift(shift: xr.DataArray, dx: float) -> xr.DataArray:
     hpga : xarray.DataArray
         The edge-normal pressure-gradient acceleration in m s-2.
 
-
-
     """
     if dx == 0.0:
         raise ValueError('dx must be non-zero for finite differences.')
@@ -178,8 +176,6 @@ def hydrostatic_scale(ds: xr.Dataset) -> float:
         The bound, in m.  Multiply by ``Gravity / dx`` to scale a tolerance on
         an acceleration.
 
-
-
     """
     q = pressure_from_z_tilde(ds.ZTildeInterface)
     z_magnitude = float(np.abs(ds.GeomZInterface).max())
@@ -191,8 +187,6 @@ def _layer_top(field: xr.DataArray) -> xr.DataArray:
     """
     The value at each layer's top interface, as a layer-indexed field.
 
-
-
     """
     return field.isel(nVertLevelsP1=slice(0, -1)).rename(
         {'nVertLevelsP1': 'nVertLevels'}
@@ -202,8 +196,6 @@ def _layer_top(field: xr.DataArray) -> xr.DataArray:
 def _layer_bot(field: xr.DataArray) -> xr.DataArray:
     """
     The value at each layer's bottom interface, as a layer-indexed field.
-
-
 
     """
     return field.isel(nVertLevelsP1=slice(1, None)).rename(
@@ -254,8 +246,6 @@ def centered_shift_accumulated(
     -------
     shift : xarray.DataArray
         ``S_{e,k}`` at layer midpoints, in m.
-
-
 
     """
     if anchor not in ('surface', 'bathymetry'):
@@ -326,8 +316,6 @@ def shift_increments(ds: xr.Dataset) -> xr.Dataset:
         (``Gamma_{k+1} - Gamma^+_k``), and ``delta_z_interface``
         (``Delta_e Z`` at interfaces) to scale them against.  All in m.
 
-
-
     """
     pieces = _shift_pieces(ds)
     return xr.Dataset(
@@ -342,7 +330,6 @@ def shift_increments(ds: xr.Dataset) -> xr.Dataset:
 def _shift_pieces(ds: xr.Dataset) -> dict:
     """The increments and anchors of ``[gamma-increments]``, and the mask of
     layers valid in both columns.
-
 
     """
     q = pressure_from_z_tilde(ds.ZTildeInterface)
@@ -403,7 +390,9 @@ def _at_valid_end(
     return xr.DataArray(data=result, dims=field.dims[:-1])
 
 
-def matched_pressure_pieces(ds: xr.Dataset) -> dict:
+def matched_pressure_pieces(
+    ds: xr.Dataset, guards: set[str] | None = None
+) -> dict:
     """
     Everything the matched-pressure integrand needs, computed once per state.
 
@@ -422,15 +411,36 @@ def matched_pressure_pieces(ds: xr.Dataset) -> dict:
         ``deepest`` valid layer, and the edge-layer interface pressures
         ``edge_interface``.
 
-
     """
     interface = pressure_from_z_tilde(ds.ZTildeInterface).isel(Time=0).values
     deepest = ds.maxLevelCell.values.astype(int) - 1
 
+    guards = guards or set()
+    expansion = eos_expansion.edge_expansion(
+        ds.temperature, ds.salinity, ds.pressure
+    ).isel(Time=0)
+    # The cell-local coefficients are always built, even though only the
+    # ``cell_local_expansion`` guard reads them: making them conditional on the
+    # guard means a guard passed to an evaluation function but not to this one
+    # fails with an AttributeError instead of doing what it says.  One extra
+    # equation-of-state evaluation per state is not worth that trap.
+    coefficients = eos_expansion.specvol_coefficients(
+        ds.temperature, ds.salinity, ds.pressure
+    ).isel(Time=0)
+    cell_local = xr.Dataset(
+        {
+            name: coefficients[name]
+            for name in ['alpha_0', 'alpha_theta', 'alpha_s', 'alpha_p']
+        }
+    )
+    cell_local['theta_ref'] = ds.temperature.isel(Time=0)
+    cell_local['s_ref'] = ds.salinity.isel(Time=0)
+    cell_local['p_ref'] = ds.pressure.isel(Time=0)
+
     return {
-        'expansion': eos_expansion.edge_expansion(
-            ds.temperature, ds.salinity, ds.pressure
-        ).isel(Time=0),
+        'guards': guards,
+        'cell_local': cell_local,
+        'expansion': expansion,
         'theta': ds.temperature.isel(Time=0).values,
         'salinity': ds.salinity.isel(Time=0).values,
         'slope_theta': reconstruction.linear_slope(ds.temperature, ds.pressure)
@@ -487,7 +497,6 @@ def layer_containing_pressure(
     index : numpy.ndarray
         Zero-based layer indices, in ``[0, maxLevelCell - 1]``.
 
-
     """
     deepest = int(pieces['deepest'][icell])
     interface = pieces['interface'][icell, : deepest + 2]
@@ -496,7 +505,10 @@ def layer_containing_pressure(
 
 
 def delta_specvol_at_pressure(
-    pieces: dict, edge_layer: int, pressure: np.ndarray
+    pieces: dict,
+    edge_layer: int,
+    pressure: np.ndarray,
+    guards: set[str] | None = None,
 ) -> np.ndarray:
     """
     The design's ``[dalpha]``: the fixed-pressure contrast in specific volume.
@@ -535,28 +547,47 @@ def delta_specvol_at_pressure(
     delta_specvol : numpy.ndarray
         :math:`\\Delta_e\\hat\\alpha(p)` in m3 kg-1.
 
-
     """
     pressure = np.atleast_1d(np.asarray(pressure, dtype=float))
-    expansion = pieces['expansion'].isel(nVertLevels=edge_layer)
+    if guards is None:
+        guards = pieces.get('guards', set())
 
-    contrast = {}
+    level = {}
+    for icell in range(2):
+        if 'state_by_index' in guards:
+            # guard: assume edge layer k means column layer k
+            level[icell] = np.full(
+                len(pressure),
+                min(edge_layer, int(pieces['deepest'][icell])),
+            )
+        else:
+            level[icell] = layer_containing_pressure(pieces, icell, pressure)
+
+    state = {}
     for name in ['theta', 'salinity']:
         values = np.empty((2, len(pressure)))
         for icell in range(2):
-            level = layer_containing_pressure(pieces, icell, pressure)
-            values[icell] = pieces[name][icell, level] + pieces[
+            index = level[icell]
+            values[icell] = pieces[name][icell, index] + pieces[
                 f'slope_{name}'
-            ][icell, level] * (pressure - pieces['pressure_mid'][icell, level])
-        contrast[name] = values[1] - values[0]
+            ][icell, index] * (pressure - pieces['pressure_mid'][icell, index])
+        state[name] = values
 
-    return (
-        float(expansion.alpha_theta) * contrast['theta']
-        + float(expansion.alpha_s) * contrast['salinity']
-    )
+    total = np.zeros(len(pressure))
+    for icell, sign in [(0, -1.0), (1, 1.0)]:
+        coefficients = _coefficients_for(
+            pieces, edge_layer, icell, level[icell], guards
+        )
+        total = total + sign * (
+            coefficients['alpha_theta'] * state['theta'][icell]
+            + coefficients['alpha_s'] * state['salinity'][icell]
+        )
+    return total
 
 
-def anchor_difference(pieces: dict, order: int = 4) -> float:
+def anchor_difference(
+    pieces: dict, order: int = 4, guards: set[str] | None = None
+) -> float:
     """
     The design's ``[anchor]``: the fixed-pressure height difference at the
     edge's topmost interface.
@@ -593,7 +624,15 @@ def anchor_difference(pieces: dict, order: int = 4) -> float:
     anchor : float
         :math:`D_1` in m.
 
+
     """
+    guards = guards if guards is not None else pieces.get('guards', set())
+    delta_z = pieces['surface_height'][1] - pieces['surface_height'][0]
+    if 'anchor_delta_z_only' in guards:
+        # guard: the sea-surface height difference without correcting to a
+        # common pressure
+        return float(delta_z)
+
     nodes, weights = np.polynomial.legendre.leggauss(order)
     common = pieces['edge_interface'][0]
 
@@ -620,11 +659,12 @@ def anchor_difference(pieces: dict, order: int = 4) -> float:
         )
         correction[icell] = half * float(np.sum(weights * specvol))
 
-    delta_z = pieces['surface_height'][1] - pieces['surface_height'][0]
     return float(delta_z - (correction[1] - correction[0]) / Gravity)
 
 
-def column_scan(pieces: dict, order: int = 4) -> np.ndarray:
+def column_scan(
+    pieces: dict, order: int = 4, guards: set[str] | None = None
+) -> np.ndarray:
     """
     The design's ``[d-recurrence]``: :math:`D_k = \\Delta_e z(\\bar q_k)`
     accumulated down the edge's column from the sea surface.
@@ -655,18 +695,19 @@ def column_scan(pieces: dict, order: int = 4) -> np.ndarray:
         :math:`D_k` at every edge interface valid in both columns, in m, with
         ``difference[0]`` the anchor.
 
+
     """
     nodes, weights = np.polynomial.legendre.leggauss(order)
     edges = pieces['edge_interface']
     deepest = int(min(pieces['deepest']))
 
     difference = np.empty(deepest + 2)
-    difference[0] = anchor_difference(pieces, order=order)
+    difference[0] = anchor_difference(pieces, order=order, guards=guards)
     for edge_layer in range(deepest + 1):
         top, bot = edges[edge_layer], edges[edge_layer + 1]
         middle, half = 0.5 * (top + bot), 0.5 * (bot - top)
         contrast = delta_specvol_at_pressure(
-            pieces, edge_layer, middle + half * nodes
+            pieces, edge_layer, middle + half * nodes, guards=guards
         )
         integral = half * float(np.sum(weights * contrast))
         difference[edge_layer + 1] = (
@@ -676,7 +717,9 @@ def column_scan(pieces: dict, order: int = 4) -> np.ndarray:
     return difference
 
 
-def scan_increments(pieces: dict, order: int = 4) -> np.ndarray:
+def scan_increments(
+    pieces: dict, order: int = 4, guards: set[str] | None = None
+) -> np.ndarray:
     """
     The per-layer increments of :py:func:`column_scan`, for the smallness
     assertion of §3.7.5.
@@ -694,5 +737,164 @@ def scan_increments(pieces: dict, order: int = 4) -> np.ndarray:
     increments : numpy.ndarray
         ``D_{k+1} - D_k`` for each edge layer, in m.
 
+
     """
-    return np.diff(column_scan(pieces, order=order))
+    return np.diff(column_scan(pieces, order=order, guards=guards))
+
+
+def layer_mean_difference(
+    pieces: dict, order: int = 4, guards: set[str] | None = None
+) -> np.ndarray:
+    """
+    The layer mean of :math:`\\Delta_e z(p)` over each edge layer.
+
+    Within an edge layer ``[qbar_k, qbar_{k+1}]``,
+    :math:`\\Delta_e z(p) = D_k - \\frac{1}{g}\\int_{\\bar q_k}^{p}
+    \\Delta_e\\hat\\alpha`, so averaging over the layer and integrating the
+    double integral by parts gives
+
+    .. math::
+
+        \\langle\\Delta_e z\\rangle_k = D_k - \\frac{1}{g\\,\\Delta p_{e,k}}
+        \\int_{\\bar q_k}^{\\bar q_{k+1}}
+        (\\bar q_{k+1} - p)\\,\\Delta_e\\hat\\alpha(p)\\,dp
+
+    which is the "second moment of the same integrand over the same interval"
+    of design §3.5.1, on the same quadrature points as the scan.
+
+    Parameters
+    ----------
+    pieces : dict
+        From :py:func:`matched_pressure_pieces`.
+
+    order : int
+        Gauss-Legendre order.
+
+    guards : set of str, optional
+        Verification-only switches; see :py:func:`finite_volume_hpga`.
+
+    Returns
+    -------
+    mean : numpy.ndarray
+        :math:`\\langle\\Delta_e z\\rangle_k` in m, one per edge layer.
+
+    """
+    nodes, weights = np.polynomial.legendre.leggauss(order)
+    edges = pieces['edge_interface']
+    difference = column_scan(pieces, order=order, guards=guards)
+    deepest = int(min(pieces['deepest']))
+
+    mean = np.empty(deepest + 1)
+    for edge_layer in range(deepest + 1):
+        top, bot = edges[edge_layer], edges[edge_layer + 1]
+        middle, half = 0.5 * (top + bot), 0.5 * (bot - top)
+        probe = middle + half * nodes
+        contrast = delta_specvol_at_pressure(
+            pieces, edge_layer, probe, guards=guards
+        )
+        moment = half * float(np.sum(weights * (bot - probe) * contrast))
+        mean[edge_layer] = difference[edge_layer] - moment / (
+            Gravity * (bot - top)
+        )
+
+    return mean
+
+
+def finite_volume_hpga(
+    ds: xr.Dataset,
+    dx: float,
+    order: int = 4,
+    guards: set[str] | None = None,
+) -> xr.DataArray:
+    """
+    The assembled ``FiniteVolume`` horizontal pressure-gradient acceleration,
+    design ``[ho-exact]``.
+
+    .. math::
+
+        T^p_{e,k} = -\\frac{g}{d_e}\\,\\langle\\Delta_e z\\rangle_k
+
+    The tidal-potential and self-attraction-and-loading terms are identically
+    zero in these configurations and are omitted.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The two-column state.
+
+    dx : float
+        The distance ``d_e`` between the two columns in m.
+
+    order : int
+        Gauss-Legendre order.  Exactness does not depend on it (design §3.5,
+        consequence 2), so this is an ordinary accuracy knob.
+
+    guards : set of str, optional
+        Verification-only switches, each deliberately breaking one rule:
+
+        ``'cell_local_expansion'``
+            expand about each cell's own state instead of the edge-shared one.
+        ``'state_by_index'``
+            evaluate each column at its own layer ``k`` instead of the layer
+            containing the pressure.
+        ``'anchor_delta_z_only'``
+            take the anchor as ``Delta_e Z_1`` alone, dropping the correction
+            to a common pressure.
+
+    Returns
+    -------
+    hpga : xarray.DataArray
+        The edge-normal acceleration in m s-2, at layer midpoints, ``NaN``
+        where a layer is not valid in both columns.
+
+    """
+    if dx == 0.0:
+        raise ValueError('dx must be non-zero for finite differences.')
+
+    pieces = matched_pressure_pieces(ds, guards=guards)
+    mean = layer_mean_difference(pieces, order=order, guards=guards)
+
+    values = np.full(ds.sizes['nVertLevels'], np.nan)
+    values[: len(mean)] = -(Gravity / dx) * mean
+
+    hpga = xr.DataArray(
+        data=values[np.newaxis, :],
+        dims=['Time', 'nVertLevels'],
+        attrs={
+            'long_name': 'along-layer pressure gradient acceleration at layer '
+            'midpoints, finite-volume scheme',
+            'units': 'm s-2',
+        },
+    )
+    return hpga
+
+
+def _coefficients_for(
+    pieces: dict,
+    edge_layer: int,
+    icell: int,
+    level: np.ndarray,
+    guards: set[str],
+) -> dict:
+    """
+    The equation-of-state coefficients a column uses at a set of pressures.
+
+    Correctly, both columns use the edge-shared set of the *edge* layer.  The
+    ``cell_local_expansion`` guard breaks the *sharing*, and that does break
+    exactness: design §3.5 consequence 1 says the shared coefficients may take
+    any value, not that the two columns may use different ones.  ``[dalpha]``
+    only collapses to a coefficient times a contrast when one coefficient set
+    multiplies both columns.
+
+    """
+    if 'cell_local_expansion' in guards:
+        source = pieces['cell_local'].isel(nCells=icell)
+        return {
+            'alpha_theta': source.alpha_theta.values[level],
+            'alpha_s': source.alpha_s.values[level],
+        }
+    source = pieces['expansion'].isel(nVertLevels=edge_layer)
+    return {
+        'alpha_theta': float(source.alpha_theta),
+        'alpha_s': float(source.alpha_s),
+    }
