@@ -221,8 +221,8 @@ The time step for forward integration is automatically computed based on the gri
 ```cfg
 [seamount_default]
 
-# Run duration (days)
-run_duration = 6.
+# Run duration (hours)
+run_duration = 144.
 
 # Output interval (hours)
 output_interval = 1.
@@ -347,4 +347,49 @@ for MPAS-Ocean.
 
 The number of cores is determined by `goal_cells_per_core` and
 `max_cells_per_core` in the `ocean` section of the config file.
+
+(ocean-seamount-short)=
+
+## short task
+
+### description
+
+The `short` task is the `default` task run for 1 hour instead of 6 days.  It
+exists for regression testing: an hour is far too short for the spurious
+circulation to develop, so it says nothing about the pressure gradient error,
+but it is long enough to catch a change in the answer cheaply.  It is
+otherwise identical to the `default` task — same mesh, vertical grid, initial
+condition, time step and physics — and it exists in all four trees.
+
+The `viz` step is present but does not run by default here, since re-running
+the task to get the plots costs almost nothing.
+
+Two of the four are in the `mpaso_pr` and `omega_pr` suites:
+`planar/seamount/linear/zstar/short` and
+`planar/seamount/nonlinear/sigma/short`.  That pair covers both equations of
+state and both vertical coordinates in two runs rather than four.
+
+### time step and run duration
+
+The time step is computed from the gridcell size exactly as in the `default`
+task.  Only the duration and output interval differ:
+
+```cfg
+[seamount_short]
+
+# Run duration (hours)
+run_duration = 1.
+
+# Output interval (hours)
+output_interval = 0.5
+```
+
+The output interval is half the run duration so that the time series the
+`viz` step plots has more than a single point in it.
+
+### config options
+
+The short task adds no config options beyond the `[seamount_short]` section
+above; everything else comes from the shared options listed under
+{ref}`ocean-seamount-default`.
 

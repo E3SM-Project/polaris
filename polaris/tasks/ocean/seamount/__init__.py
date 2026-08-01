@@ -3,6 +3,7 @@ import os
 from polaris.config import PolarisConfigParser as PolarisConfigParser
 from polaris.tasks.ocean.seamount.default import Default as Default
 from polaris.tasks.ocean.seamount.init import Init as Init
+from polaris.tasks.ocean.seamount.short import Short as Short
 
 
 def add_seamount_tasks(component):
@@ -57,3 +58,7 @@ def _add_seamount_variant_tasks(component, eos_type, coord_type):
     default = Default(component=component, indir=taskdir, init=init_step)
     default.set_shared_config(config, link=config_filename)
     component.add_task(default)
+
+    short = Short(component=component, indir=taskdir, init=init_step)
+    short.set_shared_config(config, link=config_filename)
+    component.add_task(short)
