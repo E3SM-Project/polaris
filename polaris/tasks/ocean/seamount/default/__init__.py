@@ -5,8 +5,8 @@ from polaris.tasks.ocean.seamount.viz import Viz as Viz
 
 class Default(Task):
     """
-    The default seamount test case simply creates the mesh and
-    initial condition, then performs a short forward run on 4 cores.
+    The default seamount test case creates the mesh and initial condition,
+    then performs a 6 day forward run and plots the results.
     """
 
     def __init__(self, component, indir, init):
@@ -37,6 +37,6 @@ class Default(Task):
             indir=self.subdir,
         )
         self.add_step(forward_step)
-        self.add_step(
-            Viz(component=component, indir=self.subdir), run_by_default=False
-        )
+        # the forward run is 6 days long, so it is worth always producing the
+        # plots rather than making the user re-run the task to get them
+        self.add_step(Viz(component=component, indir=self.subdir))
