@@ -22,7 +22,11 @@ ocean:
   # diffusivity and viscosity), and it would only ever be triggered here by
   # a spurious pressure gradient — the thing being measured.  Omega defaults
   # background and shear mixing on, so they are switched off explicitly
-  # rather than left to the model default.
+  # rather than left to the model default.  Only the coefficients are
+  # zeroed: the implicit vertical mixing solve itself has to stay on in
+  # both models because that is what applies the implicit bottom drag
+  # above (Omega aborts outright if VelVertMixTendencyEnable is false while
+  # the bottom drag is implicit).
   cvmix:
     config_use_cvmix_convection: false
     config_use_cvmix_shear: false
@@ -36,12 +40,10 @@ ocean:
 mpas-ocean:
   io:
     config_write_output_on_startup: false
-  # cvmix stays enabled with all of its coefficients zeroed above, rather
-  # than disabled, because turning it off falls back on MPAS-Ocean's
-  # constant vertical viscosity and diffusivity, which are not zero
   cvmix:
-    config_use_cvmix: true
-    config_cvmix_background_scheme: none
+    config_use_cvmix: false
+  # unused with RK4; only takes effect if time_integrator is set back to a
+  # split-explicit scheme
   split_explicit_ts:
     config_btr_dt: {{ btr_dt }}
   streams:
