@@ -98,9 +98,18 @@ In a pure z-level vertical coordinate without partial bottom cells (`partial_cel
 ### mesh
 
 The domain is planar and periodic on the zonal and the
-meridional boundaries. The 6.7 km resolution is tested by default, 
+meridional boundaries. The 6.4 km resolution is tested by default,
 which is set by the ``resolution`` config option. The domain is
-320 km by 320 km, as given by the config options ``lx`` and ``ly``.
+320 km by 320 km, as given by the config options ``lx`` and ``ly``,
+which at 6.4 km is exactly 50 cells across; the hexagonal mesh is 58 cells
+in the other direction, for 321.5 km.
+
+Neither the domain size nor the resolution is prescribed by Beckmann and
+Haidvogel — only the seamount shape and the stratification are. The
+quantity that determines how hard this case is on a tilted coordinate is
+the discrete steepness of the seamount, `max |dh| / (h1 + h2)` between
+adjacent cells, which for a Gaussian seamount is about
+`1.5 * resolution / seamount_width`, or 0.21 here.
 
 ### vertical grid
 
@@ -258,8 +267,8 @@ ly = 320
 # The length of the domain in the along-slope dimension (km)
 lx = 320
 
-# Distance from two cell centers (km)
-resolution = 6.7
+# Distance between two cell centers (km)
+resolution = 6.4
 
 # Bottom depth at bottom of seamount
 max_bottom_depth = ${vertical_grid:bottom_depth}
