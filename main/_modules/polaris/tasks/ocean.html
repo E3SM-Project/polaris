@@ -125,6 +125,8 @@
     <span class="n">cartesian_to_local_geographic</span><span class="p">,</span>
     <span class="n">tangential_reconstruction</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_tracers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.init_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">pressure_for_tracer_conversion</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.surface_pressure</span><span class="w"> </span><span class="kn">import</span> <span class="n">surface_pressure_from_config</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">geom_thickness_from_ds</span><span class="p">,</span>
@@ -534,9 +536,19 @@
             <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">drop</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ds</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">write_initial_state_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_initial_state_dataset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ds</span><span class="p">,</span>
+        <span class="n">filename</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">tracer_convention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Write an initial-state dataset, omitting horizontal mesh fields and</span>
+<span class="sd">        Write an initial-state dataset, converting the tracers to the</span>
+<span class="sd">        convention the model expects and omitting horizontal mesh fields and</span>
 <span class="sd">        (for Omega) vertical coordinate fields.</span>
 
 <span class="sd">        For MPAS-Ocean the vertical coordinate variables remain in the initial</span>
@@ -546,7 +558,8 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ds : xarray.Dataset</span>
-<span class="sd">            A dataset containing MPAS-Ocean variable names</span>
+<span class="sd">            A dataset containing MPAS-Ocean variable names.  Its tracers are</span>
+<span class="sd">            converted on a copy, so they are left untouched.</span>
 
 <span class="sd">        filename : str</span>
 <span class="sd">            The path for the NetCDF file to write</span>
@@ -554,9 +567,41 @@
 <span class="sd">        config : polaris.config.PolarisConfigParser</span>
 <span class="sd">            Configuration for the task; forwarded to</span>
 <span class="sd">            :py:meth:`write_model_dataset`.</span>
+
+<span class="sd">        tracer_convention : {&#39;teos-10&#39;, &#39;mpas-ocean&#39;}, optional</span>
+<span class="sd">            The convention of ``temperature`` and ``salinity`` in ``ds``.  The</span>
+<span class="sd">            default is to assume the convention implied by the ``eos_type``</span>
+<span class="sd">            config option: ``&#39;teos-10&#39;`` for the TEOS-10 equation of state and</span>
+<span class="sd">            no conversion otherwise.</span>
+
+<span class="sd">        lon : float or xarray.DataArray, optional</span>
+<span class="sd">            The longitude(s) in degrees at which to convert tracers, if not</span>
+<span class="sd">            the location implied by the mesh (see</span>
+<span class="sd">            :ref:`dev-ocean-framework-init-state`)</span>
+
+<span class="sd">        lat : float or xarray.DataArray, optional</span>
+<span class="sd">            The latitude(s) in degrees at which to convert tracers, as for</span>
+<span class="sd">            ``lon``</span>
+
+<span class="sd">        logger : logging.Logger, optional</span>
+<span class="sd">            A logger for logging EOS iteration information if a pressure needs</span>
+<span class="sd">            to be computed for the tracer conversion</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_tracers_for_model</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="n">tracer_convention</span><span class="o">=</span><span class="n">tracer_convention</span><span class="p">,</span>
+            <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;pressure&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="c1"># pressure is a diagnostic that neither model reads, and it is</span>
+            <span class="c1"># only present for some vertical coordinates, so drop it to keep</span>
+            <span class="c1"># initial conditions consistent with one another</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s1">&#39;pressure&#39;</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_horiz_mesh_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_vert_coord_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
@@ -652,6 +697,10 @@
         <span class="n">reconstruct_variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">coeffs_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">reconstruct_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;RBF&#39;</span><span class="p">,</span> <span class="s1">&#39;LSTSQ&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;LSTSQ&#39;</span><span class="p">,</span>
+        <span class="n">tracer_convention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -669,7 +718,8 @@
 
 <span class="sd">        mesh_filename : str, optional</span>
 <span class="sd">            Path to the mesh NetCDF file. Should contain the reconstruction</span>
-<span class="sd">            weights if using the LSTSQ reconstruction method.</span>
+<span class="sd">            weights if using the LSTSQ reconstruction method.  It is also</span>
+<span class="sd">            where the locations needed for a tracer conversion come from.</span>
 
 <span class="sd">        reconstruct_variables : list of str, optional</span>
 <span class="sd">            List of variable names to reconstruct in the dataset.</span>
@@ -681,6 +731,28 @@
 <span class="sd">            Method to use for reconstructing vector variables.</span>
 <span class="sd">            RBF: Radial Basis Function; approach used in MPAS-Ocean.</span>
 <span class="sd">            LSTSQ: Least-squares reconstruction; new approach in Omega</span>
+
+<span class="sd">        tracer_convention : {&#39;teos-10&#39;, &#39;mpas-ocean&#39;}, optional</span>
+<span class="sd">            The convention of ``temperature`` and ``salinity`` in the dataset</span>
+<span class="sd">            that is returned.  The default is to leave the tracers in the</span>
+<span class="sd">            convention the ocean model wrote them in: ``&#39;teos-10&#39;``</span>
+<span class="sd">            (conservative temperature and absolute salinity) for Omega and</span>
+<span class="sd">            ``&#39;mpas-ocean&#39;`` (potential temperature and practical salinity)</span>
+<span class="sd">            for MPAS-Ocean.  The two conventions are indistinguishable unless</span>
+<span class="sd">            the ``eos_type`` config option is ``teos-10``, so this is a no-op</span>
+<span class="sd">            for any other equation of state.</span>
+
+<span class="sd">        lon : float or xarray.DataArray, optional</span>
+<span class="sd">            The longitude(s) in degrees at which to convert tracers, if not</span>
+<span class="sd">            the location implied by the mesh</span>
+
+<span class="sd">        lat : float or xarray.DataArray, optional</span>
+<span class="sd">            The latitude(s) in degrees at which to convert tracers, as for</span>
+<span class="sd">            ``lon``</span>
+
+<span class="sd">        logger : logging.Logger, optional</span>
+<span class="sd">            A logger for logging EOS iteration information if a pressure needs</span>
+<span class="sd">            to be computed for the tracer conversion</span>
 
 <span class="sd">        kwargs</span>
 <span class="sd">            keyword arguments passed to `xarray.open_dataset()`</span>
@@ -721,7 +793,9 @@
             <span class="ow">and</span> <span class="s1">&#39;PseudoThickness&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
             <span class="ow">and</span> <span class="s1">&#39;SpecVol&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
             <span class="ow">and</span> <span class="s1">&#39;VerticalPseudoVelocity&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="n">mesh_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="c1"># the vertical coordinate file, not the mesh, is what this</span>
+            <span class="c1"># derivation reads</span>
+            <span class="ow">and</span> <span class="n">vert_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="p">):</span>
             <span class="n">ds_vert</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">vert_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
             <span class="n">geom_z_inter</span><span class="p">,</span> <span class="n">geom_z_mid</span> <span class="o">=</span> <span class="n">geom_height_from_pseudo_height</span><span class="p">(</span>
@@ -758,6 +832,18 @@
                 <span class="n">ds</span><span class="o">.</span><span class="n">VerticalPseudoVelocity</span> <span class="o">*</span> <span class="n">spec_vol_inter</span> <span class="o">*</span> <span class="n">RhoSw</span>
             <span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+        <span class="c1"># the conversion is the last thing that happens to the tracers: the</span>
+        <span class="c1"># derivations above feed the model&#39;s own tracers into TEOS-10 and</span>
+        <span class="c1"># would be wrong if they were converted first</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_tracers_from_model</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="n">tracer_convention</span><span class="o">=</span><span class="n">tracer_convention</span><span class="p">,</span>
+            <span class="n">mesh_filename</span><span class="o">=</span><span class="n">mesh_filename</span><span class="p">,</span>
+            <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">reconstruct_variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">mesh_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -788,6 +874,112 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">ds</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_convert_tracers_for_model</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">tracer_convention</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">logger</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert ``temperature`` and ``salinity`` from the convention they are</span>
+<span class="sd">        given in to the one the ocean model expects: conservative temperature</span>
+<span class="sd">        and absolute salinity for Omega, potential temperature and practical</span>
+<span class="sd">        salinity for MPAS-Ocean.</span>
+
+<span class="sd">        The conventions only differ for the TEOS-10 equation of state, so this</span>
+<span class="sd">        is a no-op for any other ``eos_type``, as it is when the tracers are</span>
+<span class="sd">        already in the model&#39;s convention.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_type&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">ds</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_type&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;teos-10&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ds</span>
+
+        <span class="k">if</span> <span class="n">tracer_convention</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># tasks build their initial condition in the convention implied by</span>
+            <span class="c1"># the equation of state unless they say otherwise</span>
+            <span class="n">tracer_convention</span> <span class="o">=</span> <span class="s1">&#39;teos-10&#39;</span>
+
+        <span class="n">target</span> <span class="o">=</span> <span class="s1">&#39;teos-10&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="k">else</span> <span class="s1">&#39;mpas-ocean&#39;</span>
+        <span class="k">if</span> <span class="n">tracer_convention</span> <span class="o">==</span> <span class="n">target</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ds</span>
+
+        <span class="n">pressure</span> <span class="o">=</span> <span class="n">pressure_for_tracer_conversion</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">_lon_lat_for_tracer_conversion</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">convert_tracers</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="n">tracer_convention</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
+            <span class="n">pressure</span><span class="o">=</span><span class="n">pressure</span><span class="p">,</span>
+            <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_convert_tracers_from_model</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">tracer_convention</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">logger</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert ``temperature`` and ``salinity`` from the convention the ocean</span>
+<span class="sd">        model uses to the ``tracer_convention`` the caller has asked for, so</span>
+<span class="sd">        that analysis and visualization can work in one convention no matter</span>
+<span class="sd">        which model ran.</span>
+
+<span class="sd">        Unlike on write, there is nothing to infer: a caller that does not ask</span>
+<span class="sd">        for a convention gets the tracers as the model wrote them.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">tracer_convention</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ds</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_type&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">ds</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_type&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;teos-10&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ds</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+
+        <span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;teos-10&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="k">else</span> <span class="s1">&#39;mpas-ocean&#39;</span>
+        <span class="k">if</span> <span class="n">tracer_convention</span> <span class="o">==</span> <span class="n">source</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ds</span>
+
+        <span class="n">pressure</span> <span class="o">=</span> <span class="n">pressure_for_tracer_conversion</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lon_lat_from_mesh</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="o">=</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">lat</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">convert_tracers</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="n">tracer_convention</span><span class="p">,</span>
+            <span class="n">pressure</span><span class="o">=</span><span class="n">pressure</span><span class="p">,</span>
+            <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_lon_lat_from_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine the longitude and latitude (in degrees) at which to convert</span>
+<span class="sd">        the tracers in a dataset being read.</span>
+
+<span class="sd">        Unlike an initial condition being written, a dataset being read has</span>
+<span class="sd">        typically had its horizontal mesh variables removed (or never had</span>
+<span class="sd">        them), so the locations come from the mesh file rather than from the</span>
+<span class="sd">        dataset itself.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lon</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">lat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;lon and lat must either both be given or both be omitted&#39;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">lon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span>
+
+        <span class="k">if</span> <span class="n">mesh_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Converting tracers to another convention requires the &#39;</span>
+                <span class="s1">&#39;location of each cell.  Pass mesh_filename to &#39;</span>
+                <span class="s1">&#39;open_model_dataset(), or an explicit lon and lat.&#39;</span>
+            <span class="p">)</span>
+
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_lon_lat_for_tracer_conversion</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_vars_present</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -929,6 +1121,80 @@
                 <span class="k">break</span>
         <span class="k">return</span> <span class="n">all_found</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_lon_lat_for_tracer_conversion</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine the longitude and latitude (in degrees) at which to convert</span>
+<span class="sd">    tracers between the TEOS-10 and MPAS-Ocean conventions.</span>
+
+<span class="sd">    Explicit ``lon`` and ``lat`` arguments win.  Otherwise, per-cell</span>
+<span class="sd">    ``lonCell`` and ``latCell`` (converted from radians) are used on a</span>
+<span class="sd">    spherical mesh and the nominal location from config options is used on a</span>
+<span class="sd">    planar mesh.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        A dataset with the mesh information: the ``on_a_sphere`` attribute</span>
+<span class="sd">        and, if the mesh is on a sphere, ``lonCell`` and ``latCell``</span>
+
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Configuration options, including ``nominal_lon`` and ``nominal_lat``</span>
+<span class="sd">        in the ``ocean`` section</span>
+
+<span class="sd">    lon : float or xarray.DataArray, optional</span>
+<span class="sd">        An explicit longitude (or longitudes) in degrees</span>
+
+<span class="sd">    lat : float or xarray.DataArray, optional</span>
+<span class="sd">        An explicit latitude (or latitudes) in degrees</span>
+
+<span class="sd">    strict : bool, optional</span>
+<span class="sd">        Whether a missing ``on_a_sphere`` attribute is an error rather than</span>
+<span class="sd">        an indication that the mesh is planar.  A mesh file without the</span>
+<span class="sd">        attribute is invalid, but an initial condition being assembled by a</span>
+<span class="sd">        step may not have picked it up.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    lon : float or xarray.DataArray</span>
+<span class="sd">        The longitude(s) in degrees</span>
+
+<span class="sd">    lat : float or xarray.DataArray</span>
+<span class="sd">        The latitude(s) in degrees</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">lon</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">lat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;lon and lat must either both be given or both be omitted&#39;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">lon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span>
+
+    <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;on_a_sphere&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">on_a_sphere</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">strict</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;A tracer conversion needs to know whether the mesh is on a &#39;</span>
+                <span class="s1">&#39;sphere but the mesh dataset has no on_a_sphere attribute&#39;</span>
+            <span class="p">)</span>
+        <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="s1">&#39;NO&#39;</span>
+
+    <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">on_a_sphere</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">on_a_sphere</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span><span class="p">:</span>
+        <span class="c1"># planar meshes carry meaningless lonCell/latCell, so they may only</span>
+        <span class="c1"># be used when the mesh really is on a sphere</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;lonCell&#39;</span><span class="p">,</span> <span class="s1">&#39;latCell&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;A tracer conversion on a spherical mesh requires per-cell &#39;</span>
+                <span class="s1">&#39;locations but the dataset is missing: &#39;</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">lonCell</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">latCell</span><span class="p">)</span>
+
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;nominal_lon&#39;</span><span class="p">),</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;nominal_lat&#39;</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_reconstructed_variables_to_dataset</span><span class="p">(</span>

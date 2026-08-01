@@ -230,11 +230,12 @@ p-star coordinate to convergence with zero surface pressure, and
 implements <code class="docutils literal notranslate"><span class="pre">init_tracers()</span></code> as the overflow profile (interpreted as
 conservative temperature and absolute salinity) evaluated at the current
 p-star layer midpoints.  After convergence, the shared
-<code class="docutils literal notranslate"><span class="pre">polaris.ocean.init_state</span></code> helpers add layer thickness,
-quiescent velocity and density, and (for MPAS-Ocean)
-<a class="reference internal" href="../generated/polaris.ocean.eos.convert_tracers_to_mpas_ocean.html#polaris.ocean.eos.convert_tracers_to_mpas_ocean" title="polaris.ocean.eos.convert_tracers_to_mpas_ocean"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.convert_tracers_to_mpas_ocean()</span></code></a> converts the
-tracers to potential temperature and practical salinity at a nominal
-lon/lat.
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean.init_state</span></code> helpers add layer thickness, quiescent
+velocity and density.  In the <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> tree, the framework converts
+the tracers to potential temperature and practical salinity at the
+nominal lon/lat when the model is MPAS-Ocean (see
+<a class="reference internal" href="../framework.html#dev-ocean-framework-init-state"><span class="std std-ref">Initial state</span></a>); the step itself does nothing
+model-specific.
 The step writes <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">init.nc</span></code> with the same filenames as
 <code class="docutils literal notranslate"><span class="pre">Init</span></code>, so the <code class="docutils literal notranslate"><span class="pre">forward</span></code>, <code class="docutils literal notranslate"><span class="pre">viz</span></code> and <code class="docutils literal notranslate"><span class="pre">analysis</span></code> steps need no retargeting.</p>
 </section>
@@ -260,7 +261,10 @@ calling <a class="reference internal" href="../../command_line.html#dev-polaris-
 <section id="viz">
 <h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.overflow.viz.Viz.html#polaris.tasks.ocean.overflow.viz.Viz" title="polaris.tasks.ocean.overflow.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.overflow.viz.Viz</span></code></a> plots the initial and
-final temperature along a transect perpendicular to the continental slope.</p>
+final temperature along a transect perpendicular to the continental slope.
+In the nonlinear variants, it asks for conservative temperature so that
+MPAS-Ocean and Omega plots mean the same thing (see
+<a class="reference internal" href="../framework.html#dev-ocean-framework-tracer-conventions-on-read"><span class="std std-ref">Tracer conventions on read</span></a>).</p>
 </section>
 </section>
 <section id="smoke-test">

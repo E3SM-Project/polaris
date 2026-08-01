@@ -110,9 +110,39 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.eos.teos10</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="c1">#: The tracer conventions that :py:func:`convert_tracers()` understands</span>
+<span class="n">TRACER_CONVENTIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;teos-10&#39;</span><span class="p">,</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">)</span>
+
+<span class="c1">#: The ``long_name`` and ``units`` attributes of the tracers in each</span>
+<span class="c1">#: convention</span>
+<span class="n">TRACER_ATTRS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;teos-10&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;conservative temperature&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;degC&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;salinity&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;absolute salinity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;g kg-1&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;potential temperature&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;degC&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;salinity&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;practical salinity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;PSU&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
 
 
 <div class="viewcode-block" id="compute_specvol">
@@ -177,77 +207,250 @@
 
 
 
-<div class="viewcode-block" id="convert_tracers_to_mpas_ocean">
-<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.eos.convert_tracers_to_mpas_ocean.html#polaris.ocean.eos.convert_tracers_to_mpas_ocean">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">convert_tracers_to_mpas_ocean</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
+<div class="viewcode-block" id="convert_tracers">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.eos.convert_tracers.html#polaris.ocean.eos.convert_tracers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_tracers</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lon</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">tracer_pairs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">((</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">),),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert conservative temperature and absolute salinity in ``ds`` to the</span>
-<span class="sd">    MPAS-Ocean tracer conventions (potential temperature and practical</span>
-<span class="sd">    salinity) using GSW.</span>
+<span class="sd">    Convert temperature and salinity pairs in ``ds`` between the TEOS-10</span>
+<span class="sd">    convention (conservative temperature and absolute salinity) and the</span>
+<span class="sd">    MPAS-Ocean convention (potential temperature and practical salinity)</span>
+<span class="sd">    using GSW.</span>
+
+<span class="sd">    The conversion is performed on a copy; ``ds`` is not modified.  Cells</span>
+<span class="sd">    where either tracer is NaN (e.g. below the bathymetry) stay NaN.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    ``gsw.pt_from_CT()`` and ``gsw.CT_from_pt()`` take no pressure at all,</span>
+<span class="sd">    so ``pressure`` enters only through ``gsw.SP_from_SA()`` and</span>
+<span class="sd">    ``gsw.SA_from_SP()``, whose sensitivity to pressure is far smaller than</span>
+<span class="sd">    the absolute-salinity correction itself.  An approximate pressure is</span>
+<span class="sd">    therefore entirely adequate.  In particular, when converting from the</span>
+<span class="sd">    MPAS-Ocean convention to TEOS-10, a pressure computed from the (not yet</span>
+<span class="sd">    converted) tracers is accurate enough.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xarray.Dataset</span>
-<span class="sd">        Dataset with ``temperature`` (conservative temperature, degC),</span>
-<span class="sd">        ``salinity`` (absolute salinity, g/kg), and ``pressure`` (Pa),</span>
-<span class="sd">        each with dimensions ``(Time, nCells, nVertLevels)``.</span>
+<span class="sd">        Dataset containing each of the temperature and salinity variables</span>
+<span class="sd">        named in ``tracer_pairs``.</span>
 
-<span class="sd">    lon : float or numpy.ndarray</span>
-<span class="sd">        Longitude(s) in degrees used in the practical-salinity conversion,</span>
-<span class="sd">        either a nominal scalar value (e.g. on a planar mesh) or an array</span>
-<span class="sd">        with dimension ``nCells``.</span>
+<span class="sd">    source : {&#39;teos-10&#39;, &#39;mpas-ocean&#39;}</span>
+<span class="sd">        The tracer convention of the temperature and salinity in ``ds``.</span>
 
-<span class="sd">    lat : float or numpy.ndarray</span>
+<span class="sd">    target : {&#39;teos-10&#39;, &#39;mpas-ocean&#39;}</span>
+<span class="sd">        The tracer convention to convert to.</span>
+
+<span class="sd">    pressure : float or xarray.DataArray</span>
+<span class="sd">        Sea (gauge) pressure in Pa, broadcastable against the tracers.</span>
+
+<span class="sd">    lon : float, numpy.ndarray or xarray.DataArray</span>
+<span class="sd">        Longitude(s) in degrees, either a nominal scalar value (e.g. on a</span>
+<span class="sd">        planar mesh) or an array with dimension ``nCells``.</span>
+
+<span class="sd">    lat : float, numpy.ndarray or xarray.DataArray</span>
+<span class="sd">        Latitude(s) in degrees, a scalar or an array with dimension</span>
+<span class="sd">        ``nCells``, as for ``lon``.</span>
+
+<span class="sd">    tracer_pairs : sequence of tuple of str, optional</span>
+<span class="sd">        The (temperature, salinity) variable-name pairs to convert.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        A new dataset with the given tracer pairs in the ``target``</span>
+<span class="sd">        convention.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">convention</span> <span class="ow">in</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">convention</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">TRACER_CONVENTIONS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Unknown tracer convention </span><span class="si">{</span><span class="n">convention</span><span class="si">!r}</span><span class="s1">; expected one of &#39;</span>
+                <span class="o">+</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">TRACER_CONVENTIONS</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="n">target</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">temperature_name</span><span class="p">,</span> <span class="n">salinity_name</span> <span class="ow">in</span> <span class="n">tracer_pairs</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="n">temperature_name</span><span class="p">,</span> <span class="n">salinity_name</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;convert_tracers() requires &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;, which is missing &quot;</span>
+                    <span class="s1">&#39;from the dataset&#39;</span>
+                <span class="p">)</span>
+        <span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span> <span class="o">=</span> <span class="n">convert_tracer_pair</span><span class="p">(</span>
+            <span class="n">temperature</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="n">temperature_name</span><span class="p">],</span>
+            <span class="n">salinity</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="n">salinity_name</span><span class="p">],</span>
+            <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
+            <span class="n">pressure</span><span class="o">=</span><span class="n">pressure</span><span class="p">,</span>
+            <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="n">temperature_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="n">salinity_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span>
+
+    <span class="k">return</span> <span class="n">ds_out</span></div>
+
+
+
+<div class="viewcode-block" id="convert_tracer_pair">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.eos.convert_tracer_pair.html#polaris.ocean.eos.convert_tracer_pair">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_tracer_pair</span><span class="p">(</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">salinity</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lon</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a single temperature and salinity pair to the ``target``</span>
+<span class="sd">    convention.</span>
+
+<span class="sd">    This is the array-level counterpart of :py:func:`convert_tracers()`, for</span>
+<span class="sd">    callers that have tracers in hand rather than in a dataset.  See that</span>
+<span class="sd">    function for the accuracy of ``pressure``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    temperature : float, numpy.ndarray or xarray.DataArray</span>
+<span class="sd">        Conservative or potential temperature, according to the convention</span>
+<span class="sd">        being converted from.</span>
+
+<span class="sd">    salinity : float, numpy.ndarray or xarray.DataArray</span>
+<span class="sd">        Absolute or practical salinity, at the same points as</span>
+<span class="sd">        ``temperature``.</span>
+
+<span class="sd">    target : {&#39;teos-10&#39;, &#39;mpas-ocean&#39;}</span>
+<span class="sd">        The tracer convention to convert to.</span>
+
+<span class="sd">    pressure : float or xarray.DataArray</span>
+<span class="sd">        Sea (gauge) pressure in Pa, broadcastable against the tracers.</span>
+
+<span class="sd">    lon : float, numpy.ndarray or xarray.DataArray</span>
+<span class="sd">        Longitude(s) in degrees, either a nominal scalar value (e.g. on a</span>
+<span class="sd">        planar mesh) or an array with dimension ``nCells``.</span>
+
+<span class="sd">    lat : float, numpy.ndarray or xarray.DataArray</span>
 <span class="sd">        Latitude(s) in degrees, a scalar or an array with dimension</span>
 <span class="sd">        ``nCells``, as for ``lon``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    xarray.Dataset</span>
-<span class="sd">        Dataset with ``temperature`` as potential temperature (degC) and</span>
-<span class="sd">        ``salinity`` as practical salinity (PSU).</span>
+<span class="sd">    temperature : xarray.DataArray</span>
+<span class="sd">        The temperature in the ``target`` convention.</span>
+
+<span class="sd">    salinity : xarray.DataArray</span>
+<span class="sd">        The salinity in the ``target`` convention.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ct</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>  <span class="c1"># (Time, nCells, nVertLevels)</span>
-    <span class="n">sa</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-    <span class="n">p_pa</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;pressure&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>  <span class="c1"># Pa</span>
-    <span class="n">p_dbar</span> <span class="o">=</span> <span class="n">p_pa</span> <span class="o">/</span> <span class="mf">1e4</span>  <span class="c1"># Pa -&gt; dbar  (1 dbar = 1e4 Pa)</span>
+    <span class="k">if</span> <span class="n">target</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">TRACER_CONVENTIONS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Unknown tracer convention </span><span class="si">{</span><span class="n">target</span><span class="si">!r}</span><span class="s1">; expected one of &#39;</span>
+            <span class="o">+</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">TRACER_CONVENTIONS</span><span class="p">)</span>
+        <span class="p">)</span>
 
-    <span class="n">lon_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">lat_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">lon_arr</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="c1"># (nCells,) -&gt; (Time, nCells, nVertLevels) broadcast shape</span>
-        <span class="n">lon_arr</span> <span class="o">=</span> <span class="n">lon_arr</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-        <span class="n">lat_arr</span> <span class="o">=</span> <span class="n">lat_arr</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-    <span class="n">lon_3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">lon_arr</span><span class="p">,</span> <span class="n">ct</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-    <span class="n">lat_3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">lat_arr</span><span class="p">,</span> <span class="n">ct</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">temperature</span> <span class="o">=</span> <span class="n">_as_data_array</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+    <span class="n">salinity</span> <span class="o">=</span> <span class="n">_as_data_array</span><span class="p">(</span><span class="n">salinity</span><span class="p">)</span>
 
-    <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">sa</span><span class="p">)</span>
-    <span class="n">pot_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">ct</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-    <span class="n">prac_sal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">sa</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-
-    <span class="n">pot_temp</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">pt_from_CT</span><span class="p">(</span><span class="n">sa</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">ct</span><span class="p">[</span><span class="n">valid</span><span class="p">])</span>
-    <span class="n">prac_sal</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">SP_from_SA</span><span class="p">(</span>
-        <span class="n">sa</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">p_dbar</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">lon_3d</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">lat_3d</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
+    <span class="n">temperature_b</span><span class="p">,</span> <span class="n">salinity_b</span><span class="p">,</span> <span class="n">pressure_b</span><span class="p">,</span> <span class="n">lon_b</span><span class="p">,</span> <span class="n">lat_b</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span>
+        <span class="n">temperature</span><span class="p">,</span>
+        <span class="n">salinity</span><span class="p">,</span>
+        <span class="n">_as_data_array</span><span class="p">(</span><span class="n">pressure</span><span class="p">),</span>
+        <span class="n">_as_data_array</span><span class="p">(</span><span class="n">lon</span><span class="p">),</span>
+        <span class="n">_as_data_array</span><span class="p">(</span><span class="n">lat</span><span class="p">),</span>
     <span class="p">)</span>
 
-    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-        <span class="n">data</span><span class="o">=</span><span class="n">pot_temp</span><span class="p">,</span>
-        <span class="n">dims</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
-        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;potential temperature&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;degC&#39;</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">)</span>
-    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-        <span class="n">data</span><span class="o">=</span><span class="n">prac_sal</span><span class="p">,</span>
-        <span class="n">dims</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
-        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;practical salinity&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;PSU&#39;</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">ds</span></div>
+    <span class="n">temp_in</span> <span class="o">=</span> <span class="n">temperature_b</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">salin_in</span> <span class="o">=</span> <span class="n">salinity_b</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="c1"># Pa -&gt; dbar  (1 dbar = 1e4 Pa)</span>
+    <span class="n">p_dbar</span> <span class="o">=</span> <span class="n">pressure_b</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1.0e4</span>
+    <span class="n">lon_np</span> <span class="o">=</span> <span class="n">lon_b</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">lat_np</span> <span class="o">=</span> <span class="n">lat_b</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">temp_in</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">salin_in</span><span class="p">)</span>
+    <span class="n">temp_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">temp_in</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">salin_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">salin_in</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
+        <span class="c1"># CT, SA -&gt; PT, SP</span>
+        <span class="n">temp_out</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">pt_from_CT</span><span class="p">(</span><span class="n">salin_in</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">temp_in</span><span class="p">[</span><span class="n">valid</span><span class="p">])</span>
+        <span class="n">salin_out</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">SP_from_SA</span><span class="p">(</span>
+            <span class="n">salin_in</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">p_dbar</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">lon_np</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">lat_np</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># PT, SP -&gt; CT, SA</span>
+        <span class="n">salin_out</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">SA_from_SP</span><span class="p">(</span>
+            <span class="n">salin_in</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">p_dbar</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">lon_np</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">lat_np</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">temp_out</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">CT_from_pt</span><span class="p">(</span><span class="n">salin_out</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">temp_in</span><span class="p">[</span><span class="n">valid</span><span class="p">])</span>
+
+    <span class="n">temperature_out</span> <span class="o">=</span> <span class="n">_as_converted_data_array</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">temp_out</span><span class="p">,</span>
+        <span class="n">template</span><span class="o">=</span><span class="n">temperature_b</span><span class="p">,</span>
+        <span class="n">original</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="n">TRACER_ATTRS</span><span class="p">[</span><span class="n">target</span><span class="p">][</span><span class="s1">&#39;temperature&#39;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">salinity_out</span> <span class="o">=</span> <span class="n">_as_converted_data_array</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">salin_out</span><span class="p">,</span>
+        <span class="n">template</span><span class="o">=</span><span class="n">salinity_b</span><span class="p">,</span>
+        <span class="n">original</span><span class="o">=</span><span class="n">salinity</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="n">TRACER_ATTRS</span><span class="p">[</span><span class="n">target</span><span class="p">][</span><span class="s1">&#39;salinity&#39;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">temperature_out</span><span class="p">,</span> <span class="n">salinity_out</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_data_array</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert ``value`` to a ``DataArray``, treating a 1D array as a field on</span>
+<span class="sd">    cells.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">])</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="s1">&#39;Only scalars and 1D arrays on cells can be converted to a &#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;DataArray automatically; got an array with </span><span class="si">{</span><span class="n">array</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s1"> dimensions&#39;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_converted_data_array</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">template</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">original</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build a converted tracer from ``data``, keeping the dimension order of</span>
+<span class="sd">    ``original`` where possible and updating its ``long_name`` and ``units``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">original</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="n">new_attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="n">data_array</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+        <span class="n">dims</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="n">new_attrs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">data_array</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">original</span><span class="o">.</span><span class="n">dims</span><span class="p">):</span>
+        <span class="n">data_array</span> <span class="o">=</span> <span class="n">data_array</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">original</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_array</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_align_data_arrays</span><span class="p">(</span>

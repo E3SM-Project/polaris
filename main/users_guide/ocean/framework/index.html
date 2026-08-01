@@ -57,6 +57,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Framework</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="vertical.html">Vertical coordinate</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ice_shelf.html">Ice shelf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tracer-conventions">Tracer conventions</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
@@ -133,6 +134,32 @@ across tasks.</p>
 <li class="toctree-l1"><a class="reference internal" href="ice_shelf.html">Ice shelf</a></li>
 </ul>
 </div>
+<section id="tracer-conventions">
+<h2>Tracer conventions<a class="headerlink" href="#tracer-conventions" title="Link to this heading"></a></h2>
+<p>Under the TEOS-10 equation of state (<code class="docutils literal notranslate"><span class="pre">ocean:eos_type</span> <span class="pre">=</span> <span class="pre">teos-10</span></code>), Omega’s
+<code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">salinity</span></code> are conservative temperature and absolute
+salinity while MPAS-Ocean’s are potential temperature and practical
+salinity.  Polaris converts the tracers of an initial condition to the
+convention of whichever model is being run.  For the other equations of
+state, both models apply the same formula and no conversion takes place.</p>
+<p>Converting absolute to practical salinity (and back) depends slightly on
+where in the ocean the water is.  On a spherical mesh, each cell is
+converted at its own location.  A planar mesh has no location, so these
+config options are used instead:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related the ocean component</span>
+<span class="k">[ocean]</span>
+
+<span class="c1"># Nominal location (degrees) of a planar mesh, used to convert between</span>
+<span class="c1"># absolute and practical salinity.  Planar meshes have no geographic location</span>
+<span class="c1"># but the conversion is only weakly dependent on it, so tasks only need to</span>
+<span class="c1"># override these values if they have a location in mind.</span>
+<span class="na">nominal_lon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+<span class="na">nominal_lat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+</pre></div>
+</div>
+<p>The correction is at most about 0.02 g/kg anywhere in the global ocean, so
+the default location is harmless for idealized tasks.</p>
+</section>
 </section>
 
 

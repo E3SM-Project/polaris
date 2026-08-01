@@ -1137,7 +1137,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.map_from_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_from_native_model_vars" title="polaris.ocean.model.OceanIOStep.map_from_native_model_vars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.map_from_native_model_vars</span></code></a>(ds)</p></td>
 <td><p>If the model is Omega, rename dimensions and variables in a dataset from their Omega names to the MPAS-Ocean equivalent (appropriate for datasets that are output from the model)</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset" title="polaris.ocean.model.OceanIOStep.open_model_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.open_model_dataset</span></code></a>(filename, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset" title="polaris.ocean.model.OceanIOStep.open_model_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.open_model_dataset</span></code></a>(filename, config)</p></td>
 <td><p>Open the given dataset, mapping variable and dimension names from Omega to MPAS-Ocean names if appropriate</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep</span></code></a>(component, name[, subdir, ...])</p></td>
@@ -1183,16 +1183,19 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.compute_specvol.html#polaris.ocean.eos.compute_specvol" title="polaris.ocean.eos.compute_specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_specvol</span></code></a>(config, temperature, salinity)</p></td>
 <td><p>Compute the specific volume of seawater based on the equation of state specified in the configuration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.convert_tracers_to_mpas_ocean.html#polaris.ocean.eos.convert_tracers_to_mpas_ocean" title="polaris.ocean.eos.convert_tracers_to_mpas_ocean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_tracers_to_mpas_ocean</span></code></a>(ds, lon, lat)</p></td>
-<td><p>Convert conservative temperature and absolute salinity in <code class="docutils literal notranslate"><span class="pre">ds</span></code> to the MPAS-Ocean tracer conventions (potential temperature and practical salinity) using GSW.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.convert_tracer_pair.html#polaris.ocean.eos.convert_tracer_pair" title="polaris.ocean.eos.convert_tracer_pair"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_tracer_pair</span></code></a>(temperature, salinity, ...)</p></td>
+<td><p>Convert a single temperature and salinity pair to the <code class="docutils literal notranslate"><span class="pre">target</span></code> convention.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.constant.compute_constant_density.html#polaris.ocean.eos.constant.compute_constant_density" title="polaris.ocean.eos.constant.compute_constant_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constant.compute_constant_density</span></code></a>(config, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.convert_tracers.html#polaris.ocean.eos.convert_tracers" title="polaris.ocean.eos.convert_tracers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_tracers</span></code></a>(ds, source, target, ...[, ...])</p></td>
+<td><p>Convert temperature and salinity pairs in <code class="docutils literal notranslate"><span class="pre">ds</span></code> between the TEOS-10 convention (conservative temperature and absolute salinity) and the MPAS-Ocean convention (potential temperature and practical salinity) using GSW.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.constant.compute_constant_density.html#polaris.ocean.eos.constant.compute_constant_density" title="polaris.ocean.eos.constant.compute_constant_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constant.compute_constant_density</span></code></a>(config, ...)</p></td>
 <td><p>Compute the density of seawater based on the constant equation of state with the value specified in the configuration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.linear.compute_linear_density.html#polaris.ocean.eos.linear.compute_linear_density" title="polaris.ocean.eos.linear.compute_linear_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linear.compute_linear_density</span></code></a>(config, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.linear.compute_linear_density.html#polaris.ocean.eos.linear.compute_linear_density" title="polaris.ocean.eos.linear.compute_linear_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linear.compute_linear_density</span></code></a>(config, ...)</p></td>
 <td><p>Compute the density of seawater based on the the linear equation of state with coefficients specified in the configuration.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.teos10.compute_specvol.html#polaris.ocean.eos.teos10.compute_specvol" title="polaris.ocean.eos.teos10.compute_specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">teos10.compute_specvol</span></code></a>(sa, ct, p)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.teos10.compute_specvol.html#polaris.ocean.eos.teos10.compute_specvol" title="polaris.ocean.eos.teos10.compute_specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">teos10.compute_specvol</span></code></a>(sa, ct, p)</p></td>
 <td><p>Compute specific volume from co-located p, CT and SA.</p></td>
 </tr>
 </tbody>
@@ -1210,6 +1213,9 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.init_state.add_density_from_specvol.html#polaris.ocean.init_state.add_density_from_specvol" title="polaris.ocean.init_state.add_density_from_specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_density_from_specvol</span></code></a>(ds)</p></td>
 <td><p>Add an in-situ <code class="docutils literal notranslate"><span class="pre">Density</span></code> field computed from <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code> to <code class="docutils literal notranslate"><span class="pre">ds</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.init_state.pressure_for_tracer_conversion.html#polaris.ocean.init_state.pressure_for_tracer_conversion" title="polaris.ocean.init_state.pressure_for_tracer_conversion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pressure_for_tracer_conversion</span></code></a>(ds, config[, ...])</p></td>
+<td><p>Get the sea (gauge) pressure at layer midpoints used to convert tracers between the TEOS-10 and MPAS-Ocean conventions.</p></td>
 </tr>
 </tbody>
 </table>

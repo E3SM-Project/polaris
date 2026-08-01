@@ -80,7 +80,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#quasi-uniform-and-icosahedral-spherical-meshes">Quasi-uniform and Icosahedral Spherical Meshes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#convergence-tests">Convergence Tests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ice-shelf-tasks">Ice Shelf Tasks</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vertical-coordinate">Vertical coordinate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vertical-coordinate">Vertical coordinate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#initial-state">Initial state</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#reference-resting-potential-energy-rpe">reference (resting) potential energy (RPE)</a></li>
 </ul>
 </li>
@@ -165,7 +168,9 @@ reconstruction coefficient files. In addition,
 is not present in the dataset. This provides a way of using the same initial
 conditions for MPAS-Ocean and Omega when the geometric thickness is the state
 variable for MPAS-Ocean and the pseudo-thickness is the state variable for
-Omega. Similarly,
+Omega. It can also convert <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">salinity</span></code> to a requested
+convention, so that analysis and visualization do not have to care which model
+ran (see <a class="reference internal" href="#dev-ocean-framework-tracer-conventions-on-read"><span class="std std-ref">Tracer conventions on read</span></a>). Similarly,
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.write_initial_state_dataset()</span></code>
 ensures that <code class="docutils literal notranslate"><span class="pre">SurfacePressure</span></code> is present in initial conditions written for
 Omega, adding a spatially uniform field from the
@@ -452,14 +457,31 @@ MPAS-Ocean has no TEOS-10 option, so <code class="docutils literal notranslate">
 (Jackett-McDougall), the closest available nonlinear EOS; Omega receives
 <code class="docutils literal notranslate"><span class="pre">teos-10</span></code> unchanged.  For <code class="docutils literal notranslate"><span class="pre">constant</span></code>, MPAS-Ocean similarly falls back to
 its linear EOS with constant coefficients.</p>
-<p>For initial conditions defined in terms of the TEOS-10 tracers
-(conservative temperature and absolute salinity),
-<a class="reference internal" href="generated/polaris.ocean.eos.convert_tracers_to_mpas_ocean.html#polaris.ocean.eos.convert_tracers_to_mpas_ocean" title="polaris.ocean.eos.convert_tracers_to_mpas_ocean"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.convert_tracers_to_mpas_ocean()</span></code></a> converts
-conservative temperature to potential temperature (<code class="docutils literal notranslate"><span class="pre">gsw.pt_from_CT</span></code>) and
-absolute salinity to practical salinity (<code class="docutils literal notranslate"><span class="pre">gsw.SP_from_SA</span></code>), the tracer
-conventions MPAS-Ocean expects.  The conversion uses a co-located
-<code class="docutils literal notranslate"><span class="pre">pressure</span></code> field and either a nominal scalar lon/lat (for planar
-meshes) or per-cell arrays.</p>
+<p>The two models also disagree about what the <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">salinity</span></code>
+tracers mean under TEOS-10: Omega expects conservative temperature (CT)
+and absolute salinity (SA) while MPAS-Ocean expects potential temperature
+(PT) and practical salinity (SP).  For any other <code class="docutils literal notranslate"><span class="pre">eos_type</span></code> the models
+apply the same algebraic formula, so the distinction is meaningless.</p>
+<p><a class="reference internal" href="generated/polaris.ocean.eos.convert_tracers.html#polaris.ocean.eos.convert_tracers" title="polaris.ocean.eos.convert_tracers"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.convert_tracers()</span></code></a> converts between the two
+conventions in either direction: <code class="docutils literal notranslate"><span class="pre">gsw.pt_from_CT()</span></code> and <code class="docutils literal notranslate"><span class="pre">gsw.SP_from_SA()</span></code>
+going to the MPAS-Ocean convention, <code class="docutils literal notranslate"><span class="pre">gsw.CT_from_pt()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">gsw.SA_from_SP()</span></code> coming back.  It takes the pressure and the lon/lat
+(in degrees) at which to convert, does not modify the dataset it is given,
+and takes a <code class="docutils literal notranslate"><span class="pre">tracer_pairs</span></code> argument for converting variables other than
+<code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">salinity</span></code> (surface restoring fields, for example).
+Cells where either tracer is NaN, such as those below the bathymetry, stay
+NaN.  <a class="reference internal" href="generated/polaris.ocean.eos.convert_tracer_pair.html#polaris.ocean.eos.convert_tracer_pair" title="polaris.ocean.eos.convert_tracer_pair"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.convert_tracer_pair()</span></code></a> does the same for
+tracers that are in hand rather than in a dataset.</p>
+<p>Steps do not normally call either function themselves.  The framework
+converts the tracers as it writes the initial state and, if asked, as it
+opens a dataset (see <a class="reference internal" href="#dev-ocean-framework-init-state"><span class="std std-ref">Initial state</span></a> and
+<a class="reference internal" href="#dev-ocean-framework-tracer-conventions-on-read"><span class="std std-ref">Tracer conventions on read</span></a>).</p>
+<p>Because TEOS-10 requires CT and SA,
+<a class="reference internal" href="generated/polaris.ocean.eos.compute_density.html#polaris.ocean.eos.compute_density" title="polaris.ocean.eos.compute_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.compute_density()</span></code></a> takes a
+<code class="docutils literal notranslate"><span class="pre">tracer_convention</span></code> argument saying which convention its <code class="docutils literal notranslate"><span class="pre">temperature</span></code>
+and <code class="docutils literal notranslate"><span class="pre">salinity</span></code> are in.  It defaults to <code class="docutils literal notranslate"><span class="pre">'teos-10'</span></code>; pass
+<code class="docutils literal notranslate"><span class="pre">tracer_convention='mpas-ocean'</span></code>, along with <code class="docutils literal notranslate"><span class="pre">lon</span></code> and <code class="docutils literal notranslate"><span class="pre">lat</span></code>, for tracers
+straight out of MPAS-Ocean.</p>
 </section>
 <section id="quasi-uniform-and-icosahedral-spherical-meshes">
 <span id="dev-ocean-spherical-meshes"></span><h2>Quasi-uniform and Icosahedral Spherical Meshes<a class="headerlink" href="#quasi-uniform-and-icosahedral-spherical-meshes" title="Link to this heading"></a></h2>
@@ -865,6 +887,8 @@ example because the z-tilde bottom varies spatially), the semi-private method
 <code class="docutils literal notranslate"><span class="pre">init_pstar_vertical_coord()</span></code> per cell with cell-specific config options,
 as done in
 <a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init" title="polaris.tasks.ocean.horiz_press_grad.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.init.Init</span></code></a>.</p>
+<section id="initial-state">
+<span id="dev-ocean-framework-init-state"></span><h3>Initial state<a class="headerlink" href="#initial-state" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.init_state</span></code> package provides general helpers for
 building the initial-state fields the ocean models read (for example
 from a converged p-star dataset):</p>
@@ -877,13 +901,6 @@ adds an all-zero <code class="docutils literal notranslate"><span class="pre">no
 <li><p><a class="reference internal" href="generated/polaris.ocean.init_state.add_density_from_specvol.html#polaris.ocean.init_state.add_density_from_specvol" title="polaris.ocean.init_state.add_density_from_specvol"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.init_state.add_density_from_specvol()</span></code></a>
 adds an in-situ <code class="docutils literal notranslate"><span class="pre">Density</span></code> field as the inverse of <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code>.</p></li>
 </ul>
-<p>For MPAS-Ocean, the TEOS-10 tracers can be converted to potential
-temperature and practical salinity with
-<a class="reference internal" href="generated/polaris.ocean.eos.convert_tracers_to_mpas_ocean.html#polaris.ocean.eos.convert_tracers_to_mpas_ocean" title="polaris.ocean.eos.convert_tracers_to_mpas_ocean"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.convert_tracers_to_mpas_ocean()</span></code></a> (see
-<a class="reference internal" href="#dev-ocean-framework-eos"><span class="std std-ref">Equations of state (EOS)</span></a>), using the p-star <code class="docutils literal notranslate"><span class="pre">pressure</span></code> field
-and either a nominal scalar lon/lat (for planar meshes) or per-cell
-arrays.  Omega receives conservative temperature and absolute salinity
-directly, so no conversion is needed.</p>
 <p>For sigma coordinates, shared functionality for direct thickness computation is
 available in
 <a class="reference internal" href="generated/polaris.ocean.vertical.sigma.compute_sigma_layer_thickness.html#polaris.ocean.vertical.sigma.compute_sigma_layer_thickness" title="polaris.ocean.vertical.sigma.compute_sigma_layer_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.sigma.compute_sigma_layer_thickness()</span></code></a>.</p>
@@ -893,6 +910,69 @@ available in
 <li><p><a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.pseudothickness_from_ds.html#polaris.ocean.vertical.diagnostics.pseudothickness_from_ds" title="polaris.ocean.vertical.diagnostics.pseudothickness_from_ds"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.pseudothickness_from_ds()</span></code></a></p></li>
 <li><p><a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.depth_from_thickness.html#polaris.ocean.vertical.diagnostics.depth_from_thickness" title="polaris.ocean.vertical.diagnostics.depth_from_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.depth_from_thickness()</span></code></a></p></li>
 </ul>
+<section id="tracer-conventions">
+<h4>Tracer conventions<a class="headerlink" href="#tracer-conventions" title="Link to this heading"></a></h4>
+<p>An init step builds <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">salinity</span></code> in whatever
+convention is natural for its physics and hands them over;
+<code class="docutils literal notranslate"><span class="pre">write_initial_state_dataset()</span></code> converts them to the convention the
+ocean model expects (see <a class="reference internal" href="#dev-ocean-framework-eos"><span class="std std-ref">Equations of state (EOS)</span></a>) as it writes the
+file.  A step should not convert the tracers itself.</p>
+<p>By default, the step is assumed to have built its tracers in the
+convention implied by the <code class="docutils literal notranslate"><span class="pre">eos_type</span></code> config option: conservative
+temperature and absolute salinity for <code class="docutils literal notranslate"><span class="pre">teos-10</span></code> and, for any other EOS,
+tracers that need no conversion.  A step that builds potential
+temperature and practical salinity under TEOS-10 anyway (for example
+because it is initialized from an E3SM restart) says so with
+<code class="docutils literal notranslate"><span class="pre">tracer_convention='mpas-ocean'</span></code>, and the framework converts in the
+other direction if the model is Omega.</p>
+<p>The conversion happens on a copy just before the file is written, so it
+cannot contaminate an in-memory dataset that is also used to write the
+vertical coordinate.  It needs two things beyond the tracers themselves:</p>
+<ul class="simple">
+<li><p><strong>Pressure.</strong>
+<a class="reference internal" href="generated/polaris.ocean.init_state.pressure_for_tracer_conversion.html#polaris.ocean.init_state.pressure_for_tracer_conversion" title="polaris.ocean.init_state.pressure_for_tracer_conversion"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.init_state.pressure_for_tracer_conversion()</span></code></a>
+uses the <code class="docutils literal notranslate"><span class="pre">pressure</span></code> field if the dataset has one (as p-star initial
+conditions do) and otherwise computes it from <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, the
+tracers and <code class="docutils literal notranslate"><span class="pre">SurfacePressure</span></code> (zero if absent).  Since the pressure
+only enters through the absolute-to-practical salinity correction, it
+does not need to be accurate.  The <code class="docutils literal notranslate"><span class="pre">pressure</span></code> field itself is dropped
+from the initial state, whether or not any conversion happens.</p></li>
+<li><p><strong>Location</strong>, for the same salinity correction.  Explicit <code class="docutils literal notranslate"><span class="pre">lon</span></code> and
+<code class="docutils literal notranslate"><span class="pre">lat</span></code> arguments (in degrees) win.  Otherwise, <code class="docutils literal notranslate"><span class="pre">lonCell</span></code> and
+<code class="docutils literal notranslate"><span class="pre">latCell</span></code> are used, converted from radians, if the mesh has the
+<code class="docutils literal notranslate"><span class="pre">on_a_sphere</span></code> attribute set to <code class="docutils literal notranslate"><span class="pre">YES</span></code>; a spherical mesh missing them
+is an error rather than a fallback.  On a planar mesh, whose
+<code class="docutils literal notranslate"><span class="pre">lonCell</span></code>/<code class="docutils literal notranslate"><span class="pre">latCell</span></code> are meaningless, the <code class="docutils literal notranslate"><span class="pre">nominal_lon</span></code> and
+<code class="docutils literal notranslate"><span class="pre">nominal_lat</span></code> config options in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section are used
+instead.</p></li>
+</ul>
+</section>
+<section id="tracer-conventions-on-read">
+<span id="dev-ocean-framework-tracer-conventions-on-read"></span><h4>Tracer conventions on read<a class="headerlink" href="#tracer-conventions-on-read" title="Link to this heading"></a></h4>
+<p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset" title="polaris.ocean.model.OceanIOStep.open_model_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.open_model_dataset()</span></code></a> takes the
+same <code class="docutils literal notranslate"><span class="pre">tracer_convention</span></code> argument, so that visualization and analysis
+can work in one convention no matter which model ran.  In both cases the
+argument is the convention on the Polaris side of the boundary — the
+tracers a step hands over on write, the tracers it gets back on read —
+and the ocean model supplies the other side.</p>
+<p>The defaults differ, though.  On write, a step that says nothing is
+assumed to have built its tracers in the convention implied by
+<code class="docutils literal notranslate"><span class="pre">eos_type</span></code>.  On read, a caller that says nothing gets the tracers
+exactly as the model wrote them, since only the caller knows whether it
+wants the model’s own convention or a common one.</p>
+<p>The pressure comes from the same rules as on write.  The location does
+not: a dataset being read has had its horizontal mesh variables removed
+(or never had them), so <code class="docutils literal notranslate"><span class="pre">lonCell</span></code> and <code class="docutils literal notranslate"><span class="pre">latCell</span></code> come from the file
+named by the <code class="docutils literal notranslate"><span class="pre">mesh_filename</span></code> argument.  A conversion with neither
+<code class="docutils literal notranslate"><span class="pre">mesh_filename</span></code> nor an explicit <code class="docutils literal notranslate"><span class="pre">lon</span></code> and <code class="docutils literal notranslate"><span class="pre">lat</span></code> is an error, as is
+a mesh file with no <code class="docutils literal notranslate"><span class="pre">on_a_sphere</span></code> attribute, since assuming such a mesh
+were planar would silently convert a global ocean at (0, 0).</p>
+<p>The conversion is the last thing that happens to the tracers, after the
+Omega-only derivations of <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code> and
+<code class="docutils literal notranslate"><span class="pre">vertVelocityTop</span></code>, which read the model’s own tracers and would be
+wrong if they were converted first.</p>
+</section>
+</section>
 </section>
 <section id="reference-resting-potential-energy-rpe">
 <span id="dev-ocean-rpe"></span><h2>reference (resting) potential energy (RPE)<a class="headerlink" href="#reference-resting-potential-energy-rpe" title="Link to this heading"></a></h2>

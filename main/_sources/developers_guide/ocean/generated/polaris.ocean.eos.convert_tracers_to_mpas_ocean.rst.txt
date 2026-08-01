@@ -1,6 +1,0 @@
-﻿polaris.ocean.eos.convert\_tracers\_to\_mpas\_ocean
-===================================================
-
-.. currentmodule:: polaris.ocean.eos
-
-.. autofunction:: convert_tracers_to_mpas_ocean

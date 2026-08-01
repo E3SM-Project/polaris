@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.ocean.eos.convert_tracers_to_mpas_ocean</title>
+  <title>polaris.ocean.eos.convert_tracer_pair</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,7 +19,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.ocean.eos.constant.compute_constant_density" href="polaris.ocean.eos.constant.compute_constant_density.html" />
+    <link rel="next" title="polaris.ocean.eos.convert_tracers" href="polaris.ocean.eos.convert_tracers.html" />
     <link rel="prev" title="polaris.ocean.eos.compute_specvol" href="polaris.ocean.eos.compute_specvol.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -125,9 +125,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.ocean.eos.convert_tracers_to_mpas_ocean</li>
+      <li class="breadcrumb-item active">polaris.ocean.eos.convert_tracer_pair</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.eos.convert_tracers_to_mpas_ocean.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.eos.convert_tracer_pair.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -135,30 +135,37 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-ocean-eos-convert-tracers-to-mpas-ocean">
-<h1>polaris.ocean.eos.convert_tracers_to_mpas_ocean<a class="headerlink" href="#polaris-ocean-eos-convert-tracers-to-mpas-ocean" title="Link to this heading"></a></h1>
+  <section id="polaris-ocean-eos-convert-tracer-pair">
+<h1>polaris.ocean.eos.convert_tracer_pair<a class="headerlink" href="#polaris-ocean-eos-convert-tracer-pair" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="polaris.ocean.eos.convert_tracers_to_mpas_ocean">
-<span class="sig-prename descclassname"><span class="pre">polaris.ocean.eos.</span></span><span class="sig-name descname"><span class="pre">convert_tracers_to_mpas_ocean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/eos/teos10.html#convert_tracers_to_mpas_ocean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.eos.convert_tracers_to_mpas_ocean" title="Link to this definition"></a></dt>
-<dd><p>Convert conservative temperature and absolute salinity in <code class="docutils literal notranslate"><span class="pre">ds</span></code> to the
-MPAS-Ocean tracer conventions (potential temperature and practical
-salinity) using GSW.</p>
+<dt class="sig sig-object py" id="polaris.ocean.eos.convert_tracer_pair">
+<span class="sig-prename descclassname"><span class="pre">polaris.ocean.eos.</span></span><span class="sig-name descname"><span class="pre">convert_tracer_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">salinity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/polaris/ocean/eos/teos10.html#convert_tracer_pair"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.eos.convert_tracer_pair" title="Link to this definition"></a></dt>
+<dd><p>Convert a single temperature and salinity pair to the <code class="docutils literal notranslate"><span class="pre">target</span></code>
+convention.</p>
+<p>This is the array-level counterpart of <a class="reference internal" href="polaris.ocean.eos.convert_tracers.html#polaris.ocean.eos.convert_tracers" title="polaris.ocean.eos.convert_tracers"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_tracers()</span></code></a>, for
+callers that have tracers in hand rather than in a dataset.  See that
+function for the accuracy of <code class="docutils literal notranslate"><span class="pre">pressure</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a>) – Dataset with <code class="docutils literal notranslate"><span class="pre">temperature</span></code> (conservative temperature, degC),
-<code class="docutils literal notranslate"><span class="pre">salinity</span></code> (absolute salinity, g/kg), and <code class="docutils literal notranslate"><span class="pre">pressure</span></code> (Pa),
-each with dimensions <code class="docutils literal notranslate"><span class="pre">(Time,</span> <span class="pre">nCells,</span> <span class="pre">nVertLevels)</span></code>.</p></li>
-<li><p><strong>lon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> or </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a>) – Longitude(s) in degrees used in the practical-salinity conversion,
-either a nominal scalar value (e.g. on a planar mesh) or an array
-with dimension <code class="docutils literal notranslate"><span class="pre">nCells</span></code>.</p></li>
-<li><p><strong>lat</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> or </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a>) – Latitude(s) in degrees, a scalar or an array with dimension
+<li><p><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a><em> or </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a>) – Conservative or potential temperature, according to the convention
+being converted from.</p></li>
+<li><p><strong>salinity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a><em> or </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a>) – Absolute or practical salinity, at the same points as
+<code class="docutils literal notranslate"><span class="pre">temperature</span></code>.</p></li>
+<li><p><strong>target</strong> (<em>{'teos-10'</em><em>, </em><em>'mpas-ocean'}</em>) – The tracer convention to convert to.</p></li>
+<li><p><strong>pressure</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a>) – Sea (gauge) pressure in Pa, broadcastable against the tracers.</p></li>
+<li><p><strong>lon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a><em> or </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a>) – Longitude(s) in degrees, either a nominal scalar value (e.g. on a
+planar mesh) or an array with dimension <code class="docutils literal notranslate"><span class="pre">nCells</span></code>.</p></li>
+<li><p><strong>lat</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a><em> or </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a>) – Latitude(s) in degrees, a scalar or an array with dimension
 <code class="docutils literal notranslate"><span class="pre">nCells</span></code>, as for <code class="docutils literal notranslate"><span class="pre">lon</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>xarray.Dataset</em> – Dataset with <code class="docutils literal notranslate"><span class="pre">temperature</span></code> as potential temperature (degC) and
-<code class="docutils literal notranslate"><span class="pre">salinity</span></code> as practical salinity (PSU).</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>temperature</strong> (<em>xarray.DataArray</em>) – The temperature in the <code class="docutils literal notranslate"><span class="pre">target</span></code> convention.</p></li>
+<li><p><strong>salinity</strong> (<em>xarray.DataArray</em>) – The salinity in the <code class="docutils literal notranslate"><span class="pre">target</span></code> convention.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -170,7 +177,7 @@ with dimension <code class="docutils literal notranslate"><span class="pre">nCel
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.ocean.eos.compute_specvol.html" class="btn btn-neutral float-left" title="polaris.ocean.eos.compute_specvol" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.ocean.eos.constant.compute_constant_density.html" class="btn btn-neutral float-right" title="polaris.ocean.eos.constant.compute_constant_density" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.ocean.eos.convert_tracers.html" class="btn btn-neutral float-right" title="polaris.ocean.eos.convert_tracers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

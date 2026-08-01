@@ -109,16 +109,18 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.eos</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_constant_density</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.linear</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_linear_density</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.teos10</span><span class="w"> </span><span class="kn">import</span> <span class="n">TRACER_ATTRS</span> <span class="k">as</span> <span class="n">TRACER_ATTRS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.teos10</span><span class="w"> </span><span class="kn">import</span> <span class="n">TRACER_CONVENTIONS</span> <span class="k">as</span> <span class="n">TRACER_CONVENTIONS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.teos10</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_specvol</span> <span class="k">as</span> <span class="n">compute_teos10_specvol</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.teos10</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">convert_tracers_to_mpas_ocean</span> <span class="k">as</span> <span class="n">convert_tracers_to_mpas_ocean</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.teos10</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_tracer_pair</span> <span class="k">as</span> <span class="n">convert_tracer_pair</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.teos10</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_tracers</span> <span class="k">as</span> <span class="n">convert_tracers</span>
 
 
 <div class="viewcode-block" id="compute_density">
@@ -128,6 +130,9 @@
     <span class="n">temperature</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">salinity</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">tracer_convention</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;teos-10&#39;</span><span class="p">,</span>
+    <span class="n">lon</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the density of seawater based on the equation of state specified</span>
@@ -147,6 +152,20 @@
 <span class="sd">    pressure : float or xarray.DataArray, optional</span>
 <span class="sd">        Pressure (in-situ or reference) of the seawater.</span>
 
+<span class="sd">    tracer_convention : {&#39;teos-10&#39;, &#39;mpas-ocean&#39;}, optional</span>
+<span class="sd">        The convention of ``temperature`` and ``salinity``.  TEOS-10 requires</span>
+<span class="sd">        conservative temperature and absolute salinity, so tracers straight</span>
+<span class="sd">        out of MPAS-Ocean must say so and are converted first, which needs</span>
+<span class="sd">        ``lon`` and ``lat``.  The two conventions are indistinguishable for</span>
+<span class="sd">        any other equation of state.</span>
+
+<span class="sd">    lon : float, numpy.ndarray or xarray.DataArray, optional</span>
+<span class="sd">        Longitude(s) in degrees, needed only to convert from the MPAS-Ocean</span>
+<span class="sd">        convention.</span>
+
+<span class="sd">    lat : float, numpy.ndarray or xarray.DataArray, optional</span>
+<span class="sd">        Latitude(s) in degrees, as for ``lon``.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    density : float or xarray.DataArray</span>
@@ -164,6 +183,14 @@
                 <span class="s1">&#39;Pressure must be provided when using the TEOS-10 equation of &#39;</span>
                 <span class="s1">&#39;state.&#39;</span>
             <span class="p">)</span>
+        <span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span> <span class="o">=</span> <span class="n">_tracers_in_teos10_convention</span><span class="p">(</span>
+            <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
+            <span class="n">salinity</span><span class="o">=</span><span class="n">salinity</span><span class="p">,</span>
+            <span class="n">tracer_convention</span><span class="o">=</span><span class="n">tracer_convention</span><span class="p">,</span>
+            <span class="n">pressure</span><span class="o">=</span><span class="n">pressure</span><span class="p">,</span>
+            <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">density</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">compute_teos10_specvol</span><span class="p">(</span>
             <span class="n">sa</span><span class="o">=</span><span class="n">salinity</span><span class="p">,</span> <span class="n">ct</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">pressure</span>
         <span class="p">)</span>
@@ -229,6 +256,52 @@
         <span class="n">specvol</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;specific volume&#39;</span>
     <span class="k">return</span> <span class="n">specvol</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_tracers_in_teos10_convention</span><span class="p">(</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">salinity</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">tracer_convention</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lon</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return conservative temperature and absolute salinity, converting from the</span>
+<span class="sd">    MPAS-Ocean convention if that is what the caller has.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tracer_convention</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">TRACER_CONVENTIONS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Unknown tracer convention </span><span class="si">{</span><span class="n">tracer_convention</span><span class="si">!r}</span><span class="s1">; expected one &#39;</span>
+            <span class="s1">&#39;of &#39;</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">TRACER_CONVENTIONS</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">tracer_convention</span> <span class="o">==</span> <span class="s1">&#39;teos-10&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span>
+
+    <span class="k">if</span> <span class="n">lon</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">lat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;lon and lat are required to convert tracers from the MPAS-Ocean &#39;</span>
+            <span class="s1">&#39;convention to the conservative temperature and absolute &#39;</span>
+            <span class="s1">&#39;salinity that TEOS-10 requires.&#39;</span>
+        <span class="p">)</span>
+
+    <span class="n">scalar</span> <span class="o">=</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span><span class="p">,</span> <span class="n">pressure</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">cons_temp</span><span class="p">,</span> <span class="n">abs_salin</span> <span class="o">=</span> <span class="n">convert_tracer_pair</span><span class="p">(</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
+        <span class="n">salinity</span><span class="o">=</span><span class="n">salinity</span><span class="p">,</span>
+        <span class="n">target</span><span class="o">=</span><span class="s1">&#39;teos-10&#39;</span><span class="p">,</span>
+        <span class="n">pressure</span><span class="o">=</span><span class="n">pressure</span><span class="p">,</span>
+        <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+        <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">scalar</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">cons_temp</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">abs_salin</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">cons_temp</span><span class="p">,</span> <span class="n">abs_salin</span>
 </pre></div>
 
            </div>

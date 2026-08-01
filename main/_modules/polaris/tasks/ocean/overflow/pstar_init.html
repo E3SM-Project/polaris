@@ -113,7 +113,6 @@
   <h1>Source code for polaris.tasks.ocean.overflow.pstar_init</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_tracers_to_mpas_ocean</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.init_state</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_density_from_specvol</span><span class="p">,</span>
     <span class="n">add_quiescent_normal_velocity</span><span class="p">,</span>
@@ -136,9 +135,9 @@
 <span class="sd">    cases on the p-star vertical coordinate.</span>
 
 <span class="sd">    The overflow tracer profile is interpreted as conservative</span>
-<span class="sd">    temperature (CT) and absolute salinity (SA).  Omega receives CT and</span>
-<span class="sd">    SA directly; for MPAS-Ocean they are converted to potential</span>
-<span class="sd">    temperature and practical salinity at a nominal lon/lat location.</span>
+<span class="sd">    temperature (CT) and absolute salinity (SA).  For the nonlinear</span>
+<span class="sd">    (TEOS-10) tree, the framework converts them to potential temperature</span>
+<span class="sd">    and practical salinity when writing the initial state for MPAS-Ocean.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="PStarInit.__init__">
@@ -195,14 +194,6 @@
         <span class="n">ds</span> <span class="o">=</span> <span class="n">layer_thickness_from_geom_interfaces</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">add_quiescent_normal_velocity</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">add_density_from_specvol</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
-            <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;overflow&#39;</span><span class="p">]</span>
-            <span class="n">nominal_lon</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;nominal_lon&#39;</span><span class="p">)</span>
-            <span class="n">nominal_lat</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;nominal_lat&#39;</span><span class="p">)</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">convert_tracers_to_mpas_ocean</span><span class="p">(</span>
-                <span class="n">ds</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">nominal_lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">nominal_lat</span>
-            <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write_vert_coord_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>

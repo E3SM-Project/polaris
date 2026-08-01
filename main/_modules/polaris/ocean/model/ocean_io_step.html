@@ -357,9 +357,19 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">write_vert_coord_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">write_initial_state_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_initial_state_dataset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ds</span><span class="p">,</span>
+        <span class="n">filename</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">tracer_convention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Write an initial-state dataset, omitting horizontal mesh fields and</span>
+<span class="sd">        Write an initial-state dataset, converting the tracers to the</span>
+<span class="sd">        convention the model expects and omitting horizontal mesh fields and</span>
 <span class="sd">        (for Omega) vertical coordinate fields.</span>
 
 <span class="sd">        Parameters</span>
@@ -372,8 +382,35 @@
 
 <span class="sd">        config : polaris.config.PolarisConfigParser</span>
 <span class="sd">            Configuration for the task; forwarded to the Ocean component.</span>
+
+<span class="sd">        tracer_convention : {&#39;teos-10&#39;, &#39;mpas-ocean&#39;}, optional</span>
+<span class="sd">            The convention of ``temperature`` and ``salinity`` in ``ds``.  The</span>
+<span class="sd">            default is to assume the convention implied by the ``eos_type``</span>
+<span class="sd">            config option.</span>
+
+<span class="sd">        lon : float or xarray.DataArray, optional</span>
+<span class="sd">            The longitude(s) in degrees at which to convert tracers, if not</span>
+<span class="sd">            the location implied by the mesh</span>
+
+<span class="sd">        lat : float or xarray.DataArray, optional</span>
+<span class="sd">            The latitude(s) in degrees at which to convert tracers, as for</span>
+<span class="sd">            ``lon``</span>
+
+<span class="sd">        logger : logging.Logger, optional</span>
+<span class="sd">            A logger for logging EOS iteration information; defaults to the</span>
+<span class="sd">            step&#39;s logger</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span>
+            <span class="n">filename</span><span class="p">,</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="n">tracer_convention</span><span class="o">=</span><span class="n">tracer_convention</span><span class="p">,</span>
+            <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="OceanIOStep.map_from_native_model_vars">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.map_from_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_from_native_model_vars">[docs]</a>
@@ -398,7 +435,16 @@
 
 <div class="viewcode-block" id="OceanIOStep.open_model_dataset">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">open_model_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_model_dataset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">filename</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">tracer_convention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Open the given dataset, mapping variable and dimension names from Omega</span>
 <span class="sd">        to MPAS-Ocean names if appropriate</span>
@@ -411,16 +457,45 @@
 <span class="sd">        config : polaris.config.PolarisConfigParser</span>
 <span class="sd">            Configuration for the task; forwarded to the Ocean component.</span>
 
+<span class="sd">        tracer_convention : {&#39;teos-10&#39;, &#39;mpas-ocean&#39;}, optional</span>
+<span class="sd">            The convention of ``temperature`` and ``salinity`` in the dataset</span>
+<span class="sd">            that is returned.  The default is to leave the tracers in the</span>
+<span class="sd">            convention the ocean model wrote them in.  The locations needed</span>
+<span class="sd">            for the conversion come from ``mesh_filename`` unless ``lon`` and</span>
+<span class="sd">            ``lat`` are given.</span>
+
+<span class="sd">        lon : float or xarray.DataArray, optional</span>
+<span class="sd">            The longitude(s) in degrees at which to convert tracers, if not</span>
+<span class="sd">            the location implied by the mesh</span>
+
+<span class="sd">        lat : float or xarray.DataArray, optional</span>
+<span class="sd">            The latitude(s) in degrees at which to convert tracers, as for</span>
+<span class="sd">            ``lon``</span>
+
+<span class="sd">        logger : logging.Logger, optional</span>
+<span class="sd">            A logger for logging EOS iteration information; defaults to the</span>
+<span class="sd">            step&#39;s logger</span>
+
 <span class="sd">        kwargs</span>
-<span class="sd">            keyword arguments passed to `xarray.open_dataset()`</span>
+<span class="sd">            keyword arguments passed to</span>
+<span class="sd">            :py:meth:`polaris.tasks.ocean.Ocean.open_model_dataset()` and on</span>
+<span class="sd">            to `xarray.open_dataset()`</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        ds : xarray.Dataset</span>
 <span class="sd">            The dataset with variables named as expected in MPAS-Ocean</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-            <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="n">filename</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">tracer_convention</span><span class="o">=</span><span class="n">tracer_convention</span><span class="p">,</span>
+            <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 

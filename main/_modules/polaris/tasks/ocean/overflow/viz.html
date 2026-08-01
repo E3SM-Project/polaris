@@ -212,9 +212,21 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="c1"># under TEOS-10, plot conservative temperature whichever model ran,</span>
+        <span class="c1"># so that MPAS-Ocean and Omega results can be compared directly</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+            <span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">tracer_convention</span><span class="o">=</span><span class="s1">&#39;teos-10&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">ds_vert_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_vert_coord_dataset</span><span class="p">(</span><span class="n">ds_init</span><span class="p">)</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+            <span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">tracer_convention</span><span class="o">=</span><span class="s1">&#39;teos-10&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="n">x_min</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
         <span class="n">x_max</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
