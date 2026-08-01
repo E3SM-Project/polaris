@@ -465,6 +465,8 @@
    init_utils.compute_target_density
    init_utils.compute_tracers
 
+   short.Short
+
    viz.Viz
    viz.Viz.run
 ```

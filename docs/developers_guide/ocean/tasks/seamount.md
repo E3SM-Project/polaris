@@ -2,10 +2,11 @@
 
 # seamount
 
-The seamount task group is comprised of one `default` task in each of four
-task trees, `planar/seamount/{linear,nonlinear}/{sigma,zstar}`, combining the
-equation of state with the vertical coordinate used for the initial
-condition.  This follows the `planar/overflow/{eos}/{coord}` pattern.
+The seamount task group is comprised of a `default` task and a `short` task
+in each of four task trees,
+`planar/seamount/{linear,nonlinear}/{sigma,zstar}`, combining the equation of
+state with the vertical coordinate used for the initial condition.  This
+follows the `planar/overflow/{eos}/{coord}` pattern.
 
 ## framework
 
@@ -103,8 +104,9 @@ so that this can be used to constrain the number of MPI tasks that Polaris
 tasks have as their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
 graph partition is generated as part of `runtime_setup()`.  Next, the ocean
-model is run. The duration is set by `run_duration` in the config section
-corresponding to the task (`seamount_default`). Finally,
+model is run. The duration is set by `run_duration`, in hours, in the config
+section corresponding to the task (`seamount_default` or `seamount_short`,
+selected by the `task_name` passed to the step). Finally,
 the variables `kineticEnergyCell` and `normalVelocity` in the
 `output.nc` file are visualized in the `viz` directory.
 
@@ -133,4 +135,24 @@ test runs the `init` step, a 6 day `forward` step, and the `viz` step.  It is
 added once per tree, so four times.  Unlike most tasks, `viz` runs by
 default here: the forward run is long enough that it is not worth making the
 user re-run the task just to get the plots.
+
+
+(dev-ocean-seamount-short)=
+
+## short
+
+The {py:class}`polaris.tasks.ocean.seamount.short.Short` test is the same
+task with a 1 hour `forward` step, and it too is added once per tree.  It
+exists as a regression test rather than a measurement: an hour is far too
+short for the spurious circulation to develop.  `viz` is opt-in here, as
+usual, because re-running the task to get the plots is cheap.
+
+The two tasks differ only in their config section, `seamount_default` versus
+`seamount_short`, which is what {py:class}`Forward` looks up from its
+`task_name`.
+
+Two of the four short tasks are in the `mpaso_pr` and `omega_pr` suites,
+`linear/zstar` and `nonlinear/sigma`, which covers both equations of state
+and both coordinates in two runs.  Nothing from the seamount is in the
+nightly suites yet; the `default` tasks are 6 day runs.
 

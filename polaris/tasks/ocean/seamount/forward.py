@@ -134,7 +134,7 @@ class Forward(OceanModelStep):
         run_duration = task_section.getfloat('run_duration')
         output_interval = task_section.getfloat('output_interval')
         run_duration_str = get_time_interval_string(
-            seconds=run_duration * 86400.0
+            seconds=run_duration * 3600.0
         )
         output_interval_str = get_time_interval_string(
             seconds=output_interval * 3600.0
