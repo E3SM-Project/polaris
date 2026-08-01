@@ -129,6 +129,8 @@ the Omega `History` stream alongside `State`.
 ## default
 
 The {py:class}`polaris.tasks.ocean.seamount.default.Default`
-test runs the `init` step, a short `forward` step, and the `viz` step.  It is
-added once per tree, so four times.
+test runs the `init` step, a 6 day `forward` step, and the `viz` step.  It is
+added once per tree, so four times.  Unlike most tasks, `viz` runs by
+default here: the forward run is long enough that it is not worth making the
+user re-run the task just to get the plots.
 
