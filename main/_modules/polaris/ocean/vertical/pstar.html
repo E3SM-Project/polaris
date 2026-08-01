@@ -212,12 +212,12 @@
         <span class="n">config</span><span class="p">,</span> <span class="n">pseudo_bottom_depth</span><span class="p">,</span> <span class="n">ref_pseudo_depth_bot</span><span class="p">,</span> <span class="n">max_level_cell</span>
     <span class="p">)</span>
 
-    <span class="c1"># Update BottomPressure after partial-cell snap.  The resting depth</span>
+    <span class="c1"># Update BottomPressure after partial-cell snap.  The reference depth</span>
     <span class="c1"># (SurfacePressure = 0) determines the snap; SurfacePressure then scales</span>
     <span class="c1"># the layers uniformly, analogous to ssh in z-star.</span>
     <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;BottomPressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pseudo_bottom_depth</span> <span class="o">*</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
 
-    <span class="c1"># Resting pseudo-thicknesses (as if SurfacePressure = 0), then scale by</span>
+    <span class="c1"># Reference pseudo-thicknesses (as if SurfacePressure = 0), then scale by</span>
     <span class="c1"># (BottomPressure - SurfacePressure) / BottomPressure to account for the</span>
     <span class="c1"># surface pressure squashing the column — the p-star analogue of z-star&#39;s</span>
     <span class="c1"># layerThickness = restingThickness * (ssh + bottomDepth) / bottomDepth.</span>
@@ -383,7 +383,7 @@
     <span class="n">max_level_cell</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute resting p-star pseudo-thicknesses (as if SurfacePressure = 0)</span>
+<span class="sd">    Compute reference p-star pseudo-thicknesses (as if SurfacePressure = 0)</span>
 <span class="sd">    by clipping reference layers at ``pseudo_bottom_depth``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n_vert_levels</span> <span class="o">=</span> <span class="n">ref_pseudo_depth_bot</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>

@@ -243,9 +243,12 @@
 
 <span class="sd">        At convergence the returned dataset contains all p-star coordinate</span>
 <span class="sd">        variables, converged tracer fields, specific volume, pressure,</span>
-<span class="sd">        geometric height at layer midpoints and interfaces, ``bottomDepth``</span>
-<span class="sd">        set to the actual converged geometric water-column thickness, and</span>
-<span class="sd">        ``ssh`` computed as the diagnostic geometric sea-surface height.</span>
+<span class="sd">        geometric height at layer midpoints and interfaces, ``ssh`` set to the</span>
+<span class="sd">        prescribed ``sea_surface_height``, and ``bottomDepth`` diagnosed as the</span>
+<span class="sd">        geometric depth of the (surface-anchored) column.  The two agree with</span>
+<span class="sd">        the target bathymetry where the iteration converges; where partial-cell</span>
+<span class="sd">        snapping prevents an exact match, the residual adjusts ``bottomDepth``</span>
+<span class="sd">        (the representable bathymetry) rather than ``ssh``.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -265,7 +268,9 @@
 <span class="sd">            geom_z_bot``; the iteration adjusts ``BottomPressure`` until</span>
 <span class="sd">            this target is met, so the converged ``ssh`` equals this value.</span>
 <span class="sd">            Defaults to ``-surface_pressure / (RhoSw * Gravity)``, i.e. the</span>
-<span class="sd">            resting surface-pressure depression for a reference-density fluid.</span>
+<span class="sd">            sea-surface depression that balances the surface pressure for a</span>
+<span class="sd">            reference-density fluid.  (Being at rest does not imply</span>
+<span class="sd">            ``ssh = 0``; surface loading depresses ``ssh`` even at rest.)</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -402,20 +407,33 @@
                     <span class="p">)</span>
                     <span class="k">break</span>
 
-            <span class="c1"># full-cell stagnation check — convergence check above takes</span>
+            <span class="c1"># Snap stagnation check — the convergence check above takes</span>
             <span class="c1"># priority so that a perfect initial guess (scaling = 1) exits</span>
-            <span class="c1"># cleanly rather than triggering this warning.</span>
+            <span class="c1"># cleanly rather than reporting a snap that did not happen.</span>
+            <span class="c1">#</span>
+            <span class="c1"># Partial- and full-cell snapping quantize the achievable</span>
+            <span class="c1"># pseudo-bottom depth, so a requested bathymetry between two</span>
+            <span class="c1"># representable depths cannot be reached: the snap keeps pushing</span>
+            <span class="c1"># BottomPressure back and the iteration cannot converge.  This is</span>
+            <span class="c1"># expected, not a failure — it is what min_pc_fraction asks for.</span>
+            <span class="c1"># The column is anchored at the prescribed sea surface below, so</span>
+            <span class="c1"># the residual moves bottomDepth (the representable bathymetry)</span>
+            <span class="c1"># and leaves ssh exact.</span>
+            <span class="c1">#</span>
+            <span class="c1"># This only fires when *every* column is frozen; on a mesh where</span>
+            <span class="c1"># some columns are still converging, the loop simply runs out of</span>
+            <span class="c1"># iterations.  Either way, the post-loop report below describes</span>
+            <span class="c1"># how far the sea floor had to move.</span>
             <span class="k">if</span> <span class="p">(</span>
                 <span class="n">prev_adjusted_bottom_pressure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                 <span class="ow">and</span> <span class="p">(</span>
                     <span class="n">adjusted_bottom_pressure</span> <span class="o">==</span> <span class="n">prev_adjusted_bottom_pressure</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
             <span class="p">):</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: full-cell snap is holding &#39;</span>
-                    <span class="s1">&#39;BottomPressure constant — stopping early to avoid &#39;</span>
-                    <span class="s1">&#39;non-convergence. bottomDepth will reflect the actual &#39;</span>
-                    <span class="s1">&#39;cell bottom rather than the target bathymetry.&#39;</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: cell snapping is holding &#39;</span>
+                    <span class="s1">&#39;BottomPressure constant in every column — stopping &#39;</span>
+                    <span class="s1">&#39;early.&#39;</span>
                 <span class="p">)</span>
                 <span class="k">break</span>
 
@@ -438,6 +456,18 @@
             <span class="n">prev_adjusted_bottom_pressure</span> <span class="o">=</span> <span class="n">adjusted_bottom_pressure</span>
             <span class="n">prev_geom_water_column_thickness</span> <span class="o">=</span> <span class="n">geom_water_column_thickness</span>
 
+        <span class="c1"># Report the columns the iteration could not place on the requested</span>
+        <span class="c1"># bathymetry, however the loop ended (stagnation, or simply running</span>
+        <span class="c1"># out of iterations while other columns were still converging).</span>
+        <span class="n">_report_snapped_bathymetry</span><span class="p">(</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="n">goal_geom_water_column_thickness</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">goal_geom_water_column_thickness</span>
+            <span class="p">),</span>
+            <span class="n">geom_water_column_thickness</span><span class="o">=</span><span class="n">geom_water_column_thickness</span><span class="p">,</span>
+            <span class="n">frac_change_threshold</span><span class="o">=</span><span class="n">water_col_adjust_frac_change_threshold</span><span class="p">,</span>
+        <span class="p">)</span>
+
         <span class="c1"># Assemble the output dataset from the converged state</span>
         <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ct</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;conservative temperature&#39;</span>
@@ -455,6 +485,23 @@
         <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;pressure at layer midpoints&#39;</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Pa&#39;</span>
 
+        <span class="c1"># Anchor the geometric column at the prescribed free surface: ``ssh``</span>
+        <span class="c1"># is prescribed (``sea_surface_height``) and ``bottomDepth`` is the</span>
+        <span class="c1"># diagnosed geometric depth of the column.</span>
+        <span class="c1"># ``geom_height_from_pseudo_height`` builds the column anchored at the</span>
+        <span class="c1"># seafloor (its bottom interface equals the raw target ``geom_z_bot``),</span>
+        <span class="c1"># so we shift the whole column vertically so its top interface lands on</span>
+        <span class="c1"># ``sea_surface_height`` instead.  For cells the iteration can</span>
+        <span class="c1"># represent this shift is zero; for partial-cell-snapped cells (whose</span>
+        <span class="c1"># geometric column thickness cannot exactly match the target</span>
+        <span class="c1"># bathymetry) the snap residual then correctly adjusts ``bottomDepth``</span>
+        <span class="c1"># rather than ``ssh`` — the same tradeoff z-star partial cells make.</span>
+        <span class="c1"># ``ssh`` therefore matches its prescribed value (0 here, because</span>
+        <span class="c1"># ``SurfacePressure = 0``) to machine precision.</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="n">sea_surface_height</span> <span class="o">-</span> <span class="n">geom_z_min</span>
+        <span class="n">geom_z_mid</span> <span class="o">=</span> <span class="n">geom_z_mid</span> <span class="o">+</span> <span class="n">shift</span>
+        <span class="n">geom_z_inter</span> <span class="o">=</span> <span class="n">geom_z_inter</span> <span class="o">+</span> <span class="n">shift</span>
+
         <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;GeomZMid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_z_mid</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">GeomZMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;geometric height at layer midpoints&#39;</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">GeomZMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
@@ -466,16 +513,17 @@
         <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
 
         <span class="c1"># Geometric depth of the seafloor below z=0, i.e. the negation of the</span>
-        <span class="c1"># actual converged bottom interface height (not the water-column</span>
-        <span class="c1"># thickness, which only matches when the sea-surface height is zero).</span>
-        <span class="c1"># Omega reads this as BottomGeomDepth and anchors its column there, so</span>
-        <span class="c1"># it must be the true bathymetric depth for the diagnosed sea-surface</span>
-        <span class="c1"># height (and the resulting geopotential gradient) to be correct.</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">geom_z_max</span>
+        <span class="c1"># (shifted) bottom interface height.  With the surface-anchored column</span>
+        <span class="c1"># this is the representable bathymetry consistent with the pseudo</span>
+        <span class="c1"># column: it equals the raw target where the iteration converges, and</span>
+        <span class="c1"># the partial-cell-snapped depth otherwise.  Omega reads this as</span>
+        <span class="c1"># BottomGeomDepth and anchors its column there, so that (together with</span>
+        <span class="c1"># BottomPressure) it recovers the same prescribed ``ssh``.</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">geom_z_max</span> <span class="o">+</span> <span class="n">shift</span><span class="p">)</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;seafloor geometric depth&#39;</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_z_min</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sea_surface_height</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sea surface geometric height&#39;</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
 
@@ -493,6 +541,36 @@
         <span class="k">return</span> <span class="n">ds</span></div>
 </div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_report_snapped_bathymetry</span><span class="p">(</span>
+    <span class="n">logger</span><span class="p">,</span>
+    <span class="n">goal_geom_water_column_thickness</span><span class="p">,</span>
+    <span class="n">geom_water_column_thickness</span><span class="p">,</span>
+    <span class="n">frac_change_threshold</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Log how far the sea floor had to move in columns where cell snapping</span>
+<span class="sd">    kept the iteration from reaching the requested bathymetry.  ``ssh`` is</span>
+<span class="sd">    prescribed, so the residual shows up in ``bottomDepth``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">residual</span> <span class="o">=</span> <span class="n">goal_geom_water_column_thickness</span> <span class="o">-</span> <span class="n">geom_water_column_thickness</span>
+    <span class="n">frac_residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span> <span class="o">/</span> <span class="n">goal_geom_water_column_thickness</span>
+    <span class="n">snapped</span> <span class="o">=</span> <span class="n">frac_residual</span> <span class="o">&gt;</span> <span class="n">frac_change_threshold</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">snapped</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">snapped</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+    <span class="n">max_move</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">snapped</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">mean_move</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">snapped</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1"> columns (</span><span class="si">{</span><span class="mf">100.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">%) have a &#39;</span>
+        <span class="s1">&#39;requested bathymetry that cell snapping cannot represent. &#39;</span>
+        <span class="s1">&#39;bottomDepth is the nearest representable depth, moved from the &#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;target by up to </span><span class="si">{</span><span class="n">max_move</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> m (mean </span><span class="si">{</span><span class="n">mean_move</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> m); ssh is &#39;</span>
+        <span class="s1">&#39;unaffected.&#39;</span>
+    <span class="p">)</span>
 </pre></div>
 
            </div>

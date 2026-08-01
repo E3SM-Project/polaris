@@ -146,9 +146,12 @@ water-column thickness matches the target within a configurable
 fractional tolerance.</p>
 <p>At convergence the returned dataset contains all p-star coordinate
 variables, converged tracer fields, specific volume, pressure,
-geometric height at layer midpoints and interfaces, <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code>
-set to the actual converged geometric water-column thickness, and
-<code class="docutils literal notranslate"><span class="pre">ssh</span></code> computed as the diagnostic geometric sea-surface height.</p>
+geometric height at layer midpoints and interfaces, <code class="docutils literal notranslate"><span class="pre">ssh</span></code> set to the
+prescribed <code class="docutils literal notranslate"><span class="pre">sea_surface_height</span></code>, and <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> diagnosed as the
+geometric depth of the (surface-anchored) column.  The two agree with
+the target bathymetry where the iteration converges; where partial-cell
+snapping prevents an exact match, the residual adjusts <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code>
+(the representable bathymetry) rather than <code class="docutils literal notranslate"><span class="pre">ssh</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -164,7 +167,9 @@ The target water-column thickness is <code class="docutils literal notranslate">
 <span class="pre">geom_z_bot</span></code>; the iteration adjusts <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> until
 this target is met, so the converged <code class="docutils literal notranslate"><span class="pre">ssh</span></code> equals this value.
 Defaults to <code class="docutils literal notranslate"><span class="pre">-surface_pressure</span> <span class="pre">/</span> <span class="pre">(RhoSw</span> <span class="pre">*</span> <span class="pre">Gravity)</span></code>, i.e. the
-resting surface-pressure depression for a reference-density fluid.</p></li>
+sea-surface depression that balances the surface pressure for a
+reference-density fluid.  (Being at rest does not imply
+<code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">=</span> <span class="pre">0</span></code>; surface loading depresses <code class="docutils literal notranslate"><span class="pre">ssh</span></code> even at rest.)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

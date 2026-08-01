@@ -301,7 +301,9 @@ iteration logic.</p>
 <p>The core algorithm is a fixed-point iteration in pseudo-height space. Let:</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(\eta_0\)</span> = prescribed sea-surface height (m); defaults to <span class="math notranslate nohighlight">\(-P_\text{surf}/(\rho_0 g)\)</span>,
-the resting surface-pressure depression for a reference-density fluid</p></li>
+the sea-surface depression that balances the surface pressure for a
+reference-density fluid (being at rest does not imply <span class="math notranslate nohighlight">\(\eta_0 = 0\)</span>; surface
+loading depresses the sea surface even at rest)</p></li>
 <li><p><span class="math notranslate nohighlight">\(H_\text{geo}^\star\)</span> = target geometric water-column thickness <span class="math notranslate nohighlight">\(= \eta_0 - z_\text{bot}\)</span></p></li>
 <li><p><span class="math notranslate nohighlight">\(P_\text{surf}\)</span> = prescribed sea-surface pressure (Pa; due to atmosphere,
 sea ice, ice shelves, etc.)</p></li>
