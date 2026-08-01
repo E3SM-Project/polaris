@@ -116,17 +116,13 @@ class Forward(OceanModelStep):
         model = config.get('ocean', 'model')
         resolution = section.getfloat('resolution')
 
-        # MPAS-Ocean resolves the barotropic mode with a sub-step, so it can
-        # take a much longer baroclinic step than Omega, which has no
-        # split-explicit integrator
+        # Both models take the same time step with the same integrator:
+        # Omega has no split time stepper, so MPAS-Ocean gives up its
+        # split-explicit one to stay comparable
+        dt_per_km = section.getfloat('dt_per_km')
+        time_integrator = section.get('time_integrator')
         if model == 'omega':
-            dt_per_km = section.getfloat('omega_dt_per_km')
-            time_integrator = _omega_time_integrator(
-                section.get('omega_time_integrator')
-            )
-        else:
-            dt_per_km = section.getfloat('dt_per_km')
-            time_integrator = section.get('time_integrator')
+            time_integrator = _omega_time_integrator(time_integrator)
 
         btr_dt_per_km = section.getfloat('btr_dt_per_km')
         dt_str = get_time_interval_string(seconds=dt_per_km * resolution)

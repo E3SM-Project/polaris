@@ -23,9 +23,11 @@ salinity, `eos_linear_Tref` and `eos_linear_Sref` must both be zero; the
 Beckmann and Haidvogel reference state is folded into `eos_linear_rhoref`
 instead.
 
-Omega has no split-explicit time integrator, so it is limited by the
-barotropic gravity wave and needs a shorter time step than MPAS-Ocean.  The
-two are configured separately, through `dt_per_km` and `omega_dt_per_km`.
+Omega has no split time stepper, so it is limited by the barotropic gravity
+wave.  Rather than let the two models use different integrators, MPAS-Ocean
+gives up its split-explicit scheme and both run RK4 at the same `dt_per_km`
+until Omega gains a split time stepper.  `btr_dt_per_km` therefore has no
+effect unless `time_integrator` is set back to a split-explicit scheme.
 
 (ocean-seamount-variants)=
 
@@ -188,14 +190,20 @@ N/A
 
 ### vertical mixing and bottom drag
 
-All vertical mixing is off. The exact solution is a resting ocean, so the
-only thing that would trigger convection is a spurious pressure gradient —
-the quantity being measured — and convection is a known source of
+All vertical mixing is off in both models. The exact solution is a resting
+ocean, so the only thing that would trigger convection is a spurious pressure
+gradient — the quantity being measured — and convection is a known source of
 MPAS-Ocean/Omega divergence, since Omega uses a single coefficient for both
-convective diffusivity and viscosity. cvmix stays enabled with its
-coefficients zeroed rather than disabled, because `config_use_cvmix = false`
-falls back on MPAS-Ocean's constant vertical viscosity and diffusivity, which
-are not zero.
+convective diffusivity and viscosity. Convection and shear mixing are
+switched off explicitly and the background diffusivity and viscosity are
+zeroed, because Omega defaults them on; MPAS-Ocean additionally sets
+`config_use_cvmix = false`, which leaves its vertical viscosity and
+diffusivity at zero.
+
+Only the coefficients are zeroed. The implicit vertical mixing solve itself
+stays on in both models, because that is what applies the implicit bottom
+drag; Omega aborts if the vertical mixing tendency is disabled while the
+bottom drag is implicit.
 
 Bottom drag is implicit and constant in both models, at
 `bottom_drag_coeff = 1.0e-3`. That is an order of magnitude below the value
@@ -228,22 +236,15 @@ The following config section is specific to this test case:
 # Options related to the seamount case
 [seamount]
 
-# Timestep per km horizontal resolution (s) for MPAS-Ocean, whose
-# split-explicit integrator resolves the barotropic mode separately
-dt_per_km = 10.
+# Timestep per km horizontal resolution (s), shared by both models
+dt_per_km = 4.0
 
-# Barotropic timestep per km horizontal resolution (s), MPAS-Ocean only
+# Barotropic timestep per km horizontal resolution (s), MPAS-Ocean only, and
+# unused unless time_integrator is a split-explicit scheme
 btr_dt_per_km = 2.5
 
-# Timestep per km horizontal resolution (s) for Omega, which has no
-# split-explicit integrator and so is limited by the barotropic gravity wave
-omega_dt_per_km = 2.5
-
-# Time integrator for MPAS-Ocean
-time_integrator = split_explicit_ab2
-
-# Time integrator for Omega
-omega_time_integrator = RK4
+# Time integrator, shared by both models
+time_integrator = RK4
 
 # Horizontal tracer advection order, shared by both models
 horiz_adv_order = 3
