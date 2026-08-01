@@ -34,7 +34,9 @@ reconstruction coefficient files. In addition,
 is not present in the dataset. This provides a way of using the same initial
 conditions for MPAS-Ocean and Omega when the geometric thickness is the state
 variable for MPAS-Ocean and the pseudo-thickness is the state variable for
-Omega. Similarly,
+Omega. It can also convert `temperature` and `salinity` to a requested
+convention, so that analysis and visualization do not have to care which model
+ran (see {ref}`dev-ocean-framework-tracer-conventions-on-read`). Similarly,
 {py:meth}`polaris.ocean.model.OceanIOStep.write_initial_state_dataset()`
 ensures that `SurfacePressure` is present in initial conditions written for
 Omega, adding a spatially uniform field from the
@@ -344,14 +346,34 @@ MPAS-Ocean has no TEOS-10 option, so `config_eos_type` is set to `jm`
 `teos-10` unchanged.  For `constant`, MPAS-Ocean similarly falls back to
 its linear EOS with constant coefficients.
 
-For initial conditions defined in terms of the TEOS-10 tracers
-(conservative temperature and absolute salinity),
-{py:func}`polaris.ocean.eos.convert_tracers_to_mpas_ocean()` converts
-conservative temperature to potential temperature (`gsw.pt_from_CT`) and
-absolute salinity to practical salinity (`gsw.SP_from_SA`), the tracer
-conventions MPAS-Ocean expects.  The conversion uses a co-located
-``pressure`` field and either a nominal scalar lon/lat (for planar
-meshes) or per-cell arrays.
+The two models also disagree about what the `temperature` and `salinity`
+tracers mean under TEOS-10: Omega expects conservative temperature (CT)
+and absolute salinity (SA) while MPAS-Ocean expects potential temperature
+(PT) and practical salinity (SP).  For any other `eos_type` the models
+apply the same algebraic formula, so the distinction is meaningless.
+
+{py:func}`polaris.ocean.eos.convert_tracers()` converts between the two
+conventions in either direction: `gsw.pt_from_CT()` and `gsw.SP_from_SA()`
+going to the MPAS-Ocean convention, `gsw.CT_from_pt()` and
+`gsw.SA_from_SP()` coming back.  It takes the pressure and the lon/lat
+(in degrees) at which to convert, does not modify the dataset it is given,
+and takes a `tracer_pairs` argument for converting variables other than
+`temperature` and `salinity` (surface restoring fields, for example).
+Cells where either tracer is NaN, such as those below the bathymetry, stay
+NaN.  {py:func}`polaris.ocean.eos.convert_tracer_pair()` does the same for
+tracers that are in hand rather than in a dataset.
+
+Steps do not normally call either function themselves.  The framework
+converts the tracers as it writes the initial state and, if asked, as it
+opens a dataset (see {ref}`dev-ocean-framework-init-state` and
+{ref}`dev-ocean-framework-tracer-conventions-on-read`).
+
+Because TEOS-10 requires CT and SA,
+{py:func}`polaris.ocean.eos.compute_density()` takes a
+`tracer_convention` argument saying which convention its `temperature`
+and `salinity` are in.  It defaults to `'teos-10'`; pass
+`tracer_convention='mpas-ocean'`, along with `lon` and `lat`, for tracers
+straight out of MPAS-Ocean.
 
 
 (dev-ocean-spherical-meshes)=
@@ -796,6 +818,10 @@ example because the z-tilde bottom varies spatially), the semi-private method
 as done in
 {py:class}`polaris.tasks.ocean.horiz_press_grad.init.Init`.
 
+(dev-ocean-framework-init-state)=
+
+### Initial state
+
 The `polaris.ocean.init_state` package provides general helpers for
 building the initial-state fields the ocean models read (for example
 from a converged p-star dataset):
@@ -808,14 +834,6 @@ from a converged p-star dataset):
 - {py:func}`polaris.ocean.init_state.add_density_from_specvol()`
   adds an in-situ ``Density`` field as the inverse of ``SpecVol``.
 
-For MPAS-Ocean, the TEOS-10 tracers can be converted to potential
-temperature and practical salinity with
-{py:func}`polaris.ocean.eos.convert_tracers_to_mpas_ocean()` (see
-{ref}`dev-ocean-framework-eos`), using the p-star ``pressure`` field
-and either a nominal scalar lon/lat (for planar meshes) or per-cell
-arrays.  Omega receives conservative temperature and absolute salinity
-directly, so no conversion is needed.
-
 For sigma coordinates, shared functionality for direct thickness computation is
 available in
 {py:func}`polaris.ocean.vertical.sigma.compute_sigma_layer_thickness()`.
@@ -825,6 +843,74 @@ The `polaris.ocean.vertical.diagnostics` module provides utilities:
 - {py:func}`polaris.ocean.vertical.diagnostics.geom_thickness_from_ds()`
 - {py:func}`polaris.ocean.vertical.diagnostics.pseudothickness_from_ds()`
 - {py:func}`polaris.ocean.vertical.diagnostics.depth_from_thickness()`
+
+#### Tracer conventions
+
+An init step builds ``temperature`` and ``salinity`` in whatever
+convention is natural for its physics and hands them over;
+``write_initial_state_dataset()`` converts them to the convention the
+ocean model expects (see {ref}`dev-ocean-framework-eos`) as it writes the
+file.  A step should not convert the tracers itself.
+
+By default, the step is assumed to have built its tracers in the
+convention implied by the ``eos_type`` config option: conservative
+temperature and absolute salinity for `teos-10` and, for any other EOS,
+tracers that need no conversion.  A step that builds potential
+temperature and practical salinity under TEOS-10 anyway (for example
+because it is initialized from an E3SM restart) says so with
+``tracer_convention='mpas-ocean'``, and the framework converts in the
+other direction if the model is Omega.
+
+The conversion happens on a copy just before the file is written, so it
+cannot contaminate an in-memory dataset that is also used to write the
+vertical coordinate.  It needs two things beyond the tracers themselves:
+
+- **Pressure.**
+  {py:func}`polaris.ocean.init_state.pressure_for_tracer_conversion()`
+  uses the ``pressure`` field if the dataset has one (as p-star initial
+  conditions do) and otherwise computes it from ``layerThickness``, the
+  tracers and ``SurfacePressure`` (zero if absent).  Since the pressure
+  only enters through the absolute-to-practical salinity correction, it
+  does not need to be accurate.  The ``pressure`` field itself is dropped
+  from the initial state, whether or not any conversion happens.
+- **Location**, for the same salinity correction.  Explicit ``lon`` and
+  ``lat`` arguments (in degrees) win.  Otherwise, ``lonCell`` and
+  ``latCell`` are used, converted from radians, if the mesh has the
+  ``on_a_sphere`` attribute set to ``YES``; a spherical mesh missing them
+  is an error rather than a fallback.  On a planar mesh, whose
+  ``lonCell``/``latCell`` are meaningless, the ``nominal_lon`` and
+  ``nominal_lat`` config options in the ``ocean`` section are used
+  instead.
+
+(dev-ocean-framework-tracer-conventions-on-read)=
+
+#### Tracer conventions on read
+
+{py:meth}`polaris.ocean.model.OceanIOStep.open_model_dataset()` takes the
+same ``tracer_convention`` argument, so that visualization and analysis
+can work in one convention no matter which model ran.  In both cases the
+argument is the convention on the Polaris side of the boundary --- the
+tracers a step hands over on write, the tracers it gets back on read ---
+and the ocean model supplies the other side.
+
+The defaults differ, though.  On write, a step that says nothing is
+assumed to have built its tracers in the convention implied by
+``eos_type``.  On read, a caller that says nothing gets the tracers
+exactly as the model wrote them, since only the caller knows whether it
+wants the model's own convention or a common one.
+
+The pressure comes from the same rules as on write.  The location does
+not: a dataset being read has had its horizontal mesh variables removed
+(or never had them), so ``lonCell`` and ``latCell`` come from the file
+named by the ``mesh_filename`` argument.  A conversion with neither
+``mesh_filename`` nor an explicit ``lon`` and ``lat`` is an error, as is
+a mesh file with no ``on_a_sphere`` attribute, since assuming such a mesh
+were planar would silently convert a global ocean at (0, 0).
+
+The conversion is the last thing that happens to the tracers, after the
+Omega-only derivations of ``layerThickness``, ``SpecVol`` and
+``vertVelocityTop``, which read the model's own tracers and would be
+wrong if they were converted first.
 
 (dev-ocean-rpe)=
 

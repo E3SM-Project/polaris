@@ -646,7 +646,8 @@
 
    compute_density
    compute_specvol
-   convert_tracers_to_mpas_ocean
+   convert_tracer_pair
+   convert_tracers
 
    constant.compute_constant_density
    linear.compute_linear_density
@@ -665,6 +666,7 @@
    layer_thickness_from_geom_interfaces
    add_quiescent_normal_velocity
    add_density_from_specvol
+   pressure_for_tracer_conversion
 ```
 
 

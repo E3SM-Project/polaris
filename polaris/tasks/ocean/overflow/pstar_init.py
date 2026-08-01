@@ -1,6 +1,5 @@
 import xarray as xr
 
-from polaris.ocean.eos import convert_tracers_to_mpas_ocean
 from polaris.ocean.init_state import (
     add_density_from_specvol,
     add_quiescent_normal_velocity,
@@ -21,9 +20,9 @@ class PStarInit(PStarInitStep, OceanIOStep):
     cases on the p-star vertical coordinate.
 
     The overflow tracer profile is interpreted as conservative
-    temperature (CT) and absolute salinity (SA).  Omega receives CT and
-    SA directly; for MPAS-Ocean they are converted to potential
-    temperature and practical salinity at a nominal lon/lat location.
+    temperature (CT) and absolute salinity (SA).  For the nonlinear
+    (TEOS-10) tree, the framework converts them to potential temperature
+    and practical salinity when writing the initial state for MPAS-Ocean.
     """
 
     def __init__(self, component, name='init', indir=None):
@@ -72,14 +71,6 @@ class PStarInit(PStarInitStep, OceanIOStep):
         ds = layer_thickness_from_geom_interfaces(ds)
         ds = add_quiescent_normal_velocity(ds, ds_mesh)
         ds = add_density_from_specvol(ds)
-
-        if config.get('ocean', 'model') == 'mpas-ocean':
-            section = config['overflow']
-            nominal_lon = section.getfloat('nominal_lon')
-            nominal_lat = section.getfloat('nominal_lat')
-            ds = convert_tracers_to_mpas_ocean(
-                ds, lon=nominal_lon, lat=nominal_lat
-            )
 
         self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
         self.write_initial_state_dataset(ds, 'init.nc', config)

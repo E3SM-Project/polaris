@@ -14,6 +14,8 @@ from polaris.mesh.reconstruct import (
     cartesian_to_local_geographic,
     tangential_reconstruction,
 )
+from polaris.ocean.eos import convert_tracers
+from polaris.ocean.init_state import pressure_for_tracer_conversion
 from polaris.ocean.surface_pressure import surface_pressure_from_config
 from polaris.ocean.vertical.diagnostics import (
     geom_thickness_from_ds,
@@ -409,9 +411,19 @@ class Ocean(Component):
             ds = ds.drop_vars(drop)
         return ds
 
-    def write_initial_state_dataset(self, ds, filename, config):
+    def write_initial_state_dataset(
+        self,
+        ds,
+        filename,
+        config,
+        tracer_convention=None,
+        lon=None,
+        lat=None,
+        logger=None,
+    ):
         """
-        Write an initial-state dataset, omitting horizontal mesh fields and
+        Write an initial-state dataset, converting the tracers to the
+        convention the model expects and omitting horizontal mesh fields and
         (for Omega) vertical coordinate fields.
 
         For MPAS-Ocean the vertical coordinate variables remain in the initial
@@ -421,7 +433,8 @@ class Ocean(Component):
         Parameters
         ----------
         ds : xarray.Dataset
-            A dataset containing MPAS-Ocean variable names
+            A dataset containing MPAS-Ocean variable names.  Its tracers are
+            converted on a copy, so they are left untouched.
 
         filename : str
             The path for the NetCDF file to write
@@ -429,9 +442,41 @@ class Ocean(Component):
         config : polaris.config.PolarisConfigParser
             Configuration for the task; forwarded to
             :py:meth:`write_model_dataset`.
+
+        tracer_convention : {'teos-10', 'mpas-ocean'}, optional
+            The convention of ``temperature`` and ``salinity`` in ``ds``.  The
+            default is to assume the convention implied by the ``eos_type``
+            config option: ``'teos-10'`` for the TEOS-10 equation of state and
+            no conversion otherwise.
+
+        lon : float or xarray.DataArray, optional
+            The longitude(s) in degrees at which to convert tracers, if not
+            the location implied by the mesh (see
+            :ref:`dev-ocean-framework-init-state`)
+
+        lat : float or xarray.DataArray, optional
+            The latitude(s) in degrees at which to convert tracers, as for
+            ``lon``
+
+        logger : logging.Logger, optional
+            A logger for logging EOS iteration information if a pressure needs
+            to be computed for the tracer conversion
         """
         if self.model is None:
             self.model = config.get('ocean', 'model')
+        ds = self._convert_tracers_for_model(
+            ds,
+            config,
+            tracer_convention=tracer_convention,
+            lon=lon,
+            lat=lat,
+            logger=logger,
+        )
+        if 'pressure' in ds:
+            # pressure is a diagnostic that neither model reads, and it is
+            # only present for some vertical coordinates, so drop it to keep
+            # initial conditions consistent with one another
+            ds = ds.drop_vars('pressure')
         ds = self.remove_horiz_mesh_vars(ds)
         if self.model == 'omega':
             ds = self.remove_vert_coord_vars(ds)
@@ -519,6 +564,10 @@ class Ocean(Component):
         reconstruct_variables=None,
         coeffs_filename=None,
         reconstruct_method: Literal['RBF', 'LSTSQ'] = 'LSTSQ',
+        tracer_convention=None,
+        lon=None,
+        lat=None,
+        logger=None,
         **kwargs,
     ):
         """
@@ -536,7 +585,8 @@ class Ocean(Component):
 
         mesh_filename : str, optional
             Path to the mesh NetCDF file. Should contain the reconstruction
-            weights if using the LSTSQ reconstruction method.
+            weights if using the LSTSQ reconstruction method.  It is also
+            where the locations needed for a tracer conversion come from.
 
         reconstruct_variables : list of str, optional
             List of variable names to reconstruct in the dataset.
@@ -548,6 +598,28 @@ class Ocean(Component):
             Method to use for reconstructing vector variables.
             RBF: Radial Basis Function; approach used in MPAS-Ocean.
             LSTSQ: Least-squares reconstruction; new approach in Omega
+
+        tracer_convention : {'teos-10', 'mpas-ocean'}, optional
+            The convention of ``temperature`` and ``salinity`` in the dataset
+            that is returned.  The default is to leave the tracers in the
+            convention the ocean model wrote them in: ``'teos-10'``
+            (conservative temperature and absolute salinity) for Omega and
+            ``'mpas-ocean'`` (potential temperature and practical salinity)
+            for MPAS-Ocean.  The two conventions are indistinguishable unless
+            the ``eos_type`` config option is ``teos-10``, so this is a no-op
+            for any other equation of state.
+
+        lon : float or xarray.DataArray, optional
+            The longitude(s) in degrees at which to convert tracers, if not
+            the location implied by the mesh
+
+        lat : float or xarray.DataArray, optional
+            The latitude(s) in degrees at which to convert tracers, as for
+            ``lon``
+
+        logger : logging.Logger, optional
+            A logger for logging EOS iteration information if a pressure needs
+            to be computed for the tracer conversion
 
         kwargs
             keyword arguments passed to `xarray.open_dataset()`
@@ -588,7 +660,9 @@ class Ocean(Component):
             and 'PseudoThickness' in ds.keys()
             and 'SpecVol' in ds.keys()
             and 'VerticalPseudoVelocity' in ds.keys()
-            and mesh_filename is not None
+            # the vertical coordinate file, not the mesh, is what this
+            # derivation reads
+            and vert_filename is not None
         ):
             ds_vert = self.open_model_dataset(vert_filename, config)
             geom_z_inter, geom_z_mid = geom_height_from_pseudo_height(
@@ -625,6 +699,18 @@ class Ocean(Component):
                 ds.VerticalPseudoVelocity * spec_vol_inter * RhoSw
             )
         ds = self.map_from_native_model_vars(ds)
+        # the conversion is the last thing that happens to the tracers: the
+        # derivations above feed the model's own tracers into TEOS-10 and
+        # would be wrong if they were converted first
+        ds = self._convert_tracers_from_model(
+            ds,
+            config,
+            tracer_convention=tracer_convention,
+            mesh_filename=mesh_filename,
+            lon=lon,
+            lat=lat,
+            logger=logger,
+        )
         if reconstruct_variables is not None:
             if mesh_filename is None:
                 raise ValueError(
@@ -654,6 +740,112 @@ class Ocean(Component):
                 reconstruct_method,
             )
         return ds
+
+    def _convert_tracers_for_model(
+        self, ds, config, tracer_convention, lon, lat, logger
+    ):
+        """
+        Convert ``temperature`` and ``salinity`` from the convention they are
+        given in to the one the ocean model expects: conservative temperature
+        and absolute salinity for Omega, potential temperature and practical
+        salinity for MPAS-Ocean.
+
+        The conventions only differ for the TEOS-10 equation of state, so this
+        is a no-op for any other ``eos_type``, as it is when the tracers are
+        already in the model's convention.
+        """
+        if not config.has_option('ocean', 'eos_type'):
+            return ds
+        if config.get('ocean', 'eos_type').strip() != 'teos-10':
+            return ds
+
+        if tracer_convention is None:
+            # tasks build their initial condition in the convention implied by
+            # the equation of state unless they say otherwise
+            tracer_convention = 'teos-10'
+
+        target = 'teos-10' if self.model == 'omega' else 'mpas-ocean'
+        if tracer_convention == target:
+            return ds
+
+        pressure = pressure_for_tracer_conversion(ds, config, logger=logger)
+        lon, lat = _lon_lat_for_tracer_conversion(ds, config, lon=lon, lat=lat)
+
+        return convert_tracers(
+            ds,
+            source=tracer_convention,
+            target=target,
+            pressure=pressure,
+            lon=lon,
+            lat=lat,
+        )
+
+    def _convert_tracers_from_model(
+        self, ds, config, tracer_convention, mesh_filename, lon, lat, logger
+    ):
+        """
+        Convert ``temperature`` and ``salinity`` from the convention the ocean
+        model uses to the ``tracer_convention`` the caller has asked for, so
+        that analysis and visualization can work in one convention no matter
+        which model ran.
+
+        Unlike on write, there is nothing to infer: a caller that does not ask
+        for a convention gets the tracers as the model wrote them.
+        """
+        if tracer_convention is None:
+            return ds
+        if not config.has_option('ocean', 'eos_type'):
+            return ds
+        if config.get('ocean', 'eos_type').strip() != 'teos-10':
+            return ds
+
+        if self.model is None:
+            self.model = config.get('ocean', 'model')
+
+        source = 'teos-10' if self.model == 'omega' else 'mpas-ocean'
+        if tracer_convention == source:
+            return ds
+
+        pressure = pressure_for_tracer_conversion(ds, config, logger=logger)
+        lon, lat = self._lon_lat_from_mesh(
+            config, mesh_filename=mesh_filename, lon=lon, lat=lat
+        )
+
+        return convert_tracers(
+            ds,
+            source=source,
+            target=tracer_convention,
+            pressure=pressure,
+            lon=lon,
+            lat=lat,
+        )
+
+    def _lon_lat_from_mesh(self, config, mesh_filename, lon, lat):
+        """
+        Determine the longitude and latitude (in degrees) at which to convert
+        the tracers in a dataset being read.
+
+        Unlike an initial condition being written, a dataset being read has
+        typically had its horizontal mesh variables removed (or never had
+        them), so the locations come from the mesh file rather than from the
+        dataset itself.
+        """
+        if (lon is None) != (lat is None):
+            raise ValueError(
+                'lon and lat must either both be given or both be omitted'
+            )
+        if lon is not None:
+            return lon, lat
+
+        if mesh_filename is None:
+            raise ValueError(
+                'Converting tracers to another convention requires the '
+                'location of each cell.  Pass mesh_filename to '
+                'open_model_dataset(), or an explicit lon and lat.'
+            )
+
+        ds_mesh = self.open_model_dataset(mesh_filename, config)
+        return _lon_lat_for_tracer_conversion(ds_mesh, config, strict=True)
 
     def _check_vars_present(self, ds, native_vars, context):
         """
@@ -794,6 +986,80 @@ class Ocean(Component):
                 all_found = False
                 break
         return all_found
+
+
+def _lon_lat_for_tracer_conversion(
+    ds, config, lon=None, lat=None, strict=False
+):
+    """
+    Determine the longitude and latitude (in degrees) at which to convert
+    tracers between the TEOS-10 and MPAS-Ocean conventions.
+
+    Explicit ``lon`` and ``lat`` arguments win.  Otherwise, per-cell
+    ``lonCell`` and ``latCell`` (converted from radians) are used on a
+    spherical mesh and the nominal location from config options is used on a
+    planar mesh.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset with the mesh information: the ``on_a_sphere`` attribute
+        and, if the mesh is on a sphere, ``lonCell`` and ``latCell``
+
+    config : polaris.config.PolarisConfigParser
+        Configuration options, including ``nominal_lon`` and ``nominal_lat``
+        in the ``ocean`` section
+
+    lon : float or xarray.DataArray, optional
+        An explicit longitude (or longitudes) in degrees
+
+    lat : float or xarray.DataArray, optional
+        An explicit latitude (or latitudes) in degrees
+
+    strict : bool, optional
+        Whether a missing ``on_a_sphere`` attribute is an error rather than
+        an indication that the mesh is planar.  A mesh file without the
+        attribute is invalid, but an initial condition being assembled by a
+        step may not have picked it up.
+
+    Returns
+    -------
+    lon : float or xarray.DataArray
+        The longitude(s) in degrees
+
+    lat : float or xarray.DataArray
+        The latitude(s) in degrees
+    """
+    if (lon is None) != (lat is None):
+        raise ValueError(
+            'lon and lat must either both be given or both be omitted'
+        )
+    if lon is not None:
+        return lon, lat
+
+    on_a_sphere = ds.attrs.get('on_a_sphere')
+    if on_a_sphere is None:
+        if strict:
+            raise ValueError(
+                'A tracer conversion needs to know whether the mesh is on a '
+                'sphere but the mesh dataset has no on_a_sphere attribute'
+            )
+        on_a_sphere = 'NO'
+
+    on_a_sphere = str(on_a_sphere).strip().lower()
+    if on_a_sphere == 'yes':
+        # planar meshes carry meaningless lonCell/latCell, so they may only
+        # be used when the mesh really is on a sphere
+        missing = [name for name in ('lonCell', 'latCell') if name not in ds]
+        if missing:
+            raise ValueError(
+                'A tracer conversion on a spherical mesh requires per-cell '
+                'locations but the dataset is missing: ' + ', '.join(missing)
+            )
+        return np.rad2deg(ds.lonCell), np.rad2deg(ds.latCell)
+
+    section = config['ocean']
+    return section.getfloat('nominal_lon'), section.getfloat('nominal_lat')
 
 
 def _add_reconstructed_variables_to_dataset(
