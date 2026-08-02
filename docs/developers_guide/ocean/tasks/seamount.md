@@ -134,6 +134,16 @@ selected by the `task_name` passed to the step). Finally,
 the variables `kineticEnergyCell` and `normalVelocity` in the
 `output.nc` file are visualized in the `viz` directory.
 
+The step takes a `scheme` argument, a key of
+{py:data}`polaris.tasks.ocean.seamount.forward.SCHEMES`, which maps the
+Polaris spelling to Omega's `PressureGradType` and is filled into the
+`PressureGrad` block of the Omega section of `forward.yaml`.  There is no
+"centered limit" of the finite-volume scheme -- the two are separate
+implementations and no setting reduces one to the other -- so this is a
+choice between them rather than a parameter of one.  MPAS-Ocean has only the
+centered scheme, and `dynamic_model_config()` raises if any other is asked
+for under it.
+
 
 ### viz
 
@@ -159,6 +169,16 @@ test runs the `init` step, a 6 day `forward` step, and the `viz` step.  It is
 added once per tree, so four times.  Unlike most tasks, `viz` runs by
 default here: the forward run is long enough that it is not worth making the
 user re-run the task just to get the plots.
+
+Under Omega it also runs a `forward_finite_volume` step, a second 6 day run
+over the same `init` step with the finite-volume horizontal pressure
+gradient.  That step is added in
+{py:meth}`polaris.tasks.ocean.seamount.default.Default.configure()` rather
+than in `__init__()`, because `configure()` is the first point at which the
+user's and machine's config options have been merged in and `ocean:model` is
+known.  Adding it unconditionally would break the task outright for
+MPAS-Ocean, which has no such scheme.  `viz` is removed and re-added around
+it so that it stays last in `steps_to_run`.
 
 
 (dev-ocean-seamount-short)=
