@@ -87,18 +87,43 @@ $O(\tilde h^2)$, and a surface anchor would feed that straight into the answer.
 Note that §3.5.1 of the design still describes a surface anchor; §3.7.4 is
 later, gives the argument, and is what Omega implements.
 
-One consequence is worth knowing before reading the tests.  A Polaris initial
-condition pins the *sea surface* and lets the bottom pressure absorb the same
-$O(\tilde h^2)$ discrepancy, which is the opposite end from `VertCoord`.  So on
-these states the sea-floor anchor is **not** zero even on
-`hydrostatic_consistency_linear`: the two columns reach slightly different
-bottom pressures at the same depth, and at a common pressure their heights
-genuinely differ.  The scheme is right to report it.  What the tests assert on
-the exact set is therefore that the scan stays *flat* -- every increment zero
-to round-off -- and that the assembled tendency is the anchor and nothing
-else, which holds to a part in $10^7$ across the sweep.  The
-`anchor_at_surface` guard switches ends so the gap can be measured rather than
-assumed.
+One consequence is worth knowing before reading the tests: on these states the
+sea-floor anchor is **not** zero, even on `hydrostatic_consistency_linear`.
+
+The cause is the midpoint rule both codes use to turn pressure into geometric
+height, `geom_thickness = spec_vol * h_tilde * RhoSw`.  At 256 m layers it
+truncates each column's 3500 m integral by $1.096\times10^{-3}$ m.  `Init`
+holds `bottomDepth` at the prescribed bathymetry and solves for
+`BottomPressure`, which is the right assignment of known and unknown, and each
+column converges exactly -- to the bottom pressure that makes *its own*
+midpoint sum 3500 m.  Under tilt the two columns' interfaces fall in different
+places, so their truncation errors differ, by $7.138\times10^{-8}$ m; that
+difference is the anchor, to four significant figures.  At a common pressure
+the two columns' heights genuinely differ by that much, and the scheme is right
+to report it.
+
+Three things follow that are worth stating because each closes off a plausible
+fix:
+
+- **more iterations do not help.**  The iteration is at its exact fixed point;
+  over 6 to 40 iterations the inter-column pressure difference is unchanged to
+  seven digits;
+- **anchoring `pstar_init` at the sea floor would be a no-op.**  It already
+  builds the column sea-floor-anchored and shifts it afterwards, and that shift
+  is exactly zero wherever the iteration converges -- which is everywhere in
+  this task, since these variants set `partial_cell_type = None`;
+- **Polaris must not integrate more accurately.**  The increment is
+  byte-identical to `VertCoord::computeGeomZHeight` on purpose; that is what
+  closes the round trip and gives `omega_vs_polaris` its meaning.  A better
+  quadrature here would break it by ~1 mm to remove $7\times10^{-8}$ m.
+
+What the tests assert on the exact set is therefore that the scan stays *flat*
+-- every increment zero to round-off -- and that the assembled tendency is the
+anchor and nothing else, which holds to a part in $10^7$ across the sweep.  The
+residual is $1.75\times10^{-10}$ m s$^{-2}$, against $9.1\times10^{-8}$ for
+`Centered` on the same state, so it is a ceiling on how exact the test can be
+rather than a limit on the scheme.  The `anchor_at_surface` guard switches ends
+so the gap can be measured rather than assumed.
 
 The module also retains `centered_shift()` and `centered_shift_accumulated()`.
 These are no longer on the computational path; they are kept as diagnostics,

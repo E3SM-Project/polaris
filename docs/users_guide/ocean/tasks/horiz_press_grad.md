@@ -268,17 +268,19 @@ one where the scheme's exact set is in play:
 at 256 m layers: a factor of 340 to 520, and 21 to 1050 across the full sweep.
 
 **Why this is not machine precision, though the profile is inside the exact
-set.** The scheme's column scan is anchored at the sea floor, following the
-Omega design, and the anchor is the one quantity in it that comes from the
-state rather than from the scheme's own arithmetic.  Polaris builds its
-p-star column downward from a *prescribed sea surface*, whereas Omega's
-`VertCoord` builds geometric height upward from a *prescribed bathymetry*.
-Those are opposite ends, and the small mismatch between them -- the two
-columns reach very slightly different bottom pressures at the same depth,
-because specific volume is nonlinear in pressure and the tilt partitions the
-two columns differently -- lands in the bottom pressure here rather than in the
-sea-surface height.  At a common pressure the two columns' heights therefore
-genuinely differ, and the scheme reports that difference.
+set.** The scheme's column scan is anchored at the sea floor, and the anchor is
+the one quantity in it that comes from the model's own geometry rather than
+from the scheme's arithmetic.
+
+Both Polaris and Omega turn pressure into geometric height with a midpoint
+rule, summing `rho0 * SpecVol * PseudoThickness` over layers.  At 256 m layers
+that truncates a 3500 m column by about 1.1 mm.  The initial condition holds
+the sea floor at the prescribed bathymetry and solves for the bottom pressure
+that reproduces it, and each column converges exactly -- to the pressure that
+makes *its own* midpoint sum come out at 3500 m.  A tilted coordinate puts the
+two columns' layer interfaces in different places, so their truncation errors
+differ slightly, by 7.1e-8 m.  At a common pressure the two columns' heights
+therefore genuinely differ by that much, and the scheme reports it.
 
 The residual is *entirely* the anchor: every increment of the scan is zero to
 round-off, so the tendency is constant down the column and equals the anchor's
