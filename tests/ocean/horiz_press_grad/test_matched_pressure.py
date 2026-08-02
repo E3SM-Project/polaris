@@ -260,10 +260,19 @@ def test_anchor_reports_the_inverse_barometer_residual():
         f'anchor is {anchor:.3e} m, outside the range the reference-density '
         'inverse barometer explains'
     )
-    # flat with depth: the anchor offsets the whole column, the scan adds
-    # essentially nothing
-    assert float(np.ptp(difference)) < 1.0e-3 * abs(anchor), (
+    # Flat with depth: the anchor offsets the whole column and the scan adds
+    # essentially nothing on top of it.  "Essentially nothing" is ~1e-3 of the
+    # anchor, not round-off -- the two columns' p-star grids differ because
+    # their surface pressures do, so there is a genuine small contrast for the
+    # scan to integrate.  The bound is 5e-3 rather than the measured value
+    # because that value moves with the quadrature: 2.1e-3, 1.1e-3, 1.4e-3 and
+    # 9.8e-4 of the anchor at one through four points, since the integrand is
+    # piecewise linear with breakpoints at the union of the two columns'
+    # interfaces and no fixed rule resolves them.  A threshold pinned to any
+    # one of those readings tests the quadrature rather than the scan.
+    assert float(np.ptp(difference)) < 5.0e-3 * abs(anchor), (
         f'D_k varies by {float(np.ptp(difference)):.3e} m down the column, '
+        f'{float(np.ptp(difference)) / abs(anchor):.1e} of the anchor, '
         'which points at the scan rather than the anchor'
     )
 
@@ -461,6 +470,47 @@ def test_hpga_finite_volume_is_written_to_the_state():
     finite = np.isfinite(ds.HPGAFiniteVolume.values[0])
     assert bool(finite[: deepest + 1].all())
     assert not bool(finite[deepest + 1 :].any())
+
+
+def test_quadrature_points_comes_from_config():
+    """The Gauss rule is the configured one, not a default in the kernel.
+
+    ``quadrature_points`` fills in Omega's ``PressureGrad:QuadraturePoints``
+    and the Python kernel's rule from one option, because
+    ``omega_vs_polaris_rms_threshold`` only checks Omega's arithmetic if both
+    sides integrate the same way.  Two sides quadrating differently are two
+    algorithms, and their disagreement is not distinguishable from a bug in
+    either.
+
+    ``surface_pressure_gradient`` rather than the linear variant: on the exact
+    set the integrand is zero at every point, so *every* rule gives the same
+    answer and the test could not fail.
+    """
+    default = build_state('surface_pressure_gradient', 4.0, 4.0, None)
+    two = build_state(
+        'surface_pressure_gradient', 4.0, 4.0, None, quadrature_points=2
+    )
+    one = build_state(
+        'surface_pressure_gradient', 4.0, 4.0, None, quadrature_points=1
+    )
+
+    # the shipped value is 2, matching Omega's Phase 1 default
+    np.testing.assert_array_equal(
+        default.HPGAFiniteVolume.values, two.HPGAFiniteVolume.values
+    )
+
+    # and a different rule gives a different answer, so the option is read
+    # rather than ignored
+    valid = np.isfinite(two.HPGAFiniteVolume.values[0])
+    assert not np.allclose(
+        one.HPGAFiniteVolume.values[0][valid],
+        two.HPGAFiniteVolume.values[0][valid],
+        rtol=1.0e-12,
+        atol=0.0,
+    ), (
+        'one- and two-point quadrature give the same HPGAFiniteVolume, so '
+        'quadrature_points is not reaching the kernel'
+    )
 
 
 @pytest.mark.parametrize(
