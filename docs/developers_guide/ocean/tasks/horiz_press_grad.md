@@ -203,35 +203,71 @@ holds the p-star coordinate variables written for Omega.
 ### forward
 
 The class {py:class}`polaris.tasks.ocean.horiz_press_grad.forward.Forward`
-defines one model step per horizontal resolution.
+defines one model step per horizontal resolution **and per pressure-gradient
+scheme**, named `forward_<res>_<scheme>`.
 
 It runs Omega from the corresponding `init` output and writes `output.nc`
 (with `NormalVelocityTend` validation), using options from `forward.yaml`.
+`forward.yaml` is a Jinja2 template whose `PressureGrad` block is filled in per
+step from the `scheme` argument and the `quadrature_points` config option.
+
+The schemes are listed by the `pressure_grad_types` config option and named in
+the module-level `SCHEMES` dict, which maps the config spelling to Omega's
+`PressureGradType`.  `SCHEME_HPGA` maps each to the field in `init.nc` that is
+its Polaris counterpart, which is what the analysis steps compare Omega
+against.
+
+Two things about this axis are worth stating, because both were decided
+against plausible alternatives:
+
+- **Both schemes share one `Init` step.**  `Init` is scheme-independent -- it
+  writes `HPGA` and `HPGAFiniteVolume` from the same state -- so duplicating it
+  per scheme would cost run time and, worse, would leave the comparison open to
+  the objection that the two schemes ran on different initial conditions.  The
+  cost is that the scheme label is in every forward step's directory, so
+  baselines recorded before the axis existed do not carry over.
+- **There is no "centered limit" of the finite-volume scheme.**  The two are
+  separate implementations and no setting reduces one to the other, so this is
+  a choice between schemes rather than a parameter of one.  Omega treats an
+  unrecognized `PressureGradType` as fatal rather than falling back to
+  `Centered`, so a typo aborts the run instead of producing centered answers
+  that read as a pass.
 
 ### analysis
 
 The class {py:class}`polaris.tasks.ocean.horiz_press_grad.analysis.Analysis`
 compares each `forward` result with:
 
-- the analytic reference solution (built from `ReferenceColumn`), and
-- the Python-computed HPGA from `init.nc`.
+- the analytic reference solution (built from `ReferenceColumn`), which is a
+  property of the state and so is shared by both schemes, and
+- the Python-computed HPGA from `init.nc` **for the matching scheme**:
+  `HPGA` for `centered`, `HPGAFiniteVolume` for `finite_volume`.  Comparing
+  Omega's finite-volume output against the centered `HPGA` would measure the
+  difference between two schemes and report it as an implementation
+  disagreement.
 
 The step writes:
 
 - `omega_vs_reference.nc` and `omega_vs_reference.png`
 - `omega_vs_python.nc` and `omega_vs_python.png`
 
-and enforces regression criteria from `[horiz_press_grad]`, including:
+Both files carry one series per scheme, as variables suffixed with the scheme
+name, and both plots draw the schemes on one panel -- the comparison between
+them at the same resolution is the measurement, so separating them would hide
+it.
+
+The step enforces regression criteria from `[horiz_press_grad]`, applied per
+scheme:
 
 - allowed convergence-slope range for Omega-vs-reference,
 - high-resolution RMS threshold for Omega-vs-reference, and
 - RMS threshold for Omega-vs-Python consistency.
 
 Implementation-wise, `Analysis.run()` iterates over configured horizontal
-resolutions.  For each resolution it:
+resolutions and, within each, over schemes.  For each resolution it:
 
 1. reads `init_r*.nc`, `culled_mesh_r*.nc`, `vert_coord_r*.nc`, and
-   `output_r*.nc`;
+   `output_r*_<scheme>.nc`;
 2. identifies the single internal edge via `_get_internal_edge()` and derives
    the forward pseudo-heights via `_get_forward_z_tilde_edge_mid()`;
 3. constructs a `ReferenceColumn` with the mesh-derived `x_sign` and calls
@@ -265,9 +301,8 @@ the resolution pairs with `tilt_values`.
 - `subdir_suffix` replaces the horizontal resolution in the step name, so
   repeated horizontal resolutions do not collide.  It is built by
   `sweep_suffix(horiz_res, vert_res, tilt)`, giving names like
-  `init_4km_256m_tilt0p5`.  When it is not given, the existing
-  `init_<res>` / `forward_<res>` naming is used, so the four gradient variants
-  keep their work directories.
+  `init_4km_256m_tilt0p5`.  When it is not given, the horizontal resolution is
+  used, giving `init_<res>` and `forward_<res>_<scheme>`.
 - `tilt_option` and `tilt` (on `Init` only) name a `[horiz_press_grad]` config
   option that `Init.run()` sets in its own config before building the columns,
   in the same way it already sets `vertical_grid:vert_levels`.
@@ -291,14 +326,16 @@ replaces `Analysis` for these variants.  Per sweep point it:
    the deepest layer valid in both columns — the bottom partial cell, which
    carries the entire `bathymetry_step` signal.  `Analysis` includes it too;
 3. takes the RMS of Omega's `NormalVelocityTend` at that edge over those
-   layers.  The truth is zero, so this is the error, not a difference from a
-   reference;
-4. does the same for the Polaris-side `HPGA` from `init.nc` and RMS-differences
-   the two.
+   layers, for each scheme.  The truth is zero, so this is the error, not a
+   difference from a reference;
+4. does the same for the matching Polaris-side field from `init.nc` --
+   `HPGA` or `HPGAFiniteVolume` per `SCHEME_HPGA` -- and RMS-differences the
+   two.
 
 It then groups the sweep by resolution pair, fits the tilt exponent within each
-group over the points at or below `tilt_fit_max` when `tilt_fit` is set, writes
-`resting_state.nc` and `resting_state.png`, and applies four checks:
+group and scheme over the points at or below `tilt_fit_max` when `tilt_fit` is
+set, writes `resting_state.nc` and `resting_state.png`, and applies four
+checks:
 
 - `_check_bathymetry()` — `bottomDepth` must match the `bottomDepthRequested`
   written by `Init` to within `resting_state_max_bathy_error`.  The p-star
@@ -307,9 +344,13 @@ group over the points at or below `tilt_fit_max` when `tilt_fit` is set, writes
   the sea floor, which leaves the state at rest but means the swept tilt is no
   longer the geometry under test;
 - `_check_omega_vs_polaris()` — the retained `omega_vs_polaris_rms_threshold`
-  consistency check, which is independent of the resting-state property;
+  consistency check, applied per scheme and independent of the resting-state
+  property;
 - `_check_sensitivity()` — the largest RMS anywhere in the sweep must reach
   `resting_state_sensitivity_min_rms`, or the sweep is not exercising the
-  failure mode and must be redesigned;
-- `_check_max_rms()` — the consistency gate, skipped while
-  `resting_state_max_rms` is `none`.
+  failure mode and must be redesigned.  This is applied to **`centered` only**:
+  it asks whether the sweep is severe enough to exercise the failure the
+  higher-order scheme exists to fix, so demanding it of `finite_volume` would
+  be requiring the new scheme to fail;
+- `_check_max_rms()` — the consistency gate, applied per scheme and skipped
+  while `resting_state_max_rms` is `none`.

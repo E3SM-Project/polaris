@@ -4,6 +4,7 @@ import xarray as xr
 
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.ztilde import Gravity, RhoSw
+from polaris.tasks.ocean.horiz_press_grad.forward import SCHEME_HPGA
 from polaris.tasks.ocean.horiz_press_grad.metrics import (
     format_value_error_pairs,
     format_value_list,
@@ -30,10 +31,14 @@ class Analysis(OceanIOStep):
             Mapping from horizontal resolution (km) to ``Init`` step
 
         forward : dict
-            Mapping from horizontal resolution (km) to ``Forward`` step
+            Mapping from ``(horizontal resolution, scheme)`` to ``Forward``
+            step
+
+    schemes : list of str
+        The pressure-gradient schemes being compared
     """
 
-    def __init__(self, component, indir, dependencies):
+    def __init__(self, component, indir, dependencies, schemes):
         """
         Create the analysis step
 
@@ -48,10 +53,14 @@ class Analysis(OceanIOStep):
 
         dependencies : dict
             A dictionary of dependent steps
+
+        schemes : list of str
+            The pressure-gradient schemes being compared
         """
         super().__init__(component=component, name='analysis', indir=indir)
 
         self.dependencies_dict = dependencies
+        self.schemes = list(schemes)
 
         self.add_output_file('omega_vs_reference.png')
         self.add_output_file('omega_vs_reference.nc')
@@ -72,14 +81,9 @@ class Analysis(OceanIOStep):
         forward_steps = self.dependencies_dict['forward']
         for resolution in horiz_resolutions:
             init = init_steps[resolution]
-            forward = forward_steps[resolution]
             self.add_input_file(
                 filename=f'init_r{resolution:02g}.nc',
                 work_dir_target=f'{init.path}/init.nc',
-            )
-            self.add_input_file(
-                filename=f'output_r{resolution:02g}.nc',
-                work_dir_target=f'{forward.path}/output.nc',
             )
             self.add_input_file(
                 filename=f'culled_mesh_r{resolution:02g}.nc',
@@ -89,6 +93,12 @@ class Analysis(OceanIOStep):
                 filename=f'vert_coord_r{resolution:02g}.nc',
                 work_dir_target=f'{init.path}/vert_coord.nc',
             )
+            for scheme in self.schemes:
+                forward = forward_steps[resolution, scheme]
+                self.add_input_file(
+                    filename=f'output_r{resolution:02g}_{scheme}.nc',
+                    work_dir_target=f'{forward.path}/output.nc',
+                )
 
     def run(self):
         """
@@ -142,8 +152,12 @@ class Analysis(OceanIOStep):
             'must be set in the "horiz_press_grad" section.'
         )
 
-        ref_errors = []
-        py_errors = []
+        ref_errors: dict[str, list[float]] = {
+            scheme: [] for scheme in self.schemes
+        }
+        py_errors: dict[str, list[float]] = {
+            scheme: [] for scheme in self.schemes
+        }
 
         for resolution in horiz_resolutions:
             ds_init = self.open_model_dataset(
@@ -152,23 +166,9 @@ class Analysis(OceanIOStep):
             ds_mesh = self.open_model_dataset(
                 f'culled_mesh_r{resolution:02g}.nc', self.config
             )
-            ds_out = self.open_model_dataset(
-                f'output_r{resolution:02g}.nc',
-                self.config,
-                decode_times=False,
-            )
 
             edge_index, cells_on_edge = get_internal_edge(ds_mesh)
             cell0, cell1 = cells_on_edge
-
-            z_tilde_forward = _get_forward_z_tilde_edge_mid(
-                ds_out=ds_out,
-                cell0=cell0,
-                cell1=cell1,
-            )
-            hpga_forward = ds_out.NormalVelocityTend.isel(
-                Time=0, nEdges=edge_index
-            ).values
 
             # maxLevelCell is one-based (Fortran indexing), convert to
             # zero-based and use the shallowest valid bottom among the two
@@ -187,11 +187,10 @@ class Analysis(OceanIOStep):
                     f'resolution {resolution:g} km.'
                 )
 
-            forward_valid_mask = np.zeros_like(hpga_forward, dtype=bool)
-            forward_valid_mask[: max_level_index + 1] = True
-
             # Build reference evaluator: x_sign aligns config +x with the
-            # edge normal (from cell0 toward cell1).
+            # edge normal (from cell0 toward cell1).  The reference is a
+            # property of the state, not of the scheme, so it is built once
+            # and both schemes are measured against the same one.
             x_sign = float(
                 np.sign(
                     ds_mesh.xCell.values[cell1] - ds_mesh.xCell.values[cell0]
@@ -215,12 +214,7 @@ class Analysis(OceanIOStep):
             # ReferenceColumn), valid to the seafloor, so the exclusion no
             # longer has a basis.
             z_tilde_inter_for_ref = z_tilde_inter_edge[: max_level_index + 2]
-
             ref_layer_mean = ref.layer_mean_hpga(z_tilde_inter_for_ref)
-            hpga_ref_diff = (
-                hpga_forward[: max_level_index + 1] - ref_layer_mean
-            )
-            ref_errors.append(rms(hpga_ref_diff))
 
             z_tilde_init = (
                 0.5
@@ -229,126 +223,178 @@ class Analysis(OceanIOStep):
                     + ds_init.ZTildeMid.isel(Time=0, nCells=cell1)
                 ).values
             )
-            _check_vertical_match(
-                z_ref=z_tilde_init,
-                z_test=z_tilde_forward,
-                msg=(
-                    'ZTilde mismatch between Python init and Omega forward '
-                    f'at resolution {resolution:g} km'
-                ),
-                valid_mask=forward_valid_mask,
-            )
 
-            hpga_init = ds_init.HPGA.isel(Time=0).values
-            hpga_diff = hpga_forward - hpga_init
-            py_errors.append(rms(hpga_diff[forward_valid_mask]))
+            for scheme in self.schemes:
+                ds_out = self.open_model_dataset(
+                    f'output_r{resolution:02g}_{scheme}.nc',
+                    self.config,
+                    decode_times=False,
+                )
+
+                z_tilde_forward = _get_forward_z_tilde_edge_mid(
+                    ds_out=ds_out,
+                    cell0=cell0,
+                    cell1=cell1,
+                )
+                hpga_forward = ds_out.NormalVelocityTend.isel(
+                    Time=0, nEdges=edge_index
+                ).values
+
+                forward_valid_mask = np.zeros_like(hpga_forward, dtype=bool)
+                forward_valid_mask[: max_level_index + 1] = True
+
+                hpga_ref_diff = (
+                    hpga_forward[: max_level_index + 1] - ref_layer_mean
+                )
+                ref_errors[scheme].append(rms(hpga_ref_diff))
+
+                _check_vertical_match(
+                    z_ref=z_tilde_init,
+                    z_test=z_tilde_forward,
+                    msg=(
+                        'ZTilde mismatch between Python init and Omega '
+                        f'forward at resolution {resolution:g} km, '
+                        f'{scheme} scheme'
+                    ),
+                    valid_mask=forward_valid_mask,
+                )
+
+                # each scheme is compared against its OWN Polaris counterpart;
+                # comparing Omega's finite-volume output against the centered
+                # HPGA would measure the difference between two schemes and
+                # report it as an implementation disagreement
+                hpga_init = ds_init[SCHEME_HPGA[scheme]].isel(Time=0).values
+                hpga_diff = hpga_forward - hpga_init
+                py_errors[scheme].append(rms(hpga_diff[forward_valid_mask]))
 
         resolution_array = np.asarray(horiz_resolutions, dtype=float)
-        ref_error_array = np.asarray(ref_errors, dtype=float)
-        py_error_array = np.asarray(py_errors, dtype=float)
+        ref_error_arrays = {
+            scheme: np.asarray(values, dtype=float)
+            for scheme, values in ref_errors.items()
+        }
+        py_error_arrays = {
+            scheme: np.asarray(values, dtype=float)
+            for scheme, values in py_errors.items()
+        }
 
         fit_mask = (
             resolution_array
             <= omega_vs_reference_convergence_fit_max_resolution
         )
 
-        ref_fit, ref_slope, ref_intercept = power_law_fit(
-            x=resolution_array,
-            y=ref_error_array,
-            fit_mask=fit_mask,
-        )
+        ref_fits = {}
+        ref_slopes = {}
+        ref_intercepts = {}
+        for scheme, values in ref_error_arrays.items():
+            fit, slope, intercept = power_law_fit(
+                x=resolution_array, y=values, fit_mask=fit_mask
+            )
+            ref_fits[scheme] = fit
+            ref_slopes[scheme] = slope
+            ref_intercepts[scheme] = intercept
 
         write_metric_dataset(
             filename='omega_vs_reference.nc',
             resolution_km=resolution_array,
-            rms_error=ref_error_array,
-            fit=ref_fit,
-            slope=ref_slope,
-            intercept=ref_intercept,
+            rms_error=ref_error_arrays,
+            fit=ref_fits,
+            slope=ref_slopes,
+            intercept=ref_intercepts,
             y_name='rms_error_vs_reference',
             y_units='m s-2',
         )
         write_metric_dataset(
             filename='omega_vs_python.nc',
             resolution_km=resolution_array,
-            rms_error=py_error_array,
+            rms_error=py_error_arrays,
             y_name='rms_error_vs_python',
             y_units='m s-2',
         )
 
         _plot_errors(
             resolution_km=resolution_array,
-            rms_error=ref_error_array,
-            fit=ref_fit,
-            slope=ref_slope,
+            rms_error=ref_error_arrays,
+            fit=ref_fits,
+            slope=ref_slopes,
             y_label='RMS error in HPGA (m s-2)',
             title='Omega HPGA Error vs Reference Solution',
             output='omega_vs_reference.png',
         )
         _plot_errors(
             resolution_km=resolution_array,
-            rms_error=py_error_array,
+            rms_error=py_error_arrays,
             y_label='RMS difference in HPGA (m s-2)',
             title='Omega vs Polaris HPGA RMS Difference',
             output='omega_vs_python.png',
         )
 
-        logger.info(f'Omega-vs-reference convergence slope: {ref_slope:1.3f}')
         logger.info(
             'Omega-vs-reference fit uses resolutions (km): '
             f'{format_value_list(resolution_array[fit_mask])}'
         )
-        res_error_pairs = format_value_error_pairs(
-            resolution_array, ref_error_array
-        )
-        logger.info(
-            'Omega-vs-Polaris RMS differences by resolution: '
-            f'{res_error_pairs}'
-        )
-        failing_polaris = py_error_array > omega_vs_polaris_rms_threshold
-        if np.any(failing_polaris):
-            failing_text = ', '.join(
-                [
-                    f'{resolution_array[index]:g} km: '
-                    f'{py_error_array[index]:.3e}'
-                    for index in np.where(failing_polaris)[0]
-                ]
+        for scheme in self.schemes:
+            logger.info(
+                f'{scheme}: convergence slope {ref_slopes[scheme]:1.3f}; '
+                'RMS vs reference '
+                + format_value_error_pairs(
+                    resolution_array, ref_error_arrays[scheme]
+                )
             )
-            raise ValueError(
-                'Omega-vs-Polaris RMS difference exceeds '
-                f'omega_vs_polaris_rms_threshold='
-                f'{omega_vs_polaris_rms_threshold:.3e} at: {failing_text}'
+            logger.info(
+                f'{scheme}: Omega-vs-Polaris RMS differences '
+                + format_value_error_pairs(
+                    resolution_array, py_error_arrays[scheme]
+                )
             )
 
         highest_resolution_index = int(np.argmin(resolution_array))
         highest_resolution = float(resolution_array[highest_resolution_index])
-        highest_resolution_ref_error = float(
-            ref_error_array[highest_resolution_index]
-        )
-        if (
-            highest_resolution_ref_error
-            > omega_vs_reference_high_res_rms_threshold
-        ):
-            raise ValueError(
-                'Omega-vs-reference RMS error at highest resolution '
-                f'({highest_resolution:g} km) is '
-                f'{highest_resolution_ref_error:.3e}, which exceeds '
-                'omega_vs_reference_high_res_rms_threshold '
-                f'({omega_vs_reference_high_res_rms_threshold:.3e}).'
-            )
 
-        if not (
-            omega_vs_reference_convergence_rate_min
-            <= ref_slope
-            <= omega_vs_reference_convergence_rate_max
-        ):
-            raise ValueError(
-                'Omega-vs-reference convergence slope is outside the '
-                'allowed range: '
-                f'{ref_slope:.3f} not in '
-                f'[{omega_vs_reference_convergence_rate_min:.3f}, '
-                f'{omega_vs_reference_convergence_rate_max:.3f}]'
+        for scheme in self.schemes:
+            py_error_array = py_error_arrays[scheme]
+            failing_polaris = py_error_array > omega_vs_polaris_rms_threshold
+            if np.any(failing_polaris):
+                failing_text = ', '.join(
+                    [
+                        f'{resolution_array[index]:g} km: '
+                        f'{py_error_array[index]:.3e}'
+                        for index in np.where(failing_polaris)[0]
+                    ]
+                )
+                raise ValueError(
+                    f'{scheme}: Omega-vs-Polaris RMS difference exceeds '
+                    f'omega_vs_polaris_rms_threshold='
+                    f'{omega_vs_polaris_rms_threshold:.3e} at: {failing_text}'
+                )
+
+            highest_resolution_ref_error = float(
+                ref_error_arrays[scheme][highest_resolution_index]
             )
+            if (
+                highest_resolution_ref_error
+                > omega_vs_reference_high_res_rms_threshold
+            ):
+                raise ValueError(
+                    f'{scheme}: Omega-vs-reference RMS error at highest '
+                    f'resolution ({highest_resolution:g} km) is '
+                    f'{highest_resolution_ref_error:.3e}, which exceeds '
+                    'omega_vs_reference_high_res_rms_threshold '
+                    f'({omega_vs_reference_high_res_rms_threshold:.3e}).'
+                )
+
+            ref_slope = ref_slopes[scheme]
+            if not (
+                omega_vs_reference_convergence_rate_min
+                <= ref_slope
+                <= omega_vs_reference_convergence_rate_max
+            ):
+                raise ValueError(
+                    f'{scheme}: Omega-vs-reference convergence slope is '
+                    'outside the allowed range: '
+                    f'{ref_slope:.3f} not in '
+                    f'[{omega_vs_reference_convergence_rate_min:.3f}, '
+                    f'{omega_vs_reference_convergence_rate_max:.3f}]'
+                )
 
 
 def _get_forward_z_tilde_edge_mid(
@@ -409,30 +455,36 @@ def _check_vertical_match(
 
 def _plot_errors(
     resolution_km: np.ndarray,
-    rms_error: np.ndarray,
+    rms_error: dict[str, np.ndarray],
     y_label: str,
     title: str,
     output: str,
-    fit: np.ndarray | None = None,
-    slope: float | None = None,
+    fit: dict[str, np.ndarray] | None = None,
+    slope: dict[str, float] | None = None,
 ) -> None:
     """
-    Plot RMS error vs. horizontal resolution with a power-law fit.
+    Plot RMS error vs. horizontal resolution, one series per scheme, with a
+    power-law fit per scheme.
     """
     use_mplstyle()
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    if fit is not None:
-        if slope is None:
-            raise ValueError('slope must be provided when fit is provided.')
-        ax.loglog(
-            resolution_km,
-            fit,
-            'k',
-            label=f'power-law fit (slope={slope:1.3f})',
-        )
-    ax.loglog(resolution_km, rms_error, 'o', label='RMS error')
+    for index, (scheme, values) in enumerate(rms_error.items()):
+        color = f'C{index}'
+        if fit is not None and scheme in fit:
+            if slope is None or scheme not in slope:
+                raise ValueError(
+                    'slope must be provided for every scheme in fit.'
+                )
+            ax.loglog(
+                resolution_km,
+                fit[scheme],
+                '-',
+                color=color,
+                label=f'{scheme} fit (slope={slope[scheme]:1.3f})',
+            )
+        ax.loglog(resolution_km, values, 'o', color=color, label=scheme)
 
     ax.set_xlabel('Horizontal resolution (km)')
     ax.set_ylabel(y_label)

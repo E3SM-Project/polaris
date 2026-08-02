@@ -1,4 +1,15 @@
 Omega:
+  PressureGrad:
+    # HorzOrder and VerticalReconstruction are left at Omega's defaults of 2
+    # and 'linear', which are the only Phase 1 values; the Phase 2 values exist
+    # as keys but are rejected with an error, so a configuration written for
+    # Phase 2 cannot quietly run as Phase 1.  An unrecognized PressureGradType
+    # is likewise fatal rather than falling back to Centered, so a typo aborts
+    # the run instead of producing centered answers that read as a pass.
+    PressureGradType: {{ pressure_grad_type }}
+    # the same config option that sets the Python kernel's Gauss rule, so that
+    # omega_vs_polaris compares two implementations rather than two algorithms
+    QuadraturePoints: {{ quadrature_points }}
   TimeIntegration:
     TimeStep: 0000_00:00:01
     StartTime: 0001-01-01_00:00:00

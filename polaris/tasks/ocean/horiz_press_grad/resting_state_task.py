@@ -83,7 +83,12 @@ class HorizPressGradRestingStateTask(Task):
         vert_resolutions = section.getexpression('vert_resolutions')
         tilt_values = section.getexpression('tilt_values')
         tilt_option = section.get('tilt_option')
+        schemes = section.getexpression('pressure_grad_types')
 
+        assert schemes, (
+            'The "pressure_grad_types" configuration option must be set in '
+            'the "horiz_press_grad" section.'
+        )
         assert horiz_resolutions is not None, (
             'The "horiz_resolutions" configuration option must be set in the '
             '"horiz_press_grad" section.'
@@ -134,15 +139,19 @@ class HorizPressGradRestingStateTask(Task):
                 self.add_step(init_step)
                 init_steps[key] = init_step
 
-                forward_step = Forward(
-                    component=self.component,
-                    horiz_res=horiz_res,
-                    init=init_step,
-                    indir=self.subdir,
-                    subdir_suffix=suffix,
-                )
-                self.add_step(forward_step)
-                forward_steps[key] = forward_step
+                # one forward step per scheme over the shared init step; see
+                # HorizPressGradTask for why Init is not duplicated
+                for scheme in schemes:
+                    forward_step = Forward(
+                        component=self.component,
+                        horiz_res=horiz_res,
+                        init=init_step,
+                        indir=self.subdir,
+                        scheme=scheme,
+                        subdir_suffix=suffix,
+                    )
+                    self.add_step(forward_step)
+                    forward_steps[key, scheme] = forward_step
 
                 sweep_keys.append(key)
 
@@ -157,5 +166,6 @@ class HorizPressGradRestingStateTask(Task):
                     'forward': forward_steps,
                 },
                 sweep_keys=sweep_keys,
+                schemes=schemes,
             )
         )
