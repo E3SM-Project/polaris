@@ -56,7 +56,9 @@ GRADIENT_VARIANTS = [
 ]
 
 # Built states are reused across tests, at roughly 0.25 s each.
-_STATE_CACHE: dict[tuple[str, float, float, float | None], xr.Dataset] = {}
+_STATE_CACHE: dict[
+    tuple[str, float, float, float | None, int | None], xr.Dataset
+] = {}
 
 
 # A representative subset of the sweeps, for tests whose point is not "at every
@@ -118,7 +120,11 @@ def resolution_pairs(variant: str) -> list[tuple[float, float]]:
 
 
 def build_state(
-    variant: str, horiz_res: float, vert_res: float, tilt: float | None
+    variant: str,
+    horiz_res: float,
+    vert_res: float,
+    tilt: float | None,
+    quadrature_points: int | None = None,
 ) -> xr.Dataset:
     """
     Build (or return a cached) two-column state for one sweep point.
@@ -128,15 +134,24 @@ def build_state(
     :py:class:`~polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask`
     constructs the step.
 
+    ``quadrature_points`` overrides the config option of that name, which is
+    what sets the Gauss-Legendre rule ``HPGAFiniteVolume`` is built with.  It
+    exists so that a test can confirm the option is read rather than a default
+    being used; leave it ``None`` to take the variant's configured value.
+
     The Polaris ``Step`` constructor is bypassed, as in
     ``tests/ocean/vertical/test_pstar_init.py``, so that no component, work
     directory or config file is needed.
     """
-    key = (variant, horiz_res, vert_res, tilt)
+    key = (variant, horiz_res, vert_res, tilt, quadrature_points)
     if key in _STATE_CACHE:
         return _STATE_CACHE[key]
 
     config = make_config(variant)
+    if quadrature_points is not None:
+        config.set(
+            'horiz_press_grad', 'quadrature_points', str(quadrature_points)
+        )
     step = object.__new__(Init)
     step.config = config
     step.logger = logging.getLogger('test_finite_volume')
