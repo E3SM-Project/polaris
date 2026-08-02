@@ -1,5 +1,9 @@
 from polaris import Task as Task
+from polaris.tasks.ocean.seamount.default import DEFAULT_SCHEME
 from polaris.tasks.ocean.seamount.forward import Forward as Forward
+from polaris.tasks.ocean.seamount.forward import (
+    forward_step_name as forward_step_name,
+)
 from polaris.tasks.ocean.seamount.viz import Viz as Viz
 
 
@@ -35,12 +39,18 @@ class Short(Task):
             component=component,
             init=init,
             task_name=task_name,
-            name='forward',
+            name=forward_step_name(DEFAULT_SCHEME),
+            scheme=DEFAULT_SCHEME,
             indir=self.subdir,
         )
         self.add_step(forward_step)
         # unlike the default task, the forward run here is cheap to repeat, so
         # the plots are opt-in as they are elsewhere in Polaris
         self.add_step(
-            Viz(component=component, indir=self.subdir), run_by_default=False
+            Viz(
+                component=component,
+                indir=self.subdir,
+                scheme=DEFAULT_SCHEME,
+            ),
+            run_by_default=False,
         )

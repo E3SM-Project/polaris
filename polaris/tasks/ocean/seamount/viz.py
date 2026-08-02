@@ -6,6 +6,7 @@ from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris.mpas import cell_mask_to_edge_mask
 from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.tasks.ocean.seamount.forward import forward_step_name
 from polaris.viz import plot_horiz_field
 
 
@@ -20,14 +21,7 @@ class Viz(OceanIOStep):
         label the plots
     """
 
-    def __init__(
-        self,
-        component,
-        indir,
-        name='viz',
-        forward_name='forward',
-        scheme='centered',
-    ):
+    def __init__(self, component, indir, scheme):
         """
         Create the step
 
@@ -39,17 +33,14 @@ class Viz(OceanIOStep):
         indir : str
             the directory the step is in, to which ``name`` will be appended
 
-        name : str, optional
-            the name of the step
-
-        forward_name : str, optional
-            the name of the forward step to plot
-
-        scheme : str, optional
-            the pressure-gradient scheme that forward step was run with,
-            used to label the plots
+        scheme : str
+            the pressure-gradient scheme whose forward step to plot, a key of
+            :py:data:`polaris.tasks.ocean.seamount.forward.SCHEMES`.  Both the
+            name of this step and the forward step it reads follow from it.
         """
-        super().__init__(component=component, name=name, indir=indir)
+        super().__init__(
+            component=component, name=f'viz_{scheme}', indir=indir
+        )
         self.scheme = scheme
         self.add_input_file(
             filename='mesh.nc', target='../../init/culled_mesh.nc'
@@ -57,7 +48,8 @@ class Viz(OceanIOStep):
         self.add_input_file(filename='init.nc', target='../../init/init.nc')
         self.add_vert_coord_input_file(target='../../init/vert_coord.nc')
         self.add_input_file(
-            filename='output.nc', target=f'../{forward_name}/output.nc'
+            filename='output.nc',
+            target=f'../{forward_step_name(scheme)}/output.nc',
         )
 
     def run(self):

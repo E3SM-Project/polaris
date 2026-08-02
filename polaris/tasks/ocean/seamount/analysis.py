@@ -18,6 +18,7 @@ import numpy as np
 import xarray as xr
 
 from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.tasks.ocean.seamount.forward import forward_step_name
 
 # The metrics written to metrics.csv, in order, with the column headings and
 # the units they are reported in
@@ -38,12 +39,11 @@ class Analysis(OceanIOStep):
 
     Attributes
     ----------
-    forward_steps : dict
-        The name of the forward step for each pressure-gradient scheme,
-        keyed by the scheme
+    schemes : list of str
+        The pressure-gradient schemes that were run
     """
 
-    def __init__(self, component, indir, forward_steps):
+    def __init__(self, component, indir, schemes):
         """
         Create the step
 
@@ -55,22 +55,22 @@ class Analysis(OceanIOStep):
         indir : str
             the directory the step is in, to which ``name`` will be appended
 
-        forward_steps : dict
-            The name of the forward step for each pressure-gradient scheme,
-            keyed by the scheme
+        schemes : list of str
+            The pressure-gradient schemes that were run, keys of
+            :py:data:`polaris.tasks.ocean.seamount.forward.SCHEMES`
         """
         super().__init__(component=component, name='analysis', indir=indir)
-        self.forward_steps = dict(forward_steps)
+        self.schemes = list(schemes)
 
         self.add_input_file(
             filename='mesh.nc', target='../../init/culled_mesh.nc'
         )
         self.add_input_file(filename='init.nc', target='../../init/init.nc')
         self.add_vert_coord_input_file(target='../../init/vert_coord.nc')
-        for scheme, step_name in self.forward_steps.items():
+        for scheme in self.schemes:
             self.add_input_file(
                 filename=f'output_{scheme}.nc',
-                target=f'../{step_name}/output.nc',
+                target=f'../{forward_step_name(scheme)}/output.nc',
             )
 
         self.add_output_file('metrics.csv')
@@ -92,7 +92,7 @@ class Analysis(OceanIOStep):
         )
 
         metrics = dict()
-        for scheme in self.forward_steps:
+        for scheme in self.schemes:
             ds = self.open_model_dataset(
                 f'output_{scheme}.nc', config, decode_times=True
             )
