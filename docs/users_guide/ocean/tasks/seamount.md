@@ -98,6 +98,16 @@ The scheme is written into the Omega config explicitly in both steps rather
 than left to Omega's default, so which scheme a run used is recorded with the
 run.
 
+```{warning}
+An Omega that does not recognize the requested `PressureGradType` logs a
+message and falls back to the centered scheme rather than aborting.  Until
+the finite-volume scheme exists in the Omega being built,
+`forward_finite_volume` will therefore run and succeed while producing
+centered answers, which a comparison would read as the two schemes agreeing.
+Check the Omega log for `Unknown PressureGradType` before believing a
+finite-volume result.
+```
+
 Each forward step gets its own `viz` step — `viz` and `viz_finite_volume` —
 and an `analysis` step compares whichever schemes were run.
 
