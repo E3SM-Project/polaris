@@ -13,18 +13,25 @@ passing.
 
 import importlib.resources as imp_res
 
+import numpy as np
 import pytest
 import yaml
 from jinja2 import Template
 
 from polaris.component import Component
 from polaris.tasks.ocean.horiz_press_grad.forward import SCHEME_HPGA, SCHEMES
+from polaris.tasks.ocean.horiz_press_grad.metrics import rms
 from polaris.tasks.ocean.horiz_press_grad.resting_state_task import (
     HorizPressGradRestingStateTask,
 )
 from polaris.tasks.ocean.horiz_press_grad.task import HorizPressGradTask
 
-from .two_column import GRADIENT_VARIANTS, VARIANTS, make_config
+from .two_column import (
+    GRADIENT_VARIANTS,
+    VARIANTS,
+    build_state,
+    make_config,
+)
 
 _HPG_PKG = 'polaris.tasks.ocean.horiz_press_grad'
 
@@ -108,3 +115,50 @@ def test_forward_yaml_renders_what_omega_expects(scheme):
     # Phase 1 defaults apply; the Phase 2 values are rejected with an error
     assert 'HorzOrder' not in block
     assert 'VerticalReconstruction' not in block
+
+
+# The sweep point where each resting-state variant's advantage is smallest,
+# found by scanning the full sweeps offline.  Gating at the worst point is what
+# makes resting_state_improvement_min meaningful; gating at a typical one would
+# pass while the variant regressed somewhere else in its sweep.
+_WORST_IMPROVEMENT = {
+    'hydrostatic_consistency': (4.0, 128.0, 50.0, 2.58),
+    'hydrostatic_consistency_linear': (4.0, 64.0, 50.0, 7.71),
+    'bathymetry_step': (4.0, 256.0, 200.0, 1169.54),
+    'bathymetry_step_linear': (4.0, 256.0, 200.0, 58828.46),
+}
+
+
+@pytest.mark.parametrize('variant', sorted(_WORST_IMPROVEMENT))
+def test_improvement_gate_is_below_what_the_kernel_delivers(variant):
+    """``resting_state_improvement_min`` is set from measurement, with margin.
+
+    The configured gates were taken from these numbers rather than guessed, so
+    this test is what stops the two drifting apart: if the kernel changes, the
+    measured ratio moves and either this assertion or the recorded one fails,
+    rather than the gate silently becoming vacuous or unreachable.
+
+    It also pins the *shape* of the result, which is the interesting part.  The
+    advantage spans four orders of magnitude across the four variants, smallest
+    where the profile is curved and the coordinate is tilted and largest where
+    the profile is resolved and the sea floor steps -- so a single shared gate
+    would be either vacuous on one end or wrong on the other.
+    """
+    horiz_res, vert_res, tilt, expected = _WORST_IMPROVEMENT[variant]
+    ds = build_state(variant, horiz_res, vert_res, tilt)
+    n_valid = int(ds.maxLevelCell.min())
+
+    centered = rms(ds.HPGA.isel(Time=0).values[:n_valid])
+    finite_volume = rms(ds.HPGAFiniteVolume.isel(Time=0).values[:n_valid])
+    measured = centered / finite_volume
+
+    np.testing.assert_allclose(measured, expected, rtol=0.02, atol=0.0)
+
+    configured = make_config(variant)['horiz_press_grad'].getfloat(
+        'resting_state_improvement_min'
+    )
+    assert configured < measured, (
+        f'{variant}: the configured improvement gate {configured:g} is at or '
+        f'above the {measured:.2f}x the kernel actually delivers at its worst '
+        'sweep point, so the gate cannot pass'
+    )
