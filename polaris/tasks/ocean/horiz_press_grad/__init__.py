@@ -25,12 +25,14 @@ def add_horiz_press_grad_tasks(component):
         component.add_task(HorizPressGradTask(component=component, name=name))
 
     # exact resting states, in which the true HPGA is identically zero, so the
-    # model's HPGA is the error and no reference solution is needed.
-    # hydrostatic_consistency_linear is additionally in the finite-volume
-    # scheme's exact set, so it is the only one of these where machine
-    # precision is the correct expectation.
+    # model's HPGA is the error and no reference solution is needed.  The two
+    # _linear variants are additionally inside the finite-volume scheme's exact
+    # set, so their residual is the scheme's own rather than the profile's;
+    # bathymetry_step_linear is the only one that is both exact and in the
+    # geometry that matters globally.
     for name in [
         'bathymetry_step',
+        'bathymetry_step_linear',
         'hydrostatic_consistency',
         'hydrostatic_consistency_linear',
     ]:

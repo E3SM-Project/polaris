@@ -30,7 +30,13 @@ from polaris.tasks.ocean.horiz_press_grad.finite_volume import (
 )
 from polaris.tasks.ocean.horiz_press_grad.reference import ReferenceColumn
 
-from .two_column import LINEAR_VARIANT, build_state, make_config, sweep
+from .two_column import (
+    LINEAR_VARIANT,
+    STEP_LINEAR_VARIANT,
+    build_state,
+    make_config,
+    sweep,
+)
 
 # Machine-precision tolerance as a multiple of the hydrostatic scale, matching
 # tests/ocean/horiz_press_grad/test_finite_volume.py.
@@ -485,6 +491,83 @@ def test_exactness_survives_differing_max_level_cell():
 
     difference = column_scan(pieces)
     assert float(np.ptp(difference)) <= _ROUNDOFF_TOL * hydrostatic_scale(ds)
+
+
+@pytest.mark.parametrize('tilt', [1.0, 25.0, 100.0, 200.0])
+def test_scan_stays_flat_over_a_bathymetry_step(tilt):
+    """D8' on the geometry it was most doubted in.
+
+    ``bathymetry_step_linear`` is inside the exact set *and* has a stepped sea
+    floor, so anything the scan does here is the geometry's doing and not the
+    profile's.  At 100 and 200 m/km the two columns reach different
+    ``maxLevelCell`` and the deepest edge layers evaluate one column's
+    reconstruction two and three layers below its own floor.  The scan stays
+    flat to round-off regardless, which is what design §3.5 consequence 3
+    predicts and what keeps A5 an accuracy question rather than an exactness
+    one.
+    """
+    ds = build_state(STEP_LINEAR_VARIANT, 4.0, 256.0, tilt)
+    difference = column_scan(matched_pressure_pieces(ds))
+
+    worst = float(np.ptp(difference))
+    tolerance = _ROUNDOFF_TOL * hydrostatic_scale(ds)
+    assert worst <= tolerance, (
+        f'grad={tilt} m/km: D_k varies by {worst:.3e} m down the column, more '
+        f'than {tolerance:.3e} m, so the below-floor extrapolation is '
+        'breaking the cancellation'
+    )
+
+
+@pytest.mark.parametrize('tilt', [25.0, 200.0])
+def test_step_anchor_is_not_quadrature_error(tilt):
+    """What the anchor costs over a bathymetry step, and what it is not.
+
+    On a stepped floor the anchor is a difference of large quantities: at
+    200 m/km it cancels 205.586735 m against -205.586735 m to leave 1.7e-7 m,
+    nine decimal digits.  Design §3.7.5 says of the reformulated scheme that
+    "no large quantity is formed anywhere, so nothing large has to cancel" --
+    true of the scan, whose every increment is a horizontal contrast, but not
+    of the anchor.
+
+    The residual is **not** quadrature error, and this test is what establishes
+    that: ``hat_alpha`` is linear in pressure, so every Gauss rule integrates
+    it exactly and refining cannot help.  What is left is the equation of
+    state -- the anchor integrates the edge-shared *linear* expansion of alpha
+    across the whole step, some 2e6 Pa at 200 m/km, where the neglected
+    second-order term is not small.  That attribution is a scaling argument
+    rather than a measurement, but the insensitivity asserted here rules out
+    the alternative.
+    """
+    ds = build_state(STEP_LINEAR_VARIANT, 4.0, 256.0, tilt)
+    pieces = matched_pressure_pieces(ds)
+
+    interface = anchor_index(pieces)
+    delta_z = abs(
+        pieces['interface_height'][1, interface]
+        - pieces['interface_height'][0, interface]
+    )
+    anchor = anchor_difference(pieces)
+
+    # the anchor forms and cancels a quantity of order the bathymetry step
+    assert delta_z > 1.0, (
+        f'grad={tilt} m/km: Delta_e Z at the anchor is only {delta_z:.3e} m, '
+        'so this configuration no longer exercises the cancellation'
+    )
+    assert abs(anchor) < 1.0e-5 * delta_z
+
+    # And refining the rule does not move it, because there is no quadrature
+    # error to remove.  The tolerance is scaled to the quantity being
+    # cancelled, not to the answer: changing the rule reorders a sum of terms
+    # of order Delta_e Z, so the last bits move even though the mathematics
+    # does not.  At 25 m/km that is 1.4e-14 on a 100 m cancellation, against an
+    # anchor of 2.6e-8 -- six orders below the residual being explained.
+    for order in (4, 8, 16):
+        np.testing.assert_allclose(
+            anchor_difference(pieces, order=order),
+            anchor,
+            rtol=0.0,
+            atol=1.0e-13 * delta_z,
+        )
 
 
 def test_assembled_hpga_beats_centered_off_the_exact_set():

@@ -30,11 +30,13 @@ ocean/column/horiz_press_grad/temperature_gradient
 ocean/column/horiz_press_grad/ztilde_gradient
 ocean/column/horiz_press_grad/surface_pressure_gradient
 ocean/column/horiz_press_grad/hydrostatic_consistency
+ocean/column/horiz_press_grad/hydrostatic_consistency_linear
 ocean/column/horiz_press_grad/bathymetry_step
+ocean/column/horiz_press_grad/bathymetry_step_linear
 ```
 
 The first four impose a horizontal gradient and measure convergence toward the
-analytic reference.  The last two are **resting states** whose true HPGA is
+analytic reference.  The last four are **resting states** whose true HPGA is
 identically zero, so the model's HPGA is entirely error and no reference
 solution is involved; see {ref}`ocean-horiz-press-grad-resting`.
 
@@ -302,8 +304,8 @@ option exists.
 (ocean-horiz-press-grad-resting)=
 ## the resting-state variants
 
-The `hydrostatic_consistency` and `bathymetry_step` variants ask a different
-question from the other four.  Rather than measuring convergence toward a
+The four resting-state variants ask a different question from the other
+four.  Rather than measuring convergence toward a
 reference, they place the ocean in a state whose true HPGA is **identically
 zero**, so that whatever the model returns is error.
 
@@ -358,6 +360,43 @@ the same reason `bathymetry_step` sets `tilt_fit = False`: its error changes in
 steps as the two columns' `maxLevelCell` values change, so it is a staircase in
 the sea-floor gradient rather than a power law and a fitted exponent would be
 meaningless.
+
+### the two `_linear` variants
+
+Every resting state has a true HPGA of zero, but that is not the same as being
+a state the finite-volume scheme reproduces *exactly*.  The scheme's exact set
+is set by what its vertical reconstruction can represent, which in Omega's
+Phase 1 is profiles **linear in pressure**.  The two `_linear` variants replace
+the five-node curved temperature and salinity profiles with two-node ones, so
+they are exactly linear in pseudo-height and hence in pressure.  Everything
+else is unchanged.
+
+That separation is what makes them worth running:
+
+| | profile | what tilts |
+| --- | --- | --- |
+| `hydrostatic_consistency` | curved | the coordinate |
+| `hydrostatic_consistency_linear` | exact | the coordinate |
+| `bathymetry_step` | curved | the sea floor |
+| `bathymetry_step_linear` | exact | the sea floor |
+
+On the curved variants the residual mixes the scheme's truncation off the exact
+set with whatever the geometry contributes, and neither can be read alone.  On
+the `_linear` variants the profile contributes nothing, so what is left is the
+geometry's doing.
+
+**`bathymetry_step_linear` is the one to watch.**  It is the only configuration
+in the family that is both inside the exact set and in the geometry that
+matters for the global bottom-layer error — interior coordinate tilt turns out
+to contribute essentially nothing globally, so `hydrostatic_consistency` and
+its `_linear` twin exercise a mechanism that is real but not the one driving
+the problem.  Like `bathymetry_step` it sets `tilt_fit = False`, and for the
+same reason.
+
+It is also where the scheme's advantage is largest: measured offline at 4 km
+and 256 m layers, `HPGAFiniteVolume` is 4.3e-10 m s⁻² against the centered
+9.1e-5 m s⁻² at a 200 m/km sea-floor gradient — a factor of 2e5, against the
+20–1000× the coordinate-tilt variants show.
 
 ### severity, and why the column is deep
 
