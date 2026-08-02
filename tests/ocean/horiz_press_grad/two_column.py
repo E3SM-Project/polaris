@@ -20,6 +20,7 @@ __all__ = [
     'REPRESENTATIVE',
     'VARIANTS',
     'LINEAR_VARIANT',
+    'STEP_LINEAR_VARIANT',
     'GRADIENT_VARIANTS',
     'make_config',
     'sweep',
@@ -36,11 +37,18 @@ VARIANTS = [
     'hydrostatic_consistency',
     'hydrostatic_consistency_linear',
     'bathymetry_step',
+    'bathymetry_step_linear',
 ]
 
-# The one variant whose profile is linear in pressure, and so the only one in
-# the finite-volume scheme's exact set.
+# The variant whose profile is linear in pressure and whose coordinate is
+# tilted -- the exact set, exercised against a tilted coordinate.
 LINEAR_VARIANT = 'hydrostatic_consistency_linear'
+
+# The same profile against a stepped sea floor instead.  Also in the exact set,
+# and the only configuration in the family that is both exact and in the
+# geometry that drives the global bottom-layer error, which is what makes it
+# the one that isolates what a bathymetry step costs the scheme.
+STEP_LINEAR_VARIANT = 'bathymetry_step_linear'
 
 # The four gradient variants, which sweep resolution rather than tilt.  They
 # add nothing to the algebra but a good deal to the states it is checked on:
@@ -75,6 +83,8 @@ REPRESENTATIVE = [
     ('hydrostatic_consistency_linear', 4.0, 64.0, 50.0),
     ('bathymetry_step', 4.0, 256.0, 1.0),
     ('bathymetry_step', 4.0, 128.0, 200.0),
+    ('bathymetry_step_linear', 4.0, 256.0, 25.0),
+    ('bathymetry_step_linear', 4.0, 256.0, 200.0),
     ('temperature_gradient', 4.0, 4.0, None),
     ('surface_pressure_gradient', 4.0, 4.0, None),
     ('ztilde_gradient', 0.5, 0.5, None),
