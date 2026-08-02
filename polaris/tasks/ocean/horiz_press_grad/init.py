@@ -266,9 +266,20 @@ class Init(PStarInitStep, OceanIOStep):
         # than in place of it: HPGA keeps its name, its meaning and its values,
         # so the four gradient variants and the resting-state sweeps are
         # unaffected and their recorded baselines stay valid.  Which of the two
-        # the analysis steps compare is decided in step 10, once the Omega-side
-        # option exists.
-        ds['HPGAFiniteVolume'] = finite_volume_hpga(ds=ds, dx=dx)
+        # an analysis step compares against is set by the scheme its forward
+        # step ran.
+        #
+        # quadrature_points is the same option that fills in Omega's
+        # PressureGrad:QuadraturePoints, so the two sides integrate with one
+        # rule.  Reading it here rather than defaulting is what keeps
+        # omega_vs_polaris_rms_threshold a check on Omega's arithmetic instead
+        # of a measure of the gap between two quadratures.
+        quadrature_points = config.getint(
+            'horiz_press_grad', 'quadrature_points'
+        )
+        ds['HPGAFiniteVolume'] = finite_volume_hpga(
+            ds=ds, dx=dx, order=quadrature_points
+        )
 
         return ds
 
