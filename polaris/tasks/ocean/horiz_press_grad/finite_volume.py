@@ -51,6 +51,7 @@ __all__ = [
     'hydrostatic_scale',
     'matched_pressure_pieces',
     'anchor_difference',
+    'anchor_index',
     'column_scan',
     'scan_increments',
     'layer_mean_difference',
@@ -453,9 +454,9 @@ def matched_pressure_pieces(
         'interface': interface,
         'deepest': deepest,
         'edge_interface': 0.5 * (interface[0, :] + interface[1, :]),
-        'surface_height': ds.GeomZInterface.isel(
-            Time=0, nVertLevelsP1=0
-        ).values,
+        # every interface, not just the sea surface: the scan anchors at the
+        # sea floor, whose index depends on maxLevelCell
+        'interface_height': ds.GeomZInterface.isel(Time=0).values,
     }
 
 
@@ -585,29 +586,81 @@ def delta_specvol_at_pressure(
     return total
 
 
+def anchor_index(pieces: dict, guards: set[str] | None = None) -> int:
+    """
+    The interface the column scan is anchored at.
+
+    The **sea floor** -- the deepest interface valid in both columns -- unless
+    the ``anchor_at_surface`` guard selects the sea surface.  See
+    :py:func:`anchor_difference` for why the two ends are not equivalent.
+
+    Parameters
+    ----------
+    pieces : dict
+        From :py:func:`matched_pressure_pieces`.
+
+    guards : set of str, optional
+        Verification-only switches; see :py:func:`finite_volume_hpga`.
+
+    Returns
+    -------
+    index : int
+        The interface index, in ``[0, min(maxLevelCell)]``.
+
+    """
+    guards = guards if guards is not None else pieces.get('guards', set())
+    if 'anchor_at_surface' in guards:
+        return 0
+    return int(min(pieces['deepest'])) + 1
+
+
 def anchor_difference(
     pieces: dict, order: int = 2, guards: set[str] | None = None
 ) -> float:
     """
     The design's ``[anchor]``: the fixed-pressure height difference at the
-    edge's topmost interface.
+    interface the scan starts from.
 
     .. math::
 
-        D_1 = \\Delta_e Z_1 - \\frac{1}{g}\\,\\Delta_e
-        \\int_{p^{\\rm surf}_i}^{\\bar q_1} \\hat\\alpha^{(e)}_i(p)\\,dp
+        D_{K+1} = \\Delta_e Z_{K+1} - \\frac{1}{g}\\,\\Delta_e
+        \\int_{p_{i,K+1}}^{\\bar q_{K+1}} \\hat\\alpha^{(e)}_i(p)\\,dp
 
-    The two columns sit at different surface pressures, so this is the
-    sea-surface height difference corrected to the common pressure
-    :math:`\\bar q_1`.  The two short integrals are over *different* pressure
-    ranges and so cannot be combined into a matched-pressure difference the way
-    the interior can; each is taken inside that column's own top layer.
+    The two columns' interfaces sit at different pressures, so this is their
+    geometric height difference corrected to the common pressure
+    :math:`\\bar q_{K+1}`.  The two short integrals are over *different*
+    pressure ranges and so cannot be combined into a matched-pressure
+    difference the way the interior can; each is taken inside that column's own
+    outermost layer.
 
-    For a resting ocean whose sea surface satisfies the inverse-barometer
-    relation this is zero, and **exactness of the whole scheme inherits that**
-    (design §3.5.1).  It is the one place the scheme's robustness depends on
-    something outside the pressure gradient, namely the consistency of the
-    initialized sea-surface height with the surface pressure.
+    **The anchor is at the sea floor** (design §3.7.4), :math:`K` being the
+    deepest layer valid in both columns.  Which end it sits at is not a free
+    choice and not merely a conditioning preference:
+
+    * `VertCoord` builds geometric height *upward* from a prescribed
+      bathymetry, accumulating :math:`\\rho_0\\alpha_{i,k}\\tilde h_{i,k}` over
+      each column's **own** layers.  On a profile the reconstruction does not
+      resolve, two columns with different layer partitions give sums differing
+      at :math:`O(\\tilde h^2)`, so their *derived* sea-surface heights differ
+      by that much even when the two columns hold the same water.  Anchored at
+      the surface that discrepancy enters :math:`D_1` directly and exactness is
+      lost; anchored at the sea floor over a flat floor :math:`\\Delta_e Z` is
+      exact input and vanishes identically.
+    * The two ends therefore agree only for profiles inside the exact set,
+      where both columns' sums agree term by term.  The ``anchor_at_surface``
+      guard exists to measure the gap rather than assume it.
+
+    Where the two columns have different ``maxLevelCell`` this needs no special
+    case: the anchor sits at the deepest interface index valid in *both*, which
+    is the shallower column's own floor and an interior interface of the
+    deeper one, and each column is shifted to the common pressure from
+    whichever interface pressure it has there.
+
+    The anchor is **computed, not assumed**.  It is whatever the model's
+    geometric heights and interface pressures imply, evaluated at a common
+    pressure, and it is the deepest instance of the same fixed-pressure
+    comparison the recurrence makes at every other interface.  A state only
+    approximately at rest carries a real gradient, and the scheme reports it.
 
     Parameters
     ----------
@@ -619,28 +672,35 @@ def anchor_difference(
         The integrand is linear in pressure within a layer, so 2 integrates it
         exactly.
 
+    guards : set of str, optional
+        Verification-only switches; see :py:func:`finite_volume_hpga`.
+
     Returns
     -------
     anchor : float
-        :math:`D_1` in m.
-
+        :math:`D` at :py:func:`anchor_index`, in m.
 
     """
     guards = guards if guards is not None else pieces.get('guards', set())
-    delta_z = pieces['surface_height'][1] - pieces['surface_height'][0]
+    interface = anchor_index(pieces, guards=guards)
+    height = pieces['interface_height'][:, interface]
+    delta_z = height[1] - height[0]
     if 'anchor_delta_z_only' in guards:
-        # guard: the sea-surface height difference without correcting to a
+        # guard: the geometric height difference without correcting to a
         # common pressure
         return float(delta_z)
 
     nodes, weights = np.polynomial.legendre.leggauss(order)
-    common = pieces['edge_interface'][0]
+    common = pieces['edge_interface'][interface]
+    # the edge layer adjacent to the anchor interface supplies the shared
+    # coefficients, as it does for every other interface in the scan
+    edge_layer = max(interface - 1, 0)
 
     correction = np.empty(2)
     for icell in range(2):
-        surface = pieces['interface'][icell, 0]
-        middle = 0.5 * (surface + common)
-        half = 0.5 * (common - surface)
+        own = pieces['interface'][icell, interface]
+        middle = 0.5 * (own + common)
+        half = 0.5 * (common - own)
         probe = middle + half * nodes
         level = layer_containing_pressure(pieces, icell, probe)
         theta = pieces['theta'][icell, level] + pieces['slope_theta'][
@@ -649,7 +709,7 @@ def anchor_difference(
         salinity = pieces['salinity'][icell, level] + pieces['slope_salinity'][
             icell, level
         ] * (probe - pieces['pressure_mid'][icell, level])
-        expansion = pieces['expansion'].isel(nVertLevels=0)
+        expansion = pieces['expansion'].isel(nVertLevels=edge_layer)
         specvol = (
             float(expansion.alpha_0)
             + float(expansion.alpha_theta)
@@ -667,12 +727,17 @@ def column_scan(
 ) -> np.ndarray:
     """
     The design's ``[d-recurrence]``: :math:`D_k = \\Delta_e z(\\bar q_k)`
-    accumulated down the edge's column from the sea surface.
+    accumulated along the edge's column from :py:func:`anchor_difference`,
+    which sits at the **sea floor**.
 
     .. math::
 
         D_{k+1} = D_k - \\frac{1}{g}
         \\int_{\\bar q_k}^{\\bar q_{k+1}} \\Delta_e\\hat\\alpha(p)\\,dp
+
+    Anchored at the floor the recurrence is run in the direction
+    :math:`D_k = D_{k+1} + \\frac{1}{g}\\int`, upward; the integrals are the
+    same ones either way.
 
     Every quantity here is small.  :math:`D_k` is a fixed-pressure height
     difference -- order :math:`10^{-1}` m for a realistic baroclinic column and
@@ -694,26 +759,32 @@ def column_scan(
     -------
     difference : numpy.ndarray
         :math:`D_k` at every edge interface valid in both columns, in m, with
-        ``difference[0]`` the anchor.
+        ``difference[anchor_index(pieces)]`` the anchor.
 
 
     """
     nodes, weights = np.polynomial.legendre.leggauss(order)
     edges = pieces['edge_interface']
     deepest = int(min(pieces['deepest']))
+    anchor = anchor_index(pieces, guards=guards)
 
-    difference = np.empty(deepest + 2)
-    difference[0] = anchor_difference(pieces, order=order, guards=guards)
+    increment = np.empty(deepest + 1)
     for edge_layer in range(deepest + 1):
         top, bot = edges[edge_layer], edges[edge_layer + 1]
         middle, half = 0.5 * (top + bot), 0.5 * (bot - top)
         contrast = delta_specvol_at_pressure(
             pieces, edge_layer, middle + half * nodes, guards=guards
         )
-        integral = half * float(np.sum(weights * contrast))
-        difference[edge_layer + 1] = (
-            difference[edge_layer] - integral / Gravity
+        increment[edge_layer] = (
+            half * float(np.sum(weights * contrast)) / Gravity
         )
+
+    difference = np.empty(deepest + 2)
+    difference[anchor] = anchor_difference(pieces, order=order, guards=guards)
+    for k in range(anchor - 1, -1, -1):
+        difference[k] = difference[k + 1] + increment[k]
+    for k in range(anchor + 1, deepest + 2):
+        difference[k] = difference[k - 1] - increment[k - 1]
 
     return difference
 
@@ -751,18 +822,25 @@ def layer_mean_difference(
     The layer mean of :math:`\\Delta_e z(p)` over each edge layer.
 
     Within an edge layer ``[qbar_k, qbar_{k+1}]``,
-    :math:`\\Delta_e z(p) = D_k - \\frac{1}{g}\\int_{\\bar q_k}^{p}
+    :math:`\\Delta_e z(p) = D_{k+1} + \\frac{1}{g}\\int_{p}^{\\bar q_{k+1}}
     \\Delta_e\\hat\\alpha`, so averaging over the layer and integrating the
     double integral by parts gives
 
     .. math::
 
-        \\langle\\Delta_e z\\rangle_k = D_k - \\frac{1}{g\\,\\Delta p_{e,k}}
+        \\langle\\Delta_e z\\rangle_k = D_{k+1}
+        + \\frac{1}{g\\,\\Delta p_{e,k}}
         \\int_{\\bar q_k}^{\\bar q_{k+1}}
-        (\\bar q_{k+1} - p)\\,\\Delta_e\\hat\\alpha(p)\\,dp
+        (p - \\bar q_k)\\,\\Delta_e\\hat\\alpha(p)\\,dp
 
     which is the "second moment of the same integrand over the same interval"
     of design §3.5.1, on the same quadrature points as the scan.
+
+    The moment is taken about the layer's **top** interface and paired with
+    :math:`D_{k+1}` at its **bottom** one, the end nearer the sea-floor anchor
+    (design §4.1.3).  The mirror form -- :math:`D_k` with a moment about
+    the bottom -- is the same number in exact arithmetic and a different one at
+    finite quadrature, so it is not an interchangeable way to write this.
 
     Parameters
     ----------
@@ -795,8 +873,8 @@ def layer_mean_difference(
         contrast = delta_specvol_at_pressure(
             pieces, edge_layer, probe, guards=guards
         )
-        moment = half * float(np.sum(weights * (bot - probe) * contrast))
-        mean[edge_layer] = difference[edge_layer] - moment / (
+        moment = half * float(np.sum(weights * (probe - top) * contrast))
+        mean[edge_layer] = difference[edge_layer + 1] + moment / (
             Gravity * (bot - top)
         )
 
@@ -846,8 +924,14 @@ def finite_volume_hpga(
             evaluate each column at its own layer ``k`` instead of the layer
             containing the pressure.
         ``'anchor_delta_z_only'``
-            take the anchor as ``Delta_e Z_1`` alone, dropping the correction
+            take the anchor as ``Delta_e Z`` alone, dropping the correction
             to a common pressure.
+        ``'anchor_at_surface'``
+            anchor the column scan at the sea surface instead of the sea
+            floor.  Not a mistake in the arithmetic but a different choice of
+            end, which the design settles in favour of the floor; see
+            :py:func:`anchor_difference`.  It exists so the gap between the two
+            can be measured rather than assumed.
 
     Returns
     -------
