@@ -33,9 +33,28 @@ effect unless `time_integrator` is set back to a split-explicit scheme.
 
 ## variants
 
-Each task exists in four trees, combining the equation of state with the
-vertical coordinate used for the initial condition:
-`planar/seamount/{linear,nonlinear}/{sigma,zstar}`.
+Each task exists in eight trees, combining the equation of state, the
+stratification and the vertical coordinate used for the initial condition:
+`planar/seamount/{eos}/{stratification}/{coord}`, or in full
+`planar/seamount/{linear,nonlinear}/{exponential,linear_pressure}/{sigma,zstar}`.
+
+The stratification chooses whether a finite-volume pressure gradient is exact
+on the profile:
+
+- `exponential` — the realistic profile, Beckmann and Haidvogel eqn 16, with
+  the stratification concentrated in the upper 500 m over a nearly
+  unstratified abyss.  It is in no pressure-gradient scheme's exact set, so
+  both schemes carry a truncation error and the comparison is on a profile
+  the ocean actually has.
+- `linear_pressure` — temperature linear in pressure, salinity constant.  A
+  finite-volume pressure gradient is exact here, so its spurious velocity
+  should collapse while the centered scheme's does not, and anything that
+  survives the finite-volume run is not pressure-gradient truncation error.
+  See {ref}`ocean-seamount-linear-in-pressure`.
+
+The two span the same density range under the linear equation of state,
+3.0 kg m^{-3}, so a spurious velocity measured on one is comparable to the
+other.
 
 The coordinate chooses how much the layers tilt:
 
@@ -58,10 +77,13 @@ The equation of state chooses whether density depends on pressure:
   expansion coefficient then varies along a tilted layer, which the linear
   trees cannot represent.
 
-The two equations of state are given the same buoyancy stratification, as
-described under {ref}`ocean-seamount-init`, so a difference in spurious
-velocity between the `linear` and `nonlinear` trees is attributable to the
-equation of state and not to a different `N^2`.
+Under the `exponential` stratification the two equations of state are given
+the same buoyancy stratification, as described under
+{ref}`ocean-seamount-init`, so a difference in spurious velocity between the
+`linear` and `nonlinear` trees is attributable to the equation of state and
+not to a different `N^2`.  Under `linear_pressure` the tracer is prescribed
+directly rather than inverted from a density, so the two trees span the same
+temperature range instead and their densities differ.
 
 One caveat on cross-model comparison: TEOS-10 and Jackett-McDougall are
 genuinely different functions, not two implementations of one, so the two
@@ -77,7 +99,7 @@ compared directly.
 
 The test case begins with a zero velocity field and is unforced, so the exact solution is to remain motionless. 
 The seamount rises from a flat sea floor in the center of the domain. 
-In a pure z-level vertical coordinate without partial bottom cells (`partial_cell_type = full`), the pressure gradient will remain zero and induce no flow to machine precision. When any layer tilting is added, including from partial bottom cells, some flow is introduced by the pressure gradient error. This is fundamentally because the pressure must be extrapolated vertically at cell centers to the mid-depth of the edge. The default setting is the sigma coordinate. These are the images produced in the `viz` folder, which runs by default in this task because the 6 day forward run is too long to want to repeat just to get the plots.
+In a pure z-level vertical coordinate without partial bottom cells (`partial_cell_type = full`), the pressure gradient will remain zero and induce no flow to machine precision. When any layer tilting is added, including from partial bottom cells, some flow is introduced by the pressure gradient error. This is fundamentally because the pressure must be extrapolated vertically at cell centers to the mid-depth of the edge. The default setting is the sigma coordinate. These are the images produced in the `viz_centered` folder, which runs by default in this task because the 6 day forward run is too long to want to repeat just to get the plots.
 
 ```{image} images/seamount_velocity_max_t.png
 :align: center
@@ -99,22 +121,24 @@ In a pure z-level vertical coordinate without partial bottom cells (`partial_cel
 #### pressure-gradient schemes
 
 Under Omega the task performs a second forward run, `forward_finite_volume`,
-with `PressureGradType: FiniteVolume` instead of the centered scheme the
-`forward` step uses.  Both start from the same `init` step, so the two
+with `PressureGradType: FiniteVolume` instead of the centered scheme
+`forward_centered` uses.  Both start from the same `init` step, so the two
 schemes are compared at an identical state rather than at two states that
 also differ in their initial condition.
 
 The step is added only when `model = omega`.  MPAS-Ocean has only the
-centered scheme, so under MPAS-Ocean the task is exactly what it was: `init`,
-`forward` and `viz`.  The centered step keeps the plain name `forward` in
-both cases, since it is the run the two models share.
+centered scheme, so under MPAS-Ocean the task is `init`, `forward_centered`,
+`viz_centered` and `analysis`.
 
-The scheme is written into the Omega config explicitly in both steps rather
-than left to Omega's default, so which scheme a run used is recorded with the
+Every forward step is named for its scheme, including in the `short` task
+which runs only the centered one, so an output directory says which scheme
+produced it without anyone having to open the model config.  The scheme is
+also written into the Omega config explicitly rather than left to Omega's
+default, for the same reason.
+
+Each forward step gets its own `viz` step — `viz_centered` and
+`viz_finite_volume` — and an `analysis` step compares whichever schemes were
 run.
-
-Each forward step gets its own `viz` step — `viz` and `viz_finite_volume` —
-and an `analysis` step compares whichever schemes were run.
 
 (ocean-seamount-metrics)=
 
@@ -461,7 +485,7 @@ constant_f = -1.0e-4
 ```
 
 The `linear` trees configure their equation of state in `ocean`, through
-`seamount_linear.cfg`. `eos_linear_Tref` must be zero, because Omega's
+`seamount_linear_eos.cfg`. `eos_linear_Tref` must be zero, because Omega's
 linear equation of state has no reference temperature; the Beckmann and
 Haidvogel reference state (1028 kg m^{-3} at T = 5 C, S = 35 PSU) is folded
 into `eos_linear_rhoref` instead, as
@@ -504,15 +528,24 @@ exists for regression testing: an hour is far too short for the spurious
 circulation to develop, so it says nothing about the pressure gradient error,
 but it is long enough to catch a change in the answer cheaply.  It is
 otherwise identical to the `default` task — same mesh, vertical grid, initial
-condition, time step and physics — and it exists in all four trees.
+condition, time step and physics — except that it runs the centered scheme
+only, and it exists in all eight trees.
 
-The `viz` step is present but does not run by default here, since re-running
-the task to get the plots costs almost nothing.
+The `viz_centered` step is present but does not run by default here, since
+re-running the task to get the plots costs almost nothing.  There is no
+`analysis` step: an hour of a resting ocean is not a measurement.
 
-Two of the four are in the `mpaso_pr` and `omega_pr` suites:
-`planar/seamount/linear/zstar/short` and
-`planar/seamount/nonlinear/sigma/short`.  That pair covers both equations of
-state and both vertical coordinates in two runs rather than four.
+Three of the eight are in the `mpaso_pr` and `omega_pr` suites:
+
+- `planar/seamount/linear/exponential/zstar/short`
+- `planar/seamount/nonlinear/exponential/sigma/short`
+- `planar/seamount/nonlinear/linear_pressure/sigma/short`
+
+The first two cover both equations of state and both vertical coordinates in
+two runs rather than four.  The third covers the linear-in-pressure initial
+condition, whose fixed-point iteration is the only part of the initial
+condition that has to converge rather than evaluate; TEOS-10 is what makes it
+have to, since the specific volume depends on pressure.
 
 ### time step and run duration
 
@@ -530,7 +563,7 @@ output_interval = 0.5
 ```
 
 The output interval is half the run duration so that the time series the
-`viz` step plots has more than a single point in it.
+`viz_centered` step plots has more than a single point in it.
 
 ### config options
 
