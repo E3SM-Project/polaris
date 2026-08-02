@@ -281,12 +281,41 @@ name, and both plots draw the schemes on one panel -- the comparison between
 them at the same resolution is the measurement, so separating them would hide
 it.
 
-The step enforces regression criteria from `[horiz_press_grad]`, applied per
-scheme:
+The step enforces regression criteria from `[horiz_press_grad]`:
 
-- allowed convergence-slope range for Omega-vs-reference,
-- high-resolution RMS threshold for Omega-vs-reference, and
-- RMS threshold for Omega-vs-Python consistency.
+- allowed convergence-slope range for Omega-vs-reference, **per scheme**
+  (`omega_vs_reference_convergence_rate_{min,max}_{scheme}`);
+- high-resolution RMS threshold for Omega-vs-reference, per scheme;
+- RMS threshold for Omega-vs-Python consistency, per scheme; and
+- `omega_vs_reference_accuracy_ratio_min`, the ratio of the centered to the
+  finite-volume RMS error at the **coarsest** resolution.
+
+Three things about the last two are worth knowing, because each was set from
+measurement against a plausible alternative:
+
+- **Bands are per scheme because the schemes genuinely differ in order on one
+  variant.**  Measured offline over 4, 2, 1 and 0.5 km, centered against finite
+  volume: 1.68/1.68 (`temperature_gradient`), 1.77/1.77 (`salinity_gradient`),
+  **0.93/1.98** (`ztilde_gradient`), 2.00/1.99 (`surface_pressure_gradient`).
+  Only `ztilde_gradient` needs its own pair, and it is the one that shows what
+  the scheme is for: the centered scheme is first order there and the
+  finite-volume scheme restores second.
+- **The accuracy gate is a ratio, not a comparison of orders.**  Gating on the
+  new scheme's slope beating the old one would fail on three variants out of
+  four, where the two converge at the same rate and nothing is wrong.
+- **Its default is 0.98, which asserts only "not worse".**  On
+  `temperature_gradient` and `salinity_gradient` the two schemes agree to five
+  digits -- the layers are level there, so matched-pressure and matched-index
+  coincide, and the error is the two-column representation of the tracer
+  gradient, which both schemes share.  Demanding an improvement would fail on a
+  configuration with nothing to improve.  `ztilde_gradient` raises it to 1.5
+  (measured 1.80 at the coarse end) and `surface_pressure_gradient` to 1.8
+  (measured 2.19).
+
+`ztilde_gradient` is also where the design's own guidance needs qualifying: the
+advantage there **widens** under refinement, 1.80x at 4 km against 14.8x at
+0.5 km, because the orders differ.  Elsewhere it is the constant factor the
+design describes.
 
 Implementation-wise, `Analysis.run()` iterates over configured horizontal
 resolutions and, within each, over schemes.  For each resolution it:
@@ -378,4 +407,28 @@ checks:
   higher-order scheme exists to fix, so demanding it of `finite_volume` would
   be requiring the new scheme to fail;
 - `_check_max_rms()` — the consistency gate, applied per scheme and skipped
-  while `resting_state_max_rms` is `none`.
+  while `resting_state_max_rms` is `none`;
+- `_check_improvement()` — the centered RMS divided by the finite-volume RMS
+  must reach `resting_state_improvement_min` at **every** sweep point.  The
+  true HPGA is zero here, so both are pure error and the ratio is a clean
+  statement of what the higher-order scheme buys, with no reference solution
+  and none of its discretization involved.  The ratio is logged whether or not
+  a threshold is set.
+
+The improvement gate is set **per variant** because the advantage spans four
+orders of magnitude, and a shared value would be vacuous at one end and
+unreachable at the other.  Measured offline, the smallest ratio anywhere in
+each sweep:
+
+| variant | worst ratio | at | gate |
+| --- | --- | --- | --- |
+| `hydrostatic_consistency` | 2.58x | 4 km, 128 m, tilt 50 | 1.5 |
+| `hydrostatic_consistency_linear` | 7.71x | 4 km, 64 m, tilt 50 | 4.0 |
+| `bathymetry_step` | 1170x | 4 km, 256 m, grad 200 | 500 |
+| `bathymetry_step_linear` | 58828x | 4 km, 256 m, grad 200 | 20000 |
+
+The ordering is the result, not an accident of the sweeps: the advantage is
+smallest where the profile is curved and only the coordinate tilts, and largest
+where the profile is resolved and the sea floor steps.  Those numbers are
+pinned by `test_improvement_gate_is_below_what_the_kernel_delivers`, so the
+gates and the measurements cannot drift apart silently.
