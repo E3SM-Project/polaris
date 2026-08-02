@@ -43,6 +43,36 @@ driven to an RMS HPGA of at least $10^{-6}$ m s$^{-2}$ somewhere in the sweep
 interpretable, and if the resulting diagnostic is ready to be pointed at the
 `FiniteVolume` scheme when it exists.
 
+### Two stages, and a note on the word "phase"
+
+This design was written and first implemented before Omega's `FiniteVolume`
+scheme existed, and extended once it did. The two Polaris stages are named
+rather than numbered, because `PGradHighOrder.md` uses **Phase 1** and **Phase
+2** for the scheme's *order* — Phase 1 being `HorzOrder: 2` with a linear
+vertical reconstruction, Phase 2 order 4 with PPM — and two independent pairs of
+ordinals in one document is a reliable source of confusion.
+
+| stage | what it delivered |
+| --- | --- |
+| **the calibration stage** | the two resting-state variants, the reference-free analysis, and the `Centered` baseline measured in Omega: tilt exponent $q = 1.000$, sensitivity gate passing by 21–23× |
+| **the rollout stage** | scheme selection and the §5.1 gates set from a `Centered`-versus-`FiniteVolume` comparison |
+
+Everything here concerns Omega Phase 1. "Phase" below always means the Omega
+sense.
+
+The calibration stage's output is what makes the rollout readable: with the
+centered exponent measured at 1.000 to five digits, a `FiniteVolume`
+measurement is read against a known-good value rather than against an
+expectation.
+
+### What the rollout stage adds
+
+- **A scheme axis.** Each variant runs both `Centered` and `FiniteVolume` over
+  one shared initial condition, so the two are compared at an identical state.
+- **A second Python kernel to compare against.** `init.py` writes
+  `HPGAFiniteVolume` alongside `HPGA`, and each analysis step compares Omega
+  against whichever matches the scheme that produced its output.
+
 The two variants deliberately isolate two different mechanisms, which the
 sizing work below showed are **not** the same mechanism:
 
@@ -131,7 +161,7 @@ incoherent.
 
 ### Requirement: The existing variants and their pass criteria are untouched
 
-Date last modified: 2026/07/28
+Date last modified: 2026/08/02
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -140,6 +170,53 @@ The four existing variants (`salinity_gradient`, `surface_pressure_gradient`,
 the convergence-rate and reference thresholds in `horiz_press_grad.cfg` shall
 behave exactly as they do today. The new capability shall not change their step
 names, work directories, or results.
+
+**Amended for the rollout stage.** This requirement held for the calibration
+stage and is deliberately relaxed by the rollout, in two respects:
+
+- the scheme axis puts a scheme label in every forward step's directory, so the
+  step names *do* change and the recorded centered baselines have to be
+  regenerated. This is the cost of running both schemes over one shared `Init`
+  rather than duplicating the initial condition per scheme;
+- the convergence bands become per-variant and per-scheme. A single band cannot
+  serve four variants whose measured centered rates are 1.6, 1.8, 2.0 and 1.1.
+
+What the rollout does **not** change is the four variants' *results* under
+`Centered`, or the meaning of `HPGA`. Any change there is a regression.
+
+### Requirement: The cross-implementation check compares the same algorithm
+
+Date last modified: 2026/08/02
+
+Contributors: Xylar Asay-Davis, Claude
+
+`omega_vs_polaris_rms_threshold` is the only check in the family that compares
+Omega's arithmetic against an independent implementation of the same scheme, and
+it is worth exactly as much as the claim that the two sides *are* the same
+algorithm. Where the Python kernel makes a discretization choice that Omega
+makes differently — the quadrature rule and its order, which end of the column
+the scan is anchored at, how the reconstruction is closed at the ends of a
+column, how the edge-shared expansion point is formed — the check stops
+measuring implementation disagreement and starts measuring the gap between two
+different algorithms, which is not distinguishable from a bug in either.
+
+Every such choice shall therefore be reconciled against `PGradHighOrder.md`
+before the check is run in anger, and each resolution recorded with its
+provenance. Two constraints on how:
+
+1. **The design is the source, not the C++.** The Python kernel was written from
+   `PGradHighOrder.md` precisely so that this comparison has content. Reading
+   the Omega implementation to settle a question of *intent* the design leaves
+   open is legitimate; transcribing it is not, because a Python kernel derived
+   from the C++ would compare an implementation against itself.
+2. **Reconcile up front rather than by bisection.** The check produces one
+   scalar per resolution. It can report that the two sides disagree; it cannot
+   report which of several choices disagrees, and several of them first bite in
+   the same configurations.
+
+Where a reconciliation finds that the *Python* follows the design and Omega does
+not, it stops being a Polaris change and is handed back rather than papered over
+by adjusting the Python to match.
 
 ## Algorithm Design
 
@@ -445,7 +522,7 @@ pair), logs the exponents, and applies the gates:
   `resting_state_sensitivity_min_rms`; this is a hard prerequisite, and failing
   it means the sweep must be redesigned before anything is concluded from it;
 - **consistency gate** — RMS below `resting_state_max_rms`, deliberately
-  disabled (`none`) until phase 2 measures a value to set it from;
+  disabled (`none`) until the rollout stage measures a value to set it from;
 - **Omega-vs-Polaris** and **resting-state** checks as above.
 
 ### Implementation: the tilt axis and the resting-state task
@@ -513,9 +590,51 @@ tilt_fit = False
 Both set `partial_cell_type = None` in `[vertical_grid]`, for the reason given
 under the bathymetry guard above.
 
-`forward.yaml` is unchanged for phase 1: the new variants run the existing
-`Centered` scheme. It gains a `PressureGrad` block in phase 2, once the Omega
-`FiniteVolume` option exists.
+`forward.yaml` was unchanged for the calibration stage: every variant ran the
+existing `Centered` scheme. The rollout gives it a `PressureGrad` block, filled
+in per step — see below.
+
+### Implementation: the scheme axis
+
+Date last modified: 2026/08/02
+
+Contributors: Xylar Asay-Davis, Claude
+
+`Forward` gains a `scheme` argument, and `forward.yaml` a `PressureGrad` block
+filled in through `add_yaml_file`'s `template_replacements`:
+
+```yaml
+PressureGrad:
+   PressureGradType: {{ pressure_grad_type }}
+   QuadraturePoints: {{ quadrature_points }}
+```
+
+`HorzOrder` and `VerticalReconstruction` are left at their Omega defaults of 2
+and `linear`, which are the only Phase 1 values; the Phase 2 values exist as
+keys but are rejected with an error, so a configuration written for Phase 2
+cannot quietly run as Phase 1. An unrecognized `PressureGradType` is likewise
+fatal rather than falling back to `Centered`, so a typo aborts the run instead
+of producing centered answers that read as a pass.
+
+Both task classes key their step dictionaries by `(resolution, scheme)` — or
+`(horiz_res, vert_res, tilt, scheme)` for the resting-state sweep — and build
+one `Forward` per scheme over **one shared `Init`**. `Init` is
+scheme-independent: it writes both `HPGA` and `HPGAFiniteVolume` from the same
+state, so duplicating it per scheme would cost run time and, worse, would leave
+the two schemes' comparison open to the objection that they were run on
+different initial conditions.
+
+This is the departure from the calibration stage's structure noted under the
+amended requirement above: it changes the existing variants' step directories.
+The alternative — a task per `(variant, scheme)` pair — preserves them, but runs
+`Init` twice per state and leaves no analysis step that sees both schemes, which
+is the comparison the rollout exists to make.
+
+`quadrature_points` is a single config option that drives both this template and
+the Python kernel's Gauss order. It is deliberately not two options: the two
+sides using different quadrature would make them different algorithms, which is
+what the cross-implementation requirement above forbids. Sweeping it for
+accuracy remains available and moves both sides together.
 
 ## Testing
 
@@ -539,7 +658,7 @@ retained `omega_vs_polaris_rms_threshold` check.
 
 If the gate fails, the sweep is not exercising the failure mode and must be
 redesigned before the variants are used to judge any scheme. This is the single
-most consequential check in phase 1.
+most consequential check in the calibration stage.
 
 ### Testing and Validation: the tilt exponent
 
@@ -581,19 +700,63 @@ Contributors: Xylar Asay-Davis, Claude
   `ztilde_gradient`'s convergence slope drops from ~2.0 to ~1.1 and its
   provisional band must be re-tuned from the observed value.
 
-### Testing and Validation: phase 2 (deferred)
+### Testing and Validation: the rollout stage
 
-Date last modified: 2026/07/28
+Date last modified: 2026/08/02
 
 Contributors: Xylar Asay-Davis, Claude
 
-Once Omega's `FiniteVolume` option exists in at least its reduced configuration
-(`ReconstructionOrder: 2`, `VerticalReconstruction: constant`,
-`QuadraturePoints: 2`), add the scheme selection to `forward.yaml`, add a Python
-counterpart of the reduced finite-volume kernel to `init.py` so the
-Omega-vs-Polaris check continues to apply, re-run both variants, and record the
-measured exponent and absolute levels. `resting_state_max_rms` is then set from
-what is measured. The result — whichever way it falls — should be written back
-into `PGradHighOrder.md` §2.3, §3.3, §3.7 and §5.2 as a measured property with
-its configuration and tilt range attached, replacing an assertion that currently
-rests on an unchecked analytic argument.
+Two corrections to how this section read before Omega's `FiniteVolume` landed,
+both from `omega_finite_volume_handoff.md`. The keys are `HorzOrder: 2` and
+`VerticalReconstruction: linear`, **not** `ReconstructionOrder` and `constant` —
+`constant` truncates the equation-of-state expansion to $\alpha_0$ and would run
+the centered scheme under a new name. And there is **no "reduced configuration"
+or centered limit** of the new scheme: the two are separate implementations and
+no setting reduces one to the other. Phase 1 offers exactly two configurations,
+`Centered` and `FiniteVolume` with its defaults.
+
+The Python counterpart also already exists — it was written during the
+calibration stage, from the design rather than from the C++ — so what this stage
+tests is not whether it can be built but whether it and Omega agree.
+
+**Reconciliation, before anything is run.** Work through every discretization
+choice named in the cross-implementation requirement above, record its
+resolution and provenance, and give each confirmed mismatch its own fix and its
+own test. Two are already confirmed: the Python kernel defaults to a 4-point
+Gauss rule where Omega defaults to 2, and it anchors its column scan at the sea
+surface where Omega anchors at the sea floor. Neither shows up on the exact set,
+where the integrand is zero at every quadrature point; both bite off it, which
+is where the §5.1 gates live.
+
+**Gates, set from measurement and not before.** Three points, of which the
+first two would otherwise have been got wrong:
+
+- bands are **per variant**, not per scheme alone. The measured `Centered` rates
+  are 1.6, 1.8, 2.0 and 1.1 across the four gradient variants, so a single
+  "≈ 2 for centered" band fails three of them;
+- the accuracy gate is a **ratio at the coarse end**, set from the measured
+  advantage — 6.5× at 256 m layers, 2.4× at 64 m, ~400× on stepped bathymetry;
+- **do not gate on relative convergence order.** The two schemes converge at
+  similar rates on smooth profiles; the advantage is a constant factor that
+  *narrows* under refinement, so a gate requiring the new scheme's slope to beat
+  the centered one would fail where nothing is wrong.
+
+`resting_state_max_rms` is set from the measured `FiniteVolume` level at a
+stated tilt, as an explicit multiple. The **improvement gate** — `FiniteVolume`
+RMS below `Centered` RMS at every sweep point — needs no prior measurement and
+ships with the analysis change.
+
+**Report absolutes.** $\max\lvert\mathcal{S}\rvert$ behaved unexpectedly under
+vertical refinement on the linear variant during the calibration stage, so
+absolute residuals and tendencies in m s$^{-2}$ are reported alongside any
+ratio, not in place of them.
+
+**The variant to expect surprises from is `bathymetry_step`.** Every Omega-side
+measurement of the new scheme so far used equal layer counts in both columns, so
+this is where the rule for evaluating a column's reconstruction below its own
+floor is first genuinely exercised.
+
+Finally, the result — whichever way it falls — is written back into
+`PGradHighOrder.md` as a measured property with its configuration and tilt range
+attached. That is an Omega-side commit in a separate repository and is not
+folded into the Polaris work.
