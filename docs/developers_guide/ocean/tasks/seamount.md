@@ -3,22 +3,33 @@
 # seamount
 
 The seamount task group is comprised of a `default` task and a `short` task
-in each of four task trees,
-`planar/seamount/{linear,nonlinear}/{sigma,zstar}`, combining the equation of
-state with the vertical coordinate used for the initial condition.  This
-follows the `planar/overflow/{eos}/{coord}` pattern.
+in each of eight task trees,
+`planar/seamount/{eos}/{stratification}/{coord}`, or in full
+`planar/seamount/{linear,nonlinear}/{exponential,linear_pressure}/{sigma,zstar}`.
+This extends the `planar/overflow/{eos}/{coord}` pattern with a
+stratification level, because the stratification is what decides whether the
+configuration is one a finite-volume pressure gradient resolves exactly, and
+that is not something a user config option should have to be remembered for.
 
 ## framework
 
 The shared config options for `seamount` tests  are described in
-{ref}`ocean-seamount` in the User's Guide.  `coord_type`, and for z-star
-`partial_cell_type`, live in per-coordinate `seamount_sigma.cfg` and
-`seamount_zstar.cfg` overrides layered on top of the shared `seamount.cfg`.
-The equation of state is layered on the same way: `seamount_linear.cfg`
-carries the `eos_linear_*` options, which mean nothing to the nonlinear
-trees and so are added only for the linear ones.  `add_seamount_tasks()`
-also picks up `linear.cfg` or `teos10.cfg` from `polaris.ocean.eos` per
-tree; the nonlinear trees need nothing beyond that.
+{ref}`ocean-seamount` in the User's Guide.  Each tree level contributes one
+config override layered on top of the shared `seamount.cfg`:
+
+| level | files | what they set |
+| --- | --- | --- |
+| equation of state | `linear.cfg` / `teos10.cfg` from `polaris.ocean.eos`, plus `seamount_linear_eos.cfg` | `eos_type`, and the `eos_linear_*` coefficients, which mean nothing to the nonlinear trees and so are added only for the linear ones |
+| stratification | `seamount_exponential.cfg` / `seamount_linear_pressure.cfg` | `seamount_stratification_type` |
+| coordinate | `seamount_sigma.cfg` / `seamount_zstar.cfg` | `coord_type`, and for z-star `partial_cell_type` |
+
+The parameters of every stratification stay in the shared `seamount.cfg`;
+only the option that selects one belongs to the tree level, the same split
+`coord_type` already uses.
+
+`seamount_linear_eos.cfg` is named for the equation of state, not for a
+stratification.  It was `seamount_linear.cfg` until the `linear_pressure`
+stratification arrived and made the two too easy to confuse.
 
 Neither equation of state needs new plumbing.  `update_namelist_eos()`
 already maps `teos-10` to `jm` for MPAS-Ocean and passes it through to
@@ -132,7 +143,7 @@ model is run. The duration is set by `run_duration`, in hours, in the config
 section corresponding to the task (`seamount_default` or `seamount_short`,
 selected by the `task_name` passed to the step). Finally,
 the variables `kineticEnergyCell` and `normalVelocity` in the
-`output.nc` file are visualized in the `viz` directory.
+`output.nc` file are visualized in the matching `viz_<scheme>` directory.
 
 The step takes a `scheme` argument, a key of
 {py:data}`polaris.tasks.ocean.seamount.forward.SCHEMES`, which maps the
@@ -143,6 +154,12 @@ implementations and no setting reduces one to the other -- so this is a
 choice between them rather than a parameter of one.  MPAS-Ocean has only the
 centered scheme, and `dynamic_model_config()` raises if any other is asked
 for under it.
+
+Every forward step is named `forward_<scheme>`, from
+{py:func}`polaris.tasks.ocean.seamount.forward.forward_step_name()`, including
+in the `short` task which runs only the centered one.  The alternative was to
+leave the shared scheme in a plain `forward` and suffix only the others, which
+reads as though `forward` were a third thing rather than one of the two.
 
 
 ### viz
@@ -159,8 +176,9 @@ geometric thickness, but `Ocean.open_model_dataset()` converts it on read,
 as `RhoSw * SpecVol * PseudoThickness`.  That is why `SpecVol` has to be in
 the Omega `History` stream alongside `State`.
 
-The step takes the name of the forward step to plot and the scheme that step
-was run with, so there is one `viz` per forward step.
+The step takes the scheme, from which both its own name, `viz_<scheme>`, and
+the `forward_<scheme>` step it reads follow.  There is one `viz` per forward
+step.
 
 ### analysis
 
@@ -191,10 +209,11 @@ puts every scheme on shared axes.
 ## default
 
 The {py:class}`polaris.tasks.ocean.seamount.default.Default`
-test runs the `init` step, a 6 day `forward` step, and the `viz` step.  It is
-added once per tree, so four times.  Unlike most tasks, `viz` runs by
-default here: the forward run is long enough that it is not worth making the
-user re-run the task just to get the plots.
+test runs the `init` step, a 6 day `forward_centered` step, the matching
+`viz_centered` step and the `analysis` step.  It is added once per tree, so
+eight times.  Unlike most tasks, `viz` runs by default here: the forward run
+is long enough that it is not worth making the user re-run the task just to
+get the plots.
 
 Under Omega it also runs a `forward_finite_volume` step and its own
 `viz_finite_volume`, a second 6 day run over the same `init` step with the
@@ -213,17 +232,26 @@ in `steps_to_run` and depends only on forward steps that exist.
 ## short
 
 The {py:class}`polaris.tasks.ocean.seamount.short.Short` test is the same
-task with a 1 hour `forward` step, and it too is added once per tree.  It
-exists as a regression test rather than a measurement: an hour is far too
-short for the spurious circulation to develop.  `viz` is opt-in here, as
-usual, because re-running the task to get the plots is cheap.
+task with a 1 hour `forward_centered` step, and it too is added once per
+tree.  It exists as a regression test rather than a measurement: an hour is
+far too short for the spurious circulation to develop.  `viz_centered` is
+opt-in here, as usual, because re-running the task to get the plots is cheap,
+and there is no `analysis` step.
 
 The two tasks differ only in their config section, `seamount_default` versus
 `seamount_short`, which is what {py:class}`Forward` looks up from its
 `task_name`.
 
-Two of the four short tasks are in the `mpaso_pr` and `omega_pr` suites,
-`linear/zstar` and `nonlinear/sigma`, which covers both equations of state
-and both coordinates in two runs.  Nothing from the seamount is in the
-nightly suites yet; the `default` tasks are 6 day runs.
+Three of the eight short tasks are in the `mpaso_pr` and `omega_pr` suites:
+
+| task | what it catches |
+| --- | --- |
+| `linear/exponential/zstar` | the linear equation of state and the z-star coordinate |
+| `nonlinear/exponential/sigma` | TEOS-10 and the sigma coordinate, so the pair covers both of each in two runs |
+| `nonlinear/linear_pressure/sigma` | the linear-in-pressure initial condition, whose fixed-point iteration is the only part of the initial condition that has to converge rather than evaluate.  TEOS-10 is what makes it have to: the specific volume depends on pressure, so the iteration actually turns over.  Under the linear equation of state it would converge in a couple of passes and catch only a gross regression |
+
+The third is a third run, not a replacement: the exponential profile is the
+realistic one and remains what the other two cover.  Nothing from the seamount
+is in the nightly suites yet; the `default` tasks are 6 day runs, and under
+Omega they are two of them.
 

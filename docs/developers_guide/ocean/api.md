@@ -562,6 +562,7 @@
    forward.Forward
    forward.Forward.dynamic_model_config
    forward.Forward.compute_cell_count
+   forward.forward_step_name
 
    init.Init
    init.Init.setup

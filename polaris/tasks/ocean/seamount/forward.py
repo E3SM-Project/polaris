@@ -14,6 +14,27 @@ SCHEMES = {
 }
 
 
+def forward_step_name(scheme):
+    """
+    The name of the forward step that runs a given pressure-gradient scheme.
+
+    Every forward step is named for its scheme, including in tasks that run
+    only one, so that an output directory says which scheme produced it
+    without anyone having to open the model config.
+
+    Parameters
+    ----------
+    scheme : str
+        The pressure-gradient scheme, a key of :py:data:`SCHEMES`
+
+    Returns
+    -------
+    str
+        The step name
+    """
+    return f'forward_{scheme}'
+
+
 class Forward(OceanModelStep):
     """
     A step for performing forward MPAS-Ocean runs as part of seamount
