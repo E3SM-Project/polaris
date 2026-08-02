@@ -159,6 +159,32 @@ geometric thickness, but `Ocean.open_model_dataset()` converts it on read,
 as `RhoSw * SpecVol * PseudoThickness`.  That is why `SpecVol` has to be in
 the Omega `History` stream alongside `State`.
 
+The step takes the name of the forward step to plot and the scheme that step
+was run with, so there is one `viz` per forward step.
+
+### analysis
+
+The {py:class}`polaris.tasks.ocean.seamount.analysis.Analysis` step measures
+the spurious circulation in every forward step of the task and compares the
+schemes against each other, writing `metrics.csv`,
+`spurious_velocity_t.png` and one `interface_tilt_<scheme>.png` per scheme.
+See {ref}`ocean-seamount-metrics` in the User's Guide for what the metrics
+are and how to read them.
+
+Two details of the masking are worth knowing.  An edge has water only where
+both of its cells do, so its deepest valid level is the shallower of the two
+`maxLevelCell` values; that is what makes the bottom-layer metric follow the
+bathymetry on the seamount flanks rather than sitting at a fixed level index.
+And the layer interfaces are built up from the sea floor rather than down
+from the sea surface, so the tilt diagnostic needs only `layerThickness` and
+`bottomDepth` and works for either model without the sea-surface height being
+in the output stream.
+
+`Viz` plots a maximum-velocity time series of its own.  That is a
+single-run quick look which also works in the `short` task, which has no
+`analysis` step; the `analysis` step's version is the measurement, and it
+puts every scheme on shared axes.
+
 
 (dev-ocean-seamount-default)=
 
@@ -170,15 +196,16 @@ added once per tree, so four times.  Unlike most tasks, `viz` runs by
 default here: the forward run is long enough that it is not worth making the
 user re-run the task just to get the plots.
 
-Under Omega it also runs a `forward_finite_volume` step, a second 6 day run
-over the same `init` step with the finite-volume horizontal pressure
-gradient.  That step is added in
+Under Omega it also runs a `forward_finite_volume` step and its own
+`viz_finite_volume`, a second 6 day run over the same `init` step with the
+finite-volume horizontal pressure gradient.  Those steps are added in
 {py:meth}`polaris.tasks.ocean.seamount.default.Default.configure()` rather
 than in `__init__()`, because `configure()` is the first point at which the
 user's and machine's config options have been merged in and `ocean:model` is
-known.  Adding it unconditionally would break the task outright for
-MPAS-Ocean, which has no such scheme.  `viz` is removed and re-added around
-it so that it stays last in `steps_to_run`.
+known.  Adding them unconditionally would break the task outright for
+MPAS-Ocean, which has no such scheme.  The `analysis` step is added there too
+and given whichever schemes were actually configured, so that it stays last
+in `steps_to_run` and depends only on forward steps that exist.
 
 
 (dev-ocean-seamount-short)=
