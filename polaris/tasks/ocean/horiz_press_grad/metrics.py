@@ -144,15 +144,21 @@ def power_law_fit(
 def write_metric_dataset(
     filename: str,
     resolution_km: np.ndarray,
-    rms_error: np.ndarray,
+    rms_error: dict[str, np.ndarray],
     y_name: str,
     y_units: str,
-    fit: np.ndarray | None = None,
-    slope: float | None = None,
-    intercept: float | None = None,
+    fit: dict[str, np.ndarray] | None = None,
+    slope: dict[str, float] | None = None,
+    intercept: dict[str, float] | None = None,
 ) -> None:
     """
-    Write the data used in a convergence plot to netCDF.
+    Write the data used in a convergence plot to netCDF, one series per
+    pressure-gradient scheme.
+
+    Series are written as separate variables suffixed with the scheme name
+    rather than stacked along a scheme dimension, so that a file stays readable
+    when the set of schemes changes and so that the two schemes' fits can carry
+    their own attributes.
 
     Parameters
     ----------
@@ -162,23 +168,23 @@ def write_metric_dataset(
     resolution_km : numpy.ndarray
         The horizontal resolutions in km.
 
-    rms_error : numpy.ndarray
-        The error metric at each resolution.
+    rms_error : dict
+        The error metric at each resolution, keyed by scheme.
 
     y_name : str
-        The variable name to give ``rms_error``.
+        The variable name to give ``rms_error``, suffixed by the scheme.
 
     y_units : str
         The units of ``rms_error``.
 
-    fit : numpy.ndarray, optional
-        A fitted curve to include.
+    fit : dict, optional
+        A fitted curve to include, keyed by scheme.
 
-    slope : float, optional
-        The fitted exponent, stored as a global attribute.
+    slope : dict, optional
+        The fitted exponent per scheme, stored as global attributes.
 
-    intercept : float, optional
-        The fitted ``log10`` intercept, stored as a global attribute.
+    intercept : dict, optional
+        The fitted ``log10`` intercept per scheme, stored as global attributes.
     """
     nres = len(resolution_km)
     ds = xr.Dataset()
@@ -187,24 +193,29 @@ def write_metric_dataset(
         dims=['nResolutions'],
         attrs={'long_name': 'horizontal resolution', 'units': 'km'},
     )
-    ds[y_name] = xr.DataArray(
-        data=rms_error,
-        dims=['nResolutions'],
-        attrs={'long_name': y_name.replace('_', ' '), 'units': y_units},
-    )
-    if fit is not None:
-        ds['power_law_fit'] = xr.DataArray(
-            data=fit,
+    for scheme, values in rms_error.items():
+        ds[f'{y_name}_{scheme}'] = xr.DataArray(
+            data=values,
             dims=['nResolutions'],
             attrs={
-                'long_name': 'power-law fit to rms error',
+                'long_name': f'{y_name.replace("_", " ")}, {scheme} scheme',
                 'units': y_units,
             },
         )
-    if slope is not None:
-        ds.attrs['fit_slope'] = slope
-    if intercept is not None:
-        ds.attrs['fit_intercept_log10'] = intercept
+        if fit is not None and scheme in fit:
+            ds[f'power_law_fit_{scheme}'] = xr.DataArray(
+                data=fit[scheme],
+                dims=['nResolutions'],
+                attrs={
+                    'long_name': 'power-law fit to rms error, '
+                    f'{scheme} scheme',
+                    'units': y_units,
+                },
+            )
+        if slope is not None and scheme in slope:
+            ds.attrs[f'fit_slope_{scheme}'] = slope[scheme]
+        if intercept is not None and scheme in intercept:
+            ds.attrs[f'fit_intercept_log10_{scheme}'] = intercept[scheme]
     ds.attrs['nResolutions'] = nres
     ds.to_netcdf(filename)
 
