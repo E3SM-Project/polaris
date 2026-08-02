@@ -11,10 +11,23 @@ from polaris.viz import plot_horiz_field
 
 class Viz(OceanIOStep):
     """
-    A step for plotting the results of the default seamount forward step
+    A step for plotting the results of one seamount forward step
+
+    Attributes
+    ----------
+    scheme : str
+        The pressure-gradient scheme the forward step was run with, used to
+        label the plots
     """
 
-    def __init__(self, component, indir):
+    def __init__(
+        self,
+        component,
+        indir,
+        name='viz',
+        forward_name='forward',
+        scheme='centered',
+    ):
         """
         Create the step
 
@@ -25,15 +38,26 @@ class Viz(OceanIOStep):
 
         indir : str
             the directory the step is in, to which ``name`` will be appended
+
+        name : str, optional
+            the name of the step
+
+        forward_name : str, optional
+            the name of the forward step to plot
+
+        scheme : str, optional
+            the pressure-gradient scheme that forward step was run with,
+            used to label the plots
         """
-        super().__init__(component=component, name='viz', indir=indir)
+        super().__init__(component=component, name=name, indir=indir)
+        self.scheme = scheme
         self.add_input_file(
             filename='mesh.nc', target='../../init/culled_mesh.nc'
         )
         self.add_input_file(filename='init.nc', target='../../init/init.nc')
         self.add_vert_coord_input_file(target='../../init/vert_coord.nc')
         self.add_input_file(
-            filename='output.nc', target='../forward/output.nc'
+            filename='output.nc', target=f'../{forward_name}/output.nc'
         )
 
     def run(self):
@@ -84,10 +108,12 @@ class Viz(OceanIOStep):
         mpas_field_valid = ds[field_name].isel(nCells=cellMask == 1)
         vmin = mpas_field_valid.min().values
         vmax = mpas_field_valid.max().values
+        scheme = self.scheme
         plot_transect(
             ds_transect=ds_transect,
             mpas_field=mpas_field,
-            title=f'{field_name} at y={1e-3 * y_mid:.1f} km, final time',
+            title=f'{field_name} at y={1e-3 * y_mid:.1f} km, final time, '
+            f'{scheme} scheme',
             out_filename=f'final_{field_name}_section.png',
             vmin=vmin,
             vmax=vmax / 10.0,
@@ -105,7 +131,7 @@ class Viz(OceanIOStep):
             ds_mesh,
             ds[field_name],
             f'final_{field_name}.png',
-            title=f'{field_name} in layer 2, final time',
+            title=f'{field_name} in layer 2, final time, {scheme} scheme',
             t_index=t_index,
             z_index=1,
             vmin=-max_velocity,
@@ -119,7 +145,9 @@ class Viz(OceanIOStep):
         plt.figure(figsize=[12, 6], dpi=100)
         umax = np.amax(ds.normalVelocity[:, :, 0].values, axis=1)
         t_days = get_days_since_start(ds)
-        plt.plot(t_days, umax, 'k-o', label='max(normalVelocity)')
+        plt.plot(
+            t_days, umax, 'k-o', label=f'max(normalVelocity), {scheme} scheme'
+        )
         plt.xlabel('Time (days)')
         plt.ylabel('Maximum Velocity (m/s)')
         plt.legend()
