@@ -53,6 +53,15 @@ both equation-of-state branches reproduce the same Beckmann and Haidvogel
 profile, and the negative control that in-situ density under TEOS-10 really
 does depart from it with depth.
 
+`tests/ocean/seamount/test_linear_in_pressure.py` covers the
+`linear_pressure` stratification: that the layer values are exact means of
+the continuous profile over each layer's pressure range, and that the profile
+is straight in the pressure reconstructed from the pseudo-thickness rather
+than only in the pressure it was built from.  Both Beckmann and Haidvogel
+profiles are carried through the same measurement as negative controls, since
+"density linear in depth" is close enough to "temperature linear in pressure"
+that the difference has to be demonstrated rather than asserted.
+
 ### init
 
 The class {py:class}`polaris.tasks.ocean.seamount.init.Init`
@@ -69,12 +78,27 @@ The profile and the back-solve live in
 {py:mod}`polaris.tasks.ocean.seamount.init_utils`, a leaf module free of
 `mpas_tools` and of the step framework so the unit tests can import it.
 {py:func}`polaris.tasks.ocean.seamount.init_utils.compute_tracers()` branches
-on `eos_type`: the linear equation of state is inverted algebraically with
-the salinity term included, and TEOS-10 is inverted with
+first on `seamount_stratification_type` and then on `eos_type`: for the two
+Beckmann and Haidvogel profiles the linear equation of state is inverted
+algebraically with the salinity term included, and TEOS-10 is inverted with
 {py:func}`polaris.ocean.eos.ct_from_potential_density()`, which reads the
 profile as a potential density referenced to the surface.  See
 {ref}`ocean-seamount-init` in the User's Guide for why the surface reference
 is the only workable one and what it buys.
+
+The `linear_pressure` stratification takes a different route through
+{py:func}`polaris.tasks.ocean.seamount.init_utils.compute_tracers_linear_in_pressure()`,
+which needs `layerThickness` rather than `zMid`: it prescribes temperature as
+a function of pressure and integrates the hydrostatic balance to find it.
+Temperature depends on pressure, pressure on the specific volume and the
+specific volume on temperature, so the profile is a fixed point and the
+function iterates to `PRESSURE_ITERATION_TOLERANCE` rather than evaluating a
+formula.  The iteration contracts by roughly the fractional density range of
+the column per pass and converges in well under ten;
+`MAX_PRESSURE_ITERATIONS` is a guard rather than a working limit, and failing
+to converge raises rather than returning a profile that is nearly straight.
+See {ref}`ocean-seamount-linear-in-pressure` in the User's Guide for what the
+profile is for.
 
 The step leaves its tracers in the convention implied by `eos_type` and does
 nothing model-specific: in the `nonlinear` trees, the framework converts them
