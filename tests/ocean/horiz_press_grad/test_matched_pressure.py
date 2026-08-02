@@ -6,10 +6,15 @@ zero **at every quadrature point** on the exact set, not merely in the layer
 mean.
 """
 
+import gsw
 import numpy as np
 import pytest
 
-from polaris.ocean.vertical.ztilde import Gravity
+from polaris.ocean.vertical.ztilde import (
+    Gravity,
+    RhoSw,
+    pressure_from_z_tilde,
+)
 from polaris.tasks.ocean.horiz_press_grad.finite_volume import (
     anchor_difference,
     anchor_index,
@@ -626,6 +631,77 @@ def test_guards_on_the_exact_set(guard, must_fire):
             f'{guard} changed the tendency to {result:.3e}, which contradicts '
             'the reason given for why it cannot'
         )
+
+
+def test_the_anchor_is_the_midpoint_rules_partition_dependence():
+    """What the sea-floor anchor actually measures, pinned to an independent
+    calculation.
+
+    Both Polaris and Omega turn pressure into geometric height with a midpoint
+    rule, ``rho0 * SpecVol * PseudoThickness`` summed over layers.  Against a
+    high-order integral of the same specific volume over the same pressure
+    range, that truncates each 3500 m column by about 1.1 mm at 256 m layers.
+
+    ``Init`` holds ``bottomDepth`` at the prescribed bathymetry and solves for
+    the ``BottomPressure`` that reproduces it, so both columns' midpoint sums
+    come out at exactly 3500 m and it is the *pressures* that differ.  Under
+    tilt the two columns' interfaces fall in different places, so their
+    truncation errors differ -- and that difference is the whole anchor.
+
+    This is asserted here rather than left in the documentation because it is
+    the reason the exactness tests assert flatness instead of machine zero.  If
+    it ever stops holding, the explanation attached to those tests is wrong and
+    they should be re-derived rather than re-tuned.
+    """
+    ds = build_state(LINEAR_VARIANT, 4.0, 256.0, 0.05)
+    section = make_config(LINEAR_VARIANT)['horiz_press_grad']
+    z_nodes = section.getexpression('z_tilde_mid')
+    theta_nodes = section.getexpression('temperature_mid')
+    salt_nodes = section.getexpression('salinity_mid')
+
+    # the variant's profile is a straight line in pseudo-height, and pressure
+    # is proportional to pseudo-height, so it is a straight line in pressure
+    def _line(pressure, values):
+        z = -pressure / (RhoSw * Gravity)
+        fraction = (z - z_nodes[0]) / (z_nodes[1] - z_nodes[0])
+        return values[0] + fraction * (values[1] - values[0])
+
+    nodes, weights = np.polynomial.legendre.leggauss(10)
+    interface = pressure_from_z_tilde(ds.ZTildeInterface).isel(Time=0).values
+    deepest = ds.maxLevelCell.values.astype(int)
+    spec_vol = ds.SpecVol.isel(Time=0).values
+    thickness = ds.PseudoThickness.isel(Time=0).values
+
+    truncation = np.empty(2)
+    for icell in range(2):
+        n_valid = deepest[icell]
+        increment = (
+            RhoSw * spec_vol[icell, :n_valid] * thickness[icell, :n_valid]
+        )
+        midpoint_sum = float(np.sum(increment))
+        exact = 0.0
+        for level in range(n_valid):
+            top, bot = interface[icell, level], interface[icell, level + 1]
+            middle, half = 0.5 * (top + bot), 0.5 * (bot - top)
+            probe = middle + half * nodes
+            alpha = gsw.specvol(
+                _line(probe, salt_nodes),
+                _line(probe, theta_nodes),
+                probe / 1.0e4,
+            )
+            exact += half * float(np.sum(weights * alpha))
+        truncation[icell] = midpoint_sum - exact / Gravity
+
+    # each column is truncated by ~1.1 mm, and both midpoint sums land on the
+    # prescribed 3500 m, so the columns differ only through the truncation
+    assert -2.0e-3 < truncation[0] < -5.0e-4, (
+        f'midpoint-rule truncation is {truncation[0]:.3e} m, not the ~1.1 mm '
+        'this test was written against'
+    )
+
+    predicted = truncation[1] - truncation[0]
+    measured = anchor_difference(matched_pressure_pieces(ds))
+    np.testing.assert_allclose(-measured, predicted, rtol=1.0e-3, atol=0.0)
 
 
 @pytest.mark.parametrize('vert_res, tilt', [(256.0, 0.05), (256.0, 50.0)])
