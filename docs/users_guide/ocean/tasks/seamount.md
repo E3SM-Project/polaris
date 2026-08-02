@@ -193,6 +193,64 @@ practical salinity at a nominal lon/lat location (config options
 `ocean:nominal_lon` and `ocean:nominal_lat`, both defaulting to 0 degrees)
 since the planar mesh has no geographic location.
 
+(ocean-seamount-linear-in-pressure)=
+
+#### a stratification linear in pressure
+
+`seamount_stratification_type = linear_pressure` replaces the Beckmann and
+Haidvogel profile with one prescribed on temperature rather than on density:
+
+```
+T = seamount_temperature_coef_linear_pressure
+    - seamount_temperature_gradient_linear_pressure
+      * p / seamount_pressure_ref_linear_pressure
+```
+
+with salinity constant as before.  A finite-volume pressure gradient
+reconstructs the tracers as polynomials in pressure and is exact when the
+continuous profile is linear in pressure, so its error vanishes on this
+configuration and a spurious velocity that survives has some other source.
+Running it alongside the centered scheme, and alongside the realistic
+exponential profile, is what makes that a measurement rather than an
+assumption.
+
+Two things are needed for the exactness to hold, and both are checked by
+`tests/ocean/seamount/test_linear_in_pressure.py`:
+
+- **The layer values are exact layer means, not point samples.** Both models
+  carry a layer-mean tracer, and the mean is over the mass of the layer,
+  which is the same as over its pressure range. For a profile linear in
+  pressure that mean is the value at the layer's mid-pressure, so no
+  quadrature is needed — but a sample at the geometric mid-depth would leave
+  an `O(h^2)` error that the exactness argument does not allow for.
+- **The profile is a fixed point, not a formula.** Temperature is a function
+  of pressure, pressure follows from the geometric layer thicknesses through
+  the specific volume, and the specific volume follows from the temperature.
+  The initial condition iterates all three to round-off, so the profile is
+  linear in the pressure the model itself carries.
+
+Neither Beckmann and Haidvogel profile has this property, and the `linear`
+one is close enough to be mistaken for it. A density linear in geometric
+depth makes pressure quadratic in depth, since specific volume varies down
+the column, so temperature departs from a straight line in pressure by
+8.5e-6 of its range under the linear equation of state and 6.9e-4 under
+TEOS-10 — small, but ten orders of magnitude above the round-off that an
+exactness argument needs. The `linear_pressure` profile reaches 7e-15 on the
+same measure.
+
+The temperature range defaults to 15 degC over 5000 dbar, which under the
+linear equation of state spans 3.0 kg m^{-3} — the same density range as the
+exponential Beckmann and Haidvogel profile, so the two runs have the same
+total buoyancy range and a spurious velocity measured on one is comparable to
+the other. The stratification is spread uniformly rather than concentrated in
+the upper 500 m, so the deep layers are more strongly stratified than in the
+exponential profile, not less.
+
+Because the tracer is prescribed directly rather than inverted from a
+density, the `linear` and `nonlinear` trees span the same *temperature* range
+here, not the same density range — the reverse of the Beckmann and Haidvogel
+profiles.
+
 ### forcing
 
 N/A
@@ -273,8 +331,8 @@ resolution = 6.4
 # Bottom depth at bottom of seamount
 max_bottom_depth = ${vertical_grid:bottom_depth}
 
-# Logical flag that controls how the vertical profile of tracers.  See Beckmann and Haidvogel 1993 eqn 15-16 (unitless)
-# possible_values="linear, exponential"
+# The vertical profile of the tracers
+# possible_values="linear, exponential, linear_pressure"
 seamount_stratification_type = exponential
 
 # Density coefficient for linear vertical stratification (kg m^{-3})
@@ -294,6 +352,15 @@ seamount_density_depth_linear = 4500.0
 
 # Density reference depth for exponential vertical stratification (m)
 seamount_density_depth_exp = 500.0
+
+# Temperature at zero pressure for the linear_pressure stratification (degC)
+seamount_temperature_coef_linear_pressure = 20.0
+
+# Temperature change over seamount_pressure_ref_linear_pressure (degC)
+seamount_temperature_gradient_linear_pressure = 15.0
+
+# The pressure the temperature gradient is spanned over (dbar)
+seamount_pressure_ref_linear_pressure = 5000.0
 
 # Height of sea mount, H_0 (m)
 seamount_height = 4500.0
