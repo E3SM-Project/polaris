@@ -98,6 +98,52 @@ The scheme is written into the Omega config explicitly in both steps rather
 than left to Omega's default, so which scheme a run used is recorded with the
 run.
 
+Each forward step gets its own `viz` step — `viz` and `viz_finite_volume` —
+and an `analysis` step compares whichever schemes were run.
+
+(ocean-seamount-metrics)=
+
+#### spurious-circulation metrics
+
+The exact solution is a resting ocean, so every velocity in this task is
+error.  The `analysis` step writes `metrics.csv` and `spurious_velocity_t.png`
+with, for each scheme and output time:
+
+- `max_speed`, the maximum `|normalVelocity|` over the whole domain;
+- `max_speed_level`, the level index at which that maximum sits.  The
+  centered scheme's error accumulates downward, so a maximum that is not at
+  the bottom is worth noticing rather than averaging away;
+- `max_speed_bottom`, the same maximum restricted to the deepest valid level
+  of each edge.  An edge has water only where both its cells do, so on the
+  seamount flanks this follows the bathymetry rather than a fixed level;
+- `mean_kinetic_energy`, volume-weighted over the domain;
+- `implied_acceleration` and `acceleration_ratio`.
+
+An absolute spurious velocity says little on its own.  What gives it meaning
+is how it compares to a pressure gradient a realistic configuration actually
+carries in the layer where the problem shows up, which is what
+`reference_bottom_pressure_grad` is for.  The conversion from velocity to
+acceleration is `|f| * max|u|` — the acceleration a flow of that speed would
+be in balance with.  That is a balanced-state estimate: it is meaningful once
+the flow has adjusted and overstates the acceleration while it is still
+spinning up, so read the ratio with the time series in front of you rather
+than as a single number.
+
+No thresholds are applied.  They are meant to be set from what these metrics
+measure rather than in advance; a threshold guessed before the first
+measurement is a guard that either cannot fail or fails for the wrong reason.
+
+`interface_tilt_<scheme>.png` shows how each layer interface's tilt evolves.
+Sigma interfaces follow the bathymetry, so the surface starts level and the
+deepest interfaces start at the full bathymetric slope — but the free surface
+moves the layers and `vertCoordMovementWeights` is uniform, so every
+interface takes a share of the surface-pressure change and the top interface
+can acquire a tilt it did not start with.  The upper panel plots the change
+since the first output time rather than the tilt itself, which is dominated
+by the bathymetry and barely moves on its own scale; the lower panel plots
+the surface tilt against the maximum over all levels, which is where a
+barotropic adjustment would show up.
+
 ```{image} images/seamount_velocity_max_t.png
 :align: center
 :width: 700 px
@@ -391,6 +437,10 @@ seamount_width = 40.0e3
 # (PSU) for the linear trees and as absolute salinity (g kg^-1) for the
 # nonlinear ones
 constant_salinity = 35.0
+
+# A physical bottom-layer horizontal pressure-gradient acceleration (m s^-2)
+# for the analysis step to report the spurious circulation as a fraction of
+reference_bottom_pressure_grad = 2.1e-6
 ```
 
 The `nonlinear` trees add no config options of their own; they take their
