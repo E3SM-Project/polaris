@@ -63,6 +63,12 @@ mpas-ocean:
       - daysSinceStartOfSim
 
 Omega:
+  # Set explicitly rather than left to Omega's default, so that the scheme a
+  # run used is recorded in its own config rather than inferred from the
+  # model version.  MPAS-Ocean has only the centered scheme, so this block
+  # has no counterpart in the mpas-ocean section above.
+  PressureGrad:
+    PressureGradType: {{ pressure_grad_type }}
   Tendencies:
     SSHTendencyEnable: false
   Tracers:

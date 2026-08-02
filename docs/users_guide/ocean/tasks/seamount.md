@@ -79,6 +79,25 @@ The test case begins with a zero velocity field and is unforced, so the exact so
 The seamount rises from a flat sea floor in the center of the domain. 
 In a pure z-level vertical coordinate without partial bottom cells (`partial_cell_type = full`), the pressure gradient will remain zero and induce no flow to machine precision. When any layer tilting is added, including from partial bottom cells, some flow is introduced by the pressure gradient error. This is fundamentally because the pressure must be extrapolated vertically at cell centers to the mid-depth of the edge. The default setting is the sigma coordinate. These are the images produced in the `viz` folder, which runs by default in this task because the 6 day forward run is too long to want to repeat just to get the plots.
 
+(ocean-seamount-schemes)=
+
+#### pressure-gradient schemes
+
+Under Omega the task performs a second forward run, `forward_finite_volume`,
+with `PressureGradType: FiniteVolume` instead of the centered scheme the
+`forward` step uses.  Both start from the same `init` step, so the two
+schemes are compared at an identical state rather than at two states that
+also differ in their initial condition.
+
+The step is added only when `model = omega`.  MPAS-Ocean has only the
+centered scheme, so under MPAS-Ocean the task is exactly what it was: `init`,
+`forward` and `viz`.  The centered step keeps the plain name `forward` in
+both cases, since it is the run the two models share.
+
+The scheme is written into the Omega config explicitly in both steps rather
+than left to Omega's default, so which scheme a run used is recorded with the
+run.
+
 ```{image} images/seamount_velocity_max_t.png
 :align: center
 :width: 700 px
