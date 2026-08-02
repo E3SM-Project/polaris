@@ -88,6 +88,18 @@ switches, each deliberately breaking one rule of the design.  They exist to
 confirm the test suite can detect a broken implementation; they are not
 supported settings.
 
+The Gauss-Legendre rule these integrals use comes from the `quadrature_points`
+config option, which is the *same* option that fills in Omega's
+`PressureGrad:QuadraturePoints`.  That is deliberate and is not a convenience.
+`omega_vs_polaris_rms_threshold` is the only check in this task family that
+tests Omega's arithmetic against an independent implementation, and it is a
+check on the implementations only if both integrate with the same rule; two
+sides quadrating differently are two algorithms, and their disagreement would
+not be distinguishable from a bug in either.  Exactness itself does not depend
+on the rule -- on the exact set the integrand is zero at every point, so any
+rule integrates it to zero -- which is exactly why a mismatch here would show
+up only off the exact set, where it is hardest to attribute.
+
 ### reference
 
 The class

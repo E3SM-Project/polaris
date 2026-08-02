@@ -586,7 +586,7 @@ def delta_specvol_at_pressure(
 
 
 def anchor_difference(
-    pieces: dict, order: int = 4, guards: set[str] | None = None
+    pieces: dict, order: int = 2, guards: set[str] | None = None
 ) -> float:
     """
     The design's ``[anchor]``: the fixed-pressure height difference at the
@@ -615,9 +615,9 @@ def anchor_difference(
         From :py:func:`matched_pressure_pieces`.
 
     order : int
-        Gauss-Legendre order.  The integrand is linear in pressure within a
-        layer, so 2 already integrates it exactly; the default is the same rule
-        the scan uses.
+        Number of Gauss-Legendre points, matching Omega's ``QuadraturePoints``.
+        The integrand is linear in pressure within a layer, so 2 integrates it
+        exactly.
 
     Returns
     -------
@@ -663,7 +663,7 @@ def anchor_difference(
 
 
 def column_scan(
-    pieces: dict, order: int = 4, guards: set[str] | None = None
+    pieces: dict, order: int = 2, guards: set[str] | None = None
 ) -> np.ndarray:
     """
     The design's ``[d-recurrence]``: :math:`D_k = \\Delta_e z(\\bar q_k)`
@@ -687,7 +687,8 @@ def column_scan(
         From :py:func:`matched_pressure_pieces`.
 
     order : int
-        Gauss-Legendre order for the layer integrals.
+        Number of Gauss-Legendre points for the layer integrals, matching
+        Omega's ``QuadraturePoints``.
 
     Returns
     -------
@@ -718,7 +719,7 @@ def column_scan(
 
 
 def scan_increments(
-    pieces: dict, order: int = 4, guards: set[str] | None = None
+    pieces: dict, order: int = 2, guards: set[str] | None = None
 ) -> np.ndarray:
     """
     The per-layer increments of :py:func:`column_scan`, for the smallness
@@ -730,7 +731,8 @@ def scan_increments(
         From :py:func:`matched_pressure_pieces`.
 
     order : int
-        Gauss-Legendre order.
+        Number of Gauss-Legendre points, matching Omega's
+        ``QuadraturePoints``.
 
     Returns
     -------
@@ -743,7 +745,7 @@ def scan_increments(
 
 
 def layer_mean_difference(
-    pieces: dict, order: int = 4, guards: set[str] | None = None
+    pieces: dict, order: int = 2, guards: set[str] | None = None
 ) -> np.ndarray:
     """
     The layer mean of :math:`\\Delta_e z(p)` over each edge layer.
@@ -768,7 +770,8 @@ def layer_mean_difference(
         From :py:func:`matched_pressure_pieces`.
 
     order : int
-        Gauss-Legendre order.
+        Number of Gauss-Legendre points, matching Omega's
+        ``QuadraturePoints``.
 
     guards : set of str, optional
         Verification-only switches; see :py:func:`finite_volume_hpga`.
@@ -803,7 +806,7 @@ def layer_mean_difference(
 def finite_volume_hpga(
     ds: xr.Dataset,
     dx: float,
-    order: int = 4,
+    order: int = 2,
     guards: set[str] | None = None,
 ) -> xr.DataArray:
     """
@@ -826,8 +829,13 @@ def finite_volume_hpga(
         The distance ``d_e`` between the two columns in m.
 
     order : int
-        Gauss-Legendre order.  Exactness does not depend on it (design §3.5,
-        consequence 2), so this is an ordinary accuracy knob.
+        Number of Gauss-Legendre points, matching Omega's ``QuadraturePoints``.
+        Exactness does not depend on it (design §3.5, consequence 2), so it is
+        an ordinary accuracy knob -- but it is **not** a free one: Omega and
+        Polaris must integrate with the same rule, or
+        ``omega_vs_polaris_rms_threshold`` compares two different algorithms
+        rather than two implementations of one.  Both are driven by the
+        ``quadrature_points`` config option.
 
     guards : set of str, optional
         Verification-only switches, each deliberately breaking one rule:
