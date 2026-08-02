@@ -75,8 +75,30 @@ of *each column* that contains that pressure.  Under tilt those are not the
 same layer -- at 50 m/km and 64 m layers the two columns' layer `k` do not
 overlap in pressure at all -- and getting this wrong silently turns the scheme
 into a different one.  `column_scan()` then accumulates the fixed-pressure
-height difference down the column from `anchor_difference()`, and
+height difference along the column from `anchor_difference()`, and
 `finite_volume_hpga()` forms the layer mean and the tendency.
+
+**The scan anchors at the sea floor**, per design §3.7.4, at the deepest
+interface valid in both columns.  This is not a conditioning preference:
+`VertCoord` builds geometric height upward from a prescribed bathymetry by
+accumulating over each column's *own* layers, so two columns partitioned
+differently by a tilt derive sea-surface heights that differ at
+$O(\tilde h^2)$, and a surface anchor would feed that straight into the answer.
+Note that §3.5.1 of the design still describes a surface anchor; §3.7.4 is
+later, gives the argument, and is what Omega implements.
+
+One consequence is worth knowing before reading the tests.  A Polaris initial
+condition pins the *sea surface* and lets the bottom pressure absorb the same
+$O(\tilde h^2)$ discrepancy, which is the opposite end from `VertCoord`.  So on
+these states the sea-floor anchor is **not** zero even on
+`hydrostatic_consistency_linear`: the two columns reach slightly different
+bottom pressures at the same depth, and at a common pressure their heights
+genuinely differ.  The scheme is right to report it.  What the tests assert on
+the exact set is therefore that the scan stays *flat* -- every increment zero
+to round-off -- and that the assembled tendency is the anchor and nothing
+else, which holds to a part in $10^7$ across the sweep.  The
+`anchor_at_surface` guard switches ends so the gap can be measured rather than
+assumed.
 
 The module also retains `centered_shift()` and `centered_shift_accumulated()`.
 These are no longer on the computational path; they are kept as diagnostics,

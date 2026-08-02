@@ -249,22 +249,42 @@ unaffected by the new field.
 `PressureGradFiniteVolume` scheme.  Where the centered scheme compares the two
 columns at a fixed *layer index*, this one compares them at a fixed *pressure*:
 it differences the specific volume of the two columns at matched pressure and
-integrates that difference down the column.  Because the difference is
-identically zero whenever the two columns describe the same water, the scheme
-returns zero for a resting ocean regardless of how the coordinate is tilted.
+integrates that difference along the column from the sea floor.  Because the
+difference is identically zero whenever the two columns describe the same
+water, the scheme contributes nothing of its own for a resting ocean however
+the coordinate is tilted, and what it returns is whatever the state's own
+boundary values imply -- see below.
 
 What that buys, measured on `hydrostatic_consistency_linear` -- the one variant
 whose temperature and salinity are exactly linear in pressure, and so the only
-one where machine precision is the correct expectation:
+one where the scheme's exact set is in play:
 
 | coordinate tilt | `HPGA` (centered) | `HPGAFiniteVolume` |
 | --- | --- | --- |
-| 0.05 m/km | 2.6e-08 m s⁻² | 2.2e-15 m s⁻² |
-| 1 m/km | 5.2e-07 m s⁻² | 7.2e-18 m s⁻² |
-| 50 m/km | 2.1e-05 m s⁻² | 2.3e-18 m s⁻² |
+| 0.05 m/km | 9.1e-08 m s⁻² | 1.8e-10 m s⁻² |
+| 1 m/km | 1.8e-06 m s⁻² | 3.5e-09 m s⁻² |
+| 50 m/km | 6.9e-05 m s⁻² | 2.0e-07 m s⁻² |
 
-at 256 m layers.  The finite-volume values are round-off; they do not grow with
-tilt, which is the property the whole scheme exists for.
+at 256 m layers: a factor of 340 to 520, and 21 to 1050 across the full sweep.
+
+**Why this is not machine precision, though the profile is inside the exact
+set.** The scheme's column scan is anchored at the sea floor, following the
+Omega design, and the anchor is the one quantity in it that comes from the
+state rather than from the scheme's own arithmetic.  Polaris builds its
+p-star column downward from a *prescribed sea surface*, whereas Omega's
+`VertCoord` builds geometric height upward from a *prescribed bathymetry*.
+Those are opposite ends, and the small mismatch between them -- the two
+columns reach very slightly different bottom pressures at the same depth,
+because specific volume is nonlinear in pressure and the tilt partitions the
+two columns differently -- lands in the bottom pressure here rather than in the
+sea-surface height.  At a common pressure the two columns' heights therefore
+genuinely differ, and the scheme reports that difference.
+
+The residual is *entirely* the anchor: every increment of the scan is zero to
+round-off, so the tendency is constant down the column and equals the anchor's
+own contribution to a part in 10⁷.  The property the scheme exists for is
+intact; what these numbers measure at the bottom of the column is the initial
+condition, not the discretization.
 
 Away from that exact set the gain is real but far smaller, because the scheme
 is then second-order accurate rather than exact.  On the curved
