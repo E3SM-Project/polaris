@@ -114,18 +114,28 @@ class Analysis(OceanIOStep):
             'The "horiz_resolutions" configuration option must be set in '
             'the "horiz_press_grad" section.'
         )
-        omega_vs_reference_convergence_rate_min = section.getfloat(
-            'omega_vs_reference_convergence_rate_min'
+        # bands are per scheme: on ztilde_gradient the centered scheme is first
+        # order and the finite-volume scheme second, so one band cannot hold
+        # both
+        rate_min: dict[str, float] = {}
+        rate_max: dict[str, float] = {}
+        for scheme in self.schemes:
+            for bound, target in (('min', rate_min), ('max', rate_max)):
+                option = (
+                    f'omega_vs_reference_convergence_rate_{bound}_{scheme}'
+                )
+                value = section.getfloat(option)
+                assert value is not None, (
+                    f'The "{option}" configuration option must be set in the '
+                    '"horiz_press_grad" section.'
+                )
+                target[scheme] = value
+
+        accuracy_ratio_min = section.getfloat(
+            'omega_vs_reference_accuracy_ratio_min'
         )
-        assert omega_vs_reference_convergence_rate_min is not None, (
-            'The "omega_vs_reference_convergence_rate_min" configuration '
-            'option must be set in the "horiz_press_grad" section.'
-        )
-        omega_vs_reference_convergence_rate_max = section.getfloat(
-            'omega_vs_reference_convergence_rate_max'
-        )
-        assert omega_vs_reference_convergence_rate_max is not None, (
-            'The "omega_vs_reference_convergence_rate_max" configuration '
+        assert accuracy_ratio_min is not None, (
+            'The "omega_vs_reference_accuracy_ratio_min" configuration '
             'option must be set in the "horiz_press_grad" section.'
         )
         omega_vs_reference_convergence_fit_max_resolution = section.getfloat(
@@ -383,17 +393,39 @@ class Analysis(OceanIOStep):
                 )
 
             ref_slope = ref_slopes[scheme]
-            if not (
-                omega_vs_reference_convergence_rate_min
-                <= ref_slope
-                <= omega_vs_reference_convergence_rate_max
-            ):
+            if not (rate_min[scheme] <= ref_slope <= rate_max[scheme]):
                 raise ValueError(
                     f'{scheme}: Omega-vs-reference convergence slope is '
                     'outside the allowed range: '
                     f'{ref_slope:.3f} not in '
-                    f'[{omega_vs_reference_convergence_rate_min:.3f}, '
-                    f'{omega_vs_reference_convergence_rate_max:.3f}]'
+                    f'[{rate_min[scheme]:.3f}, {rate_max[scheme]:.3f}]'
+                )
+
+        # Accuracy gate, at the coarsest resolution.  Deliberately a ratio of
+        # errors rather than a comparison of convergence orders: on a smooth
+        # profile the two schemes converge at the same rate, so an
+        # order-based gate would fail where nothing is wrong.  The coarse end
+        # is used because that is where the advantage is smallest on the one
+        # variant whose schemes differ in order.
+        if 'centered' in ref_error_arrays and (
+            'finite_volume' in ref_error_arrays
+        ):
+            coarsest = int(np.argmax(resolution_array))
+            centered_error = float(ref_error_arrays['centered'][coarsest])
+            finite_error = float(ref_error_arrays['finite_volume'][coarsest])
+            ratio = centered_error / finite_error
+            logger.info(
+                f'centered / finite_volume RMS at '
+                f'{resolution_array[coarsest]:g} km: {ratio:.2f}x'
+            )
+            if ratio < accuracy_ratio_min:
+                raise ValueError(
+                    'The finite-volume scheme is not as accurate as '
+                    'omega_vs_reference_accuracy_ratio_min requires at the '
+                    f'coarsest resolution ({resolution_array[coarsest]:g} '
+                    f'km): centered {centered_error:.3e} over finite_volume '
+                    f'{finite_error:.3e} is {ratio:.3f}, below '
+                    f'{accuracy_ratio_min:.3f}'
                 )
 
 

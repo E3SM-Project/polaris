@@ -132,6 +132,12 @@ class RestingAnalysis(OceanIOStep):
         )
         max_rms_text = section.get('resting_state_max_rms').strip().lower()
         max_rms = None if max_rms_text == 'none' else float(max_rms_text)
+        improvement_text = (
+            section.get('resting_state_improvement_min').strip().lower()
+        )
+        improvement_min = (
+            None if improvement_text == 'none' else float(improvement_text)
+        )
 
         omega_rms: dict[str, list[float]] = {
             scheme: [] for scheme in self.schemes
@@ -283,6 +289,14 @@ class RestingAnalysis(OceanIOStep):
         if 'centered' in omega:
             self._check_sensitivity(omega['centered'], sensitivity_min_rms)
 
+        if 'centered' in omega and 'finite_volume' in omega:
+            self._check_improvement(
+                centered=omega['centered'],
+                finite_volume=omega['finite_volume'],
+                improvement_min=improvement_min,
+                logger=logger,
+            )
+
     def _check_bathymetry(self, bathy_error, max_bathy_error):
         """
         Fail if the sea floor is not where the configuration asked for it.
@@ -352,6 +366,46 @@ class RestingAnalysis(OceanIOStep):
             f'{scheme}: RMS HPGA in the resting state exceeds '
             f'resting_state_max_rms={max_rms:.3e} m s-2 at: '
             f'{self._failing_text(failing, omega_rms)}'
+        )
+
+    def _check_improvement(
+        self, centered, finite_volume, improvement_min, logger
+    ):
+        """
+        Fail if the finite-volume scheme is not enough better than centered.
+
+        The true HPGA is identically zero here, so both are pure error and
+        their ratio is a clean statement of what the higher-order scheme buys
+        -- no reference solution and none of its discretization enters.
+
+        The ratio is reported whether or not a threshold is set, because it is
+        the headline number for these variants and is worth having in the log
+        even before anyone decides what to require of it.
+        """
+        with np.errstate(divide='ignore', invalid='ignore'):
+            ratio = np.where(
+                finite_volume > 0.0, centered / finite_volume, np.inf
+            )
+
+        finite = np.isfinite(ratio)
+        if np.any(finite):
+            worst_index = int(np.argmin(np.where(finite, ratio, np.inf)))
+            logger.info(
+                'centered / finite_volume RMS HPGA: smallest is '
+                f'{ratio[worst_index]:.2f}x at '
+                f'{sweep_suffix(*self.sweep_keys[worst_index])}'
+            )
+
+        if improvement_min is None:
+            return
+
+        failing = ratio < improvement_min
+        if not np.any(failing):
+            return
+        raise ValueError(
+            'The finite-volume scheme is not enough better than the centered '
+            f'one: resting_state_improvement_min={improvement_min:.3e} is not '
+            f'met at: {self._failing_text(failing, ratio)}'
         )
 
     def _failing_text(self, failing, values):
