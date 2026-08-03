@@ -27,9 +27,10 @@ class Jra55StressStep(Step):
     stress in the storm tracks, which is the reason the 3-hourly data is
     needed at all.
 
-    This step downloads several GiB of raw reanalysis, so it is intended to
-    be cached once the derived product (a few MB) is in the Polaris cache
-    database.  See the note in ``__init__``.
+    The reduction itself is quick, but it needs several GiB of raw
+    reanalysis, so the derived product is distributed through the Polaris
+    cache and this step is ``default_cached``.  The standalone
+    :py:class:`.Jra55` task overrides that to regenerate the product.
     """
 
     def __init__(self, component, subdir):
@@ -54,12 +55,9 @@ class Jra55StressStep(Step):
         self.add_output_file(filename=JRA55_STRESS_FILENAME)
         # The reduction itself is quick, but it needs ~3.5 GiB of raw winds
         # that would otherwise have to be downloaded on every machine, so
-        # this step should be cached by default -- but only once the product
-        # is actually in the cache database.  Setting default_cached = True
-        # before then makes any setup that does not include the standalone
-        # Jra55 task fail with "has not been added to the cache database".
-        # Set it here in the same change that adds the cached_files.json
-        # entry.
+        # the product is cached and this step reads it from the cache
+        # database unless a task asks for it to run (see the Jra55 task).
+        self.default_cached = True
 
     def setup(self):
         """
