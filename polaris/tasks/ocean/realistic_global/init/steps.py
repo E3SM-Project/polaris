@@ -14,6 +14,7 @@ from polaris.tasks.ocean.realistic_global.mesh_configs import (
 )
 
 from .cull_topo import CullTopoStep
+from .forcing import ForcingStep
 from .initial_state import InitialStateStep
 from .jra55_map import Jra55MapStep
 from .pstar_init import RealisticPStarInitStep
@@ -42,10 +43,11 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
     * :py:class:`.RemapJra55Step`
     * :py:class:`.RealisticPStarInitStep`
     * :py:class:`.InitialStateStep`
+    * :py:class:`.ForcingStep`
 
-    All steps are model-independent except :py:class:`.InitialStateStep`,
-    which reads ``[ocean] model`` from config at run time to select the
-    appropriate output format.
+    All steps are model-independent except :py:class:`.InitialStateStep` and
+    :py:class:`.ForcingStep`, which read ``[ocean] model`` from config at run
+    time to select the appropriate output format.
 
     All new steps are created via
     :py:meth:`polaris.Component.get_or_create_shared_step` so that they are
@@ -159,6 +161,14 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
         cull_mesh_step=cull_mesh_step,
     )
 
+    forcing_step = component.get_or_create_shared_step(
+        step_cls=ForcingStep,
+        subdir=os.path.join(base_subdir, 'forcing'),
+        config=config,
+        config_filename=config_filename,
+        remap_jra55_step=remap_jra55_step,
+    )
+
     viz_step = component.get_or_create_shared_step(
         step_cls=VizInitStep,
         subdir=os.path.join(base_subdir, 'viz'),
@@ -178,6 +188,7 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
     steps[remap_jra55_step.name] = remap_jra55_step
     steps[pstar_init_step.name] = pstar_init_step
     steps[init_step.name] = init_step
+    steps[forcing_step.name] = forcing_step
     if include_viz:
         steps[viz_step.name] = viz_step
     return steps, config
