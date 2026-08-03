@@ -175,7 +175,25 @@ with, for each scheme and output time:
   of each edge.  An edge has water only where both its cells do, so on the
   seamount flanks this follows the bathymetry rather than a fixed level;
 - `mean_kinetic_energy`, volume-weighted over the domain;
-- `implied_acceleration` and `acceleration_ratio`.
+- `implied_acceleration` and `acceleration_ratio`;
+- `unstable_pairs` and `max_density_inversion`, described below.
+
+```{warning}
+**`unstable_pairs` greater than zero invalidates every other metric from that
+time on.**  All vertical mixing including convection is off in this task, so
+nothing restores a column that overturns.  Once one does, the run is no longer
+measuring a spurious circulation against a resting exact solution; it is
+measuring an unbounded convective response with the response removed, and the
+velocity grows without any physical bound.  The `analysis` step logs the day
+this first happens and plots the count against time, and the last panel of
+`spurious_velocity_t.png` is where to look before reading any of the others.
+
+This has been observed: on the 6 day `linear/exponential/sigma` run the
+finite-volume integration first overturned at day 4 on the seamount flank and
+reached 232 unstable layer pairs and a 0.15 kg m^{-3} inversion by day 6,
+while max |u| grew exponentially with an e-folding time of 1.2 days.  The
+centered integration on the same configuration stayed stable throughout.
+```
 
 An absolute spurious velocity says little on its own.  What gives it meaning
 is how it compares to a pressure gradient a realistic configuration actually
