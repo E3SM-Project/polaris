@@ -71,15 +71,22 @@ it is left as-is.  As new variables that do have an MPAS-Ocean equivalent are
 added to Omega, they should be added to the `variables` section in the
 `mpaso_to_omega.yaml` file.
 
+{py:meth}`polaris.ocean.model.OceanIOStep.write_forcing_dataset()` writes a
+surface forcing file with the variables in the `forcing_variables` list in
+`variables.yaml`, renamed for the model.  MPAS-Ocean's Registry gives forcing
+fields a `Time` dimension while Omega reads them as fields on `NCells`
+alone, so a `Time` dimension of one is added for MPAS-Ocean and dropped for
+Omega.
+
 For standalone conversion of an existing MPAS-Ocean initial-condition file to
 Omega format outside a Polaris task, see
 {ref}`dev-ocean-convert-mpaso-ic-to-omega`.
 
 #### Canonical staged files
 
-The three files that flow through the ocean pipeline — horizontal mesh,
-vertical coordinate, and initial state — have canonical local filenames
-defined in the `[ocean_staged_files]` config section (in
+The files that flow through the ocean pipeline — horizontal mesh, vertical
+coordinate, initial state and surface forcing — have canonical local
+filenames defined in the `[ocean_staged_files]` config section (in
 `polaris/ocean/ocean.cfg`):
 
 ```ini
@@ -87,6 +94,7 @@ defined in the `[ocean_staged_files]` config section (in
 horiz_mesh_filename = mesh.nc
 vert_coord_filename = vert_coord.nc
 init_filename = init.nc
+forcing_filename = forcing.nc
 ```
 
 These filenames are shared by all pipeline stages: init steps write them as
@@ -98,7 +106,8 @@ Both {py:class}`polaris.ocean.model.OceanIOStep` and
 {py:class}`polaris.ocean.model.OceanModelFilesMixin`:
 
 - **Getters** — `get_horiz_mesh_filename()`, `get_vert_coord_filename()`,
-  `get_init_filename()` — read the current values from config.
+  `get_init_filename()`, `get_forcing_filename()` — read the current values
+  from config.
 - **Input-file registration** — `add_horiz_mesh_input_file(**kwargs)`,
   `add_vert_coord_input_file(filename=None, **kwargs)`,
   `add_init_input_file(**kwargs)` — all safe to call from `__init__()`.
