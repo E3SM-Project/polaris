@@ -5,7 +5,9 @@
 The `realistic_global` tasks in `polaris.tasks.ocean.realistic_global` are
 intended for preprocessing and initialization workflows that are upstream of
 any particular MPAS mesh. The first task category under this framework is
-`hydrography/woa23`, which builds a reusable hydrography product from the
+`forcing/jra55`, which builds a reusable wind-stress product from JRA55-do
+10-m winds, and `hydrography/woa23`, which builds a reusable hydrography
+product from the
 World Ocean Atlas 2023 on its native 0.25-degree latitude-longitude grid.
 The second category, `init`, creates mesh-specific ocean initial conditions
 using that hydrography and the culled mesh from `e3sm/init`.
@@ -41,6 +43,47 @@ ocean hydrography preprocessing task consistent with the broader Polaris
 approach to shared, cacheable preprocessing steps.  See
 {ref}`dev-step-default-cached` for a full description of the
 `default_cached` / `free_running_steps` mechanism.
+
+(dev-ocean-realistic-global-jra55)=
+
+## forcing/jra55
+
+The {py:class}`polaris.tasks.ocean.realistic_global.forcing.jra55.task.Jra55`
+task builds the reusable wind-stress product used by the `init` tasks.  Its
+shared steps come from
+{py:func}`polaris.tasks.ocean.realistic_global.forcing.jra55.steps.get_jra55_steps`.
+
+### stress
+
+{py:class}`polaris.tasks.ocean.realistic_global.forcing.jra55.stress.Jra55StressStep`
+downloads the yearly JRA55-do `uas`/`vas` files through the
+`initial_condition_database` mechanism, selects the configured month, and
+computes the stress at every 3-hourly step before averaging.  Averaging the
+stress rather than the wind preserves the gust contribution, which is why the
+3-hourly data is needed; the drag law is
+{py:func}`~polaris.tasks.ocean.realistic_global.forcing.jra55.stress.wind_stress`.
+The time loop is chunked, since a month of 3-hourly TL319 winds is
+248 x 320 x 640 per component.
+
+The step is *intended* to be `default_cached = True`, so that the multi-GiB
+download happens only when the product is deliberately regenerated.  The flag
+is not set until the product is actually in the cache database: setting it
+first makes any setup that does not include the standalone `jra55` task fail
+at setup with "has not been added to the cache database".  Set the flag in the
+same change that adds the `cached_files.json` entry.
+
+The product is deliberately **not** padded, in latitude or longitude.  Bilinear
+remapping is center-based for ESMF but corner-based for mbtempest, and padding
+a lat-lon source so that either its corners or its centres reach the pole
+aborts mbtempest; duplicating a longitude column makes the grid overlap itself
+and breaks both map tools.  The output is `jra55_stress.nc`.
+
+### viz
+
+{py:class}`polaris.tasks.ocean.realistic_global.forcing.jra55.viz.Jra55VizStep`
+plots global maps of the stress components and magnitude plus a zonal-mean
+`taux` curve, which is the diagnostic that confirms the bulk formula and air
+density are right.
 
 (dev-ocean-realistic-global-woa23)=
 
@@ -110,7 +153,29 @@ composes the full chain:
    culled MPAS mesh and producing `woa23_on_mesh.nc`.  The remapper is
    retrieved from **woa23_map** through the step dependency mechanism, so it
    is resolved only after that step has run.
-4. **pstar_init** ({py:class}`~polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep`):
+4. **jra55_map** ({py:class}`~polaris.tasks.ocean.realistic_global.init.jra55_map.Jra55MapStep`):
+   the bilinear mapping file from the JRA55-do TL319 grid to the culled MPAS
+   mesh, sized the same way as **woa23_map**.  Bilinear rather than
+   conservative, because the ocean responds to wind stress *curl* and
+   first-order conservative remapping makes that curl grid-scale noise;
+   pyremap's moab path hard-codes ``--order 1``.  ``map_tool`` is left at the
+   Polaris default (``moab``): ESMF's default pole handling builds its pole
+   point from the zonal average of the source's outermost row, which is
+   harmless for a scalar but collapses a vector field to zero at the pole.
+5. **remap_jra55** ({py:class}`~polaris.tasks.ocean.realistic_global.init.remap_jra55.RemapJra55Step`):
+   applies those weights with `ncremap`, producing `jra55_on_mesh.nc`.
+   mbtempest's coverage stops at the source grid's extrapolated cell corner,
+   leaving about 891 km^2 uncovered at the North Pole -- under one cell for
+   meshes coarser than about 30 km.  Those cells are filled from their nearest
+   valid neighbour by
+   {py:func}`~polaris.tasks.ocean.realistic_global.init.remap_jra55.fill_missing_from_nearest`,
+   with both components taken from the same donor so the filled vector stays
+   physical.  A missing count larger than
+   ``max_polar_fill_fraction`` (with an absolute floor of
+   ``min_allowed_polar_fill``) fails the step rather than being filled
+   silently.  Padding the source grid to close the cap is not an option: it
+   aborts mbtempest.
+6. **pstar_init** ({py:class}`~polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep`):
    subclass of {py:class}`polaris.ocean.vertical.pstar_init.PStarInitStep`.
    Runs the fixed-point p-star coordinate iteration jointly with WOA23 tracer
    interpolation, writing a model-neutral `pstar_init.nc` that contains
@@ -126,7 +191,7 @@ composes the full chain:
    by capping each hole's seafloor at its deepest-neighbor level and
    re-solving, via
    {py:func}`polaris.ocean.vertical.bathymetry_holes.fill_max_level_holes`.
-5. **initial_state** ({py:class}`~polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep`):
+7. **initial_state** ({py:class}`~polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep`):
    reads `pstar_init.nc` and the model resolved from ``[ocean] model`` to
    produce model-specific output files (`init.nc` for both models;
    `vert_coord.nc` additionally for Omega).  Tracer fields are kept as CT/SA
@@ -135,9 +200,14 @@ composes the full chain:
    {ref}`dev-ocean-framework-init-state`), with this step supplying the
    per-cell longitude and latitude from the culled mesh because
    `pstar_init.nc` has no horizontal mesh fields.
-6. **viz** ({py:class}`~polaris.tasks.ocean.realistic_global.init.viz.VizInitStep`):
-   visualizes and sanity-checks the initial condition and vertical-coordinate
-   datasets (see below).
+8. **forcing** ({py:class}`~polaris.tasks.ocean.realistic_global.init.forcing.ForcingStep`):
+   writes the model-specific `forcing.nc` from `jra55_on_mesh.nc` via
+   {py:meth}`polaris.ocean.model.OceanIOStep.write_forcing_dataset`.  Omega
+   reads 1-D fields on `NCells`; MPAS-Ocean's Registry declares
+   ``dimensions="nCells Time"``, so a `Time` dimension of one is added there.
+9. **viz** ({py:class}`~polaris.tasks.ocean.realistic_global.init.viz.VizInitStep`):
+   visualizes and sanity-checks the initial condition, vertical-coordinate and
+   forcing datasets (see below).
 
 ### viz
 
