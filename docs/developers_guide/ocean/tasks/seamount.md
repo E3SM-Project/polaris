@@ -189,6 +189,13 @@ schemes against each other, writing `metrics.csv`,
 See {ref}`ocean-seamount-metrics` in the User's Guide for what the metrics
 are and how to read them.
 
+The static-stability guard compares each adjacent layer pair at the pressure
+of the interface between them, so it is potential density at a local reference
+pressure rather than at the surface.  The tracers are used in whatever
+convention the model wrote them, which is exact for the linear equation of
+state and for Omega under TEOS-10 and an approximation for MPAS-Ocean under a
+nonlinear one -- adequate to detect an inversion, not to size a marginal one.
+
 Two details of the masking are worth knowing.  An edge has water only where
 both of its cells do, so its deepest valid level is the shallower of the two
 `maxLevelCell` values; that is what makes the bottom-layer metric follow the

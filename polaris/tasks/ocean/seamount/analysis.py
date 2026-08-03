@@ -17,7 +17,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 
+from polaris.ocean.eos import compute_density
 from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.ocean.vertical.ztilde import Gravity, RhoSw
 from polaris.tasks.ocean.seamount.forward import forward_step_name
 
 # The metrics written to metrics.csv, in order, with the column headings and
@@ -29,6 +31,8 @@ METRIC_UNITS = {
     'mean_kinetic_energy': 'm2/s2',
     'implied_acceleration': 'm/s2',
     'acceleration_ratio': '1',
+    'unstable_pairs': 'count',
+    'max_density_inversion': 'kg m-3',
 }
 
 
@@ -97,7 +101,7 @@ class Analysis(OceanIOStep):
                 f'output_{scheme}.nc', config, decode_times=True
             )
             metrics[scheme] = _compute_metrics(
-                ds, ds_mesh, ds_vert_coord, coriolis, reference_grad
+                ds, ds_mesh, ds_vert_coord, config, coriolis, reference_grad
             )
             _plot_interface_tilt(ds, ds_mesh, ds_vert_coord, scheme)
 
@@ -106,7 +110,9 @@ class Analysis(OceanIOStep):
         _log_metrics(metrics, logger, reference_grad)
 
 
-def _compute_metrics(ds, ds_mesh, ds_vert_coord, coriolis, reference_grad):
+def _compute_metrics(
+    ds, ds_mesh, ds_vert_coord, config, coriolis, reference_grad
+):
     """
     The spurious-circulation time series for one forward run.
     """
@@ -127,6 +133,10 @@ def _compute_metrics(ds, ds_mesh, ds_vert_coord, coriolis, reference_grad):
         dim=('nCells', 'nVertLevels')
     ) / volume.sum(dim=('nCells', 'nVertLevels'))
 
+    unstable_pairs, max_density_inversion = _static_stability(
+        ds, config, cell_mask
+    )
+
     # The acceleration a spurious flow of this speed would be in balance
     # with, so that a velocity can be compared against a pressure gradient.
     # This is a balanced-state estimate: it is meaningful once the flow has
@@ -141,7 +151,62 @@ def _compute_metrics(ds, ds_mesh, ds_vert_coord, coriolis, reference_grad):
         'mean_kinetic_energy': mean_kinetic_energy.values,
         'implied_acceleration': implied_acceleration.values,
         'acceleration_ratio': (implied_acceleration / reference_grad).values,
+        'unstable_pairs': unstable_pairs.values,
+        'max_density_inversion': max_density_inversion.values,
     }
+
+
+def _static_stability(ds, config, cell_mask):
+    """
+    Count the adjacent layer pairs whose upper layer is denser than the one
+    below it, and the largest such density excess.
+
+    All vertical mixing including convection is off in this task, so nothing
+    restores a column that overturns.  A run that overturns is no longer
+    measuring a spurious circulation against a resting exact solution; it is
+    measuring an unbounded convective response with the response removed, and
+    its later metrics mean nothing.  That has to be visible in the output
+    rather than left to be noticed.
+
+    Each pair is compared at the pressure of the interface between them, so
+    the comparison is of potential density at a local reference pressure
+    rather than at the surface.  The tracers are used in whatever convention
+    the model wrote them: exact for the linear equation of state and for
+    Omega under TEOS-10, and an approximation for MPAS-Ocean under a
+    nonlinear equation of state, which is adequate to detect an inversion but
+    not to size a marginal one.
+    """
+    thickness = ds.layerThickness.where(cell_mask, 0.0)
+    # gauge pressure at the interface below each layer
+    pressure = (RhoSw * Gravity * thickness).cumsum(dim='nVertLevels')
+
+    upper = dict(nVertLevels=slice(0, -1))
+    lower = dict(nVertLevels=slice(1, None))
+    reference = pressure.isel(**upper)
+
+    density_upper = compute_density(
+        config,
+        ds.temperature.isel(**upper),
+        ds.salinity.isel(**upper),
+        pressure=reference,
+    )
+    density_lower = compute_density(
+        config,
+        ds.temperature.isel(**lower),
+        ds.salinity.isel(**lower),
+        pressure=reference,
+    )
+
+    assert isinstance(density_upper, xr.DataArray)
+    assert isinstance(density_lower, xr.DataArray)
+    both_valid = np.logical_and(
+        cell_mask.isel(**upper), cell_mask.isel(**lower)
+    )
+    excess = (density_upper - density_lower).where(both_valid)
+
+    unstable_pairs = (excess > 0.0).sum(dim=('nCells', 'nVertLevels'))
+    max_density_inversion = excess.max(dim=('nCells', 'nVertLevels'))
+    return unstable_pairs, max_density_inversion.clip(min=0.0)
 
 
 def _masks(ds, ds_mesh, ds_vert_coord):
@@ -325,7 +390,7 @@ def _plot_metrics(metrics, reference_grad):
     """
     One panel per metric, with a line per scheme.
     """
-    figure, axes = plt.subplots(4, 1, figsize=[12, 16], dpi=100, sharex=True)
+    figure, axes = plt.subplots(5, 1, figsize=[12, 20], dpi=100, sharex=True)
 
     for scheme, series in metrics.items():
         days = series['days']
@@ -339,6 +404,7 @@ def _plot_metrics(metrics, reference_grad):
         axes[1].plot(days, series['max_speed_level'], '-o', label=scheme)
         axes[2].plot(days, series['mean_kinetic_energy'], '-o', label=scheme)
         axes[3].plot(days, series['acceleration_ratio'], '-o', label=scheme)
+        axes[4].plot(days, series['unstable_pairs'], '-o', label=scheme)
 
     axes[0].set_ylabel('max |u| (m/s)')
     axes[0].set_yscale('log')
@@ -358,7 +424,13 @@ def _plot_metrics(metrics, reference_grad):
         'Balanced acceleration implied by the spurious velocity, as a '
         'fraction of the reference bottom-layer pressure gradient'
     )
-    axes[3].set_xlabel('Time (days)')
+
+    axes[4].set_ylabel('statically unstable layer pairs')
+    axes[4].set_title(
+        'Any nonzero value invalidates every metric above it from that time '
+        'on: convection is off, so nothing restores an overturned column'
+    )
+    axes[4].set_xlabel('Time (days)')
 
     for axis in axes:
         axis.legend()
@@ -393,6 +465,34 @@ def _log_metrics(metrics, logger, reference_grad):
                 f'{series["mean_kinetic_energy"][index]:12.4e} '
                 f'{series["acceleration_ratio"][index]:10.3f}'
             )
+    logger.info('')
+    _log_static_stability(metrics, logger)
+
+
+def _log_static_stability(metrics, logger):
+    """
+    Say plainly whether each run overturned, and when.
+    """
+    for scheme, series in metrics.items():
+        unstable = np.asarray(series['unstable_pairs'])
+        onset = np.flatnonzero(unstable > 0)
+        if onset.size == 0:
+            logger.info(
+                f'{scheme}: statically stable throughout; the metrics above '
+                f'measure a spurious circulation.'
+            )
+            continue
+        index = int(onset[0])
+        logger.info(
+            f'{scheme}: OVERTURNED at day {series["days"][index]:.3f}, '
+            f'reaching {int(unstable[-1])} unstable layer pairs and a '
+            f'density inversion of '
+            f'{series["max_density_inversion"][-1]:.3e} kg m-3.  All vertical '
+            f'mixing including convection is off in this task, so nothing '
+            f'restores an overturned column: from that time on the metrics '
+            f'above measure an unbounded convective response with the '
+            f'response removed, not a spurious circulation.'
+        )
     logger.info('')
 
 
