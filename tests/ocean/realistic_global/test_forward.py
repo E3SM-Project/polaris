@@ -12,6 +12,7 @@ from polaris.tasks.ocean.realistic_global.forward import (
     ForwardStage,
     StepInitialCondition,
 )
+from polaris.yaml import PolarisYaml
 
 
 def _forward_config(**overrides):
@@ -238,6 +239,31 @@ def test_horiz_mixing_options_are_all_mapped_to_omega():
     for option, value in stage.horiz_mixing_options().items():
         # raises ValueError if the option has no Omega counterpart
         step._map_mpaso_to_omega_section_option(option=option, value=value)
+
+
+def test_forward_yaml_neutral_options_are_all_mapped_to_omega():
+    """
+    Everything in the ``ocean`` section of ``forward.yaml`` is meant to reach
+    both models, so every option there must have an Omega counterpart.  An
+    unmapped option would only warn, so it would be silently dropped for Omega
+    and the two models would run different physics.
+    """
+    step = OceanModelStep.__new__(OceanModelStep)
+    step._read_config_map()
+    stage = ForwardStage.from_config(_forward_config())
+    replacements = stage.model_replacements('mpas-ocean', min_res=30.0)
+    yaml = PolarisYaml.read(
+        filename='forward.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        replacements=replacements,
+        model='ocean',
+    )
+    for section, options in yaml.configs.items():
+        for option, value in options.items():
+            # raises ValueError if the option has no Omega counterpart
+            step._map_mpaso_to_omega_section_option(
+                option=option, value=value, section=section
+            )
 
 
 def test_mpaso_physics_options_hmix_scaling_sets_both_flags():
