@@ -16,6 +16,8 @@ from polaris.ocean.vertical.diagnostics import (
 )
 from polaris.viz import get_viz_defaults, plot_global_mpas_field
 
+from .remap_jra55 import JRA55_ON_MESH_FILENAME
+
 
 class VizInitStep(OceanIOStep):
     """
@@ -42,6 +44,7 @@ class VizInitStep(OceanIOStep):
     * a vertical-coordinate structure figure,
     * global native-mesh maps of temperature and salinity at several depths
       plus surface and bottom, and topography/column diagnostics,
+    * global native-mesh maps of the wind stress components and magnitude,
     * multi-basin vertical transects of temperature and salinity,
     * (Omega only) a stratification check using the TEOS-10 in-situ density,
       and
@@ -55,9 +58,14 @@ class VizInitStep(OceanIOStep):
 
     cull_mesh_step : polaris.Step
         The cull-mesh step that produces the MPAS horizontal mesh.
+
+    remap_jra55_step : polaris.Step
+        The step that produces the remapped wind stress on the mesh.
     """
 
-    def __init__(self, component, subdir, init_step, cull_mesh_step):
+    def __init__(
+        self, component, subdir, init_step, cull_mesh_step, remap_jra55_step
+    ):
         """
         Create the step.
 
@@ -75,6 +83,9 @@ class VizInitStep(OceanIOStep):
 
         cull_mesh_step : polaris.Step
             The step that produces ``culled_ocean_mesh.nc``.
+
+        remap_jra55_step : polaris.Step
+            The step that produces ``jra55_on_mesh.nc``.
         """
         super().__init__(
             component=component,
@@ -83,6 +94,7 @@ class VizInitStep(OceanIOStep):
         )
         self.init_step = init_step
         self.cull_mesh_step = cull_mesh_step
+        self.remap_jra55_step = remap_jra55_step
 
     def setup(self):
         """
@@ -110,8 +122,21 @@ class VizInitStep(OceanIOStep):
                 ),
             )
 
+        self.add_input_file(
+            filename=JRA55_ON_MESH_FILENAME,
+            work_dir_target=os.path.join(
+                self.remap_jra55_step.path, JRA55_ON_MESH_FILENAME
+            ),
+        )
+
         self.add_output_file('initial_state_summary.png')
         self.add_output_file('vertical_coordinate.png')
+        for name in [
+            'windStressZonal',
+            'windStressMeridional',
+            'windStressMagnitude',
+        ]:
+            self.add_output_file(f'{name}.png')
 
     def run(self):
         """
@@ -136,6 +161,7 @@ class VizInitStep(OceanIOStep):
         _plot_summary(self.component, model, ds_mesh, ds_init, ds_vert_coord)
         _plot_vertical_coord(ds_init, ds_vert_coord)
         self._plot_global_maps(model, ds_mesh, ds_init, ds_vert_coord)
+        self._plot_forcing(ds_mesh)
         self._plot_transects(model, ds_mesh, ds_init, ds_vert_coord)
         self._export_xdmf(model, ds_mesh)
 
@@ -275,6 +301,61 @@ class VizInitStep(OceanIOStep):
                 central_longitude=central_longitude,
             )
             plt.close('all')
+
+    def _plot_forcing(self, ds_mesh):
+        """
+        Plot global native-mesh maps of the remapped wind stress.
+
+        These make any remapping artifacts visible.
+        """
+        config = self.config
+        section_name = 'realistic_global_init_viz'
+        section = config[section_name]
+        projection_name = section.get('projection')
+        central_longitude = section.getfloat('central_longitude')
+
+        model = config.get('ocean', 'model')
+        zonal_name = _display_name(self.component, model, 'windStressZonal')
+        merid_name = _display_name(
+            self.component, model, 'windStressMeridional'
+        )
+        with xr.open_dataset(JRA55_ON_MESH_FILENAME) as ds_forcing:
+            taux = ds_forcing.taux
+            tauy = ds_forcing.tauy
+            magnitude = np.sqrt(taux**2 + tauy**2)
+
+            plots = [
+                (
+                    taux,
+                    'windStressZonal',
+                    f'{zonal_name} (zonal wind stress) [N m$^{{-2}}$]',
+                ),
+                (
+                    tauy,
+                    'windStressMeridional',
+                    f'{merid_name} (meridional wind stress) [N m$^{{-2}}$]',
+                ),
+                (
+                    magnitude,
+                    'windStressMagnitude',
+                    'wind stress magnitude [N m$^{-2}$]',
+                ),
+            ]
+            for da, out_name, label in plots:
+                _set_colormap(config, section_name, 'cmo.balance', da)
+                plot_global_mpas_field(
+                    mesh_filename='mesh.nc',
+                    da=da,
+                    out_filename=f'{out_name}.png',
+                    config=config,
+                    colormap_section=section_name,
+                    colorbar_label='N m$^{-2}$',
+                    title=label,
+                    plot_land=True,
+                    projection_name=projection_name,
+                    central_longitude=central_longitude,
+                )
+                plt.close('all')
 
     def _plot_transects(self, model, ds_mesh, ds_init, ds_vert_coord):
         """
