@@ -233,8 +233,8 @@ zonal and meridional components at cell centres and project onto edges
 themselves, so no vector rotation happens in Polaris.
 
 Only wind stress is written.  Surface restoring and the thermal and freshwater
-fluxes are future work, as are the forward-model settings that switch the
-forcing on.
+fluxes are future work.  The settings that switch the forcing on in the model
+are described under [forward](#ocean-realistic-global-forward).
 
 (ocean-realistic-global-mesh-configs)=
 
@@ -460,8 +460,26 @@ The `short` run is a one-day smoke test:
 it checks that the model runs stably on the mesh and initial condition, not that
 the simulation is physically interesting.
 
-There is no surface forcing yet, so the run is a spin-down from the initial
-condition.
+### surface forcing
+
+The run is forced by the time-invariant JRA55-do wind stress written by the
+init workflow's [`forcing` step](#ocean-realistic-global-init).  Wind stress is
+the only forcing: there is no surface restoring and there are no thermal or
+freshwater fluxes, so the tracers spin down from the initial condition while
+the momentum input holds up a circulation.
+
+`forcing.yaml` turns it on with `config_use_bulk_wind_stress`, which
+`mpaso_to_omega.yaml` translates to Omega's `SfcStressForcingTendencyEnable`.
+Both models default it to off.  It also points each model's input stream at the
+staged file named by the `[ocean_staged_files] forcing_filename` config option
+(`forcing.nc` by default) — for MPAS-Ocean a `forcing` stream holding just the
+two wind-stress variables, rather than the Registry's `forcing_data` stream,
+which would also demand the sea-ice and atmospheric pressures and the tracer
+restoring fields.
+
+Both are added only when the forward step's initial condition supplies a
+forcing file.  A forward run built on an initial condition without one is
+unforced, and neither the config option nor the stream is set.
 
 ### output
 

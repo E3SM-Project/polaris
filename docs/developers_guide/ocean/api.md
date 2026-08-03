@@ -753,6 +753,7 @@
    OceanIOStep.add_horiz_mesh_input_file
    OceanIOStep.add_vert_coord_input_file
    OceanIOStep.add_init_input_file
+   OceanIOStep.add_forcing_input_file
    OceanIOStep.get_horiz_mesh_filename
    OceanIOStep.get_vert_coord_filename
    OceanIOStep.get_init_filename
