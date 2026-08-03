@@ -342,6 +342,15 @@ relative to `hmix_ref_cell_width`, and `scale_with_mesh` scales them with the
 local mesh density.  Quasi-uniform meshes generally use `ref_cell_width`, and
 variable-resolution meshes `scale_with_mesh`.
 
+Some settings are not config options because they should not vary: they are
+pinned in `forward.yaml` purely so that MPAS-Ocean and Omega agree.  Where the
+two models' own defaults differ, the MPAS-Ocean default wins — horizontal
+tracer advection order is pinned to 3 (Omega defaults to 2), and bottom drag to
+implicit constant drag with a coefficient of 1e-3 (Omega has no bottom drag by
+default).  The CVMix convection and shear-mixing parameters are pinned too;
+those values already match both models, and stating them is what keeps them
+from drifting apart.
+
 Gent-McWilliams, Redi, the Leith closure and frazil ice are applied only for
 MPAS-Ocean.  Omega has no equivalent for any of them and is not expected to gain
 GM or Redi, so the two models deliberately differ here; the `short` runs are
