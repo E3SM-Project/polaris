@@ -63,6 +63,18 @@ def test_woa23_steps_hand_back_the_config_their_steps_use():
     component.add_config(second_config)
 
 
+def test_add_realistic_global_tasks_registers_jra55():
+    component = Ocean()
+    add_realistic_global_tasks(component=component)
+
+    task = component.tasks['spherical/realistic_global/forcing/jra55']
+    # the standalone task regenerates the cached product and plots it
+    assert task.free_running_steps == {
+        'spherical/realistic_global/forcing/jra55/stress'
+    }
+    assert task.steps_to_run == ['stress', 'viz']
+
+
 def test_add_realistic_global_tasks_registers_init_for_all_meshes():
     component = Ocean()
     add_realistic_global_tasks(component=component)
