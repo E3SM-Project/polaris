@@ -16,9 +16,27 @@ ocean:
     # the run NaNs.  It is resolution-dependent, so it comes from the
     # [realistic_global_forward] config options rather than from this
     # template; see ForwardStage.horiz_mixing_options.
+    advection:
+        # MPAS-Ocean defaults to 3 and Omega to 2, so the order has to be
+        # stated to keep the two models from silently disagreeing
+        config_horiz_tracer_adv_order: 3
+    bottom_drag:
+        # the MPAS-Ocean defaults, stated explicitly because Omega's own
+        # defaults differ and these values are what reach it
+        config_bottom_drag_mode: implicit
+        config_implicit_bottom_drag_type: constant
+        config_implicit_constant_bottom_drag_coeff: 1.0e-3
     cvmix:
         config_use_cvmix_convection: true
+        # shear mixing is off by default in MPAS-Ocean and on by default in
+        # Omega, so set it, and its parameters, explicitly for both.  The
+        # values are both models' current defaults; stating them is what keeps
+        # them from diverging again.
         config_use_cvmix_shear: true
+        config_cvmix_shear_KPP_nu_zero: 0.005
+        config_cvmix_shear_KPP_Ri_zero: 0.7
+        config_cvmix_shear_KPP_exp: 3.0
+        config_cvmix_num_ri_smooth_loops: 2
 
 mpas-ocean:
     time_management:
