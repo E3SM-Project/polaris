@@ -4,11 +4,12 @@ from polaris.config import PolarisConfigParser
 from polaris.step import Step
 
 from .stress import Jra55StressStep
+from .viz import Jra55VizStep
 
 JRA55_SUBDIR = 'spherical/realistic_global/forcing/jra55'
 
 
-def get_jra55_steps(component):
+def get_jra55_steps(component, include_viz=False):
     """
     Get the shared steps for building the reusable JRA55-do wind-stress
     product.
@@ -17,6 +18,13 @@ def get_jra55_steps(component):
     ----------
     component : polaris.tasks.ocean.Ocean
         The ocean component the steps belong to.
+
+    include_viz : bool, optional
+        Whether to create the :py:class:`.Jra55VizStep` and include it in the
+        returned steps.  The standalone :py:class:`.Jra55` task passes
+        ``include_viz=True``; other consumers that reuse the wind-stress
+        product as a dependency leave it ``False`` so the plots are not
+        regenerated.
 
     Returns
     -------
@@ -44,5 +52,15 @@ def get_jra55_steps(component):
     )
 
     steps: dict[str, Step] = {'jra55_stress': stress_step}
+
+    if include_viz:
+        viz_step = component.get_or_create_shared_step(
+            step_cls=Jra55VizStep,
+            subdir=os.path.join(JRA55_SUBDIR, 'viz'),
+            config=config,
+            config_filename=config_filename,
+            stress_step=stress_step,
+        )
+        steps['jra55_viz'] = viz_step
 
     return steps, config
