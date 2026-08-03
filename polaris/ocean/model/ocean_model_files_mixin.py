@@ -51,6 +51,12 @@ class OceanModelFilesMixin:
         """
         return self._get_model_input_filename('init_filename')
 
+    def get_forcing_filename(self) -> str:
+        """
+        Get the configured local filename for the surface forcing file.
+        """
+        return self._get_model_input_filename('forcing_filename')
+
     # --- input file registration ---
 
     def add_horiz_mesh_input_file(self, **kwargs) -> None:
