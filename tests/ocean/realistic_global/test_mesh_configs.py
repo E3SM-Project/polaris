@@ -149,8 +149,10 @@ FORWARD_EXPECTED: dict[str, dict[str, object]] = {
         hmix_scaling='scale_with_mesh',
         use_GM=False,
         use_Redi=False,
-        dt_per_km=10.0,
-        btr_dt_per_km=0.5,
+        # the shared default scaling, which reproduces the Compass rrs6to18
+        # time step (3 min baroclinic, 9 s barotropic at 6 km)
+        dt_per_km=30.0,
+        btr_dt_per_km=1.5,
     ),
     # Compass so12to30, apart from its time step
     'u.oi.so12to30.lr10': dict(
