@@ -92,6 +92,75 @@ def compute_specvol(
     return specvol
 
 
+def ct_from_potential_density(
+    sigma_0: xr.DataArray | float,
+    sa: xr.DataArray | float,
+) -> xr.DataArray | float:
+    """
+    Compute the conservative temperature that gives a target potential
+    density referenced to the surface.
+
+    This is the TEOS-10 counterpart of back-solving a linear equation of
+    state for temperature: it lets a test case specify its stratification as
+    a density profile rather than a temperature profile.  Because the
+    reference pressure is zero, the inversion is exact and needs no
+    iteration on pressure.
+
+    Only the cold branch of ``gsw.CT_from_rho`` is physical for seawater
+    above its density maximum, which is where all oceanographically relevant
+    states lie, so the second root is not returned.
+
+    Parameters
+    ----------
+    sigma_0 : float or xarray.DataArray
+        The target potential density referenced to the surface (kg m-3).
+        Note that this is the full density, not the ``sigma`` anomaly, so
+        values are near 1027 rather than near 27.
+
+    sa : float or xarray.DataArray
+        Absolute Salinity (g kg-1) at the same points as ``sigma_0``.
+
+    Returns
+    -------
+    float or xarray.DataArray
+        Conservative Temperature (degC), with the dims and coords of
+        ``sigma_0`` if it is a ``DataArray``.
+
+    Raises
+    ------
+    ValueError
+        If any target density is unattainable at the given salinity, which
+        ``gsw`` reports as a NaN root.  Letting that NaN through would
+        otherwise propagate silently into an initial condition.
+    """
+    sigma_0_np = _to_numpy(sigma_0)
+    sa_np = _to_numpy(sa)
+
+    ct_np, _ = gsw.CT_from_rho(sigma_0_np, sa_np, 0.0)
+
+    invalid = np.isnan(ct_np) & np.isfinite(sigma_0_np)
+    if np.any(invalid):
+        bad = np.asarray(sigma_0_np)[invalid]
+        raise ValueError(
+            f'{invalid.sum()} of the target potential densities are not '
+            'attainable at the given absolute salinity; they range from '
+            f'{bad.min()} to {bad.max()} kg m-3.'
+        )
+
+    if not isinstance(sigma_0, xr.DataArray):
+        return float(ct_np)
+
+    ct = xr.DataArray(
+        ct_np,
+        dims=sigma_0.dims,
+        coords=sigma_0.coords,
+        name='ct',
+    )
+    ct.attrs['long_name'] = 'conservative temperature'
+    ct.attrs['units'] = 'degC'
+    return ct
+
+
 def convert_tracers(
     ds: xr.Dataset,
     source: str,

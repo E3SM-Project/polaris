@@ -13,6 +13,9 @@ ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_2
 ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_3
 ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_4
 ocean/planar/overflow/nonlinear/pstar/smoke_test_horiz_adv_order_4_del4
+ocean/planar/seamount/linear/exponential/zstar/short
+ocean/planar/seamount/nonlinear/exponential/sigma/short
+ocean/planar/seamount/nonlinear/linear_pressure/sigma/short
 ocean/single_column/cvmix
 ocean/single_column/ekman
 ocean/single_column/ideal_age
