@@ -110,13 +110,23 @@ Both {py:class}`polaris.ocean.model.OceanIOStep` and
   from config.
 - **Input-file registration** — `add_horiz_mesh_input_file(**kwargs)`,
   `add_vert_coord_input_file(filename=None, **kwargs)`,
-  `add_init_input_file(**kwargs)` — all safe to call from `__init__()`.
+  `add_init_input_file(**kwargs)`, `add_forcing_input_file(**kwargs)` — all
+  safe to call from `__init__()`.
   The model check is deferred to `process_inputs_and_outputs()`, so no
   `if model == 'omega':` guards are needed in `__init__()`.
   `add_vert_coord_input_file()` is a no-op for MPAS-Ocean when the default
   placeholder is used.  When an explicit `filename=` is given (for
   per-resolution files such as `'vert_coord_r04.nc'`), it must be called
   from `setup()` or later because `self.config` is required.
+
+Unlike the other three, the forcing file is optional: only steps that actually
+have one register it, and unforced runs simply never call
+`add_forcing_input_file()`.  Note also that the forcing file is not the same
+shape for both models — `write_forcing_dataset()` gives it a `Time` dimension
+for MPAS-Ocean and none for Omega, because MPAS-Ocean's Registry declares
+`dimensions="nCells Time"` while Omega's `SfcStressForcingVars` registers 1-D
+fields on `NCells`.  A step that reads the file back has to expect that
+asymmetry.
 
 A typical viz or analysis step that reads vert-coord variables:
 
