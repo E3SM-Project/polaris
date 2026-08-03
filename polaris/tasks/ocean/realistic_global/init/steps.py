@@ -3,6 +3,9 @@ import os
 from polaris.config import PolarisConfigParser
 from polaris.step import Step
 from polaris.tasks.e3sm.init.topo.cull.steps import get_cull_topo_steps
+from polaris.tasks.ocean.realistic_global.forcing.jra55.steps import (
+    get_jra55_steps,
+)
 from polaris.tasks.ocean.realistic_global.hydrography.woa23.steps import (
     get_woa23_steps,
 )
@@ -12,7 +15,9 @@ from polaris.tasks.ocean.realistic_global.mesh_configs import (
 
 from .cull_topo import CullTopoStep
 from .initial_state import InitialStateStep
+from .jra55_map import Jra55MapStep
 from .pstar_init import RealisticPStarInitStep
+from .remap_jra55 import RemapJra55Step
 from .remap_woa23 import RemapWoa23Step
 from .viz import VizInitStep
 from .woa23_map import Woa23MapStep
@@ -29,8 +34,12 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
       :py:func:`~polaris.tasks.e3sm.init.topo.cull.steps.get_cull_topo_steps`)
     * WOA23 hydrography steps (via
       :py:func:`~polaris.tasks.ocean.realistic_global.hydrography.woa23.steps.get_woa23_steps`)
+    * JRA55-do wind-stress steps (via
+      :py:func:`~polaris.tasks.ocean.realistic_global.forcing.jra55.steps.get_jra55_steps`)
     * :py:class:`.Woa23MapStep`
     * :py:class:`.RemapWoa23Step`
+    * :py:class:`.Jra55MapStep`
+    * :py:class:`.RemapJra55Step`
     * :py:class:`.RealisticPStarInitStep`
     * :py:class:`.InitialStateStep`
 
@@ -74,6 +83,9 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
     woa23_steps, _ = get_woa23_steps(component=component)
     extrapolate_step = woa23_steps['woa23_extrapolate']
 
+    jra55_steps, _ = get_jra55_steps(component=component)
+    stress_step = jra55_steps['jra55_stress']
+
     base_subdir = f'spherical/realistic_global/{mesh_name}/init'
     config_filename = 'realistic_global_init.cfg'
     config = _get_init_config(
@@ -108,6 +120,26 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
         woa23_map_step=woa23_map_step,
     )
 
+    jra55_map_step = component.get_or_create_shared_step(
+        step_cls=Jra55MapStep,
+        subdir=os.path.join(base_subdir, 'jra55_map'),
+        config=config,
+        config_filename=config_filename,
+        stress_step=stress_step,
+        cull_mesh_step=cull_mesh_step,
+        mesh_name=mesh_name,
+    )
+
+    remap_jra55_step = component.get_or_create_shared_step(
+        step_cls=RemapJra55Step,
+        subdir=os.path.join(base_subdir, 'remap_jra55'),
+        config=config,
+        config_filename=config_filename,
+        stress_step=stress_step,
+        jra55_map_step=jra55_map_step,
+        cull_mesh_step=cull_mesh_step,
+    )
+
     pstar_init_step = component.get_or_create_shared_step(
         step_cls=RealisticPStarInitStep,
         subdir=os.path.join(base_subdir, 'pstar_init'),
@@ -138,9 +170,12 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
 
     steps: dict[str, Step] = dict(cull_steps)
     steps.update(woa23_steps)
+    steps.update(jra55_steps)
     steps[cull_topo_step.name] = cull_topo_step
     steps[woa23_map_step.name] = woa23_map_step
     steps[remap_step.name] = remap_step
+    steps[jra55_map_step.name] = jra55_map_step
+    steps[remap_jra55_step.name] = remap_jra55_step
     steps[pstar_init_step.name] = pstar_init_step
     steps[init_step.name] = init_step
     if include_viz:
