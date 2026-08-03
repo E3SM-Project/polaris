@@ -53,9 +53,16 @@ def _forward_config(**overrides):
 class _FakeStep:
     """Records the input files an InitialCondition adds to a forward step."""
 
-    def __init__(self, model='mpas-ocean', eos_type='teos-10', path='WORK'):
+    def __init__(
+        self,
+        model='mpas-ocean',
+        eos_type='teos-10',
+        path='WORK',
+        forcing_filename='forcing.nc',
+    ):
         self.path = path
         self.calls = []
+        self.forcing_filename = forcing_filename
         self.config = ConfigParser()
         self.config.add_section('ocean')
         self.config.set('ocean', 'model', model)
@@ -69,6 +76,12 @@ class _FakeStep:
 
     def add_init_input_file(self, **kwargs):
         self.calls.append(('init', kwargs))
+
+    def add_forcing_input_file(self, **kwargs):
+        self.calls.append(('forcing', kwargs))
+
+    def get_forcing_filename(self):
+        return self.forcing_filename
 
 
 # --- ForwardStage ---
@@ -344,6 +357,79 @@ def test_step_initial_condition_wires_inputs_and_graph():
     assert by_kind['horiz_mesh']['work_dir_target'] == f'{path}/mesh.nc'
     assert by_kind['vert_coord']['work_dir_target'] == f'{path}/vert_coord.nc'
     assert by_kind['init']['work_dir_target'] == f'{path}/init.nc'
+    # with no forcing step, the run is unforced and nothing turns the surface
+    # stress on
+    assert not ic.provides_forcing
+
+
+def test_step_initial_condition_wires_the_forcing_file():
+    base = 'ocean/spherical/realistic_global/icos240km/init'
+    ic = StepInitialCondition(
+        cast(Step, _FakeStep(path=f'{base}/initial_state')),
+        min_res=240.0,
+        approx_cell_count=10417,
+        forcing_step=cast(Step, _FakeStep(path=f'{base}/forcing')),
+    )
+    assert ic.provides_forcing
+
+    forward = _FakeStep(forcing_filename='custom_forcing.nc')
+    ic.add_input_files(cast(OceanModelStep, forward))
+    by_kind = dict(forward.calls)
+    assert set(by_kind) == {'horiz_mesh', 'vert_coord', 'init', 'forcing'}
+    # the staged filename comes from [ocean_staged_files], not a literal
+    assert (
+        by_kind['forcing']['work_dir_target']
+        == f'{base}/forcing/custom_forcing.nc'
+    )
+
+
+def test_forcing_yaml_neutral_options_are_all_mapped_to_omega():
+    """
+    As for ``forward.yaml``: everything in the ``ocean`` section of
+    ``forcing.yaml`` has to reach both models, and an unmapped option would
+    only warn, leaving the forcing silently off for Omega.
+    """
+    step = OceanModelStep.__new__(OceanModelStep)
+    step._read_config_map()
+    yaml = PolarisYaml.read(
+        filename='forcing.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        replacements=dict(forcing_filename='forcing.nc'),
+        model='ocean',
+    )
+    assert yaml.configs['forcing']['config_use_bulk_wind_stress'] is True
+    for section, options in yaml.configs.items():
+        for option, value in options.items():
+            # raises ValueError if the option has no Omega counterpart
+            step._map_mpaso_to_omega_section_option(
+                option=option, value=value, section=section
+            )
+
+
+@pytest.mark.parametrize(
+    'model, streams_section, stream_name, filename_option',
+    [
+        ('mpas-ocean', 'streams', 'forcing', 'filename_template'),
+        ('Omega', 'IOStreams', 'Forcing', 'Filename'),
+    ],
+)
+def test_forcing_yaml_stream_points_at_the_staged_file(
+    model, streams_section, stream_name, filename_option
+):
+    """
+    Each model reads the forcing from a stream of its own, and both must be
+    pointed at the configured staged filename rather than the model default
+    (``forcing_data.nc`` for MPAS-Ocean).
+    """
+    yaml = PolarisYaml.read(
+        filename='forcing.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        replacements=dict(forcing_filename='custom_forcing.nc'),
+        model=model,
+        streams_section=streams_section,
+    )
+    stream = yaml.streams[stream_name]
+    assert stream[filename_option] == 'custom_forcing.nc'
 
 
 def test_database_initial_condition_mpas_ocean():
