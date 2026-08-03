@@ -473,7 +473,7 @@ it with a per-cell loop that sets a per-cell reference depth in a local config c
 constructing each column's coordinate. This override pattern is consistent in style with
 the `init_tracers` interface and keeps the per-cell logic in the subclass.
 
-The planned realistic initialization step (`ocean/spherical/realistic_global/{mesh_name}/init`)
+The planned realistic initialization step (`ocean/spherical/realistic_global/init`)
 will subclass `PStarInitStep` as `RealisticPStarInitStep` and implement `init_tracers`
 to read from the WOA hydrography product described in
 [global_ocean_init.md](global_ocean_init.md). In that context, CT/SA initialization at
