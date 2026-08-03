@@ -52,6 +52,25 @@ on the profile:
   survives the finite-volume run is not pressure-gradient truncation error.
   See {ref}`ocean-seamount-linear-in-pressure`.
 
+```{warning}
+**Compare the two schemes in the `nonlinear` trees, not the `linear` ones.**
+Under the linear equation of state, specific volume depends only on
+temperature and salinity, so a temperature linear in pressure makes specific
+volume linear in pressure as well -- and the same function of pressure in
+every column, which leaves the ocean horizontally homogeneous in pressure
+coordinates.  That nulls the *centered* scheme too, and the configuration
+stops being a test of anything.  Measured on this case, specific volume
+departs from a straight line in pressure by 4.6e-4 of its range under the
+linear equation of state against 8.6e-3 under TEOS-10, whose compressibility
+keeps the dependence nonlinear no matter what the tracers do.
+
+This is the same trap one level down from the one in
+{ref}`ocean-seamount-linear-in-pressure`: a null configuration is null only
+for the scheme it was built for, and here an equation of state quietly
+extends it to both.  The `linear` / `linear_pressure` trees remain useful as
+regression tests; they are not a scheme comparison.
+```
+
 The two span the same density range under the linear equation of state,
 3.0 kg m^{-3}, so a spurious velocity measured on one is comparable to the
 other.
