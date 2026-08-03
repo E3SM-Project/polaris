@@ -17,7 +17,8 @@ from polaris.tasks.ocean.realistic_global.forward import (
 def _forward_config(**overrides):
     """A minimal ``[realistic_global_forward]`` config for stage tests."""
     values = dict(
-        time_integrator='split_explicit_ab2',
+        mpaso_time_integrator='split_explicit_ab2',
+        omega_time_integrator='RK4',
         run_duration='0030_00:00:00',
         output_interval='0010_00:00:00',
         restart_interval='',
@@ -108,15 +109,29 @@ def test_model_replacements_explicit_dt_overrides_per_km():
 
 
 def test_model_replacements_omega_maps_rk4():
-    stage = ForwardStage.from_config(_forward_config(time_integrator='RK4'))
+    stage = ForwardStage.from_config(_forward_config())
     rep = stage.model_replacements('omega', min_res=30.0)
     assert rep['time_integrator'] == 'RungeKutta4'
+
+
+def test_the_two_models_get_their_own_integrator_and_time_step():
+    # the default is split time stepping for MPAS-Ocean, which Omega does not
+    # support yet, and RK4 for Omega; the time step follows from that choice
+    stage = ForwardStage.from_config(_forward_config())
+    rep = stage.model_replacements('mpas-ocean', min_res=30.0)
+    assert rep['time_integrator'] == 'split_explicit_ab2'
+    assert rep['dt'] == '0000_00:15:00.000'  # 30 s/km * 30 km
+    rep_omega = stage.model_replacements('omega', min_res=30.0)
+    assert rep_omega['time_integrator'] == 'RungeKutta4'
+    assert rep_omega['dt'] == '0000_00:00:45.000'  # 1.5 s/km * 30 km
 
 
 def test_non_split_integrators_use_the_short_time_step():
     # RK4 / RungeKutta4 have no barotropic split, so config_dt must be the
     # short barotropic step (btr_dt_per_km), not the long baroclinic dt_per_km
-    stage = ForwardStage.from_config(_forward_config(time_integrator='RK4'))
+    stage = ForwardStage.from_config(
+        _forward_config(mpaso_time_integrator='RK4')
+    )
     rep = stage.model_replacements('mpas-ocean', min_res=30.0)
     assert rep['dt'] == '0000_00:00:45.000'  # 1.5 s/km * 30 km, not 30 s/km
     rep_omega = stage.model_replacements('omega', min_res=30.0)
@@ -124,15 +139,21 @@ def test_non_split_integrators_use_the_short_time_step():
 
 
 def test_model_replacements_omega_rejects_split_explicit():
-    stage = ForwardStage.from_config(_forward_config())  # split_explicit_ab2
+    stage = ForwardStage.from_config(
+        _forward_config(omega_time_integrator='split_explicit_ab2')
+    )
     with pytest.raises(ValueError, match='not supported for Omega'):
         stage.model_replacements('omega', min_res=30.0)
+    # the MPAS-Ocean side is unaffected by the unsupported Omega option
+    assert stage.model_replacements('mpas-ocean', min_res=30.0)
 
 
 def test_model_replacements_omega_defers_split_explicit_to_run_time():
     # at setup the integrator may still be changed before running, so an
     # unsupported integrator must not raise; the neutral name is left in place
-    stage = ForwardStage.from_config(_forward_config())  # split_explicit_ab2
+    stage = ForwardStage.from_config(
+        _forward_config(omega_time_integrator='split_explicit_ab2')
+    )
     rep = stage.model_replacements('omega', min_res=30.0, at_setup=True)
     assert rep['time_integrator'] == 'split_explicit_ab2'
 
