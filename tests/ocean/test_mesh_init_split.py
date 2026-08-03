@@ -18,6 +18,7 @@ def _make_config(
     horiz_mesh_filename='mesh.nc',
     vert_coord_filename='vert_coord.nc',
     init_filename='init.nc',
+    forcing_filename='forcing.nc',
     model='omega',
 ):
     config = ConfigParser()
@@ -31,6 +32,7 @@ def _make_config(
         'ocean_staged_files', 'vert_coord_filename', vert_coord_filename
     )
     config.set('ocean_staged_files', 'init_filename', init_filename)
+    config.set('ocean_staged_files', 'forcing_filename', forcing_filename)
     return config
 
 
@@ -679,11 +681,13 @@ def test_process_inputs_and_outputs_resolves_model_input_filenames(
         horiz_mesh_filename='custom_mesh.nc',
         vert_coord_filename='custom_vc.nc',
         init_filename='custom_init.nc',
+        forcing_filename='custom_forcing.nc',
     )
 
     step.add_horiz_mesh_input_file(work_dir_target='mesh_target.nc')
     step.add_vert_coord_input_file(work_dir_target='vc_target.nc')
     step.add_init_input_file(work_dir_target='init_target.nc')
+    step.add_forcing_input_file(work_dir_target='forcing_target.nc')
 
     monkeypatch.setattr(
         ModelStep, 'process_inputs_and_outputs', lambda _: None
@@ -699,6 +703,35 @@ def test_process_inputs_and_outputs_resolves_model_input_filenames(
     assert input_data['mesh_target.nc'] == 'custom_mesh.nc'
     assert input_data['vc_target.nc'] == 'custom_vc.nc'
     assert input_data['init_target.nc'] == 'custom_init.nc'
+    assert input_data['forcing_target.nc'] == 'custom_forcing.nc'
+
+
+def test_forcing_placeholder_is_kept_for_mpas_ocean(monkeypatch):
+    """
+    Unlike the vertical coordinate, both models read a forcing file, so the
+    placeholder must survive for MPAS-Ocean too.
+    """
+    component = Ocean()
+    component.model = 'mpas-ocean'
+    step = OceanModelStep(
+        component=component,
+        name='forward',
+        ntasks=1,
+        min_tasks=1,
+    )
+
+    step.config = _make_config(model='mpas-ocean')
+    step.add_forcing_input_file(work_dir_target='forcing_target.nc')
+
+    monkeypatch.setattr(
+        ModelStep, 'process_inputs_and_outputs', lambda _: None
+    )
+
+    step.process_inputs_and_outputs()
+
+    filenames = [entry['filename'] for entry in step.input_data]
+    assert 'forcing.nc' in filenames
+    assert '<<<forcing>>>' not in filenames
 
 
 def test_vert_coord_placeholder_skipped_for_mpas_ocean(monkeypatch):
