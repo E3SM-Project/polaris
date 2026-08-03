@@ -53,6 +53,16 @@ mpas-ocean:
     cvmix:
         config_use_cvmix_kpp: true
         config_cvmix_shear_mixing_scheme: KPP
+    submesoscale_eddy_parameterization:
+        # on as in E3SM and in the Compass global_ocean tests; the MPAS-Ocean
+        # Registry default is off.  Omega has no submesoscale parameterization,
+        # so this is one of the places the two models necessarily differ.
+        config_submesoscale_enable: true
+    Redi_isopycnal_mixing:
+        # the Registry default of 6 skips the Redi diagnostic terms in the top
+        # 6 layers; Compass computes them everywhere, and matching it keeps the
+        # two frameworks comparable.  Only has an effect where use_Redi is on.
+        config_Redi_min_layers_diag_terms: 0
     # Global statistics are the cheapest way to see a run going wrong before
     # it NaNs, which matters most for the long spin-ups this task feeds into.
     # Omega's equivalent is the GlobalStats analysis group below.
@@ -64,6 +74,15 @@ mpas-ocean:
         config_AM_globalStats_compute_on_startup: true
         config_AM_globalStats_write_on_startup: true
         config_AM_globalStats_text_file: false
+    # Mixed-layer depth is the standard first look at whether the surface
+    # boundary layer is behaving, and it is what Compass writes from these
+    # runs.  Only the temperature-threshold MLD is computed, which is the
+    # Registry default; Omega has no equivalent analysis member.
+    AM_mixedLayerDepths:
+        config_AM_mixedLayerDepths_enable: true
+        config_AM_mixedLayerDepths_compute_interval: output_interval
+        config_AM_mixedLayerDepths_compute_on_startup: true
+        config_AM_mixedLayerDepths_write_on_startup: true
     streams:
         restart:
             output_interval: {{ restart_interval }}
@@ -98,6 +117,18 @@ mpas-ocean:
             - maxGlobalStats
             - avgGlobalStats
             - rmsGlobalStats
+        # as for globalStatsOutput, filename_template overrides the registry
+        # default of daily files under analysis_members/ so that the run writes
+        # a single mixed_layer_depths.nc
+        mixedLayerDepthsOutput:
+            type: output
+            filename_template: mixed_layer_depths.nc
+            output_interval: {{ output_interval }}
+            clobber_mode: truncate
+            packages: mixedLayerDepthsAMPKG
+            contents:
+            - xtime
+            - tThreshMLD
 
 Omega:
     # the counterpart of MPAS-Ocean's AM_globalStats above.  The reduction
