@@ -489,6 +489,19 @@ GM or Redi, so the two models deliberately differ here; the `short` runs are
 smoke tests rather than a model intercomparison, and a careful comparison would
 need its own config options chosen for that purpose.
 
+### time integrator
+
+The time integrator is the one setting chosen per model rather than shared:
+`mpaso_time_integrator` defaults to `split_explicit_ab2` and
+`omega_time_integrator` to `RK4`.  Omega has no split time stepper yet, so
+`RK4` (translated to `RungeKutta4`) is the only integrator it supports, while
+MPAS-Ocean needs split time stepping to make the month-long spin-ups that build
+on this workflow affordable.  Both options use neutral (MPAS-Ocean) naming, and
+an `omega_time_integrator` that Omega does not support is an error at run time
+rather than at setup, so the option can still be changed after setting a task
+up.  Once Omega gains a split integrator the two are expected to become the
+same again.
+
 ### time step and run duration
 
 The time step is derived from the mesh's minimum resolution: `dt_per_km` gives
@@ -497,18 +510,34 @@ seconds per kilometre.  Setting `dt` or `btr_dt` overrides the derived value.
 Meshes whose stable time step does not follow the default scaling set
 `dt_per_km` and `btr_dt_per_km` in their per-mesh config file.
 
+Because the integrator is chosen per model, so is the time step.  A split
+integrator advances on the long baroclinic step and subcycles the barotropic
+mode on the short one; a non-split integrator such as `RK4` has no subcycling
+and so must advance on the short barotropic step.  With the defaults, MPAS-Ocean
+therefore takes a `dt_per_km` step and Omega a much shorter `btr_dt_per_km` one
+on the same mesh.
+
 ### config options
 
 ```cfg
 # Options for realistic global ocean forward runs
 [realistic_global_forward]
 
-# Time integrator, in neutral (MPAS-Ocean) naming; translated to Omega as
-# needed.
-#   mpas-ocean: {'split_explicit_ab2', 'RK4'}
-#   omega: only 'RK4' (translated to 'RungeKutta4'); 'split_explicit_ab2' is
-#     not yet supported for Omega and will raise an error if selected
-time_integrator = split_explicit_ab2
+# The time integrator, chosen separately for each ocean model because the two
+# models do not support the same integrators.  Both are given in neutral
+# (MPAS-Ocean) naming; the Omega one is translated to the Omega name.
+#
+# MPAS-Ocean uses split time stepping ('split_explicit_ab2' or 'RK4'), which is
+# far cheaper for the long spin-ups this workflow feeds into.  Omega has no
+# split time stepper yet, so only 'RK4' (translated to 'RungeKutta4') is
+# supported there and anything else raises an error at run time.  Once Omega
+# gains a split integrator, the two options are expected to become the same
+# again.
+#
+# The time step follows from this choice (see dt_per_km and btr_dt_per_km), so
+# the two models generally run with different time steps.
+mpaso_time_integrator = split_explicit_ab2
+omega_time_integrator = RK4
 
 # Run duration as an MPAS-style duration string (DDDD_HH:MM:SS)
 run_duration = 0001_00:00:00
