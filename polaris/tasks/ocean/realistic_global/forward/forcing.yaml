@@ -1,0 +1,47 @@
+# Surface forcing for a realistic global ocean forward run.  Added by the
+# Forward step only when its InitialCondition supplies a forcing file, since
+# both models abort (MPAS-Ocean) or silently fall back to zero forcing (Omega)
+# when the stream is requested but the file is missing.
+#
+# The file is written by the init workflow's ForcingStep and holds only the
+# zonal and meridional wind stress at cell centres; both models project onto
+# edges themselves, so no vector rotation happens anywhere in Polaris.
+# {{ forcing_filename }} is the [ocean_staged_files] forcing_filename option.
+
+# config_use_bulk_wind_stress is auto-translated to Omega's
+# Tendencies: SfcStressForcingTendencyEnable by mpaso_to_omega.yaml.  Both
+# models default it to off, so it has to be stated to have any effect.
+ocean:
+    forcing:
+        config_use_bulk_wind_stress: true
+
+mpas-ocean:
+    streams:
+        # a stream of our own rather than the Registry's forcing_data, which
+        # also declares sea-ice and atmospheric pressure and the tracer
+        # restoring fields; reading that stream would require every one of
+        # those variables to be present in the file.  This matches what
+        # barotropic_gyre does.
+        forcing:
+            type: input
+            filename_template: {{ forcing_filename }}
+            input_interval: initial_only
+            contents:
+            - windStressZonal
+            - windStressMeridional
+
+Omega:
+    IOStreams:
+        # mirrors Omega's Default.yml Forcing stream apart from the filename.
+        # Freq/FreqUnits are inert here: Forcing::init() reads the stream once
+        # at startup rather than on a schedule.
+        Forcing:
+            UsePointerFile: false
+            Filename: {{ forcing_filename }}
+            Mode: read
+            Precision: double
+            Freq: 1
+            FreqUnits: Never
+            UseStartEnd: false
+            Contents:
+            - Forcing
