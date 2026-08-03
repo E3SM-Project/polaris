@@ -176,6 +176,7 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
         config_filename=config_filename,
         init_step=init_step,
         cull_mesh_step=cull_mesh_step,
+        remap_jra55_step=remap_jra55_step,
     )
 
     steps: dict[str, Step] = dict(cull_steps)
