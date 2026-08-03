@@ -58,8 +58,13 @@ class ForwardStage:
     restart_interval : str
         The interval between writes to the restart stream.
 
-    time_integrator : str
-        The time integrator, in neutral (MPAS-Ocean) naming.
+    mpaso_time_integrator : str
+        The time integrator to use for MPAS-Ocean.
+
+    omega_time_integrator : str
+        The time integrator to use for Omega, in neutral (MPAS-Ocean) naming;
+        it is translated to the Omega name in
+        :py:meth:`model_replacements`.
 
     dt : str or None
         An explicit baroclinic time step; when ``None`` it is derived from
@@ -131,7 +136,8 @@ class ForwardStage:
     run_duration: str = '0001_00:00:00'
     output_interval: str = '0001_00:00:00'
     restart_interval: str = '0001_00:00:00'
-    time_integrator: str = 'split_explicit_ab2'
+    mpaso_time_integrator: str = 'split_explicit_ab2'
+    omega_time_integrator: str = 'RK4'
     dt: Optional[str] = None
     btr_dt: Optional[str] = None
     dt_per_km: Optional[float] = None
@@ -188,7 +194,12 @@ class ForwardStage:
             run_duration=run_duration,
             output_interval=config.get(section, 'output_interval').strip(),
             restart_interval=restart_interval,
-            time_integrator=config.get(section, 'time_integrator').strip(),
+            mpaso_time_integrator=config.get(
+                section, 'mpaso_time_integrator'
+            ).strip(),
+            omega_time_integrator=config.get(
+                section, 'omega_time_integrator'
+            ).strip(),
             dt=_opt_str(config, section, 'dt'),
             btr_dt=_opt_str(config, section, 'btr_dt'),
             dt_per_km=_opt_float(config, section, 'dt_per_km'),
@@ -224,6 +235,12 @@ class ForwardStage:
         time integrator) are auto-translated to Omega by ``mpaso_to_omega``;
         only the time-integrator name is mapped here because its value differs.
 
+        The time integrator is the one setting that is chosen per model rather
+        than shared, since the two models do not currently support the same
+        integrators; see ``mpaso_time_integrator`` and
+        ``omega_time_integrator``.  The time step follows from that choice, so
+        the two models can also end up with different time steps.
+
         Parameters
         ----------
         model : str
@@ -244,7 +261,11 @@ class ForwardStage:
         dict of str
             The template replacements for ``forward.yaml``.
         """
-        if self.time_integrator in _SPLIT_TIME_INTEGRATORS:
+        if model == 'omega':
+            time_integrator = self.omega_time_integrator
+        else:
+            time_integrator = self.mpaso_time_integrator
+        if time_integrator in _SPLIT_TIME_INTEGRATORS:
             # split time stepping: a long baroclinic step (config_dt) and a
             # short barotropic subcycling step (config_btr_dt)
             dt = _time_step_string(
@@ -261,7 +282,6 @@ class ForwardStage:
                 self.dt, self.btr_dt_per_km, min_res, 'btr_dt_per_km'
             )
             btr_dt = self.btr_dt if self.btr_dt is not None else dt
-        time_integrator = self.time_integrator
         if model == 'omega':
             if time_integrator in _OMEGA_TIME_INTEGRATORS:
                 time_integrator = _OMEGA_TIME_INTEGRATORS[time_integrator]
@@ -270,8 +290,9 @@ class ForwardStage:
                 # the config option to a supported integrator before running
                 supported = ', '.join(sorted(_OMEGA_TIME_INTEGRATORS))
                 raise ValueError(
-                    f'Time integrator {time_integrator!r} is not supported '
-                    f'for Omega; supported integrators are: {supported}.'
+                    f'omega_time_integrator {time_integrator!r} is not '
+                    f'supported for Omega; supported integrators are: '
+                    f'{supported}.'
                 )
         output_freq = int(round(duration_to_seconds(self.output_interval)))
         restart_freq = int(round(duration_to_seconds(self.restart_interval)))
