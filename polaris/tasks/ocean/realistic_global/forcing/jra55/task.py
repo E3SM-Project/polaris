@@ -23,7 +23,10 @@ class Jra55(Task):
             component=component, name='jra55', subdir=JRA55_SUBDIR
         )
 
-        steps, config = get_jra55_steps(component=component)
+        steps, config = get_jra55_steps(
+            component=component,
+            include_viz=True,
+        )
         self.set_shared_config(config)
 
         for symlink, step in steps.items():
