@@ -38,7 +38,6 @@ class OceanIOStep(OceanModelFilesMixin, Step):
         horiz_mesh_filename=None,
         vert_coord_filename=None,
         init_filename=None,
-        forcing_filename=None,
         base_mesh_filename=None,
         graph_filename=None,
         skip_validation=False,
@@ -62,12 +61,6 @@ class OceanIOStep(OceanModelFilesMixin, Step):
             Local filename for the initial-state output; defaults to the
             ``init_filename`` option in ``[ocean_staged_files]``.
 
-        forcing_filename : str, optional
-            Local filename for the surface forcing output.  Unlike the other
-            filenames this is not registered unless it is requested, since
-            most steps do not write forcing.  Pass ``True`` to use the
-            ``forcing_filename`` option in ``[ocean_staged_files]``.
-
         base_mesh_filename : str, optional
             If provided, also register this filename as an output (used when
             the step writes both a base and a culled mesh, e.g.
@@ -86,8 +79,6 @@ class OceanIOStep(OceanModelFilesMixin, Step):
             vert_coord_filename = self.get_vert_coord_filename()
         if init_filename is None:
             init_filename = self.get_init_filename()
-        if forcing_filename is True:
-            forcing_filename = self.get_forcing_filename()
 
         if base_mesh_filename is not None:
             self.add_output_file(filename=base_mesh_filename)
@@ -105,8 +96,6 @@ class OceanIOStep(OceanModelFilesMixin, Step):
                 self.add_output_file(
                     filename=vert_coord_filename, validate_class='vert_coord'
                 )
-        if forcing_filename is not None:
-            self.add_output_file(filename=forcing_filename)
         if model == 'mpas-ocean' and graph_filename is not None:
             self.add_output_file(filename=graph_filename)
 

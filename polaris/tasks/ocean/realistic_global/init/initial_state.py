@@ -33,8 +33,9 @@ class InitialStateStep(OceanIOStep):
 
     Both models receive the same converged geometric layer thicknesses as
     ``restingThickness`` (and ``layerThickness`` at quiescent
-    initialisation).  Wind stress and restoring fields are deferred to a
-    separate ``ForcingStep`` (not implemented here).
+    initialisation).  Wind stress is written separately by
+    :py:class:`~polaris.tasks.ocean.realistic_global.init.forcing.ForcingStep`;
+    restoring fields remain future work.
 
     Attributes
     ----------
