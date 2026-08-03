@@ -302,8 +302,12 @@ def plot_global_lat_lon_field(
 
     figsize = (8, 4.5)
     fig = plt.figure(figsize=figsize)
+    # Reserve room for the inset colorbar and its tick labels on the right.
+    # The margins have to be explicit because we no longer save with
+    # bbox_inches='tight' (see the comment on savefig below).
+    fig.subplots_adjust(left=0.08, right=0.86, top=0.90, bottom=0.10)
     if title is not None:
-        fig.suptitle(title, y=0.935)
+        fig.suptitle(title, y=0.96)
 
     subplots = [111]
     ref_projection = cartopy.crs.PlateCarree()
@@ -357,7 +361,12 @@ def plot_global_lat_lon_field(
         cbar.set_ticks(ticks)
         cbar.set_ticklabels([f'{tick}' for tick in ticks])
 
-    plt.savefig(out_filename, bbox_inches='tight', pad_inches=0.2)
+    # bbox_inches='tight' on a fixed-aspect GeoAxes can shrink the map axes so
+    # only part of the domain is drawn, clipping Antarctica off the bottom.
+    # Use the explicit margins set above instead.  This is the same failure
+    # mode fixed for plot_global_mpas_field in "Fix half-globe clipping in
+    # plot_global_mpas_field", which was never propagated here.
+    fig.savefig(out_filename)
 
     plt.close()
 
