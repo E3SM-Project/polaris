@@ -100,6 +100,31 @@ variables:
   # eos
   BruntVaisalaFreqTop: BruntVaisalaFreqSq
 
+  # global statistics.  MPAS-Ocean packs these into min/max/avg/rms arrays
+  # indexed by variable, while Omega gives each its own variable named for the
+  # reduction and the averaging period, so the mapping is one entry per pair.
+  # These names assume Omega's GlobalStats ReductionPeriod is 1 day, which is
+  # what the realistic_global forward run configures.
+  # Note: MPAS-Ocean's rms* is a root mean square while Omega's SpatialStdDev
+  #       is a standard deviation.  The two are equal only for a zero-mean
+  #       field, so this pair is a name correspondence, not an equivalence.
+  normalVelocityMax: NormalVelocity_SpatialMax_TimeMean1Day
+  normalVelocityMin: NormalVelocity_SpatialMin_TimeMean1Day
+  normalVelocityAvg: NormalVelocity_SpatialMean_TimeMean1Day
+  normalVelocityRms: NormalVelocity_SpatialStdDev_TimeMean1Day
+  layerThicknessMax: PseudoThickness_SpatialMax_TimeMean1Day
+  layerThicknessMin: PseudoThickness_SpatialMin_TimeMean1Day
+  layerThicknessAvg: PseudoThickness_SpatialMean_TimeMean1Day
+  layerThicknessRms: PseudoThickness_SpatialStdDev_TimeMean1Day
+  temperatureMax: Temperature_SpatialMax_TimeMean1Day
+  temperatureMin: Temperature_SpatialMin_TimeMean1Day
+  temperatureAvg: Temperature_SpatialMean_TimeMean1Day
+  temperatureRms: Temperature_SpatialStdDev_TimeMean1Day
+  salinityMax: Salinity_SpatialMax_TimeMean1Day
+  salinityMin: Salinity_SpatialMin_TimeMean1Day
+  salinityAvg: Salinity_SpatialMean_TimeMean1Day
+  salinityRms: Salinity_SpatialStdDev_TimeMean1Day
+
 config:
 - section:
     time_management: TimeIntegration

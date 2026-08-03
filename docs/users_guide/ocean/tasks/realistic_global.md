@@ -322,6 +322,31 @@ the simulation is physically interesting.
 There is no surface forcing yet, so the run is a spin-down from the initial
 condition.
 
+### output
+
+The run writes `output.nc` at `output_interval` and a restart at
+`restart_interval`.
+
+It also writes a time series of the global minimum, maximum, mean and RMS of
+the state variables, plus the global CFL number for MPAS-Ocean.  This is the
+cheapest way to see a run going wrong before it NaNs, which matters most for
+the longer spin-ups that build on this task.  MPAS-Ocean produces it through
+the `globalStats` analysis member, in `global_stats.nc`, and Omega through its
+`GlobalStats` analysis group, in `global_stats_1DayTimeStats` — Omega treats
+the configured file name as a prefix and appends the reduction period, with no
+`.nc` extension.
+
+The two files hold the same quantities under different variable names;
+`polaris/ocean/model/mpaso_to_omega.yaml` maps between them.  One caveat there:
+MPAS-Ocean's `rms*` is a root mean square while Omega's `SpatialStdDev` is a
+standard deviation, so that pair is a name correspondence rather than an
+equivalence.
+
+Omega's reduction period is fixed at one day because the period is part of its
+variable names.  Omega also aborts unless its restart interval is a whole
+multiple of that period, so `restart_interval` must be a whole number of days
+for an Omega run.
+
 ### physics options
 
 The horizontal mixing coefficients, the eddy parameterizations and the way
@@ -414,7 +439,10 @@ run_duration = 0001_00:00:00
 output_interval = 0001_00:00:00
 
 # Interval between writes to the restart stream (DDDD_HH:MM:SS); leave blank to
-# default to run_duration (a single restart at the end of the run)
+# default to run_duration (a single restart at the end of the run).  For Omega
+# this must be a whole number of days, since Omega aborts unless its restart
+# interval is a whole multiple of the GlobalStats reduction period, which
+# forward.yaml fixes at one day.
 restart_interval =
 
 # Baroclinic time step per km of the mesh minimum resolution (s/km).  Only used
