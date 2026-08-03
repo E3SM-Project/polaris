@@ -213,6 +213,12 @@ def plot_global_mpas_field(
         cbar.set_ticks(ticks)
         cbar.set_ticklabels([f'{tick}' for tick in ticks])
 
+    # cartopy's Gridliner draws its tick labels itself and constrained_layout
+    # does not measure them, so the labels that stick out furthest (the
+    # 30-degree ones on Robinson, which sit left of the 60-degree ones) get
+    # clipped at the figure edge.  Reserve the margin explicitly.
+    fig.get_layout_engine().set(rect=(0.04, 0.0, 0.96, 1.0))
+
     # Let constrained_layout manage the margins; combining it with
     # bbox_inches='tight' on a fixed-aspect GeoAxes with an attached colorbar
     # can collapse the map axes so only part of the globe is drawn.
