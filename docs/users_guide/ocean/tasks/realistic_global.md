@@ -347,6 +347,12 @@ variable names.  Omega also aborts unless its restart interval is a whole
 multiple of that period, so `restart_interval` must be a whole number of days
 for an Omega run.
 
+MPAS-Ocean additionally writes the temperature-threshold mixed-layer depth at
+`output_interval`, through the `mixedLayerDepths` analysis member, in
+`mixed_layer_depths.nc`.  It is the standard first look at whether the surface
+boundary layer is behaving.  Omega has no equivalent analysis member, so this
+file is written only for MPAS-Ocean.
+
 ### physics options
 
 The horizontal mixing coefficients, the eddy parameterizations and the way
@@ -376,11 +382,18 @@ default).  The CVMix convection and shear-mixing parameters are pinned too;
 those values already match both models, and stating them is what keeps them
 from drifting apart.
 
-Gent-McWilliams, Redi, the Leith closure and frazil ice are applied only for
-MPAS-Ocean.  Omega has no equivalent for any of them and is not expected to gain
-GM or Redi, so the two models deliberately differ here; the `short` runs are
-smoke tests rather than a model intercomparison, and a careful comparison would
-need its own config options chosen for that purpose.
+Gent-McWilliams, Redi, the Leith closure, frazil ice and the submesoscale eddy
+parameterization are applied only for MPAS-Ocean.  Omega has no equivalent for
+any of them and is not expected to gain GM or Redi, so the two models
+deliberately differ here; the `short` runs are smoke tests rather than a model
+intercomparison, and a careful comparison would need its own config options
+chosen for that purpose.
+
+The submesoscale parameterization is pinned on in `forward.yaml` rather than
+being a config option: it is on in E3SM and in the equivalent Compass tests,
+but the MPAS-Ocean Registry default is off.  `config_Redi_min_layers_diag_terms`
+is pinned to 0 for the same reason — the Registry default of 6 skips the Redi
+diagnostic terms in the top six layers, and Compass computes them everywhere.
 
 ### time integrator
 
