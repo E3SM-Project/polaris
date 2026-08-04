@@ -19,8 +19,12 @@ metrics are left blank rather than quietly replaced.
 The extremes cover what a stage *did*, not what it was handed: the sample
 written before the first time step is skipped.  For the first stage that sample
 is the initial condition, and for every later one it is the previous stage's
-final state, already covered by that stage's own check.  The viz step plots the
-full series, so the skipped value is still visible where it matters.
+final state, already covered by that stage's own check.  The tracer extremes
+skip a further startup window at the beginning of the sequence, over which the
+initial condition's artifacts are still mixing away; the CFL number and the
+velocity and thickness extremes do not, because the opening hours are where a
+time step that is too long shows itself.  The viz step plots the full series,
+so the skipped values are still visible where they matter.
 
 MPAS-Ocean and Omega do not report the same statistics.  Omega's
 ``GlobalStats`` covers temperature, salinity, layer thickness and normal
@@ -76,6 +80,13 @@ class Metric:
         The ``output.nc`` field to fall back to when the statistic is not
         reported by the configured model, or ``None`` when there is no
         equivalent that means the same thing.
+
+    startup_window : bool
+        Whether the metric skips the sequence's startup window as well as the
+        stage's first sample.  Set for the tracer extremes, which the WOA23
+        source artifacts distort until the model has mixed them away, and not
+        for the CFL number or the velocity and thickness extremes, where the
+        opening hours are exactly what wants watching.
     """
 
     name: str
@@ -83,6 +94,7 @@ class Metric:
     reduction: str
     units: str
     output_var: Optional[str] = None
+    startup_window: bool = False
 
 
 # The columns of the summary, in the order they are written.  Kinetic energy
@@ -111,6 +123,7 @@ METRICS: Tuple[Metric, ...] = (
         'max',
         'degC',
         output_var='temperature',
+        startup_window=True,
     ),
     Metric(
         'temperature_min_in_stage',
@@ -118,6 +131,7 @@ METRICS: Tuple[Metric, ...] = (
         'min',
         'degC',
         output_var='temperature',
+        startup_window=True,
     ),
     Metric('temperature_mean', 'temperatureAvg', 'last', 'degC'),
     Metric(
@@ -126,6 +140,7 @@ METRICS: Tuple[Metric, ...] = (
         'max',
         'PSU',
         output_var='salinity',
+        startup_window=True,
     ),
     Metric(
         'salinity_min_in_stage',
@@ -133,6 +148,7 @@ METRICS: Tuple[Metric, ...] = (
         'min',
         'PSU',
         output_var='salinity',
+        startup_window=True,
     ),
     Metric('salinity_mean', 'salinityAvg', 'last', 'PSU'),
     Metric(
@@ -200,6 +216,7 @@ def collect_stage_diagnostics(
     stats_filename: Optional[str],
     output_filename: str,
     logger: Any,
+    exclude_days: float = 0.0,
 ) -> Dict[str, Optional[float]]:
     """
     Summarize one stage as a row of scalars.
@@ -227,6 +244,12 @@ def collect_stage_diagnostics(
     logger : logging.Logger
         A logger for reporting which source each metric came from.
 
+    exclude_days : float
+        How much of this stage, in days, lies inside the sequence's startup
+        window, as returned by
+        :py:func:`~polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.excluded_days_in_stage`.
+        Only the tracer extremes honor it.
+
     Returns
     -------
     dict
@@ -239,6 +262,12 @@ def collect_stage_diagnostics(
     if stats_filename is not None and os.path.exists(stats_filename):
         ds_stats = component.open_model_dataset(stats_filename, config)
 
+    first_index = None
+    first_after_window = None
+    if ds_stats is not None:
+        first_index = first_judged_index(ds_stats)
+        first_after_window = first_judged_index(ds_stats, exclude_days)
+
     try:
         from_stats = []
         from_output = []
@@ -246,7 +275,13 @@ def collect_stage_diagnostics(
         for metric in METRICS:
             value = None
             if ds_stats is not None and metric.stats_var in ds_stats:
-                value = _reduce(ds_stats[metric.stats_var], metric.reduction)
+                if metric.startup_window:
+                    start = first_after_window
+                else:
+                    start = first_index
+                value = _reduce(
+                    ds_stats[metric.stats_var], metric.reduction, start
+                )
                 from_stats.append(metric.name)
             elif metric.output_var is not None:
                 value = _from_output(
@@ -271,23 +306,23 @@ def collect_stage_diagnostics(
     return row
 
 
-def _reduce(data_array: Any, reduction: str) -> Optional[float]:
+def _reduce(
+    data_array: Any, reduction: str, first_index: Optional[int]
+) -> Optional[float]:
     """
-    Reduce a statistic's time series over the stage.
+    Reduce a statistic's time series over the samples the stage is judged on.
 
-    The extremes skip the stage's first sample, which is written before any
-    time step has been taken and so describes what the stage was handed rather
-    than what it did.  For the first stage that is the initial condition, and
-    for every later one it is the previous stage's final state, which that
-    stage's own check already covered -- so nothing goes unexamined.  Returns
-    ``None`` when the stage wrote only that first sample and there is nothing
-    left to reduce.
+    ``first_index`` is where those samples begin, as returned by
+    :py:func:`first_judged_index`, and ``None`` when the stage left none.  An
+    end-of-stage (``'last'``) value is taken from the final sample regardless:
+    it is the state the stage handed on, which exists however few samples were
+    written.
     """
     if reduction == 'last':
         return float(data_array.isel(Time=-1))
-    evolved = _after_initial(data_array)
-    if evolved is None:
+    if first_index is None:
         return None
+    evolved = data_array.isel(Time=slice(first_index, None))
     if reduction == 'max':
         return float(evolved.max())
     if reduction == 'min':
@@ -295,11 +330,56 @@ def _reduce(data_array: Any, reduction: str) -> Optional[float]:
     raise ValueError(f'Unknown reduction {reduction!r}.')
 
 
-def _after_initial(data_array: Any) -> Optional[Any]:
-    """The series without its first sample, or ``None`` if none is left."""
-    if data_array.sizes.get('Time', 0) < 2:
-        return None
-    return data_array.isel(Time=slice(1, None))
+# Samples are matched to the startup window with a tolerance of about a tenth
+# of a millisecond, so that a window landing on a sample time excludes that
+# sample rather than depending on how the model rounded the time it wrote.
+_DAY_TOLERANCE = 1.0e-9
+
+
+def first_judged_index(ds: Any, exclude_days: float = 0.0) -> Optional[int]:
+    """
+    The index of the first sample of a stage that is judged.
+
+    The stage's first sample is never judged: it is written before any time
+    step, so for the first stage it is the initial condition and for every
+    later one it is the previous stage's final state, which that stage's own
+    check already covered.  Nothing therefore goes unexamined.
+
+    ``exclude_days`` extends that to every sample within a window measured from
+    the start of the stage, which is how the sequence's startup window reaches
+    the stages it covers.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The stage's global statistics.
+
+    exclude_days : float
+        The length of the window, in days into this stage.  Zero leaves only
+        the first sample excluded.
+
+    Returns
+    -------
+    int or None
+        The index, or ``None`` when the stage wrote nothing outside the
+        exclusions.
+    """
+    n_time = ds.sizes.get('Time', 0)
+    index = 1
+    if exclude_days > 0.0:
+        try:
+            days = np.asarray(get_days_since_start(ds), dtype=float)
+            elapsed = days - days[0]
+        except (ValueError, IndexError):
+            elapsed = None
+        if elapsed is not None:
+            beyond = int(
+                np.searchsorted(
+                    elapsed, exclude_days + _DAY_TOLERANCE, side='right'
+                )
+            )
+            index = max(index, beyond)
+    return None if index >= n_time else index
 
 
 def _from_output(
@@ -485,15 +565,15 @@ def stage_stats_path(stage_name: str, model: str) -> Optional[str]:
 
 
 def extreme_and_day(
-    ds: Any, variable: str, reduction: str
+    ds: Any, variable: str, reduction: str, exclude_days: float = 0.0
 ) -> Tuple[Optional[float], Optional[float]]:
     """
-    The extreme of a statistic over a stage and the day it occurred.
+    The extreme of a statistic over the part of a stage that is judged, and the
+    day it occurred.
 
-    The stage's first sample is skipped: it is written before any time step,
-    so it describes what the stage was handed rather than what it did.  The day
-    is measured from the start of the stage, so it does not depend on how the
-    model counts across a restart.
+    Which samples those are is decided by :py:func:`first_judged_index`.  The
+    day is measured from the start of the stage, so it does not depend on how
+    the model counts across a restart.
 
     Parameters
     ----------
@@ -506,24 +586,30 @@ def extreme_and_day(
     reduction : {'max', 'min'}
         Which extreme to take.
 
+    exclude_days : float
+        How much of this stage lies inside the sequence's startup window, in
+        days.  Passed for the tracer extremes and left at zero for the CFL
+        number.
+
     Returns
     -------
     tuple
         The extreme and the day it occurred, or ``(None, None)`` when the
-        statistic is not in the dataset.
+        statistic is not in the dataset or the stage left nothing to judge.
     """
     if variable not in ds:
         return None, None
-    series = _after_initial(ds[variable])
-    if series is None:
+    first_index = first_judged_index(ds, exclude_days)
+    if first_index is None:
         return None, None
+    series = ds[variable].isel(Time=slice(first_index, None))
     # np.arg* rather than the DataArray methods, whose no-argument behaviour
     # is changing to return a dict of per-dimension indices
     values = np.asarray(series.values)
     index = int(np.argmax(values) if reduction == 'max' else np.argmin(values))
     value = float(series.isel(Time=index))
-    # the first sample was dropped, so shift back onto the full series
-    index += 1
+    # the excluded samples were dropped, so shift back onto the full series
+    index += first_index
     try:
         days = np.asarray(get_days_since_start(ds), dtype=float)
         when = float(days[index] - days[0])
