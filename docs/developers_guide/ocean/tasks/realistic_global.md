@@ -200,11 +200,23 @@ task is registered per MPAS mesh.
 reads a schedule YAML (the per-mesh `<mesh_name>.yaml` or `default.yaml`, or a
 file named by the `schedule` config option) and returns a list of
 {py:class}`polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage`
-objects.  It merges the `shared` defaults into each stage and computes the
-restart chain: the cumulative `start_time`, `do_restart`, and the shared
-`restart_in` / `restart_out` filenames (`restarts/rst.<stop-time>.nc`).  Every
-schedule key maps onto a `ForwardStage` field, so the parser is a thin adapter
-rather than a second configuration system.
+objects.
+
+A stage is a forward run, so the base stage comes from
+`ForwardStage.from_config` on the `[realistic_global_forward]` section and the
+schedule is applied on top with `dataclasses.replace`.  The task's config
+carries that section, this task's own, and the per-mesh overrides from
+{py:mod}`polaris.tasks.ocean.realistic_global.mesh_configs`, so the physics
+options and per-mesh tuning reach the stages without the schedule mentioning
+them.  Keeping the schedule a delta is what stops it from becoming a second
+configuration system that has to track `ForwardStage` field by field.
+
+Schedule keys are validated against `SCHEDULE_FIELDS` — the `ForwardStage`
+fields minus the ones the restart chain owns — and coerced to each field's
+declared type, so a renamed or misspelled option raises at setup instead of
+falling back to the config value.  The parser also computes the chain itself:
+the cumulative `start_time`, `do_restart`, and the shared `restart_in` /
+`restart_out` filenames (`restarts/rst.<stop-time>.nc`).
 
 ### restart chaining
 
@@ -212,11 +224,26 @@ Each stage is a
 {py:class}`polaris.tasks.ocean.realistic_global.forward.forward.Forward` step
 reused from the forward workflow.  When a stage's `ForwardStage` sets
 `restart_out`, the step writes its restart to the shared `../restarts`
-directory (via `restart_streams.yaml`) and declares it as an output; the next
-stage reads it through `config_do_restart` / `config_start_time`.  Consecutive
-stages are linked with `add_dependency`.  The restart read side is wired for
-MPAS-Ocean; Omega restart reading (which uses a pointer file) is a follow-up,
-and `split_explicit_ab2` is not yet supported for Omega.
+directory (via `restart_streams.yaml`) and declares it as an output; a stage
+that sets `restart_in` declares its predecessor's restart as an input, so the
+chain is explicit to Polaris and a missing link fails before the model
+launches.  Consecutive stages are also linked with `add_dependency`.
+
+For MPAS-Ocean the restart stream is both an input and an output stream, so one
+`filename_template` serves both directions and the read side is just
+`config_do_restart` / `config_start_time` from `forward.yaml`.  The start time
+is explicit rather than `'file'` with a `restart_timestamp`, matching
+`cosine_bell/restart` and `ice_shelf_2d`.
+
+Omega needs a separate `RestartRead` stream, which the `Omega` block of
+`restart_streams.yaml` supplies, switched on per stage by
+`ForwardStage.restart_stream_replacements`.  That block is unrun: Omega restart
+filenames carry no `.nc` extension and it is not established whether Omega
+appends one, which is why the restart files are declared as step inputs and
+outputs for MPAS-Ocean only.
+[Omega#482](https://github.com/E3SM-Project/Omega/issues/482) will also change
+how an Omega restart run has to be configured.  `split_explicit_ab2` remains
+unsupported for Omega.
 
 ### setup-time rebuild
 
@@ -236,6 +263,13 @@ threshold and that the maximum `kineticEnergyCell` is flattening over the last
 `ke_check_num_stages` stages.  The final `simulation` stage additionally
 compares its `output.nc` against a baseline via the forward step's
 `validate_vars`.
+
+The checks are written in MPAS-Ocean naming but work for either model: the step
+reads through `open_model_dataset`, which maps Omega's variable names.  Omega's
+temperature is conservative temperature where MPAS-Ocean's is potential
+temperature, so `temperature_max` is not literally the same quantity in the two
+models — immaterial against a blow-up threshold.
+
 
 (dev-ocean-realistic-global-woa23)=
 
