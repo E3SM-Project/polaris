@@ -1,8 +1,10 @@
+import importlib.resources as imp_res
 from configparser import ConfigParser
 from types import SimpleNamespace
 from typing import cast
 
 import pytest
+from ruamel.yaml import YAML
 
 from polaris import Step
 from polaris.ocean.model import OceanModelStep
@@ -501,3 +503,59 @@ def test_compute_cell_count_raises_when_estimate_missing():
     )
     with pytest.raises(ValueError, match='approx_cell_count'):
         Forward.compute_cell_count(cast(Forward, fake))
+
+
+# --- restart chaining ---
+
+
+def test_restart_stream_replacements_switch_omegas_read_side():
+    """
+    MPAS-Ocean's restart stream is both input and output, so it needs nothing
+    here; Omega reads through a separate RestartRead that has to be switched
+    off for a stage that is not restarting.
+    """
+    first = ForwardStage(name='first').restart_stream_replacements()
+    # the first stage reads InitialState, and RestartRead never opens
+    assert first['init_freq_units'] == 'OnStartup'
+    assert first['restart_read_use_start_end'] == 'true'
+    assert first['restart_read_time'] == '99999-12-31_00:00:00'
+
+    second = ForwardStage(
+        name='second',
+        do_restart=True,
+        start_time='0001-01-11_00:00:00',
+    ).restart_stream_replacements()
+    assert second['init_freq_units'] == 'never'
+    assert second['restart_read_use_start_end'] == 'false'
+    assert second['restart_read_time'] == '0001-01-11_00:00:00'
+
+
+def test_restart_streams_yaml_requests_omegas_restart_read():
+    """
+    Setup drops any Default.yml stream no yaml file asks for, and forward.yaml
+    requests only RestartWrite and History, so RestartRead has to be asked for
+    here or an Omega stage could not read its predecessor's restart.
+    """
+    text = (
+        imp_res.files('polaris.tasks.ocean.realistic_global.forward')
+        .joinpath('restart_streams.yaml')
+        .read_text()
+    )
+    streams = YAML(typ='rt').load(
+        text.replace('{{ init_freq_units }}', 'never')
+        .replace('{{ restart_read_use_start_end }}', 'false')
+        .replace('{{ restart_read_time }}', '0001-01-11_00:00:00')
+    )
+    omega = streams['Omega']['IOStreams']
+    assert set(omega) == {'InitialState', 'RestartRead', 'RestartWrite'}
+    assert omega['RestartRead']['UsePointerFile'] is False
+    # both directions point at the shared restarts directory
+    for name in ('RestartRead', 'RestartWrite'):
+        assert omega[name]['Filename'] == '../restarts/rst.$Y-$M-$D_$h.$m.$s'
+
+    restart = streams['mpas-ocean']['streams']['restart']
+    assert restart['filename_template'] == (
+        '../restarts/rst.$Y-$M-$D_$h.$m.$s.nc'
+    )
+    # the restart is read once, at initialization, not on a cadence
+    assert restart['input_interval'] == 'initial_only'
