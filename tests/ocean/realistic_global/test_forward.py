@@ -29,7 +29,7 @@ def _forward_config(**overrides):
         btr_dt_per_km='1.5',
         dt='',
         btr_dt='',
-        Rayleigh_damping_coeff='',
+        damping='',
         mom_del2='1.0e3',
         mom_del4='1.2e11',
         tracer_del2='',
