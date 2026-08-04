@@ -39,6 +39,7 @@
    init.Init.run
 
    checks.check_temperature_max
+   checks.check_salinity_max
    checks.check_cfl_max
    checks.check_ke_growth_decelerates
 
