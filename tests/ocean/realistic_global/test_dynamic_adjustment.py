@@ -3,6 +3,7 @@ import os
 import textwrap
 from unittest import mock
 
+import matplotlib
 import numpy as np
 import pytest
 import xarray as xr
@@ -32,6 +33,11 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
     _check_ke_flattening,
     _check_temperature_max,
 )
+from polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz import (
+    FIGURE_FILENAME,
+    VizDynamicAdjustmentStep,
+    _short_stage_name,
+)
 from polaris.tasks.ocean.realistic_global.forward import ForwardStage
 from polaris.tasks.ocean.realistic_global.forward.forward import Forward
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
@@ -40,6 +46,8 @@ from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
 from polaris.tasks.ocean.realistic_global.mesh_configs import (
     add_realistic_global_mesh_config,
 )
+
+matplotlib.use('Agg')
 
 LOGGER = logging.getLogger('test_dynamic_adjustment')
 
@@ -924,6 +932,7 @@ def _write_stage_stats(directory, stage_name, model, **series):
 def _stats_series(ke_end, temperature_mean):
     """A plausible falling-kinetic-energy stage."""
     return dict(
+        daysSinceStartOfSim=[0.0, 5.0, 10.0],
         kineticEnergyCellMax=[ke_end * 1.4, ke_end * 1.2, ke_end],
         kineticEnergyCellAvg=[ke_end * 0.02, ke_end * 0.015, ke_end * 0.01],
         kineticEnergyCellSum=[
@@ -1071,3 +1080,78 @@ def test_blow_up_is_caught_mid_stage_from_the_statistics(
     monkeypatch.chdir(tmp_path / 'validate')
     with pytest.raises(ValueError, match='exceeds'):
         step.run()
+
+
+# --- the viz step ---
+
+
+def test_short_stage_name_fits_above_a_stage():
+    # the full name is far wider than a stage is on the axis
+    assert _short_stage_name('damped_adjustment_1') == 'damped 1'
+    assert _short_stage_name('damped_adjustment_12') == 'damped 12'
+    assert _short_stage_name('simulation') == 'simulation'
+
+
+def test_viz_plots_the_stage_series(tmp_path, monkeypatch):
+    stages = ['damped_1', 'damped_2', 'simulation']
+    step = _viz_step(tmp_path, 'mpas-ocean', stages)
+    for index, stage_name in enumerate(stages):
+        _write_stage_stats(
+            tmp_path,
+            stage_name,
+            'mpas-ocean',
+            **_stats_series([5.0, 4.0, 3.9][index], 3.5 - 0.01 * index),
+        )
+    monkeypatch.chdir(tmp_path / 'viz')
+    step.run()
+    figure = tmp_path / 'viz' / FIGURE_FILENAME
+    assert figure.exists() and figure.stat().st_size > 0
+
+
+def test_viz_skips_stages_without_statistics(tmp_path, monkeypatch):
+    # a run that died partway still gets a figure of what it managed
+    stages = ['damped_1', 'damped_2', 'simulation']
+    step = _viz_step(tmp_path, 'mpas-ocean', stages)
+    _write_stage_stats(
+        tmp_path, 'damped_1', 'mpas-ocean', **_stats_series(5.0, 3.5)
+    )
+    monkeypatch.chdir(tmp_path / 'viz')
+    step.run()
+    assert (tmp_path / 'viz' / FIGURE_FILENAME).exists()
+
+
+def test_viz_writes_nothing_without_any_statistics(tmp_path, monkeypatch):
+    step = _viz_step(tmp_path, 'mpas-ocean', ['damped_1', 'simulation'])
+    monkeypatch.chdir(tmp_path / 'viz')
+    step.run()
+    assert not (tmp_path / 'viz' / FIGURE_FILENAME).exists()
+
+
+def _viz_step(tmp_path, model, stage_names):
+    """A viz step in a work directory beside the stage directories."""
+    component = Ocean()
+    component.model = model
+    if model == 'omega':
+        component._read_var_map()
+    step = VizDynamicAdjustmentStep(
+        component=component,
+        stages=[
+            ForwardStage(
+                name=name,
+                run_duration='10_00:00:00',
+                start_time=f'0001-01-{1 + 10 * index:02d}_00:00:00',
+                damping=None if name == 'simulation' else 1.0e-4,
+            )
+            for index, name in enumerate(stage_names)
+        ],
+        indir='spherical/realistic_global/u.oi240.lr240/dynamic_adjustment',
+    )
+    config = _config('u.oi240.lr240')
+    override = tmp_path / 'viz_model.cfg'
+    override.write_text(f'[ocean]\nmodel = {model}\n')
+    config.add_from_file(str(override))
+    step.config = config
+    step.logger = LOGGER
+    # the step runs in a work directory beside the stage directories
+    (tmp_path / 'viz').mkdir(parents=True, exist_ok=True)
+    return step
