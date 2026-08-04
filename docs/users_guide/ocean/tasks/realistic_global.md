@@ -884,6 +884,16 @@ stage's own `run_duration` rather than to the config value, because each stage
 has to write the restart the next one reads.  Time steps may instead be given per
 km of mesh minimum resolution with `dt_per_km` / `btr_dt_per_km`.
 
+Two cadences a stage cannot get wrong are checked at setup, because both fail
+only after the model has run.  A `restart_interval` must put the stage's stop
+time on MPAS-Ocean's restart alarm, which is measured from a fixed reference of
+`0001-01-01_00:00:00` and not from where the stage starts — otherwise the
+restart the next stage reads is never written.  And a `stats_interval` must be
+no longer than the stage, or the statistics hold only the record written at
+startup.  `output_interval` is not checked: an interval longer than the stage is
+a legitimate way to say "no 3-D output during the damped stages", which is what
+the ported Compass schedules do.
+
 `start_time` belongs in the `shared` block: it is where the chain begins, and
 each stage's own start time follows from the durations before it.  The remaining
 restart settings (`do_restart`, `restart_in`, `restart_out`) are owned by the
@@ -937,8 +947,11 @@ extreme reached at any point during the stage; the rest are end-of-stage values.
 
 The numbers come from each stage's global-statistics file wherever the
 configured model reports them, because the model has already reduced them over
-the whole domain at the output cadence — so an excursion in the middle of a
-stage is visible, which it is not in an end-of-stage field.  What the model does
+the whole domain at the `stats_interval` cadence — so an excursion in the middle
+of a stage is visible, which it is not in an end-of-stage field.  That cadence is
+deliberately separate from the 3-D `output_interval`: the statistics are a
+handful of scalars, so they can be written far more often than the 3-D fields
+without the output growing.  What the model does
 not report is computed from `output.nc` instead, but only for maxima and minima,
 which mean the same thing however they are obtained.  A volume-weighted mean does
 not, so `kinetic_energy_mean` and `kinetic_energy_total` are left blank rather
