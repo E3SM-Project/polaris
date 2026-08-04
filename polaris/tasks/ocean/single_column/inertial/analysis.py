@@ -63,6 +63,7 @@ class Analysis(OceanIOStep):
             decode_times=True,
             mesh_filename='../init/culled_mesh.nc',
             reconstruct_variables=['normalVelocity'],
+            reconstruct_method='RBF',
             coeffs_filename='../forward/coeffs.nc',
         )
         t = get_days_since_start(ds)

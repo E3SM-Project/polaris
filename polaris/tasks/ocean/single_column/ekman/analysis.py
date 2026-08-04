@@ -73,6 +73,7 @@ class Analysis(OceanIOStep):
             decode_times=True,
             mesh_filename='mesh.nc',
             reconstruct_variables=['normalVelocity'],
+            reconstruct_method='RBF',
             coeffs_filename='coeffs.nc',
         )
 
