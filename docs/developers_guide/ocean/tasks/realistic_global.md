@@ -300,6 +300,14 @@ point in the stage, so a blow-up the run recovered from is still caught.  The
 final `simulation` stage additionally compares its `output.nc` against a baseline
 via the forward step's `validate_vars`.
 
+{py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep`
+plots the same statistics as time series.  Its panels are declared in
+`viz.PANELS`, each naming the variables it draws in MPAS-Ocean naming, so a
+panel whose variables the configured model does not report is dropped and the
+grid closes up around it.  Stages are placed on a common axis from their
+schedule start times rather than from the time variable in the files, because a
+restart may or may not reset what the model counts from.
+
 Omega's temperature is conservative temperature where MPAS-Ocean's is potential
 temperature, so `temperature_max` is not literally the same quantity in the two
 models — immaterial against a blow-up threshold.
