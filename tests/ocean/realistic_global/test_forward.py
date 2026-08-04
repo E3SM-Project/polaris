@@ -340,11 +340,13 @@ def test_mpaso_physics_options_rejects_unknown_hmix_scaling():
 
 
 def test_step_initial_condition_wires_inputs_and_graph():
-    path = 'ocean/spherical/realistic_global/icos240km/init/initial_state'
+    base = 'ocean/spherical/realistic_global/icos240km/init'
+    path = f'{base}/initial_state'
     ic = StepInitialCondition(
         cast(Step, _FakeStep(path=path)),
         min_res=240.0,
         approx_cell_count=10417,
+        forcing_step=cast(Step, _FakeStep(path=f'{base}/forcing')),
     )
     assert ic.graph_target == f'{path}/culled_graph.info'
     assert ic.min_res == 240.0
@@ -353,13 +355,24 @@ def test_step_initial_condition_wires_inputs_and_graph():
     forward = _FakeStep()
     ic.add_input_files(cast(OceanModelStep, forward))
     by_kind = dict(forward.calls)
-    assert set(by_kind) == {'horiz_mesh', 'vert_coord', 'init'}
+    assert set(by_kind) == {'horiz_mesh', 'vert_coord', 'init', 'forcing'}
     assert by_kind['horiz_mesh']['work_dir_target'] == f'{path}/mesh.nc'
     assert by_kind['vert_coord']['work_dir_target'] == f'{path}/vert_coord.nc'
     assert by_kind['init']['work_dir_target'] == f'{path}/init.nc'
-    # with no forcing step, the run is unforced and nothing turns the surface
-    # stress on
-    assert not ic.provides_forcing
+
+
+def test_step_initial_condition_requires_a_forcing_step():
+    """
+    Every realistic_global forward run is wind-forced, so there is no way to
+    build a step-based initial condition without a forcing step.
+    """
+    base = 'ocean/spherical/realistic_global/icos240km/init'
+    with pytest.raises(TypeError):
+        StepInitialCondition(  # type: ignore[call-arg]
+            cast(Step, _FakeStep(path=f'{base}/initial_state')),
+            min_res=240.0,
+            approx_cell_count=10417,
+        )
 
 
 def test_step_initial_condition_wires_the_forcing_file():
@@ -370,12 +383,11 @@ def test_step_initial_condition_wires_the_forcing_file():
         approx_cell_count=10417,
         forcing_step=cast(Step, _FakeStep(path=f'{base}/forcing')),
     )
-    assert ic.provides_forcing
+    assert ic.provides_forcing_file
 
     forward = _FakeStep(forcing_filename='custom_forcing.nc')
     ic.add_input_files(cast(OceanModelStep, forward))
     by_kind = dict(forward.calls)
-    assert set(by_kind) == {'horiz_mesh', 'vert_coord', 'init', 'forcing'}
     # the staged filename comes from [ocean_staged_files], not a literal
     assert (
         by_kind['forcing']['work_dir_target']
@@ -394,7 +406,7 @@ def test_forcing_yaml_neutral_options_are_all_mapped_to_omega():
     yaml = PolarisYaml.read(
         filename='forcing.yaml',
         package='polaris.tasks.ocean.realistic_global.forward',
-        replacements=dict(forcing_filename='forcing.nc'),
+        replacements=None,
         model='ocean',
     )
     assert yaml.configs['forcing']['config_use_bulk_wind_stress'] is True
@@ -413,7 +425,7 @@ def test_forcing_yaml_neutral_options_are_all_mapped_to_omega():
         ('Omega', 'IOStreams', 'Forcing', 'Filename'),
     ],
 )
-def test_forcing_yaml_stream_points_at_the_staged_file(
+def test_forcing_streams_yaml_points_at_the_staged_file(
     model, streams_section, stream_name, filename_option
 ):
     """
@@ -422,7 +434,7 @@ def test_forcing_yaml_stream_points_at_the_staged_file(
     (``forcing_data.nc`` for MPAS-Ocean).
     """
     yaml = PolarisYaml.read(
-        filename='forcing.yaml',
+        filename='forcing_streams.yaml',
         package='polaris.tasks.ocean.realistic_global.forward',
         replacements=dict(forcing_filename='custom_forcing.nc'),
         model=model,
