@@ -965,10 +965,33 @@ it", not that something went wrong; the log says which source each metric came
 from.
 
 The checks are then made against those same rows, so the summary and the checks
-cannot disagree.  The maximum temperature in each stage must stay below
-`temperature_max`, and the maximum cell kinetic energy must not increase over the
-last `ke_check_num_stages` stages — skipped when there are fewer stages, as in
-the coarse default schedule, or when the model reports no kinetic energy.
+cannot disagree.  There are three:
+
+* the maximum temperature in each stage must stay below `temperature_max`;
+* the maximum CFL number in each stage must stay below `cfl_max`, which is what
+  catches a stage whose time step is too long for the flow it produced;
+* the stage-over-stage *fractional change* in the mean kinetic energy must be
+  shrinking over the last `ke_check_num_stages` transitions.
+
+The last of those deserves a word, because the obvious check is the wrong one.
+Requiring kinetic energy itself not to rise fails a perfectly healthy run: these
+runs start from rest and are wind-forced, so the circulation spins up and
+kinetic energy climbs for tens of days for reasons that have nothing to do with
+the fast waves the adjustment removes.  What settling means here is that the
+change is slowing.  The *mean* is used rather than the maximum because the
+maximum is dominated by the transient released each time the damping steps down,
+which decays within its own stage; and the *magnitude* of the change is used
+rather than the growth ratio because a run converging from above and one
+converging from below are both settling.
+
+A constant growth rate passes this check — it detects acceleration rather than
+growth, which is about as much as three or four stages can support.  The CFL and
+temperature thresholds are what guard against a run that is simply diverging.
+
+Each check is skipped, with a log line, when the configured model does not
+report the quantity: Omega's `GlobalStats` has neither kinetic energy nor a CFL
+number.  The settling check is also skipped below three stages, as in the coarse
+default schedule, since two changes are the fewest that can show a trend.
 
 One caveat the threshold cannot express: Omega's temperature is conservative
 temperature where MPAS-Ocean's is potential temperature, so `temperature_max` is

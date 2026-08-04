@@ -292,11 +292,20 @@ input, so a stage that did not write one degrades to computing what it can from
 `output.nc`.  Its name differs by model (`diagnostics.STATS_FILENAMES`): Omega
 treats its `Filename` as a prefix and appends the reduction period with no `.nc`.
 
-The checks are a per-stage `temperature_max` threshold and that the maximum
-`kineticEnergyCell` is flattening over the last `ke_check_num_stages` stages;
-each is skipped, with a log line, when the model reports no such metric.  The
-threshold reads `temperature_max_in_stage`, the largest value reached at any
-point in the stage, so a blow-up the run recovered from is still caught.  The
+The checks are per-stage `temperature_max` and `cfl_max` thresholds and, over
+the last `ke_check_num_stages` transitions, that the fractional change in
+`kinetic_energy_mean` is shrinking; each is skipped, with a log line, when the
+model reports no such metric.  The thresholds read the `*_in_stage` columns, the
+extreme reached at any point in the stage, so an excursion the run recovered
+from is still caught.
+
+`_check_ke_growth_decelerates` is deliberately not a check on the level of the
+kinetic energy.  These runs start from rest and are wind-forced, so kinetic
+energy rises throughout a 40-day adjustment; the first version of this check
+compared levels and failed the healthy u.oi240.lr240 run.  It is also not a
+check on the growth *ratio*: converging from above gives ratios rising towards
+one, so the magnitude of the fractional change is what shrinks in both
+directions.  The
 final `simulation` stage additionally compares its `output.nc` against a baseline
 via the forward step's `validate_vars`.
 
