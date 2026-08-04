@@ -139,15 +139,22 @@ class Forward(OceanModelStep):
         """
         Add the initial-condition input files, then set up the model step.
 
-        When the step's stage is part of a restart chain (its ``restart_out``
-        is set), the restart it produces in the shared ``restarts`` directory
-        is declared as an output so the chain is inspectable and the next
-        stage's dependency on it is explicit.
+        When the step's stage is part of a restart chain, the restart it reads
+        (``restart_in``) and the one it writes (``restart_out``) in the shared
+        ``restarts`` directory are declared as an input and an output.  Both
+        paths are relative to the task work directory rather than the step's,
+        since the whole point of the directory is that the stages share it.
+        Declaring them is what makes the chain explicit to Polaris: a stage
+        whose predecessor did not produce its restart fails before the model
+        launches, rather than aborting inside it.
         """
         self.init_condition.add_input_files(self)
         stage = self.stage
-        if stage is not None and stage.restart_out is not None:
-            self.add_output_file(filename=f'../{stage.restart_out}')
+        if stage is not None:
+            if stage.restart_in is not None:
+                self.add_input_file(filename=f'../{stage.restart_in}')
+            if stage.restart_out is not None:
+                self.add_output_file(filename=f'../{stage.restart_out}')
         super().setup()
 
     def compute_cell_count(self):
