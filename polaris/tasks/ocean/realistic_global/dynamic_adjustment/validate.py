@@ -1,5 +1,3 @@
-import xarray as xr
-
 from polaris import Step
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
     SECTION,
@@ -13,10 +11,16 @@ class Validate(Step):
     a "settling" heuristic that the maximum cell kinetic energy is not
     increasing over the last several stages.
 
-    Both checks read each stage's ``output.nc`` (which carries the tracers and
-    ``kineticEnergyCell``) and are implemented for MPAS-Ocean; they are skipped
-    for other models.  The baseline comparison of the final stage is handled
-    separately by that forward step's ``validate_vars``.
+    Both checks read each stage's ``output.nc``, which carries the tracers and
+    ``kineticEnergyCell`` for either ocean model, through
+    ``open_model_dataset`` so that Omega's variable names are mapped to the
+    MPAS-Ocean ones the checks are written in.  The baseline comparison of the
+    final stage is handled separately by that forward step's ``validate_vars``.
+
+    One caveat the threshold cannot express: Omega's temperature is
+    conservative temperature where MPAS-Ocean's is potential temperature, so
+    ``temperature_max`` is not literally the same quantity in the two models.
+    Against a blow-up threshold the difference is immaterial.
 
     Attributes
     ----------
@@ -56,21 +60,16 @@ class Validate(Step):
         config = self.config
         logger = self.logger
 
-        model = config.get('ocean', 'model')
-        if model != 'mpas-ocean':
-            logger.info(
-                f'Dynamic-adjustment validation checks are implemented for '
-                f'MPAS-Ocean only; skipping for model {model!r}.'
-            )
-            return
-
         temperature_max = config.getfloat(SECTION, 'temperature_max')
         ke_num = config.getint(SECTION, 'ke_check_num_stages')
         ke_tol = config.getfloat(SECTION, 'ke_check_rel_tolerance')
 
         max_ke = []
         for stage_name in self.stage_names:
-            with xr.open_dataset(f'output_{stage_name}.nc') as ds:
+            ds = self.component.open_model_dataset(
+                f'output_{stage_name}.nc', config
+            )
+            with ds:
                 _check_temperature_max(ds, temperature_max, stage_name, logger)
                 max_ke.append(_final_max_ke(ds))
 
