@@ -310,8 +310,14 @@ whole allocation open to compare a few scalars.
 The thresholds read the extreme reached at any point in the stage, so an
 excursion the run recovered from is still caught, and
 `diagnostics.extreme_and_day` returns the day it happened alongside the value.
-That distinguishes a problem a stage created from one it inherited: an extreme
-at day zero is the initial condition.
+
+Both that function and `diagnostics._reduce` skip the stage's first sample,
+written before any time step.  For the first stage it is the initial condition
+and for the rest it is the predecessor's final state, already checked, so the
+extremes describe what each stage did.  Without this the `u.oi30.lr10` run
+failed on a WOA23 source artifact in its initial condition.  `_reduce` returns
+`None` when a stage wrote only that one sample, which the schedule's
+`stats_interval` check is what prevents.
 
 `_check_ke_growth_decelerates` is deliberately not a check on the level of the
 kinetic energy.  These runs start from rest and are wind-forced, so kinetic
