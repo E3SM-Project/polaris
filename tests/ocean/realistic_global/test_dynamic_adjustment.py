@@ -130,30 +130,44 @@ def test_shared_defaults_merged_and_damping_optional():
     assert stages[-1].damping is None
 
 
+UNIFIED_SCHEDULE_MESHES = (
+    'u.oi240.lr240',
+    'u.oi30.lr10',
+    'u.oi.so12to30.lr10',
+    'u.oi6to18.lr6to10',
+)
+
+
+def _stage_count(mesh_name):
+    return len(load_schedule_stages(mesh_name, _config(mesh_name)))
+
+
 def test_per_mesh_schedule_counts():
-    assert (
-        len(load_schedule_stages('u.oi30.lr10', _config('u.oi30.lr10'))) == 4
-    )
-    assert (
-        len(
-            load_schedule_stages(
-                'u.oi.so12to30.lr10', _config('u.oi.so12to30.lr10')
-            )
-        )
-        == 5
-    )
-    assert (
-        len(
-            load_schedule_stages(
-                'u.oi6to18.lr6to10', _config('u.oi6to18.lr6to10')
-            )
-        )
-        == 8
-    )
+    assert _stage_count('u.oi240.lr240') == 4
+    assert _stage_count('u.oi30.lr10') == 4
+    assert _stage_count('u.oi.so12to30.lr10') == 5
+    assert _stage_count('u.oi6to18.lr6to10') == 8
+
+
+@pytest.mark.parametrize('mesh_name', UNIFIED_SCHEDULE_MESHES)
+def test_unified_schedules_run_the_ke_check(mesh_name):
+    # the settling check is skipped below ke_check_num_stages stages, so every
+    # unified mesh needs at least that many for validation to mean anything
+    config = _config(mesh_name)
+    ke_num = config.getint(SECTION, 'ke_check_num_stages')
+    assert _stage_count(mesh_name) >= ke_num
+
+
+@pytest.mark.parametrize('mesh_name', UNIFIED_SCHEDULE_MESHES)
+def test_unified_schedules_end_undamped(mesh_name):
+    # the chain ramps damping out and hands off an undamped restart
+    stages = load_schedule_stages(mesh_name, _config(mesh_name))
+    assert stages[-1].name == 'simulation'
+    assert stages[-1].damping is None
 
 
 def test_restart_chain_is_consistent():
-    for mesh in ('u.oi30.lr10', 'u.oi.so12to30.lr10', 'u.oi6to18.lr6to10'):
+    for mesh in UNIFIED_SCHEDULE_MESHES:
         stages = load_schedule_stages(mesh, _config(mesh))
         assert stages[0].do_restart is False
         for previous, current in zip(stages[:-1], stages[1:], strict=False):
