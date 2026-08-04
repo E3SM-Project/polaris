@@ -321,18 +321,40 @@ the user config is merged, following the
 user's setup-time `schedule` override or edited stage options take effect.  The
 step graph is therefore fixed at setup, not run time.
 
-### validation
+### diagnostics and validation
 
 The
 {py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.Validate`
-step reads each stage's `output.nc` and checks a per-stage `temperature_max`
-threshold and that the maximum `kineticEnergyCell` is flattening over the last
-`ke_check_num_stages` stages.  The final `simulation` stage additionally
-compares its `output.nc` against a baseline via the forward step's
-`validate_vars`.
+step runs in two parts.  It first builds one row of diagnostics per stage with
+{py:func}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics.collect_stage_diagnostics`
+and writes `dynamic_adjustment_stats.csv`; it then makes its checks against
+those rows, so the summary a user reads and the checks that passed or failed are
+one calculation rather than two.
 
-The checks are written in MPAS-Ocean naming but work for either model: the step
-reads through `open_model_dataset`, which maps Omega's variable names.  Omega's
-temperature is conservative temperature where MPAS-Ocean's is potential
+`diagnostics.METRICS` is the column list.  Each metric names the global-statistics
+variable it reads (in MPAS-Ocean naming, which `open_model_dataset` maps Omega's
+names onto), how to reduce that variable's time series over the stage, and the
+`output.nc` field to fall back to when the model does not report the statistic.
+A metric with no fallback is left blank instead: `output_var` is set only where
+computing the metric from the 3-D field gives the same quantity, which is true of
+a maximum and not of a volume-weighted mean.  The drift columns are derived
+rather than read, from the change in a volume-weighted mean across the stage
+divided by the stage's run duration, which is why `Validate` takes the
+`ForwardStage` list rather than just the stage names.
+
+The statistics file is opened by relative path rather than declared as a step
+input, so a stage that did not write one degrades to computing what it can from
+`output.nc`.  Its name differs by model (`diagnostics.STATS_FILENAMES`): Omega
+treats its `Filename` as a prefix and appends the reduction period with no `.nc`.
+
+The checks are a per-stage `temperature_max` threshold and that the maximum
+`kineticEnergyCell` is flattening over the last `ke_check_num_stages` stages;
+each is skipped, with a log line, when the model reports no such metric.  The
+threshold reads `temperature_max_in_stage`, the largest value reached at any
+point in the stage, so a blow-up the run recovered from is still caught.  The
+final `simulation` stage additionally compares its `output.nc` against a baseline
+via the forward step's `validate_vars`.
+
+Omega's temperature is conservative temperature where MPAS-Ocean's is potential
 temperature, so `temperature_max` is not literally the same quantity in the two
 models — immaterial against a blow-up threshold.
