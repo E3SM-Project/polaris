@@ -43,6 +43,7 @@ class VMix(Task):
                 openmp_threads=1,
                 validate_vars=validate_vars,
                 task_name=name,
+                task_package='polaris.tasks.ocean.single_column.vmix',
                 enable_hadv=False,
             ),
         )
@@ -56,6 +57,7 @@ class VMix(Task):
                 openmp_threads=1,
                 validate_vars=validate_vars,
                 task_name=name,
+                task_package='polaris.tasks.ocean.single_column.vmix',
             ),
         )
         # A step to test restoring (with vmix and vadv)
@@ -68,6 +70,7 @@ class VMix(Task):
                 openmp_threads=1,
                 validate_vars=validate_vars,
                 task_name=name,
+                task_package='polaris.tasks.ocean.single_column.vmix',
                 enable_hadv=False,
                 enable_restoring=True,
             ),
@@ -82,6 +85,7 @@ class VMix(Task):
                 openmp_threads=1,
                 validate_vars=validate_vars,
                 task_name=name,
+                task_package='polaris.tasks.ocean.single_column.vmix',
                 enable_vadv=False,
                 enable_hadv=False,
             )
@@ -96,6 +100,7 @@ class VMix(Task):
                 openmp_threads=1,
                 validate_vars=validate_vars,
                 task_name=name,
+                task_package='polaris.tasks.ocean.single_column.vmix',
                 constant_diff=True,
                 enable_vadv=False,
                 enable_hadv=False,

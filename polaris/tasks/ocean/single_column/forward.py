@@ -24,6 +24,7 @@ class Forward(OceanModelStep):
         openmp_threads=1,
         validate_vars=None,
         task_name='',
+        task_package=None,
         update_eos=True,
         enable_vadv=True,
         enable_hadv=True,
@@ -66,6 +67,11 @@ class Forward(OceanModelStep):
 
         task_name : str, optional
             the name of the test case
+
+        task_package : str, optional
+            the python package containing the task's ``forward.yaml``.  If not
+            provided, it is assumed to be
+            ``polaris.tasks.ocean.single_column.<task_name>``
         """
         if not enable_vadv:
             name = f'{name}_no_vadv'
@@ -95,10 +101,9 @@ class Forward(OceanModelStep):
 
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
         self.add_yaml_file('polaris.tasks.ocean.single_column', 'forward.yaml')
-        self.add_yaml_file(
-            f'polaris.tasks.ocean.single_column.{task_name.split("_")[0]}',
-            'forward.yaml',
-        )
+        if task_package is None:
+            task_package = f'polaris.tasks.ocean.single_column.{task_name}'
+        self.add_yaml_file(task_package, 'forward.yaml')
 
         self.add_output_file(filename='output.nc', validate_vars=validate_vars)
 
