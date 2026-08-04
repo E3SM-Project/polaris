@@ -64,6 +64,9 @@ class _FakeStep:
     ):
         self.path = path
         self.calls = []
+        # a real Forward carries the ForwardStage it runs; None means a plain
+        # forward run, which always reads the initial state
+        self.stage = None
         self.forcing_filename = forcing_filename
         self.config = ConfigParser()
         self.config.add_section('ocean')
@@ -377,6 +380,35 @@ def test_step_initial_condition_wires_inputs_and_graph():
     assert by_kind['horiz_mesh']['work_dir_target'] == f'{path}/mesh.nc'
     assert by_kind['vert_coord']['work_dir_target'] == f'{path}/vert_coord.nc'
     assert by_kind['init']['work_dir_target'] == f'{path}/init.nc'
+
+
+def test_step_initial_condition_skips_init_on_a_restart():
+    """
+    A restarting stage reads the restart, not the initial state, so linking
+    init.nc would only misrepresent where its state came from.
+    """
+    base = 'ocean/spherical/realistic_global/icos240km/init'
+    ic = StepInitialCondition(
+        cast(Step, _FakeStep(path=f'{base}/initial_state')),
+        min_res=240.0,
+        approx_cell_count=10417,
+        forcing_step=cast(Step, _FakeStep(path=f'{base}/forcing')),
+    )
+
+    restarting = _FakeStep()
+    restarting.stage = ForwardStage(
+        name='damped_adjustment_2', do_restart=True
+    )
+    ic.add_input_files(cast(OceanModelStep, restarting))
+    kinds = {kind for kind, _ in restarting.calls}
+    assert 'init' not in kinds
+    # the mesh is read either way, and so is the forcing
+    assert {'horiz_mesh', 'vert_coord', 'forcing'} <= kinds
+
+    first = _FakeStep()
+    first.stage = ForwardStage(name='damped_adjustment_1', do_restart=False)
+    ic.add_input_files(cast(OceanModelStep, first))
+    assert 'init' in {kind for kind, _ in first.calls}
 
 
 def test_step_initial_condition_requires_a_forcing_step():
