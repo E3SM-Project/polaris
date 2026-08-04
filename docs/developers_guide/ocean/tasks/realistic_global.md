@@ -294,8 +294,8 @@ treats its `Filename` as a prefix and appends the reduction period with no `.nc`
 
 The checks live in
 {py:mod}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks`,
-because two kinds of step apply them.  The `temperature_max` and `cfl_max`
-thresholds belong to
+because two kinds of step apply them.  The `temperature_max`, `salinity_max`
+and `cfl_max` thresholds belong to
 {py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck`,
 one per stage, added right after its forward step so the sequence stops at the
 stage that broke.  `Validate` keeps only the cross-stage settling check on
@@ -311,13 +311,34 @@ The thresholds read the extreme reached at any point in the stage, so an
 excursion the run recovered from is still caught, and
 `diagnostics.extreme_and_day` returns the day it happened alongside the value.
 
-Both that function and `diagnostics._reduce` skip the stage's first sample,
-written before any time step.  For the first stage it is the initial condition
+Which samples a stage is judged on is decided in one place,
+`diagnostics.first_judged_index`, which both that function and
+`diagnostics._reduce` go through.  It always skips the stage's first sample,
+written before any time step: for the first stage it is the initial condition
 and for the rest it is the predecessor's final state, already checked, so the
 extremes describe what each stage did.  Without this the `u.oi30.lr10` run
-failed on a WOA23 source artifact in its initial condition.  `_reduce` returns
-`None` when a stage wrote only that one sample, which the schedule's
-`stats_interval` check is what prevents.
+failed on a WOA23 source artifact in its initial condition.  It returns `None`
+when a stage wrote nothing else, which the schedule's `stats_interval` check is
+what prevents.
+
+Its `exclude_days` argument is how the sequence's `startup_exclusion_duration`
+reaches a stage.  `schedule.excluded_days_in_stage` turns that duration into a
+number of days *into a given stage*, measuring from the first stage's
+`start_time` and returning zero for a stage that begins after the window has
+closed.  Measuring from the sequence rather than from each stage is deliberate:
+what the window skips belongs to the initial condition, and a per-stage window
+would stop watching the hours just after every damping change.  Expressing the
+result relative to the stage is deliberate too — a stage's statistics count
+time from their own first sample, and this way nothing depends on whether the
+model restarted its clock.
+
+Only the metrics with `Metric.startup_window` set — the tracer extremes — are
+given it.  `cfl_max_in_stage` is not, because a time step too long for the flow
+shows up in exactly the hours the window covers.  `Validate` passes the same
+windows when it builds the summary, so the CSV a user reads and the checks that
+passed cannot disagree.  This is what the `u.oi6to18.lr6to10` run needs: its
+statistics are hourly, and the Sumatra artifact is still at 35.77 °C an hour
+in.
 
 `_check_ke_growth_decelerates` is deliberately not a check on the level of the
 kinetic energy.  These runs start from rest and are wind-forced, so kinetic
