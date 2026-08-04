@@ -16,6 +16,12 @@ same quantity: a maximum is a maximum however it is computed, whereas a
 volume-weighted mean is not the same as an unweighted one, so volume-weighted
 metrics are left blank rather than quietly replaced.
 
+The extremes cover what a stage *did*, not what it was handed: the sample
+written before the first time step is skipped.  For the first stage that sample
+is the initial condition, and for every later one it is the previous stage's
+final state, already covered by that stage's own check.  The viz step plots the
+full series, so the skipped value is still visible where it matters.
+
 MPAS-Ocean and Omega do not report the same statistics.  Omega's
 ``GlobalStats`` covers temperature, salinity, layer thickness and normal
 velocity; it has no kinetic energy, no CFL number and no volume-weighted sums.
@@ -265,15 +271,35 @@ def collect_stage_diagnostics(
     return row
 
 
-def _reduce(data_array: Any, reduction: str) -> float:
-    """Reduce a statistic's time series over the stage."""
-    if reduction == 'max':
-        return float(data_array.max())
-    if reduction == 'min':
-        return float(data_array.min())
+def _reduce(data_array: Any, reduction: str) -> Optional[float]:
+    """
+    Reduce a statistic's time series over the stage.
+
+    The extremes skip the stage's first sample, which is written before any
+    time step has been taken and so describes what the stage was handed rather
+    than what it did.  For the first stage that is the initial condition, and
+    for every later one it is the previous stage's final state, which that
+    stage's own check already covered -- so nothing goes unexamined.  Returns
+    ``None`` when the stage wrote only that first sample and there is nothing
+    left to reduce.
+    """
     if reduction == 'last':
         return float(data_array.isel(Time=-1))
+    evolved = _after_initial(data_array)
+    if evolved is None:
+        return None
+    if reduction == 'max':
+        return float(evolved.max())
+    if reduction == 'min':
+        return float(evolved.min())
     raise ValueError(f'Unknown reduction {reduction!r}.')
+
+
+def _after_initial(data_array: Any) -> Optional[Any]:
+    """The series without its first sample, or ``None`` if none is left."""
+    if data_array.sizes.get('Time', 0) < 2:
+        return None
+    return data_array.isel(Time=slice(1, None))
 
 
 def _from_output(
@@ -464,10 +490,10 @@ def extreme_and_day(
     """
     The extreme of a statistic over a stage and the day it occurred.
 
-    The day is what distinguishes a problem the stage created from one it
-    inherited: an extreme at day zero is the initial condition, before the
-    model has taken a step.  Measured from the start of the stage, so it does
-    not depend on how the model counts across a restart.
+    The stage's first sample is skipped: it is written before any time step,
+    so it describes what the stage was handed rather than what it did.  The day
+    is measured from the start of the stage, so it does not depend on how the
+    model counts across a restart.
 
     Parameters
     ----------
@@ -488,12 +514,16 @@ def extreme_and_day(
     """
     if variable not in ds:
         return None, None
-    series = ds[variable]
+    series = _after_initial(ds[variable])
+    if series is None:
+        return None, None
     # np.arg* rather than the DataArray methods, whose no-argument behaviour
     # is changing to return a dict of per-dimension indices
     values = np.asarray(series.values)
     index = int(np.argmax(values) if reduction == 'max' else np.argmin(values))
     value = float(series.isel(Time=index))
+    # the first sample was dropped, so shift back onto the full series
+    index += 1
     try:
         days = np.asarray(get_days_since_start(ds), dtype=float)
         when = float(days[index] - days[0])
