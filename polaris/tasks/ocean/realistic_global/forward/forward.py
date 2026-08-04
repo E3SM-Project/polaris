@@ -210,6 +210,12 @@ class Forward(OceanModelStep):
         if stage is None:
             stage = ForwardStage.from_config(config)
 
+        if not at_setup:
+            # deferred to run time, as the time-integrator check is, so that a
+            # user can set the task up and then change the model or the
+            # schedule
+            stage.check_damping_supported(model)
+
         replacements = stage.model_replacements(
             model, min_res, at_setup=at_setup
         )

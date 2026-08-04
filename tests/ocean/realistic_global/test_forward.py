@@ -189,6 +189,22 @@ def test_bottom_drag_options():
     }
 
 
+def test_damping_is_an_error_for_omega():
+    # Omega has no Rayleigh damping, so a damped stage cannot run there
+    stage = ForwardStage(name='damped_adjustment_1', damping=1.0e-4)
+    with pytest.raises(ValueError, match='Omega/issues/495'):
+        stage.check_damping_supported('omega')
+    # ... but it is fine for MPAS-Ocean
+    stage.check_damping_supported('mpas-ocean')
+
+
+def test_no_damping_is_fine_for_either_model():
+    # an undamped stage -- the final `simulation` stage, and every stage of a
+    # simple forward run -- is unaffected
+    for model in ('mpas-ocean', 'omega'):
+        ForwardStage(name='simulation').check_damping_supported(model)
+
+
 # --- physics options ---
 
 
