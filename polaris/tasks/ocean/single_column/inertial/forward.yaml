@@ -19,7 +19,7 @@ Omega:
     History:
       Filename: output.nc
       Freq: 1
-      FreqUnits: Days
+      FreqUnits: Hours
       IfExists: append
       # effectively never
       FileFreq: 9999
