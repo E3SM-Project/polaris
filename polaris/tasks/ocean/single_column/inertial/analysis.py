@@ -83,7 +83,7 @@ class Analysis(OceanIOStep):
         expected_period = (2 * np.pi / f) / 3600.0  # in hours
 
         # Plot a time series of the maximum u and v components
-        plt.figure(figsize=(3, 5))
+        plt.figure(figsize=(8, 5))
         ax = plt.subplot(111)
         ax.plot(t, u_max, '-b')
         ax.plot(t, v_max, '--b')
@@ -92,15 +92,18 @@ class Analysis(OceanIOStep):
             [expected_period / 24.0, expected_period / 24.0],
             [ymin, ymax],
             '--g',
+            label='expected period',
         )
         ax.plot(
             [dominant_period / 24.0, dominant_period / 24.0],
             [ymin, ymax],
             '--k',
+            label='dominant period',
         )
         ax.set_xlabel('Time (days)')
         ax.set_ylabel('Maximum velocity (m/s)')
         ax.set_ylim([ymin, ymax])
+        plt.legend()
         plt.tight_layout(pad=0.5)
         plt.savefig('velocity_tseries.png')
         plt.close()
