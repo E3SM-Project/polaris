@@ -13,6 +13,9 @@ from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
 from polaris.tasks.ocean.realistic_global.init.steps import (
     get_realistic_init_steps,
 )
+from polaris.tasks.ocean.realistic_global.mesh_configs import (
+    add_realistic_global_mesh_config,
+)
 from polaris.tasks.ocean.realistic_global.mesh_info import (
     estimate_ocean_cell_count,
     min_res_for_mesh,
@@ -20,6 +23,8 @@ from polaris.tasks.ocean.realistic_global.mesh_info import (
 
 CONFIG_FILENAME = 'realistic_global_dynamic_adjustment.cfg'
 CONFIG_PACKAGE = 'polaris.tasks.ocean.realistic_global.dynamic_adjustment'
+FORWARD_CONFIG_FILENAME = 'realistic_global_forward.cfg'
+FORWARD_CONFIG_PACKAGE = 'polaris.tasks.ocean.realistic_global.forward'
 VALIDATE_VARS = [
     'temperature',
     'salinity',
@@ -43,6 +48,11 @@ class RealisticGlobalDynamicAdjustment(Task):
     so a user's setup-time config (including a ``schedule`` override) takes
     effect.  The number of stages is therefore fixed at setup time, not run
     time.
+
+    Because each stage is a forward run, the task's config carries the
+    ``[realistic_global_forward]`` options as well as its own, plus the
+    per-mesh overrides from
+    :py:mod:`polaris.tasks.ocean.realistic_global.mesh_configs`.
 
     Attributes
     ----------
@@ -75,9 +85,16 @@ class RealisticGlobalDynamicAdjustment(Task):
         self.mesh_name = mesh_name
         self.base = base
 
+        # a stage is a forward run, so the task carries the forward run's
+        # config options as well as its own; the per-mesh file comes last so
+        # that its overrides win
         filepath = f'{component.name}/{base}/{CONFIG_FILENAME}'
         config = PolarisConfigParser(filepath=filepath)
+        config.add_from_package(
+            FORWARD_CONFIG_PACKAGE, FORWARD_CONFIG_FILENAME
+        )
         config.add_from_package(CONFIG_PACKAGE, CONFIG_FILENAME)
+        add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
         self.set_shared_config(config, link=CONFIG_FILENAME)
 
         self._setup_steps()
