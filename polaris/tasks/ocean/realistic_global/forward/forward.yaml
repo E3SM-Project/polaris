@@ -113,10 +113,17 @@ mpas-ocean:
             - xtime
             - daysSinceStartOfSim
             - CFLNumberGlobal
+            # the global ocean volume, which is what turns the volume-weighted
+            # sums below into interpretable means
+            - volumeCellGlobal
             - minGlobalStats
             - maxGlobalStats
             - avgGlobalStats
             - rmsGlobalStats
+            # volume-weighted sums, for domain-integrated quantities such as
+            # kineticEnergyCellSum.  Omega's GlobalStats has no equivalent, so
+            # these are one of the places the two models' statistics differ.
+            - sumGlobalStats
         # as for globalStatsOutput, filename_template overrides the registry
         # default of daily files under analysis_members/ so that the run writes
         # a single mixed_layer_depths.nc
