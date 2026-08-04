@@ -757,12 +757,21 @@ columns are blank for an Omega run.  A blank means "this model does not report
 it", not that something went wrong; the log says which source each metric came
 from.
 
-The checks are then made against those same rows, so the summary and the checks
-cannot disagree.  There are three:
+There are three checks.  Two are per stage and run in a `<stage>_check` step
+immediately after that stage, so a stage that is already out of bounds stops the
+sequence instead of costing the whole job:
 
-* the maximum temperature in each stage must stay below `temperature_max`;
-* the maximum CFL number in each stage must stay below `cfl_max`, which is what
-  catches a stage whose time step is too long for the flow it produced;
+* the maximum temperature in the stage must stay below `temperature_max`;
+* the maximum CFL number in the stage must stay below `cfl_max`, which is what
+  catches a stage whose time step is too long for the flow it produced.
+
+Both report *when* the extreme occurred as well as how large it was.  That is
+worth reading closely: an extreme "at the start of the stage, before any time
+step" is in the initial condition, and no change to the schedule will fix it.
+
+The third is made by the final `validate` step against the summary rows, since
+no single stage can see it:
+
 * the stage-over-stage *fractional change* in the mean kinetic energy must be
   shrinking over the last `ke_check_num_stages` transitions.
 
