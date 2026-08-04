@@ -633,8 +633,10 @@ btr_dt_per_km = 1.5
 dt =
 btr_dt =
 
-# Rayleigh damping coefficient (1/s); leave blank for no Rayleigh damping
-Rayleigh_damping_coeff =
+# Rayleigh damping coefficient (1/s); leave blank for no Rayleigh damping.
+# MPAS-Ocean only: Omega has no Rayleigh damping, so a non-blank value is an
+# error there (https://github.com/E3SM-Project/Omega/issues/495)
+damping =
 
 # Horizontal mixing coefficients.  A blank value turns the corresponding term
 # off; a number turns it on with that coefficient.  These are usually set per
