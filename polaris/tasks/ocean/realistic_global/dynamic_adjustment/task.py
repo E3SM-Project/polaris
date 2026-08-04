@@ -127,6 +127,7 @@ class RealisticGlobalDynamicAdjustment(Task):
                     init_step,
                     min_res=min_res,
                     approx_cell_count=approx_cell_count,
+                    forcing_step=init_steps['forcing'],
                 ),
                 stage=stage,
                 validate_vars=(

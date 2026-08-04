@@ -3,7 +3,7 @@
 # varies by stage, so it is set per stage rather than shared.
 dynamic_adjustment:
   shared:
-    time_integrator: split_explicit_ab2
+    mpaso_time_integrator: split_explicit_ab2
     output_interval: 10_00:00:00
     start_time: 0001-01-01_00:00:00
   stages:
