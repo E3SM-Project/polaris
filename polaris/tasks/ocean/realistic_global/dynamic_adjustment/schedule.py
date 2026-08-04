@@ -154,9 +154,10 @@ def _build_stage(
         run_duration=run_duration,
         output_interval=str(merged['output_interval']),
         restart_interval=str(restart_interval),
-        time_integrator=str(
-            merged.get('time_integrator', 'split_explicit_ab2')
+        mpaso_time_integrator=str(
+            merged.get('mpaso_time_integrator', 'split_explicit_ab2')
         ),
+        omega_time_integrator=str(merged.get('omega_time_integrator', 'RK4')),
         dt=_opt_str(merged, 'dt'),
         btr_dt=_opt_str(merged, 'btr_dt'),
         dt_per_km=_opt_float(merged, 'dt_per_km'),
