@@ -6,9 +6,13 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
     SECTION,
     load_schedule_stages,
+)
+from polaris.tasks.ocean.realistic_global.dynamic_adjustment.task import (
+    RealisticGlobalDynamicAdjustment,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
     _check_ke_flattening,
@@ -27,6 +31,49 @@ def _config_for_schedule(tmp_path, text):
     config.add_section(SECTION)
     config.set(SECTION, 'schedule', str(schedule))
     return config
+
+
+def _task(mesh_name):
+    """A dynamic-adjustment task for one mesh, with its combined config."""
+    return RealisticGlobalDynamicAdjustment(
+        component=Ocean(), mesh_name=mesh_name
+    )
+
+
+# --- task config ---
+
+
+def test_task_config_has_the_forward_options():
+    # a stage is a forward run, so the forward section has to be there
+    config = _task('icos240km').config
+    assert config.has_section('realistic_global_forward')
+    assert config.has_section('realistic_global_dynamic_adjustment')
+    assert config.getfloat('realistic_global_forward', 'mom_del4') == 1.2e11
+
+
+def _hmix_scaling(mesh_name):
+    return _task(mesh_name).config.get(
+        'realistic_global_forward', 'hmix_scaling'
+    )
+
+
+def test_task_config_applies_per_mesh_overrides():
+    # each per-mesh .cfg overrides hmix_scaling with the value that suits its
+    # resolution, and a mesh with no .cfg keeps the forward default
+    assert _hmix_scaling('u.oi30.lr10') == 'ref_cell_width'
+    assert _hmix_scaling('u.oi6to18.lr6to10') == 'scale_with_mesh'
+    assert _hmix_scaling('icos120km') == 'none'
+
+
+def test_task_config_damping_is_off_by_default():
+    # Rayleigh damping is turned on per stage by the schedule, not by config
+    config = _task('u.oi30.lr10').config
+    assert (
+        config.get(
+            'realistic_global_forward', 'Rayleigh_damping_coeff'
+        ).strip()
+        == ''
+    )
 
 
 # --- built-in schedules: parsing and chaining ---
