@@ -321,13 +321,50 @@ class ForwardStage:
             do_restart='true' if self.do_restart else 'false',
         )
 
+    def check_damping_supported(self, model: str) -> None:
+        """
+        Raise when the configured model cannot honor this stage's damping.
+
+        Omega has no Rayleigh damping
+        (https://github.com/E3SM-Project/Omega/issues/495), and
+        ``config_Rayleigh_damping_coeff`` has no counterpart in
+        ``mpaso_to_omega``, so a damped stage would run undamped with nothing
+        said.  For a staged adjustment that is not a small difference in a
+        low-level control: the ramp is the whole purpose of the damped stages,
+        and dropping it silently would make a run look adjusted when it is not.
+
+        A stage with no damping -- the final ``simulation`` stage, and every
+        stage of a simple forward run -- is unaffected.
+
+        Parameters
+        ----------
+        model : str
+            The configured ocean model, ``'mpas-ocean'`` or ``'omega'``.
+
+        Raises
+        ------
+        ValueError
+            If ``damping`` is set and ``model`` is Omega.
+        """
+        if self.damping is None or model != 'omega':
+            return
+        raise ValueError(
+            f'Stage {self.name!r} sets Rayleigh damping '
+            f'({self.damping:g} 1/s), which Omega does not support; see '
+            f'https://github.com/E3SM-Project/Omega/issues/495.  Run this '
+            f'stage with MPAS-Ocean, or drop "damping" from the schedule to '
+            f'run it undamped.'
+        )
+
     def bottom_drag_options(self) -> Dict[str, Any]:
         """
         MPAS-Ocean bottom-drag config options implied by the damping setting.
 
         Returns Rayleigh damping options when ``damping`` is set, and an empty
         dict otherwise so the model default is left untouched.  Applied by the
-        forward step for MPAS-Ocean only; an Omega equivalent is a future hook.
+        forward step for MPAS-Ocean only, because Omega has no Rayleigh
+        damping; :py:meth:`check_damping_supported` is what keeps that from
+        being a silent omission.
 
         Returns
         -------
