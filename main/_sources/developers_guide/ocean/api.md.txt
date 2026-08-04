@@ -476,7 +476,7 @@
 
    add_single_column_tasks
 
-   cvmix.CVMix
+   vmix.VMix
 
    ekman.Ekman
    ekman.analysis.Analysis

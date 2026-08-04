@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.single\_column.vmix.VMix
+============================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.vmix
+
+.. autoclass:: VMix
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VMix.__init__
+      ~VMix.add_step
+      ~VMix.configure
+      ~VMix.remove_step
+      ~VMix.set_shared_config
+   
+   
+
+   
+   
+   

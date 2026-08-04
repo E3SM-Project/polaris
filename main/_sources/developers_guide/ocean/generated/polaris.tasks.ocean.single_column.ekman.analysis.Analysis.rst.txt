@@ -15,10 +15,21 @@
    
       ~Analysis.__init__
       ~Analysis.add_dependency
+      ~Analysis.add_horiz_mesh_input_file
+      ~Analysis.add_init_input_file
       ~Analysis.add_input_file
       ~Analysis.add_output_file
+      ~Analysis.add_output_files_for_ocean_model_input
+      ~Analysis.add_vert_coord_input_file
       ~Analysis.check_properties
       ~Analysis.constrain_resources
+      ~Analysis.get_horiz_mesh_filename
+      ~Analysis.get_init_filename
+      ~Analysis.get_vert_coord_filename
+      ~Analysis.map_from_native_model_vars
+      ~Analysis.map_to_native_model_vars
+      ~Analysis.open_model_dataset
+      ~Analysis.open_vert_coord_dataset
       ~Analysis.process_inputs_and_outputs
       ~Analysis.run
       ~Analysis.runtime_setup
@@ -26,9 +37,21 @@
       ~Analysis.set_shared_config
       ~Analysis.setup
       ~Analysis.validate_baselines
+      ~Analysis.write_horiz_mesh_dataset
+      ~Analysis.write_initial_state_dataset
+      ~Analysis.write_model_dataset
+      ~Analysis.write_vert_coord_dataset
    
    
 
    
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Analysis.component
+      ~Analysis.config
+      ~Analysis.input_data
    
    

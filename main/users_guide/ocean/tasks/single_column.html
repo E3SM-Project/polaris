@@ -86,7 +86,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#id1">config options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cvmix">cvmix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vmix-stable">vmix stable</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id4">vertical grid</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ekman">ekman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ocean-single-column-ideal-age">ideal age</a></li>
@@ -176,7 +176,7 @@ the vertical dynamics of the ocean model only. The test cases are:</p>
 </section>
 <section id="suppported-models">
 <h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
-<p>These tasks support only MPAS-Ocean.</p>
+<p>All but the ideal age task support MPAS-Ocean and Omega, whereas the ideal age task supports MPAS-Ocean only.</p>
 </section>
 <section id="mesh">
 <h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
@@ -219,27 +219,8 @@ with 100 vertical levels.</p>
 </section>
 <section id="initial-conditions">
 <h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
-<p>The temperature and salinity profiles are defined using the following equations:</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}
-\Phi(z) = \begin{cases}
-    \Phi_0 &amp;\text{ if } z = z[0]\\
-    \Phi_0 + {d\Phi/dz}_{ML} z &amp;
-    \text{ if } z &gt; z_{MLD}\\
-    (\Phi_0 + {\Delta\Phi}_{ML}) + {d\Phi/dz}_{int} (z - z_{MLD}) &amp;
-    \text{ if } z \le z_{MLD}
-\end{cases}
-\end{split}\]</div>
-<p>where <span class="math notranslate nohighlight">\(\Phi_0 = \)</span><code class="docutils literal notranslate"><span class="pre">surface_X</span></code>, <span class="math notranslate nohighlight">\({d\Phi/dz}_{ML} = \)</span><code class="docutils literal notranslate"><span class="pre">X_gradient_mixed_layer</span></code>,
-<span class="math notranslate nohighlight">\(z_{MLD} = -\)</span><code class="docutils literal notranslate"><span class="pre">mixed_layer_depth_X</span></code>, <span class="math notranslate nohighlight">\({\Delta\Phi}_{ML} = \)</span>
-<code class="docutils literal notranslate"><span class="pre">X_difference_across_mixed_layer</span></code>, and <span class="math notranslate nohighlight">\({d\Phi/dz}_{int} = \)</span>
-<code class="docutils literal notranslate"><span class="pre">X_gradient_interior</span></code>. <code class="docutils literal notranslate"><span class="pre">X</span></code> in the config options above is either <code class="docutils literal notranslate"><span class="pre">temperature</span></code>
-or <code class="docutils literal notranslate"><span class="pre">salinity</span></code>.</p>
-<p>The initial velocity is vertically uniform and given by
-<code class="docutils literal notranslate"><span class="pre">single_column:zonal_velocity</span></code> and <code class="docutils literal notranslate"><span class="pre">single_column:meridional_velocity</span></code>, which
-are 0 by default (at rest).</p>
-<p>The Coriolis parameter is spatially constant and set equal to
-<code class="docutils literal notranslate"><span class="pre">coriolis_parameter</span></code>.</p>
+<p>The initial conditions are either stably stratified or uniform. See each task
+below.</p>
 <section id="forcing">
 <h3>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h3>
 <p>Default values of no forcing are given here, which are then overwritten by the
@@ -371,18 +352,18 @@ test case. Both can be changed after set-up by modifying the namelist file.</p>
 <p>Both default and minimum number of cores are hard-coded as 1 given that the
 domain is only 16 cells.</p>
 </section>
-<section id="cvmix">
-<span id="ocean-single-column-cvmix"></span><h2>cvmix<a class="headerlink" href="#cvmix" title="Link to this heading"></a></h2>
+<section id="vmix-stable">
+<span id="ocean-single-column-vmix"></span><h2>vmix stable<a class="headerlink" href="#vmix-stable" title="Link to this heading"></a></h2>
 <section id="id2">
 <h3>description<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">cvmix</span></code> test exercises the <a class="reference external" href="https://github.com/CVMix/CVMix-src">CVMix</a>
-schemes for vertical mixing.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">vmix_stable</span></code> test runs a series of forward steps with different namelist
+paramters to test out different vertical mixing options under stable
+stratification. The analysis step then compares the boundary layer depth for the forward step without Coriolis with the analytic solution from equation 35 of Van Roekel et al. (2018) https://doi.org/10.1029/2018MS001336</p>
 <p>The temperature and salinity profiles after 10 days are shown here:</p>
 <a class="reference internal image-reference" href="../../../_images/single_column_temperature_10day.png"><img alt="../../../_images/single_column_temperature_10day.png" class="align-center" src="../../../_images/single_column_temperature_10day.png" style="width: 200px;" />
 </a>
 <a class="reference internal image-reference" href="../../../_images/single_column_salinity_10day.png"><img alt="../../../_images/single_column_salinity_10day.png" class="align-center" src="../../../_images/single_column_salinity_10day.png" style="width: 200px;" />
 </a>
-<p>The namelist options for this test case dictate that the KPP scheme is tested.</p>
 </section>
 <section id="id3">
 <h3>mesh<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
@@ -392,8 +373,29 @@ schemes for vertical mixing.</p>
 <section id="id4">
 <h2>vertical grid<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
-<section id="id5">
-<h3>initial conditions<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<section id="ocean-single-column-stable">
+<span id="id5"></span><h3>initial conditions<a class="headerlink" href="#ocean-single-column-stable" title="Link to this heading"></a></h3>
+<p>The temperature and salinity profiles are defined using the following equations:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\Phi(z) = \begin{cases}
+    \Phi_0 &amp;\text{ if } z = z[0]\\
+    \Phi_0 + {d\Phi/dz}_{ML} z &amp;
+    \text{ if } z &gt; z_{MLD}\\
+    (\Phi_0 + {\Delta\Phi}_{ML}) + {d\Phi/dz}_{int} (z - z_{MLD}) &amp;
+    \text{ if } z \le z_{MLD}
+\end{cases}
+\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Phi_0 = \)</span><code class="docutils literal notranslate"><span class="pre">surface_X</span></code>, <span class="math notranslate nohighlight">\({d\Phi/dz}_{ML} = \)</span><code class="docutils literal notranslate"><span class="pre">X_gradient_mixed_layer</span></code>,
+<span class="math notranslate nohighlight">\(z_{MLD} = -\)</span><code class="docutils literal notranslate"><span class="pre">mixed_layer_depth_X</span></code>, <span class="math notranslate nohighlight">\({\Delta\Phi}_{ML} = \)</span>
+<code class="docutils literal notranslate"><span class="pre">X_difference_across_mixed_layer</span></code>, and <span class="math notranslate nohighlight">\({d\Phi/dz}_{int} = \)</span>
+<code class="docutils literal notranslate"><span class="pre">X_gradient_interior</span></code>. <code class="docutils literal notranslate"><span class="pre">X</span></code> in the config options above is either <code class="docutils literal notranslate"><span class="pre">temperature</span></code>
+or <code class="docutils literal notranslate"><span class="pre">salinity</span></code>.</p>
+<p>The initial velocity is vertically uniform and given by
+<code class="docutils literal notranslate"><span class="pre">single_column:zonal_velocity</span></code> and <code class="docutils literal notranslate"><span class="pre">single_column:meridional_velocity</span></code>, which
+are 0 by default (at rest).</p>
+<p>The Coriolis parameter is spatially constant and set equal to
+<code class="docutils literal notranslate"><span class="pre">coriolis_parameter</span></code>.</p>
 <p>These config options overwrite those in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for single column testcases</span>
 <span class="k">[single_column]</span>
@@ -408,10 +410,9 @@ schemes for vertical mixing.</p>
 <span class="na">salinity_difference_across_mixed_layer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
 </pre></div>
 </div>
-<p>The rest of the config options are given in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
-<section id="id6">
-<h3>forcing<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="ocean-single-column-wind-evap">
+<span id="id6"></span><h3>forcing<a class="headerlink" href="#ocean-single-column-wind-evap" title="Link to this heading"></a></h3>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for forcing single column testcases</span>
 <span class="k">[single_column_forcing]</span>
 
@@ -445,8 +446,7 @@ days.</p>
 </section>
 <section id="id8">
 <h3>config options<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
-<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. Currently, config options are only given in the
-shared framework.</p>
+<p>See <a class="reference internal" href="#ocean-single-column-wind-evap"><span class="std std-ref">forcing</span></a> and <a class="reference internal" href="#ocean-single-column-stable"><span class="std std-ref">initial conditions</span></a>.</p>
 </section>
 <section id="id9">
 <h3>cores<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
@@ -481,11 +481,10 @@ are:</p>
 </section>
 <section id="id13">
 <h3>initial conditions<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
-<p>The temperature and salinity are constant and the flow is at rest.
-See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+<p>The temperature and salinity are constant and the flow is at rest.</p>
 </section>
-<section id="id14">
-<h3>forcing<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<section id="ocean-single-column-wind">
+<span id="id14"></span><h3>forcing<a class="headerlink" href="#ocean-single-column-wind" title="Link to this heading"></a></h3>
 <p>The only forcing is surface wind stress, which is controlled by
 the following config option:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for forcing single column testcases</span>
@@ -510,7 +509,8 @@ viscosity:</p>
 <span class="na">vertical_viscosity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.e-3</span>
 </pre></div>
 </div>
-<p>All other config options derive from <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+<p>All other config options derive from <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a> and
+<a class="reference internal" href="#ocean-single-column-wind"><span class="std std-ref">forcing</span></a>.</p>
 </section>
 <section id="id17">
 <h3>cores<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
@@ -523,7 +523,7 @@ viscosity:</p>
 <section id="id18">
 <h3>description<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
 <p>Temperature and salinity profiles evolve in the same way as in the
-<a class="reference internal" href="#ocean-single-column-cvmix"><span class="std std-ref">cvmix</span></a> test case. 10-day profiles for the ideal age
+<a class="reference internal" href="#ocean-single-column-vmix"><span class="std std-ref">vmix stable</span></a> test case. 10-day profiles for the ideal age
 tracer are as follows:</p>
 <a class="reference internal image-reference" href="../../../_images/single_column_ideal_age_tracer_10day.png"><img alt="../../../_images/single_column_ideal_age_tracer_10day.png" class="align-center" src="../../../_images/single_column_ideal_age_tracer_10day.png" style="width: 200px;" />
 </a>
@@ -538,7 +538,8 @@ tracer are as follows:</p>
 </section>
 <section id="id21">
 <h3>initial conditions<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> is initialized as zero seconds throughout the water column.</p>
+<p><code class="docutils literal notranslate"><span class="pre">idealAgeTracers</span></code> is initialized as zero seconds throughout the water column.
+See <a class="reference internal" href="#ocean-single-column-stable"><span class="std std-ref">initial conditions</span></a>.</p>
 </section>
 <section id="id22">
 <h3>forcing<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
