@@ -292,12 +292,26 @@ input, so a stage that did not write one degrades to computing what it can from
 `output.nc`.  Its name differs by model (`diagnostics.STATS_FILENAMES`): Omega
 treats its `Filename` as a prefix and appends the reduction period with no `.nc`.
 
-The checks are per-stage `temperature_max` and `cfl_max` thresholds and, over
-the last `ke_check_num_stages` transitions, that the fractional change in
-`kinetic_energy_mean` is shrinking; each is skipped, with a log line, when the
-model reports no such metric.  The thresholds read the `*_in_stage` columns, the
-extreme reached at any point in the stage, so an excursion the run recovered
-from is still caught.
+The checks live in
+{py:mod}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks`,
+because two kinds of step apply them.  The `temperature_max` and `cfl_max`
+thresholds belong to
+{py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck`,
+one per stage, added right after its forward step so the sequence stops at the
+stage that broke.  `Validate` keeps only the cross-stage settling check on
+`kinetic_energy_mean`.  Each is skipped, with a log line, when the model reports
+no such metric.
+
+`StageCheck` is a step of its own rather than work the forward step does after
+the model exits.  A Polaris step is sized for its MPI call and there is no good
+mechanism for post-MPI Python, so folding the check in would hold the model's
+whole allocation open to compare a few scalars.
+
+The thresholds read the extreme reached at any point in the stage, so an
+excursion the run recovered from is still caught, and
+`diagnostics.extreme_and_day` returns the day it happened alongside the value.
+That distinguishes a problem a stage created from one it inherited: an extreme
+at day zero is the initial condition.
 
 `_check_ke_growth_decelerates` is deliberately not a check on the level of the
 kinetic energy.  These runs start from rest and are wind-forced, so kinetic
