@@ -119,11 +119,21 @@ class StepInitialCondition(InitialCondition):
         is dropped for MPAS-Ocean by the shared placeholder mechanism, and the
         graph is linked (and partitioned) by ``OceanModelStep`` from
         ``graph_target``.
+
+        The initial state is linked only when the run actually reads it.  A
+        stage that continues from a restart does not: MPAS-Ocean reads the
+        ``restart`` stream and never touches ``input`` when
+        ``config_do_restart`` is set (``mpas_ocn_forward_mode.F``), and Omega's
+        ``InitialState`` is switched off with ``FreqUnits: never``.  The mesh,
+        in contrast, is read either way.  Linking a file a stage never opens
+        only makes the work directory misleading about where its state came
+        from.
         """
         path = self.init_step.path
         step.add_horiz_mesh_input_file(work_dir_target=f'{path}/mesh.nc')
         step.add_vert_coord_input_file(work_dir_target=f'{path}/vert_coord.nc')
-        step.add_init_input_file(work_dir_target=f'{path}/init.nc')
+        if _reads_initial_state(step):
+            step.add_init_input_file(work_dir_target=f'{path}/init.nc')
         forcing_filename = step.get_forcing_filename()
         step.add_forcing_input_file(
             work_dir_target=f'{self.forcing_step.path}/{forcing_filename}'
@@ -195,3 +205,14 @@ class DatabaseInitialCondition(InitialCondition):
         step.add_init_input_file(target=filename, database=database)
         if model == 'omega':
             step.add_horiz_mesh_input_file(target=filename, database=database)
+
+
+def _reads_initial_state(step: 'OceanModelStep') -> bool:
+    """
+    Whether ``step`` reads an initial state, as opposed to a restart.
+
+    A forward step carries the ``ForwardStage`` it runs; a step that has no
+    stage is a plain forward run and always starts from the initial state.
+    """
+    stage = getattr(step, 'stage', None)
+    return stage is None or not stage.do_restart
