@@ -25,7 +25,6 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
     Validate,
     _check_ke_flattening,
     _check_temperature_max,
-    _final_max_ke,
 )
 from polaris.tasks.ocean.realistic_global.forward import ForwardStage
 from polaris.tasks.ocean.realistic_global.forward.forward import Forward
@@ -596,34 +595,22 @@ def test_missing_required_option(tmp_path):
 # --- validation helpers ---
 
 
-def _dataset(temperature, kinetic_energy):
-    """A minimal (Time, nCells) dataset for the validation helpers."""
-    return xr.Dataset(
-        {
-            'temperature': (('Time', 'nCells'), np.array(temperature)),
-            'kineticEnergyCell': (
-                ('Time', 'nCells'),
-                np.array(kinetic_energy),
-            ),
-        }
-    )
-
-
 def test_check_temperature_max_passes():
-    ds = _dataset([[10.0, 20.0], [15.0, 30.0]], [[1.0, 2.0], [1.0, 2.0]])
-    # the final-time max (30) is below the threshold, so no exception
-    _check_temperature_max(ds, 33.0, 'simulation', LOGGER)
+    _check_temperature_max(30.0, 33.0, 'simulation', LOGGER)
 
 
 def test_check_temperature_max_raises():
-    ds = _dataset([[10.0, 20.0], [15.0, 40.0]], [[1.0, 2.0], [1.0, 2.0]])
     with pytest.raises(ValueError, match='exceeds'):
-        _check_temperature_max(ds, 33.0, 'simulation', LOGGER)
+        _check_temperature_max(40.0, 33.0, 'simulation', LOGGER)
 
 
-def test_final_max_ke_uses_last_time():
-    ds = _dataset([[10.0, 10.0], [10.0, 10.0]], [[1.0, 2.0], [3.0, 7.0]])
-    assert _final_max_ke(ds) == pytest.approx(7.0)
+def test_check_temperature_max_skipped_when_not_reported():
+    # a model that reports no temperature has nothing to check
+    _check_temperature_max(None, 33.0, 'simulation', LOGGER)
+
+
+def test_ke_flattening_skipped_when_not_reported():
+    _check_ke_flattening(['a', 'b', 'c'], [1.0, None, 3.0], 3, 0.01, LOGGER)
 
 
 def test_ke_flattening_passes():
