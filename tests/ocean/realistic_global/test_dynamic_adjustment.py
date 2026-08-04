@@ -1,17 +1,21 @@
 import logging
 import textwrap
-from configparser import ConfigParser
 
 import numpy as np
 import pytest
 import xarray as xr
 
+from polaris.config import PolarisConfigParser
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
     SECTION,
     load_schedule_stages,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.task import (
+    CONFIG_FILENAME,
+    CONFIG_PACKAGE,
+    FORWARD_CONFIG_FILENAME,
+    FORWARD_CONFIG_PACKAGE,
     RealisticGlobalDynamicAdjustment,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
@@ -19,17 +23,33 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
     _check_temperature_max,
     _final_max_ke,
 )
+from polaris.tasks.ocean.realistic_global.mesh_configs import (
+    add_realistic_global_mesh_config,
+)
 
 LOGGER = logging.getLogger('test_dynamic_adjustment')
 
 
-def _config_for_schedule(tmp_path, text):
-    """A config whose schedule override points at a written YAML file."""
+def _config(mesh_name='icos240km'):
+    """
+    A config built the way RealisticGlobalDynamicAdjustment builds it, without
+    the cost of constructing the whole task and its init steps.
+    """
+    config = PolarisConfigParser()
+    config.add_from_package(FORWARD_CONFIG_PACKAGE, FORWARD_CONFIG_FILENAME)
+    config.add_from_package(CONFIG_PACKAGE, CONFIG_FILENAME)
+    add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
+    return config
+
+
+def _config_for_schedule(tmp_path, text, mesh_name='icos240km'):
+    """A task config whose schedule override points at a written YAML file."""
     schedule = tmp_path / 'schedule.yaml'
     schedule.write_text(textwrap.dedent(text))
-    config = ConfigParser()
-    config.add_section(SECTION)
-    config.set(SECTION, 'schedule', str(schedule))
+    override = tmp_path / 'override.cfg'
+    override.write_text(f'[{SECTION}]\nschedule = {schedule}\n')
+    config = _config(mesh_name)
+    config.add_from_file(str(override))
     return config
 
 
@@ -81,12 +101,12 @@ def test_task_config_damping_is_off_by_default():
 
 def test_default_schedule_used_when_no_mesh_file():
     # qu240km has no per-mesh file, so it falls back to default.yaml
-    stages = load_schedule_stages('qu240km')
+    stages = load_schedule_stages('qu240km', _config('qu240km'))
     assert [s.name for s in stages] == ['damped_adjustment_1', 'simulation']
 
 
 def test_default_schedule_chaining():
-    stages = load_schedule_stages('icos240km')
+    stages = load_schedule_stages('icos240km', _config('icos240km'))
     first, last = stages
     assert first.do_restart is False
     assert first.restart_in is None
@@ -99,7 +119,7 @@ def test_default_schedule_chaining():
 
 
 def test_shared_defaults_merged_and_damping_optional():
-    stages = load_schedule_stages('u.oi30.lr10')
+    stages = load_schedule_stages('u.oi30.lr10', _config('u.oi30.lr10'))
     # the shared block is applied to every stage
     assert all(s.mpaso_time_integrator == 'split_explicit_ab2' for s in stages)
     assert all(s.output_interval == '10_00:00:00' for s in stages)
@@ -110,14 +130,30 @@ def test_shared_defaults_merged_and_damping_optional():
 
 
 def test_per_mesh_schedule_counts():
-    assert len(load_schedule_stages('u.oi30.lr10')) == 4
-    assert len(load_schedule_stages('u.oi.so12to30.lr10')) == 5
-    assert len(load_schedule_stages('u.oi6to18.lr6to10')) == 8
+    assert (
+        len(load_schedule_stages('u.oi30.lr10', _config('u.oi30.lr10'))) == 4
+    )
+    assert (
+        len(
+            load_schedule_stages(
+                'u.oi.so12to30.lr10', _config('u.oi.so12to30.lr10')
+            )
+        )
+        == 5
+    )
+    assert (
+        len(
+            load_schedule_stages(
+                'u.oi6to18.lr6to10', _config('u.oi6to18.lr6to10')
+            )
+        )
+        == 8
+    )
 
 
 def test_restart_chain_is_consistent():
     for mesh in ('u.oi30.lr10', 'u.oi.so12to30.lr10', 'u.oi6to18.lr6to10'):
-        stages = load_schedule_stages(mesh)
+        stages = load_schedule_stages(mesh, _config(mesh))
         assert stages[0].do_restart is False
         for previous, current in zip(stages[:-1], stages[1:], strict=False):
             assert current.do_restart is True
