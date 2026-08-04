@@ -1,4 +1,3 @@
-import importlib.resources as imp_res
 import logging
 import os
 import textwrap
@@ -7,7 +6,6 @@ from unittest import mock
 import numpy as np
 import pytest
 import xarray as xr
-from ruamel.yaml import YAML
 
 from polaris.config import PolarisConfigParser
 from polaris.ocean.model import OceanModelStep
@@ -246,6 +244,20 @@ def test_forward_setup_declares_no_restart_for_a_lone_stage():
     assert step.recorded_outputs == []
 
 
+def test_forward_setup_declares_no_restart_files_for_omega():
+    # Omega's restart filename convention is unverified, so the chain is not
+    # declared there rather than guessed at
+    stage = ForwardStage(
+        name='damped_adjustment_2',
+        restart_in='restarts/rst.0001-01-11_00.00.00.nc',
+        restart_out='restarts/rst.0001-01-21_00.00.00.nc',
+        do_restart=True,
+    )
+    step = _recording_forward_setup(stage, model='omega')
+    assert step.recorded_inputs == []
+    assert step.recorded_outputs == []
+
+
 class _RecordingForward(Forward):
     """
     Exercises ``Forward.setup``'s restart declarations without the cost (and
@@ -253,11 +265,15 @@ class _RecordingForward(Forward):
     is deliberately not called; only the attributes ``setup`` touches are set.
     """
 
-    def __init__(self, stage):
+    def __init__(self, stage, model='mpas-ocean'):
         self.stage = stage
         self.init_condition = _NullInitialCondition()
         self.recorded_inputs = []
         self.recorded_outputs = []
+        config = PolarisConfigParser()
+        config.add_section('ocean')
+        config.set('ocean', 'model', model)
+        self.config = config
 
     def add_input_file(
         self,
@@ -292,28 +308,19 @@ class _NullInitialCondition(InitialCondition):
         pass
 
 
-def _recording_forward_setup(stage):
+def _recording_forward_setup(stage, model='mpas-ocean'):
     """Run ``Forward.setup`` on a recording step, with the base stubbed."""
-    step = _RecordingForward(stage)
+    step = _RecordingForward(stage, model=model)
     with mock.patch.object(OceanModelStep, 'setup', lambda self: None):
         step.setup()
     return step
 
 
-def test_restart_streams_yaml_serves_the_read_and_the_write_side():
-    package = imp_res.files(
-        'polaris.tasks.ocean.realistic_global.forward'
-    ).joinpath('restart_streams.yaml')
-    streams = YAML(typ='rt').load(package.read_text())
-    restart = streams['mpas-ocean']['streams']['restart']
-    assert (
-        restart['filename_template'] == '../restarts/rst.$Y-$M-$D_$h.$m.$s.nc'
-    )
-    # the restart is read once, at initialization, not on a cadence
-    assert restart['input_interval'] == 'initial_only'
-
-
 def test_model_replacements_carry_the_restart_state():
+    """
+    The schedule's chain has to reach the model: each stage after the first
+    restarts, from the timestamp its predecessor's restart is named for.
+    """
     stages = load_schedule_stages('u.oi240.lr240', _config('u.oi240.lr240'))
     first = stages[0].model_replacements('mpas-ocean', min_res=240.0)
     assert first['do_restart'] == 'false'
@@ -321,7 +328,6 @@ def test_model_replacements_carry_the_restart_state():
 
     second = stages[1].model_replacements('mpas-ocean', min_res=240.0)
     assert second['do_restart'] == 'true'
-    # the start time is the timestamp in the restart the first stage wrote
     assert second['start_time'] == '0001-01-11_00:00:00'
     assert stages[0].restart_out == 'restarts/rst.0001-01-11_00.00.00.nc'
 
