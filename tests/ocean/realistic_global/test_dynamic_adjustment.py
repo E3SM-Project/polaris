@@ -54,7 +54,7 @@ def test_default_schedule_chaining():
 def test_shared_defaults_merged_and_damping_optional():
     stages = load_schedule_stages('u.oi30.lr10')
     # the shared block is applied to every stage
-    assert all(s.time_integrator == 'split_explicit_ab2' for s in stages)
+    assert all(s.mpaso_time_integrator == 'split_explicit_ab2' for s in stages)
     assert all(s.output_interval == '10_00:00:00' for s in stages)
     # damping is set on the damped stages and None on the final simulation
     assert stages[0].damping == pytest.approx(1.0e-4)
