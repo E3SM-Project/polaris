@@ -1,5 +1,8 @@
-# Default dynamic-adjustment schedule for coarse (~240 km) global meshes such
-# as the icos240km and qu240km base meshes and the u.oi240.lr240 unified mesh.
+# Default dynamic-adjustment schedule, used by any mesh without a schedule of
+# its own -- in practice the coarse (~240 km) icos240km and qu240km base meshes.
+# It is deliberately short: two stages, so it is a quick check that a mesh runs
+# at all rather than an adjustment worth keeping.  The unified meshes, including
+# u.oi240.lr240, all have schedules of their own.
 # Ported from Compass' qu240 schedule.  Every key names a ForwardStage field and
 # overrides the [realistic_global_forward] config option of the same name; the
 # shared block supplies per-stage defaults.

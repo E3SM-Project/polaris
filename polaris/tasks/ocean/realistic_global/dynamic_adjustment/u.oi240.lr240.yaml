@@ -1,0 +1,41 @@
+# Dynamic-adjustment schedule for the u.oi240.lr240 unified mesh (~240 km).
+#
+# This is the cheapest mesh with a realistic initial condition, so it is the one
+# the workflow is exercised on first.  It follows the same damping ramp as the
+# finer meshes rather than default.yaml's two stages, so that the validate step's
+# kinetic-energy flattening check -- which needs ke_check_num_stages (3) stages
+# -- actually runs here.
+#
+# The time steps are what dt_per_km = 30.0 and btr_dt_per_km = 1.5 give at 240 km
+# and match default.yaml.  Ten-day stages are 120 baroclinic steps each; on a
+# ~50k-cell ocean mesh the whole chain is still minutes of model time.
+#
+# Every key names a ForwardStage field and overrides the
+# [realistic_global_forward] config option of the same name; the shared block
+# supplies per-stage defaults.
+dynamic_adjustment:
+  shared:
+    output_interval: 10_00:00:00
+    restart_interval: 10_00:00:00
+    start_time: 0001-01-01_00:00:00
+  stages:
+    damped_adjustment_1:
+      run_duration: 10_00:00:00
+      dt: 02:00:00
+      btr_dt: 00:06:00
+      damping: 1.0e-4
+    damped_adjustment_2:
+      run_duration: 10_00:00:00
+      dt: 02:00:00
+      btr_dt: 00:06:00
+      damping: 1.0e-5
+    damped_adjustment_3:
+      run_duration: 10_00:00:00
+      dt: 02:00:00
+      btr_dt: 00:06:00
+      damping: 1.0e-6
+    simulation:
+      run_duration: 10_00:00:00
+      dt: 02:00:00
+      btr_dt: 00:06:00
+      # damping omitted => the config default, which is no Rayleigh damping
