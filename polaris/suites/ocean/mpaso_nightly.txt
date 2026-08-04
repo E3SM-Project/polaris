@@ -8,9 +8,10 @@ ocean/planar/merry_go_round/convergence_both_order3
 ocean/planar/merry_go_round/convergence_both_order4
 ocean/planar/inertial_gravity_wave/convergence_both
 # ocean/planar/manufactured_solution
-ocean/single_column/ekman
-ocean/single_column/cvmix
-ocean/single_column/ideal_age
-ocean/single_column/inertial
+ocean/column/ekman
+ocean/column/vmix_stable
+ocean/column/vmix_unstable
+ocean/column/ideal_age
+ocean/column/inertial
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart

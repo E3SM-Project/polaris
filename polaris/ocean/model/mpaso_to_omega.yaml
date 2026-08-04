@@ -97,6 +97,8 @@ variables:
   zInterface: GeomZInterface
   pressure: PressureMid
 
+  # eos
+  BruntVaisalaFreqTop: BruntVaisalaFreqSq
 
 config:
 - section:
@@ -202,6 +204,21 @@ config:
     config_disable_vel_pgrad: not PressureGradTendencyEnable
 
 - section:
+    tracer_forcing_activeTracers: SurfaceRestoring
+  options:
+    config_salinity_restoring_constant_piston_velocity: PistonVelocity
+
+- section:
+    tracer_forcing_activeTracers: Tendencies
+  options:
+    config_use_activeTracers_surface_restoring: SurfaceTracerRestoringEnable
+
+- section:
+    bottom_drag: Tendencies
+  options:
+    config_explicit_bottom_drag_coeff: BottomDragCoeff
+
+- section:
     debug: Tendencies
   options:
     config_disable_vel_vmix: not VelVertMixTendencyEnable
@@ -254,3 +271,4 @@ config:
     config_cvmix_shear_KPP_nu_zero: BaseShearValue
     config_cvmix_shear_KPP_Ri_zero: RiCrit
     config_cvmix_shear_KPP_exp: Exponent
+    config_cvmix_num_ri_smooth_loops: RiSmoothLoops

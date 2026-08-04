@@ -1,13 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray as xr
 
-from polaris import Step
-from polaris.ocean.model import get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_days_since_start
 from polaris.viz import use_mplstyle
 
 
-class Analysis(Step):
+class Analysis(OceanIOStep):
     """
     The analysis step plots a time series showing inertial oscillations
     computes the oscillation frequency, and compares it to the theoretical
@@ -36,6 +34,16 @@ class Analysis(Step):
             filename='output.nc', target='../forward/output.nc'
         )
 
+    # def setup(self):
+    #    model = self.config.get('ocean', 'model')
+    #    # TODO: remove as soon as Omega no longer needs this file
+    #    if model == 'omega':
+    #        self.add_input_file(
+    #            target='coeffs.nc',
+    #            filename='coeffs.nc',
+    #            database='single_column',
+    #        )
+
     def run(self):
         """
         Run this step of the test case
@@ -49,15 +57,23 @@ class Analysis(Step):
             'single_column_inertial', 'period_tolerance_fraction'
         )
 
-        ds = xr.load_dataset('output.nc')
+        ds = self.open_model_dataset(
+            'output.nc',
+            config=config,
+            decode_times=True,
+            mesh_filename='../init/culled_mesh.nc',
+            reconstruct_variables=['normalVelocity'],
+            reconstruct_method='RBF',
+            coeffs_filename='../forward/coeffs.nc',
+        )
         t = get_days_since_start(ds)
         s_per_day = 24.0 * 3600.0
         dt = (t[1] - t[0]) * s_per_day
-        t_index = np.argmin(np.abs(t - 1.0))  # ds.sizes['Time'] - 1
         u = ds['velocityZonal'].mean(dim='nCells')
         v = ds['velocityMeridional'].mean(dim='nCells')
-        u_max = np.max(u.values, axis=1)
-        v_max = np.max(v.values, axis=1)
+        u = ds['velocityZonal'].mean(dim='nCells')
+        u_max = u.max(dim='nVertLevels')
+        v_max = v.max(dim='nVertLevels')
 
         # Compute the FFT of the u-component and extract the frequency with
         # the most power
@@ -68,24 +84,27 @@ class Analysis(Step):
         expected_period = (2 * np.pi / f) / 3600.0  # in hours
 
         # Plot a time series of the maximum u and v components
-        plt.figure(figsize=(3, 5))
+        plt.figure(figsize=(8, 5))
         ax = plt.subplot(111)
-        ax.plot(t[:t_index], u_max[:t_index], '-k')
-        ax.plot(t[:t_index], v_max[:t_index], '-b')
+        ax.plot(t, u_max, '-b')
+        ax.plot(t, v_max, '--b')
         ymin, ymax = ax.get_ylim()
         ax.plot(
             [expected_period / 24.0, expected_period / 24.0],
             [ymin, ymax],
             '--g',
+            label='expected period',
         )
         ax.plot(
             [dominant_period / 24.0, dominant_period / 24.0],
             [ymin, ymax],
             '--k',
+            label='dominant period',
         )
         ax.set_xlabel('Time (days)')
         ax.set_ylabel('Maximum velocity (m/s)')
         ax.set_ylim([ymin, ymax])
+        plt.legend()
         plt.tight_layout(pad=0.5)
         plt.savefig('velocity_tseries.png')
         plt.close()
