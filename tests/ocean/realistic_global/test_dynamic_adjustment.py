@@ -10,6 +10,10 @@ import xarray as xr
 from polaris.config import PolarisConfigParser
 from polaris.ocean.model import OceanModelStep
 from polaris.tasks.ocean import Ocean
+from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
+    STATS_FILENAMES,
+    column_names,
+)
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
     SECTION,
     load_schedule_stages,
@@ -22,6 +26,7 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.task import (
     RealisticGlobalDynamicAdjustment,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
+    SUMMARY_FILENAME,
     Validate,
     _check_ke_flattening,
     _check_temperature_max,
@@ -664,7 +669,9 @@ def _write_stage_output(
             names['kinetic_energy']: (dims, np.array(kinetic_energy)),
         }
     )
-    ds.to_netcdf(directory / f'output_{stage_name}.nc')
+    work_dir = directory / 'validate'
+    work_dir.mkdir(parents=True, exist_ok=True)
+    ds.to_netcdf(work_dir / f'output_{stage_name}.nc')
 
 
 def _validate_step(tmp_path, model, stages, temperature, kinetic_energy):
@@ -716,7 +723,7 @@ def test_validate_passes_a_settling_sequence(tmp_path, monkeypatch, model):
             [[1.0, 4.0]],
         ],
     )
-    monkeypatch.chdir(tmp_path)
+    monkeypatch.chdir(tmp_path / 'validate')
     step.run()
 
 
@@ -732,7 +739,7 @@ def test_validate_catches_a_blow_up_for_either_model(
         temperature=[[[10.0, 20.0]], [[10.0, 99.0]]],
         kinetic_energy=[[[1.0, 2.0]], [[1.0, 2.0]]],
     )
-    monkeypatch.chdir(tmp_path)
+    monkeypatch.chdir(tmp_path / 'validate')
     with pytest.raises(ValueError, match='exceeds'):
         step.run()
 
@@ -752,6 +759,199 @@ def test_validate_catches_growing_kinetic_energy(tmp_path, monkeypatch, model):
             [[1.0, 9.0]],
         ],
     )
-    monkeypatch.chdir(tmp_path)
+    monkeypatch.chdir(tmp_path / 'validate')
     with pytest.raises(ValueError, match='not settling'):
+        step.run()
+
+
+# --- per-stage diagnostics ---
+
+
+def _write_stage_stats(directory, stage_name, model, **series):
+    """
+    Write one stage's global-statistics file with the variable names the given
+    model would have used.
+    """
+    if model == 'omega':
+        names = {
+            'kineticEnergyCellMax': None,  # Omega reports no kinetic energy
+            'kineticEnergyCellAvg': None,
+            'kineticEnergyCellSum': None,
+            'volumeCellGlobal': None,
+            'CFLNumberGlobal': None,
+            'temperatureMax': 'Temperature_SpatialMax_TimeMean1Day',
+            'temperatureMin': 'Temperature_SpatialMin_TimeMean1Day',
+            'temperatureAvg': 'Temperature_SpatialMean_TimeMean1Day',
+            'salinityMax': 'Salinity_SpatialMax_TimeMean1Day',
+            'salinityMin': 'Salinity_SpatialMin_TimeMean1Day',
+            'salinityAvg': 'Salinity_SpatialMean_TimeMean1Day',
+            'layerThicknessMin': 'PseudoThickness_SpatialMin_TimeMean1Day',
+            'normalVelocityMax': 'NormalVelocity_SpatialMax_TimeMean1Day',
+        }
+        time_dim = 'time'
+    else:
+        names = {key: key for key in series}
+        time_dim = 'Time'
+
+    data = {}
+    for key, values in series.items():
+        native = names.get(key, key)
+        if native is None:
+            continue
+        data[native] = ((time_dim,), np.array(values, dtype=float))
+    stats_dir = directory / stage_name
+    stats_dir.mkdir(parents=True, exist_ok=True)
+    filename = STATS_FILENAMES[model]
+    xr.Dataset(data).to_netcdf(stats_dir / filename)
+
+
+def _stats_series(ke_end, temperature_mean):
+    """A plausible falling-kinetic-energy stage."""
+    return dict(
+        kineticEnergyCellMax=[ke_end * 1.4, ke_end * 1.2, ke_end],
+        kineticEnergyCellAvg=[ke_end * 0.02, ke_end * 0.015, ke_end * 0.01],
+        kineticEnergyCellSum=[
+            ke_end * 2.0e18,
+            ke_end * 1.6e18,
+            ke_end * 1.3e18,
+        ],
+        volumeCellGlobal=[1.3e18] * 3,
+        CFLNumberGlobal=[0.4, 0.35, 0.3],
+        temperatureMax=[28.0, 29.0, 30.0],
+        temperatureMin=[-1.9, -1.9, -1.9],
+        temperatureAvg=[
+            temperature_mean,
+            temperature_mean - 0.005,
+            temperature_mean - 0.01,
+        ],
+        salinityMax=[40.0, 40.0, 40.0],
+        salinityMin=[3.0, 3.0, 3.0],
+        salinityAvg=[34.7, 34.7, 34.7],
+        layerThicknessMin=[1.5, 1.5, 1.5],
+        normalVelocityMax=[2.0, 1.6, 1.2],
+    )
+
+
+def _run_with_stats(tmp_path, monkeypatch, model, stages, ke_end):
+    """Run a Validate step that has both stats files and output.nc."""
+    step = _validate_step(
+        tmp_path,
+        model,
+        stages,
+        temperature=[[[10.0, 20.0]]] * len(stages),
+        kinetic_energy=[[[1.0, value]] for value in ke_end],
+    )
+    for index, stage_name in enumerate(stages):
+        _write_stage_stats(
+            tmp_path,
+            stage_name,
+            model,
+            **_stats_series(ke_end[index], 3.5 - 0.01 * index),
+        )
+    monkeypatch.chdir(tmp_path / 'validate')
+    step.run()
+    return step
+
+
+def test_diagnostics_summary_is_written(tmp_path, monkeypatch):
+    stages = ['damped_1', 'damped_2', 'damped_3', 'simulation']
+    _run_with_stats(
+        tmp_path, monkeypatch, 'mpas-ocean', stages, [10.0, 5.0, 4.2, 4.1]
+    )
+    lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
+    assert len(lines) == len(stages) + 1
+
+    header = lines[0].split(',')
+    assert header[0] == 'stage'
+    assert header[1] == 'kinetic_energy_max [m^2/s^2]'
+    rows = {line.split(',')[0]: line.split(',')[1:] for line in lines[1:]}
+    assert list(rows) == stages
+    # the end-of-stage kinetic energy, from global statistics rather than the
+    # end-of-stage field in output.nc
+    assert float(rows['damped_2'][0]) == pytest.approx(5.0)
+
+
+def test_diagnostics_prefer_global_statistics(tmp_path, monkeypatch):
+    # output.nc says the max temperature is 20; the statistics say it reached
+    # 30 partway through the stage, and the statistics are what is recorded
+    stages = ['damped_1', 'simulation']
+    _run_with_stats(tmp_path, monkeypatch, 'mpas-ocean', stages, [5.0, 4.0])
+    columns = column_names()
+    lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
+    values = dict(zip(columns, lines[1].split(',')[1:], strict=False))
+    assert float(values['temperature_max_in_stage']) == pytest.approx(30.0)
+    assert float(values['kinetic_energy_max_in_stage']) == pytest.approx(7.0)
+
+
+def test_diagnostics_record_the_tracer_drift(tmp_path, monkeypatch):
+    # temperatureAvg falls by 0.01 degC over a 10-day stage
+    stages = ['damped_1', 'simulation']
+    _run_with_stats(tmp_path, monkeypatch, 'mpas-ocean', stages, [5.0, 4.0])
+    columns = column_names()
+    lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
+    values = dict(zip(columns, lines[1].split(',')[1:], strict=False))
+    assert float(values['temperature_drift_per_day']) == pytest.approx(-0.001)
+
+
+def test_diagnostics_leave_unreported_metrics_blank(tmp_path, monkeypatch):
+    # Omega reports no kinetic energy, CFL number or volume-weighted sums; the
+    # volume-weighted means are left blank rather than replaced with unweighted
+    # ones computed from output.nc
+    stages = ['damped_1', 'simulation']
+    _run_with_stats(tmp_path, monkeypatch, 'omega', stages, [5.0, 4.0])
+    columns = column_names()
+    lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
+    values = dict(zip(columns, lines[1].split(',')[1:], strict=False))
+    assert values['kinetic_energy_mean'] == ''
+    assert values['kinetic_energy_total'] == ''
+    assert values['cfl_max_in_stage'] == ''
+    # but the max is computed from output.nc, since a max is a max either way
+    assert float(values['kinetic_energy_max']) == pytest.approx(5.0)
+    # and what Omega does report still comes from the statistics
+    assert float(values['temperature_max_in_stage']) == pytest.approx(30.0)
+
+
+def test_diagnostics_fall_back_when_there_are_no_statistics(
+    tmp_path, monkeypatch
+):
+    # no stats file at all: the step still runs, on output.nc alone
+    stages = ['damped_1', 'simulation']
+    step = _validate_step(
+        tmp_path,
+        'mpas-ocean',
+        stages,
+        temperature=[[[10.0, 20.0]]] * 2,
+        kinetic_energy=[[[1.0, 5.0]], [[1.0, 4.0]]],
+    )
+    monkeypatch.chdir(tmp_path / 'validate')
+    step.run()
+    columns = column_names()
+    lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
+    values = dict(zip(columns, lines[1].split(',')[1:], strict=False))
+    assert float(values['kinetic_energy_max']) == pytest.approx(5.0)
+    assert float(values['temperature_max_in_stage']) == pytest.approx(20.0)
+    assert values['kinetic_energy_total'] == ''
+    assert values['temperature_drift_per_day'] == ''
+
+
+def test_blow_up_is_caught_mid_stage_from_the_statistics(
+    tmp_path, monkeypatch
+):
+    # output.nc ends at a calm 20 degC, but the run passed through 99 degC
+    # partway through the stage; the end-of-stage field alone would miss it
+    stages = ['damped_1', 'simulation']
+    step = _validate_step(
+        tmp_path,
+        'mpas-ocean',
+        stages,
+        temperature=[[[10.0, 20.0]]] * 2,
+        kinetic_energy=[[[1.0, 5.0]], [[1.0, 4.0]]],
+    )
+    for index, stage_name in enumerate(stages):
+        series = _stats_series([5.0, 4.0][index], 3.5)
+        if stage_name == 'damped_1':
+            series['temperatureMax'] = [28.0, 99.0, 30.0]
+        _write_stage_stats(tmp_path, stage_name, 'mpas-ocean', **series)
+    monkeypatch.chdir(tmp_path / 'validate')
+    with pytest.raises(ValueError, match='exceeds'):
         step.run()
