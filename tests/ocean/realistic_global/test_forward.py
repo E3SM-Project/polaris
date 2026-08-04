@@ -184,7 +184,11 @@ def test_model_replacements_requires_a_time_step():
 
 
 def test_bottom_drag_options():
-    assert ForwardStage().bottom_drag_options() == {}
+    # an undamped stage states a zero coefficient rather than leaving the
+    # Registry default of 1.0e-4, which reads as though the run were damped
+    assert ForwardStage().bottom_drag_options() == {
+        'config_Rayleigh_damping_coeff': 0.0,
+    }
     options = ForwardStage(damping=1.0e-4).bottom_drag_options()
     assert options == {
         'config_implicit_bottom_drag_type': 'constant_and_rayleigh',
