@@ -99,8 +99,8 @@ Omega:
   Analysis:
     GlobalStats:
       Enable: true
-      ReductionPeriod: ["1Day"]
-      SnapshotPeriod: []
+      ReductionPeriod: []
+      SnapshotPeriod: ["1Day"]
       Filename: global_stats
   IOStreams:
     InitialVertCoord:
