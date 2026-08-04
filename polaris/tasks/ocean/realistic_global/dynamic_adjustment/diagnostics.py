@@ -27,7 +27,10 @@ import os
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
+import numpy as np
+
 from polaris.mpas.time import duration_to_seconds
+from polaris.ocean.model.time import get_days_since_start
 from polaris.tasks.ocean.realistic_global.forward.stage import ForwardStage
 
 # The global-statistics filename each model writes, as configured by
@@ -453,3 +456,47 @@ def stage_stats_path(stage_name: str, model: str) -> Optional[str]:
     """
     filename = stats_filename_for_model(model)
     return None if filename is None else f'../{stage_name}/{filename}'
+
+
+def extreme_and_day(
+    ds: Any, variable: str, reduction: str
+) -> Tuple[Optional[float], Optional[float]]:
+    """
+    The extreme of a statistic over a stage and the day it occurred.
+
+    The day is what distinguishes a problem the stage created from one it
+    inherited: an extreme at day zero is the initial condition, before the
+    model has taken a step.  Measured from the start of the stage, so it does
+    not depend on how the model counts across a restart.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The stage's global statistics.
+
+    variable : str
+        The statistic to reduce, in MPAS-Ocean naming.
+
+    reduction : {'max', 'min'}
+        Which extreme to take.
+
+    Returns
+    -------
+    tuple
+        The extreme and the day it occurred, or ``(None, None)`` when the
+        statistic is not in the dataset.
+    """
+    if variable not in ds:
+        return None, None
+    series = ds[variable]
+    # np.arg* rather than the DataArray methods, whose no-argument behaviour
+    # is changing to return a dict of per-dimension indices
+    values = np.asarray(series.values)
+    index = int(np.argmax(values) if reduction == 'max' else np.argmin(values))
+    value = float(series.isel(Time=index))
+    try:
+        days = np.asarray(get_days_since_start(ds), dtype=float)
+        when = float(days[index] - days[0])
+    except (ValueError, IndexError):
+        when = None
+    return value, when
