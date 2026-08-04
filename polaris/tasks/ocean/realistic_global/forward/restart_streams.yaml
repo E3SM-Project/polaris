@@ -4,8 +4,15 @@
 # so the next stage can read it via config_do_restart / config_start_time.
 # Only the restart stream is touched here; the output_interval already set in
 # forward.yaml is preserved by Polaris' per-stream merge.
+#
+# MPAS-Ocean's restart stream is both an input and an output stream, so this one
+# filename_template serves the read and the write side.  A restarting stage sets
+# config_start_time to the timestamp its predecessor wrote, and the template
+# resolves to that file; input_interval is stated rather than left to the
+# Registry default so that the file is read once, at initialization.
 mpas-ocean:
     streams:
         restart:
             filename_template: ../restarts/rst.$Y-$M-$D_$h.$m.$s.nc
             filename_interval: output_interval
+            input_interval: initial_only
