@@ -2,7 +2,6 @@
 # Ported from Compass' ec30to60 schedule.
 dynamic_adjustment:
   shared:
-    mpaso_time_integrator: split_explicit_ab2
     output_interval: 10_00:00:00
     restart_interval: 10_00:00:00
     start_time: 0001-01-01_00:00:00
