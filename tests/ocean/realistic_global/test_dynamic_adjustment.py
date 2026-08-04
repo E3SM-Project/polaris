@@ -22,6 +22,7 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.task import (
     RealisticGlobalDynamicAdjustment,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
+    Validate,
     _check_ke_flattening,
     _check_temperature_max,
     _final_max_ke,
@@ -650,3 +651,122 @@ def test_ke_flattening_raises_on_increase():
 def test_ke_flattening_skipped_when_too_few_stages():
     # fewer than ke_num stages: the check is skipped even if KE increases
     _check_ke_flattening(['a', 'b'], [1.0, 100.0], 3, 0.01, LOGGER)
+
+
+# --- the validate step, for both models ---
+
+
+def _write_stage_output(
+    directory, stage_name, temperature, kinetic_energy, model
+):
+    """
+    Write one stage's ``output.nc`` with the variable and dimension names the
+    given model would have used.
+    """
+    if model == 'omega':
+        names = dict(
+            temperature='Temperature',
+            kinetic_energy='KineticEnergyCell',
+            dims=('time', 'NCells'),
+        )
+    else:
+        names = dict(
+            temperature='temperature',
+            kinetic_energy='kineticEnergyCell',
+            dims=('Time', 'nCells'),
+        )
+    dims = names['dims']
+    ds = xr.Dataset(
+        {
+            names['temperature']: (dims, np.array(temperature)),
+            names['kinetic_energy']: (dims, np.array(kinetic_energy)),
+        }
+    )
+    ds.to_netcdf(directory / f'output_{stage_name}.nc')
+
+
+def _validate_step(tmp_path, model, stages, temperature, kinetic_energy):
+    """A Validate step with its stage outputs written, ready to run."""
+    component = Ocean()
+    component.model = model
+    if model == 'omega':
+        # normally done by Ocean.configure(); the maps are what let the
+        # checks read an Omega output.nc with MPAS-Ocean names
+        component._read_var_map()
+    step = Validate(
+        component=component,
+        stage_names=stages,
+        indir='spherical/realistic_global/u.oi240.lr240/dynamic_adjustment',
+    )
+    config = _config('u.oi240.lr240')
+    override = tmp_path / 'model.cfg'
+    override.write_text(f'[ocean]\nmodel = {model}\n')
+    config.add_from_file(str(override))
+    step.config = config
+    step.logger = LOGGER
+
+    for index, stage_name in enumerate(stages):
+        _write_stage_output(
+            tmp_path,
+            stage_name,
+            temperature[index],
+            kinetic_energy[index],
+            model,
+        )
+    return step
+
+
+@pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
+def test_validate_passes_a_settling_sequence(tmp_path, monkeypatch, model):
+    stages = ['damped_1', 'damped_2', 'damped_3', 'simulation']
+    step = _validate_step(
+        tmp_path,
+        model,
+        stages,
+        temperature=[[[10.0, 20.0]]] * 4,
+        kinetic_energy=[
+            [[1.0, 10.0]],
+            [[1.0, 5.0]],
+            [[1.0, 4.0]],
+            [[1.0, 4.0]],
+        ],
+    )
+    monkeypatch.chdir(tmp_path)
+    step.run()
+
+
+@pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
+def test_validate_catches_a_blow_up_for_either_model(
+    tmp_path, monkeypatch, model
+):
+    stages = ['damped_1', 'simulation']
+    step = _validate_step(
+        tmp_path,
+        model,
+        stages,
+        temperature=[[[10.0, 20.0]], [[10.0, 99.0]]],
+        kinetic_energy=[[[1.0, 2.0]], [[1.0, 2.0]]],
+    )
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(ValueError, match='exceeds'):
+        step.run()
+
+
+@pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
+def test_validate_catches_growing_kinetic_energy(tmp_path, monkeypatch, model):
+    stages = ['damped_1', 'damped_2', 'damped_3', 'simulation']
+    step = _validate_step(
+        tmp_path,
+        model,
+        stages,
+        temperature=[[[10.0, 20.0]]] * 4,
+        kinetic_energy=[
+            [[1.0, 10.0]],
+            [[1.0, 4.0]],
+            [[1.0, 4.0]],
+            [[1.0, 9.0]],
+        ],
+    )
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(ValueError, match='not settling'):
+        step.run()
