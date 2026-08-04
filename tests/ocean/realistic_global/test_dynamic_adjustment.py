@@ -12,6 +12,11 @@ from polaris.config import PolarisConfigParser
 from polaris.mpas.time import duration_to_seconds
 from polaris.ocean.model import OceanModelStep
 from polaris.tasks.ocean import Ocean
+from polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks import (
+    check_cfl_max,
+    check_ke_growth_decelerates,
+    check_temperature_max,
+)
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
     STATS_FILENAMES,
     column_names,
@@ -29,10 +34,8 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.task import (
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
     SUMMARY_FILENAME,
+    StageCheck,
     Validate,
-    _check_cfl_max,
-    _check_ke_growth_decelerates,
-    _check_temperature_max,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz import (
     FIGURE_FILENAME,
@@ -726,21 +729,30 @@ def test_output_interval_longer_than_the_stage_is_allowed(tmp_path):
 
 
 def test_check_temperature_max_passes():
-    _check_temperature_max(30.0, 33.0, 'simulation', LOGGER)
+    check_temperature_max(30.0, 1.0, 33.0, 'simulation', LOGGER)
 
 
 def test_check_temperature_max_raises():
-    with pytest.raises(ValueError, match='exceeds'):
-        _check_temperature_max(40.0, 33.0, 'simulation', LOGGER)
+    with pytest.raises(ValueError, match='above the allowed'):
+        check_temperature_max(40.0, 1.0, 33.0, 'simulation', LOGGER)
+
+
+def test_check_reports_when_the_extreme_happened():
+    # an extreme at day zero is the initial condition, not something the stage
+    # did -- which is the whole point of reporting the time
+    with pytest.raises(ValueError, match='before any time step'):
+        check_temperature_max(40.0, 0.0, 33.0, 'damped_adjustment_1', LOGGER)
+    with pytest.raises(ValueError, match='3 days into the stage'):
+        check_temperature_max(40.0, 3.0, 33.0, 'damped_adjustment_1', LOGGER)
 
 
 def test_check_temperature_max_skipped_when_not_reported():
     # a model that reports no temperature has nothing to check
-    _check_temperature_max(None, 33.0, 'simulation', LOGGER)
+    check_temperature_max(None, 1.0, 33.0, 'simulation', LOGGER)
 
 
 def test_ke_growth_skipped_when_not_reported():
-    _check_ke_growth_decelerates(
+    check_ke_growth_decelerates(
         ['a', 'b', 'c'], [1.0, None, 3.0], 3, 0.01, LOGGER
     )
 
@@ -750,21 +762,21 @@ def test_ke_growth_decelerating_passes():
     # the circulation up from rest, but each stage adds proportionally less
     names = ['damped_1', 'damped_2', 'damped_3', 'simulation']
     mean_ke = [3.336e-5, 1.562e-4, 5.773e-4, 1.189e-3]
-    _check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
+    check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
 
 
 def test_ke_growth_that_rises_but_decelerates_is_not_a_failure():
     # the old check compared the levels and would have failed this
     names = ['a', 'b', 'c', 'd']
     mean_ke = [1.0, 4.0, 8.0, 12.0]
-    _check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
+    check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
 
 
 def test_ke_growth_within_tolerance_passes():
     names = ['a', 'b', 'c']
     # fractional changes of 100% then 101%, inside the 1% tolerance
     mean_ke = [1.0, 2.0, 4.02]
-    _check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
+    check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
 
 
 def test_ke_growth_accelerating_raises():
@@ -772,33 +784,33 @@ def test_ke_growth_accelerating_raises():
     # fractional changes of 100%, 100%, then 300%: running away
     mean_ke = [1.0, 2.0, 4.0, 16.0]
     with pytest.raises(ValueError, match='not settling'):
-        _check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
+        check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
 
 
 def test_ke_decaying_towards_a_plateau_passes():
     # converging from above: the ratios rise towards one, but the size of the
     # change shrinks, which is what settling means
     names = ['a', 'b', 'c', 'd']
-    _check_ke_growth_decelerates(names, [10.0, 5.0, 4.2, 4.1], 3, 0.01, LOGGER)
+    check_ke_growth_decelerates(names, [10.0, 5.0, 4.2, 4.1], 3, 0.01, LOGGER)
 
 
 def test_ke_growth_skipped_when_too_few_stages():
     # two stages give one growth ratio, which is not a trend
-    _check_ke_growth_decelerates(['a', 'b'], [1.0, 100.0], 3, 0.01, LOGGER)
+    check_ke_growth_decelerates(['a', 'b'], [1.0, 100.0], 3, 0.01, LOGGER)
 
 
 def test_cfl_max_passes():
-    _check_cfl_max(0.053, 0.2, 'damped_adjustment_2', LOGGER)
+    check_cfl_max(0.053, 1.0, 0.2, 'damped_adjustment_2', LOGGER)
 
 
 def test_cfl_max_raises():
     with pytest.raises(ValueError, match='CFL number reached'):
-        _check_cfl_max(0.35, 0.2, 'damped_adjustment_2', LOGGER)
+        check_cfl_max(0.35, 1.0, 0.2, 'damped_adjustment_2', LOGGER)
 
 
 def test_cfl_max_skipped_when_not_reported():
     # Omega's GlobalStats reports no CFL number
-    _check_cfl_max(None, 0.2, 'simulation', LOGGER)
+    check_cfl_max(None, 1.0, 0.2, 'simulation', LOGGER)
 
 
 # --- the validate step, for both models ---
@@ -889,20 +901,76 @@ def test_validate_passes_a_settling_sequence(tmp_path, monkeypatch, model):
 
 
 @pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
-def test_validate_catches_a_blow_up_for_either_model(
+def test_stage_check_catches_a_blow_up_for_either_model(
     tmp_path, monkeypatch, model
 ):
-    stages = ['damped_1', 'simulation']
-    step = _validate_step(
-        tmp_path,
-        model,
-        stages,
-        temperature=[[[10.0, 20.0]], [[10.0, 99.0]]],
-        kinetic_energy=[[[1.0, 2.0]], [[1.0, 2.0]]],
-    )
-    monkeypatch.chdir(tmp_path / 'validate')
-    with pytest.raises(ValueError, match='exceeds'):
+    step = _stage_check(tmp_path, model, 'damped_1')
+    series = _stats_series(5.0, 3.5)
+    series['temperatureMax'] = [28.0, 99.0, 30.0]
+    _write_stage_stats(tmp_path, 'damped_1', model, **series)
+    monkeypatch.chdir(tmp_path / 'checks')
+    with pytest.raises(ValueError, match='above the allowed'):
         step.run()
+
+
+def test_stage_check_says_when_the_initial_condition_is_the_problem(
+    tmp_path, monkeypatch
+):
+    # the u.oi30.lr10 case: the maximum is in the statistics at day zero,
+    # before the model has taken a step
+    step = _stage_check(tmp_path, 'mpas-ocean', 'damped_1')
+    series = _stats_series(5.0, 3.5)
+    series['temperatureMax'] = [99.0, 30.0, 29.0]
+    _write_stage_stats(tmp_path, 'damped_1', 'mpas-ocean', **series)
+    monkeypatch.chdir(tmp_path / 'checks')
+    with pytest.raises(ValueError, match='before any time step'):
+        step.run()
+
+
+def test_stage_check_catches_an_excessive_cfl(tmp_path, monkeypatch):
+    step = _stage_check(tmp_path, 'mpas-ocean', 'damped_1')
+    series = _stats_series(5.0, 3.5)
+    series['CFLNumberGlobal'] = [0.05, 0.42, 0.06]
+    _write_stage_stats(tmp_path, 'damped_1', 'mpas-ocean', **series)
+    monkeypatch.chdir(tmp_path / 'checks')
+    with pytest.raises(ValueError, match='CFL number'):
+        step.run()
+
+
+def test_stage_check_passes_a_healthy_stage(tmp_path, monkeypatch):
+    step = _stage_check(tmp_path, 'mpas-ocean', 'damped_1')
+    _write_stage_stats(
+        tmp_path, 'damped_1', 'mpas-ocean', **_stats_series(5.0, 3.5)
+    )
+    monkeypatch.chdir(tmp_path / 'checks')
+    step.run()
+
+
+def test_stage_check_skips_a_stage_without_statistics(tmp_path, monkeypatch):
+    step = _stage_check(tmp_path, 'mpas-ocean', 'damped_1')
+    monkeypatch.chdir(tmp_path / 'checks')
+    step.run()
+
+
+def _stage_check(tmp_path, model, stage_name):
+    """A StageCheck step in a work directory beside the stage directories."""
+    component = Ocean()
+    component.model = model
+    if model == 'omega':
+        component._read_var_map()
+    step = StageCheck(
+        component=component,
+        stage=ForwardStage(name=stage_name, run_duration='10_00:00:00'),
+        indir='spherical/realistic_global/u.oi240.lr240/dynamic_adjustment',
+    )
+    config = _config('u.oi240.lr240')
+    override = tmp_path / 'check_model.cfg'
+    override.write_text(f'[ocean]\nmodel = {model}\n')
+    config.add_from_file(str(override))
+    step.config = config
+    step.logger = LOGGER
+    (tmp_path / 'checks').mkdir(parents=True, exist_ok=True)
+    return step
 
 
 def test_validate_catches_accelerating_kinetic_energy(tmp_path, monkeypatch):
@@ -1114,23 +1182,14 @@ def test_diagnostics_fall_back_when_there_are_no_statistics(
 def test_blow_up_is_caught_mid_stage_from_the_statistics(
     tmp_path, monkeypatch
 ):
-    # output.nc ends at a calm 20 degC, but the run passed through 99 degC
-    # partway through the stage; the end-of-stage field alone would miss it
-    stages = ['damped_1', 'simulation']
-    step = _validate_step(
-        tmp_path,
-        'mpas-ocean',
-        stages,
-        temperature=[[[10.0, 20.0]]] * 2,
-        kinetic_energy=[[[1.0, 5.0]], [[1.0, 4.0]]],
-    )
-    for index, stage_name in enumerate(stages):
-        series = _stats_series([5.0, 4.0][index], 3.5)
-        if stage_name == 'damped_1':
-            series['temperatureMax'] = [28.0, 99.0, 30.0]
-        _write_stage_stats(tmp_path, stage_name, 'mpas-ocean', **series)
-    monkeypatch.chdir(tmp_path / 'validate')
-    with pytest.raises(ValueError, match='exceeds'):
+    # the statistics pass through 99 degC partway through the stage; an
+    # end-of-stage field alone would miss it
+    step = _stage_check(tmp_path, 'mpas-ocean', 'damped_1')
+    series = _stats_series(5.0, 3.5)
+    series['temperatureMax'] = [28.0, 99.0, 30.0]
+    _write_stage_stats(tmp_path, 'damped_1', 'mpas-ocean', **series)
+    monkeypatch.chdir(tmp_path / 'checks')
+    with pytest.raises(ValueError, match='5 days into the stage'):
         step.run()
 
 

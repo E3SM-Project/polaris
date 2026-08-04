@@ -4,6 +4,7 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
     load_schedule_stages,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
+    StageCheck,
     Validate,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz import (
@@ -44,7 +45,10 @@ class RealisticGlobalDynamicAdjustment(Task):
     The task runs the shared ``realistic_global/init`` steps for the mesh, then
     a chain of ``Forward`` stages defined by a schedule YAML (``default.yaml``
     or ``<mesh_name>.yaml`` in this package), each restarting from the previous
-    one.  A final ``Validate`` step checks the sequence for obvious failures.
+    one.  Each stage is followed by a ``StageCheck`` step that applies the
+    per-stage thresholds immediately, so a stage that is already out of bounds
+    stops the sequence rather than costing the whole job.  A final ``Validate``
+    step summarizes the sequence and applies the cross-stage settling check.
 
     The stages are built once at construction from the built-in schedule (so
     ``polaris list`` shows a representative set) and rebuilt in ``configure``,
@@ -158,6 +162,17 @@ class RealisticGlobalDynamicAdjustment(Task):
                 forward_step.add_dependency(previous, previous.name)
             self.add_step(forward_step)
             previous = forward_step
+
+            # checked as soon as it finishes, so a stage that is already out of
+            # bounds stops the sequence instead of costing the whole job.  A
+            # separate step because an MPI step should not carry Python work
+            # after the model exits.
+            check_step = StageCheck(
+                component=component, stage=stage, indir=base
+            )
+            check_step.set_shared_config(config, link=CONFIG_FILENAME)
+            check_step.add_dependency(forward_step, forward_step.name)
+            self.add_step(check_step)
 
         validate_step = Validate(
             component=component, stages=stages, indir=base
