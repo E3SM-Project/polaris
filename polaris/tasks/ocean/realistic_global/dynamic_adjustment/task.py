@@ -168,7 +168,10 @@ class RealisticGlobalDynamicAdjustment(Task):
             # separate step because an MPI step should not carry Python work
             # after the model exits.
             check_step = StageCheck(
-                component=component, stage=stage, indir=base
+                component=component,
+                stage=stage,
+                indir=base,
+                sequence_start=stages[0].start_time,
             )
             check_step.set_shared_config(config, link=CONFIG_FILENAME)
             check_step.add_dependency(forward_step, forward_step.name)
