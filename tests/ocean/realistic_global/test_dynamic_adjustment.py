@@ -8,6 +8,7 @@ import pytest
 import xarray as xr
 
 from polaris.config import PolarisConfigParser
+from polaris.mpas.time import duration_to_seconds
 from polaris.ocean.model import OceanModelStep
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
@@ -171,6 +172,19 @@ def test_unified_schedules_end_undamped(mesh_name):
     stages = load_schedule_stages(mesh_name, _config(mesh_name))
     assert stages[-1].name == 'simulation'
     assert stages[-1].damping is None
+
+
+@pytest.mark.parametrize('mesh_name', UNIFIED_SCHEDULE_MESHES)
+def test_statistics_are_written_within_every_stage(mesh_name):
+    """
+    A stats interval longer than a stage means the only sample is the one
+    written at startup, so the summary would report the state the stage began
+    from rather than what it did.
+    """
+    for stage in load_schedule_stages(mesh_name, _config(mesh_name)):
+        stats = duration_to_seconds(stage.stats_interval)
+        duration = duration_to_seconds(stage.run_duration)
+        assert stats <= duration, f'{mesh_name} {stage.name}'
 
 
 def test_restart_chain_is_consistent():
