@@ -30,7 +30,8 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.task import (
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
     SUMMARY_FILENAME,
     Validate,
-    _check_ke_flattening,
+    _check_cfl_max,
+    _check_ke_growth_decelerates,
     _check_temperature_max,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz import (
@@ -738,30 +739,66 @@ def test_check_temperature_max_skipped_when_not_reported():
     _check_temperature_max(None, 33.0, 'simulation', LOGGER)
 
 
-def test_ke_flattening_skipped_when_not_reported():
-    _check_ke_flattening(['a', 'b', 'c'], [1.0, None, 3.0], 3, 0.01, LOGGER)
+def test_ke_growth_skipped_when_not_reported():
+    _check_ke_growth_decelerates(
+        ['a', 'b', 'c'], [1.0, None, 3.0], 3, 0.01, LOGGER
+    )
 
 
-def test_ke_flattening_passes():
+def test_ke_growth_decelerating_passes():
+    # the u.oi240.lr240 run: kinetic energy rises throughout as the wind spins
+    # the circulation up from rest, but each stage adds proportionally less
+    names = ['damped_1', 'damped_2', 'damped_3', 'simulation']
+    mean_ke = [3.336e-5, 1.562e-4, 5.773e-4, 1.189e-3]
+    _check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
+
+
+def test_ke_growth_that_rises_but_decelerates_is_not_a_failure():
+    # the old check compared the levels and would have failed this
     names = ['a', 'b', 'c', 'd']
-    max_ke = [10.0, 5.0, 4.0, 4.0]
-    _check_ke_flattening(names, max_ke, 3, 0.01, LOGGER)
+    mean_ke = [1.0, 4.0, 8.0, 12.0]
+    _check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
 
 
-def test_ke_flattening_within_tolerance_passes():
-    _check_ke_flattening(['a', 'b', 'c'], [5.0, 4.0, 4.02], 3, 0.01, LOGGER)
+def test_ke_growth_within_tolerance_passes():
+    names = ['a', 'b', 'c']
+    # fractional changes of 100% then 101%, inside the 1% tolerance
+    mean_ke = [1.0, 2.0, 4.02]
+    _check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
 
 
-def test_ke_flattening_raises_on_increase():
+def test_ke_growth_accelerating_raises():
     names = ['a', 'b', 'c', 'd']
-    max_ke = [10.0, 4.0, 4.0, 5.0]
+    # fractional changes of 100%, 100%, then 300%: running away
+    mean_ke = [1.0, 2.0, 4.0, 16.0]
     with pytest.raises(ValueError, match='not settling'):
-        _check_ke_flattening(names, max_ke, 3, 0.01, LOGGER)
+        _check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
 
 
-def test_ke_flattening_skipped_when_too_few_stages():
-    # fewer than ke_num stages: the check is skipped even if KE increases
-    _check_ke_flattening(['a', 'b'], [1.0, 100.0], 3, 0.01, LOGGER)
+def test_ke_decaying_towards_a_plateau_passes():
+    # converging from above: the ratios rise towards one, but the size of the
+    # change shrinks, which is what settling means
+    names = ['a', 'b', 'c', 'd']
+    _check_ke_growth_decelerates(names, [10.0, 5.0, 4.2, 4.1], 3, 0.01, LOGGER)
+
+
+def test_ke_growth_skipped_when_too_few_stages():
+    # two stages give one growth ratio, which is not a trend
+    _check_ke_growth_decelerates(['a', 'b'], [1.0, 100.0], 3, 0.01, LOGGER)
+
+
+def test_cfl_max_passes():
+    _check_cfl_max(0.053, 0.2, 'damped_adjustment_2', LOGGER)
+
+
+def test_cfl_max_raises():
+    with pytest.raises(ValueError, match='CFL number reached'):
+        _check_cfl_max(0.35, 0.2, 'damped_adjustment_2', LOGGER)
+
+
+def test_cfl_max_skipped_when_not_reported():
+    # Omega's GlobalStats reports no CFL number
+    _check_cfl_max(None, 0.2, 'simulation', LOGGER)
 
 
 # --- the validate step, for both models ---
@@ -868,24 +905,39 @@ def test_validate_catches_a_blow_up_for_either_model(
         step.run()
 
 
-@pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
-def test_validate_catches_growing_kinetic_energy(tmp_path, monkeypatch, model):
+def test_validate_catches_accelerating_kinetic_energy(tmp_path, monkeypatch):
+    # mean kinetic energy grows by 2x, 2x, then 4x: running away rather than
+    # settling
     stages = ['damped_1', 'damped_2', 'damped_3', 'simulation']
-    step = _validate_step(
-        tmp_path,
-        model,
-        stages,
-        temperature=[[[10.0, 20.0]]] * 4,
-        kinetic_energy=[
-            [[1.0, 10.0]],
-            [[1.0, 4.0]],
-            [[1.0, 4.0]],
-            [[1.0, 9.0]],
-        ],
-    )
-    monkeypatch.chdir(tmp_path / 'validate')
     with pytest.raises(ValueError, match='not settling'):
-        step.run()
+        _run_with_stats(
+            tmp_path, monkeypatch, 'mpas-ocean', stages, [1.0, 2.0, 4.0, 16.0]
+        )
+
+
+def test_validate_accepts_rising_but_decelerating_kinetic_energy(
+    tmp_path, monkeypatch
+):
+    # the u.oi240.lr240 case: kinetic energy rises the whole way as the wind
+    # spins the circulation up from rest, but the growth slows every stage.
+    # The old level-based check failed exactly this.
+    stages = ['damped_1', 'damped_2', 'damped_3', 'simulation']
+    _run_with_stats(
+        tmp_path,
+        monkeypatch,
+        'mpas-ocean',
+        stages,
+        [3.336e-5, 1.562e-4, 5.773e-4, 1.189e-3],
+    )
+
+
+def test_validate_skips_the_settling_check_for_omega(tmp_path, monkeypatch):
+    # Omega reports no mean kinetic energy, so the same accelerating sequence
+    # is not checked rather than wrongly passed
+    stages = ['damped_1', 'damped_2', 'damped_3', 'simulation']
+    _run_with_stats(
+        tmp_path, monkeypatch, 'omega', stages, [1.0, 2.0, 4.0, 16.0]
+    )
 
 
 # --- per-stage diagnostics ---
@@ -941,7 +993,7 @@ def _stats_series(ke_end, temperature_mean):
             ke_end * 1.3e18,
         ],
         volumeCellGlobal=[1.3e18] * 3,
-        CFLNumberGlobal=[0.4, 0.35, 0.3],
+        CFLNumberGlobal=[0.04, 0.035, 0.03],
         temperatureMax=[28.0, 29.0, 30.0],
         temperatureMin=[-1.9, -1.9, -1.9],
         temperatureAvg=[
