@@ -16,6 +16,7 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import 
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
     SECTION,
+    excluded_days_in_stage,
 )
 
 SUMMARY_FILENAME = 'dynamic_adjustment_stats.csv'
@@ -120,6 +121,10 @@ class Validate(Step):
         """
         config = self.config
         model = config.get('ocean', 'model')
+        # the same window the stage checks used, so the summary a user reads
+        # and the checks that passed cannot disagree
+        sequence_start = self.stages[0].start_time
+        exclusion = config.get(SECTION, 'startup_exclusion_duration').strip()
         return [
             collect_stage_diagnostics(
                 component=self.component,
@@ -128,6 +133,9 @@ class Validate(Step):
                 stats_filename=stage_stats_path(stage.name, model),
                 output_filename=f'output_{stage.name}.nc',
                 logger=self.logger,
+                exclude_days=excluded_days_in_stage(
+                    stage, sequence_start, exclusion
+                ),
             )
             for stage in self.stages
         ]
@@ -156,9 +164,15 @@ class StageCheck(Step):
     ----------
     stage : ForwardStage
         The stage being checked.
+
+    sequence_start : str
+        The start time of the first stage, from which the startup window is
+        measured.
     """
 
-    def __init__(self, component, stage, indir):
+    def __init__(
+        self, component, stage, indir, sequence_start='0001-01-01_00:00:00'
+    ):
         """
         Create the step.
 
@@ -173,11 +187,19 @@ class StageCheck(Step):
         indir : str
             The directory the step is in, to which ``<stage>_check`` is
             appended.
+
+        sequence_start : str, optional
+            The start time of the first stage of the adjustment.  The startup
+            window is measured from here rather than from this stage, so a
+            stage knows how much of the window it is covered by.  The default
+            matches ``ForwardStage.start_time``, which is where a
+            single-stage sequence begins.
         """
         super().__init__(
             component=component, name=f'{stage.name}_check', indir=indir
         )
         self.stage = stage
+        self.sequence_start = sequence_start
 
     def run(self):
         """
@@ -197,9 +219,23 @@ class StageCheck(Step):
             )
             return
 
+        exclude_days = excluded_days_in_stage(
+            self.stage,
+            self.sequence_start,
+            config.get(SECTION, 'startup_exclusion_duration').strip(),
+        )
+        if exclude_days > 0.0:
+            logger.info(
+                f'Stage {stage_name!r}: its first {exclude_days:g} day(s) are '
+                f'inside the startup window, so the tracer extremes there are '
+                f'not checked.'
+            )
+
         ds = self.component.open_model_dataset(path, config)
         with ds:
-            temperature, when = extreme_and_day(ds, 'temperatureMax', 'max')
+            temperature, when = extreme_and_day(
+                ds, 'temperatureMax', 'max', exclude_days
+            )
             check_temperature_max(
                 temperature,
                 when,
@@ -207,7 +243,9 @@ class StageCheck(Step):
                 stage_name,
                 logger,
             )
-            salinity, when = extreme_and_day(ds, 'salinityMax', 'max')
+            salinity, when = extreme_and_day(
+                ds, 'salinityMax', 'max', exclude_days
+            )
             check_salinity_max(
                 salinity,
                 when,
@@ -215,6 +253,8 @@ class StageCheck(Step):
                 stage_name,
                 logger,
             )
+            # deliberately not given the startup window: the opening hours are
+            # where a time step that is too long shows itself
             cfl, when = extreme_and_day(ds, 'CFLNumberGlobal', 'max')
             check_cfl_max(
                 cfl,
