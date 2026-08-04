@@ -4,6 +4,9 @@
 dynamic_adjustment:
   shared:
     output_interval: 10_00:00:00
+    # the stages here are as short as 6 hours, so the daily default would give
+    # a single sample and no view of what happens inside a stage
+    stats_interval: 00_01:00:00
     start_time: 0001-01-01_00:00:00
   stages:
     damped_adjustment_1:
