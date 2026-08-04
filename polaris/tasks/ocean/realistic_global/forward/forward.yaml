@@ -68,6 +68,8 @@ mpas-ocean:
     # Omega's equivalent is the GlobalStats analysis group below.
     AM_globalStats:
         config_AM_globalStats_enable: true
+        # 'output_interval' means the associated stream's interval, which is
+        # stats_interval rather than the 3-D output_interval
         config_AM_globalStats_compute_interval: output_interval
         # compute and write at t = 0 too, so the time series has a starting
         # point to take anomalies against
@@ -106,7 +108,7 @@ mpas-ocean:
         globalStatsOutput:
             type: output
             filename_template: global_stats.nc
-            output_interval: {{ output_interval }}
+            output_interval: {{ stats_interval }}
             clobber_mode: truncate
             packages: globalStatsAMPKG
             contents:

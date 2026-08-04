@@ -25,6 +25,7 @@ def _forward_config(**overrides):
         run_duration='0030_00:00:00',
         output_interval='0010_00:00:00',
         restart_interval='',
+        stats_interval='0001_00:00:00',
         dt_per_km='30.0',
         btr_dt_per_km='1.5',
         dt='',
@@ -181,6 +182,24 @@ def test_model_replacements_requires_a_time_step():
     stage = ForwardStage.from_config(_forward_config(dt_per_km=''))
     with pytest.raises(ValueError, match='dt_per_km'):
         stage.model_replacements('mpas-ocean', min_res=30.0)
+
+
+def test_stats_interval_is_independent_of_the_output_interval():
+    """
+    The statistics are scalars, so they are written far more often than the 3-D
+    output; the two cadences must not be tied together.
+    """
+    stage = ForwardStage.from_config(
+        _forward_config(
+            output_interval='0010_00:00:00', stats_interval='0000_01:00:00'
+        )
+    )
+    assert stage.output_interval == '0010_00:00:00'
+    assert stage.stats_interval == '0000_01:00:00'
+    rep = stage.model_replacements('mpas-ocean', min_res=30.0)
+    assert rep['stats_interval'] == '0000_01:00:00'
+    assert rep['output_interval'] == '0010_00:00:00'
+    assert rep['stats_freq'] == '3600'
 
 
 def test_bottom_drag_options():
