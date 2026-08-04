@@ -35,9 +35,11 @@ class Forward(OceanModelStep):
         The Jinja2 model-config template rendered from ``stage``.
 
     forcing_yaml_filename : str
-        The Jinja2 model-config template that turns the surface forcing on and
-        points each model's stream at the staged forcing file.  Only added when
-        ``init_condition.provides_forcing`` is ``True``.
+        The model-config file that turns the wind forcing on.  Always added.
+
+    forcing_streams_yaml_filename : str
+        The Jinja2 template that points each model's input stream at the staged
+        forcing file.  Only added when ``init_condition`` stages one.
     """
 
     def __init__(
@@ -51,6 +53,7 @@ class Forward(OceanModelStep):
         package='polaris.tasks.ocean.realistic_global.forward',
         yaml_filename='forward.yaml',
         forcing_yaml_filename='forcing.yaml',
+        forcing_streams_yaml_filename='forcing_streams.yaml',
         output_filename='output.nc',
         validate_vars=None,
         check_properties=None,
@@ -89,9 +92,11 @@ class Forward(OceanModelStep):
             A YAML file that is a Jinja2 template of model config options.
 
         forcing_yaml_filename : str, optional
-            A YAML file that is a Jinja2 template of the surface-forcing model
-            config options and streams, used only when ``init_condition``
-            supplies a forcing file.
+            A YAML file of the wind-forcing model config options, always added.
+
+        forcing_streams_yaml_filename : str, optional
+            A YAML file that is a Jinja2 template of the forcing input streams,
+            used only when ``init_condition`` stages a forcing file.
 
         output_filename : str, optional
             The output file written at the end of the run.
@@ -119,6 +124,7 @@ class Forward(OceanModelStep):
         self.package = package
         self.yaml_filename = yaml_filename
         self.forcing_yaml_filename = forcing_yaml_filename
+        self.forcing_streams_yaml_filename = forcing_streams_yaml_filename
 
         # ensure the model output is written in double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
@@ -191,13 +197,17 @@ class Forward(OceanModelStep):
             template_replacements=replacements,
         )
 
-        # surface forcing is only turned on when the initial condition also
-        # supplies a forcing file; otherwise both models are left with their
-        # (off) defaults and no stream points at a file that is not there
-        if self.init_condition.provides_forcing:
+        # every realistic_global forward run is wind-forced; there is no option
+        # to turn it off
+        self.add_yaml_file(self.package, self.forcing_yaml_filename)
+
+        # the input streams, in contrast, are only added when the initial
+        # condition stages a forcing file of its own, since MPAS-Ocean aborts
+        # when an input stream names a file that is not there
+        if self.init_condition.provides_forcing_file:
             self.add_yaml_file(
                 self.package,
-                self.forcing_yaml_filename,
+                self.forcing_streams_yaml_filename,
                 template_replacements=dict(
                     forcing_filename=self.get_forcing_filename()
                 ),
