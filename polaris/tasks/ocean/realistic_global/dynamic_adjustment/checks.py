@@ -32,9 +32,10 @@ def check_temperature_max(
 
     when : float or None
         The day, measured from the start of the stage, at which that maximum
-        occurred.  Reported because it is what distinguishes a problem the run
-        created from one it inherited: a maximum at day zero is the initial
-        condition, before the model has taken a step.
+        occurred.  Reported because where in a stage an extreme sits is most of
+        the diagnosis.  The caller is expected to have excluded the sample
+        written before the first time step, which describes what the stage was
+        handed rather than what it did.
 
     temperature_max : float
         The largest allowed temperature.
@@ -52,6 +53,36 @@ def check_temperature_max(
         stage_name=stage_name,
         quantity='temperature',
         units=' degC',
+        logger=logger,
+        consequence='it is above the threshold for numerical blow-up',
+    )
+
+
+def check_salinity_max(
+    value: Optional[float],
+    when: Optional[float],
+    salinity_max: float,
+    stage_name: str,
+    logger: Any,
+) -> None:
+    """
+    Raise if the stage's maximum salinity exceeds the threshold.
+
+    The companion to :py:func:`check_temperature_max`, and for the same reason:
+    a runaway shows up in the tracer extremes before it shows up anywhere else.
+    Salinity earns its own check rather than riding on temperature because the
+    two fail independently -- the WOA23 source data carries a warm artifact off
+    Sumatra and a salty one in the Red Sea, in different places.
+
+    See :py:func:`check_temperature_max` for the arguments.
+    """
+    _check_upper_bound(
+        value=value,
+        when=when,
+        limit=salinity_max,
+        stage_name=stage_name,
+        quantity='salinity',
+        units=' PSU',
         logger=logger,
         consequence='it is above the threshold for numerical blow-up',
     )
