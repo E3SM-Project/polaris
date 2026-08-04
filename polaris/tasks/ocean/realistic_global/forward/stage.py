@@ -341,6 +341,36 @@ class ForwardStage:
             'config_Rayleigh_damping_coeff': self.damping,
         }
 
+    def restart_stream_replacements(self) -> Dict[str, str]:
+        """
+        Template replacements for ``restart_streams.yaml``.
+
+        MPAS-Ocean needs nothing here -- its restart stream is both an input
+        and an output stream, so ``config_do_restart`` and
+        ``config_start_time`` from ``forward.yaml`` already drive the read
+        side.  Omega reads through a separate ``RestartRead`` stream that has
+        to be switched off for the first stage, which is what these express:
+        a stage that is not restarting reads its state from ``InitialState``
+        instead, and ``RestartRead`` is pushed out of the way with a start time
+        it will never reach.
+
+        Returns
+        -------
+        dict of str
+            The template replacements for ``restart_streams.yaml``.
+        """
+        if self.do_restart:
+            return dict(
+                init_freq_units='never',
+                restart_read_use_start_end='false',
+                restart_read_time=self.start_time,
+            )
+        return dict(
+            init_freq_units='OnStartup',
+            restart_read_use_start_end='true',
+            restart_read_time='99999-12-31_00:00:00',
+        )
+
     def horiz_mixing_options(self) -> Dict[str, Any]:
         """
         Horizontal mixing options that both models support.
