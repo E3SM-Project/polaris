@@ -613,13 +613,15 @@ polaris setup -t ocean/spherical/realistic_global/<mesh>/dynamic_adjustment ...
 
 Each stage is a forward run that restarts from the previous stage, with its own
 run duration, time step, output/restart cadence, and (typically decreasing)
-Rayleigh damping.  The stages are read from a schedule YAML: `default.yaml`
-(suitable for ~240 km meshes such as `icos240km`, `qu240km` and the
-`u.oi240.lr240` unified mesh) or a mesh-specific `<mesh_name>.yaml`.  Polaris
-ships schedules for the unified meshes `u.oi30.lr10`, `u.oi6to18.lr6to10` and
-`u.oi.so12to30.lr10` (ported from Compass' `ec30to60`, `rrs6to18` and
-`so12to30`).  The final stage, `simulation`, writes the relaxed restart, and
-its `output.nc` is compared against a baseline when one is provided.
+Rayleigh damping.  The stages are read from a schedule YAML: a mesh-specific
+`<mesh_name>.yaml` when the mesh has one, and otherwise `default.yaml`.  Polaris
+ships schedules for all four unified meshes — `u.oi240.lr240`, `u.oi30.lr10`,
+`u.oi6to18.lr6to10` and `u.oi.so12to30.lr10` (the last three ported from
+Compass' `ec30to60`, `rrs6to18` and `so12to30`).  `default.yaml` is what the
+base meshes such as `icos240km` and `qu240km` fall back to; it is only two
+stages, which is a quick check that a mesh runs rather than an adjustment worth
+keeping.  The final stage, `simulation`, writes the relaxed restart, and its
+`output.nc` is compared against a baseline when one is provided.
 
 The number and settings of the stages come from the schedule, so a user can
 retune them by editing the checked-in YAML or by pointing the `schedule` config
@@ -628,40 +630,92 @@ fixed at setup, changing the schedule requires re-running `polaris setup`.
 
 ### schedule format
 
+A stage is a [`forward` run](#ocean-realistic-global-forward), so it starts from
+the `[realistic_global_forward]` config options for the mesh — including the
+[per-mesh overrides](#ocean-realistic-global-mesh-configs) — and the schedule
+supplies only what varies from stage to stage.  The horizontal mixing
+coefficients, the eddy parameterizations and the time integrators are therefore
+the same as they would be for a `forward` run on that mesh, and are not repeated
+in the schedule.
+
 A schedule has a `shared` block of per-stage defaults and an ordered `stages`
-block; every key maps onto a forward-run setting:
+block:
 
 ```yaml
 dynamic_adjustment:
   shared:
-    time_integrator: split_explicit_ab2
     output_interval: 10_00:00:00
+    restart_interval: 10_00:00:00
     start_time: 0001-01-01_00:00:00
   stages:
     damped_adjustment_1:
       run_duration: 10_00:00:00
-      restart_interval: 10_00:00:00
       dt: 00:15:00
       btr_dt: 00:00:30
       damping: 1.0e-4
     simulation:
       run_duration: 10_00:00:00
-      restart_interval: 10_00:00:00
       dt: 00:30:00
       btr_dt: 00:01:00
-      # damping omitted => no Rayleigh damping
+      # damping omitted => the config default, which is no Rayleigh damping
 ```
 
-Time steps may instead be given per km of mesh minimum resolution with
-`dt_per_km` / `btr_dt_per_km`.
+Every key must name a forward-run setting — a `ForwardStage` field, which is to
+say a `[realistic_global_forward]` config option — and overrides that option for
+that stage.  A key that names nothing is an error at setup rather than a silent
+fall back to the config value, so a schedule cannot quietly go stale when an
+option is renamed.  `run_duration` is the one key a stage must set, since the
+restart chain's timing follows from it; `restart_interval` defaults to the
+stage's own `run_duration` rather than to the config value, because each stage
+has to write the restart the next one reads.  Time steps may instead be given per
+km of mesh minimum resolution with `dt_per_km` / `btr_dt_per_km`.
+
+`start_time` belongs in the `shared` block: it is where the chain begins, and
+each stage's own start time follows from the durations before it.  The remaining
+restart settings (`do_restart`, `restart_in`, `restart_out`) are owned by the
+chain and cannot be set by a schedule.
+
+Rayleigh damping runs the other way round from the other options: it is off in
+config (`Rayleigh_damping_coeff` is blank) and turned on per stage by the
+schedule, so the `simulation` stage gets an undamped run simply by omitting
+`damping`.
+
+### restart chaining
+
+The stages share a `restarts` directory beside them in the task work directory.
+Each stage writes `restarts/rst.<timestamp>.nc` at the end of its run and
+declares it as an output; the next stage declares the same file as an input and
+starts from it, so a break in the chain is caught before the model launches.
+
+For MPAS-Ocean the restart stream is both an input and an output stream, so one
+`filename_template` serves both directions: a restarting stage sets
+`config_do_restart` and `config_start_time` to its predecessor's timestamp and
+the template resolves to that file.  There is no restart-pointer file.
+
+:::{warning}
+The Omega side of restart chaining is written but has not been run.  Omega needs
+a separate `RestartRead` stream, which `restart_streams.yaml` supplies, but its
+restart filenames have no `.nc` extension and it has not been established
+whether Omega appends one — so the restart files are declared as step inputs and
+outputs for MPAS-Ocean only.  Separately,
+[Omega#482](https://github.com/E3SM-Project/Omega/issues/482) has restarts and
+history output interacting badly, with history output mangled across a restart;
+its resolution will change how an Omega restart run has to be configured.
+:::
 
 ### validation
 
 A final `validate` step checks that the maximum temperature in each stage stays
 below `temperature_max` and that the maximum cell kinetic energy is not
 increasing over the last `ke_check_num_stages` stages (skipped when there are
-fewer stages, as in the coarse default schedule).  These checks are implemented
-for MPAS-Ocean.
+fewer stages, as in the coarse default schedule).  Both checks work for either
+ocean model: the step reads each stage's `output.nc` through `open_model_dataset`,
+which maps Omega's variable names to the MPAS-Ocean ones.
+
+One caveat the threshold cannot express: Omega's temperature is conservative
+temperature where MPAS-Ocean's is potential temperature, so `temperature_max` is
+not literally the same quantity in the two models.  Against a blow-up threshold
+the difference is immaterial.
 
 ### config options
 
