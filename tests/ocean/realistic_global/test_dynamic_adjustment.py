@@ -25,6 +25,7 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import 
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
     SECTION,
+    excluded_days_in_stage,
     load_schedule_stages,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.task import (
@@ -973,6 +974,55 @@ def test_extremes_exclude_the_initial_sample():
     assert when == pytest.approx(5.0)
 
 
+def test_extremes_skip_the_startup_window():
+    """
+    The u.oi6to18.lr6to10 case: the statistics are hourly and the WOA23 warm
+    cell off Sumatra is still at 35.77 degC an hour in, so skipping only the
+    initial sample leaves the artifact as the maximum the stage is judged on.
+    """
+    ds = xr.Dataset(
+        {
+            'temperatureMax': (
+                ('Time',),
+                np.array([35.784, 35.770, 34.539, 34.530, 34.408]),
+            ),
+            'daysSinceStartOfSim': (('Time',), np.arange(5.0) / 24.0),
+        }
+    )
+    value, _ = extreme_and_day(ds, 'temperatureMax', 'max')
+    assert value == pytest.approx(35.770)
+
+    value, when = extreme_and_day(ds, 'temperatureMax', 'max', 2.0 / 24.0)
+    assert value == pytest.approx(34.530)
+    assert when == pytest.approx(3.0 / 24.0)
+
+
+def test_the_startup_window_excludes_a_sample_that_lands_on_it():
+    # the model writes 2 hours as 0.0833..., so matching the window against it
+    # cannot rely on exact equality
+    ds = xr.Dataset(
+        {
+            'temperatureMax': (('Time',), np.array([40.0, 39.0, 38.0, 30.0])),
+            'daysSinceStartOfSim': (('Time',), np.arange(4.0) / 24.0),
+        }
+    )
+    value, _ = extreme_and_day(ds, 'temperatureMax', 'max', 7200.0 / 86400.0)
+    assert value == pytest.approx(30.0)
+
+
+def test_a_stage_wholly_inside_the_startup_window_has_nothing_to_judge():
+    ds = xr.Dataset(
+        {
+            'temperatureMax': (('Time',), np.array([40.0, 39.0, 38.0])),
+            'daysSinceStartOfSim': (('Time',), np.arange(3.0) / 24.0),
+        }
+    )
+    assert extreme_and_day(ds, 'temperatureMax', 'max', 5.0 / 24.0) == (
+        None,
+        None,
+    )
+
+
 def test_extremes_are_unavailable_from_a_single_sample():
     # a stage that wrote only its startup record has nothing to judge
     ds = xr.Dataset(
@@ -982,6 +1032,142 @@ def test_extremes_are_unavailable_from_a_single_sample():
         }
     )
     assert extreme_and_day(ds, 'temperatureMax', 'max') == (None, None)
+
+
+def test_startup_window_covers_only_the_stages_it_reaches():
+    stages = load_schedule_stages(
+        'u.oi6to18.lr6to10', _config('u.oi6to18.lr6to10')
+    )
+    sequence_start = stages[0].start_time
+    excluded = [
+        excluded_days_in_stage(stage, sequence_start, '00_02:00:00')
+        for stage in stages
+    ]
+    assert excluded[0] == pytest.approx(2.0 / 24.0)
+    # every later stage begins well after the window has closed, so none of
+    # them stops watching its own opening hours
+    assert excluded[1:] == [0.0] * (len(stages) - 1)
+
+
+def test_startup_window_carries_over_into_a_short_first_stage(tmp_path):
+    # a first stage shorter than the window: the second stage carries what is
+    # left of it rather than the window quietly stopping at the stage boundary
+    config = _config_for_schedule(
+        tmp_path,
+        """
+        dynamic_adjustment:
+          shared:
+            stats_interval: 00_00:30:00
+          stages:
+            damped_1:
+              run_duration: 00_01:00:00
+            simulation:
+              run_duration: 00_23:00:00
+              restart_interval: 01_00:00:00
+        """,
+    )
+    stages = load_schedule_stages('icos240km', config)
+    sequence_start = stages[0].start_time
+    assert excluded_days_in_stage(
+        stages[0], sequence_start, '00_02:00:00'
+    ) == pytest.approx(2.0 / 24.0)
+    assert excluded_days_in_stage(
+        stages[1], sequence_start, '00_02:00:00'
+    ) == pytest.approx(1.0 / 24.0)
+
+
+def test_no_startup_window_leaves_only_the_first_sample_excluded():
+    stage = ForwardStage(name='damped_1', run_duration='00_06:00:00')
+    excluded = excluded_days_in_stage(stage, stage.start_time, '00_00:00:00')
+    assert excluded == 0.0
+
+
+def test_stage_check_ignores_the_startup_window(tmp_path, monkeypatch):
+    """
+    The u.oi6to18.lr6to10 first stage: the WOA23 artifacts start at 35.8 degC
+    and 44.1 PSU and erode too slowly to clear the thresholds within an hour,
+    so the stage is judged from the end of the startup window instead.
+    """
+    step = _stage_check(tmp_path, 'mpas-ocean', 'damped_1')
+    _write_stage_stats(
+        tmp_path, 'damped_1', 'mpas-ocean', **_hourly_stats_series()
+    )
+    monkeypatch.chdir(tmp_path / 'checks')
+    step.run()
+
+
+def test_stage_check_still_catches_a_blow_up_after_the_startup_window(
+    tmp_path, monkeypatch
+):
+    # the window must not blind the check to the rest of the stage
+    step = _stage_check(tmp_path, 'mpas-ocean', 'damped_1')
+    series = _hourly_stats_series()
+    series['temperatureMax'][4] = 99.0
+    _write_stage_stats(tmp_path, 'damped_1', 'mpas-ocean', **series)
+    monkeypatch.chdir(tmp_path / 'checks')
+    with pytest.raises(ValueError, match='temperature reached 99'):
+        step.run()
+
+
+def test_stage_check_watches_the_cfl_inside_the_startup_window(
+    tmp_path, monkeypatch
+):
+    # the window is for the tracer artifacts; a time step too long for the
+    # flow shows up in the opening hours and has to stay caught there
+    step = _stage_check(tmp_path, 'mpas-ocean', 'damped_1')
+    series = _hourly_stats_series()
+    series['CFLNumberGlobal'][1] = 0.42
+    _write_stage_stats(tmp_path, 'damped_1', 'mpas-ocean', **series)
+    monkeypatch.chdir(tmp_path / 'checks')
+    with pytest.raises(ValueError, match='CFL number'):
+        step.run()
+
+
+def _hourly_stats_series():
+    """
+    The first six hours of the real u.oi6to18.lr6to10 ``damped_adjustment_1``,
+    whose statistics are hourly because its stages are as short as six hours.
+    """
+    return dict(
+        daysSinceStartOfSim=list(np.arange(7.0) / 24.0),
+        kineticEnergyCellMax=[0.0, 0.169, 0.185, 0.367, 1.132, 0.957, 0.519],
+        kineticEnergyCellAvg=[
+            1.0e-6,
+            2.0e-4,
+            6.0e-4,
+            1.1e-3,
+            1.6e-3,
+            1.9e-3,
+            2.0e-3,
+        ],
+        kineticEnergyCellSum=[1.0e12] * 7,
+        volumeCellGlobal=[1.3e18] * 7,
+        CFLNumberGlobal=[0.0, 0.0018, 0.002, 0.0037, 0.0061, 0.0056, 0.0045],
+        temperatureMax=[
+            35.784,
+            35.770,
+            34.539,
+            34.530,
+            34.408,
+            34.320,
+            34.292,
+        ],
+        temperatureMin=[-2.12] * 7,
+        temperatureAvg=[3.5] * 7,
+        salinityMax=[
+            44.128,
+            43.028,
+            42.626,
+            42.599,
+            42.597,
+            42.596,
+            42.594,
+        ],
+        salinityMin=[5.0] * 7,
+        salinityAvg=[34.7] * 7,
+        layerThicknessMin=[0.3] * 7,
+        normalVelocityMax=[0.0, 0.55, 0.55, 1.13, 1.86, 1.72, 1.39],
+    )
 
 
 def test_stage_check_catches_an_excessive_cfl(tmp_path, monkeypatch):
@@ -1153,6 +1339,35 @@ def _run_with_stats(tmp_path, monkeypatch, model, stages, ke_end):
     monkeypatch.chdir(tmp_path / 'validate')
     step.run()
     return step
+
+
+def test_the_summary_applies_the_startup_window_to_tracers_only(
+    tmp_path, monkeypatch
+):
+    # the summary a user reads and the checks that passed cannot disagree, so
+    # the same window has to reach the CSV -- and reach only the columns the
+    # checks apply it to
+    step = _validate_step(
+        tmp_path,
+        'mpas-ocean',
+        ['damped_1'],
+        temperature=[[[10.0, 20.0]]],
+        kinetic_energy=[[[1.0, 5.0]]],
+    )
+    series = _hourly_stats_series()
+    series['normalVelocityMax'][1] = 9.0
+    _write_stage_stats(tmp_path, 'damped_1', 'mpas-ocean', **series)
+    monkeypatch.chdir(tmp_path / 'validate')
+    step.run()
+
+    lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
+    row = dict(zip(column_names(), lines[1].split(',')[1:], strict=True))
+    # the artifact's first two hours are excluded, so the stage is judged from
+    # hour 3
+    assert float(row['temperature_max_in_stage']) == pytest.approx(34.530)
+    assert float(row['salinity_max_in_stage']) == pytest.approx(42.599)
+    # the velocity extreme still sees the opening hours
+    assert float(row['normal_velocity_max_in_stage']) == pytest.approx(9.0)
 
 
 def test_diagnostics_summary_is_written(tmp_path, monkeypatch):
