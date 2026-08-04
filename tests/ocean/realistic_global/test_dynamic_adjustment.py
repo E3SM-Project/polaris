@@ -690,7 +690,10 @@ def _validate_step(tmp_path, model, stages, temperature, kinetic_energy):
         component._read_var_map()
     step = Validate(
         component=component,
-        stage_names=stages,
+        stages=[
+            ForwardStage(name=name, run_duration='10_00:00:00')
+            for name in stages
+        ],
         indir='spherical/realistic_global/u.oi240.lr240/dynamic_adjustment',
     )
     config = _config('u.oi240.lr240')

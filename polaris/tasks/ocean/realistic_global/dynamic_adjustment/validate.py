@@ -1,21 +1,36 @@
 from polaris import Step
+from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
+    STATS_FILENAMES,
+    collect_stage_diagnostics,
+    log_summary,
+    write_summary,
+)
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
     SECTION,
 )
 
+SUMMARY_FILENAME = 'dynamic_adjustment_stats.csv'
+
 
 class Validate(Step):
     """
-    A step that checks a completed dynamic-adjustment sequence for obvious
-    failures: a per-stage maximum-temperature threshold (numerical blow-up) and
-    a "settling" heuristic that the maximum cell kinetic energy is not
-    increasing over the last several stages.
+    A step that summarizes a completed dynamic-adjustment sequence and checks
+    it for obvious failures: a per-stage maximum-temperature threshold
+    (numerical blow-up) and a "settling" heuristic that the maximum cell
+    kinetic energy is not increasing over the last several stages.
 
-    Both checks read each stage's ``output.nc``, which carries the tracers and
-    ``kineticEnergyCell`` for either ocean model, through
-    ``open_model_dataset`` so that Omega's variable names are mapped to the
-    MPAS-Ocean ones the checks are written in.  The baseline comparison of the
-    final stage is handled separately by that forward step's ``validate_vars``.
+    The step first builds one row of diagnostics per stage (see
+    :py:mod:`~polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics`)
+    and writes it to ``dynamic_adjustment_stats.csv``.  Those rows are what the
+    checks are then made against, so the summary a user reads and the checks
+    that passed or failed cannot disagree.
+
+    Diagnostics come from each stage's global-statistics file where the
+    configured model reports them and from ``output.nc`` otherwise.  Both files
+    are read through ``open_model_dataset``, so Omega's variable names are
+    mapped to the MPAS-Ocean ones the metrics are written in.  The baseline
+    comparison of the final stage is handled separately by that forward step's
+    ``validate_vars``.
 
     One caveat the threshold cannot express: Omega's temperature is
     conservative temperature where MPAS-Ocean's is potential temperature, so
@@ -24,12 +39,14 @@ class Validate(Step):
 
     Attributes
     ----------
+    stages : list of ForwardStage
+        The stages of the adjustment, in schedule order.
+
     stage_names : list of str
-        The stage subdirectory names whose ``output.nc`` files are checked, in
-        schedule order.
+        The stage subdirectory names, in schedule order.
     """
 
-    def __init__(self, component, stage_names, indir):
+    def __init__(self, component, stages, indir):
         """
         Create the step.
 
@@ -38,27 +55,36 @@ class Validate(Step):
         component : polaris.tasks.ocean.Ocean
             The ocean component the step belongs to.
 
-        stage_names : list of str
-            The stage subdirectory names, in schedule order.
+        stages : list of ForwardStage
+            The stages of the adjustment, in schedule order.  The stages
+            themselves are needed, rather than just their names, because a
+            stage's run duration is what turns a change across the stage into
+            a per-day drift rate.
 
         indir : str
             The directory the step is in, to which ``validate`` is appended.
         """
         super().__init__(component=component, name='validate', indir=indir)
-        self.stage_names = list(stage_names)
+        self.stages = list(stages)
+        self.stage_names = [stage.name for stage in self.stages]
         for stage_name in self.stage_names:
             self.add_input_file(
                 filename=f'output_{stage_name}.nc',
                 target=f'../{stage_name}/output.nc',
             )
+        self.add_output_file(filename=SUMMARY_FILENAME)
 
     def run(self):
         """
-        Check the temperature threshold and kinetic-energy flattening.
+        Summarize the sequence, then check it against the summary.
         """
         super().run()
         config = self.config
         logger = self.logger
+
+        rows = self._collect()
+        write_summary(SUMMARY_FILENAME, self.stage_names, rows)
+        log_summary(logger, self.stage_names, rows)
 
         temperature_max = config.getfloat(SECTION, 'temperature_max')
         ke_num = config.getint(SECTION, 'ke_check_num_stages')
@@ -74,6 +100,34 @@ class Validate(Step):
                 max_ke.append(_final_max_ke(ds))
 
         _check_ke_flattening(self.stage_names, max_ke, ke_num, ke_tol, logger)
+
+    def _collect(self):
+        """
+        One row of diagnostics per stage.
+
+        The global-statistics file is looked up by path rather than declared as
+        a step input, so that a stage which did not write one (or wrote one
+        this Polaris cannot read) degrades to computing what it can from
+        ``output.nc`` instead of failing the whole step.
+        """
+        config = self.config
+        model = config.get('ocean', 'model')
+        stats_filename = STATS_FILENAMES.get(model)
+        return [
+            collect_stage_diagnostics(
+                component=self.component,
+                config=config,
+                stage=stage,
+                stats_filename=(
+                    None
+                    if stats_filename is None
+                    else f'../{stage.name}/{stats_filename}'
+                ),
+                output_filename=f'output_{stage.name}.nc',
+                logger=self.logger,
+            )
+            for stage in self.stages
+        ]
 
 
 def _check_temperature_max(ds, temperature_max, stage_name, logger):
