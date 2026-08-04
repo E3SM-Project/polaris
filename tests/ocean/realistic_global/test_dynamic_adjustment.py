@@ -97,12 +97,7 @@ def test_task_config_applies_per_mesh_overrides():
 def test_task_config_damping_is_off_by_default():
     # Rayleigh damping is turned on per stage by the schedule, not by config
     config = _task('u.oi30.lr10').config
-    assert (
-        config.get(
-            'realistic_global_forward', 'Rayleigh_damping_coeff'
-        ).strip()
-        == ''
-    )
+    assert config.get('realistic_global_forward', 'damping').strip() == ''
 
 
 # --- built-in schedules: parsing and chaining ---

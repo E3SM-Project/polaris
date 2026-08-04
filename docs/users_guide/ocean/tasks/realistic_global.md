@@ -676,7 +676,7 @@ restart settings (`do_restart`, `restart_in`, `restart_out`) are owned by the
 chain and cannot be set by a schedule.
 
 Rayleigh damping runs the other way round from the other options: it is off in
-config (`Rayleigh_damping_coeff` is blank) and turned on per stage by the
+config (`damping` is blank) and turned on per stage by the
 schedule, so the `simulation` stage gets an undamped run simply by omitting
 `damping`.
 
