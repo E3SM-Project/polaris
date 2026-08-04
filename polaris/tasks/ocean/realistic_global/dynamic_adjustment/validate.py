@@ -90,15 +90,15 @@ class Validate(Step):
         ke_num = config.getint(SECTION, 'ke_check_num_stages')
         ke_tol = config.getfloat(SECTION, 'ke_check_rel_tolerance')
 
-        max_ke = []
-        for stage_name in self.stage_names:
-            ds = self.component.open_model_dataset(
-                f'output_{stage_name}.nc', config
+        for stage_name, row in zip(self.stage_names, rows, strict=False):
+            _check_temperature_max(
+                row['temperature_max_in_stage'],
+                temperature_max,
+                stage_name,
+                logger,
             )
-            with ds:
-                _check_temperature_max(ds, temperature_max, stage_name, logger)
-                max_ke.append(_final_max_ke(ds))
 
+        max_ke = [row['kinetic_energy_max'] for row in rows]
         _check_ke_flattening(self.stage_names, max_ke, ke_num, ke_tol, logger)
 
     def _collect(self):
@@ -130,11 +130,21 @@ class Validate(Step):
         ]
 
 
-def _check_temperature_max(ds, temperature_max, stage_name, logger):
-    """Raise if the final-time maximum temperature exceeds the threshold."""
-    if 'temperature' not in ds:
+def _check_temperature_max(value, temperature_max, stage_name, logger):
+    """
+    Raise if the stage's maximum temperature exceeds the threshold.
+
+    ``value`` is the largest temperature reached at any point in the stage, not
+    only at its end, so a blow-up that the stage recovered from is still
+    caught.  ``None`` means the model reported no temperature at all, in which
+    case there is nothing to check.
+    """
+    if value is None:
+        logger.info(
+            f'Stage {stage_name!r}: no temperature reported; skipping the '
+            f'maximum-temperature check.'
+        )
         return
-    value = float(ds['temperature'].isel(Time=-1).max())
     if value > temperature_max:
         raise ValueError(
             f'Stage {stage_name!r}: maximum temperature {value:.2f} exceeds '
@@ -146,17 +156,13 @@ def _check_temperature_max(ds, temperature_max, stage_name, logger):
     )
 
 
-def _final_max_ke(ds):
-    """The maximum cell kinetic energy at the final output time."""
-    return float(ds['kineticEnergyCell'].isel(Time=-1).max())
-
-
 def _check_ke_flattening(stage_names, max_ke, ke_num, ke_tol, logger):
     """
     Raise if the maximum cell kinetic energy increases by more than ``ke_tol``
     (a fraction) between any two of the last ``ke_num`` stages.  Skipped when
     there are fewer than ``ke_num`` stages (e.g. the coarse default schedule),
-    since a single damped-to-undamped transition is not a meaningful trend.
+    since a single damped-to-undamped transition is not a meaningful trend, and
+    when any of those stages did not report a kinetic energy.
     """
     if len(stage_names) < ke_num:
         logger.info(
@@ -166,6 +172,12 @@ def _check_ke_flattening(stage_names, max_ke, ke_num, ke_tol, logger):
         return
     tail_names = stage_names[-ke_num:]
     tail_ke = max_ke[-ke_num:]
+    if any(value is None for value in tail_ke):
+        logger.info(
+            'Kinetic energy was not reported for every stage; skipping the '
+            'flattening check.'
+        )
+        return
     for index in range(1, len(tail_ke)):
         previous = tail_ke[index - 1]
         current = tail_ke[index]
