@@ -1,10 +1,10 @@
 # Default dynamic-adjustment schedule for coarse (~240 km) global meshes such
 # as the icos240km and qu240km base meshes and the u.oi240.lr240 unified mesh.
-# Ported from Compass' qu240 schedule.  Keys map onto ForwardStage fields; the
+# Ported from Compass' qu240 schedule.  Every key names a ForwardStage field and
+# overrides the [realistic_global_forward] config option of the same name; the
 # shared block supplies per-stage defaults.
 dynamic_adjustment:
   shared:
-    mpaso_time_integrator: split_explicit_ab2
     output_interval: 1_00:00:00
     restart_interval: 1_00:00:00
     start_time: 0001-01-01_00:00:00
