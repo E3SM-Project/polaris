@@ -38,8 +38,15 @@
    init.Init.setup
    init.Init.run
 
+   checks.check_temperature_max
+   checks.check_cfl_max
+   checks.check_ke_growth_decelerates
+
    validate.Validate
    validate.Validate.run
+
+   validate.StageCheck
+   validate.StageCheck.run
 
    viz.Viz
    viz.Viz.run
