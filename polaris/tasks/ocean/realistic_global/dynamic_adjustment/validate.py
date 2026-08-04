@@ -4,6 +4,7 @@ from polaris import Step
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks import (
     check_cfl_max,
     check_ke_growth_decelerates,
+    check_salinity_max,
     check_temperature_max,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
@@ -180,7 +181,7 @@ class StageCheck(Step):
 
     def run(self):
         """
-        Check this stage's temperature and CFL extremes.
+        Check this stage's tracer and CFL extremes.
         """
         super().run()
         config = self.config
@@ -203,6 +204,14 @@ class StageCheck(Step):
                 temperature,
                 when,
                 config.getfloat(SECTION, 'temperature_max'),
+                stage_name,
+                logger,
+            )
+            salinity, when = extreme_and_day(ds, 'salinityMax', 'max')
+            check_salinity_max(
+                salinity,
+                when,
+                config.getfloat(SECTION, 'salinity_max'),
                 stage_name,
                 logger,
             )
