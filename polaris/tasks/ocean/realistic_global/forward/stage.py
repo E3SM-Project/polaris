@@ -360,19 +360,25 @@ class ForwardStage:
         """
         MPAS-Ocean bottom-drag config options implied by the damping setting.
 
-        Returns Rayleigh damping options when ``damping`` is set, and an empty
-        dict otherwise so the model default is left untouched.  Applied by the
-        forward step for MPAS-Ocean only, because Omega has no Rayleigh
-        damping; :py:meth:`check_damping_supported` is what keeps that from
-        being a silent omission.
+        When ``damping`` is set, this turns Rayleigh damping on with that
+        coefficient.  When it is not, the coefficient is set to zero rather
+        than left at the MPAS-Ocean Registry default of 1.0e-4: the default is
+        unused, because ``forward.yaml`` pins the drag type to ``constant``,
+        but a namelist that says ``config_Rayleigh_damping_coeff = 1.0e-4``
+        reads as though the run were damped.  An undamped stage should look
+        undamped.
+
+        Applied by the forward step for MPAS-Ocean only, because Omega has no
+        Rayleigh damping; :py:meth:`check_damping_supported` is what keeps that
+        from being a silent omission.
 
         Returns
         -------
         dict
-            The MPAS-Ocean config options to add, possibly empty.
+            The MPAS-Ocean config options to add.
         """
         if self.damping is None:
-            return {}
+            return {'config_Rayleigh_damping_coeff': 0.0}
         return {
             'config_implicit_bottom_drag_type': 'constant_and_rayleigh',
             'config_Rayleigh_damping_coeff': self.damping,
