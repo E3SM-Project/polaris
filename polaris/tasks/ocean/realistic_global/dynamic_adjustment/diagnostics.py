@@ -413,3 +413,43 @@ def log_summary(
             text = '' if value is None else f'{value:.6g}'
             cells.append('  ' + text.rjust(widths[name]))
         logger.info(f'  {stage_name.ljust(stage_width)}{"".join(cells)}')
+
+
+def stats_filename_for_model(model: str) -> Optional[str]:
+    """
+    The global-statistics filename the given model writes, or ``None`` when the
+    model is not one this workflow knows about.
+
+    Parameters
+    ----------
+    model : str
+        The configured ocean model.
+
+    Returns
+    -------
+    str or None
+        The filename, without a directory.
+    """
+    return STATS_FILENAMES.get(model)
+
+
+def stage_stats_path(stage_name: str, model: str) -> Optional[str]:
+    """
+    Where a stage's global-statistics file sits, relative to a sibling step's
+    work directory.
+
+    Parameters
+    ----------
+    stage_name : str
+        The stage's name, which is also its work-directory name.
+
+    model : str
+        The configured ocean model.
+
+    Returns
+    -------
+    str or None
+        The path, or ``None`` when the model has no known statistics file.
+    """
+    filename = stats_filename_for_model(model)
+    return None if filename is None else f'../{stage_name}/{filename}'
