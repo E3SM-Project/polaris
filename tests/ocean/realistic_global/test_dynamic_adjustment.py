@@ -15,11 +15,13 @@ from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks import (
     check_cfl_max,
     check_ke_growth_decelerates,
+    check_salinity_max,
     check_temperature_max,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
     STATS_FILENAMES,
     column_names,
+    extreme_and_day,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
     SECTION,
@@ -913,18 +915,73 @@ def test_stage_check_catches_a_blow_up_for_either_model(
         step.run()
 
 
-def test_stage_check_says_when_the_initial_condition_is_the_problem(
-    tmp_path, monkeypatch
-):
-    # the u.oi30.lr10 case: the maximum is in the statistics at day zero,
-    # before the model has taken a step
+def test_stage_check_ignores_the_initial_condition(tmp_path, monkeypatch):
+    """
+    The u.oi30.lr10 case: the WOA23 source data puts a 33.5 degC cell in the
+    initial condition, which the model mixes away.  A stage is judged on what
+    it did, so that sample is not checked.
+    """
     step = _stage_check(tmp_path, 'mpas-ocean', 'damped_1')
     series = _stats_series(5.0, 3.5)
-    series['temperatureMax'] = [99.0, 30.0, 29.0]
+    series['temperatureMax'] = [33.458, 31.710, 31.359]
+    series['salinityMax'] = [43.974, 42.008, 41.425]
     _write_stage_stats(tmp_path, 'damped_1', 'mpas-ocean', **series)
     monkeypatch.chdir(tmp_path / 'checks')
-    with pytest.raises(ValueError, match='before any time step'):
+    step.run()
+
+
+def test_stage_check_still_catches_an_extreme_after_the_first_sample(
+    tmp_path, monkeypatch
+):
+    # excluding the initial sample must not blind the check to the rest
+    step = _stage_check(tmp_path, 'mpas-ocean', 'damped_1')
+    series = _stats_series(5.0, 3.5)
+    series['temperatureMax'] = [29.0, 99.0, 30.0]
+    _write_stage_stats(tmp_path, 'damped_1', 'mpas-ocean', **series)
+    monkeypatch.chdir(tmp_path / 'checks')
+    with pytest.raises(ValueError, match='temperature reached 99'):
         step.run()
+
+
+def test_stage_check_catches_an_excessive_salinity(tmp_path, monkeypatch):
+    step = _stage_check(tmp_path, 'mpas-ocean', 'damped_1')
+    series = _stats_series(5.0, 3.5)
+    series['salinityMax'] = [40.0, 99.0, 41.0]
+    _write_stage_stats(tmp_path, 'damped_1', 'mpas-ocean', **series)
+    monkeypatch.chdir(tmp_path / 'checks')
+    with pytest.raises(ValueError, match='salinity reached 99'):
+        step.run()
+
+
+def test_check_salinity_max():
+    check_salinity_max(42.0, 1.0, 45.0, 'damped_adjustment_1', LOGGER)
+    with pytest.raises(ValueError, match='above the allowed'):
+        check_salinity_max(50.0, 1.0, 45.0, 'damped_adjustment_1', LOGGER)
+    # Omega reports salinity, but a model that did not would skip
+    check_salinity_max(None, None, 45.0, 'damped_adjustment_1', LOGGER)
+
+
+def test_extremes_exclude_the_initial_sample():
+    ds = xr.Dataset(
+        {
+            'temperatureMax': (('Time',), np.array([99.0, 30.0, 29.0])),
+            'daysSinceStartOfSim': (('Time',), np.array([0.0, 5.0, 10.0])),
+        }
+    )
+    value, when = extreme_and_day(ds, 'temperatureMax', 'max')
+    assert value == pytest.approx(30.0)
+    assert when == pytest.approx(5.0)
+
+
+def test_extremes_are_unavailable_from_a_single_sample():
+    # a stage that wrote only its startup record has nothing to judge
+    ds = xr.Dataset(
+        {
+            'temperatureMax': (('Time',), np.array([99.0])),
+            'daysSinceStartOfSim': (('Time',), np.array([0.0])),
+        }
+    )
+    assert extreme_and_day(ds, 'temperatureMax', 'max') == (None, None)
 
 
 def test_stage_check_catches_an_excessive_cfl(tmp_path, monkeypatch):
@@ -1125,7 +1182,8 @@ def test_diagnostics_prefer_global_statistics(tmp_path, monkeypatch):
     lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
     values = dict(zip(columns, lines[1].split(',')[1:], strict=False))
     assert float(values['temperature_max_in_stage']) == pytest.approx(30.0)
-    assert float(values['kinetic_energy_max_in_stage']) == pytest.approx(7.0)
+    # the first sample (7.0) is the state the stage was handed, not its own
+    assert float(values['kinetic_energy_max_in_stage']) == pytest.approx(6.0)
 
 
 def test_diagnostics_record_the_tracer_drift(tmp_path, monkeypatch):
