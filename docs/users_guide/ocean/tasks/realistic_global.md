@@ -964,17 +964,38 @@ columns are blank for an Omega run.  A blank means "this model does not report
 it", not that something went wrong; the log says which source each metric came
 from.
 
-There are three checks.  Two are per stage and run in a `<stage>_check` step
+There are four checks.  Three are per stage and run in a `<stage>_check` step
 immediately after that stage, so a stage that is already out of bounds stops the
 sequence instead of costing the whole job:
 
 * the maximum temperature in the stage must stay below `temperature_max`;
-* the maximum CFL number in the stage must stay below `cfl_max`, which is what
-  catches a stage whose time step is too long for the flow it produced.
+* the maximum salinity must stay below `salinity_max`;
+* the maximum CFL number must stay below `cfl_max`, which is what catches a
+  stage whose time step is too long for the flow it produced.
 
-Both report *when* the extreme occurred as well as how large it was.  That is
-worth reading closely: an extreme "at the start of the stage, before any time
-step" is in the initial condition, and no change to the schedule will fix it.
+All three report *when* the extreme occurred as well as how large it was, which
+is usually most of the diagnosis.
+
+They deliberately ignore the sample written before a stage's first time step.
+For the first stage that sample is the initial condition, which dynamic
+adjustment did not produce; for every later stage it is the previous stage's
+final state, which that stage's own check already covered.  So nothing goes
+unexamined, and each stage is judged on what it did rather than on what it was
+handed.  The `viz` figure still plots the full series, so an inherited extreme
+remains visible there.
+
+This matters in practice.  NOAA's January WOA23 analysis contains one bad grid
+cell off Sumatra, reaching 36.9 °C at 70 m, which survives into the
+`u.oi30.lr10` initial condition as a single cell at 33.46 °C — above the
+`temperature_max` of 33.  It is a known source-data problem that cannot be
+filtered without discarding real hydrography, and the model mixes it away within
+a day.  A second source artifact in the Red Sea does the same for salinity.
+
+The two tracer thresholds are blow-up detectors rather than plausibility bounds.
+A real blow-up produces hundreds of degrees or NaN, not a fraction of a degree
+over, so they are set with wide margin above the genuine extremes: the
+hypersaline Persian Gulf peaks near 42 PSU, and the warmest water these runs
+reach is about 31.7 °C.
 
 The third is made by the final `validate` step against the summary rows, since
 no single stage can see it:
