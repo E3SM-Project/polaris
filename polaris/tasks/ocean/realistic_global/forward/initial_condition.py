@@ -30,16 +30,18 @@ class InitialCondition(ABC):
         The graph partition file for the step to use (a work-directory-relative
         path), or ``None`` when no existing graph file is provided.
 
-    provides_forcing : bool
-        Whether this source also supplies the surface forcing file.  A forward
-        step only turns the surface forcing on when it has a file to read, so
-        sources without one leave the models' (off) defaults alone.
+    provides_forcing_file : bool
+        Whether this source stages a separate surface forcing file for the
+        model to read.  This is a question about provenance, not about whether
+        the run is forced: every realistic_global forward run is wind-forced,
+        and a source that carries the wind stress in the initial-state file
+        instead needs no forcing stream of its own.
     """
 
     min_res: float
     approx_cell_count: Optional[int]
     graph_target: Optional[str] = None
-    provides_forcing: bool = False
+    provides_forcing_file: bool = False
 
     @abstractmethod
     def add_input_files(self, step: 'OceanModelStep') -> None:
@@ -67,9 +69,8 @@ class StepInitialCondition(InitialCondition):
     init_step : polaris.Step
         The ``initial_state`` step whose outputs are consumed.
 
-    forcing_step : polaris.Step or None
-        The ``forcing`` step whose model-specific forcing file is consumed, or
-        ``None`` when the forward run gets no surface forcing.
+    forcing_step : polaris.Step
+        The ``forcing`` step whose model-specific forcing file is consumed.
     """
 
     def __init__(
@@ -77,7 +78,7 @@ class StepInitialCondition(InitialCondition):
         init_step: 'Step',
         min_res: float,
         approx_cell_count: Optional[int],
-        forcing_step: Optional['Step'] = None,
+        forcing_step: 'Step',
     ) -> None:
         """
         Create the source.
@@ -97,38 +98,36 @@ class StepInitialCondition(InitialCondition):
             definition), used to size resources during setup before the mesh
             file exists.
 
-        forcing_step : polaris.Step, optional
+        forcing_step : polaris.Step
             The ``forcing`` step (from the same
             :py:func:`~polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps`
-            call) that writes the model-specific surface forcing file.  When it
-            is not given, the forward run is unforced.
+            call) that writes the model-specific surface forcing file.
+            Required, because every realistic_global forward run is
+            wind-forced.
         """
         self.init_step = init_step
         self.min_res = min_res
         self.approx_cell_count = approx_cell_count
         self.graph_target = f'{init_step.path}/culled_graph.info'
         self.forcing_step = forcing_step
-        self.provides_forcing = forcing_step is not None
+        self.provides_forcing_file = True
 
     def add_input_files(self, step: 'OceanModelStep') -> None:
         """
-        Link the mesh, vertical coordinate, initial state and (when there is a
-        forcing step) the surface forcing from the init steps' work
-        directories.  The vertical-coordinate entry is dropped for MPAS-Ocean
-        by the shared placeholder mechanism, and the graph is linked (and
-        partitioned) by ``OceanModelStep`` from ``graph_target``.
+        Link the mesh, vertical coordinate, initial state and surface forcing
+        from the init steps' work directories.  The vertical-coordinate entry
+        is dropped for MPAS-Ocean by the shared placeholder mechanism, and the
+        graph is linked (and partitioned) by ``OceanModelStep`` from
+        ``graph_target``.
         """
         path = self.init_step.path
         step.add_horiz_mesh_input_file(work_dir_target=f'{path}/mesh.nc')
         step.add_vert_coord_input_file(work_dir_target=f'{path}/vert_coord.nc')
         step.add_init_input_file(work_dir_target=f'{path}/init.nc')
-        if self.forcing_step is not None:
-            forcing_filename = step.get_forcing_filename()
-            step.add_forcing_input_file(
-                work_dir_target=(
-                    f'{self.forcing_step.path}/{forcing_filename}'
-                )
-            )
+        forcing_filename = step.get_forcing_filename()
+        step.add_forcing_input_file(
+            work_dir_target=f'{self.forcing_step.path}/{forcing_filename}'
+        )
 
 
 class DatabaseInitialCondition(InitialCondition):
@@ -141,6 +140,11 @@ class DatabaseInitialCondition(InitialCondition):
     implemented and unit-tested but is not yet wired into a registered task;
     the exact database layout and graph handling are finalized when the
     corresponding files are staged.
+
+    The run is still wind-forced, but the wind stress travels in the database
+    initial-condition file rather than a separate forcing file, so
+    ``provides_forcing_file`` stays ``False`` and no forcing stream is added.
+    The details are settled together with the database layout.
 
     Attributes
     ----------
