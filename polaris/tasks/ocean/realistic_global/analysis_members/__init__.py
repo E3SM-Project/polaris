@@ -13,7 +13,15 @@ from polaris.tasks.ocean.realistic_global.viz import Viz as Viz
 
 
 class AnalysisMembers(Task):
-    """ """
+    """
+    A task for exercising the global-statistics analysis member on a
+    realistic global mesh.
+
+    The task runs the ocean model forward from a cached initial condition
+    with the global-statistics analysis member enabled, then plots time
+    series of the resulting statistics and global maps of the state
+    variables.  Only the ``forward`` step runs by default.
+    """
 
     def __init__(
         self,
@@ -31,14 +39,25 @@ class AnalysisMembers(Task):
         ----------
         component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
+
         subdir : str
-            The subdirectory for the task
-        test_name : str
-            The name of the test (e.g., 'munk')
-        config : PolarisConfigParser
-            The configuration parser for the task
-        config_filename : str
-            The name of the configuration file
+            The subdirectory for the task, to which
+            ``analysis_members_test`` will be appended
+
+        mesh_name : str
+            The name of the mesh (e.g. ``QU.240km``)
+
+        mpaso_id : int
+            The ID of the MPAS-Ocean initial condition in the Polaris input
+            database
+
+        omega_id : int
+            The ID of the Omega initial condition in the Polaris input
+            database
+
+        ncells : int
+            The approximate number of cells in the mesh, used to constrain
+            resources
         """
         subdir = f'{subdir}/analysis_members_test'
         super().__init__(

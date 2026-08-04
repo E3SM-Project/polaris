@@ -419,6 +419,29 @@
    :toctree: generated/
 
    add_realistic_global_tasks
+
+   forward.Forward
+   forward.Forward.setup
+   forward.Forward.runtime_setup
+   forward.Forward.compute_cell_count
+
+   viz.Viz
+   viz.Viz.run
+```
+
+### realistic_global.analysis_members
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.analysis_members
+
+.. autosummary::
+   :toctree: generated/
+
+   AnalysisMembers
+
+   stats_analysis.StatsAnalysis
+   stats_analysis.StatsAnalysis.setup
+   stats_analysis.StatsAnalysis.run
 ```
 
 ### realistic_global.hydrography.woa23
@@ -440,6 +463,10 @@
    ExtrapolateStep
    ExtrapolateStep.setup
    ExtrapolateStep.run
+
+   Woa23VizStep
+   Woa23VizStep.setup
+   Woa23VizStep.run
 ```
 
 ### seamount
