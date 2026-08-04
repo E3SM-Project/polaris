@@ -1,11 +1,16 @@
+import importlib.resources as imp_res
 import logging
+import os
 import textwrap
+from unittest import mock
 
 import numpy as np
 import pytest
 import xarray as xr
+from ruamel.yaml import YAML
 
 from polaris.config import PolarisConfigParser
+from polaris.ocean.model import OceanModelStep
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
     SECTION,
@@ -24,6 +29,10 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
     _final_max_ke,
 )
 from polaris.tasks.ocean.realistic_global.forward import ForwardStage
+from polaris.tasks.ocean.realistic_global.forward.forward import Forward
+from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
+    InitialCondition,
+)
 from polaris.tasks.ocean.realistic_global.mesh_configs import (
     add_realistic_global_mesh_config,
 )
@@ -177,6 +186,144 @@ def test_restart_chain_is_consistent():
             assert previous.restart_out is not None
             filename_time = current.start_time.replace(':', '.')
             assert filename_time in previous.restart_out
+
+
+# --- the restart chain, as the task and the step see it ---
+
+
+def _forward_steps(task):
+    """The task's forward steps, in schedule order."""
+    return [
+        step
+        for step in task.steps.values()
+        if isinstance(step, Forward) and step.stage is not None
+    ]
+
+
+def test_task_forward_steps_share_one_restarts_directory():
+    # the restart paths are relative to the task work directory, so stage n's
+    # restart_in has to resolve to the same place as stage n-1's restart_out
+    task = _task('u.oi240.lr240')
+    steps = _forward_steps(task)
+    assert len(steps) == 4
+
+    def resolve(step, path):
+        return os.path.normpath(os.path.join(step.subdir, '..', path))
+
+    previous = None
+    for step in steps:
+        stage = step.stage
+        if previous is None:
+            assert stage.restart_in is None
+        else:
+            assert resolve(step, stage.restart_in) == resolve(
+                previous, previous.stage.restart_out
+            )
+        previous = step
+
+    # and they all land in the one shared directory beside the stages
+    restarts = f'{task.subdir.rsplit("/", 1)[0]}/restarts'
+    for step in steps:
+        assert resolve(step, step.stage.restart_out).startswith(restarts)
+
+
+def test_forward_setup_declares_both_ends_of_the_restart_chain():
+    stage = ForwardStage(
+        name='damped_adjustment_2',
+        restart_in='restarts/rst.0001-01-11_00.00.00.nc',
+        restart_out='restarts/rst.0001-01-21_00.00.00.nc',
+        do_restart=True,
+    )
+    step = _recording_forward_setup(stage)
+    assert step.recorded_inputs == ['../restarts/rst.0001-01-11_00.00.00.nc']
+    assert '../restarts/rst.0001-01-21_00.00.00.nc' in step.recorded_outputs
+
+
+def test_forward_setup_declares_no_restart_for_a_lone_stage():
+    # the simple `short` forward run is not part of a chain
+    step = _recording_forward_setup(ForwardStage(name='short'))
+    assert step.recorded_inputs == []
+    assert step.recorded_outputs == []
+
+
+class _RecordingForward(Forward):
+    """
+    Exercises ``Forward.setup``'s restart declarations without the cost (and
+    the work directory) of setting up a real model step.  ``Forward.__init__``
+    is deliberately not called; only the attributes ``setup`` touches are set.
+    """
+
+    def __init__(self, stage):
+        self.stage = stage
+        self.init_condition = _NullInitialCondition()
+        self.recorded_inputs = []
+        self.recorded_outputs = []
+
+    def add_input_file(
+        self,
+        filename=None,
+        target=None,
+        database=None,
+        database_component=None,
+        url=None,
+        work_dir_target=None,
+        package=None,
+        copy=False,
+    ):
+        self.recorded_inputs.append(filename)
+
+    def add_output_file(
+        self,
+        filename,
+        validate_vars=None,
+        check_properties=None,
+        validate_class=None,
+    ):
+        self.recorded_outputs.append(filename)
+
+
+class _NullInitialCondition(InitialCondition):
+    """An initial condition that stages nothing."""
+
+    min_res = 240.0
+    approx_cell_count = 10417
+
+    def add_input_files(self, step):
+        pass
+
+
+def _recording_forward_setup(stage):
+    """Run ``Forward.setup`` on a recording step, with the base stubbed."""
+    step = _RecordingForward(stage)
+    with mock.patch.object(OceanModelStep, 'setup', lambda self: None):
+        step.setup()
+    return step
+
+
+def test_restart_streams_yaml_serves_the_read_and_the_write_side():
+    package = imp_res.files(
+        'polaris.tasks.ocean.realistic_global.forward'
+    ).joinpath('restart_streams.yaml')
+    streams = YAML(typ='rt').load(package.read_text())
+    restart = streams['mpas-ocean']['streams']['restart']
+    assert (
+        restart['filename_template'] == '../restarts/rst.$Y-$M-$D_$h.$m.$s.nc'
+    )
+    # the restart is read once, at initialization, not on a cadence
+    assert restart['input_interval'] == 'initial_only'
+
+
+def test_model_replacements_carry_the_restart_state():
+    stages = load_schedule_stages('u.oi240.lr240', _config('u.oi240.lr240'))
+    first = stages[0].model_replacements('mpas-ocean', min_res=240.0)
+    assert first['do_restart'] == 'false'
+    assert first['start_time'] == '0001-01-01_00:00:00'
+
+    second = stages[1].model_replacements('mpas-ocean', min_res=240.0)
+    assert second['do_restart'] == 'true'
+    # the start time is the timestamp in the restart the first stage wrote
+    assert second['start_time'] == '0001-01-11_00:00:00'
+    assert stages[0].restart_out == 'restarts/rst.0001-01-11_00.00.00.nc'
 
 
 # --- stages inherit the forward config ---
