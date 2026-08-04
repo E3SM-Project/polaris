@@ -35,7 +35,8 @@ def check_temperature_max(
         occurred.  Reported because where in a stage an extreme sits is most of
         the diagnosis.  The caller is expected to have excluded the sample
         written before the first time step, which describes what the stage was
-        handed rather than what it did.
+        handed rather than what it did, along with any part of the stage inside
+        the sequence's startup window.
 
     temperature_max : float
         The largest allowed temperature.

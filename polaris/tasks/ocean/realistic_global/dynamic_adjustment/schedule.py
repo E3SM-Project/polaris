@@ -124,6 +124,51 @@ def load_schedule_stages(
     return stages
 
 
+def excluded_days_in_stage(
+    stage: ForwardStage,
+    sequence_start: str,
+    exclusion_duration: str,
+) -> float:
+    """
+    How much of a stage falls inside the startup window of the sequence.
+
+    The window over which the tracer extremes are not judged is measured from
+    the start of the *sequence* rather than of each stage, because what it
+    exists to skip belongs to the initial condition: the WOA23 source data
+    carries a warm artifact off Sumatra and a salty one in the Red Sea, and on
+    the finer meshes they need a couple of hours of mixing before they fall
+    back to the values they then hold for the rest of the run.  A window
+    measured from each stage would instead stop looking just after every
+    damping change, which is where a schedule that steps the damping down too
+    fast would show itself.
+
+    Parameters
+    ----------
+    stage : polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage
+        The stage in question.
+
+    sequence_start : str
+        The start time of the first stage, in MPAS ``YYYY-MM-DD_HH:MM:SS``
+        form.
+
+    exclusion_duration : str
+        The length of the window, as an MPAS duration string.
+
+    Returns
+    -------
+    float
+        The number of days *into this stage* that lie within the window, and so
+        0.0 for a stage beginning at or after the end of it.  Expressed
+        relative to the stage because that is how a stage's own statistics
+        measure time, whether or not the model restarted its clock.
+    """
+    window_days = duration_to_seconds(exclusion_duration) / 86400.0
+    if window_days <= 0.0:
+        return 0.0
+    offset = _parse_time(stage.start_time) - _parse_time(sequence_start)
+    return max(0.0, window_days - offset.total_seconds() / 86400.0)
+
+
 def _check_stage_writes_its_records(
     stage: ForwardStage, stop: datetime.datetime
 ) -> None:
