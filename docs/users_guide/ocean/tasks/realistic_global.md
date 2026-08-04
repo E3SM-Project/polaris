@@ -729,7 +729,8 @@ its resolution will change how an Omega restart run has to be configured.
 
 ### diagnostics and validation
 
-A final `validate` step summarizes the sequence and then checks it.
+A final `validate` step summarizes the sequence and then checks it, and a `viz`
+step plots the underlying time series.
 
 The summary is `dynamic_adjustment_stats.csv`, one row per stage, and the same
 table is written to the step's log.  It is the quickest way to see whether the
@@ -766,6 +767,20 @@ One caveat the threshold cannot express: Omega's temperature is conservative
 temperature where MPAS-Ocean's is potential temperature, so `temperature_max` is
 not literally the same quantity in the two models.  Against a blow-up threshold
 the difference is immaterial.
+
+The `viz` step writes `dynamic_adjustment_stats.png` from the same statistics,
+plotting kinetic energy (maximum, mean and domain-integrated), maximum normal
+velocity, CFL number, tracer extremes, mean tracer drift and minimum layer
+thickness on one continuous axis, with the stage boundaries marked and each
+stage labelled with its damping.  A summary row cannot distinguish a quantity
+that was flat through a stage from one that spiked and recovered, and those
+call for different changes to the schedule; the figure can.  Reading it against
+the damping labels is usually the fastest way to tell a response to the ramp
+from a trend that would have happened anyway.
+
+The `viz` step belongs to the standalone task.  If the stages are later reused
+as shared steps by a longer spin-up workflow, a figure describing a completed
+adjustment is not what that workflow is asking about.
 
 ### config options
 
