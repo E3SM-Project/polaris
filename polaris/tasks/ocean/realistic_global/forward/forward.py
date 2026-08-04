@@ -147,10 +147,17 @@ class Forward(OceanModelStep):
         Declaring them is what makes the chain explicit to Polaris: a stage
         whose predecessor did not produce its restart fails before the model
         launches, rather than aborting inside it.
+
+        The restart filenames are declared for MPAS-Ocean only.  Omega names
+        its restart streams without a ``.nc`` extension, and whether it appends
+        one has not been verified against a build, so declaring a filename
+        there would risk failing every stage on a guess.  See the Omega block
+        of ``restart_streams.yaml``.
         """
         self.init_condition.add_input_files(self)
         stage = self.stage
-        if stage is not None:
+        model = self.config.get('ocean', 'model')
+        if stage is not None and model == 'mpas-ocean':
             if stage.restart_in is not None:
                 self.add_input_file(filename=f'../{stage.restart_in}')
             if stage.restart_out is not None:
@@ -247,9 +254,15 @@ class Forward(OceanModelStep):
 
         if stage.restart_out is not None:
             # this stage is part of a restart chain: write its restart to the
-            # shared ``../restarts`` directory (config_do_restart /
-            # config_start_time from forward.yaml drive the read side)
-            self.add_yaml_file(self.package, 'restart_streams.yaml')
+            # shared ``../restarts`` directory.  For MPAS-Ocean the read side
+            # is config_do_restart / config_start_time from forward.yaml; Omega
+            # needs a RestartRead stream, which the replacements switch on only
+            # for a stage that is restarting.
+            self.add_yaml_file(
+                self.package,
+                'restart_streams.yaml',
+                template_replacements=stage.restart_stream_replacements(),
+            )
             if self.work_dir is not None:
                 restart_dir = os.path.join(self.work_dir, '..', 'restarts')
                 os.makedirs(restart_dir, exist_ok=True)
