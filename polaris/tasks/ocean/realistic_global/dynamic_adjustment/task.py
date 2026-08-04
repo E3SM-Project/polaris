@@ -134,7 +134,6 @@ class RealisticGlobalDynamicAdjustment(Task):
         stages = load_schedule_stages(mesh_name, config)
 
         previous = None
-        stage_names = []
         for stage in stages:
             forward_step = Forward(
                 component=component,
@@ -156,10 +155,9 @@ class RealisticGlobalDynamicAdjustment(Task):
                 forward_step.add_dependency(previous, previous.name)
             self.add_step(forward_step)
             previous = forward_step
-            stage_names.append(stage.name)
 
         validate_step = Validate(
-            component=component, stage_names=stage_names, indir=base
+            component=component, stages=stages, indir=base
         )
         validate_step.set_shared_config(config, link=CONFIG_FILENAME)
         self.add_step(validate_step)
