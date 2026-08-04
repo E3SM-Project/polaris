@@ -35,6 +35,13 @@ DEFAULT_SCHEDULE = 'default.yaml'
 SECTION = 'realistic_global_dynamic_adjustment'
 FORWARD_SECTION = 'realistic_global_forward'
 
+# MPAS-Ocean fires an output alarm at ``reference_time + n * interval``, and
+# the restart stream's reference time is fixed at this value by the Registry
+# (``Registry.xml``, the immutable ``restart`` stream).  It does not follow a
+# stage's start time, so a stage's stop has to land on the alarm measured from
+# here, not from where the stage began.
+RESTART_REFERENCE_TIME = '0001-01-01_00:00:00'
+
 # ForwardStage fields the restart chain owns, which a schedule may not set.
 # ``start_time`` is the exception: it is accepted in the ``shared`` block as
 # the origin of the chain, and each stage's own start time follows from it.
@@ -98,23 +105,84 @@ def load_schedule_stages(
         stop = _advance(start_time, run_duration)
         stop_colons = _format_time(stop, ':')
         restart_out = f'restarts/rst.{_format_time(stop, ".")}.nc'
-        stages.append(
-            _build_stage(
-                base=base,
-                name=name,
-                merged=merged,
-                run_duration=run_duration,
-                start_time=start_time,
-                do_restart=do_restart,
-                restart_in=restart_in,
-                restart_out=restart_out,
-            )
+        stage = _build_stage(
+            base=base,
+            name=name,
+            merged=merged,
+            run_duration=run_duration,
+            start_time=start_time,
+            do_restart=do_restart,
+            restart_in=restart_in,
+            restart_out=restart_out,
         )
+        _check_stage_writes_its_records(stage, stop)
+        stages.append(stage)
         start_time = stop_colons
         restart_in = restart_out
         do_restart = True
 
     return stages
+
+
+def _check_stage_writes_its_records(
+    stage: ForwardStage, stop: datetime.datetime
+) -> None:
+    """
+    Raise unless the stage will actually write the records the chain needs.
+
+    Two ways a schedule can look reasonable and produce nothing usable:
+
+    * a ``restart_interval`` that does not put the stage's stop time on the
+      restart alarm.  The stage declares ``restarts/rst.<stop>.nc`` as its
+      output and the next stage reads it, so a miss is not a missing diagnostic
+      but a broken chain -- discovered only after the model has already run.
+      The alarm is measured from the stream's fixed reference time, so it is
+      the elapsed time from there, not the stage's duration, that has to
+      divide.
+    * a ``stats_interval`` longer than the stage, which leaves the statistics
+      with only the record written at startup, so the diagnostics summary
+      reports the state the stage began from as its end-of-stage value.
+
+    ``output_interval`` is deliberately not checked.  An interval longer than
+    the stage is a legitimate way to say "do not write 3-D fields during the
+    damped stages", which is what the ported Compass schedules do, and now that
+    the diagnostics come from the statistics nothing depends on ``output.nc``
+    having a final record.
+    """
+    restart_seconds = _interval_seconds(stage, 'restart_interval')
+    elapsed = (stop - _parse_time(RESTART_REFERENCE_TIME)).total_seconds()
+    if elapsed % restart_seconds != 0:
+        raise ValueError(
+            f'Stage {stage.name!r} ends at {_format_time(stop, ":")}, '
+            f'which is '
+            f'{elapsed:g} s after the restart reference time '
+            f'{RESTART_REFERENCE_TIME} and not a whole number of its '
+            f'{stage.restart_interval!r} restart intervals, so MPAS-Ocean '
+            f'would never write the restart the next stage reads.  Choose a '
+            f'restart_interval that divides {elapsed:g} s, or change the run '
+            f'durations before this stage.'
+        )
+
+    duration = _interval_seconds(stage, 'run_duration')
+    if _interval_seconds(stage, 'stats_interval') > duration:
+        raise ValueError(
+            f'Stage {stage.name!r} has stats_interval '
+            f'{stage.stats_interval!r}, which is longer than its run_duration '
+            f'{stage.run_duration!r}, so the statistics would hold only the '
+            f'record written at startup and the diagnostics summary would '
+            f"report the stage's starting state as its end-of-stage value."
+        )
+
+
+def _interval_seconds(stage: ForwardStage, option: str) -> float:
+    """The number of seconds in one of a stage's duration options."""
+    seconds = duration_to_seconds(getattr(stage, option))
+    if seconds <= 0.0:
+        raise ValueError(
+            f'Stage {stage.name!r} has a non-positive {option} '
+            f'{getattr(stage, option)!r}.'
+        )
+    return seconds
 
 
 def _load_schedule(
@@ -271,9 +339,13 @@ _FIELD_HINTS: Optional[Dict[str, Any]] = None
 
 def _advance(start_time: str, run_duration: str) -> datetime.datetime:
     """The datetime ``start_time`` + ``run_duration``."""
-    start = datetime.datetime.strptime(start_time, '%Y-%m-%d_%H:%M:%S')
     seconds = int(round(duration_to_seconds(run_duration)))
-    return start + datetime.timedelta(seconds=seconds)
+    return _parse_time(start_time) + datetime.timedelta(seconds=seconds)
+
+
+def _parse_time(when: str) -> datetime.datetime:
+    """Parse an MPAS-style ``YYYY-MM-DD_HH:MM:SS`` time."""
+    return datetime.datetime.strptime(when, '%Y-%m-%d_%H:%M:%S')
 
 
 def _format_time(when: datetime.datetime, time_sep: str) -> str:
