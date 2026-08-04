@@ -58,6 +58,15 @@ class ForwardStage:
     restart_interval : str
         The interval between writes to the restart stream.
 
+    stats_interval : str
+        The interval between writes of the global statistics, which is
+        deliberately separate from ``output_interval``: the statistics are a
+        handful of scalars, so they can be written far more often than the 3-D
+        output and are what makes an excursion within a stage visible.
+        MPAS-Ocean only -- Omega's ``GlobalStats`` reduction period is baked
+        into the variable names that ``mpaso_to_omega`` maps, so its statistics
+        stay daily.
+
     mpaso_time_integrator : str
         The time integrator to use for MPAS-Ocean.
 
@@ -147,6 +156,7 @@ class ForwardStage:
     run_duration: str = '0001_00:00:00'
     output_interval: str = '0001_00:00:00'
     restart_interval: str = '0001_00:00:00'
+    stats_interval: str = '0001_00:00:00'
     mpaso_time_integrator: str = 'split_explicit_ab2'
     omega_time_integrator: str = 'RK4'
     dt: Optional[str] = None
@@ -206,6 +216,7 @@ class ForwardStage:
             run_duration=run_duration,
             output_interval=config.get(section, 'output_interval').strip(),
             restart_interval=restart_interval,
+            stats_interval=config.get(section, 'stats_interval').strip(),
             mpaso_time_integrator=config.get(
                 section, 'mpaso_time_integrator'
             ).strip(),
@@ -307,13 +318,16 @@ class ForwardStage:
                     f'{supported}.'
                 )
         output_freq = int(round(duration_to_seconds(self.output_interval)))
+        stats_freq = int(round(duration_to_seconds(self.stats_interval)))
         restart_freq = int(round(duration_to_seconds(self.restart_interval)))
         return dict(
             run_duration=self.run_duration,
             output_interval=self.output_interval,
             restart_interval=self.restart_interval,
+            stats_interval=self.stats_interval,
             output_freq=str(output_freq),
             restart_freq=str(restart_freq),
+            stats_freq=str(stats_freq),
             dt=dt,
             btr_dt=btr_dt,
             time_integrator=time_integrator,
