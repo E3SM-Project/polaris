@@ -1,8 +1,8 @@
 from polaris import Step
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
-    STATS_FILENAMES,
     collect_stage_diagnostics,
     log_summary,
+    stage_stats_path,
     write_summary,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
@@ -112,17 +112,12 @@ class Validate(Step):
         """
         config = self.config
         model = config.get('ocean', 'model')
-        stats_filename = STATS_FILENAMES.get(model)
         return [
             collect_stage_diagnostics(
                 component=self.component,
                 config=config,
                 stage=stage,
-                stats_filename=(
-                    None
-                    if stats_filename is None
-                    else f'../{stage.name}/{stats_filename}'
-                ),
+                stats_filename=stage_stats_path(stage.name, model),
                 output_filename=f'output_{stage.name}.nc',
                 logger=self.logger,
             )

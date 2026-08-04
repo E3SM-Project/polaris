@@ -6,6 +6,9 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
     Validate,
 )
+from polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz import (
+    VizDynamicAdjustmentStep,
+)
 from polaris.tasks.ocean.realistic_global.forward.forward import Forward
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
     StepInitialCondition,
@@ -161,3 +164,12 @@ class RealisticGlobalDynamicAdjustment(Task):
         )
         validate_step.set_shared_config(config, link=CONFIG_FILENAME)
         self.add_step(validate_step)
+
+        # the figure describes a completed adjustment, which is not what a
+        # workflow that only wants the relaxed restart is asking about, so it
+        # belongs to this standalone task rather than to the stages
+        viz_step = VizDynamicAdjustmentStep(
+            component=component, stages=stages, indir=base
+        )
+        viz_step.set_shared_config(config, link=CONFIG_FILENAME)
+        self.add_step(viz_step)
