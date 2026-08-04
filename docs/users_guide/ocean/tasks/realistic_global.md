@@ -890,9 +890,16 @@ restart settings (`do_restart`, `restart_in`, `restart_out`) are owned by the
 chain and cannot be set by a schedule.
 
 Rayleigh damping runs the other way round from the other options: it is off in
-config (`damping` is blank) and turned on per stage by the
-schedule, so the `simulation` stage gets an undamped run simply by omitting
-`damping`.
+config (`damping` is blank) and turned on per stage by the schedule, so the
+`simulation` stage gets an undamped run simply by omitting `damping`.
+
+:::{warning}
+Rayleigh damping is MPAS-Ocean only.  Omega has no equivalent
+([Omega#495](https://github.com/E3SM-Project/Omega/issues/495)), so a stage that
+sets `damping` raises when the configured model is Omega rather than running
+undamped and reporting success.  An Omega dynamic adjustment therefore needs a
+schedule with no damping at all, which is not what these shipped schedules are.
+:::
 
 ### restart chaining
 
@@ -917,14 +924,37 @@ history output interacting badly, with history output mangled across a restart;
 its resolution will change how an Omega restart run has to be configured.
 :::
 
-### validation
+### diagnostics and validation
 
-A final `validate` step checks that the maximum temperature in each stage stays
-below `temperature_max` and that the maximum cell kinetic energy is not
-increasing over the last `ke_check_num_stages` stages (skipped when there are
-fewer stages, as in the coarse default schedule).  Both checks work for either
-ocean model: the step reads each stage's `output.nc` through `open_model_dataset`,
-which maps Omega's variable names to the MPAS-Ocean ones.
+A final `validate` step summarizes the sequence and then checks it.
+
+The summary is `dynamic_adjustment_stats.csv`, one row per stage, and the same
+table is written to the step's log.  It is the quickest way to see whether the
+damping ramp and the stage durations were chosen well: kinetic energy should be
+falling and flattening from stage to stage, the tracer drift should be shrinking,
+and nothing should be approaching a blow-up.  Columns ending `_in_stage` are the
+extreme reached at any point during the stage; the rest are end-of-stage values.
+
+The numbers come from each stage's global-statistics file wherever the
+configured model reports them, because the model has already reduced them over
+the whole domain at the output cadence — so an excursion in the middle of a
+stage is visible, which it is not in an end-of-stage field.  What the model does
+not report is computed from `output.nc` instead, but only for maxima and minima,
+which mean the same thing however they are obtained.  A volume-weighted mean does
+not, so `kinetic_energy_mean` and `kinetic_energy_total` are left blank rather
+than quietly replaced with an unweighted mean.
+
+Omega's `GlobalStats` covers temperature, salinity, layer thickness and normal
+velocity but has no kinetic energy, CFL number or volume-weighted sums, so those
+columns are blank for an Omega run.  A blank means "this model does not report
+it", not that something went wrong; the log says which source each metric came
+from.
+
+The checks are then made against those same rows, so the summary and the checks
+cannot disagree.  The maximum temperature in each stage must stay below
+`temperature_max`, and the maximum cell kinetic energy must not increase over the
+last `ke_check_num_stages` stages — skipped when there are fewer stages, as in
+the coarse default schedule, or when the model reports no kinetic energy.
 
 One caveat the threshold cannot express: Omega's temperature is conservative
 temperature where MPAS-Ocean's is potential temperature, so `temperature_max` is
