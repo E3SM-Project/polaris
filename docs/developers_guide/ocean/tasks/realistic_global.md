@@ -342,6 +342,18 @@ rather than read, from the change in a volume-weighted mean across the stage
 divided by the stage's run duration, which is why `Validate` takes the
 `ForwardStage` list rather than just the stage names.
 
+The statistics cadence is `ForwardStage.stats_interval`, which drives the
+`globalStatsOutput` stream and through it the analysis member's compute
+interval.  It is separate from the 3-D `output_interval` on purpose: tying a few
+scalars to the cadence of 3-D fields gave two samples per stage on the 10-day
+schedules and, on `u.oi6to18.lr6to10`, a single startup record for every stage
+shorter than the 10-day output interval.
+
+`schedule._check_stage_writes_its_records` rejects a `restart_interval` that
+misses MPAS-Ocean's restart alarm (measured from the stream's fixed
+`reference_time`, not the stage start) and a `stats_interval` longer than the
+stage.  Both otherwise fail only after the model has run.
+
 The statistics file is opened by relative path rather than declared as a step
 input, so a stage that did not write one degrades to computing what it can from
 `output.nc`.  Its name differs by model (`diagnostics.STATS_FILENAMES`): Omega
