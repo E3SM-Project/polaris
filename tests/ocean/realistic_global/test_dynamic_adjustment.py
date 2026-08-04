@@ -611,6 +611,108 @@ def test_missing_required_option(tmp_path):
         load_schedule_stages('icos240km', config)
 
 
+# --- a stage must write the records the chain needs ---
+
+
+def test_restart_interval_that_misses_the_stage_end_raises(tmp_path):
+    """
+    MPAS-Ocean's restart alarm runs from a fixed reference time, so a stage
+    ending 1.5 restart intervals in never writes the restart the chain
+    declares, and the failure only shows up after the model has run.
+    """
+    config = _config_for_schedule(
+        tmp_path,
+        """
+        dynamic_adjustment:
+          stages:
+            only_stage:
+              run_duration: 03_00:00:00
+              restart_interval: 02_00:00:00
+        """,
+    )
+    with pytest.raises(ValueError, match='restart the next stage reads'):
+        load_schedule_stages('icos240km', config)
+
+
+def test_restart_interval_is_measured_from_the_reference_not_the_stage(
+    tmp_path,
+):
+    """
+    A second stage of 2 days whose restart interval divides its own duration
+    still fails when the chain has put its stop time off the alarm.
+    """
+    config = _config_for_schedule(
+        tmp_path,
+        """
+        dynamic_adjustment:
+          stages:
+            first:
+              run_duration: 01_00:00:00
+              restart_interval: 01_00:00:00
+            second:
+              run_duration: 02_00:00:00
+              restart_interval: 02_00:00:00
+        """,
+    )
+    # 'second' ends 3 days in, which is not a whole number of 2-day intervals
+    # from the reference even though 2 days divides its own duration
+    with pytest.raises(ValueError, match="'second'"):
+        load_schedule_stages('icos240km', config)
+
+
+def test_restart_interval_on_the_alarm_is_accepted(tmp_path):
+    config = _config_for_schedule(
+        tmp_path,
+        """
+        dynamic_adjustment:
+          stages:
+            first:
+              run_duration: 02_00:00:00
+              restart_interval: 02_00:00:00
+            second:
+              run_duration: 02_00:00:00
+              restart_interval: 02_00:00:00
+        """,
+    )
+    stages = load_schedule_stages('icos240km', config)
+    assert [stage.restart_out for stage in stages] == [
+        'restarts/rst.0001-01-03_00.00.00.nc',
+        'restarts/rst.0001-01-05_00.00.00.nc',
+    ]
+
+
+def test_stats_interval_longer_than_the_stage_raises(tmp_path):
+    config = _config_for_schedule(
+        tmp_path,
+        """
+        dynamic_adjustment:
+          stages:
+            only_stage:
+              run_duration: 01_00:00:00
+              stats_interval: 10_00:00:00
+        """,
+    )
+    with pytest.raises(ValueError, match='stats_interval'):
+        load_schedule_stages('icos240km', config)
+
+
+def test_output_interval_longer_than_the_stage_is_allowed(tmp_path):
+    # a long 3-D output interval is how the ported Compass schedules say "do
+    # not write 3-D fields during the damped stages"
+    config = _config_for_schedule(
+        tmp_path,
+        """
+        dynamic_adjustment:
+          stages:
+            only_stage:
+              run_duration: 01_00:00:00
+              output_interval: 10_00:00:00
+        """,
+    )
+    stage = load_schedule_stages('icos240km', config)[0]
+    assert stage.output_interval == '10_00:00:00'
+
+
 # --- validation helpers ---
 
 
