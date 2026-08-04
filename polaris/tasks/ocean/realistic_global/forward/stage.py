@@ -131,7 +131,10 @@ class ForwardStage:
     restart_in : str or None
         The restart file to continue from when ``do_restart`` is ``True``, as a
         path relative to the task work directory (e.g.
-        ``restarts/rst.0001-01-11_00.00.00.nc``).
+        ``restarts/rst.0001-01-11_00.00.00.nc``).  The forward step declares it
+        as an input, and the model reaches it through the restart stream's
+        ``filename_template`` at ``start_time``; there is no separate
+        restart-pointer file.
 
     restart_out : str or None
         The restart file this stage produces for the next stage, as a path
