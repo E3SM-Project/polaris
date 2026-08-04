@@ -610,6 +610,7 @@
    task.RealisticGlobalDynamicAdjustment.configure
 
    schedule.load_schedule_stages
+   schedule.excluded_days_in_stage
 
    validate.Validate
    validate.Validate.run

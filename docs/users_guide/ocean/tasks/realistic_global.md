@@ -984,18 +984,33 @@ unexamined, and each stage is judged on what it did rather than on what it was
 handed.  The `viz` figure still plots the full series, so an inherited extreme
 remains visible there.
 
-This matters in practice.  NOAA's January WOA23 analysis contains one bad grid
-cell off Sumatra, reaching 36.9 °C at 70 m, which survives into the
-`u.oi30.lr10` initial condition as a single cell at 33.46 °C — above the
-`temperature_max` of 33.  It is a known source-data problem that cannot be
-filtered without discarding real hydrography, and the model mixes it away within
-a day.  A second source artifact in the Red Sea does the same for salinity.
+The two tracer checks ignore a further `startup_exclusion_duration` at the
+beginning of the sequence, over which the initial condition's artifacts are
+still mixing away.  That window is measured from the start of the *sequence*,
+not of each stage, so it covers only the stages it actually reaches — a window
+measured from each stage would instead stop looking just after every damping
+change, which is where a schedule that steps the damping down too fast would
+show itself.  For the same reason the CFL check does not get the window at all:
+the opening hours are exactly where a time step that is too long shows up.
 
-The two tracer thresholds are blow-up detectors rather than plausibility bounds.
-A real blow-up produces hundreds of degrees or NaN, not a fraction of a degree
-over, so they are set with wide margin above the genuine extremes: the
-hypersaline Persian Gulf peaks near 42 PSU, and the warmest water these runs
-reach is about 31.7 °C.
+This matters in practice.  NOAA's January WOA23 analysis contains one bad grid
+cell off Sumatra, reaching 36.9 °C at 70 m.  It is a known source-data problem
+that cannot be filtered without discarding real hydrography, and how much of it
+survives into the initial condition depends on the mesh: a single cell at
+33.46 °C on `u.oi30.lr10`, but 35.78 °C on `u.oi6to18.lr6to10`, which averages
+the bad source cell far less.  It also erodes far more slowly there — 34.29 °C
+after six hours, and by extrapolation more than a day to fall below 33 — so it
+is still present when the second and third stages begin.  A second source
+artifact in the Red Sea does the same for salinity, and erodes more slowly
+still: it is a ~25-cell blob at 1150 m, where there is almost no flow, and it
+settles near 42.6 PSU for the rest of the adjustment.
+
+The two tracer thresholds are therefore blow-up detectors rather than
+plausibility bounds, and they are set above the artifacts rather than above the
+physics.  A real blow-up produces hundreds of degrees or NaN, not a fraction of
+a degree over, so there is ample room between the two: the warmest genuine water
+these runs reach is about 31.7 °C, and nothing in the `u.oi6to18.lr6to10`
+initial condition is above 42 PSU outside the Red Sea artifact.
 
 The third is made by the final `validate` step against the summary rows, since
 no single stage can see it:
@@ -1052,15 +1067,50 @@ adjustment is not what that workflow is asking about.
 # schedule; leave blank to use the checked-in schedule for the mesh
 schedule =
 
-# Maximum allowed temperature (deg C) in any stage's output; exceeding it is
-# treated as numerical blow-up
-temperature_max = 33.0
+# Maximum allowed temperature (deg C) reached during any stage; exceeding it is
+# treated as numerical blow-up.  Neither the sample written before a stage's
+# first time step nor the startup window below is checked, so this bounds what
+# the stage did rather than the state it started from.
+# Set above the WOA23 warm artifact off Sumatra rather than at a physical
+# bound.  On u.oi6to18.lr6to10 that cell starts at 35.8 deg C, and it erodes
+# far more slowly than it does at 30 km -- 34.3 after six hours, and by
+# extrapolation more than a day to fall below 33 -- so a bound at 33 would fail
+# the first three stages of a healthy run.
+temperature_max = 35.0
 
-# Number of trailing stages over which the maximum cell kinetic energy must not
-# increase (the "settling" check)
+# Maximum allowed salinity (PSU) reached during any stage, on the same terms.
+# A blow-up detector rather than a plausibility bound: the WOA23 source data
+# carries a Red Sea artifact that reaches 44.1 in the u.oi6to18.lr6to10 initial
+# condition and then settles near 42.6 for the rest of the adjustment, since it
+# is a ~25-cell blob at 1150 m where there is almost no flow to erode it.
+# Nothing else in that initial condition is above 42, and a real blow-up
+# produces far more than 44.
+salinity_max = 44.0
+
+# A window at the start of the adjustment, in addition to each stage's first
+# sample, over which the tracer extremes are not checked, as an MPAS duration
+# string.  It is measured from the start of the sequence rather than of each
+# stage, because what it skips belongs to the initial condition: the WOA23
+# artifacts need a couple of hours of mixing at 6-18 km before they fall back
+# to the values they then hold for the rest of the run.  A per-stage window
+# would instead stop looking just after every damping change, which is where a
+# schedule that steps the damping down too fast would show itself.
+# The CFL number is deliberately still checked inside this window, for the same
+# reason: the opening hours are where a time step that is too long shows up.
+startup_exclusion_duration = 00_02:00:00
+
+# Number of trailing stage transitions over which the growth of the mean
+# kinetic energy must not increase (the "settling" check)
 ke_check_num_stages = 3
 
-# Fractional tolerance allowed when checking that the maximum cell kinetic
-# energy is not increasing from one stage to the next
+# Fractional tolerance allowed when checking that the stage-over-stage growth
+# of the mean kinetic energy is not increasing
 ke_check_rel_tolerance = 0.01
+
+# Maximum allowed CFL number at any point in any stage.  MPAS-Ocean is not
+# usually pushed much past 0.1; the AB2 split-explicit integrator these
+# schedules use tolerates more, so this is set at 0.2 as a loose upper bound
+# rather than a tuned value.  Worth revisiting against experience.
+# MPAS-Ocean only: Omega's GlobalStats reports no CFL number.
+cfl_max = 0.2
 ```
