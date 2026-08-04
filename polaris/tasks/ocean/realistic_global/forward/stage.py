@@ -216,7 +216,7 @@ class ForwardStage:
             btr_dt=_opt_str(config, section, 'btr_dt'),
             dt_per_km=_opt_float(config, section, 'dt_per_km'),
             btr_dt_per_km=_opt_float(config, section, 'btr_dt_per_km'),
-            damping=_opt_float(config, section, 'Rayleigh_damping_coeff'),
+            damping=_opt_float(config, section, 'damping'),
             mom_del2=_opt_float(config, section, 'mom_del2'),
             mom_del4=_opt_float(config, section, 'mom_del4'),
             tracer_del2=_opt_float(config, section, 'tracer_del2'),
