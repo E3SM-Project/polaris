@@ -527,11 +527,40 @@ that coefficient.  This matters more than it might seem — the model defaults
 leave horizontal mixing off entirely, and a global run without it grows
 grid-scale noise until it produces NaNs.
 
-`hmix_scaling` chooses how the coefficients are scaled across the mesh:
-`none` uses them as given, `ref_cell_width` scales them by the cell width
-relative to `hmix_ref_cell_width`, and `scale_with_mesh` scales them with the
-local mesh density.  Quasi-uniform meshes generally use `ref_cell_width`, and
-variable-resolution meshes `scale_with_mesh`.
+`hmix_scaling` chooses how the coefficients are scaled across the mesh.  `none`
+uses them as given.  `ref_cell_width` makes them apply at `hmix_ref_cell_width`
+and scale from there — as `cellWidth` for the `del2` coefficients and as
+`cellWidth**3` for the `del4` ones.  A variable-resolution mesh wants
+`ref_cell_width`; on a mesh whose cells are all near the reference width the two
+are equivalent.
+
+Set `hmix_ref_cell_width` per mesh to the resolution the coefficients were
+chosen for.  For a variable-resolution mesh that is normally its *finest*
+resolution, because that is what E3SM's per-grid `mom_del2` and `mom_del4`
+values are referenced to — so `u.oi6to18.lr6to10` pairs E3SM's
+`RRSwISC6to18E3r5` value of `3.2e09` with a 6 km reference, and
+`u.oi.so12to30.lr10` pairs `SOwISC12to30E3r3`'s `1.18e10` with a 12 km one.
+Both reproduce E3SM's viscosity as a function of cell width to within about 15%.
+
+:::{note}
+MPAS-Ocean spells this as two nested flags, and `ref_cell_width` sets **both**:
+`config_hmix_use_ref_cell_width` is read only inside
+`if (config_hmix_scaleWithMesh)`.  Setting the first without the second reads as
+a request for width-based scaling and silently gets none at all.
+
+MPAS-Ocean's third combination — `scaleWithMesh` with `use_ref_cell_width`
+false — scales by the legacy `meshDensity` field instead.  Polaris does not
+offer it, and it should not be used: **`meshDensity` is meaningless on E3SM v4
+meshes**, which write it as uniformly 1.0, so that branch applies no scaling
+either.
+:::
+
+`mom_del4_div_factor` scales the divergence part of the biharmonic momentum
+operator alone, leaving its rotational part at `mom_del4`.  Blank leaves the
+model default of 1.0, the true biharmonic.  Raising it damps the divergent
+grid-scale mode — the one carrying C-grid checkerboard and gravity-wave noise —
+without blurring the resolved eddy field, which is why E3SM uses 10 on its
+eddying `RRSwISC6to18E3r5` mesh and nowhere else.  MPAS-Ocean only.
 
 Some settings are not config options because they should not vary: they are
 pinned in `forward.yaml` purely so that MPAS-Ocean and Omega agree.  Where the
@@ -650,16 +679,41 @@ mom_del4 = 1.2e11
 tracer_del2 =
 tracer_del4 =
 
+# A factor applied to the divergence part of the biharmonic momentum operator
+# alone, leaving its rotational part at mom_del4.  Blank leaves the model
+# default of 1.0, which is the true biharmonic.  Raising it damps the divergent
+# grid-scale mode -- the one that carries C-grid checkerboard and gravity-wave
+# noise -- without blurring the resolved eddy field, which is why E3SM uses 10
+# on its eddying RRSwISC6to18E3r5 mesh and nowhere else.
+# MPAS-Ocean only.
+mom_del4_div_factor =
+
 # Whether to use the Leith closure for harmonic momentum mixing
 use_Leith_del2 = False
 
 # How horizontal mixing coefficients are scaled across the mesh.  One of:
 #   none            - the coefficients above are used as given
-#   ref_cell_width  - scaled by the cell width relative to hmix_ref_cell_width
-#   scale_with_mesh - scaled with the local mesh density
+#   ref_cell_width  - the coefficients above apply at hmix_ref_cell_width, and
+#                     scale as cellWidth for del2 and cellWidth**3 for del4
+# A variable-resolution mesh wants ref_cell_width; on a mesh whose cells are
+# all near the reference width the two are equivalent.
+#
+# MPAS-Ocean spells this as two nested flags, and ref_cell_width sets *both*:
+# config_hmix_use_ref_cell_width is read only when config_hmix_scaleWithMesh is
+# true.  Setting only the former reads as a request for width-based scaling and
+# silently gets none.
+#
+# MPAS-Ocean's third combination -- scaleWithMesh with use_ref_cell_width false
+# -- scales by the legacy meshDensity field instead, and is deliberately not
+# offered here.  E3SM v4 meshes, including every mesh Polaris builds, write
+# meshDensity as uniformly 1.0, so that path silently applies no scaling at
+# all.  Do not use it, and do not add a Polaris option for it.
 hmix_scaling = none
 
-# The reference cell width (m), used only when hmix_scaling = ref_cell_width
+# The reference cell width (m), used only when hmix_scaling = ref_cell_width.
+# Set it per mesh to the resolution the coefficients above were chosen for --
+# for a variable-resolution mesh that is normally its finest resolution, which
+# is what E3SM's per-grid mom_del2 and mom_del4 values are referenced to.
 hmix_ref_cell_width = 30.0e3
 
 # Whether to use the Gent-McWilliams eddy transport parameterization, and the

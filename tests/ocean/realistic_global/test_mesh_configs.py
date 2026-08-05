@@ -142,11 +142,13 @@ FORWARD_EXPECTED: dict[str, dict[str, object]] = {
         use_Redi=True,
         use_frazil_ice_formation=False,
     ),
-    # Compass rrs6to18
+    # Compass rrs6to18, with E3SM's RRSwISC6to18E3r5 mixing
     'u.oi6to18.lr6to10': dict(
         mom_del2=None,
         mom_del4=3.2e09,
-        hmix_scaling='scale_with_mesh',
+        mom_del4_div_factor=10.0,
+        hmix_scaling='ref_cell_width',
+        hmix_ref_cell_width=6.0e3,
         use_GM=False,
         use_Redi=False,
         # the shared default scaling, which reproduces the Compass rrs6to18
@@ -154,11 +156,13 @@ FORWARD_EXPECTED: dict[str, dict[str, object]] = {
         dt_per_km=30.0,
         btr_dt_per_km=1.5,
     ),
-    # Compass so12to30, apart from its time step
+    # Compass so12to30, apart from its time step, with E3SM's SOwISC12to30E3r3
+    # mixing
     'u.oi.so12to30.lr10': dict(
         mom_del2=462.0,
         mom_del4=1.18e10,
-        hmix_scaling='scale_with_mesh',
+        hmix_scaling='ref_cell_width',
+        hmix_ref_cell_width=12.0e3,
         use_GM=True,
         GM_closure='constant',
         GM_constant_kappa=600.0,
@@ -166,6 +170,23 @@ FORWARD_EXPECTED: dict[str, dict[str, object]] = {
         btr_dt_per_km=1.5,
     ),
 }
+
+
+def test_variable_resolution_meshes_reference_their_finest_cells():
+    """
+    E3SM's per-grid mom_del2 and mom_del4 values are referenced to the finest
+    cells of the mesh they belong to, so a Polaris mesh that borrows them has
+    to put hmix_ref_cell_width at that resolution rather than leave it at the
+    shared 30 km default.  Getting this wrong is silent: every cell but the
+    reference then runs at the wrong viscosity.
+    """
+    for mesh_name, finest_km in [
+        ('u.oi6to18.lr6to10', 6.0),
+        ('u.oi.so12to30.lr10', 12.0),
+    ]:
+        stage = _get_forward_stage(mesh_name)
+        assert stage.hmix_scaling == 'ref_cell_width', mesh_name
+        assert stage.hmix_ref_cell_width == finest_km * 1.0e3, mesh_name
 
 
 @pytest.mark.parametrize('mesh_name', sorted(FORWARD_EXPECTED))
