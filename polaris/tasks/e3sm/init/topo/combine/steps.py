@@ -1,5 +1,6 @@
 import os
 
+from polaris.config import PolarisConfigParser
 from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.step import Step
 from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
@@ -130,7 +131,8 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
     config_filename = 'combine_topo.cfg'
     filepath = os.path.join(component.name, subdir, config_filename)
 
-    def setup(config):
+    def create():
+        config = PolarisConfigParser(filepath=filepath)
         config.add_from_package(
             'polaris.tasks.e3sm.init.topo.combine', 'combine.cfg'
         )
@@ -141,9 +143,10 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
             )
         else:
             config.set('combine_topo', 'resolution_latlon', f'{resolution}')
+        return config
 
     config = component.get_or_create_shared_config(
-        filepath=filepath, setup=setup
+        filepath=filepath, create=create
     )
 
     steps: dict[str, Step] = {}
