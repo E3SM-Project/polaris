@@ -39,6 +39,27 @@ shared_step = component.get_or_create_shared_step(
 )
 ```
 
+The shared config those steps use needs the same treatment, which is what
+{py:meth}`polaris.Component.get_or_create_shared_config()` is for:
+
+```python
+
+config = component.get_or_create_shared_config(
+    filepath=os.path.join(component.name, subdir, "init.cfg"),
+    setup=lambda config: config.add_from_package("my.package", "init.cfg"),
+)
+```
+
+A `get_*_steps()` helper is called once per consumer, so building its config
+unconditionally is a bug even though it looks harmless.  The second caller gets
+a *different* config object at the same path, while the shared steps — created
+on the first call — go on using the first one.  Options set on what the second
+caller was handed then reach nothing, and passing it to
+{py:meth}`polaris.Task.set_shared_config()` raises, because a different config
+is already registered at that path.  The `setup` callback runs only when the
+config is actually created, so it must not be relied on for anything a later
+caller needs.
+
 See the [design document on shared steps](../../design_docs/shared_steps.md)
 for more details about the motivation and implementation.
 
