@@ -58,7 +58,7 @@ class Validate(Step):
         The stage subdirectory names, in schedule order.
     """
 
-    def __init__(self, component, stages, indir):
+    def __init__(self, component, subdir, stages):
         """
         Create the step.
 
@@ -67,16 +67,16 @@ class Validate(Step):
         component : polaris.tasks.ocean.Ocean
             The ocean component the step belongs to.
 
+        subdir : str
+            The subdirectory for the step.
+
         stages : list of ForwardStage
             The stages of the adjustment, in schedule order.  The stages
             themselves are needed, rather than just their names, because a
             stage's run duration is what turns a change across the stage into
             a per-day drift rate.
-
-        indir : str
-            The directory the step is in, to which ``validate`` is appended.
         """
-        super().__init__(component=component, name='validate', indir=indir)
+        super().__init__(component=component, name='validate', subdir=subdir)
         self.stages = list(stages)
         self.stage_names = [stage.name for stage in self.stages]
         for stage_name in self.stage_names:
@@ -171,7 +171,7 @@ class StageCheck(Step):
     """
 
     def __init__(
-        self, component, stage, indir, sequence_start='0001-01-01_00:00:00'
+        self, component, subdir, stage, sequence_start='0001-01-01_00:00:00'
     ):
         """
         Create the step.
@@ -181,12 +181,11 @@ class StageCheck(Step):
         component : polaris.tasks.ocean.Ocean
             The ocean component the step belongs to.
 
+        subdir : str
+            The subdirectory for the step.
+
         stage : ForwardStage
             The stage whose statistics are checked.
-
-        indir : str
-            The directory the step is in, to which ``<stage>_check`` is
-            appended.
 
         sequence_start : str, optional
             The start time of the first stage of the adjustment.  The startup
@@ -196,7 +195,7 @@ class StageCheck(Step):
             single-stage sequence begins.
         """
         super().__init__(
-            component=component, name=f'{stage.name}_check', indir=indir
+            component=component, name=f'{stage.name}_check', subdir=subdir
         )
         self.stage = stage
         self.sequence_start = sequence_start
