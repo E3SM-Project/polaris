@@ -4,7 +4,6 @@ from .schedule import load_schedule_stages
 from .steps import (
     CONFIG_FILENAME,
     adjustment_subdir,
-    get_adjustment_steps,
     get_realistic_dynamic_adjustment_steps,
 )
 
@@ -59,12 +58,6 @@ class RealisticGlobalDynamicAdjustment(Task):
         )
         self.set_shared_config(config, link=CONFIG_FILENAME)
         self.stages = stages
-        base = adjustment_subdir(mesh_name)
-        self._init_steps = {
-            name: step
-            for name, step in steps.items()
-            if not step.subdir.startswith(f'{base}/')
-        }
         for symlink, step in steps.items():
             self.add_step(step, symlink=symlink)
 
@@ -77,12 +70,14 @@ class RealisticGlobalDynamicAdjustment(Task):
         A schedule that *has* changed cannot simply be re-requested: the shared
         steps are keyed by work directory, so a stage whose name survived the
         change would come back carrying its old run duration and time step.
-        The old ones are therefore discarded from the component first.
+        The old ones are therefore dropped first, which
+        :py:meth:`polaris.Task.remove_step` carries through to the component
+        once no task is left using them.
 
-        Only the adjustment steps are rebuilt.  The ``init`` chain upstream
-        does not depend on the schedule, and re-requesting it is not the same
-        as leaving it alone: it would build a second copy of the shared configs
-        its own upstream steps own.
+        Only the steps under this mesh's ``dynamic_adjustment`` directory are
+        dropped and added back.  Doing this to the whole task would evict the
+        ``init`` chain from the component too, and a consumer holding those
+        step instances would be left with stale ones.
         """
         super().configure()
         stages = load_schedule_stages(self.mesh_name, self.config)
@@ -91,18 +86,14 @@ class RealisticGlobalDynamicAdjustment(Task):
 
         base = adjustment_subdir(self.mesh_name)
         for step in list(self.steps.values()):
-            if not step.subdir.startswith(f'{base}/'):
-                continue
-            self.remove_step(step)
-            if step.subdir in self.component.steps:
-                self.component.remove_step(step)
+            if step.subdir.startswith(f'{base}/'):
+                self.remove_step(step)
 
-        steps, self.stages = get_adjustment_steps(
+        steps, _, self.stages = get_realistic_dynamic_adjustment_steps(
             component=self.component,
             mesh_name=self.mesh_name,
-            config=self.config,
-            init_steps=self._init_steps,
             include_viz=True,
         )
         for symlink, step in steps.items():
-            self.add_step(step, symlink=symlink)
+            if step.subdir.startswith(f'{base}/'):
+                self.add_step(step, symlink=symlink)
