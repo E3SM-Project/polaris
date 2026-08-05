@@ -21,14 +21,38 @@ _SPLIT_TIME_INTEGRATORS = {
     'split_explicit_ab2',
 }
 
-# Map from the ``hmix_scaling`` config option to the MPAS-Ocean flag it sets.
-# Polaris exposes one option with a named value rather than MPAS-Ocean's two
-# independent booleans, so that the meaningless "both at once" combination
-# cannot be expressed.
-_HMIX_SCALING_OPTIONS = {
-    'none': None,
-    'ref_cell_width': 'config_hmix_use_ref_cell_width',
-    'scale_with_mesh': 'config_hmix_scaleWithMesh',
+# Map from the ``hmix_scaling`` config option to the MPAS-Ocean flags it sets.
+#
+# MPAS-Ocean spells this as two booleans, and they are *nested* rather than
+# independent (``ocn_meshScaling`` in ``mpas_ocn_mesh.F``)::
+#
+#     if (config_hmix_scaleWithMesh) then
+#        if (config_hmix_use_ref_cell_width) then
+#           ! scale by (cellWidth / config_hmix_ref_cell_width)**n
+#        else
+#           ! scale by the meshDensity field
+#     else
+#        ! no scaling: meshScaling = 1 everywhere
+#
+# So ``config_hmix_use_ref_cell_width`` is read *only* when
+# ``config_hmix_scaleWithMesh`` is true.  Setting the former without the latter
+# reads as a request for width-based scaling and silently gets none, which is
+# why ``ref_cell_width`` here sets both.
+#
+# The meshDensity branch is deliberately not offered.  ``meshDensity`` is a
+# legacy field holding ``(cellWidthMin / cellWidth)**4``, and E3SM v4 meshes --
+# including every mesh Polaris builds -- write it as uniformly 1.0, which makes
+# that branch a no-op as well.  Mixing that is to follow resolution has to go
+# through ``ref_cell_width``.
+_HMIX_SCALING_FLAGS: Dict[str, Dict[str, bool]] = {
+    'none': {
+        'config_hmix_scaleWithMesh': False,
+        'config_hmix_use_ref_cell_width': False,
+    },
+    'ref_cell_width': {
+        'config_hmix_scaleWithMesh': True,
+        'config_hmix_use_ref_cell_width': True,
+    },
 }
 
 
@@ -99,6 +123,11 @@ class ForwardStage:
     mom_del4 : float or None
         The biharmonic momentum viscosity (m^4/s); ``None`` turns it off.
 
+    mom_del4_div_factor : float or None
+        A factor applied to the divergence part of the biharmonic momentum
+        operator alone, leaving the rotational part at ``mom_del4``; ``None``
+        leaves the model default of 1.0, the true biharmonic.
+
     tracer_del2 : float or None
         The harmonic tracer diffusivity (m^2/s); ``None`` turns it off.
 
@@ -109,12 +138,14 @@ class ForwardStage:
         Whether to use the Leith closure for harmonic momentum mixing.
 
     hmix_scaling : str
-        How horizontal mixing coefficients are scaled across the mesh; one of
-        ``'none'``, ``'ref_cell_width'`` or ``'scale_with_mesh'``.
+        How horizontal mixing coefficients are scaled across the mesh; either
+        ``'none'`` or ``'ref_cell_width'``.
 
     hmix_ref_cell_width : float or None
         The reference cell width (m), used only when ``hmix_scaling`` is
-        ``'ref_cell_width'``.
+        ``'ref_cell_width'``.  The ``del2`` coefficients then apply at this
+        width and scale as ``cellWidth``, and the ``del4`` ones as
+        ``cellWidth**3``.
 
     use_GM : bool
         Whether to use the Gent-McWilliams eddy transport parameterization.
@@ -166,6 +197,7 @@ class ForwardStage:
     damping: Optional[float] = None
     mom_del2: Optional[float] = None
     mom_del4: Optional[float] = None
+    mom_del4_div_factor: Optional[float] = None
     tracer_del2: Optional[float] = None
     tracer_del4: Optional[float] = None
     use_Leith_del2: bool = False
@@ -230,6 +262,9 @@ class ForwardStage:
             damping=_opt_float(config, section, 'damping'),
             mom_del2=_opt_float(config, section, 'mom_del2'),
             mom_del4=_opt_float(config, section, 'mom_del4'),
+            mom_del4_div_factor=_opt_float(
+                config, section, 'mom_del4_div_factor'
+            ),
             tracer_del2=_opt_float(config, section, 'tracer_del2'),
             tracer_del4=_opt_float(config, section, 'tracer_del4'),
             use_Leith_del2=config.getboolean(section, 'use_Leith_del2'),
@@ -459,9 +494,9 @@ class ForwardStage:
         """
         Physics options that only MPAS-Ocean has.
 
-        The Leith closure, the horizontal-mixing scaling, Gent-McWilliams,
-        Redi and frazil ice have no Omega equivalent, and GM and Redi are not
-        expected to gain one, so these are applied with
+        The Leith closure, the horizontal-mixing scaling, the del4 divergence
+        factor, Gent-McWilliams, Redi and frazil ice have no Omega equivalent,
+        and GM and Redi are not expected to gain one, so these are applied with
         ``config_model='mpas-ocean'``.
 
         Returns
@@ -476,23 +511,18 @@ class ForwardStage:
             'config_use_frazil_ice_formation': self.use_frazil_ice_formation,
         }
 
-        if self.hmix_scaling not in _HMIX_SCALING_OPTIONS:
-            valid = ', '.join(sorted(_HMIX_SCALING_OPTIONS))
-            raise ValueError(
-                f'Unknown hmix_scaling {self.hmix_scaling!r}; valid options '
-                f'are: {valid}.'
-            )
-        # set every flag, so that turning scaling off in a user config undoes
-        # a per-mesh config that turned it on
-        selected = _HMIX_SCALING_OPTIONS[self.hmix_scaling]
-        for option in _HMIX_SCALING_OPTIONS.values():
-            if option is not None:
-                options[option] = option == selected
+        _check_hmix_scaling(self.hmix_scaling)
+        # both flags every time, so that turning scaling off in a user config
+        # undoes a per-mesh config that turned it on
+        options.update(_HMIX_SCALING_FLAGS[self.hmix_scaling])
         if (
             self.hmix_scaling == 'ref_cell_width'
             and self.hmix_ref_cell_width is not None
         ):
             options['config_hmix_ref_cell_width'] = self.hmix_ref_cell_width
+
+        if self.mom_del4_div_factor is not None:
+            options['config_mom_del4_div_factor'] = self.mom_del4_div_factor
 
         if self.use_GM:
             if self.GM_closure is not None:
@@ -519,12 +549,18 @@ def _time_step_string(
 def _hmix_scaling(config: PolarisConfigParser, section: str) -> str:
     """Read and validate the ``hmix_scaling`` option."""
     value = config.get(section, 'hmix_scaling').strip()
-    if value not in _HMIX_SCALING_OPTIONS:
-        valid = ', '.join(sorted(_HMIX_SCALING_OPTIONS))
-        raise ValueError(
-            f'Unknown hmix_scaling {value!r}; valid options are: {valid}.'
-        )
+    _check_hmix_scaling(value)
     return value
+
+
+def _check_hmix_scaling(value: str) -> None:
+    """Raise unless ``value`` names a supported ``hmix_scaling``."""
+    if value in _HMIX_SCALING_FLAGS:
+        return
+    valid = ', '.join(sorted(_HMIX_SCALING_FLAGS))
+    raise ValueError(
+        f'Unknown hmix_scaling {value!r}; valid options are: {valid}.'
+    )
 
 
 def _opt_str(
