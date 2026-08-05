@@ -609,6 +609,10 @@
    task.RealisticGlobalDynamicAdjustment
    task.RealisticGlobalDynamicAdjustment.configure
 
+   steps.get_realistic_dynamic_adjustment_steps
+   steps.get_adjustment_steps
+   steps.adjustment_subdir
+
    schedule.load_schedule_stages
    schedule.excluded_days_in_stage
 
