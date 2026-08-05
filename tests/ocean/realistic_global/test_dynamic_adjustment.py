@@ -14,7 +14,6 @@ from polaris.ocean.model import OceanModelStep
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks import (
     check_cfl_max,
-    check_ke_growth_decelerates,
     check_salinity_max,
     check_temperature_max,
 )
@@ -184,12 +183,20 @@ def test_per_mesh_schedule_counts():
 
 
 @pytest.mark.parametrize('mesh_name', UNIFIED_SCHEDULE_MESHES)
-def test_unified_schedules_run_the_ke_check(mesh_name):
-    # the settling check is skipped below ke_check_num_stages stages, so every
-    # unified mesh needs at least that many for validation to mean anything
-    config = _config(mesh_name)
-    ke_num = config.getint(SECTION, 'ke_check_num_stages')
-    assert _stage_count(mesh_name) >= ke_num
+def test_unified_schedules_ramp_the_damping_down(mesh_name):
+    """
+    The point of the sequence is to relax the damping towards zero, so each
+    damped stage must damp no harder than the one before it.  A stage that
+    raised the damping again would be undoing its predecessor's work.
+    """
+    damping = [
+        stage.damping
+        for stage in load_schedule_stages(mesh_name, _config(mesh_name))
+        if stage.damping is not None
+    ]
+    assert len(damping) >= 2, mesh_name
+    for previous, current in zip(damping[:-1], damping[1:], strict=False):
+        assert current <= previous, f'{mesh_name}: {damping}'
 
 
 @pytest.mark.parametrize('mesh_name', UNIFIED_SCHEDULE_MESHES)
@@ -933,54 +940,6 @@ def test_check_temperature_max_skipped_when_not_reported():
     check_temperature_max(None, 1.0, 33.0, 'simulation', LOGGER)
 
 
-def test_ke_growth_skipped_when_not_reported():
-    check_ke_growth_decelerates(
-        ['a', 'b', 'c'], [1.0, None, 3.0], 3, 0.01, LOGGER
-    )
-
-
-def test_ke_growth_decelerating_passes():
-    # the u.oi240.lr240 run: kinetic energy rises throughout as the wind spins
-    # the circulation up from rest, but each stage adds proportionally less
-    names = ['damped_1', 'damped_2', 'damped_3', 'simulation']
-    mean_ke = [3.336e-5, 1.562e-4, 5.773e-4, 1.189e-3]
-    check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
-
-
-def test_ke_growth_that_rises_but_decelerates_is_not_a_failure():
-    # the old check compared the levels and would have failed this
-    names = ['a', 'b', 'c', 'd']
-    mean_ke = [1.0, 4.0, 8.0, 12.0]
-    check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
-
-
-def test_ke_growth_within_tolerance_passes():
-    names = ['a', 'b', 'c']
-    # fractional changes of 100% then 101%, inside the 1% tolerance
-    mean_ke = [1.0, 2.0, 4.02]
-    check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
-
-
-def test_ke_growth_accelerating_raises():
-    names = ['a', 'b', 'c', 'd']
-    # fractional changes of 100%, 100%, then 300%: running away
-    mean_ke = [1.0, 2.0, 4.0, 16.0]
-    with pytest.raises(ValueError, match='not settling'):
-        check_ke_growth_decelerates(names, mean_ke, 3, 0.01, LOGGER)
-
-
-def test_ke_decaying_towards_a_plateau_passes():
-    # converging from above: the ratios rise towards one, but the size of the
-    # change shrinks, which is what settling means
-    names = ['a', 'b', 'c', 'd']
-    check_ke_growth_decelerates(names, [10.0, 5.0, 4.2, 4.1], 3, 0.01, LOGGER)
-
-
-def test_ke_growth_skipped_when_too_few_stages():
-    # two stages give one growth ratio, which is not a trend
-    check_ke_growth_decelerates(['a', 'b'], [1.0, 100.0], 3, 0.01, LOGGER)
-
-
 def test_cfl_max_passes():
     check_cfl_max(0.053, 1.0, 0.2, 'damped_adjustment_2', LOGGER)
 
@@ -1064,7 +1023,7 @@ def _validate_step(tmp_path, model, stages, temperature, kinetic_energy):
 
 
 @pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
-def test_validate_passes_a_settling_sequence(tmp_path, monkeypatch, model):
+def test_validate_summarizes_for_either_model(tmp_path, monkeypatch, model):
     stages = ['damped_1', 'damped_2', 'damped_3', 'simulation']
     step = _validate_step(
         tmp_path,
@@ -1395,39 +1354,20 @@ def _stage_check(tmp_path, model, stage_name):
     return step
 
 
-def test_validate_catches_accelerating_kinetic_energy(tmp_path, monkeypatch):
-    # mean kinetic energy grows by 2x, 2x, then 4x: running away rather than
-    # settling
+def test_validate_does_not_judge_the_kinetic_energy(tmp_path, monkeypatch):
+    """
+    A sequence whose mean kinetic energy accelerates -- 2x, 2x, then 4x --
+    which the removed settling check would have rejected.  Whether an
+    adjustment has settled is now read from the summary and the viz figure,
+    so validate collects and reports it rather than ruling on it.
+    """
     stages = ['damped_1', 'damped_2', 'damped_3', 'simulation']
-    with pytest.raises(ValueError, match='not settling'):
-        _run_with_stats(
-            tmp_path, monkeypatch, 'mpas-ocean', stages, [1.0, 2.0, 4.0, 16.0]
-        )
-
-
-def test_validate_accepts_rising_but_decelerating_kinetic_energy(
-    tmp_path, monkeypatch
-):
-    # the u.oi240.lr240 case: kinetic energy rises the whole way as the wind
-    # spins the circulation up from rest, but the growth slows every stage.
-    # The old level-based check failed exactly this.
-    stages = ['damped_1', 'damped_2', 'damped_3', 'simulation']
-    _run_with_stats(
-        tmp_path,
-        monkeypatch,
-        'mpas-ocean',
-        stages,
-        [3.336e-5, 1.562e-4, 5.773e-4, 1.189e-3],
+    step = _run_with_stats(
+        tmp_path, monkeypatch, 'mpas-ocean', stages, [1.0, 2.0, 4.0, 16.0]
     )
-
-
-def test_validate_skips_the_settling_check_for_omega(tmp_path, monkeypatch):
-    # Omega reports no mean kinetic energy, so the same accelerating sequence
-    # is not checked rather than wrongly passed
-    stages = ['damped_1', 'damped_2', 'damped_3', 'simulation']
-    _run_with_stats(
-        tmp_path, monkeypatch, 'omega', stages, [1.0, 2.0, 4.0, 16.0]
-    )
+    lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
+    assert len(lines) == len(stages) + 1
+    assert step is not None
 
 
 # --- per-stage diagnostics ---
