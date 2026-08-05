@@ -3,7 +3,6 @@ import os
 from polaris import Step
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks import (
     check_cfl_max,
-    check_ke_growth_decelerates,
     check_salinity_max,
     check_temperature_max,
 )
@@ -24,18 +23,18 @@ SUMMARY_FILENAME = 'dynamic_adjustment_stats.csv'
 
 class Validate(Step):
     """
-    A step that summarizes a completed dynamic-adjustment sequence and applies
-    the one check no single stage can make: that the stage-over-stage change in
-    the mean kinetic energy is shrinking.
+    A step that summarizes a completed dynamic-adjustment sequence as one row
+    of diagnostics per stage (see
+    :py:mod:`~polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics`),
+    written to ``dynamic_adjustment_stats.csv`` and logged as a table.
 
-    The per-stage thresholds live in :py:class:`StageCheck`, which runs as soon
-    as its own stage finishes.
-
-    The step first builds one row of diagnostics per stage (see
-    :py:mod:`~polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics`)
-    and writes it to ``dynamic_adjustment_stats.csv``.  Those rows are what the
-    checks are then made against, so the summary a user reads and the checks
-    that passed or failed cannot disagree.
+    It applies no checks of its own.  The thresholds live in
+    :py:class:`StageCheck`, which runs as soon as its own stage finishes, so a
+    stage that is already out of bounds stops the sequence rather than costing
+    the whole job.  Whether the adjustment has *settled* is a judgement read
+    from this summary and the ``viz`` figure rather than from a threshold; see
+    :py:mod:`~polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks`
+    for why the automated version of that judgement was removed.
 
     Diagnostics come from each stage's global-statistics file where the
     configured model reports them and from ``output.nc`` otherwise.  Both files
@@ -88,27 +87,12 @@ class Validate(Step):
 
     def run(self):
         """
-        Summarize the sequence, then check it against the summary.
+        Summarize the sequence.
         """
         super().run()
-        config = self.config
-        logger = self.logger
-
         rows = self._collect()
         write_summary(SUMMARY_FILENAME, self.stage_names, rows)
-        log_summary(logger, self.stage_names, rows)
-
-        ke_num = config.getint(SECTION, 'ke_check_num_stages')
-        ke_tol = config.getfloat(SECTION, 'ke_check_rel_tolerance')
-
-        # the per-stage thresholds have already been applied by each stage's
-        # own check step, which is what makes a bad first stage fail in
-        # minutes rather than after the whole sequence has run.  What is left
-        # is the one thing no single stage can see.
-        mean_ke = [row['kinetic_energy_mean'] for row in rows]
-        check_ke_growth_decelerates(
-            self.stage_names, mean_ke, ke_num, ke_tol, logger
-        )
+        log_summary(self.logger, self.stage_names, rows)
 
     def _collect(self):
         """

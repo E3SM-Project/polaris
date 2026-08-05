@@ -2,9 +2,8 @@
 #
 # This is the cheapest mesh with a realistic initial condition, so it is the one
 # the workflow is exercised on first.  It follows the same damping ramp as the
-# finer meshes rather than default.yaml's two stages, so that the validate step's
-# kinetic-energy flattening check -- which needs ke_check_num_stages (3) stages
-# -- actually runs here.
+# finer meshes rather than default.yaml's two stages, so that the shape of the
+# ramp the finer meshes use is exercised here too.
 #
 # The time steps are what dt_per_km = 30.0 and btr_dt_per_km = 1.5 give at 240 km
 # and match default.yaml.  Ten-day stages are 120 baroclinic steps each; on a
