@@ -239,8 +239,11 @@ def test_steps_are_shared_between_consumers():
     task = RealisticGlobalDynamicAdjustment(
         component=component, mesh_name='u.oi240.lr240'
     )
-    # the second call must also not re-wire the restart chain, which would
-    # raise on the duplicate dependency
+    before = {
+        step.subdir: dict(step.dependencies)
+        for step in _forward_steps(task) + _check_steps(task)
+    }
+
     steps, _, stages = get_realistic_dynamic_adjustment_steps(
         component=component, mesh_name='u.oi240.lr240'
     )
@@ -249,6 +252,22 @@ def test_steps_are_shared_between_consumers():
         assert by_subdir[step.subdir] is step, step.subdir
     assert [stage.name for stage in stages] == [
         step.name for step in _forward_steps(task)
+    ]
+    # the restart chain is wired from the helper rather than from a step
+    # constructor, so the second call asks for it again; that has to leave it
+    # exactly as it was
+    after = {
+        step.subdir: dict(step.dependencies)
+        for step in _forward_steps(task) + _check_steps(task)
+    }
+    assert after == before
+    assert any(deps for deps in before.values())
+
+
+def _check_steps(task):
+    """The task's per-stage check steps."""
+    return [
+        step for step in task.steps.values() if isinstance(step, StageCheck)
     ]
 
 
