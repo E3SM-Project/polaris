@@ -200,6 +200,7 @@ config:
   options:
     config_use_mom_del4: VelHyperDiffTendencyEnable
     config_mom_del4: ViscDel4
+    config_mom_del4_div_factor: DivFactor
     config_use_tracer_del4: TracerHyperDiffTendencyEnable
     config_tracer_del4: EddyDiff4
 
