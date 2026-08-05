@@ -261,6 +261,40 @@ condition.  One
 {py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment`
 task is registered per MPAS mesh.
 
+### shared steps
+
+{py:func}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_realistic_dynamic_adjustment_steps`
+builds the whole chain — the shared `init` steps, one `Forward` stage per
+schedule entry, a `StageCheck` after each, `validate` and `viz` — through
+{py:meth}`polaris.Component.get_or_create_shared_step`, following the same
+pattern as
+{py:func}`polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps`.
+A downstream workflow that wants the adjusted restart — `e3sm/init`'s
+component inputs — calls it and gets the same step instances rather than a
+second copy of a very expensive chain.
+
+It returns the stages alongside the steps and config, because which stage hands
+off the adjusted state, and what that restart file is called, both depend on the
+schedule: `stages[-1].restart_out` is what such a consumer is after.
+`include_viz` follows the `init` convention — the step is always created, but
+only returned, and so only in a task's `steps_to_run`, when asked for.  A figure
+describing a completed adjustment is not what a workflow that only wants the
+relaxed restart is asking about.
+
+Two details are specific to this workflow.  The restart chain is wired with
+`add_dependency` rather than through input/output files, because a stage's
+restart filename comes from the schedule rather than from the step; since
+`add_dependency` raises on a duplicate, `_get_or_create` reports whether the
+call is what created the step, and only a newly created one is wired.  And
+because the set of steps depends on the schedule,
+{py:meth}`...RealisticGlobalDynamicAdjustment.configure` rebuilds them when a
+user's setup-time config changed it — a stage whose name survived the change
+would otherwise be handed back from the shared-step cache still carrying its old
+run duration.  Only the adjustment steps are rebuilt, via
+{py:func}`...dynamic_adjustment.steps.get_adjustment_steps`; re-requesting the
+`init` chain is not the same as leaving it alone, since it would build a second
+copy of the shared configs its own upstream steps own.
+
 ### schedule parsing
 
 {py:func}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages`
