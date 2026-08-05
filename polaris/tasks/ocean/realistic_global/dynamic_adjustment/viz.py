@@ -140,7 +140,7 @@ class VizDynamicAdjustmentStep(Step):
         The stages of the adjustment, in schedule order.
     """
 
-    def __init__(self, component, stages, indir):
+    def __init__(self, component, subdir, stages):
         """
         Create the step.
 
@@ -149,15 +149,15 @@ class VizDynamicAdjustmentStep(Step):
         component : polaris.tasks.ocean.Ocean
             The ocean component the step belongs to.
 
+        subdir : str
+            The subdirectory for the step.
+
         stages : list of ForwardStage
             The stages of the adjustment, in schedule order.  Their start times
             are what place the stages on a common axis, and their damping is
             what the stage labels report.
-
-        indir : str
-            The directory the step is in, to which ``viz`` is appended.
         """
-        super().__init__(component=component, name='viz', indir=indir)
+        super().__init__(component=component, name='viz', subdir=subdir)
         self.stages = list(stages)
 
     def run(self):
