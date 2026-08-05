@@ -223,14 +223,18 @@ def _get_init_config(component, subdir, config_filename, mesh_name):
     polaris.config.PolarisConfigParser
     """
     filepath = os.path.join(component.name, subdir, config_filename)
-    if filepath in component.configs:
-        return component.configs[filepath]
-    config = PolarisConfigParser(filepath=filepath)
-    # provides [mapping] map_tool, used by MappingFileStep
-    config.add_from_package('polaris.remap', 'mapping.cfg')
-    config.add_from_package(
-        'polaris.tasks.ocean.realistic_global.init',
-        config_filename,
+
+    def create():
+        config = PolarisConfigParser(filepath=filepath)
+        # provides [mapping] map_tool, used by MappingFileStep
+        config.add_from_package('polaris.remap', 'mapping.cfg')
+        config.add_from_package(
+            'polaris.tasks.ocean.realistic_global.init',
+            config_filename,
+        )
+        add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
+        return config
+
+    return component.get_or_create_shared_config(
+        filepath=filepath, create=create
     )
-    add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
-    return config
