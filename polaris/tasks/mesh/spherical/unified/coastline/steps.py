@@ -154,16 +154,18 @@ def get_unified_mesh_coastline_steps(
 
 
 def _get_lat_lon_coastline_config(filepath, config_filename):
-    component = _get_mesh_component()
-    if filepath in component.configs:
-        return component.configs[filepath]
+    def create():
+        config = PolarisConfigParser(filepath=filepath)
+        config.add_from_package(
+            'polaris.tasks.mesh.spherical.unified.coastline',
+            config_filename,
+        )
+        return config
 
-    config = PolarisConfigParser(filepath=filepath)
-    config.add_from_package(
-        'polaris.tasks.mesh.spherical.unified.coastline',
-        config_filename,
+    component = _get_mesh_component()
+    return component.get_or_create_shared_config(
+        filepath=filepath, create=create
     )
-    return config
 
 
 def _get_mesh_component():
