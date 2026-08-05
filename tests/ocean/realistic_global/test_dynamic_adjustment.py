@@ -28,11 +28,14 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
     excluded_days_in_stage,
     load_schedule_stages,
 )
-from polaris.tasks.ocean.realistic_global.dynamic_adjustment.task import (
+from polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps import (
     CONFIG_FILENAME,
     CONFIG_PACKAGE,
     FORWARD_CONFIG_FILENAME,
     FORWARD_CONFIG_PACKAGE,
+    get_realistic_dynamic_adjustment_steps,
+)
+from polaris.tasks.ocean.realistic_global.dynamic_adjustment.task import (
     RealisticGlobalDynamicAdjustment,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
@@ -221,6 +224,152 @@ def test_restart_chain_is_consistent():
             assert previous.restart_out is not None
             filename_time = current.start_time.replace(':', '.')
             assert filename_time in previous.restart_out
+
+
+# --- shared steps ---
+
+
+def test_steps_are_shared_between_consumers():
+    """
+    A downstream workflow that wants the adjusted restart -- e3sm/init's
+    component inputs -- asks for these steps too.  It has to get the same
+    instances, or the whole chain would be set up and run a second time.
+    """
+    component = Ocean()
+    task = RealisticGlobalDynamicAdjustment(
+        component=component, mesh_name='u.oi240.lr240'
+    )
+    # the second call must also not re-wire the restart chain, which would
+    # raise on the duplicate dependency
+    steps, _, stages = get_realistic_dynamic_adjustment_steps(
+        component=component, mesh_name='u.oi240.lr240'
+    )
+    by_subdir = {step.subdir: step for step in task.steps.values()}
+    for step in _adjustment_steps(steps).values():
+        assert by_subdir[step.subdir] is step, step.subdir
+    assert [stage.name for stage in stages] == [
+        step.name for step in _forward_steps(task)
+    ]
+
+
+def test_every_step_is_registered_on_the_component():
+    component = Ocean()
+    steps, _, _ = get_realistic_dynamic_adjustment_steps(
+        component=component, mesh_name='u.oi240.lr240', include_viz=True
+    )
+    adjustment = _adjustment_steps(steps)
+    # every stage, its check, validate and viz
+    assert len(adjustment) == 2 * 4 + 2
+    for step in adjustment.values():
+        assert component.steps[step.subdir] is step, step.subdir
+
+
+def _adjustment_steps(steps):
+    """The dynamic-adjustment steps, without the shared init chain."""
+    base = 'spherical/realistic_global/u.oi240.lr240/dynamic_adjustment'
+    return {
+        name: step
+        for name, step in steps.items()
+        if step.subdir.startswith(f'{base}/')
+    }
+
+
+def test_the_viz_step_is_shared_but_returned_only_when_asked():
+    """
+    A figure describing a completed adjustment is not what a workflow that
+    only wants the relaxed restart is asking about, so it stays out of that
+    workflow's steps_to_run -- but it is still the same shared step.
+    """
+    component = Ocean()
+    without, _, _ = get_realistic_dynamic_adjustment_steps(
+        component=component, mesh_name='u.oi240.lr240'
+    )
+    assert 'viz' not in without
+    with_viz, _, _ = get_realistic_dynamic_adjustment_steps(
+        component=component, mesh_name='u.oi240.lr240', include_viz=True
+    )
+    assert 'viz' in with_viz
+    base = 'spherical/realistic_global/u.oi240.lr240/dynamic_adjustment'
+    assert with_viz['viz'] is component.steps[f'{base}/viz']
+
+
+def test_the_last_stage_names_the_restart_a_consumer_wants():
+    """
+    The stages come back with the steps because which stage hands off the
+    adjusted state, and what that restart is called, depend on the schedule.
+    """
+    component = Ocean()
+    steps, _, stages = get_realistic_dynamic_adjustment_steps(
+        component=component, mesh_name='u.oi240.lr240'
+    )
+    assert stages[-1].name == 'simulation'
+    assert stages[-1].restart_out == 'restarts/rst.0001-02-10_00.00.00.nc'
+    last = steps['simulation']
+    assert isinstance(last, Forward)
+    assert last.stage is stages[-1]
+
+
+def test_the_shared_config_is_reused_rather_than_rebuilt():
+    component = Ocean()
+    task = RealisticGlobalDynamicAdjustment(
+        component=component, mesh_name='u.oi240.lr240'
+    )
+    _, config, _ = get_realistic_dynamic_adjustment_steps(
+        component=component, mesh_name='u.oi240.lr240'
+    )
+    assert config is task.config
+
+
+def test_configure_rebuilds_only_when_the_schedule_changed(tmp_path):
+    """
+    A user's setup-time schedule override has to take effect, and the shared
+    steps are keyed by work directory -- so a stage whose name survived the
+    override would otherwise come back carrying its old run duration.
+    """
+    component = Ocean()
+    task = RealisticGlobalDynamicAdjustment(
+        component=component, mesh_name='u.oi240.lr240'
+    )
+    before = dict(task.steps)
+
+    # no override: nothing is rebuilt
+    task.configure()
+    assert task.steps == before
+
+    schedule = tmp_path / 'schedule.yaml'
+    schedule.write_text(
+        textwrap.dedent(
+            """
+            dynamic_adjustment:
+              stages:
+                damped_adjustment_1:
+                  run_duration: 5_00:00:00
+                simulation:
+                  run_duration: 5_00:00:00
+            """
+        )
+    )
+    override = tmp_path / 'override.cfg'
+    override.write_text(f'[{SECTION}]\nschedule = {schedule}\n')
+    task.config.add_from_file(str(override))
+
+    task.configure()
+    assert [stage.name for stage in task.stages] == [
+        'damped_adjustment_1',
+        'simulation',
+    ]
+    # the surviving name now carries the override's duration rather than the
+    # built-in schedule's
+    assert task.steps['damped_adjustment_1'].stage.run_duration == '5_00:00:00'
+    assert (
+        task.steps['damped_adjustment_1'] is not before['damped_adjustment_1']
+    )
+    # the dropped stages are gone from the component, not just from the task
+    base = 'spherical/realistic_global/u.oi240.lr240/dynamic_adjustment'
+    assert f'{base}/damped_adjustment_3' not in component.steps
+    # the init steps upstream are untouched: they do not depend on the
+    # schedule and are shared with other tasks
+    assert task.steps['initial_state'] is before['initial_state']
 
 
 # --- the restart chain, as the task and the step see it ---
@@ -875,7 +1024,7 @@ def _validate_step(tmp_path, model, stages, temperature, kinetic_energy):
             ForwardStage(name=name, run_duration='10_00:00:00')
             for name in stages
         ],
-        indir='spherical/realistic_global/u.oi240.lr240/dynamic_adjustment',
+        subdir='spherical/realistic_global/u.oi240.lr240/dynamic_adjustment/validate',
     )
     config = _config('u.oi240.lr240')
     override = tmp_path / 'model.cfg'
@@ -1215,7 +1364,7 @@ def _stage_check(tmp_path, model, stage_name):
     step = StageCheck(
         component=component,
         stage=ForwardStage(name=stage_name, run_duration='10_00:00:00'),
-        indir='spherical/realistic_global/u.oi240.lr240/dynamic_adjustment',
+        subdir=f'spherical/realistic_global/u.oi240.lr240/dynamic_adjustment/{stage_name}_check',
     )
     config = _config('u.oi240.lr240')
     override = tmp_path / 'check_model.cfg'
@@ -1539,7 +1688,7 @@ def _viz_step(tmp_path, model, stage_names):
             )
             for index, name in enumerate(stage_names)
         ],
-        indir='spherical/realistic_global/u.oi240.lr240/dynamic_adjustment',
+        subdir='spherical/realistic_global/u.oi240.lr240/dynamic_adjustment/viz',
     )
     config = _config('u.oi240.lr240')
     override = tmp_path / 'viz_model.cfg'
