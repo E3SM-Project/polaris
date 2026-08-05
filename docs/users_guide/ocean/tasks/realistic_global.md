@@ -757,7 +757,7 @@ columns are blank for an Omega run.  A blank means "this model does not report
 it", not that something went wrong; the log says which source each metric came
 from.
 
-There are four checks.  Three are per stage and run in a `<stage>_check` step
+There are three checks, all per stage, run in a `<stage>_check` step
 immediately after that stage, so a stage that is already out of bounds stops the
 sequence instead of costing the whole job:
 
@@ -805,31 +805,32 @@ a degree over, so there is ample room between the two: the warmest genuine water
 these runs reach is about 31.7 °C, and nothing in the `u.oi6to18.lr6to10`
 initial condition is above 42 PSU outside the Red Sea artifact.
 
-The third is made by the final `validate` step against the summary rows, since
-no single stage can see it:
+The `validate` step applies no checks.  It collects the per-stage diagnostics,
+writes `dynamic_adjustment_stats.csv` and logs the table.
 
-* the stage-over-stage *fractional change* in the mean kinetic energy must be
-  shrinking over the last `ke_check_num_stages` transitions.
+:::{note}
+There used to be a fourth check there, on whether the mean kinetic energy was
+settling stage over stage.  It was rewritten three times — comparing kinetic
+energy levels, then the fractional change from stage to stage, then that change
+per unit time — and **every** revision was forced by a healthy run failing it.
 
-The last of those deserves a word, because the obvious check is the wrong one.
-Requiring kinetic energy itself not to rise fails a perfectly healthy run: these
-runs start from rest and are wind-forced, so the circulation spins up and
-kinetic energy climbs for tens of days for reasons that have nothing to do with
-the fast waves the adjustment removes.  What settling means here is that the
-change is slowing.  The *mean* is used rather than the maximum because the
-maximum is dominated by the transient released each time the damping steps down,
-which decays within its own stage; and the *magnitude* of the change is used
-rather than the growth ratio because a run converging from above and one
-converging from below are both settling.
+The reason is that the quantity is not comparable across stages.  A schedule's
+stages differ in length (0.25 to 18 days on `u.oi6to18.lr6to10`), so a longer
+stage changes more for no interesting reason; the final stage switches the
+Rayleigh damping off, so its kinetic energy rises by design; and a stage where
+the energy happens to dip makes the *next* ordinary rise look like an
+acceleration.  Three samples cannot separate those from a run that is genuinely
+running away.
 
-A constant growth rate passes this check — it detects acceleration rather than
-growth, which is about as much as three or four stages can support.  The CFL and
-temperature thresholds are what guard against a run that is simply diverging.
+Whether an adjustment has settled is now read from the diagnostics table and
+the `viz` figure, which show the whole series.  The checks that remain are
+bounds on quantities with real failure modes behind them.  Please do not
+re-add an automated settling criterion without evidence that it survives
+schedules whose stages differ in length and damping.
+:::
 
 Each check is skipped, with a log line, when the configured model does not
-report the quantity: Omega's `GlobalStats` has neither kinetic energy nor a CFL
-number.  The settling check is also skipped below three stages, as in the coarse
-default schedule, since two changes are the fewest that can show a trend.
+report the quantity: Omega's `GlobalStats` has no CFL number.
 
 One caveat the threshold cannot express: Omega's temperature is conservative
 temperature where MPAS-Ocean's is potential temperature, so `temperature_max` is
@@ -891,14 +892,6 @@ salinity_max = 44.0
 # The CFL number is deliberately still checked inside this window, for the same
 # reason: the opening hours are where a time step that is too long shows up.
 startup_exclusion_duration = 00_02:00:00
-
-# Number of trailing stage transitions over which the growth of the mean
-# kinetic energy must not increase (the "settling" check)
-ke_check_num_stages = 3
-
-# Fractional tolerance allowed when checking that the stage-over-stage growth
-# of the mean kinetic energy is not increasing
-ke_check_rel_tolerance = 0.01
 
 # Maximum allowed CFL number at any point in any stage.  MPAS-Ocean is not
 # usually pushed much past 0.1; the AB2 split-explicit integrator these

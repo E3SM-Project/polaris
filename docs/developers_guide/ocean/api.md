@@ -38,16 +38,8 @@
    init.Init.setup
    init.Init.run
 
-   checks.check_temperature_max
-   checks.check_salinity_max
-   checks.check_cfl_max
-   checks.check_ke_growth_decelerates
-
    validate.Validate
    validate.Validate.run
-
-   validate.StageCheck
-   validate.StageCheck.run
 
    viz.Viz
    viz.Viz.run
@@ -598,8 +590,15 @@
    schedule.load_schedule_stages
    schedule.excluded_days_in_stage
 
+   checks.check_temperature_max
+   checks.check_salinity_max
+   checks.check_cfl_max
+
    validate.Validate
    validate.Validate.run
+
+   validate.StageCheck
+   validate.StageCheck.run
 
    viz.VizDynamicAdjustmentStep
    viz.VizDynamicAdjustmentStep.run

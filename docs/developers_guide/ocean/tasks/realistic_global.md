@@ -396,13 +396,13 @@ treats its `Filename` as a prefix and appends the reduction period with no `.nc`
 
 The checks live in
 {py:mod}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks`,
-because two kinds of step apply them.  The `temperature_max`, `salinity_max`
-and `cfl_max` thresholds belong to
+so that a step decides what to read and a check decides what is acceptable.
+The `temperature_max`, `salinity_max` and `cfl_max` thresholds all belong to
 {py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck`,
 one per stage, added right after its forward step so the sequence stops at the
-stage that broke.  `Validate` keeps only the cross-stage settling check on
-`kinetic_energy_mean`.  Each is skipped, with a log line, when the model reports
-no such metric.
+stage that broke.  Each is skipped, with a log line, when the model reports no
+such metric.  `Validate` applies none of them; it collects, writes and logs the
+diagnostics.
 
 `StageCheck` is a step of its own rather than work the forward step does after
 the model exits.  A Polaris step is sized for its MPI call and there is no good
@@ -442,15 +442,16 @@ passed cannot disagree.  This is what the `u.oi6to18.lr6to10` run needs: its
 statistics are hourly, and the Sumatra artifact is still at 35.77 °C an hour
 in.
 
-`_check_ke_growth_decelerates` is deliberately not a check on the level of the
-kinetic energy.  These runs start from rest and are wind-forced, so kinetic
-energy rises throughout a 40-day adjustment; the first version of this check
-compared levels and failed the healthy u.oi240.lr240 run.  It is also not a
-check on the growth *ratio*: converging from above gives ratios rising towards
-one, so the magnitude of the fractional change is what shrinks in both
-directions.  The
-final `simulation` stage additionally compares its `output.nc` against a baseline
-via the forward step's `validate_vars`.
+There is deliberately no automated settling criterion.  One existed and was
+rewritten three times -- comparing kinetic-energy levels, then the fractional
+change stage over stage, then that change per unit time -- and every revision
+was forced by a healthy run failing it.  The quantity is not comparable across
+stages: they differ in length by up to 70x, the last one switches the damping
+off, and a stage whose energy dips makes the next ordinary rise read as
+acceleration.  Three samples cannot separate any of that from a runaway.  The
+judgement is made from the diagnostics table and the `viz` figure instead.  The
+final `simulation` stage additionally compares its `output.nc` against a
+baseline via the forward step's `validate_vars`.
 
 {py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep`
 plots the same statistics as time series.  Its panels are declared in
