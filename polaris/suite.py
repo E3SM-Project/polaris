@@ -6,12 +6,7 @@ from typing import List
 from polaris.setup import setup_tasks
 
 
-def setup_suite(
-    component,
-    suite_name,
-    work_dir,
-    **kwargs,
-):
+def setup_suite(component, suite_name, work_dir, **kwargs):
     """
     Set up a suite of tasks
 
@@ -23,7 +18,9 @@ def setup_suite(
     suite_name : str
         The name of the suite.  A file ``<suite_name>.txt`` must exist
         within the core's ``suites`` package that lists the paths of the tasks
-        in the suite
+        in the suite.  An optional ``<suite_name>.cfg`` in the same package
+        provides config options (e.g. ``[job] wall_time`` and
+        ``[job] qos``) that apply to the whole suite.
 
     work_dir : str
         A directory that will serve as the base for creating task
@@ -33,11 +30,9 @@ def setup_suite(
         Additional keyword arguments passed to ``setup_tasks``
     """
 
-    text = (
-        imp_res.files(f'polaris.suites.{component.replace("/", ".")}')
-        .joinpath(f'{suite_name}.txt')
-        .read_text()
-    )
+    package = f'polaris.suites.{component.replace("/", ".")}'
+
+    text = imp_res.files(package).joinpath(f'{suite_name}.txt').read_text()
 
     tasks, cached = _parse_suite(text)
 
