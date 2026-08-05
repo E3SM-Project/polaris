@@ -213,10 +213,10 @@ class Component:
             )
         self.configs[config.filepath] = config
 
-    def get_or_create_shared_config(self, filepath, setup=None):
+    def get_or_create_shared_config(self, filepath, create=None):
         """
-        Get a shared config from the component if it exists, otherwise create,
-        set up and add it.
+        Get a shared config from the component if it exists, otherwise build
+        and add it.
 
         The companion to :py:meth:`get_or_create_shared_step`, and needed for
         the same reason.  A ``get_*_steps()`` helper is called once per
@@ -232,10 +232,14 @@ class Component:
             The path of the config file relative to the base work directory,
             which is what identifies a shared config
 
-        setup : callable, optional
-            Called with the new config to add packages and set options.  It is
-            not called when the config already exists, so it must not be relied
-            on for anything a later caller needs.
+        create : callable, optional
+            Called with no arguments to build the config, and only when it does
+            not already exist -- so it must not be relied on for anything a
+            later caller needs.  It must return a
+            :py:class:`polaris.config.PolarisConfigParser` whose ``filepath``
+            is ``filepath``.  A config builder that returns a new parser, as
+            several in Polaris do, can be passed directly.  The default builds
+            an empty parser.
 
         Returns
         -------
@@ -244,9 +248,16 @@ class Component:
         """
         if filepath in self.configs:
             return self.configs[filepath]
-        config = PolarisConfigParser(filepath=filepath)
-        if setup is not None:
-            setup(config)
+        if create is None:
+            config = PolarisConfigParser(filepath=filepath)
+        else:
+            config = create()
+            if config.filepath != filepath:
+                raise ValueError(
+                    f'The config built for {filepath} has filepath '
+                    f'{config.filepath}; it would be registered under a path '
+                    f'it does not know about.'
+                )
         self.add_config(config)
         return config
 
