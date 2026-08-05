@@ -33,6 +33,7 @@ def _forward_config(**overrides):
         damping='',
         mom_del2='1.0e3',
         mom_del4='1.2e11',
+        mom_del4_div_factor='',
         tracer_del2='',
         tracer_del4='',
         use_Leith_del2='False',
@@ -240,7 +241,8 @@ def test_from_config_reads_physics_options():
             mom_del2='462.0',
             tracer_del4='1.2e11',
             use_Leith_del2='True',
-            hmix_scaling='scale_with_mesh',
+            hmix_scaling='ref_cell_width',
+            mom_del4_div_factor='10.0',
             GM_closure='constant',
             GM_constant_kappa='600.0',
             use_Redi='False',
@@ -251,7 +253,8 @@ def test_from_config_reads_physics_options():
     assert stage.tracer_del2 is None
     assert stage.tracer_del4 == 1.2e11
     assert stage.use_Leith_del2
-    assert stage.hmix_scaling == 'scale_with_mesh'
+    assert stage.hmix_scaling == 'ref_cell_width'
+    assert stage.mom_del4_div_factor == 10.0
     assert stage.GM_closure == 'constant'
     assert stage.GM_constant_kappa == 600.0
     assert stage.use_GM
@@ -323,26 +326,25 @@ def test_forward_yaml_neutral_options_are_all_mapped_to_omega():
             )
 
 
-def test_mpaso_physics_options_hmix_scaling_sets_both_flags():
+def test_ref_cell_width_scaling_turns_on_both_mpaso_flags():
     """
-    Both scaling flags are always set, so that turning scaling off in a user
-    config undoes a per-mesh config that turned it on.
+    MPAS-Ocean reads ``config_hmix_use_ref_cell_width`` only inside
+    ``if (config_hmix_scaleWithMesh)``, so setting the first without the second
+    reads as a request for width-based scaling and gets none at all.
     """
     options = ForwardStage(
         hmix_scaling='ref_cell_width'
     ).mpaso_physics_options()
-    assert options['config_hmix_use_ref_cell_width']
-    assert not options['config_hmix_scaleWithMesh']
-
-    options = ForwardStage(
-        hmix_scaling='scale_with_mesh'
-    ).mpaso_physics_options()
-    assert not options['config_hmix_use_ref_cell_width']
     assert options['config_hmix_scaleWithMesh']
+    assert options['config_hmix_use_ref_cell_width']
 
+
+def test_hmix_scaling_none_turns_off_both_mpaso_flags():
+    # both flags every time, so that turning scaling off in a user config
+    # undoes a per-mesh config that turned it on
     options = ForwardStage(hmix_scaling='none').mpaso_physics_options()
-    assert not options['config_hmix_use_ref_cell_width']
     assert not options['config_hmix_scaleWithMesh']
+    assert not options['config_hmix_use_ref_cell_width']
 
 
 def test_mpaso_physics_options_reference_width_only_when_it_applies():
@@ -351,10 +353,21 @@ def test_mpaso_physics_options_reference_width_only_when_it_applies():
     )
     assert stage.mpaso_physics_options()['config_hmix_ref_cell_width'] == 1e4
 
-    stage = ForwardStage(
-        hmix_scaling='scale_with_mesh', hmix_ref_cell_width=1e4
-    )
+    stage = ForwardStage(hmix_scaling='none', hmix_ref_cell_width=1e4)
     assert 'config_hmix_ref_cell_width' not in stage.mpaso_physics_options()
+
+
+def test_mpaso_physics_options_del4_div_factor_only_when_set():
+    stage = ForwardStage(mom_del4=3.2e09, mom_del4_div_factor=10.0)
+    assert stage.mpaso_physics_options()['config_mom_del4_div_factor'] == 10.0
+
+    # blank leaves the model default of 1.0 rather than restating it
+    stage = ForwardStage(mom_del4=3.2e09)
+    assert 'config_mom_del4_div_factor' not in stage.mpaso_physics_options()
+
+    # MPAS-Ocean only: Omega has no equivalent, so it must not ride in the
+    # neutral bucket, which is added with config_model='ocean'
+    assert 'config_mom_del4_div_factor' not in stage.horiz_mixing_options()
 
 
 def test_mpaso_physics_options_gm_settings_only_when_gm_is_on():
