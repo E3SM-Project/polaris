@@ -107,11 +107,19 @@ def _hmix_scaling(mesh_name):
 
 
 def test_task_config_applies_per_mesh_overrides():
-    # each per-mesh .cfg overrides hmix_scaling with the value that suits its
-    # resolution, and a mesh with no .cfg keeps the forward default
+    # each per-mesh .cfg overrides the mixing options to suit its resolution,
+    # and a mesh with no .cfg keeps the forward defaults
     assert _hmix_scaling('u.oi30.lr10') == 'ref_cell_width'
-    assert _hmix_scaling('u.oi6to18.lr6to10') == 'scale_with_mesh'
+    assert _hmix_scaling('u.oi6to18.lr6to10') == 'ref_cell_width'
     assert _hmix_scaling('icos120km') == 'none'
+    # the reference width is what differs, since E3SM's per-grid coefficients
+    # are referenced to the finest cells of their own mesh
+    assert (
+        _task('u.oi6to18.lr6to10').config.getfloat(
+            'realistic_global_forward', 'hmix_ref_cell_width'
+        )
+        == 6.0e3
+    )
 
 
 def test_task_config_damping_is_off_by_default():
@@ -376,13 +384,16 @@ def test_stages_inherit_the_forward_physics_options():
 
 
 def test_stages_inherit_the_per_mesh_overrides():
-    # u.oi6to18.lr6to10.cfg sets hmix_scaling for a variable-resolution mesh
+    # u.oi6to18.lr6to10.cfg references the mixing to its finest cells
     for stage in load_schedule_stages(
         'u.oi6to18.lr6to10', _config('u.oi6to18.lr6to10')
     ):
-        assert stage.hmix_scaling == 'scale_with_mesh'
+        assert stage.hmix_scaling == 'ref_cell_width'
+        assert stage.hmix_ref_cell_width == 6.0e3
+        assert stage.mom_del4_div_factor == 10.0
     for stage in load_schedule_stages('u.oi30.lr10', _config('u.oi30.lr10')):
         assert stage.hmix_scaling == 'ref_cell_width'
+        assert stage.hmix_ref_cell_width == 30.0e3
 
 
 def test_stages_inherit_the_time_integrators():
