@@ -1,16 +1,25 @@
 """
 The checks a dynamic-adjustment sequence is held to.
 
-They live here rather than in a step because they are applied from two places:
-the per-stage ``check`` steps, which run as soon as their stage finishes, and
-the final ``validate`` step, which is the only place a cross-stage trend can be
-assessed.
+They live here rather than in a step because a step decides what to read and
+a check decides what is acceptable.  All of them are per-stage, applied by the
+``check`` steps that run as soon as their stage finishes.
+
+There is deliberately no cross-stage "is it settling yet" check.  One existed
+and was rewritten three times -- comparing kinetic-energy levels, then the
+fractional change stage over stage, then that change per unit time -- and every
+revision was forced by a healthy run failing it.  It was inferring a trend from
+three points, over stages of unequal length, across the moment the Rayleigh
+damping is switched off; none of those are comparable.  Whether an adjustment
+has settled is read from the ``viz`` figure and the diagnostics table, which
+show the whole series rather than three samples of it.  What is left here are
+bounds on quantities with real failure modes behind them.
 
 Each check takes values rather than datasets, so that the step decides what to
 read and the check decides what is acceptable.
 """
 
-from typing import Any, Optional, Sequence
+from typing import Any, Optional
 
 
 def check_temperature_max(
@@ -158,78 +167,3 @@ def _at_day(when: Optional[float]) -> str:
     if when <= 0.0:
         return ' at the start of the stage, before any time step'
     return f' {when:g} days into the stage'
-
-
-def check_ke_growth_decelerates(
-    stage_names: Sequence[str],
-    mean_ke: Sequence[Optional[float]],
-    ke_num: int,
-    ke_tol: float,
-    logger: Any,
-) -> None:
-    """
-    Raise if the mean kinetic energy is changing faster stage over stage.
-
-    An earlier version of this required the kinetic energy itself not to
-    increase.  That is the wrong thing to ask of a run that starts from rest
-    under wind forcing: the circulation spins up, so kinetic energy rises for
-    tens of days for reasons that have nothing to do with the fast waves the
-    adjustment exists to remove, and the check failed on a healthy run.
-
-    What settling means for a forced spin-up is that the change is slowing --
-    each stage moves the mean kinetic energy proportionally less than the one
-    before.  So the quantity checked is the *fractional* change from stage to
-    stage, ``|KE_n / KE_(n-1) - 1|``, which must be non-increasing to within
-    ``ke_tol``.  Taking the magnitude matters: a run converging from above has
-    ratios rising towards one and a run converging from below has them falling
-    towards one, and both are settling.
-
-    The mean, rather than the maximum, because the maximum is dominated by the
-    transient released whenever the damping steps down, which decays within the
-    stage and says nothing about the trend.
-
-    What this does not catch: a perfectly constant growth rate passes, since
-    its fractional change never increases.  The check detects acceleration
-    rather than growth, which is the most that can be asked of three or four
-    stages -- over a span this short, an asymptote and a straight line are not
-    reliably distinguishable.  The per-stage CFL and temperature thresholds are
-    what guard against a run that is simply diverging.
-
-    Skipped when fewer than three stages reported a mean kinetic energy, since
-    two changes are the fewest that can show a trend, and when the configured
-    model reports no mean kinetic energy at all (Omega).
-    """
-    if any(value is None for value in mean_ke):
-        logger.info(
-            'Mean kinetic energy was not reported for every stage; skipping '
-            'the settling check.'
-        )
-        return
-    changes = [
-        (stage_names[index], abs(mean_ke[index] / mean_ke[index - 1] - 1.0))  # type: ignore[operator]
-        for index in range(1, len(mean_ke))
-        if mean_ke[index - 1] > 0.0  # type: ignore[operator]
-    ]
-    if len(changes) < 2:
-        logger.info(
-            'Fewer than three stages with a mean kinetic energy; skipping the '
-            'settling check.'
-        )
-        return
-
-    tail = changes[-ke_num:]
-    for index in range(1, len(tail)):
-        previous_name, previous = tail[index - 1]
-        name, current = tail[index]
-        if current > previous * (1.0 + ke_tol):
-            raise ValueError(
-                f'Stage {name!r}: the mean kinetic energy changed by '
-                f'{current:.1%} from the previous stage, more than the '
-                f'{previous:.1%} it changed across {previous_name!r}; the '
-                f'adjustment is not settling.'
-            )
-    trend = ' -> '.join(f'{change:.1%}' for _, change in tail)
-    logger.info(
-        f'The change in mean kinetic energy is shrinking over the last '
-        f'{len(tail)} stage transitions ({trend}).'
-    )
