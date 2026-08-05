@@ -60,6 +60,16 @@ is already registered at that path.  The `setup` callback runs only when the
 config is actually created, so it must not be relied on for anything a later
 caller needs.
 
+Being called once per consumer is the thing to keep in mind generally.  Prefer
+wiring a dependency inside the step's own constructor, as `RemapWoa23Step` and
+`RemapJra55Step` do, since `get_or_create_shared_step()` passes constructor
+arguments only when it really creates the step, so the wiring happens exactly
+once.  Where that is not possible — a chain whose links are only known to the
+helper, say — {py:meth}`polaris.Step.add_dependency()` may simply be called
+again: adding the same step under the same name is a no-op.  Adding a
+*different* step under a name already in use is still an error, which is what
+its `name` argument exists to resolve.
+
 See the [design document on shared steps](../../design_docs/shared_steps.md)
 for more details about the motivation and implementation.
 
