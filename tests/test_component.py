@@ -1,4 +1,7 @@
+import pytest
+
 from polaris import Component
+from polaris.config import PolarisConfigParser
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.topo.combine import get_lat_lon_topo_steps
 
@@ -20,28 +23,46 @@ def test_get_or_create_shared_config_returns_the_same_config():
     assert second is first
 
 
-def test_get_or_create_shared_config_sets_up_only_once():
+def test_get_or_create_shared_config_builds_only_once():
     """
-    The setup callback must not run again for an existing config, or a second
-    caller would re-add its packages on top of options the first caller's
-    steps may already have been given.
+    The create callback must not run again for an existing config, or a second
+    caller would rebuild on top of options the first caller's steps may already
+    have been given.
     """
     component = Component(name='component')
     calls = []
 
-    def setup(config):
-        calls.append(config)
+    def create():
+        config = PolarisConfigParser(filepath=FILEPATH)
         config.set('section', 'option', 'value')
+        calls.append(config)
+        return config
 
     first = component.get_or_create_shared_config(
-        filepath=FILEPATH, setup=setup
+        filepath=FILEPATH, create=create
     )
     first.set('section', 'option', 'changed')
     second = component.get_or_create_shared_config(
-        filepath=FILEPATH, setup=setup
+        filepath=FILEPATH, create=create
     )
     assert len(calls) == 1
+    assert second is first
     assert second.get('section', 'option') == 'changed'
+
+
+def test_get_or_create_shared_config_rejects_a_mismatched_filepath():
+    """
+    A builder that ignores the filepath would register a config under a path it
+    does not know about, which is the same silent mismatch this method exists
+    to prevent.
+    """
+    component = Component(name='component')
+    with pytest.raises(ValueError, match='filepath'):
+        component.get_or_create_shared_config(
+            filepath=FILEPATH,
+            create=lambda: PolarisConfigParser(filepath='somewhere/else.cfg'),
+        )
+    assert FILEPATH not in component.configs
 
 
 def test_shared_topo_steps_hand_back_the_config_their_steps_use():
