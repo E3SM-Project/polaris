@@ -367,6 +367,7 @@ class Component:
             pkg_file = imp_res.files(package).joinpath(filename)
             with pkg_file.open('r') as data_file:
                 self.cached_files = json.load(data_file)
-        except FileNotFoundError:
-            # no cached files for this core
+        except (FileNotFoundError, ModuleNotFoundError, TypeError):
+            # the component has no package of its own or no cached files in
+            # it, so there is nothing to read
             pass
