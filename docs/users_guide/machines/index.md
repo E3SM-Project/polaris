@@ -80,13 +80,19 @@ system = slurm
 parallel_executable = srun
 
 # cores per node on the machine
-cores_per_node = 36
+cores_per_node = 128
 
 # account for running diagnostics jobs
 account = e3sm
 
-# quality of service (default is the first)
-qos = regular, interactive
+# available partition(s) (default is chosen based on the job size)
+partitions = regular, debug
+
+# available quality of service (default is chosen based on the job size)
+qos = regular, debug, premium
+
+# available constraint(s) (default is the first)
+constraints = cpu
 ```
 
 The `parallel` section defined properties of the machine, to do with parallel
@@ -128,6 +134,49 @@ qstat # show all jobs
 qstat -u $USER # show only your jobs
 qcancel <jobid> # cancel a job
 ```
+
+(scheduler-targets)=
+
+## Requesting a partition, QOS or queue
+
+By default, Polaris lets mache choose which scheduler target to submit to
+based on how many nodes the job needs.  If you want a specific one, set it in
+the `job` section of your user config file:
+
+```cfg
+[job]
+
+# wall-clock time
+wall_time = 00:20:00
+
+# on a Slurm machine
+partition = debug
+qos = debug
+
+# on a PBS machine
+queue = debug
+```
+
+The values you can choose from are the `partitions`, `qos`, `queues` and
+`constraints` lists in the machine's `parallel` section, which are shown on
+each machine's page below.  Mache also knows the node limits and the maximum
+wall-clock time of each target.
+
+A request is honored only if the machine can satisfy it.  If the target does
+not exist on that machine, if it does not allow the number of nodes the job
+needs, or if its maximum wall-clock time is shorter than `wall_time`, Polaris
+falls back to the machine default and prints a warning saying which of those
+was the problem.  For example, asking for `qos = debug` on Perlmutter with
+`wall_time = 02:00:00` gives:
+
+```none
+Warning: the "debug" qos allows a maximum wall clock of 00:30:00 but 02:00:00 was requested
+```
+
+Even without a request, `wall_time` is capped at the maximum the selected
+target allows, so a job never asks for more time than the scheduler would
+accept.  The partition, QOS, queue and constraint that were actually used are
+recorded in the `provenance` file in the work directory.
 
 (supported-machines)=
 

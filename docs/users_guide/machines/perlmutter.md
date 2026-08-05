@@ -97,10 +97,10 @@ Additionally, some relevant config options come from the
 system = slurm
 
 # whether to use mpirun or srun to run a task
-parallel_executable = srun
+parallel_executable = srun --label
 
-# cores per node on the machine
-cores_per_node = 256
+# cores per node on the machine (without hyperthreading)
+cores_per_node = 128
 
 # account for running diagnostics jobs
 account = e3sm
@@ -108,8 +108,8 @@ account = e3sm
 # available constraint(s) (default is the first)
 constraints = cpu
 
-# quality of service (default is the first)
-qos = regular, premium, debug
+# available quality of service (default is chosen based on the job size)
+qos = regular, debug, premium
 
 # Config options related to spack environments
 [spack]
@@ -189,10 +189,10 @@ Additionally, some relevant config options come from the
 system = slurm
 
 # whether to use mpirun or srun to run a task
-parallel_executable = srun
+parallel_executable = srun --label
 
-# cores per node on the machine (with hyperthreading)
-cores_per_node = 128
+# cores per node on the machine (without hyperthreading)
+cores_per_node = 64
 
 # gpus per node on the machine
 gpus_per_node = 4
@@ -203,7 +203,7 @@ account = e3sm
 # available constraint(s) (default is the first)
 constraints = gpu
 
-# quality of service (default is the first)
+# available quality of service (default is chosen based on the job size)
 qos = regular, debug, premium
 
 # Config options related to spack environments
