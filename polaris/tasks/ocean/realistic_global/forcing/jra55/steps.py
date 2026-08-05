@@ -38,12 +38,18 @@ def get_jra55_steps(component, include_viz=False):
         The shared config options for the task and its steps.
     """
     config_filename = 'jra55.cfg'
-    config = PolarisConfigParser(
-        filepath=os.path.join(component.name, JRA55_SUBDIR, config_filename)
-    )
-    config.add_from_package(
-        'polaris.tasks.ocean.realistic_global.forcing.jra55',
-        config_filename,
+
+    def create():
+        config = PolarisConfigParser(filepath=filepath)
+        config.add_from_package(
+            'polaris.tasks.ocean.realistic_global.forcing.jra55',
+            config_filename,
+        )
+        return config
+
+    filepath = os.path.join(component.name, JRA55_SUBDIR, config_filename)
+    config = component.get_or_create_shared_config(
+        filepath=filepath, create=create
     )
 
     stress_step = component.get_or_create_shared_step(
