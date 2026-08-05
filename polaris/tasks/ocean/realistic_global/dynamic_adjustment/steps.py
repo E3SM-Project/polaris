@@ -57,12 +57,16 @@ def get_realistic_dynamic_adjustment_steps(
     * :py:class:`.VizDynamicAdjustmentStep`
 
     All steps are created via
-    :py:meth:`polaris.Component.get_or_create_shared_step`, so a downstream
+    :py:meth:`polaris.Component.get_or_create_shared_step`, and the config via
+    :py:meth:`polaris.Component.get_or_create_shared_config`, so a downstream
     workflow that wants the adjusted restart -- ``e3sm/init``'s component
     inputs, say -- gets the same step instances rather than a second copy of a
     very expensive chain.  This is why the caller receives the stages as well:
     the last one's ``restart_out`` is the file such a workflow is after, and
     which stage that is depends on the schedule.
+
+    Calling this again for the same mesh is a no-op that hands back what
+    already exists, including the restart chain's dependencies.
 
     Parameters
     ----------
@@ -100,15 +104,76 @@ def get_realistic_dynamic_adjustment_steps(
     init_steps, _ = get_realistic_init_steps(
         component=component, mesh_name=mesh_name, include_viz=False
     )
-    adjustment, stages = get_adjustment_steps(
-        component=component,
-        mesh_name=mesh_name,
-        config=config,
-        init_steps=init_steps,
-        include_viz=include_viz,
-    )
     steps: Dict[str, Step] = dict(init_steps)
-    steps.update(adjustment)
+
+    init_step = init_steps['initial_state']
+    forcing_step = init_steps['forcing']
+    min_res = min_res_for_mesh(mesh_name)
+    approx_cell_count = estimate_ocean_cell_count(mesh_name)
+
+    stages = load_schedule_stages(mesh_name, config)
+
+    previous = None
+    for stage in stages:
+        forward_step = component.get_or_create_shared_step(
+            step_cls=Forward,
+            subdir=os.path.join(base_subdir, stage.name),
+            config=config,
+            config_filename=CONFIG_FILENAME,
+            name=stage.name,
+            init_condition=StepInitialCondition(
+                init_step,
+                min_res=min_res,
+                approx_cell_count=approx_cell_count,
+                forcing_step=forcing_step,
+            ),
+            stage=stage,
+            validate_vars=(
+                VALIDATE_VARS if stage.name == 'simulation' else None
+            ),
+        )
+        # the restart chain, which cannot be expressed as an input/output pair
+        # because the restart filename comes from the schedule rather than
+        # from the step.  Re-wiring it on a later call is a no-op.
+        if previous is not None:
+            forward_step.add_dependency(previous, previous.name)
+        steps[forward_step.name] = forward_step
+        previous = forward_step
+
+        # checked as soon as it finishes, so a stage that is already out of
+        # bounds stops the sequence instead of costing the whole job.  A
+        # separate step because an MPI step should not carry Python work after
+        # the model exits.
+        check_step = component.get_or_create_shared_step(
+            step_cls=StageCheck,
+            subdir=os.path.join(base_subdir, f'{stage.name}_check'),
+            config=config,
+            config_filename=CONFIG_FILENAME,
+            stage=stage,
+            sequence_start=stages[0].start_time,
+        )
+        check_step.add_dependency(forward_step, forward_step.name)
+        steps[check_step.name] = check_step
+
+    validate_step = component.get_or_create_shared_step(
+        step_cls=Validate,
+        subdir=os.path.join(base_subdir, 'validate'),
+        config=config,
+        config_filename=CONFIG_FILENAME,
+        stages=stages,
+    )
+    steps[validate_step.name] = validate_step
+
+    viz_step = component.get_or_create_shared_step(
+        step_cls=VizDynamicAdjustmentStep,
+        subdir=os.path.join(base_subdir, 'viz'),
+        config=config,
+        config_filename=CONFIG_FILENAME,
+        stages=stages,
+    )
+    if include_viz:
+        steps[viz_step.name] = viz_step
+
     return steps, config, stages
 
 
@@ -127,146 +192,6 @@ def adjustment_subdir(mesh_name: str) -> str:
         The subdirectory, relative to the component.
     """
     return f'spherical/realistic_global/{mesh_name}/dynamic_adjustment'
-
-
-def get_adjustment_steps(
-    component: Any,
-    mesh_name: str,
-    config: PolarisConfigParser,
-    init_steps: Dict[str, Step],
-    include_viz: bool = False,
-) -> Tuple[Dict[str, Step], List[ForwardStage]]:
-    """
-    The adjustment steps alone: the stages, their checks, ``validate`` and
-    ``viz``, without the ``init`` chain upstream of them.
-
-    Separate from :py:func:`.get_realistic_dynamic_adjustment_steps` because
-    only these steps depend on the schedule, so only these have to be rebuilt
-    when a user's setup-time config changes it.  Re-requesting the ``init``
-    chain is not equivalent to leaving it alone: it would build a second copy
-    of the shared configs its own upstream steps own.
-
-    Parameters
-    ----------
-    component : polaris.tasks.ocean.Ocean
-        The ocean component the steps belong to.
-
-    mesh_name : str
-        The name of the MPAS mesh.
-
-    config : polaris.config.PolarisConfigParser
-        The shared per-mesh config, which is also where the schedule is read
-        from.
-
-    init_steps : dict of {str: polaris.Step}
-        The shared ``init`` steps, which must include ``initial_state`` and
-        ``forcing``.
-
-    include_viz : bool, optional
-        Whether to include the ``viz`` step in the returned steps.
-
-    Returns
-    -------
-    steps : dict of {str: polaris.Step}
-        The adjustment steps, keyed by their suggested symlink names.
-
-    stages : list of ForwardStage
-        The stages of the adjustment, in schedule order.
-    """
-    base_subdir = adjustment_subdir(mesh_name)
-    init_step = init_steps['initial_state']
-    forcing_step = init_steps['forcing']
-    min_res = min_res_for_mesh(mesh_name)
-    approx_cell_count = estimate_ocean_cell_count(mesh_name)
-
-    stages = load_schedule_stages(mesh_name, config)
-
-    steps: Dict[str, Step] = {}
-
-    previous = None
-    for stage in stages:
-        forward_step, created = _get_or_create(
-            component=component,
-            step_cls=Forward,
-            subdir=os.path.join(base_subdir, stage.name),
-            config=config,
-            name=stage.name,
-            init_condition=StepInitialCondition(
-                init_step,
-                min_res=min_res,
-                approx_cell_count=approx_cell_count,
-                forcing_step=forcing_step,
-            ),
-            stage=stage,
-            validate_vars=(
-                VALIDATE_VARS if stage.name == 'simulation' else None
-            ),
-        )
-        # the restart chain, which cannot be expressed as an input/output pair
-        # because the restart filename comes from the schedule rather than
-        # from the step
-        if created and previous is not None:
-            forward_step.add_dependency(previous, previous.name)
-        steps[forward_step.name] = forward_step
-        previous = forward_step
-
-        # checked as soon as it finishes, so a stage that is already out of
-        # bounds stops the sequence instead of costing the whole job.  A
-        # separate step because an MPI step should not carry Python work after
-        # the model exits.
-        check_step, created = _get_or_create(
-            component=component,
-            step_cls=StageCheck,
-            subdir=os.path.join(base_subdir, f'{stage.name}_check'),
-            config=config,
-            stage=stage,
-            sequence_start=stages[0].start_time,
-        )
-        if created:
-            check_step.add_dependency(forward_step, forward_step.name)
-        steps[check_step.name] = check_step
-
-    validate_step, _ = _get_or_create(
-        component=component,
-        step_cls=Validate,
-        subdir=os.path.join(base_subdir, 'validate'),
-        config=config,
-        stages=stages,
-    )
-    steps[validate_step.name] = validate_step
-
-    viz_step, _ = _get_or_create(
-        component=component,
-        step_cls=VizDynamicAdjustmentStep,
-        subdir=os.path.join(base_subdir, 'viz'),
-        config=config,
-        stages=stages,
-    )
-    if include_viz:
-        steps[viz_step.name] = viz_step
-
-    return steps, stages
-
-
-def _get_or_create(
-    component: Any, step_cls: type, subdir: str, config: Any, **kwargs: Any
-) -> Tuple[Step, bool]:
-    """
-    A shared step, and whether this call is what created it.
-
-    :py:meth:`polaris.Step.add_dependency` raises when a dependency is added
-    twice, so the restart chain may only be wired for a step this call brought
-    into being, not for one a previous caller already wired.
-    """
-    created = subdir not in component.steps
-    step = component.get_or_create_shared_step(
-        step_cls=step_cls,
-        subdir=subdir,
-        config=config,
-        config_filename=CONFIG_FILENAME,
-        **kwargs,
-    )
-    return step, created
 
 
 def _get_dynamic_adjustment_config(
