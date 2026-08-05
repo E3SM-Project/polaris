@@ -44,9 +44,17 @@ The shared config those steps use needs the same treatment, which is what
 
 ```python
 
+filepath = os.path.join(component.name, subdir, "init.cfg")
+
+
+def create():
+    config = PolarisConfigParser(filepath=filepath)
+    config.add_from_package("my.package", "init.cfg")
+    return config
+
+
 config = component.get_or_create_shared_config(
-    filepath=os.path.join(component.name, subdir, "init.cfg"),
-    setup=lambda config: config.add_from_package("my.package", "init.cfg"),
+    filepath=filepath, create=create
 )
 ```
 
@@ -56,9 +64,15 @@ a *different* config object at the same path, while the shared steps — created
 on the first call — go on using the first one.  Options set on what the second
 caller was handed then reach nothing, and passing it to
 {py:meth}`polaris.Task.set_shared_config()` raises, because a different config
-is already registered at that path.  The `setup` callback runs only when the
-config is actually created, so it must not be relied on for anything a later
-caller needs.
+is already registered at that path.
+
+The `create` callback runs only when the config does not already exist, so it
+must not be relied on for anything a later caller needs.  Because it returns
+the config rather than filling one in, an existing config builder — such as
+{py:func}`polaris.mesh.spherical.unified.get_unified_mesh_config()` — can be
+passed straight through.  It must return a config whose `filepath` matches, or
+the config would be registered under a path it does not know about; that is
+checked.
 
 Being called once per consumer is the thing to keep in mind generally.  Prefer
 wiring a dependency inside the step's own constructor, as `RemapWoa23Step` and
