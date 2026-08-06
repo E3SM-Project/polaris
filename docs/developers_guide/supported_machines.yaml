@@ -30,7 +30,7 @@ machines:
         mpi: openmpi
         mpas_target: null
       - model: Omega
-        compiler: intel-classic
+        compiler: null
         mpi: openmpi
         mpas_target: null
 
