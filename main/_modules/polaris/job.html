@@ -115,8 +115,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">jinja2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span> <span class="k">as</span> <span class="n">Template</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parallel_system</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel.pbs</span><span class="w"> </span><span class="kn">import</span> <span class="n">PbsSystem</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel.slurm</span><span class="w"> </span><span class="kn">import</span> <span class="n">SlurmSystem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel.pbs</span><span class="w"> </span><span class="kn">import</span> <span class="n">PbsOptions</span><span class="p">,</span> <span class="n">PbsSystem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel.slurm</span><span class="w"> </span><span class="kn">import</span> <span class="n">SlurmOptions</span><span class="p">,</span> <span class="n">SlurmSystem</span>
 
 
 <div class="viewcode-block" id="write_job_script">
@@ -178,6 +178,14 @@
 <span class="sd">    run_command : str, optional</span>
 <span class="sd">        The command(s) to run in the job script. If not provided, defaults to</span>
 <span class="sd">        &#39;polaris serial {{suite}}&#39;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    options : {mache.parallel.slurm.SlurmOptions, \</span>
+<span class="sd">mache.parallel.pbs.PbsOptions, None}</span>
+<span class="sd">        The scheduler options that were rendered into the job script, or</span>
+<span class="sd">        ``None`` if no job script was written because the machine does not</span>
+<span class="sd">        use a supported job scheduler</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">combined</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">combine</span><span class="p">()</span>
@@ -245,53 +253,65 @@
 
     <span class="n">desired_wall_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;wall_time&#39;</span><span class="p">)</span>
 
+    <span class="c1"># a specific scheduler target the user has asked for, if any.  mache</span>
+    <span class="c1"># treats placeholders such as &#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39; as &quot;no request&quot;, so they</span>
+    <span class="c1"># are passed through unmodified.</span>
+    <span class="n">requested_partition</span> <span class="o">=</span> <span class="n">_get_job_option</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;partition&#39;</span><span class="p">)</span>
+    <span class="n">requested_qos</span> <span class="o">=</span> <span class="n">_get_job_option</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">)</span>
+    <span class="n">requested_queue</span> <span class="o">=</span> <span class="n">_get_job_option</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;queue&#39;</span><span class="p">)</span>
+    <span class="n">requested_constraint</span> <span class="o">=</span> <span class="n">_get_job_option</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;constraint&#39;</span><span class="p">)</span>
+
+    <span class="c1"># a target named without saying which axis it is on.  mache maps it onto</span>
+    <span class="c1"># whichever of the machine&#39;s partitions, qos or queues lists it, so the</span>
+    <span class="c1"># options above win on the axis they name.</span>
+    <span class="n">requested_target</span> <span class="o">=</span> <span class="n">_get_job_option</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;scheduler_target&#39;</span><span class="p">)</span>
+
+    <span class="n">options</span><span class="p">:</span> <span class="n">SlurmOptions</span> <span class="o">|</span> <span class="n">PbsOptions</span>
     <span class="k">if</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span><span class="p">:</span>
-        <span class="p">(</span>
-            <span class="n">partition</span><span class="p">,</span>
-            <span class="n">qos</span><span class="p">,</span>
-            <span class="n">constraint</span><span class="p">,</span>
-            <span class="n">gpus_per_node</span><span class="p">,</span>
-            <span class="n">max_wallclock</span><span class="p">,</span>
-            <span class="n">nodes</span><span class="p">,</span>
-        <span class="p">)</span> <span class="o">=</span> <span class="n">SlurmSystem</span><span class="o">.</span><span class="n">get_slurm_options</span><span class="p">(</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">SlurmSystem</span><span class="o">.</span><span class="n">resolve_slurm_options</span><span class="p">(</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">combined</span><span class="p">,</span>
             <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
             <span class="n">min_nodes_allowed</span><span class="o">=</span><span class="n">min_nodes_allowed</span><span class="p">,</span>
+            <span class="n">partition</span><span class="o">=</span><span class="n">requested_partition</span><span class="p">,</span>
+            <span class="n">qos</span><span class="o">=</span><span class="n">requested_qos</span><span class="p">,</span>
+            <span class="n">constraint</span><span class="o">=</span><span class="n">requested_constraint</span><span class="p">,</span>
+            <span class="n">desired_wall_time</span><span class="o">=</span><span class="n">desired_wall_time</span><span class="p">,</span>
+            <span class="n">scheduler_target</span><span class="o">=</span><span class="n">requested_target</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">wall_time</span> <span class="o">=</span> <span class="n">_cap_wall_time</span><span class="p">(</span><span class="n">desired_wall_time</span><span class="p">,</span> <span class="n">max_wallclock</span><span class="p">)</span>
         <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;job_script.slurm.template&#39;</span>
         <span class="n">render_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
-            <span class="n">qos</span><span class="o">=</span><span class="n">qos</span><span class="p">,</span>
-            <span class="n">constraint</span><span class="o">=</span><span class="n">constraint</span><span class="p">,</span>
-            <span class="n">gpus_per_node</span><span class="o">=</span><span class="n">gpus_per_node</span><span class="p">,</span>
-            <span class="n">wall_time</span><span class="o">=</span><span class="n">wall_time</span><span class="p">,</span>
+            <span class="n">partition</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">partition</span><span class="p">,</span>
+            <span class="n">qos</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">qos</span><span class="p">,</span>
+            <span class="n">constraint</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">constraint</span><span class="p">,</span>
+            <span class="n">gpus_per_node</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">gpus_per_node</span><span class="p">,</span>
+            <span class="n">wall_time</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">wall_time</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;pbs&#39;</span><span class="p">:</span>
-        <span class="p">(</span>
-            <span class="n">queue</span><span class="p">,</span>
-            <span class="n">constraint</span><span class="p">,</span>
-            <span class="n">gpus_per_node</span><span class="p">,</span>
-            <span class="n">max_wallclock</span><span class="p">,</span>
-            <span class="n">filesystems</span><span class="p">,</span>
-            <span class="n">nodes</span><span class="p">,</span>
-        <span class="p">)</span> <span class="o">=</span> <span class="n">PbsSystem</span><span class="o">.</span><span class="n">get_pbs_options</span><span class="p">(</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">PbsSystem</span><span class="o">.</span><span class="n">resolve_pbs_options</span><span class="p">(</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">combined</span><span class="p">,</span>
             <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
             <span class="n">min_nodes_allowed</span><span class="o">=</span><span class="n">min_nodes_allowed</span><span class="p">,</span>
+            <span class="n">queue</span><span class="o">=</span><span class="n">requested_queue</span><span class="p">,</span>
+            <span class="n">constraint</span><span class="o">=</span><span class="n">requested_constraint</span><span class="p">,</span>
+            <span class="n">desired_wall_time</span><span class="o">=</span><span class="n">desired_wall_time</span><span class="p">,</span>
+            <span class="n">scheduler_target</span><span class="o">=</span><span class="n">requested_target</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">wall_time</span> <span class="o">=</span> <span class="n">_cap_wall_time</span><span class="p">(</span><span class="n">desired_wall_time</span><span class="p">,</span> <span class="n">max_wallclock</span><span class="p">)</span>
         <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;job_script.pbs.template&#39;</span>
         <span class="n">render_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="n">queue</span><span class="o">=</span><span class="n">queue</span><span class="p">,</span>
-            <span class="n">constraint</span><span class="o">=</span><span class="n">constraint</span><span class="p">,</span>
-            <span class="n">gpus_per_node</span><span class="o">=</span><span class="n">gpus_per_node</span><span class="p">,</span>
-            <span class="n">wall_time</span><span class="o">=</span><span class="n">wall_time</span><span class="p">,</span>
-            <span class="n">filesystems</span><span class="o">=</span><span class="n">filesystems</span><span class="p">,</span>
+            <span class="n">queue</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">queue</span><span class="p">,</span>
+            <span class="n">constraint</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">constraint</span><span class="p">,</span>
+            <span class="n">gpus_per_node</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">gpus_per_node</span><span class="p">,</span>
+            <span class="n">wall_time</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">wall_time</span><span class="p">,</span>
+            <span class="n">filesystems</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">filesystems</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Do not write a job script for other systems</span>
-        <span class="k">return</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">nodes</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">effective_nodes</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">honored</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning: </span><span class="si">{</span><span class="n">options</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="n">job_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;job_name&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">job_name</span> <span class="o">==</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
@@ -324,8 +344,20 @@
         <span class="n">script_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;job_script</span><span class="si">{</span><span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">suite</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">suite</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="si">}</span><span class="s1">.sh&#39;</span>
         <span class="n">script_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">script_filename</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">script_filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-        <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+        <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
+    <span class="k">return</span> <span class="n">options</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_job_option</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">option</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a requested ``[job]`` option, or None if it is unset or empty.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="n">option</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="n">option</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">value</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_min_nodes_allowed</span><span class="p">(</span>
@@ -354,33 +386,6 @@
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">minima</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">minima</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_wallclock_to_seconds</span><span class="p">(</span><span class="n">wallclock</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert HH:MM:SS wall-clock string to total seconds, or None.&quot;&quot;&quot;</span>
-    <span class="n">parts</span> <span class="o">=</span> <span class="n">wallclock</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">3600</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_cap_wall_time</span><span class="p">(</span><span class="n">desired</span><span class="p">,</span> <span class="n">max_wallclock</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return desired wall time, capped at max_wallclock if it is smaller.</span>
-
-<span class="sd">    Defaults to desired if max_wallclock is empty or cannot be parsed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">max_wallclock</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">desired</span>
-    <span class="n">desired_secs</span> <span class="o">=</span> <span class="n">_wallclock_to_seconds</span><span class="p">(</span><span class="n">desired</span><span class="p">)</span>
-    <span class="n">max_secs</span> <span class="o">=</span> <span class="n">_wallclock_to_seconds</span><span class="p">(</span><span class="n">max_wallclock</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">desired_secs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_secs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">desired</span>
-    <span class="k">if</span> <span class="n">desired_secs</span> <span class="o">&lt;=</span> <span class="n">max_secs</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">desired</span>
-    <span class="k">return</span> <span class="n">max_wallclock</span>
 </pre></div>
 
            </div>

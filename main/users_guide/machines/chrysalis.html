@@ -58,6 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="index.html#config-options">config options</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#slurm-job-queueing">Slurm job queueing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#pbs-job-queueing">PBS job queueing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#requesting-a-partition-qos-or-queue">Requesting a partition, QOS or queue</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#supported-machines">Supported Machines</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="aurora.html">Aurora</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Chrysalis</a><ul>
@@ -182,13 +183,13 @@ suite:</p>
 <span class="na">system</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">slurm</span>
 
 <span class="c1"># whether to use mpirun or srun to run a task</span>
-<span class="na">parallel_executable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">srun</span>
+<span class="na">parallel_executable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">srun --mpi=pmi2 -l</span>
 
 <span class="c1"># cores per node on the machine</span>
-<span class="na">cores_per_node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">128</span>
+<span class="na">cores_per_node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">64</span>
 
-<span class="c1"># available partition(s) (default is the first)</span>
-<span class="na">partitions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">debug, compute, high</span>
+<span class="c1"># available partition(s) (default is chosen based on the job size)</span>
+<span class="na">partitions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">compute, debug</span>
 </pre></div>
 </div>
 </section>

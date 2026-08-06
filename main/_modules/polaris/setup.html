@@ -384,7 +384,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;minimum gpus: </span><span class="si">{</span><span class="n">max_of_min_gpus</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">write_job_script</span><span class="p">(</span>
+        <span class="n">job_options</span> <span class="o">=</span> <span class="n">write_job_script</span><span class="p">(</span>
             <span class="n">config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">,</span>
             <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
             <span class="n">target_cores</span><span class="o">=</span><span class="n">max_cores</span><span class="p">,</span>
@@ -394,6 +394,19 @@
             <span class="n">work_dir</span><span class="o">=</span><span class="n">work_dir</span><span class="p">,</span>
             <span class="n">suite</span><span class="o">=</span><span class="n">suite_name</span><span class="p">,</span>
         <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">job_options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Rewrite provenance (it was written earlier so that it exists</span>
+            <span class="c1"># even if setup fails) now that we know which scheduler options</span>
+            <span class="c1"># the suite&#39;s job script ended up using.</span>
+            <span class="n">provenance</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="n">work_dir</span><span class="p">,</span>
+                <span class="n">tasks</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">,</span>
+                <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
+                <span class="n">baseline_dir</span><span class="o">=</span><span class="n">baseline_dir</span><span class="p">,</span>
+                <span class="n">job_options</span><span class="o">=</span><span class="n">job_options</span><span class="p">,</span>
+            <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">tasks</span></div>
 

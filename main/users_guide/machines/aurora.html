@@ -58,6 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="index.html#config-options">config options</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#slurm-job-queueing">Slurm job queueing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#pbs-job-queueing">PBS job queueing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#requesting-a-partition-qos-or-queue">Requesting a partition, QOS or queue</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#supported-machines">Supported Machines</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Aurora</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
@@ -174,13 +175,6 @@ a Aurora login node (or specified <code class="docutils literal notranslate"><sp
 <span class="c1"># whether to use the same modules for hdf5, netcdf-c, netcdf-fortran and</span>
 <span class="c1"># pnetcdf as E3SM (spack modules are used otherwise)</span>
 <span class="na">use_e3sm_hdf5_netcdf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
-
-
-<span class="c1"># Config options related to creating a job script</span>
-<span class="k">[job]</span>
-
-<span class="c1"># the filesystems used for the job</span>
-<span class="na">filesystems</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">home:flare</span>
 </pre></div>
 </div>
 <p>Additionally, some relevant config options come from the
@@ -192,16 +186,19 @@ a Aurora login node (or specified <code class="docutils literal notranslate"><sp
 <span class="na">system</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">pbs</span>
 
 <span class="c1"># whether to use mpirun or srun to run a task</span>
-<span class="na">parallel_executable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpirun</span>
+<span class="na">parallel_executable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpiexec --label</span>
 
-<span class="c1"># cores per node on the machine (with hyperthreading)</span>
-<span class="na">cores_per_node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">208</span>
+<span class="c1"># cores per node on the machine (for the oneapi-ifx compiler)</span>
+<span class="na">cores_per_node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">102</span>
 
 <span class="c1"># account for running diagnostics jobs</span>
 <span class="na">account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">E3SM_Dec</span>
 
-<span class="c1"># queues (default is the first)</span>
-<span class="na">queues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">prod, debug</span>
+<span class="c1"># available queues (default is chosen based on the job size)</span>
+<span class="na">queues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">capacity, prod, debug</span>
+
+<span class="c1"># the filesystems used for batch jobs</span>
+<span class="na">filesystems</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">home:flare</span>
 
 <span class="c1"># Config options related to spack environments</span>
 <span class="k">[spack]</span>

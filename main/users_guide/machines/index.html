@@ -58,6 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#config-options">config options</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#slurm-job-queueing">Slurm job queueing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pbs-job-queueing">PBS job queueing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#requesting-a-partition-qos-or-queue">Requesting a partition, QOS or queue</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#supported-machines">Supported Machines</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="aurora.html">Aurora</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
@@ -197,13 +198,19 @@ config options provided by mache that are relevant to polaris are:</p>
 <span class="na">parallel_executable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">srun</span>
 
 <span class="c1"># cores per node on the machine</span>
-<span class="na">cores_per_node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">36</span>
+<span class="na">cores_per_node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">128</span>
 
 <span class="c1"># account for running diagnostics jobs</span>
 <span class="na">account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">e3sm</span>
 
-<span class="c1"># quality of service (default is the first)</span>
-<span class="na">qos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">regular, interactive</span>
+<span class="c1"># available partition(s) (default is chosen based on the job size)</span>
+<span class="na">partitions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">regular, debug</span>
+
+<span class="c1"># available quality of service (default is chosen based on the job size)</span>
+<span class="na">qos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">regular, debug, premium</span>
+
+<span class="c1"># available constraint(s) (default is the first)</span>
+<span class="na">constraints</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">cpu</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">parallel</span></code> section defined properties of the machine, to do with parallel
@@ -239,6 +246,58 @@ qstat<span class="w"> </span>-u<span class="w"> </span><span class="nv">$USER</s
 qcancel<span class="w"> </span>&lt;jobid&gt;<span class="w"> </span><span class="c1"># cancel a job</span>
 </pre></div>
 </div>
+</section>
+<section id="requesting-a-partition-qos-or-queue">
+<span id="scheduler-targets"></span><h2>Requesting a partition, QOS or queue<a class="headerlink" href="#requesting-a-partition-qos-or-queue" title="Link to this heading"></a></h2>
+<p>By default, Polaris lets mache choose which scheduler target to submit to
+based on how many nodes the job needs.  If you want a specific one, set it in
+the <code class="docutils literal notranslate"><span class="pre">job</span></code> section of your user config file:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[job]</span>
+
+<span class="c1"># wall-clock time</span>
+<span class="na">wall_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">00:20:00</span>
+
+<span class="c1"># on a Slurm machine</span>
+<span class="na">partition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">debug</span>
+<span class="na">qos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">debug</span>
+
+<span class="c1"># on a PBS machine</span>
+<span class="na">queue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">debug</span>
+</pre></div>
+</div>
+<p>The values you can choose from are the <code class="docutils literal notranslate"><span class="pre">partitions</span></code>, <code class="docutils literal notranslate"><span class="pre">qos</span></code>, <code class="docutils literal notranslate"><span class="pre">queues</span></code> and
+<code class="docutils literal notranslate"><span class="pre">constraints</span></code> lists in the machine’s <code class="docutils literal notranslate"><span class="pre">parallel</span></code> section, which are shown on
+each machine’s page below.  Mache also knows the node limits and the maximum
+wall-clock time of each target.</p>
+<p>Machines hang the same concept off different axes, so if your intent is
+machine independent – “use the debug target” – name it once with
+<code class="docutils literal notranslate"><span class="pre">scheduler_target</span></code> and let mache work out which axis this machine uses:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[job]</span>
+
+<span class="na">wall_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">00:20:00</span>
+<span class="na">scheduler_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">debug</span>
+</pre></div>
+</div>
+<p>That selects the <code class="docutils literal notranslate"><span class="pre">debug</span></code> partition on Chrysalis, the <code class="docutils literal notranslate"><span class="pre">debug</span></code> QOS on Frontier
+and Perlmutter, and the <code class="docutils literal notranslate"><span class="pre">debug</span></code> queue on Aurora.  <code class="docutils literal notranslate"><span class="pre">partition</span></code>, <code class="docutils literal notranslate"><span class="pre">qos</span></code> and
+<code class="docutils literal notranslate"><span class="pre">queue</span></code> win on the axis they name, so you can set a broad <code class="docutils literal notranslate"><span class="pre">scheduler_target</span></code>
+and still pin one axis.</p>
+<p>A request is honored only if the machine can satisfy it.  If the target does
+not exist on that machine, if it does not allow the number of nodes the job
+needs, or if its maximum wall-clock time is shorter than <code class="docutils literal notranslate"><span class="pre">wall_time</span></code>, Polaris
+falls back to the machine default and prints a warning saying which of those
+was the problem.  A request on an axis the machine does not use at all – a
+<code class="docutils literal notranslate"><span class="pre">qos</span></code> on a machine that defines none, say – is not a denied request; it is
+simply ignored, so setting all of <code class="docutils literal notranslate"><span class="pre">partition</span></code>, <code class="docutils literal notranslate"><span class="pre">qos</span></code> and <code class="docutils literal notranslate"><span class="pre">queue</span></code> for
+portability is harmless.  For example, asking for <code class="docutils literal notranslate"><span class="pre">qos</span> <span class="pre">=</span> <span class="pre">debug</span></code> on Perlmutter
+with <code class="docutils literal notranslate"><span class="pre">wall_time</span> <span class="pre">=</span> <span class="pre">02:00:00</span></code> gives:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Warning: the &quot;debug&quot; qos allows a maximum wall clock of 00:30:00 but 02:00:00 was requested
+</pre></div>
+</div>
+<p>Even without a request, <code class="docutils literal notranslate"><span class="pre">wall_time</span></code> is capped at the maximum the selected
+target allows, so a job never asks for more time than the scheduler would
+accept.  The partition, QOS, queue and constraint that were actually used are
+recorded in the <code class="docutils literal notranslate"><span class="pre">provenance</span></code> file in the work directory.</p>
 </section>
 <section id="supported-machines">
 <span id="id2"></span><h2>Supported Machines<a class="headerlink" href="#supported-machines" title="Link to this heading"></a></h2>

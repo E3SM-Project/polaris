@@ -119,7 +119,14 @@
 
 <div class="viewcode-block" id="write">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.provenance.write.html#polaris.provenance.write">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">machine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span>
+    <span class="n">work_dir</span><span class="p">,</span>
+    <span class="n">tasks</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">machine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">baseline_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">job_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Write a file with provenance, such as the git version, conda packages,</span>
 <span class="sd">    command, and tasks, to the work directory.</span>
@@ -145,6 +152,12 @@
 
 <span class="sd">    baseline_dir : str, optional</span>
 <span class="sd">        The path to the baseline work directory, if any</span>
+
+<span class="sd">    job_options : {mache.parallel.slurm.SlurmOptions, \</span>
+<span class="sd">mache.parallel.pbs.PbsOptions}, optional</span>
+<span class="sd">        The scheduler options that were written to the job script, as</span>
+<span class="sd">        returned by :py:func:`polaris.job.write_job_script()`.  If not</span>
+<span class="sd">        provided, no scheduler metadata is recorded.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">polaris_git_version</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;.git&#39;</span><span class="p">):</span>
@@ -198,7 +211,7 @@
 
     <span class="c1"># Add readily parsable, PR-friendly metadata discovered at setup time</span>
     <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;machine&#39;</span><span class="p">,</span> <span class="n">machine</span><span class="p">)</span>
-    <span class="n">_write_scheduler_metadata</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+    <span class="n">_write_scheduler_metadata</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">job_options</span><span class="p">)</span>
     <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;compiler&#39;</span><span class="p">,</span> <span class="n">_get_compiler</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
     <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;work directory&#39;</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
     <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;build directory&#39;</span><span class="p">,</span> <span class="n">_get_build_dir</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
@@ -293,76 +306,6 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_system</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;system&#39;</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;system&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="kc">None</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_scheduler_fields</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve partition/qos/constraint (slurm) or just constraint (pbs).&quot;&quot;&quot;</span>
-    <span class="n">partition</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">qos</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">constraint</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">partition</span><span class="p">,</span> <span class="n">qos</span><span class="p">,</span> <span class="n">constraint</span>
-
-    <span class="k">if</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;pbs&#39;</span><span class="p">:</span>
-        <span class="c1"># PBS: only constraint is relevant for our purposes</span>
-        <span class="n">cons_val</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;constraint&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;constraint&#39;</span><span class="p">)</span>
-            <span class="k">else</span> <span class="kc">None</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">cons_val</span> <span class="ow">and</span> <span class="n">cons_val</span> <span class="o">!=</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
-            <span class="n">constraint</span> <span class="o">=</span> <span class="n">cons_val</span>
-        <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;constraints&#39;</span><span class="p">):</span>
-            <span class="n">cons_list</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;constraints&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">cons_list</span><span class="p">:</span>
-                <span class="n">constraint</span> <span class="o">=</span> <span class="n">cons_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">partition</span><span class="p">,</span> <span class="n">qos</span><span class="p">,</span> <span class="n">constraint</span>
-
-    <span class="c1"># Default to slurm-like resolution</span>
-    <span class="n">part_val</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;partition&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;partition&#39;</span><span class="p">)</span>
-        <span class="k">else</span> <span class="kc">None</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="n">part_val</span> <span class="ow">and</span> <span class="n">part_val</span> <span class="o">!=</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
-        <span class="n">partition</span> <span class="o">=</span> <span class="n">part_val</span>
-    <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;partitions&#39;</span><span class="p">):</span>
-        <span class="n">parts</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;partitions&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">parts</span><span class="p">:</span>
-            <span class="n">partition</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-    <span class="n">qos_val</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="n">qos_val</span> <span class="ow">and</span> <span class="n">qos_val</span> <span class="o">!=</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
-        <span class="n">qos</span> <span class="o">=</span> <span class="n">qos_val</span>
-    <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">):</span>
-        <span class="n">qos_list</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">qos_list</span><span class="p">:</span>
-            <span class="n">qos</span> <span class="o">=</span> <span class="n">qos_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-    <span class="n">cons_val</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;constraint&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;constraint&#39;</span><span class="p">)</span>
-        <span class="k">else</span> <span class="kc">None</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="n">cons_val</span> <span class="ow">and</span> <span class="n">cons_val</span> <span class="o">!=</span> <span class="s1">&#39;&lt;&lt;&lt;default&gt;&gt;&gt;&#39;</span><span class="p">:</span>
-        <span class="n">constraint</span> <span class="o">=</span> <span class="n">cons_val</span>
-    <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;constraints&#39;</span><span class="p">):</span>
-        <span class="n">cons_list</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;constraints&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">cons_list</span><span class="p">:</span>
-            <span class="n">constraint</span> <span class="o">=</span> <span class="n">cons_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-    <span class="k">return</span> <span class="n">partition</span><span class="p">,</span> <span class="n">qos</span><span class="p">,</span> <span class="n">constraint</span>
-
-
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_compiler</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -428,14 +371,17 @@
     <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_write_scheduler_metadata</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write partition/qos/constraint metadata when available.&quot;&quot;&quot;</span>
-    <span class="n">system</span> <span class="o">=</span> <span class="n">_get_system</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-    <span class="n">partition</span><span class="p">,</span> <span class="n">qos</span><span class="p">,</span> <span class="n">constraint</span> <span class="o">=</span> <span class="n">_resolve_scheduler_fields</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">)</span>
-    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;partition&#39;</span><span class="p">,</span> <span class="n">partition</span><span class="p">)</span>
-    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">,</span> <span class="n">qos</span><span class="p">)</span>
-    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;constraint&#39;</span><span class="p">,</span> <span class="n">constraint</span><span class="p">)</span>
-    <span class="c1"># No return value; this function only writes metadata lines</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_scheduler_metadata</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">job_options</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write the scheduler options that the job script actually used.</span>
+
+<span class="sd">    Slurm machines have a partition and a QOS, PBS machines have a queue,</span>
+<span class="sd">    and either may have a constraint, so only the fields that the resolved</span>
+<span class="sd">    options actually carry are written.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">job_options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;partition&#39;</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">,</span> <span class="s1">&#39;queue&#39;</span><span class="p">,</span> <span class="s1">&#39;constraint&#39;</span><span class="p">):</span>
+        <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">job_options</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
 </pre></div>
 
            </div>
