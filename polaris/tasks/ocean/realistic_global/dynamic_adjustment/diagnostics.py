@@ -5,7 +5,8 @@ Each stage of the adjustment is summarized by one row of scalars, so that the
 whole sequence can be read as a table rather than by opening every stage's
 output in a viewer.  This is what says whether the damping ramp and the stage
 durations were chosen well: kinetic energy should be falling and flattening,
-tracer drift should be small, and nothing should be approaching a blow-up.
+the volume-weighted mean tracers should not be moving at all, and nothing
+should be approaching a blow-up.
 
 The numbers come from each stage's global-statistics file wherever possible,
 because the model has already reduced them over the whole domain at the output
@@ -167,19 +168,22 @@ METRICS: Tuple[Metric, ...] = (
     ),
 )
 
-# Drift columns, computed from the change in a volume-weighted mean across the
-# stage rather than read directly.  These are the "tracer tendency" the design
-# asks for: a mean that is still moving says the stage has not settled, even
-# when the extremes look calm.
-DRIFTS: Tuple[Tuple[str, str], ...] = (
-    ('temperature_drift_per_day', 'temperatureAvg'),
-    ('salinity_drift_per_day', 'salinityAvg'),
+# Mean-change columns, computed from the change in a volume-weighted mean
+# across the stage rather than read directly.  These are a conservation check,
+# not a settling one: these runs are forced by wind alone, with no surface
+# fluxes, so the volume-weighted mean tracers are conserved exactly and the
+# expected value of every one of these columns is zero.  A value that is not
+# machine noise means the model lost or gained tracer, which says nothing about
+# whether the fast waves have been damped out.
+MEAN_CHANGES: Tuple[Tuple[str, str], ...] = (
+    ('mean_temperature_change_per_day', 'temperatureAvg'),
+    ('mean_salinity_change_per_day', 'salinityAvg'),
 )
 
-# The units of each drift column, keyed by column name.
-DRIFT_UNITS = {
-    'temperature_drift_per_day': 'degC/day',
-    'salinity_drift_per_day': 'PSU/day',
+# The units of each mean-change column, keyed by column name.
+MEAN_CHANGE_UNITS = {
+    'mean_temperature_change_per_day': 'degC/day',
+    'mean_salinity_change_per_day': 'PSU/day',
 }
 
 
@@ -190,9 +194,11 @@ def column_names() -> List[str]:
     Returns
     -------
     list of str
-        The metric and drift column names.
+        The metric and mean-change column names.
     """
-    return [metric.name for metric in METRICS] + [name for name, _ in DRIFTS]
+    return [metric.name for metric in METRICS] + [
+        name for name, _ in MEAN_CHANGES
+    ]
 
 
 def column_units() -> Dict[str, str]:
@@ -205,7 +211,7 @@ def column_units() -> Dict[str, str]:
         A map from column name to units.
     """
     units = {metric.name: metric.units for metric in METRICS}
-    units.update(DRIFT_UNITS)
+    units.update(MEAN_CHANGE_UNITS)
     return units
 
 
@@ -293,8 +299,8 @@ def collect_stage_diagnostics(
                 missing.append(metric.name)
             row[metric.name] = value
 
-        for name, stats_var in DRIFTS:
-            row[name] = _drift(ds_stats, stats_var, stage)
+        for name, stats_var in MEAN_CHANGES:
+            row[name] = _mean_change(ds_stats, stats_var, stage)
             if row[name] is None:
                 missing.append(name)
 
@@ -400,12 +406,12 @@ def _from_output(
             return float(field.min())
         if metric.reduction == 'max':
             return float(field.max())
-        # 'last': the extreme at the final output time, which is the
-        # end-of-stage value the settling check compares
+        # 'last': the extreme at the final output time, which is the state
+        # the next stage is handed
         return float(field.isel(Time=-1).max())
 
 
-def _drift(
+def _mean_change(
     ds_stats: Any, stats_var: str, stage: ForwardStage
 ) -> Optional[float]:
     """
