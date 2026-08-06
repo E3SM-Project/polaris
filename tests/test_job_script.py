@@ -135,6 +135,67 @@ def test_queue_request_exceeds_wall_clock(tmp_path, capsys):
     assert '01:00:00' in capsys.readouterr().out
 
 
+def test_scheduler_target_maps_to_a_partition(tmp_path, capsys):
+    """A target is used as a partition on a machine that lists it there."""
+    text, options = get_job_script(
+        tmp_path, 'chrysalis', nodes=2, scheduler_target='debug'
+    )
+    assert '#SBATCH --partition=debug' in text
+    assert options.partition == 'debug'
+    assert options.honored
+    assert capsys.readouterr().out == ''
+
+
+def test_scheduler_target_maps_to_a_qos(tmp_path, capsys):
+    """The same target is used as a QOS on a machine that lists it there."""
+    text, options = get_job_script(
+        tmp_path,
+        'pm-cpu',
+        nodes=2,
+        scheduler_target='debug',
+        wall_time='00:20:00',
+    )
+    assert '#SBATCH --qos=debug' in text
+    assert options.honored
+    assert capsys.readouterr().out == ''
+
+
+def test_scheduler_target_maps_to_a_queue(tmp_path, capsys):
+    """The same target is used as a queue on a PBS machine."""
+    text, options = get_job_script(
+        tmp_path,
+        'aurora',
+        nodes=2,
+        scheduler_target='debug',
+        wall_time='00:30:00',
+    )
+    assert '#PBS -q debug' in text
+    assert options.queue == 'debug'
+    assert options.honored
+    assert capsys.readouterr().out == ''
+
+
+def test_named_axis_wins_over_scheduler_target(tmp_path):
+    """An explicit request wins on the axis it names."""
+    text, options = get_job_script(
+        tmp_path, 'pm-cpu', nodes=2, scheduler_target='debug', qos='regular'
+    )
+    assert '#SBATCH --qos=regular' in text
+    assert options.honored
+
+
+def test_scheduler_target_unavailable(tmp_path, capsys):
+    """A target on no axis at all falls back with a warning."""
+    text, options = get_job_script(
+        tmp_path, 'pm-cpu', nodes=2, scheduler_target='nonexistent'
+    )
+    assert '#SBATCH --qos=regular' in text
+    assert not options.honored
+    warning = capsys.readouterr().out
+    assert 'not an available scheduler target' in warning
+    assert 'qos: regular, debug, premium' in warning
+
+
 def test_constraint_request_honored(tmp_path, capsys):
     """A constraint the machine supports is passed through."""
     text, options = get_job_script(
@@ -158,14 +219,27 @@ def test_constraint_request_unavailable(tmp_path, capsys):
 
 
 def test_constraint_request_on_machine_without_constraints(tmp_path, capsys):
-    """A constraint request on a machine that defines none falls back."""
+    """A constraint request on a machine that defines none is ignored."""
     text, options = get_job_script(
         tmp_path, 'chrysalis', nodes=2, constraint='anything'
     )
     assert '--constraint' not in text
     assert options.constraint == ''
-    assert not options.honored
-    assert 'defines no constraints' in capsys.readouterr().out
+    # the machine has no notion of a constraint, so there was no choice to
+    # deny
+    assert options.honored
+    assert capsys.readouterr().out == ''
+
+
+def test_request_on_an_axis_the_machine_does_not_use(tmp_path, capsys):
+    """A QOS request on a machine that defines no QOS is ignored."""
+    text, options = get_job_script(
+        tmp_path, 'chrysalis', nodes=2, partition='debug', qos='debug'
+    )
+    assert '#SBATCH --partition=debug' in text
+    assert '--qos' not in text
+    assert options.honored
+    assert capsys.readouterr().out == ''
 
 
 def test_single_node_writes_no_script(tmp_path):
@@ -208,7 +282,9 @@ def test_provenance_without_a_job_script(tmp_path):
         assert label not in recorded
 
 
-@pytest.mark.parametrize('option', ['partition', 'qos', 'constraint'])
+@pytest.mark.parametrize(
+    'option', ['partition', 'qos', 'constraint', 'scheduler_target']
+)
 def test_empty_option_is_not_a_request(tmp_path, option):
     """An empty ``[job]`` option is treated as no request at all."""
     text, options = get_job_script(tmp_path, 'pm-cpu', nodes=2, **{option: ''})

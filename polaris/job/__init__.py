@@ -148,6 +148,11 @@ mache.parallel.pbs.PbsOptions, None}
     requested_queue = _get_job_option(config, 'queue')
     requested_constraint = _get_job_option(config, 'constraint')
 
+    # a target named without saying which axis it is on.  mache maps it onto
+    # whichever of the machine's partitions, qos or queues lists it, so the
+    # options above win on the axis they name.
+    requested_target = _get_job_option(config, 'scheduler_target')
+
     options: SlurmOptions | PbsOptions
     if system == 'slurm':
         options = SlurmSystem.resolve_slurm_options(
@@ -158,6 +163,7 @@ mache.parallel.pbs.PbsOptions, None}
             qos=requested_qos,
             constraint=requested_constraint,
             desired_wall_time=desired_wall_time,
+            scheduler_target=requested_target,
         )
         template_name = 'job_script.slurm.template'
         render_kwargs.update(
@@ -175,6 +181,7 @@ mache.parallel.pbs.PbsOptions, None}
             queue=requested_queue,
             constraint=requested_constraint,
             desired_wall_time=desired_wall_time,
+            scheduler_target=requested_target,
         )
         template_name = 'job_script.pbs.template'
         render_kwargs.update(
