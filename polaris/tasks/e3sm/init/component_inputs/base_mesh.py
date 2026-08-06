@@ -39,7 +39,9 @@ class BaseMeshStep(Step):
         base_mesh_step,
         cull_mesh_step,
         with_maps,
-        name='base_mesh',
+        # not 'base_mesh': the step that built the mesh already has that name,
+        # and both appear in the same task
+        name='staged_base_mesh',
     ):
         """
         Create a new step.

@@ -1,0 +1,26 @@
+This directory holds E3SM component input files staged by Polaris'
+`e3sm/init` `component_inputs` workflow.
+
+DO NOT UPLOAD THIS TREE TO THE INPUTDATA SERVER ON ITS OWN.
+
+It is a SUBSET of what E3SM needs to run a new mesh.  It covers the meshes,
+initial conditions and graph partitions for MPAS-Ocean and MPAS-Seaice, and
+the shared base mesh and SCRIP files.  It does NOT include, among other
+things:
+
+  * diagnostic mapping files and region masks
+  * E3SM-to-CMIP mapping files
+  * iceberg and ice-shelf melt climatologies
+  * sea-surface salinity restoring
+  * tidal mixing
+  * the coefficients for velocity reconstruction
+
+Those come from separate workflows.  A mesh is not ready for the inputdata
+server until all of them have been produced and checked together.
+
+The layout under `inputdata/` mirrors where each file belongs in E3SM's
+inputdata tree, so files can be copied across once the full set exists.
+
+Ice-shelf cavities are not supported by this workflow.  These files are for
+meshes culled with the `calving_front` Antarctic boundary convention, which
+have no cavities, and they carry no land-ice fields.
