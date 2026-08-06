@@ -73,7 +73,7 @@ class Validate(Step):
             The stages of the adjustment, in schedule order.  The stages
             themselves are needed, rather than just their names, because a
             stage's run duration is what turns a change across the stage into
-            a per-day drift rate.
+            a per-day rate.
         """
         super().__init__(component=component, name='validate', subdir=subdir)
         self.stages = list(stages)
