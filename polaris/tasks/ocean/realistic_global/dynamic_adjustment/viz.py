@@ -55,7 +55,7 @@ class Panel:
     anomaly : bool
         Whether to plot the change from the first sample rather than the value.
         A volume-weighted mean tracer moves by a tiny fraction of its own
-        magnitude, so the drift is invisible on an absolute axis.
+        magnitude, so the change is invisible on an absolute axis.
     """
 
     title: str
@@ -94,7 +94,7 @@ PANELS: Tuple[Panel, ...] = (
         [('temperatureMax', 'max'), ('temperatureMin', 'min')],
     ),
     Panel(
-        'mean temperature drift',
+        'mean temperature change',
         r'$^\circ$C',
         [('temperatureAvg', '')],
         anomaly=True,
@@ -105,7 +105,7 @@ PANELS: Tuple[Panel, ...] = (
         [('salinityMax', 'max'), ('salinityMin', 'min')],
     ),
     Panel(
-        'mean salinity drift',
+        'mean salinity change',
         'PSU',
         [('salinityAvg', '')],
         anomaly=True,
