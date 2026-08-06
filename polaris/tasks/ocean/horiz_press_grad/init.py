@@ -4,6 +4,7 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
+from polaris.attrs import set_attrs
 from polaris.ocean.coriolis import add_coriolis_to_dataset
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.pstar import init_pstar_vertical_coord
@@ -204,13 +205,19 @@ class Init(PStarInitStep, OceanIOStep):
 
         ds = ds_mesh.copy()
         ds['BottomPressure'] = bottom_pressure
-        ds.BottomPressure.attrs['long_name'] = 'seafloor gauge pressure'
-        ds.BottomPressure.attrs['units'] = 'Pa'
+        set_attrs(
+            ds.BottomPressure,
+            long_name='seafloor gauge pressure',
+            units='Pa',
+        )
         if surface_pressure is None:
             surface_pressure = xr.zeros_like(bottom_pressure)
         ds['SurfacePressure'] = surface_pressure
-        ds.SurfacePressure.attrs['long_name'] = 'sea surface gauge pressure'
-        ds.SurfacePressure.attrs['units'] = 'Pa'
+        set_attrs(
+            ds.SurfacePressure,
+            long_name='sea surface gauge pressure',
+            units='Pa',
+        )
 
         ds_list: list[xr.Dataset] = []
         for icell in range(ds.sizes['nCells']):
