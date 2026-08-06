@@ -1,0 +1,173 @@
+ocean:
+  time_management:
+    config_stop_time: none
+    config_run_duration: {{ run_duration }}
+  time_integration:
+    config_dt: {{ dt }}
+    config_time_integrator: {{ time_integrator }}
+  forcing:
+    config_use_bulk_wind_stress: true
+  advection:
+    config_horiz_tracer_adv_order: 2
+  hmix_del2:
+    config_use_mom_del2: true
+  hmix_del4:
+    config_use_mom_del4: true
+  cvmix:
+    config_use_cvmix_convection: true
+    # shear mixing is off by default in MPAS-Ocean and on by default in
+    # Omega, so set it (and its parameters) explicitly for both
+    config_use_cvmix_shear: true
+    config_cvmix_shear_KPP_nu_zero: 0.005
+    config_cvmix_shear_KPP_Ri_zero: 0.7
+    config_cvmix_shear_KPP_exp: 3.0
+    config_cvmix_num_ri_smooth_loops: 2
+  bottom_drag:
+    config_bottom_drag_mode: implicit
+    config_implicit_bottom_drag_type: constant
+    config_implicit_constant_bottom_drag_coeff: 1.0e-3
+
+mpas-ocean:
+  # If using teos10 for omega
+  eos:
+    config_eos_type: jm
+  cvmix:
+    config_cvmix_use_BLD_smoothing: false
+    config_bulk_wind_stress_interp_isotropic: true
+    # Omega implements only the LMD94 shear form, so there is no
+    # counterpart option to translate; MPAS-Ocean defaults to 'PP'
+    config_cvmix_shear_mixing_scheme: KPP
+  frazil_ice:
+    config_frazil_in_open_ocean: false
+  AM_globalStats:
+    config_AM_globalStats_enable: true
+    config_AM_globalStats_compute_interval: output_interval
+    config_AM_globalStats_compute_on_startup: true
+    config_AM_globalStats_write_on_startup: true
+    config_AM_globalStats_text_file: false
+  streams:
+    mesh:
+      filename_template: init.nc
+    input:
+      filename_template: init.nc
+    forcing:
+      filename_template: init.nc
+      input_interval: initial_only
+      type: input
+      contents:
+      - windStressZonal
+      - windStressMeridional
+    restart:
+      output_interval: {{ run_duration }}
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      reference_time: 0001-01-01_00:00:00
+      contents:
+      - tracers
+      - xtime
+      - normalVelocity
+      - layerThickness
+      - kineticEnergyCell
+      - relativeVorticityCell
+    globalStatsOutput:
+      type: output
+      filename_template: global_stats.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      reference_time: 0001-01-01_00:00:00
+      packages: globalStatsAMPKG
+      contents:
+      - xtime
+      - daysSinceStartOfSim
+      - CFLNumberGlobal
+      - minGlobalStats
+      - maxGlobalStats
+      - avgGlobalStats
+      - rmsGlobalStats
+
+Omega:
+  TimeIntegration:
+    TimeStepper: RungeKutta4
+  Tendencies:
+    TracerDiffTendencyEnable: false
+    TracerHyperDiffTendencyEnable: false
+  Tracers:
+    Debug: []
+  Analysis:
+    GlobalStats:
+      Enable: true
+      ReductionPeriod: []
+      SnapshotPeriod: ["1Day"]
+      Filename: global_stats
+  IOStreams:
+    InitialVertCoord:
+      Filename: init.nc
+    InitialState:
+      Filename: init.nc
+      Contents:
+        - State
+        - Tracers
+    History:
+      Filename: output.nc
+      Freq: {{ output_freq }}
+      FreqUnits: {{ output_freq_units }}
+      IfExists: append
+      # effectively never
+      FileFreq: 9999
+      FileFreqUnits: years
+      Contents:
+        - State
+        - AuxiliaryState
+        - Tracers
+        - PseudoThickness
+        - SshCell
+        - KineticEnergyCell
+        - Eos
+    Forcing:
+      UsePointerFile: false
+      Filename: init.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+        - SfcStressZonal
+        - SfcStressMeridional
+    RestartRead:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: true
+      StartTime: 0005-06-01_00:00:00
+      EndTime: 99999-12-31_00:00:00
+      Contents:
+        - Restart
+    RestartWrite:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Filename: restart/ocn.restart.$Y-$M-$D_$h.$m.$s
+      Mode: write
+      IfExists: replace
+      Precision: double
+      # Write a restart at the end of the run, matching the MPAS-Ocean
+      # restart stream above, whose output_interval is the run duration.
+      # OnShutdown is used rather than an interval templated from
+      # run_duration so that the two cannot drift apart when the run
+      # duration changes.  The previous value (Freq: 100, FreqUnits: Days)
+      # was inherited from Omega's configs/Default.yml and meant that runs
+      # shorter than 100 days -- i.e. all of them -- wrote no restart at
+      # all and could not be continued.
+      Freq: 1
+      FreqUnits: OnShutdown
+      UseStartEnd: false
+      Contents:
+        - Restart
+        - SfcStressZonal
+        - SfcStressMeridional
