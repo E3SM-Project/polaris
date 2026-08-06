@@ -460,6 +460,42 @@
    Jra55VizStep.run
 ```
 
+### realistic_global.forward
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forward
+
+.. autosummary::
+   :toctree: generated/
+
+   tasks.add_realistic_global_forward_tasks
+
+   task.RealisticGlobalForward
+
+   forward.Forward
+   forward.Forward.setup
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   stage.ForwardStage
+   stage.ForwardStage.from_config
+   stage.ForwardStage.model_replacements
+   stage.ForwardStage.check_damping_supported
+   stage.ForwardStage.bottom_drag_options
+   stage.ForwardStage.restart_stream_replacements
+   stage.ForwardStage.horiz_mixing_options
+   stage.ForwardStage.mpaso_physics_options
+
+   initial_condition.InitialCondition
+   initial_condition.InitialCondition.add_input_files
+
+   initial_condition.StepInitialCondition
+   initial_condition.StepInitialCondition.add_input_files
+
+   initial_condition.DatabaseInitialCondition
+   initial_condition.DatabaseInitialCondition.add_input_files
+```
+
 ### realistic_global.hydrography.woa23
 
 ```{eval-rst}
