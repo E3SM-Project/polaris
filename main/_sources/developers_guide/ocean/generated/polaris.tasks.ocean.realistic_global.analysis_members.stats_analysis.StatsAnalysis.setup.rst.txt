@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.analysis\_members.stats\_analysis.StatsAnalysis.setup
+===========================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis
+
+.. automethod:: StatsAnalysis.setup

@@ -278,6 +278,8 @@
         <span class="n">work_dir</span><span class="o">=</span><span class="n">work_dir</span><span class="p">,</span>
     <span class="p">)</span>
 
+    <span class="n">_add_suite_config</span><span class="p">(</span><span class="n">basic_config</span><span class="p">,</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">)</span>
+
     <span class="n">component</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">basic_config</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
     <span class="n">set_parallel_systems</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">basic_config</span><span class="p">)</span>
 
@@ -1269,6 +1271,30 @@
 
     <span class="n">branch</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;branch&#39;</span><span class="p">)</span>
     <span class="n">check_pcd_version_matches_branch</span><span class="p">(</span><span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_suite_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add config options from the suite&#39;s optional ``&lt;suite_name&gt;.cfg``</span>
+<span class="sd">    file, if it exists, to ``config``</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options to add the suite&#39;s config options to</span>
+
+<span class="sd">    component_name : str</span>
+<span class="sd">        The name of the component that the suite belongs to</span>
+
+<span class="sd">    suite_name : str</span>
+<span class="sd">        The name of the suite, or ``&#39;custom&#39;`` if tasks are not being set</span>
+<span class="sd">        up as part of a suite</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">suite_name</span> <span class="ow">or</span> <span class="n">suite_name</span> <span class="o">==</span> <span class="s1">&#39;custom&#39;</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">package</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;polaris.suites.</span><span class="si">{</span><span class="n">component_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
            </div>

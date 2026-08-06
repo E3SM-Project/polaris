@@ -1,0 +1,293 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>convert_mpaso_ic_to_omega.py</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Models" href="models/index.html" />
+    <link rel="prev" title="Ocean framework" href="framework.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="framework.html">Ocean framework</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">convert_mpaso_ic_to_omega.py</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#workflow">Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#command-line-interface">Command-Line Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#input-expectations">Input Expectations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#outputs">Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation-notes">Implementation Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models/index.html">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils/index.html">Ocean utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Ocean component</a></li>
+      <li class="breadcrumb-item active">convert_mpaso_ic_to_omega.py</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/ocean/convert_mpaso_ic_to_omega.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="convert-mpaso-ic-to-omega-py">
+<span id="dev-ocean-convert-mpaso-ic-to-omega"></span><h1>convert_mpaso_ic_to_omega.py<a class="headerlink" href="#convert-mpaso-ic-to-omega-py" title="Link to this heading"></a></h1>
+<p>The script <code class="docutils literal notranslate"><span class="pre">utils/omega/convert_mpaso_ic_to_omega.py</span></code> is a developer utility
+for converting an MPAS-Ocean initial-condition file into an Omega-formatted
+initial-condition file.  It is primarily intended for cases where a developer
+already has an MPAS-Ocean initial condition and needs a corresponding Omega
+file with the expected variable names, a <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> field, and optional
+tracer conversion for the requested equation of state.</p>
+<p>The script complements the model-variable mapping described in
+<a class="reference internal" href="framework.html#dev-ocean-model"><span class="std std-ref">Model</span></a>.  In contrast to
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.write_model_dataset.html#polaris.ocean.model.OceanIOStep.write_model_dataset" title="polaris.ocean.model.OceanIOStep.write_model_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.write_model_dataset()</span></code></a>, which maps
+datasets during task setup, this utility performs a one-time conversion of an
+existing NetCDF file on disk.</p>
+<section id="workflow">
+<h2>Workflow<a class="headerlink" href="#workflow" title="Link to this heading"></a></h2>
+<p>The converter performs the following operations:</p>
+<ol class="arabic simple">
+<li><p>It loads the MPAS-Ocean initial condition from <code class="docutils literal notranslate"><span class="pre">--input-file</span></code>.</p></li>
+<li><p>It writes a zero-velocity MPAS-style companion file with the suffix
+<code class="docutils literal notranslate"><span class="pre">.mpas.nc</span></code>.</p></li>
+<li><p>It rescales spherical coordinates and areas to the Polaris Earth radius
+from <code class="docutils literal notranslate"><span class="pre">pcd.yaml</span></code>.</p></li>
+<li><p>It converts tracers according to <code class="docutils literal notranslate"><span class="pre">--eos-type</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">teos10</span></code> converts potential temperature to conservative temperature and
+practical salinity to absolute salinity.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">linear</span></code> leaves temperature and salinity unchanged and computes specific
+volume from the linear EOS coefficients used by Omega.</p></li>
+</ul>
+</li>
+<li><p>It computes <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> from <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, the reference seawater
+density, and specific volume.</p></li>
+<li><p>It zeros any numeric fields whose names contain <code class="docutils literal notranslate"><span class="pre">velocity</span></code>.</p></li>
+<li><p>It renames dimensions and variables using
+<code class="docutils literal notranslate"><span class="pre">polaris/ocean/model/mpaso_to_omega.yaml</span></code>.</p></li>
+<li><p>It writes the converted Omega file with
+<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.io.write_netcdf.html#mpas_tools.io.write_netcdf" title="(in mpas_tools master)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.io.write_netcdf()</span></code></a>.</p></li>
+</ol>
+<p>If <code class="docutils literal notranslate"><span class="pre">--visualization</span></code> is supplied, the script also writes diagnostic figures for
+the converted temperature and salinity fields before the final rename to Omega
+variable names.  The temperature diagnostic is an absolute difference
+(<code class="docutils literal notranslate"><span class="pre">Omega</span> <span class="pre">-</span> <span class="pre">MPAS-Ocean</span></code>) and the salinity diagnostic is a percent difference.</p>
+</section>
+<section id="command-line-interface">
+<h2>Command-Line Interface<a class="headerlink" href="#command-line-interface" title="Link to this heading"></a></h2>
+<p>Typical TEOS-10 usage is:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>utils/omega/convert_mpaso_ic_to_omega.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--input-file<span class="w"> </span>/path/to/ocean.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output-file<span class="w"> </span>/path/to/ocean.omega.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eos-type<span class="w"> </span>teos10
+</pre></div>
+</div>
+<p>To also write the comparison figures:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>utils/omega/convert_mpaso_ic_to_omega.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--input-file<span class="w"> </span>/path/to/ocean.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output-file<span class="w"> </span>/path/to/ocean.omega.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eos-type<span class="w"> </span>teos10<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--visualization
+</pre></div>
+</div>
+<p>For linear-EOS testing, use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>utils/omega/convert_mpaso_ic_to_omega.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--input-file<span class="w"> </span>/path/to/ocean.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output-file<span class="w"> </span>/path/to/ocean.omega.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eos-type<span class="w"> </span>linear
+</pre></div>
+</div>
+<p>The script appends an EOS suffix automatically unless it is already present:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">teos10</span></code> produces <code class="docutils literal notranslate"><span class="pre">*.teos10eos.nc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">linear</span></code> produces <code class="docutils literal notranslate"><span class="pre">*.lineareos.nc</span></code></p></li>
+</ul>
+</section>
+<section id="input-expectations">
+<h2>Input Expectations<a class="headerlink" href="#input-expectations" title="Link to this heading"></a></h2>
+<p>At a minimum, the input file must contain <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>.  For TEOS-10
+conversion, the script also requires <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">latCell</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">lonCell</span></code>.  The implementation assumes the standard MPAS-Ocean dimensions
+<code class="docutils literal notranslate"><span class="pre">Time</span></code>, <code class="docutils literal notranslate"><span class="pre">nCells</span></code>, and <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code>.</p>
+<p>When TEOS-10 conversion is enabled, the script estimates mid-layer pressure by
+integrating hydrostatically downward from the surface.  If present,
+<code class="docutils literal notranslate"><span class="pre">atmosphericPressure</span></code> and <code class="docutils literal notranslate"><span class="pre">seaIcePressure</span></code> are included in the surface pressure
+used for this integration.</p>
+</section>
+<section id="outputs">
+<h2>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h2>
+<p>The converter can produce up to four artifacts:</p>
+<ul class="simple">
+<li><p>An MPAS-style file with zeroed velocity fields, written next to the input
+file with the suffix <code class="docutils literal notranslate"><span class="pre">.mpas.nc</span></code></p></li>
+<li><p>An Omega-formatted initial condition written next to the requested output
+path with an EOS-specific suffix</p></li>
+<li><p>A temperature comparison figure named
+<code class="docutils literal notranslate"><span class="pre">&lt;output_stem&gt;_temperature_absolute_difference.png</span></code> when
+<code class="docutils literal notranslate"><span class="pre">--visualization</span></code> is enabled</p></li>
+<li><p>A salinity comparison figure named
+<code class="docutils literal notranslate"><span class="pre">&lt;output_stem&gt;_salinity_percent_difference.png</span></code> when <code class="docutils literal notranslate"><span class="pre">--visualization</span></code> is
+enabled</p></li>
+</ul>
+</section>
+<section id="implementation-notes">
+<h2>Implementation Notes<a class="headerlink" href="#implementation-notes" title="Link to this heading"></a></h2>
+<p>The renaming logic for dimensions and variables is shared with the ocean model
+support described in <a class="reference internal" href="framework.html#dev-ocean-model"><span class="std std-ref">Model</span></a>.  If new Omega variables, config
+options, or dimensions are added, update
+<code class="docutils literal notranslate"><span class="pre">polaris/ocean/model/mpaso_to_omega.yaml</span></code> so the standalone converter and the
+task-based model I/O remain consistent.</p>
+<p>The script is intentionally separate from the task framework because it is
+useful during dataset preparation and debugging outside the lifecycle of a
+Polaris task or step.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="framework.html" class="btn btn-neutral float-left" title="Ocean framework" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="models/index.html" class="btn btn-neutral float-right" title="Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

@@ -65,6 +65,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">realistic_global</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#woa23">woa23</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analysis-members">analysis_members</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="horiz_press_grad.html">horizontal pressure gradient</a></li>
@@ -149,13 +150,22 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="realistic-global">
 <span id="ocean-realistic-global"></span><h1>realistic_global<a class="headerlink" href="#realistic-global" title="Link to this heading"></a></h1>
-<p>This category contains ocean preprocessing tasks that are upstream of any
-particular MPAS mesh. The first task builds a reusable World Ocean Atlas 2023
-(WOA23) hydrography product on the native 0.25-degree latitude-longitude grid.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> task group contains tasks that use realistic global
+ocean meshes, bathymetry and forcing. It currently contains two kinds of
+tasks:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#ocean-realistic-global-woa23"><span class="std std-ref">woa23</span></a>, a mesh-independent preprocessing task
+that builds a reusable World Ocean Atlas 2023 (WOA23) hydrography product on
+the native 0.25-degree latitude-longitude grid.</p></li>
+<li><p><a class="reference internal" href="#ocean-realistic-global-analysis-members"><span class="std std-ref">analysis_members</span></a>, short forward runs on
+realistic global meshes that exercise the global-statistics analysis member
+and compare its output between MPAS-Ocean and Omega.</p></li>
+</ul>
 <section id="supported-models">
 <h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
-<p>This task is model-independent and does not require either MPAS-Ocean or
-Omega to be built.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">woa23</span></code> task is model-independent and does not require either MPAS-Ocean
+or Omega to be built.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> tasks support both MPAS-Ocean and Omega.</p>
 </section>
 <section id="woa23">
 <span id="ocean-realistic-global-woa23"></span><h2>woa23<a class="headerlink" href="#woa23" title="Link to this heading"></a></h2>
@@ -171,7 +181,7 @@ extrapolation.</p>
 </div>
 <section id="description">
 <h3>description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
-<p>The task is organized into three inspectable steps:</p>
+<p>The task is organized into inspectable steps:</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">combine_topo</span></code> from the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> component is used to combine topography
 GEBCO and Bedmap3 datasets on the WOA23 0.25-degree latitude-longitude grid.</p></li>
@@ -180,6 +190,8 @@ in-situ temperature and practical-salinity fields, then deriving
 conservative temperature and absolute salinity.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">extrapolate</span></code> creates the final
 <code class="docutils literal notranslate"><span class="pre">woa23_decav_0.25_jan_extrap.nc</span></code> product.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">viz</span></code> produces horizontal maps and vertical sections of the extrapolated
+product.  This step is not run by default.</p></li>
 </ol>
 <p>This layout is intended to match Polaris shared-step conventions so the WOA23
 preprocessing pipeline can later be reused by mesh-dependent
@@ -215,14 +227,149 @@ Polaris input database.</p>
 <span class="c1"># the minimum weight sum needed to mark a new cell valid in horizontal</span>
 <span class="c1"># extrapolation</span>
 <span class="na">extrap_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.01</span>
+
+<span class="c1"># target depths for horizontal plots of the extrapolated product (m)</span>
+<span class="na">horizontal_plot_depths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0, 200.0, 400.0, 600.0, 800.0</span>
+
+<span class="c1"># maximum depth to include in section plots (m)</span>
+<span class="na">section_max_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2000.0</span>
+
+<span class="c1"># endpoints of a transect through Filchner Trough and into the Filchner</span>
+<span class="c1"># ice-shelf cavity</span>
+<span class="na">filchner_start_lon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-46.0</span>
+<span class="na">filchner_start_lat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-71.5</span>
+<span class="na">filchner_end_lon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-38.5</span>
+<span class="na">filchner_end_lat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-81.2</span>
+
+<span class="c1"># endpoints of a transect through the Ross Ice Shelf cavity</span>
+<span class="na">ross_start_lon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">176.0</span>
+<span class="na">ross_start_lat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-72.0</span>
+<span class="na">ross_end_lon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-171.0</span>
+<span class="na">ross_end_lat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-84.0</span>
 </pre></div>
 </div>
+<p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> step is further controlled by the <code class="docutils literal notranslate"><span class="pre">[woa23_viz_temperature]</span></code>,
+<code class="docutils literal notranslate"><span class="pre">[woa23_viz_salinity]</span></code>, <code class="docutils literal notranslate"><span class="pre">[woa23_viz_section_temperature]</span></code> and
+<code class="docutils literal notranslate"><span class="pre">[woa23_viz_section_salinity]</span></code> sections, each of which supports the standard
+Polaris colormap options described in <a class="reference internal" href="../../../developers_guide/framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots</span></a>.</p>
 </section>
 <section id="cores">
 <h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
 <p>The local <code class="docutils literal notranslate"><span class="pre">combine</span></code> and <code class="docutils literal notranslate"><span class="pre">extrapolate</span></code> steps run serially. The
 <code class="docutils literal notranslate"><span class="pre">combine_topo</span></code> step is intended to use the cached <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> output because
 regenerating the combined topography product is substantially more expensive.</p>
+</section>
+</section>
+<section id="analysis-members">
+<span id="ocean-realistic-global-analysis-members"></span><h2>analysis_members<a class="headerlink" href="#analysis-members" title="Link to this heading"></a></h2>
+<p>These tasks perform a short forward run on a realistic global mesh with the
+global-statistics analysis member enabled, then plot time series of the
+resulting statistics.  Their main purpose is to compare the analysis-member
+output of MPAS-Ocean and Omega on the same mesh and initial condition.</p>
+<p>A task is defined for each of two meshes:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>mesh</p></th>
+<th class="head"><p>cells</p></th>
+<th class="head"><p>time step</p></th>
+<th class="head"><p>run duration</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">QU.240km</span></code></p></td>
+<td><p>7,153</p></td>
+<td><p>10 min</p></td>
+<td><p>10 days</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">EC30to60E2r2</span></code></p></td>
+<td><p>236,853</p></td>
+<td><p>45 s</p></td>
+<td><p>1 day</p></td>
+</tr>
+</tbody>
+</table>
+<p>They can be set up with, e.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/QU.240km/analysis_members_test<span class="w"> </span>...
+</pre></div>
+</div>
+<section id="id1">
+<h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>Each task contains three steps:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">forward</span></code> runs the ocean model from a cached initial condition, writing
+both a regular <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> history file and the global statistics produced
+by the analysis member.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">global_stats</span></code> plots time series of the minimum, maximum, mean and standard
+deviation of each state variable, both as absolute values and as anomalies
+relative to the initial value.  This step is not run by default.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">viz</span></code> plots global maps of the state variables at the beginning and end of
+the run, along with the zonal and meridional wind stress.  This step is not
+run by default.</p></li>
+</ol>
+<p>The <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> step accounts for a difference between the two models:
+Omega writes the standard deviation directly, whereas MPAS-Ocean writes the
+root-mean-square, from which the standard deviation is computed.</p>
+<p>WARNING: As of Omega commit <a class="reference external" href="https://github.com/E3SM-Project/Omega/commit/061d0ab90b2027ac584b997292b3911fa3755af3">061d0ab</a>,
+Omega does not area- or volume-weight the global stats while MPAS-Ocean does.
+Thus, the two models’ stats cannot be directly compared.</p>
+</section>
+<section id="id2">
+<h3>mesh<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>The meshes are standard E3SM global ocean meshes downloaded from the Polaris
+input database rather than generated by the task: the quasi-uniform 240-km
+<code class="docutils literal notranslate"><span class="pre">QU.240km</span></code> mesh and the eddy-closure <code class="docutils literal notranslate"><span class="pre">EC30to60E2r2</span></code> mesh, which varies from
+30 km to 60 km.</p>
+</section>
+<section id="id3">
+<h3>vertical grid<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>The vertical grid is the one supplied with the cached initial condition for
+each mesh, so there are no vertical-grid config options for these tasks.</p>
+</section>
+<section id="id4">
+<h3>initial conditions<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>The initial condition is a cached, model-specific file from the
+<code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> section of the Polaris input database. For Omega, a
+TEOS-10 initial condition is used and the same file supplies the mesh,
+vertical coordinate and initial state. For MPAS-Ocean, a <code class="docutils literal notranslate"><span class="pre">zerovel</span></code> (zero
+initial velocity) file supplies the mesh and initial state.</p>
+</section>
+<section id="id5">
+<h3>forcing<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>Zonal and meridional wind stress are read from the initial-condition file and
+applied through bulk wind stress. Vertical mixing uses CVMix with convection
+and shear mixing enabled, and a constant implicit bottom drag coefficient of
+1.0e-3 is applied.</p>
+</section>
+<section id="id6">
+<h3>time step and run duration<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>The time step and run duration are set per mesh as shown in the table above.
+Output, including the global statistics, is written once per day.</p>
+</section>
+<section id="id7">
+<h3>config options<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean]</span>
+
+<span class="c1"># Equation of state type</span>
+<span class="na">eos_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">teos-10</span>
+
+<span class="k">[realistic_global]</span>
+
+<span class="c1"># Time step duration per kilometer [s]</span>
+<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> step is controlled by the
+<code class="docutils literal notranslate"><span class="pre">[realistic_global_viz_temperature]</span></code>, <code class="docutils literal notranslate"><span class="pre">[realistic_global_viz_salinity]</span></code>,
+<code class="docutils literal notranslate"><span class="pre">[realistic_global_viz_layerThickness]</span></code>, <code class="docutils literal notranslate"><span class="pre">[realistic_global_viz_windStress]</span></code>
+and <code class="docutils literal notranslate"><span class="pre">[realistic_global_viz_kineticEnergyCell]</span></code> sections, each of which
+supports the standard Polaris colormap options described in
+<a class="reference internal" href="../../../developers_guide/framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots</span></a>.</p>
+</section>
+<section id="id8">
+<h3>cores<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<p>The number of cores used by the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step is determined
+algorithmically from the number of cells in the mesh. The <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> and
+<code class="docutils literal notranslate"><span class="pre">viz</span></code> steps run serially.</p>
 </section>
 </section>
 </section>

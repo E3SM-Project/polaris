@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.realistic\_global.analysis\_members.AnalysisMembers
+=======================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.analysis_members
+
+.. autoclass:: AnalysisMembers
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AnalysisMembers.__init__
+      ~AnalysisMembers.add_step
+      ~AnalysisMembers.configure
+      ~AnalysisMembers.remove_step
+      ~AnalysisMembers.set_shared_config
+   
+   
+
+   
+   
+   

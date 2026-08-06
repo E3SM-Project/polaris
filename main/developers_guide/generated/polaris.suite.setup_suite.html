@@ -159,7 +159,9 @@
 <li><p><strong>component</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The component (‘ocean’, ‘landice’, etc.) of the suite</p></li>
 <li><p><strong>suite_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the suite.  A file <code class="docutils literal notranslate"><span class="pre">&lt;suite_name&gt;.txt</span></code> must exist
 within the core’s <code class="docutils literal notranslate"><span class="pre">suites</span></code> package that lists the paths of the tasks
-in the suite</p></li>
+in the suite.  An optional <code class="docutils literal notranslate"><span class="pre">&lt;suite_name&gt;.cfg</span></code> in the same package
+provides config options (e.g. <code class="docutils literal notranslate"><span class="pre">[job]</span> <span class="pre">wall_time</span></code> and
+<code class="docutils literal notranslate"><span class="pre">[job]</span> <span class="pre">qos</span></code>) that apply to the whole suite.</p></li>
 <li><p><strong>work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – A directory that will serve as the base for creating task
 directories</p></li>
 <li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Additional keyword arguments passed to <code class="docutils literal notranslate"><span class="pre">setup_tasks</span></code></p></li>

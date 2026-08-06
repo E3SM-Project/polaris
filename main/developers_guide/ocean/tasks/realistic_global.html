@@ -16,6 +16,8 @@
       <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -85,6 +87,7 @@
 <li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">realistic_global</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analysis-members">analysis_members</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#hydrography-woa23">hydrography/woa23</a></li>
 </ul>
 </li>
@@ -94,6 +97,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework.html">Ocean framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../convert_mpaso_ic_to_omega.html">convert_mpaso_ic_to_omega.py</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../utils/index.html">Ocean utilities</a></li>
 </ul>
@@ -148,28 +152,119 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="realistic-global">
 <span id="dev-ocean-realistic-global"></span><h1>realistic_global<a class="headerlink" href="#realistic-global" title="Link to this heading"></a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> tasks in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global</span></code> are
-intended for preprocessing and initialization workflows that are upstream of
-any particular MPAS mesh. The first task category under this framework is
-<code class="docutils literal notranslate"><span class="pre">hydrography/woa23</span></code>, which builds a reusable hydrography product from the
-World Ocean Atlas 2023 on its native 0.25-degree latitude-longitude grid.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> tasks in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global</span></code> use
+realistic global ocean meshes, bathymetry and forcing.  They fall into two
+groups:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hydrography/woa23</span></code>, a mesh-independent preprocessing task that builds a
+reusable hydrography product from the World Ocean Atlas 2023 on its native
+0.25-degree latitude-longitude grid.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">analysis_members</span></code>, short forward runs on realistic global meshes that
+exercise the global-statistics analysis member in both MPAS-Ocean and Omega.</p></li>
+</ul>
+<p>Tasks are added to the ocean component by
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.add_realistic_global_tasks.html#polaris.tasks.ocean.realistic_global.add_realistic_global_tasks" title="polaris.tasks.ocean.realistic_global.add_realistic_global_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.add_realistic_global_tasks()</span></code></a>,
+which registers the <code class="docutils literal notranslate"><span class="pre">woa23</span></code> task and one <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> task per mesh in
+its <code class="docutils literal notranslate"><span class="pre">mesh_dict</span></code>.  Adding a new mesh requires only a new entry in that
+dictionary giving the MPAS-Ocean and Omega initial-condition IDs and the cell
+count, plus a matching entry in the <code class="docutils literal notranslate"><span class="pre">mesh_info</span></code> dictionary in
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers.html#polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers" title="polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers</span></code></a>
+giving the time step and run duration.</p>
 <section id="framework">
 <span id="dev-ocean-realistic-global-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
-<p>The shared config options for the WOA23 hydrography task are described in
-<a class="reference internal" href="../../../users_guide/ocean/tasks/realistic_global.html#ocean-realistic-global"><span class="std std-ref">realistic_global</span></a> in the User’s Guide.</p>
+<p>The config options for these tasks are described in
+<a class="reference internal" href="../../../users_guide/ocean/tasks/realistic_global.html#ocean-realistic-global"><span class="std std-ref">realistic_global</span></a> in the User’s Guide.  The shared colormap
+options for the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step live in <code class="docutils literal notranslate"><span class="pre">realistic_global.cfg</span></code>, while the
+<code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> tasks add <code class="docutils literal notranslate"><span class="pre">analysis_members.cfg</span></code>.</p>
+<section id="forward">
+<h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.Forward.html#polaris.tasks.ocean.realistic_global.forward.Forward" title="polaris.tasks.ocean.realistic_global.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forward.Forward</span></code></a>
+is a shared <a class="reference internal" href="../generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep</span></code></a> used by tasks in
+this group.  Unlike most Polaris forward steps, it does not build its own
+mesh and initial condition; instead it downloads cached, model-specific files
+from the <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> section of the Polaris input database.</p>
+<p>Because the file layout differs between the two models, the input files are
+added in <code class="docutils literal notranslate"><span class="pre">setup()</span></code> rather than <code class="docutils literal notranslate"><span class="pre">__init__()</span></code>, once <code class="docutils literal notranslate"><span class="pre">config</span></code> is available and
+the target model is known:</p>
+<ul class="simple">
+<li><p>For Omega, a single file is linked three times, as <code class="docutils literal notranslate"><span class="pre">mesh.nc</span></code>,
+<code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>, because a single file contains the converted
+mesh, initial condition, and vertical coordinate from MPAS-Ocean.</p></li>
+<li><p>For MPAS-Ocean, a <code class="docutils literal notranslate"><span class="pre">zerovel</span></code> file is linked as both <code class="docutils literal notranslate"><span class="pre">mesh.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>,
+and the <code class="docutils literal notranslate"><span class="pre">time_integrator</span></code> template replacement is rewritten from
+<code class="docutils literal notranslate"><span class="pre">RungeKutta4</span></code> to MPAS-Ocean’s <code class="docutils literal notranslate"><span class="pre">RK4</span></code>.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">setup()</span></code> also renders <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> with the template replacements supplied
+by the task, so the time step, run duration and output interval can be varied
+per mesh.</p>
+<p>The helper <code class="docutils literal notranslate"><span class="pre">_make_restart_dir()</span></code> creates the <code class="docutils literal notranslate"><span class="pre">restart/</span></code> directory that
+Omega’s <code class="docutils literal notranslate"><span class="pre">RestartWrite</span></code> stream writes into.  Omega does not create this
+directory itself, so without it the restart write fails at the end of the run.
+It is called from both <code class="docutils literal notranslate"><span class="pre">setup()</span></code> and <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> so the directory exists
+whether or not setup and run happen in the same invocation.  MPAS-Ocean needs
+no equivalent because the MPAS framework creates stream directories itself.</p>
+<p><code class="docutils literal notranslate"><span class="pre">compute_cell_count()</span></code> returns the cell count passed in by the task rather
+than reading the mesh, since the mesh is not available at setup time.</p>
+</section>
+<section id="viz">
+<h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.viz.Viz.html#polaris.tasks.ocean.realistic_global.viz.Viz" title="polaris.tasks.ocean.realistic_global.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.viz.Viz</span></code></a> plots
+global maps of each state variable at the start and end of the run, plus the
+zonal and meridional wind stress from the initial condition.  The list of
+variables comes from the ocean component’s <code class="docutils literal notranslate"><span class="pre">state_vars</span></code>, with
+<code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> replaced by <code class="docutils literal notranslate"><span class="pre">kineticEnergyCell</span></code> because the normal velocity
+lives on edges and is not directly plottable as a cell field.  Variables
+missing from a given file are logged and skipped, so the step does not fail
+when a model writes a different subset of fields.</p>
+</section>
+</section>
+<section id="analysis-members">
+<span id="dev-ocean-realistic-global-analysis-members"></span><h2>analysis_members<a class="headerlink" href="#analysis-members" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers.html#polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers" title="polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers</span></code></a>
+task runs the ocean model with the global-statistics analysis member enabled
+and plots the resulting time series.  It contains a <code class="docutils literal notranslate"><span class="pre">forward</span></code> step, a
+<code class="docutils literal notranslate"><span class="pre">global_stats</span></code> step and a <code class="docutils literal notranslate"><span class="pre">viz</span></code> step; only <code class="docutils literal notranslate"><span class="pre">forward</span></code> runs by default.</p>
+<p>Each task builds its own <a class="reference internal" href="../../generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.config.PolarisConfigParser</span></code></a> from
+<code class="docutils literal notranslate"><span class="pre">realistic_global.cfg</span></code> and <code class="docutils literal notranslate"><span class="pre">analysis_members.cfg</span></code> and shares it with all three
+steps, so that a user editing the config file in the task work directory
+affects the whole task.</p>
+<section id="global-stats">
+<h3>global_stats<a class="headerlink" href="#global-stats" title="Link to this heading"></a></h3>
+<p>The class
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.html#polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis" title="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis</span></code></a>
+plots, for each state variable, the minimum, maximum and mean over time along
+with a shaded standard-deviation envelope, and a companion panel showing the
+same quantities as anomalies relative to their initial values.</p>
+<p>This step normalizes two differences between the models:</p>
+<ul class="simple">
+<li><p><strong>Output location.</strong> Omega writes the statistics to a separate
+<code class="docutils literal notranslate"><span class="pre">global_stats_1DayTimeStats</span></code> file, whereas MPAS-Ocean writes
+<code class="docutils literal notranslate"><span class="pre">global_stats.nc</span></code>.  The input file is therefore selected in <code class="docutils literal notranslate"><span class="pre">setup()</span></code>, once
+the model is known.</p></li>
+<li><p><strong>Standard deviation.</strong> Omega writes the standard deviation directly in its
+<code class="docutils literal notranslate"><span class="pre">Rms</span></code> field, while MPAS-Ocean writes a true root-mean-square, so the
+standard deviation is recovered as
+<span class="math notranslate nohighlight">\(\sigma = \sqrt{\mathrm{rms}^2 - \mathrm{mean}^2}\)</span>.</p></li>
+</ul>
+</section>
+</section>
+<section id="hydrography-woa23">
+<span id="dev-ocean-realistic-global-woa23"></span><h2>hydrography/woa23<a class="headerlink" href="#hydrography-woa23" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23</span></code></a>
+task is the Polaris port of the WOA preprocessing part of the legacy Compass
+<code class="docutils literal notranslate"><span class="pre">utility/extrap_woa</span></code> workflow.</p>
 <p>The implementation is intentionally organized around reusable Polaris steps
-rather than around the legacy Compass <code class="docutils literal notranslate"><span class="pre">utility/extrap_woa</span></code> multiprocessing
-workflow. One notable design choice is that the task reuses the combined
-topography product from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> rather than taking a raw topography
-filename as a task-specific input.</p>
+rather than around the legacy multiprocessing workflow. One notable design
+choice is that the task reuses the combined topography product from
+<code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> rather than taking a raw topography filename as a task-specific
+input.</p>
 <section id="cached-topography-dependency">
 <h3>cached topography dependency<a class="headerlink" href="#cached-topography-dependency" title="Link to this heading"></a></h3>
 <p>The helper
 <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_topography_step.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_topography_step" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_topography_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_topography_step()</span></code></a>
 creates a shared <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> <a class="reference internal" href="../../e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="polaris.tasks.e3sm.init.topo.combine.step.CombineStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.step.CombineStep</span></code></a>
-configured for a 0.25-degree lat-lon target grid. The
-<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23</span></code></a>
-task adds this step with a symlink <code class="docutils literal notranslate"><span class="pre">combine_topo</span></code>.</p>
+configured for a 0.25-degree lat-lon target grid. The <code class="docutils literal notranslate"><span class="pre">Woa23</span></code> task adds this
+step with a symlink <code class="docutils literal notranslate"><span class="pre">combine_topo</span></code>.</p>
 <p>Because <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> sets <code class="docutils literal notranslate"><span class="pre">default_cached</span> <span class="pre">=</span> <span class="pre">True</span></code>, the <code class="docutils literal notranslate"><span class="pre">combine_topo</span></code> step
 is automatically treated as cached during setup — no explicit opt-in is
 needed.</p>
@@ -179,12 +274,6 @@ approach to shared, cacheable preprocessing steps.  See
 <a class="reference internal" href="../../organization/steps.html#dev-step-default-cached"><span class="std std-ref">Automatic cache use with default_cached and free_running_steps</span></a> for a full description of the
 <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> / <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code> mechanism.</p>
 </section>
-</section>
-<section id="hydrography-woa23">
-<span id="dev-ocean-realistic-global-woa23"></span><h2>hydrography/woa23<a class="headerlink" href="#hydrography-woa23" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23</span></code></a>
-task is the Polaris port of the WOA preprocessing part of the legacy Compass
-workflow.</p>
 <section id="combine">
 <h3>combine<a class="headerlink" href="#combine" title="Link to this heading"></a></h3>
 <p>The class
@@ -208,6 +297,15 @@ two stages:</p>
 <li><p>Horizontal then vertical extrapolation into land and grounded-ice regions</p></li>
 </ol>
 <p>The final output is <code class="docutils literal notranslate"><span class="pre">woa23_decav_0.25_jan_extrap.nc</span></code>.</p>
+</section>
+<section id="id1">
+<h3>viz<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>The class
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23VizStep.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23VizStep" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.viz.Woa23VizStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.viz.Woa23VizStep</span></code></a>
+plots horizontal maps of the extrapolated temperature and salinity at the
+depths given by the <code class="docutils literal notranslate"><span class="pre">horizontal_plot_depths</span></code> config option, along with
+vertical sections through Filchner Trough and the Ross Ice Shelf cavity.  It
+is added with <code class="docutils literal notranslate"><span class="pre">run_by_default=False</span></code>.</p>
 </section>
 </section>
 </section>

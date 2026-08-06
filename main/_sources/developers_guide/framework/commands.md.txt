@@ -50,6 +50,32 @@ and `min_cpus_per_task` attribute for all steps in the suite, indicating the
 fewest cores that the test may be run with before at least some steps in the
 suite will fail.
 
+A suite is defined by `polaris/<component>/suites/<suite_name>.txt`, which
+lists the tasks in the suite.  A suite may also provide an optional
+`polaris/<component>/suites/<suite_name>.cfg` alongside it with config options
+that apply to the whole suite.  This is the natural place for options that
+describe the suite rather than any one task, such as the `[job]` options used
+to build the job script:
+
+```cfg
+# Config options related to creating a job script
+[job]
+
+# wall-clock time
+wall_time = 00:30:00
+
+# use this machine's debug target, whether it provides one as a partition, a
+# QOS or a queue
+scheduler_target = debug
+```
+
+These options are added after the machine config options and before the
+component's, so a suite can override a machine default while a user config
+file (`-f`) still overrides the suite.  Config options belonging to an
+individual task are still set by that task and take precedence over the
+suite's.  See {ref}`scheduler-targets` for what the `[job]` options mean and
+what happens when a machine cannot satisfy the requested scheduler target.
+
 (dev-run)=
 
 ## run.serial module

@@ -119,12 +119,7 @@
 
 <div class="viewcode-block" id="setup_suite">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.suite.setup_suite.html#polaris.suite.setup_suite">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">setup_suite</span><span class="p">(</span>
-    <span class="n">component</span><span class="p">,</span>
-    <span class="n">suite_name</span><span class="p">,</span>
-    <span class="n">work_dir</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_suite</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set up a suite of tasks</span>
 
@@ -136,7 +131,9 @@
 <span class="sd">    suite_name : str</span>
 <span class="sd">        The name of the suite.  A file ``&lt;suite_name&gt;.txt`` must exist</span>
 <span class="sd">        within the core&#39;s ``suites`` package that lists the paths of the tasks</span>
-<span class="sd">        in the suite</span>
+<span class="sd">        in the suite.  An optional ``&lt;suite_name&gt;.cfg`` in the same package</span>
+<span class="sd">        provides config options (e.g. ``[job] wall_time`` and</span>
+<span class="sd">        ``[job] qos``) that apply to the whole suite.</span>
 
 <span class="sd">    work_dir : str</span>
 <span class="sd">        A directory that will serve as the base for creating task</span>
@@ -146,11 +143,9 @@
 <span class="sd">        Additional keyword arguments passed to ``setup_tasks``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;polaris.suites.</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">.txt&#39;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
-    <span class="p">)</span>
+    <span class="n">package</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;polaris.suites.</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="n">text</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">.txt&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
 
     <span class="n">tasks</span><span class="p">,</span> <span class="n">cached</span> <span class="o">=</span> <span class="n">_parse_suite</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 

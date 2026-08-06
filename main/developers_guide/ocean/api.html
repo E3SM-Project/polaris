@@ -813,6 +813,43 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.add_realistic_global_tasks.html#polaris.tasks.ocean.realistic_global.add_realistic_global_tasks" title="polaris.tasks.ocean.realistic_global.add_realistic_global_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_realistic_global_tasks</span></code></a>(component)</p></td>
 <td><p>Add tasks for realistic global ocean preprocessing and initialization.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forward.Forward.html#polaris.tasks.ocean.realistic_global.forward.Forward" title="polaris.tasks.ocean.realistic_global.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, package, ...[, ...])</p></td>
+<td><p>A step for performing forward ocean component runs as part of the cosine bell test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forward.Forward.setup.html#polaris.tasks.ocean.realistic_global.forward.Forward.setup" title="polaris.tasks.ocean.realistic_global.forward.Forward.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.setup</span></code></a>()</p></td>
+<td><p>TEMP: symlink initial condition to name hard-coded in Omega</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forward.Forward.runtime_setup.html#polaris.tasks.ocean.realistic_global.forward.Forward.runtime_setup" title="polaris.tasks.ocean.realistic_global.forward.Forward.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.runtime_setup</span></code></a>()</p></td>
+<td><p>Make sure the restart directory exists before the model runs</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.realistic_global.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.realistic_global.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
+<td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.viz.Viz.html#polaris.tasks.ocean.realistic_global.viz.Viz" title="polaris.tasks.ocean.realistic_global.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir, forward[, name])</p></td>
+<td><p>A step for plotting fields from the realistic global output</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.viz.Viz.run.html#polaris.tasks.ocean.realistic_global.viz.Viz.run" title="polaris.tasks.ocean.realistic_global.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="realistic-global-analysis-members">
+<h3>realistic_global.analysis_members<a class="headerlink" href="#realistic-global-analysis-members" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers.html#polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers" title="polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AnalysisMembers</span></code></a>(component, subdir, ...)</p></td>
+<td><p>A task for exercising the global-statistics analysis member on a realistic global mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.html#polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis" title="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stats_analysis.StatsAnalysis</span></code></a>(component, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.setup.html#polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.setup" title="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stats_analysis.StatsAnalysis.setup</span></code></a>()</p></td>
+<td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.run.html#polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.run" title="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stats_analysis.StatsAnalysis.run</span></code></a>()</p></td>
+<td><p>Run the step.</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -846,6 +883,15 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.run.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.run" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExtrapolateStep.run</span></code></a>()</p></td>
 <td><p>Extrapolate WOA23 horizontally and vertically in two stages.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23VizStep.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23VizStep" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23VizStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Woa23VizStep</span></code></a>(component, subdir, ...)</p></td>
+<td><p>A step for visualizing extrapolated WOA23 hydrography.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23VizStep.setup.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23VizStep.setup" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23VizStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Woa23VizStep.setup</span></code></a>()</p></td>
+<td><p>Set up input and output files for the step.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23VizStep.run.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23VizStep.run" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23VizStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Woa23VizStep.run</span></code></a>()</p></td>
+<td><p>Plot horizontal fields at selected depths and two Antarctic transects.</p></td>
 </tr>
 </tbody>
 </table>
