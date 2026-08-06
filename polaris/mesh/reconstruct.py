@@ -20,12 +20,12 @@ ReconstructionType = Literal['cell', 'vertex']
 _RECONSTRUCTION_FIELD_NAMES: dict[ReconstructionType, dict[str, str]] = {
     'cell': {
         'stencil': 'reconstructStencilCell',
-        'n_edges': 'nCellReconstructEdges',
+        'n_edges': 'nEdgesReconstructOnCell',
         'weights': 'reconstructWeightsCell',
     },
     'vertex': {
         'stencil': 'reconstructStencilVertex',
-        'n_edges': 'nVertexReconstructEdges',
+        'n_edges': 'nEdgesReconstructOnVertex',
         'weights': 'reconstructWeightsVertex',
     },
 }
