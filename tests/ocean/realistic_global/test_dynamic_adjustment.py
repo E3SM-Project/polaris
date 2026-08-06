@@ -1,9 +1,11 @@
+import datetime
 import logging
 import os
 import textwrap
 from unittest import mock
 
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import xarray as xr
@@ -45,6 +47,7 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz import (
     FIGURE_FILENAME,
     VizDynamicAdjustmentStep,
+    _label_stages,
     _short_stage_name,
 )
 from polaris.tasks.ocean.realistic_global.forward import ForwardStage
@@ -1591,10 +1594,52 @@ def test_blow_up_is_caught_mid_stage_from_the_statistics(
 
 
 def test_short_stage_name_fits_above_a_stage():
-    # the full name is far wider than a stage is on the axis
-    assert _short_stage_name('damped_adjustment_1') == 'damped 1'
-    assert _short_stage_name('damped_adjustment_12') == 'damped 12'
-    assert _short_stage_name('simulation') == 'simulation'
+    # the full name is far wider than a stage is on the axis, and the label
+    # carries the damping value after it
+    assert _short_stage_name('damped_adjustment_1') == 'd1'
+    assert _short_stage_name('damped_adjustment_12') == 'd12'
+    assert _short_stage_name('simulation') == 'sim'
+    assert _short_stage_name('something_else') == 'something_else'
+
+
+def _label_rows(stage_lengths):
+    """The rows _label_stages needs for stages of the given lengths in days."""
+    figure = plt.figure()
+    axis = figure.add_subplot()
+    stages = []
+    start = datetime.datetime(1, 1, 1)
+    for index, length in enumerate(stage_lengths):
+        days = int(length)
+        hours = int(round((length - days) * 24))
+        stage = mock.Mock(
+            start_time=start.strftime('%Y-%m-%d_%H:%M:%S'),
+            run_duration=f'{days}_{hours:02d}:00:00',
+            damping=1.0e-4,
+        )
+        # 'name' is special to Mock, so it has to be set after construction
+        stage.name = f'damped_adjustment_{index + 1}'
+        stages.append(stage)
+        start += datetime.timedelta(days=length)
+    rows = _label_stages(axis, stages)
+    plt.close(figure)
+    return rows
+
+
+def test_stage_labels_stay_on_one_row_when_the_stages_are_wide():
+    # four 10-day stages: no label is anywhere near its neighbour, so stacking
+    # them would only waste headroom
+    assert _label_rows([10.0, 10.0, 10.0, 10.0]) == 1
+
+
+def test_stage_labels_climb_when_the_stages_are_too_narrow():
+    # the u.oi6to18.lr6to10 opening: two 6-hour stages then a 12-hour one, on a
+    # 30-day axis, are closer together than a rotated label is wide.  Before
+    # they were drawn on top of each other; now they climb.
+    rows = _label_rows([0.25, 0.25, 0.5, 1.0, 1.0, 3.0, 6.0, 18.0])
+    assert rows > 1
+    # and the wide stages that follow drop back to the bottom row rather than
+    # climbing along with them
+    assert rows < 8
 
 
 def test_viz_plots_the_stage_series(tmp_path, monkeypatch):
