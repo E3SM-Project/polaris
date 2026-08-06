@@ -15,7 +15,7 @@ def add_coriolis_to_dataset(
     Parameters
     ----------
     config : polaris.config.PolarisConfigParser
-        Configuration object containing ocean parameters.
+        Configuration object containing the ``[coriolis]`` section.
 
     ds_mesh : xarray.Dataset
         The horizontal mesh dataset to update.
