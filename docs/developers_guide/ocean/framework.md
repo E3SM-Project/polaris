@@ -53,6 +53,10 @@ it is left as-is.  As new variables that do have an MPAS-Ocean equivalent are
 added to Omega, they should be added to the `variables` section in the
 `mpaso_to_omega.yaml` file.
 
+For standalone conversion of an existing MPAS-Ocean initial-condition file to
+Omega format outside a Polaris task, see
+{ref}`dev-ocean-convert-mpaso-ic-to-omega`.
+
 #### Canonical staged files
 
 The three files that flow through the ocean pipeline — horizontal mesh,
