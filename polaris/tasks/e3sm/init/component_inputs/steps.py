@@ -5,8 +5,16 @@ from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
 from polaris.step import Step
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.component_inputs.base_mesh import BaseMeshStep
+from polaris.tasks.e3sm.init.component_inputs.ocean_initial_condition import (
+    OceanInitialConditionStep,
+)
+from polaris.tasks.e3sm.init.component_inputs.ocean_mesh import OceanMeshStep
 from polaris.tasks.e3sm.init.component_inputs.scrip import ScripStep
 from polaris.tasks.e3sm.init.topo.cull.steps import get_cull_topo_steps
+from polaris.tasks.ocean import ocean
+from polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps import (
+    get_realistic_dynamic_adjustment_steps,
+)
 
 CONFIG_FILENAME = 'component_inputs.cfg'
 CONFIG_PACKAGE = 'polaris.tasks.e3sm.init.component_inputs'
@@ -73,7 +81,49 @@ def get_component_inputs_steps(mesh_name):
     )
     steps['scrip'] = scrip
 
+    _add_ocean_steps(
+        steps=steps,
+        config=config,
+        base_subdir=base_subdir,
+        mesh_name=mesh_name,
+    )
+
     return steps, config
+
+
+def _add_ocean_steps(steps, config, base_subdir, mesh_name):
+    """
+    Add the MPAS-Ocean products, and the upstream ocean steps they need.
+
+    The initial condition comes from the last dynamic-adjustment stage rather
+    than from the initial state, so this pulls in the whole adjustment chain
+    as shared steps.  Those live in the ocean component; only the steps that
+    stage files belong to ``e3sm/init``.
+    """
+    adjustment_steps, _, stages = get_realistic_dynamic_adjustment_steps(
+        component=ocean, mesh_name=mesh_name, include_viz=False
+    )
+    steps.update(adjustment_steps)
+
+    ocean_mesh = e3sm_init.get_or_create_shared_step(
+        step_cls=OceanMeshStep,
+        subdir=os.path.join(base_subdir, 'ocean_mesh'),
+        config=config,
+        config_filename=CONFIG_FILENAME,
+        init_step=adjustment_steps['initial_state'],
+    )
+    steps['ocean_mesh'] = ocean_mesh
+
+    final_stage = stages[-1]
+    ocean_initial_condition = e3sm_init.get_or_create_shared_step(
+        step_cls=OceanInitialConditionStep,
+        subdir=os.path.join(base_subdir, 'ocean_initial_condition'),
+        config=config,
+        config_filename=CONFIG_FILENAME,
+        forward_step=adjustment_steps[final_stage.name],
+        restart_filename=final_stage.restart_out,
+    )
+    steps['ocean_initial_condition'] = ocean_initial_condition
 
 
 def component_inputs_subdir(mesh_name):
