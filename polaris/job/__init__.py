@@ -4,8 +4,8 @@ import os as os
 import numpy as np
 from jinja2 import Template as Template
 from mache.parallel import get_parallel_system
-from mache.parallel.pbs import PbsSystem
-from mache.parallel.slurm import SlurmSystem
+from mache.parallel.pbs import PbsOptions, PbsSystem
+from mache.parallel.slurm import SlurmOptions, SlurmSystem
 
 
 def write_job_script(
@@ -65,6 +65,14 @@ def write_job_script(
     run_command : str, optional
         The command(s) to run in the job script. If not provided, defaults to
         'polaris serial {{suite}}'.
+
+    Returns
+    -------
+    options : {mache.parallel.slurm.SlurmOptions, \
+mache.parallel.pbs.PbsOptions, None}
+        The scheduler options that were rendered into the job script, or
+        ``None`` if no job script was written because the machine does not
+        use a supported job scheduler
     """
     if config.combined is None:
         config.combine()
@@ -132,53 +140,65 @@ def write_job_script(
 
     desired_wall_time = config.get('job', 'wall_time')
 
+    # a specific scheduler target the user has asked for, if any.  mache
+    # treats placeholders such as '<<<default>>>' as "no request", so they
+    # are passed through unmodified.
+    requested_partition = _get_job_option(config, 'partition')
+    requested_qos = _get_job_option(config, 'qos')
+    requested_queue = _get_job_option(config, 'queue')
+    requested_constraint = _get_job_option(config, 'constraint')
+
+    # a target named without saying which axis it is on.  mache maps it onto
+    # whichever of the machine's partitions, qos or queues lists it, so the
+    # options above win on the axis they name.
+    requested_target = _get_job_option(config, 'scheduler_target')
+
+    options: SlurmOptions | PbsOptions
     if system == 'slurm':
-        (
-            partition,
-            qos,
-            constraint,
-            gpus_per_node,
-            max_wallclock,
-            nodes,
-        ) = SlurmSystem.get_slurm_options(
+        options = SlurmSystem.resolve_slurm_options(
             config=config.combined,
             nodes=nodes,
             min_nodes_allowed=min_nodes_allowed,
+            partition=requested_partition,
+            qos=requested_qos,
+            constraint=requested_constraint,
+            desired_wall_time=desired_wall_time,
+            scheduler_target=requested_target,
         )
-        wall_time = _cap_wall_time(desired_wall_time, max_wallclock)
         template_name = 'job_script.slurm.template'
         render_kwargs.update(
-            partition=partition,
-            qos=qos,
-            constraint=constraint,
-            gpus_per_node=gpus_per_node,
-            wall_time=wall_time,
+            partition=options.partition,
+            qos=options.qos,
+            constraint=options.constraint,
+            gpus_per_node=options.gpus_per_node,
+            wall_time=options.wall_time,
         )
     elif system == 'pbs':
-        (
-            queue,
-            constraint,
-            gpus_per_node,
-            max_wallclock,
-            filesystems,
-            nodes,
-        ) = PbsSystem.get_pbs_options(
+        options = PbsSystem.resolve_pbs_options(
             config=config.combined,
             nodes=nodes,
             min_nodes_allowed=min_nodes_allowed,
+            queue=requested_queue,
+            constraint=requested_constraint,
+            desired_wall_time=desired_wall_time,
+            scheduler_target=requested_target,
         )
-        wall_time = _cap_wall_time(desired_wall_time, max_wallclock)
         template_name = 'job_script.pbs.template'
         render_kwargs.update(
-            queue=queue,
-            constraint=constraint,
-            gpus_per_node=gpus_per_node,
-            wall_time=wall_time,
-            filesystems=filesystems,
+            queue=options.queue,
+            constraint=options.constraint,
+            gpus_per_node=options.gpus_per_node,
+            wall_time=options.wall_time,
+            filesystems=options.filesystems,
         )
     else:
         # Do not write a job script for other systems
-        return
+        return None
+
+    nodes = options.effective_nodes
+
+    if not options.honored:
+        print(f'Warning: {options.reason}')
 
     job_name = config.get('job', 'job_name')
     if job_name == '<<<default>>>':
@@ -213,6 +233,18 @@ def write_job_script(
     with open(script_filename, 'w') as handle:
         handle.write(text)
 
+    return options
+
+
+def _get_job_option(config, option):
+    """Get a requested ``[job]`` option, or None if it is unset or empty."""
+    if not config.has_option('job', option):
+        return None
+    value = config.get('job', option).strip()
+    if value == '':
+        return None
+    return value
+
 
 def _get_min_nodes_allowed(
     cores_per_node,
@@ -240,30 +272,3 @@ def _get_min_nodes_allowed(
     if len(minima) == 0:
         return None
     return max(minima)
-
-
-def _wallclock_to_seconds(wallclock):
-    """Convert HH:MM:SS wall-clock string to total seconds, or None."""
-    parts = wallclock.split(':')
-    if len(parts) != 3:
-        return None
-    try:
-        return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-    except ValueError:
-        return None
-
-
-def _cap_wall_time(desired, max_wallclock):
-    """Return desired wall time, capped at max_wallclock if it is smaller.
-
-    Defaults to desired if max_wallclock is empty or cannot be parsed.
-    """
-    if not max_wallclock:
-        return desired
-    desired_secs = _wallclock_to_seconds(desired)
-    max_secs = _wallclock_to_seconds(max_wallclock)
-    if desired_secs is None or max_secs is None:
-        return desired
-    if desired_secs <= max_secs:
-        return desired
-    return max_wallclock

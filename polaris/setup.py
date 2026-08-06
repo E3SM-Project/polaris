@@ -271,7 +271,7 @@ def setup_tasks(
         print(f'minimum gpus: {max_of_min_gpus}')
 
     if machine is not None:
-        write_job_script(
+        job_options = write_job_script(
             config=basic_config,
             machine=machine,
             target_cores=max_cores,
@@ -281,6 +281,19 @@ def setup_tasks(
             work_dir=work_dir,
             suite=suite_name,
         )
+
+        if job_options is not None:
+            # Rewrite provenance (it was written earlier so that it exists
+            # even if setup fails) now that we know which scheduler options
+            # the suite's job script ended up using.
+            provenance.write(
+                work_dir,
+                tasks,
+                config=basic_config,
+                machine=machine,
+                baseline_dir=baseline_dir,
+                job_options=job_options,
+            )
 
     return tasks
 

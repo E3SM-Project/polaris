@@ -90,16 +90,19 @@ Additionally, some relevant config options come from the
 system = slurm
 
 # whether to use mpirun or srun to run a task
-parallel_executable = srun
+parallel_executable = srun -l -K --threads-per-core=1
 
 # cores per node on the machine
-cores_per_node = 64
+cores_per_node = 56
 
 # account for running diagnostics jobs
 account = cli115
 
-# available partition(s) (default is the first)
-partitions = batch
+# available partition(s) (default is chosen based on the job size)
+partitions = batch, extended
+
+# available quality of service (default is chosen based on the job size)
+qos = normal, debug
 
 
 # Config options related to spack environments
