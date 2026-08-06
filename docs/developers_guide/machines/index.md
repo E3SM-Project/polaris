@@ -46,7 +46,9 @@ perlmutter
 
 The following table lists all supported machine, model, and compiler
 combinations. The MPAS make target is only applicable for MPAS-Ocean and
-MPAS-Seaice builds.
+MPAS-Seaice builds.  It is generated from
+`docs/developers_guide/supported_machines.yaml` (see
+{ref}`dev-supported-machines-yaml`).
 
 ```{jinja} supported_machines
 | Machine | Model | Compiler | MPI | MPAS Make Target |
@@ -61,6 +63,50 @@ MPAS-Seaice builds.
 :::{note}
 MPAS components currently do not support Aurora in standalone builds.
 :::
+
+(dev-supported-machines-yaml)=
+
+### Keeping `supported_machines.yaml` Up to Date
+
+The table above is rendered at documentation build time from
+`docs/developers_guide/supported_machines.yaml`, so it is only as accurate as
+that file.  Keeping it current is a required part of any change that alters
+which machine, model, compiler, and MPI combinations Polaris supports:
+
+* **A machine is added or dropped** — add or remove the corresponding
+  `machines` entry (see {ref}`dev-adding-new-machines`).
+* **A compiler or MPI library is added or dropped** — add or remove the
+  corresponding `models` entries for that machine.
+* **A compiler is renamed** — HPC centers periodically rename their compiler
+  modules.  For example, on Chrysalis `oneapi-ifx` was renamed to `intel` and
+  the former `intel` was renamed to `intel-classic`.
+
+Each entry under `models` has these fields:
+
+| Field | Description |
+| --- | --- |
+| `model` | `Omega` or `MPAS` (MPAS-Ocean and MPAS-Seaice) |
+| `compiler` | the compiler name, as it appears in the load script |
+| `mpi` | the MPI library, as it appears in the load script |
+| `mpas_target` | the MPAS make target, or `null` for Omega |
+
+Keep these entries consistent with the machine's config file in
+`polaris/machines/`.  There, the `mpi_<compiler>` options in the `[deploy]`
+section determine which compiler and MPI combinations are valid, and the
+`<compiler>_<mpi>_target` options in the `[build]` section determine the
+`mpas_target` values.  A combination with no `<compiler>_<mpi>_target` option
+can only be used to build Omega, so it should use `mpas_target: null`.
+
+Renames and additions also need to be propagated to the rest of the
+documentation, since `supported_machines.yaml` is not the only place compilers
+appear:
+
+* the machine's page in the `toctree` above, which lists the load script and
+  MPAS make target for each compiler
+* the machine's page in the {ref}`machines` section of the User's Guide, which
+  duplicates the `[deploy]` section of the machine's config file
+* any `load_polaris_*.sh` examples elsewhere in the documentation, including
+  the tutorials
 
 (dev-other-machines)=
 

@@ -46,6 +46,23 @@ These instructions apply to the whole repository unless a deeper
 - Prefer starting from the existing template instead of creating task
   documentation pages from scratch.
 
+## Supported machines
+
+- `docs/developers_guide/supported_machines.yaml` is the source of the
+  supported machine table in the Developer's Guide. Update it whenever
+  machines are added or removed, or compilers and MPI libraries are
+  added, removed, or renamed.
+- Keep it consistent with the machine config files in
+  `polaris/machines/`: the `mpi_<compiler>` options under `[deploy]`
+  define the valid compiler and MPI combinations, and the
+  `<compiler>_<mpi>_target` options under `[build]` define the
+  `mpas_target` values (use `null` for Omega-only combinations).
+- When a compiler is added or renamed, update every place it appears:
+  the machine config file in `polaris/machines/`,
+  `supported_machines.yaml`, the machine pages in both the User's and
+  Developer's Guides, and any `load_polaris_*.sh` examples in the
+  documentation and tutorials.
+
 ## Contracts
 
 - Treat `deploy.py` and `deploy/cli_spec.json` as contract files shared
