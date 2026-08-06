@@ -375,7 +375,7 @@ class CombineStep(Step):
         bedmachine['base_elevation'] = bedmachine.bed
         bedmachine['ice_thickness'] = bedmachine.thickness
         bedmachine['ice_draft'] = bedmachine.surface - bedmachine.thickness
-        bedmachine.ice_draft.attrs['units'] = 'meters'
+        bedmachine.ice_draft.attrs['units'] = 'm'
         bedmachine['ice_mask'] = ice_mask
         bedmachine['grounded_mask'] = grounded_mask
         bedmachine['ocean_mask'] = ocean_mask
@@ -424,7 +424,7 @@ class CombineStep(Step):
         bedmap3['ice_draft'] = (
             bedmap3.surface_topography - bedmap3.ice_thickness
         )
-        bedmap3.ice_draft.attrs['units'] = 'meters'
+        bedmap3.ice_draft.attrs['units'] = 'm'
         bedmap3['ice_mask'] = ice_mask
         bedmap3['grounded_mask'] = grounded_mask
         bedmap3['ocean_mask'] = ocean_mask
@@ -880,8 +880,13 @@ class CombineStep(Step):
         # Add remaining Antarctic variables to combined Dataset
         for field in ['ice_draft', 'ice_thickness']:
             combined[field] = ds_antarctic[field]
+        # ``units``, not the non-standard singular ``unit`` these fields used
+        # to carry: MPAS and CF both use ``units``, and anything derived from
+        # one of these fields inherits whatever is here.  This also overwrites
+        # the ``units = 'meters'`` that ice_thickness brings in from
+        # BedMachine/Bedmap3, so the combined file says ``m`` throughout.
         for field in ['base_elevation', 'ice_draft', 'ice_thickness']:
-            combined[field].attrs['unit'] = 'meters'
+            combined[field].attrs['units'] = 'm'
 
         # Add masks
         for field in ['ice_mask', 'grounded_mask']:
