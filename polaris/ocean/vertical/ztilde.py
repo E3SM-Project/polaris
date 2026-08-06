@@ -20,6 +20,7 @@ import logging
 import numpy as np
 import xarray as xr
 
+from polaris.attrs import set_attrs
 from polaris.config import PolarisConfigParser
 from polaris.constants import get_constant
 from polaris.ocean.eos import compute_specvol
@@ -65,12 +66,11 @@ def pseudothickness_from_pressure(
         (p_bot - p_top) / (RhoSw * Gravity),
         dims=tuple(dims),
     )
-    return h.assign_attrs(
-        {
-            'long_name': 'pseudo-thickness',
-            'units': 'm',
-            'note': 'h_tilde = -dp / (RhoSw * g)',
-        }
+    return set_attrs(
+        h,
+        long_name='pseudo-thickness',
+        units='m',
+        note='h_tilde = -dp / (RhoSw * g)',
     )
 
 
@@ -92,12 +92,11 @@ def z_tilde_from_pressure(p: xr.DataArray) -> xr.DataArray:
     """
 
     z = -(p) / (RhoSw * Gravity)
-    return z.assign_attrs(
-        {
-            'long_name': 'pseudo-height',
-            'units': 'm',
-            'note': 'z_tilde = -p / (RhoSw * g)',
-        }
+    return set_attrs(
+        z,
+        long_name='pseudo-height',
+        units='m',
+        note='z_tilde = -p / (RhoSw * g)',
     )
 
 
@@ -123,12 +122,11 @@ def pressure_from_z_tilde(z_tilde: xr.DataArray) -> xr.DataArray:
     """
 
     p = -(z_tilde) * (RhoSw * Gravity)
-    return p.assign_attrs(
-        {
-            'long_name': 'sea gauge pressure',
-            'units': 'Pa',
-            'note': 'p = -RhoSw * g * z_tilde',
-        }
+    return set_attrs(
+        p,
+        long_name='sea gauge pressure',
+        units='Pa',
+        note='p = -RhoSw * g * z_tilde',
     )
 
 

@@ -1,6 +1,7 @@
 import numpy as np
 import xarray as xr
 
+from polaris.attrs import set_attrs
 from polaris.config import PolarisConfigParser
 
 from .constant import compute_constant_ct_freezing, compute_constant_density
@@ -88,8 +89,7 @@ def compute_density(
     else:
         raise ValueError(f'Unsupported equation of state type: {eos_type}')
     if isinstance(density, xr.DataArray):
-        density.attrs['units'] = 'kg m-3'
-        density.attrs['long_name'] = 'density'
+        set_attrs(density, long_name='density', units='kg m-3')
     return density
 
 
@@ -222,8 +222,7 @@ def compute_specvol(
     else:
         raise ValueError(f'Unsupported equation of state type: {eos_type}')
     if isinstance(specvol, xr.DataArray):
-        specvol.attrs['units'] = 'm3 kg-1'
-        specvol.attrs['long_name'] = 'specific volume'
+        set_attrs(specvol, long_name='specific volume', units='m3 kg-1')
     return specvol
 
 
