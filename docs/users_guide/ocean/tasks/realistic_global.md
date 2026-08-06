@@ -1057,7 +1057,10 @@ The `viz` step writes `dynamic_adjustment_stats.png` from the same statistics,
 plotting kinetic energy (maximum, mean and domain-integrated), maximum normal
 velocity, CFL number, tracer extremes, mean tracer change and minimum layer
 thickness on one continuous axis, with the stage boundaries marked and each
-stage labelled with its damping.  A summary row cannot distinguish a quantity
+stage labelled with its damping.  The labels read upwards, abbreviated to
+`d1`, `d2` and so on with `sim` for the final undamped stage, and a label
+climbs to a second or third row where its stage is too narrow to hold one —
+`u.oi6to18.lr6to10` opens with two 6-hour stages on a 30-day axis.  A summary row cannot distinguish a quantity
 that was flat through a stage from one that spiked and recovered, and those
 call for different changes to the schedule; the figure can.  Reading it against
 the damping labels is usually the fastest way to tell a response to the ramp
