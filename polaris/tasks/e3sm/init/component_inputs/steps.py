@@ -13,6 +13,10 @@ from polaris.tasks.e3sm.init.component_inputs.ocean_initial_condition import (
 )
 from polaris.tasks.e3sm.init.component_inputs.ocean_mesh import OceanMeshStep
 from polaris.tasks.e3sm.init.component_inputs.scrip import ScripStep
+from polaris.tasks.e3sm.init.component_inputs.seaice_initial_condition import (
+    SeaiceInitialConditionStep,
+)
+from polaris.tasks.e3sm.init.component_inputs.seaice_mesh import SeaiceMeshStep
 from polaris.tasks.e3sm.init.topo.cull.steps import get_cull_topo_steps
 from polaris.tasks.ocean import ocean
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps import (
@@ -91,8 +95,41 @@ def get_component_inputs_steps(mesh_name):
         mesh_name=mesh_name,
         cull_mesh_step=cull_mesh_step,
     )
+    _add_seaice_steps(
+        steps=steps,
+        config=config,
+        base_subdir=base_subdir,
+        cull_mesh_step=cull_mesh_step,
+    )
 
     return steps, config
+
+
+def _add_seaice_steps(steps, config, base_subdir, cull_mesh_step):
+    """
+    Add the MPAS-Seaice products.
+
+    Every one of them reads the culled mesh and nothing else, so this pulls in
+    no ocean steps at all -- which is what lets the sea-ice task run on its
+    own.
+    """
+    seaice_mesh = e3sm_init.get_or_create_shared_step(
+        step_cls=SeaiceMeshStep,
+        subdir=os.path.join(base_subdir, 'seaice_mesh'),
+        config=config,
+        config_filename=CONFIG_FILENAME,
+        cull_mesh_step=cull_mesh_step,
+    )
+    steps['seaice_mesh'] = seaice_mesh
+
+    seaice_initial_condition = e3sm_init.get_or_create_shared_step(
+        step_cls=SeaiceInitialConditionStep,
+        subdir=os.path.join(base_subdir, 'seaice_initial_condition'),
+        config=config,
+        config_filename=CONFIG_FILENAME,
+        cull_mesh_step=cull_mesh_step,
+    )
+    steps['seaice_initial_condition'] = seaice_initial_condition
 
 
 def _add_ocean_steps(steps, config, base_subdir, mesh_name, cull_mesh_step):
