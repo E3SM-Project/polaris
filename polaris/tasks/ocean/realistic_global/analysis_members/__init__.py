@@ -85,6 +85,10 @@ class AnalysisMembers(Task):
                 dt='00:00:45',
                 run_duration='0001_00:00:00',
             ),
+            'RRS18to6v3': dict(
+                dt='00:00:10',
+                run_duration='0001_00:00:00',
+            ),
         }
         package = 'polaris.tasks.ocean.realistic_global'
         replacements = {
