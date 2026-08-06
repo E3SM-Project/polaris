@@ -26,21 +26,26 @@ def add_coriolis_to_dataset(
         The updated dataset with ``fCell``, ``fEdge``, and ``fVertex``
         fields.
     """
-    section = config['coriolis']
-    coriolis_type = section.get('type').strip()
+    coriolis_type = (config.get('coriolis', 'type', fallback='') or '').strip()
+    if not coriolis_type:
+        raise ValueError(
+            'The "type" config option in the "coriolis" section must be set '
+            'to one of: zero, constant, beta_plane, spherical or '
+            'rotated_sphere.'
+        )
     if coriolis_type == 'zero':
         return add_zero_coriolis(ds_mesh)
     elif coriolis_type == 'constant':
-        f = section.getfloat('constant_f')
+        f = _get_required_float(config, 'constant_f')
         return add_constant_coriolis(ds_mesh, f)
     elif coriolis_type == 'beta_plane':
-        f0 = section.getfloat('beta_plane_f0')
-        beta = section.getfloat('beta_plane_beta')
+        f0 = _get_required_float(config, 'beta_plane_f0')
+        beta = _get_required_float(config, 'beta_plane_beta')
         return add_beta_plane_coriolis(ds_mesh, f0, beta)
     elif coriolis_type == 'spherical':
         return add_spherical_coriolis(ds_mesh)
     elif coriolis_type == 'rotated_sphere':
-        alpha = section.getfloat('rotated_sphere_alpha')
+        alpha = _get_required_float(config, 'rotated_sphere_alpha')
         return add_rotated_sphere_coriolis(ds_mesh, alpha)
     else:
         raise ValueError(f'Unsupported Coriolis type: {coriolis_type}')
@@ -186,6 +191,18 @@ def add_zero_coriolis(ds_mesh: xr.Dataset) -> xr.Dataset:
         xr.zeros_like(ds_mesh.xEdge),
         xr.zeros_like(ds_mesh.xVertex),
     )
+
+
+def _get_required_float(config: PolarisConfigParser, option: str) -> float:
+    """Get a ``[coriolis]`` float option, raising if it has not been set"""
+    if not (config.get('coriolis', option, fallback='') or '').strip():
+        raise ValueError(
+            f'The "{option}" config option in the "coriolis" section must be '
+            f'set for this Coriolis type.'
+        )
+    value = config.getfloat('coriolis', option)
+    assert value is not None
+    return value
 
 
 def _rotated_sphere_coriolis(
