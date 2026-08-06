@@ -5,6 +5,9 @@ from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
 from polaris.step import Step
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.component_inputs.base_mesh import BaseMeshStep
+from polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition import (
+    OceanGraphPartitionStep,
+)
 from polaris.tasks.e3sm.init.component_inputs.ocean_initial_condition import (
     OceanInitialConditionStep,
 )
@@ -86,12 +89,13 @@ def get_component_inputs_steps(mesh_name):
         config=config,
         base_subdir=base_subdir,
         mesh_name=mesh_name,
+        cull_mesh_step=cull_mesh_step,
     )
 
     return steps, config
 
 
-def _add_ocean_steps(steps, config, base_subdir, mesh_name):
+def _add_ocean_steps(steps, config, base_subdir, mesh_name, cull_mesh_step):
     """
     Add the MPAS-Ocean products, and the upstream ocean steps they need.
 
@@ -124,6 +128,15 @@ def _add_ocean_steps(steps, config, base_subdir, mesh_name):
         restart_filename=final_stage.restart_out,
     )
     steps['ocean_initial_condition'] = ocean_initial_condition
+
+    ocean_graph_partition = e3sm_init.get_or_create_shared_step(
+        step_cls=OceanGraphPartitionStep,
+        subdir=os.path.join(base_subdir, 'ocean_graph_partition'),
+        config=config,
+        config_filename=CONFIG_FILENAME,
+        cull_mesh_step=cull_mesh_step,
+    )
+    steps['ocean_graph_partition'] = ocean_graph_partition
 
 
 def component_inputs_subdir(mesh_name):
