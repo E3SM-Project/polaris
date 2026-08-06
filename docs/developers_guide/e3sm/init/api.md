@@ -130,3 +130,104 @@
    land_locked.remove_ocean_land_locked_cells
 ```
 
+
+### component_inputs
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autosummary::
+   :toctree: generated/
+
+   BaseMeshStep
+   BaseMeshStep.output_filename
+   BaseMeshStep.setup
+   BaseMeshStep.run
+
+   ScripStep
+   ScripStep.scrip_filename
+   ScripStep.setup
+   ScripStep.run
+
+   AssembleStep
+   AssembleStep.run
+
+   ComponentInputsTask
+   ComponentInputsTask.configure
+
+   get_component_inputs_steps
+   add_component_inputs_tasks
+```
+
+#### ocean products
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autosummary::
+   :toctree: generated/
+
+   ocean_mesh.OceanMeshStep
+   ocean_mesh.OceanMeshStep.setup
+   ocean_mesh.OceanMeshStep.run
+   ocean_mesh.VERT_COORD_VARS
+
+   ocean_initial_condition.OceanInitialConditionStep
+   ocean_initial_condition.OceanInitialConditionStep.setup
+   ocean_initial_condition.OceanInitialConditionStep.run
+
+   ocean_graph_partition.OceanGraphPartitionStep
+   ocean_graph_partition.OceanGraphPartitionStep.setup
+   ocean_graph_partition.OceanGraphPartitionStep.run
+```
+
+#### sea-ice products
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autosummary::
+   :toctree: generated/
+
+   seaice_mesh.SeaiceMeshStep
+   seaice_mesh.SeaiceMeshStep.setup
+   seaice_mesh.SeaiceMeshStep.run
+
+   seaice_initial_condition.SeaiceInitialConditionStep
+   seaice_initial_condition.SeaiceInitialConditionStep.setup
+   seaice_initial_condition.SeaiceInitialConditionStep.run
+
+   seaice_graph_partition.SeaiceGraphPartitionStep
+   seaice_graph_partition.SeaiceGraphPartitionStep.setup
+   seaice_graph_partition.SeaiceGraphPartitionStep.run
+```
+
+#### leaf modules
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autosummary::
+   :toctree: generated/
+
+   names.get_mesh_short_name
+   names.get_creation_date
+   names.set_creation_date
+   names.base_mesh_path
+   names.scrip_path
+   names.ocean_mesh_path
+   names.ocean_initial_condition_path
+   names.ocean_partition_path
+   names.seaice_mesh_path
+   names.seaice_initial_condition_path
+   names.seaice_partition_path
+
+   maps.map_base_to_culled
+   maps.base_to_culled_maps
+
+   partitions.get_core_list
+   partitions.read_graph_cell_count
+
+   models.check_ocean_model
+   models.check_seaice_model
+```
