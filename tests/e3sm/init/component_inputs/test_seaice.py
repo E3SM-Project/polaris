@@ -19,6 +19,11 @@ MESH_NAME = 'u.oi30.lr10'
 
 SEAICE_STEPS = ['seaice_mesh', 'seaice_initial_condition']
 
+# reads the sea-ice mesh and a database climatology rather than the culled
+# mesh directly, so it is checked for ocean-independence but not for its
+# exact input list
+ALL_SEAICE_STEPS = SEAICE_STEPS + ['seaice_graph_partition']
+
 LOGGER = logging.getLogger('test_seaice')
 
 
@@ -33,12 +38,15 @@ def test_the_seaice_steps_reach_no_ocean_step():
     steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
     ocean_subdirs = set(ocean.steps)
 
-    for name in SEAICE_STEPS:
+    for name in ALL_SEAICE_STEPS:
         step = steps[name]
         assert not step.dependencies, name
         for entry in step.input_data:
             target = entry['work_dir_target']
-            assert target is not None, name
+            if target is None:
+                # a database download, which reaches no step at all
+                assert entry['database'] is not None, name
+                continue
             assert not target.startswith('ocean/'), (name, target)
             assert target not in ocean_subdirs, (name, target)
 
