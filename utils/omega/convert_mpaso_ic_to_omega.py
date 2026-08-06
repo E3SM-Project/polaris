@@ -92,8 +92,8 @@ def convert_to_omega(
     write_netcdf(
         ds_mpas_zero,
         zero_velocity_mpas_file,
-        format="NETCDF3_64BIT_DATA",
-        engine="netcdf4"
+        format='NETCDF3_64BIT_DATA',
+        engine='netcdf4',
     )
     print(f'Wrote {zero_velocity_mpas_file}')
     print(
@@ -158,10 +158,7 @@ def convert_to_omega(
     _keep_selected_global_attrs(ds_omega)
 
     write_netcdf(
-        ds_omega,
-        output_file,
-        format="NETCDF3_64BIT_DATA",
-        engine="netcdf4"
+        ds_omega, output_file, format='NETCDF3_64BIT_DATA', engine='netcdf4'
     )
 
     print(f'Wrote {output_file}')
