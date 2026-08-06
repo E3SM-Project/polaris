@@ -1,0 +1,11 @@
+# Wind forcing for a realistic global ocean forward run.  Always added: every
+# realistic_global forward run is wind-forced, and there is no config option to
+# turn it off.  Where the wind stress comes from is a separate question,
+# answered by the InitialCondition; see forcing_streams.yaml.
+#
+# config_use_bulk_wind_stress is auto-translated to Omega's
+# Tendencies: SfcStressForcingTendencyEnable by mpaso_to_omega.yaml.  Both
+# models default it to off, so it has to be stated to have any effect.
+ocean:
+    forcing:
+        config_use_bulk_wind_stress: true

@@ -382,7 +382,18 @@ outside of the `cosine_bell` work directory so it could be used by any task
 that needs a quasi-uniform (`qu`) or subdivided icosahedral (`icos`) mesh of
 the given resolution.  A path within the task for a symlink is provided using
 the `symlink` argument to make it easier for users and developers to find the
-shared step.  Here's what the work directory structure will look like for the
+shared step.
+
+A symlink that would land in the directory already holding the step is dropped
+rather than created, since it would sit beside what it points to and only add a
+second name for it — `cull_mask` next to `mask`.  This matters because a
+`get_*_steps()` helper suggests one symlink name per step, chosen for consumers
+whose tasks live elsewhere in the tree; a task that lives in the steps' own
+directory can pass those names straight through without having to filter them.
+A symlink to a step nested *deeper* under the task is kept: surfacing it under a
+descriptive name is what symlinks are for.
+
+Here's what the work directory structure will look like for the
 `ocean/spherical/icos/cosine_bell` task:
 
  * ocean

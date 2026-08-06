@@ -1,0 +1,50 @@
+# Restart-stream overrides applied by the Forward step when a stage is part of
+# a restart chain (its ForwardStage sets restart_out).  Each stage writes its
+# restart to a shared ``../restarts`` directory using a time-stamped filename,
+# so the next stage can read it via config_do_restart / config_start_time.
+# Only the restart stream is touched here; the output_interval already set in
+# forward.yaml is preserved by Polaris' per-stream merge.
+#
+# MPAS-Ocean's restart stream is both an input and an output stream, so this one
+# filename_template serves the read and the write side.  A restarting stage sets
+# config_start_time to the timestamp its predecessor wrote, and the template
+# resolves to that file; input_interval is stated rather than left to the
+# Registry default so that the file is read once, at initialization.
+mpas-ocean:
+    streams:
+        restart:
+            filename_template: ../restarts/rst.$Y-$M-$D_$h.$m.$s.nc
+            filename_interval: output_interval
+            input_interval: initial_only
+
+# Omega splits the two directions into separate streams, so RestartRead has to
+# be requested here: setup drops any Default.yml stream that no yaml file asks
+# for, and forward.yaml requests only RestartWrite and History.  Following
+# cosine_bell/restart, a stage that is not restarting reads InitialState on
+# startup and keeps RestartRead out of the way with a start time it never
+# reaches; a restarting stage does the reverse.
+#
+# UNVERIFIED.  There is no Omega build in this worktree, so none of this has
+# been run.  Two things in particular need checking before an Omega dynamic
+# adjustment is trusted:
+#
+#   * the Filename has no .nc extension, matching cosine_bell/restart and
+#     forward.yaml's RestartWrite.  Whether Omega appends one is why the forward
+#     step does not declare Omega restart files as step inputs and outputs.
+#   * https://github.com/E3SM-Project/Omega/issues/482 -- restarts and history
+#     output interact badly and history output is mangled across a restart.  Its
+#     resolution will change how a restart run has to be configured, so treat
+#     this whole block as provisional.
+Omega:
+    IOStreams:
+        InitialState:
+            FreqUnits: {{ init_freq_units }}
+        RestartRead:
+            UsePointerFile: false
+            UseStartEnd: {{ restart_read_use_start_end }}
+            Filename: ../restarts/rst.$Y-$M-$D_$h.$m.$s
+            StartTime: {{ restart_read_time }}
+            Mode: read
+        RestartWrite:
+            UsePointerFile: false
+            Filename: ../restarts/rst.$Y-$M-$D_$h.$m.$s
