@@ -31,10 +31,10 @@ polaris_envs = /lcrc/soft/climate/polaris/chrysalis/base
 [deploy]
 
 # the compiler set to use for system libraries and MPAS builds
-compiler = oneapi-ifx
+compiler = intel
 
 # the compiler to use to build software (e.g. ESMF and MOAB) with spack
-software_compiler = oneapi-ifx
+software_compiler = intel
 
 # the system MPI library to use for intel compiler
 mpi_intel = openmpi
@@ -42,8 +42,8 @@ mpi_intel = openmpi
 # the system MPI library to use for gnu compiler
 mpi_gnu = openmpi
 
-# the system MPI library to use for oneapi-ifx compiler
-mpi_oneapi_ifx = openmpi
+# the system MPI library to use for intel-classic compiler
+mpi_intel_classic = openmpi
 
 # the base path for spack environments used by polaris
 spack = /lcrc/soft/climate/polaris/chrysalis/spack
