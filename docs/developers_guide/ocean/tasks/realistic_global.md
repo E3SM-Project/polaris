@@ -305,10 +305,13 @@ names onto), how to reduce that variable's time series over the stage, and the
 `output.nc` field to fall back to when the model does not report the statistic.
 A metric with no fallback is left blank instead: `output_var` is set only where
 computing the metric from the 3-D field gives the same quantity, which is true of
-a maximum and not of a volume-weighted mean.  The drift columns are derived
-rather than read, from the change in a volume-weighted mean across the stage
-divided by the stage's run duration, which is why `Validate` takes the
-`ForwardStage` list rather than just the stage names.
+a maximum and not of a volume-weighted mean.  The `mean_*_change_per_day`
+columns are derived rather than read, from the change in a volume-weighted mean
+across the stage divided by the stage's run duration, which is why `Validate`
+takes the `ForwardStage` list rather than just the stage names.  They are a
+conservation check, not a settling one: these runs are forced by wind alone,
+with no surface fluxes, so the volume-weighted mean tracers are conserved
+exactly and the expected value of both columns is zero.
 
 The statistics cadence is `ForwardStage.stats_interval`, which drives the
 `globalStatsOutput` stream and through it the analysis member's compute

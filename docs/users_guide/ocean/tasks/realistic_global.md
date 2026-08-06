@@ -942,9 +942,18 @@ step plots the underlying time series.
 The summary is `dynamic_adjustment_stats.csv`, one row per stage, and the same
 table is written to the step's log.  It is the quickest way to see whether the
 damping ramp and the stage durations were chosen well: kinetic energy should be
-falling and flattening from stage to stage, the tracer drift should be shrinking,
-and nothing should be approaching a blow-up.  Columns ending `_in_stage` are the
-extreme reached at any point during the stage; the rest are end-of-stage values.
+falling and flattening from stage to stage, the volume-weighted mean tracers
+should not be moving at all, and nothing should be approaching a blow-up.
+Columns ending `_in_stage` are the extreme reached at any point during the
+stage; the rest are end-of-stage values.
+
+The two `mean_*_change_per_day` columns are a conservation check rather than a
+sign of settling.  These runs are forced by wind alone, with no surface fluxes,
+so the volume-weighted mean temperature and salinity are conserved exactly and
+both columns should be zero to within machine noise — `u.oi30.lr10` reaches
+-4e-17 °C/day and `u.oi6to18.lr6to10` -6e-14 °C/day.  A value larger than that
+means tracer was lost or gained, which says nothing about whether the fast
+waves have been damped out.
 
 The numbers come from each stage's global-statistics file wherever the
 configured model reports them, because the model has already reduced them over
@@ -1046,7 +1055,7 @@ the difference is immaterial.
 
 The `viz` step writes `dynamic_adjustment_stats.png` from the same statistics,
 plotting kinetic energy (maximum, mean and domain-integrated), maximum normal
-velocity, CFL number, tracer extremes, mean tracer drift and minimum layer
+velocity, CFL number, tracer extremes, mean tracer change and minimum layer
 thickness on one continuous axis, with the stage boundaries marked and each
 stage labelled with its damping.  A summary row cannot distinguish a quantity
 that was flat through a stage from one that spiked and recovered, and those
