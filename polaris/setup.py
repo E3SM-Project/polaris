@@ -165,6 +165,8 @@ def setup_tasks(
         work_dir=work_dir,
     )
 
+    _add_suite_config(basic_config, component.name, suite_name)
+
     component.configure(basic_config, list(tasks.values()))
     set_parallel_systems(tasks, basic_config)
 
@@ -1152,3 +1154,27 @@ def _check_pcd_version(basic_config, component):
 
     branch = basic_config.get('build', 'branch')
     check_pcd_version_matches_branch(branch=branch, model=model)
+
+
+def _add_suite_config(config, component_name, suite_name):
+    """
+    Add config options from the suite's optional ``<suite_name>.cfg``
+    file, if it exists, to ``config``
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The config options to add the suite's config options to
+
+    component_name : str
+        The name of the component that the suite belongs to
+
+    suite_name : str
+        The name of the suite, or ``'custom'`` if tasks are not being set
+        up as part of a suite
+    """
+    if not suite_name or suite_name == 'custom':
+        return
+
+    package = f'polaris.suites.{component_name.replace("/", ".")}'
+    config.add_from_package(package, f'{suite_name}.cfg', exception=False)
