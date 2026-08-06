@@ -269,8 +269,11 @@ def _plot(panels, stage_data, stages, filename) -> None:
             axis.set_xlabel('days')
 
     _label_stages(flat_axes[0], stages)
-    # leave room above the top row for the stage labels and the suptitle
-    figure.tight_layout(rect=(0.0, 0.0, 1.0, 0.95))
+    # only a strip for the suptitle: the stage labels are annotations on the
+    # top-left axes, so tight_layout already counts them in its bounding box
+    # and makes room for however many rows they were stacked onto
+    top = 1.0 - 0.3 / figure.get_figheight()
+    figure.tight_layout(rect=(0.0, 0.0, 1.0, top))
     figure.suptitle('dynamic adjustment: global statistics', y=0.995)
     figure.savefig(filename, dpi=150)
     plt.close(figure)
@@ -314,41 +317,113 @@ def _stage_boundaries(stages) -> List[float]:
     return [_days_between(origin, stage.start_time) for stage in stages[1:]]
 
 
-def _label_stages(axis: Any, stages) -> None:
+# The stage labels are drawn rotated, so a label's horizontal footprint is one
+# line height and its vertical one is its length.  These are rough point sizes
+# at LABEL_FONTSIZE; a label is measured as slightly wider than the digits it
+# usually holds, so that a letter-heavy one like 'sim undamped' still fits.
+LABEL_FONTSIZE = 7
+_LINE_HEIGHT_PT = 1.3 * LABEL_FONTSIZE + 2.0
+_CHARACTER_WIDTH_PT = 0.62 * LABEL_FONTSIZE
+# Labels are stacked in points from the top of the axes, so their spacing does
+# not depend on how tall tight_layout ends up making the panel.  Only the
+# horizontal test needs a width, and an axes about 5.4 in wide is what a
+# 6.0 in cell leaves; getting this wrong costs a row of headroom, not a
+# collision.
+_AXES_WIDTH_PT = 5.4 * 72.0
+# enough to clear the panel's own title, which sits just above the axes
+_TITLE_CLEARANCE_PT = 20.0
+
+
+def _label_stages(axis: Any, stages) -> int:
     """
     Name each stage above the first panel, with its damping.
 
     The damping is what the labels are for: the usual question of one of these
     figures is how a quantity responded to the damping coming off.
+
+    Labels read upwards, because a stage can be a small fraction of the axis:
+    ``u.oi6to18.lr6to10`` opens with two 6-hour stages on a 30-day axis, and
+    horizontal labels there overprinted into an unreadable smear.  Rotating
+    cuts a label's width to one line height, and where even that does not fit
+    -- those two stages are 0.25 days apart, narrower than any legible label
+    -- the label climbs a row rather than overlap its neighbour.  Schedules
+    whose stages are all comfortably wide stay on one row.
+
+    Returns the number of rows the labels were stacked onto, which is 1 for
+    every schedule but the crowded ones.
     """
     if not stages:
-        return
+        return 0
     origin = stages[0].start_time
+    labels = []
     for stage in stages:
         start = _days_between(origin, stage.start_time)
         middle = start + duration_to_seconds(stage.run_duration) / 172800.0
         damping = (
             'undamped' if stage.damping is None else f'{stage.damping:.0e}'
         )
+        labels.append((middle, f'{_short_stage_name(stage.name)} {damping}'))
+
+    span = _days_between(origin, stages[-1].start_time) + (
+        duration_to_seconds(stages[-1].run_duration) / 86400.0
+    )
+    # a label's half-width in days, from one line height in points
+    half_width = 0.0
+    if span > 0.0:
+        half_width = 0.5 * _LINE_HEIGHT_PT * span / _AXES_WIDTH_PT
+
+    # each label goes on the lowest row where it clears the last one placed
+    # there, so a crowded run of short stages climbs and the rest stay put
+    rows: List[int] = []
+    row_free_from: List[float] = []
+    for middle, _ in labels:
+        row = 0
+        while (
+            row < len(row_free_from)
+            and middle - half_width < (row_free_from[row])
+        ):
+            row += 1
+        if row == len(row_free_from):
+            row_free_from.append(0.0)
+        row_free_from[row] = middle + half_width
+        rows.append(row)
+
+    # a row has to start above the tallest label on the row below it, so a
+    # single long label -- 'sim undamped' -- does not push every row up
+    heights = [0.0] * len(row_free_from)
+    for (_, text), row in zip(labels, rows, strict=False):
+        height = len(text) * _CHARACTER_WIDTH_PT
+        heights[row] = max(heights[row], height)
+    offsets = [_TITLE_CLEARANCE_PT]
+    for row in range(1, len(heights)):
+        offsets.append(offsets[row - 1] + heights[row - 1] + 4.0)
+
+    for (middle, text), row in zip(labels, rows, strict=False):
         axis.annotate(
-            f'{_short_stage_name(stage.name)}\n{damping}',
-            # above the panel's own title, which sits just over the axes
-            xy=(middle, 1.16),
+            text,
+            xy=(middle, 1.0),
             xycoords=('data', 'axes fraction'),
+            xytext=(0.0, offsets[row]),
+            textcoords='offset points',
             ha='center',
             va='bottom',
-            fontsize=7,
+            rotation=90,
+            fontsize=LABEL_FONTSIZE,
             color='0.35',
         )
+    return len(heights)
 
 
 def _short_stage_name(name: str) -> str:
     """
     A stage name short enough to sit above a stage's span without colliding
     with its neighbours.  The schedules name their damped stages
-    ``damped_adjustment_<n>``, which is far wider than a stage is on the axis.
+    ``damped_adjustment_<n>``, which is far longer than the label has room for
+    once the damping value is appended.
     """
     prefix = 'damped_adjustment_'
     if name.startswith(prefix):
-        return f'damped {name[len(prefix) :]}'
+        return f'd{name[len(prefix) :]}'
+    if name == 'simulation':
+        return 'sim'
     return name
