@@ -4,6 +4,10 @@ from polaris.config import PolarisConfigParser
 from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
 from polaris.step import Step
 from polaris.tasks.e3sm.init import e3sm_init
+from polaris.tasks.e3sm.init.component_inputs.assemble import (
+    TARGET_PRODUCTS,
+    AssembleStep,
+)
 from polaris.tasks.e3sm.init.component_inputs.base_mesh import BaseMeshStep
 from polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition import (
     OceanGraphPartitionStep,
@@ -30,7 +34,7 @@ CONFIG_FILENAME = 'component_inputs.cfg'
 CONFIG_PACKAGE = 'polaris.tasks.e3sm.init.component_inputs'
 
 
-def get_component_inputs_steps(mesh_name):
+def get_component_inputs_steps(mesh_name, target='all'):
     """
     Get shared steps for staging E3SM component input files for one mesh.
 
@@ -38,6 +42,11 @@ def get_component_inputs_steps(mesh_name):
     from ``e3sm/init`` (via
     :py:func:`~polaris.tasks.e3sm.init.topo.cull.steps.get_cull_topo_steps`),
     then the steps that stage products from them.
+
+    Only what ``target`` needs is built.  That is what makes the sea-ice
+    target genuinely independent of the ocean: asking for it does not create
+    the dynamic-adjustment chain at all, so a sea-ice task cannot end up
+    waiting on a model run it has no use for.
 
     All steps are created via
     :py:meth:`polaris.Component.get_or_create_shared_step`, so the three tasks
@@ -49,15 +58,28 @@ def get_component_inputs_steps(mesh_name):
     mesh_name : str
         The name of the base mesh to stage component inputs for.
 
+    target : {'all', 'ocean', 'seaice'}, optional
+        Which products to build steps for.
+
     Returns
     -------
     steps : dict of {str: polaris.Step}
-        All upstream shared steps plus the component-input steps, keyed by
-        their suggested symlink names.
+        The upstream shared steps this target needs, plus its component-input
+        steps, keyed by their suggested symlink names.
 
     config : polaris.config.PolarisConfigParser
         The shared config options for the component-input steps.
+
+    Raises
+    ------
+    ValueError
+        If ``target`` is not one this workflow stages.
     """
+    if target not in TARGET_PRODUCTS:
+        raise ValueError(
+            f'Unknown component-inputs target {target!r}.  Expected one of '
+            f'{", ".join(sorted(TARGET_PRODUCTS))}.'
+        )
     component = e3sm_init
     cull_steps, _ = get_cull_topo_steps(mesh_name=mesh_name, include_viz=False)
     base_mesh_step = cull_steps['base_mesh']
@@ -91,19 +113,32 @@ def get_component_inputs_steps(mesh_name):
     )
     steps['scrip'] = scrip
 
-    _add_ocean_steps(
-        steps=steps,
+    if 'ocean_mesh' in TARGET_PRODUCTS[target]:
+        _add_ocean_steps(
+            steps=steps,
+            config=config,
+            base_subdir=base_subdir,
+            mesh_name=mesh_name,
+            cull_mesh_step=cull_mesh_step,
+        )
+    if 'seaice_mesh' in TARGET_PRODUCTS[target]:
+        _add_seaice_steps(
+            steps=steps,
+            config=config,
+            base_subdir=base_subdir,
+            cull_mesh_step=cull_mesh_step,
+        )
+
+    # one per task, since the three tasks stage different sets
+    assemble = component.get_or_create_shared_step(
+        step_cls=AssembleStep,
+        subdir=os.path.join(base_subdir, 'assemble', target),
         config=config,
-        base_subdir=base_subdir,
-        mesh_name=mesh_name,
-        cull_mesh_step=cull_mesh_step,
+        config_filename=CONFIG_FILENAME,
+        target=target,
+        product_steps=steps,
     )
-    _add_seaice_steps(
-        steps=steps,
-        config=config,
-        base_subdir=base_subdir,
-        cull_mesh_step=cull_mesh_step,
-    )
+    steps[f'assemble_{target}'] = assemble
 
     return steps, config
 
