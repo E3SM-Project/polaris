@@ -89,7 +89,12 @@ def convert_to_omega(
         )
     _keep_selected_global_attrs(ds_mpas_zero)
 
-    write_netcdf(ds_mpas_zero, zero_velocity_mpas_file)
+    write_netcdf(
+        ds_mpas_zero,
+        zero_velocity_mpas_file,
+        format="NETCDF3_64BIT_DATA",
+        engine="netcdf4"
+    )
     print(f'Wrote {zero_velocity_mpas_file}')
     print(
         'Rescaled MPAS earth radius, coordinates, and areas based on '
@@ -152,7 +157,12 @@ def convert_to_omega(
     ds_omega = _rename_resting_thickness_for_omega(ds_omega)
     _keep_selected_global_attrs(ds_omega)
 
-    write_netcdf(ds_omega, output_file)
+    write_netcdf(
+        ds_omega,
+        output_file,
+        format="NETCDF3_64BIT_DATA",
+        engine="netcdf4"
+    )
 
     print(f'Wrote {output_file}')
     if eos_type == 'teos10':
