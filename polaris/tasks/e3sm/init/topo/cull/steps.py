@@ -89,30 +89,33 @@ def get_cull_topo_steps(mesh_name, include_viz=False):
 
 
 def _get_cull_topo_config(filepath, base_mesh_step, mesh_name):
-    component = e3sm_init
-    if filepath in component.configs:
-        return component.configs[filepath]
-
-    config = PolarisConfigParser(filepath=filepath)
-    config.add_from_package('polaris.tasks.e3sm.init.topo.cull', 'cull.cfg')
-    config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
-
-    if mesh_name in UNIFIED_MESH_NAMES:
-        # unified-mesh config options (e.g. per-mesh overrides of the
-        # dcEdge diagnostic thresholds)
+    def create():
+        config = PolarisConfigParser(filepath=filepath)
         config.add_from_package(
-            'polaris.mesh.spherical.unified', 'unified_mesh.cfg'
+            'polaris.tasks.e3sm.init.topo.cull', 'cull.cfg'
         )
-        config.add_from_package(
-            'polaris.mesh.spherical.unified', f'{mesh_name}.cfg'
-        )
+        config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
 
-    convention = base_mesh_step.config.get(
-        'spherical_mesh', 'antarctic_boundary_convention'
+        if mesh_name in UNIFIED_MESH_NAMES:
+            # unified-mesh config options (e.g. per-mesh overrides of the
+            # dcEdge diagnostic thresholds)
+            config.add_from_package(
+                'polaris.mesh.spherical.unified', 'unified_mesh.cfg'
+            )
+            config.add_from_package(
+                'polaris.mesh.spherical.unified', f'{mesh_name}.cfg'
+            )
+
+        convention = base_mesh_step.config.get(
+            'spherical_mesh', 'antarctic_boundary_convention'
+        )
+        config.set(
+            'spherical_mesh',
+            'antarctic_boundary_convention',
+            convention,
+        )
+        return config
+
+    return e3sm_init.get_or_create_shared_config(
+        filepath=filepath, create=create
     )
-    config.set(
-        'spherical_mesh',
-        'antarctic_boundary_convention',
-        convention,
-    )
-    return config

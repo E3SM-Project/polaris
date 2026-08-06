@@ -1,0 +1,190 @@
+# Model config for a realistic global ocean forward run.  Input streams (mesh,
+# vertical coordinate, initial state) are added by the shared model_inputs.yaml;
+# this template only sets time management, the time step, and the output and
+# restart streams.  Values in double braces are filled in from a ForwardStage.
+
+# Neutral options that are auto-translated to Omega via mpaso_to_omega.yaml.
+ocean:
+    time_management:
+        config_run_duration: {{ run_duration }}
+        config_stop_time: none
+    time_integration:
+        config_dt: {{ dt }}
+        config_time_integrator: {{ time_integrator }}
+    # Horizontal mixing must be turned on explicitly, since the MPAS-Ocean
+    # Registry defaults leave it off, which lets grid-scale noise grow until
+    # the run NaNs.  It is resolution-dependent, so it comes from the
+    # [realistic_global_forward] config options rather than from this
+    # template; see ForwardStage.horiz_mixing_options.
+    advection:
+        # MPAS-Ocean defaults to 3 and Omega to 2, so the order has to be
+        # stated to keep the two models from silently disagreeing
+        config_horiz_tracer_adv_order: 3
+    bottom_drag:
+        # the MPAS-Ocean defaults, stated explicitly because Omega's own
+        # defaults differ and these values are what reach it
+        config_bottom_drag_mode: implicit
+        config_implicit_bottom_drag_type: constant
+        config_implicit_constant_bottom_drag_coeff: 1.0e-3
+    cvmix:
+        config_use_cvmix_convection: true
+        # shear mixing is off by default in MPAS-Ocean and on by default in
+        # Omega, so set it, and its parameters, explicitly for both.  The
+        # values are both models' current defaults; stating them is what keeps
+        # them from diverging again.
+        config_use_cvmix_shear: true
+        config_cvmix_shear_KPP_nu_zero: 0.005
+        config_cvmix_shear_KPP_Ri_zero: 0.7
+        config_cvmix_shear_KPP_exp: 3.0
+        config_cvmix_num_ri_smooth_loops: 2
+
+mpas-ocean:
+    time_management:
+        config_do_restart: {{ do_restart }}
+        config_start_time: '{{ start_time }}'
+    time_integration:
+        config_btr_dt: {{ btr_dt }}
+    # MPAS-Ocean is configured the way it runs in E3SM rather than to match
+    # Omega: these options have no Omega counterpart.
+    eos:
+        config_eos_type: jm
+    pressure_gradient:
+        config_pressure_gradient_type: Jacobian_from_TS
+    cvmix:
+        config_use_cvmix_kpp: true
+        config_cvmix_shear_mixing_scheme: KPP
+    submesoscale_eddy_parameterization:
+        # on as in E3SM and in the Compass global_ocean tests; the MPAS-Ocean
+        # Registry default is off.  Omega has no submesoscale parameterization,
+        # so this is one of the places the two models necessarily differ.
+        config_submesoscale_enable: true
+    Redi_isopycnal_mixing:
+        # the Registry default of 6 skips the Redi diagnostic terms in the top
+        # 6 layers; Compass computes them everywhere, and matching it keeps the
+        # two frameworks comparable.  Only has an effect where use_Redi is on.
+        config_Redi_min_layers_diag_terms: 0
+    # Global statistics are the cheapest way to see a run going wrong before
+    # it NaNs, which matters most for the long spin-ups this task feeds into.
+    # Omega's equivalent is the GlobalStats analysis group below.
+    AM_globalStats:
+        config_AM_globalStats_enable: true
+        # 'output_interval' means the associated stream's interval, which is
+        # stats_interval rather than the 3-D output_interval
+        config_AM_globalStats_compute_interval: output_interval
+        # compute and write at t = 0 too, so the time series has a starting
+        # point to take anomalies against
+        config_AM_globalStats_compute_on_startup: true
+        config_AM_globalStats_write_on_startup: true
+        config_AM_globalStats_text_file: false
+    # Mixed-layer depth is the standard first look at whether the surface
+    # boundary layer is behaving, and it is what Compass writes from these
+    # runs.  Only the temperature-threshold MLD is computed, which is the
+    # Registry default; Omega has no equivalent analysis member.
+    AM_mixedLayerDepths:
+        config_AM_mixedLayerDepths_enable: true
+        config_AM_mixedLayerDepths_compute_interval: output_interval
+        config_AM_mixedLayerDepths_compute_on_startup: true
+        config_AM_mixedLayerDepths_write_on_startup: true
+    streams:
+        restart:
+            output_interval: {{ restart_interval }}
+        output:
+            type: output
+            filename_template: output.nc
+            output_interval: {{ output_interval }}
+            clobber_mode: truncate
+            contents:
+            - tracers
+            - xtime
+            - normalVelocity
+            - layerThickness
+            - kineticEnergyCell
+            - relativeVorticityCell
+        # a stream of its own, so the scalar time series stays out of the 3-D
+        # output and has an obvious counterpart on the Omega side.
+        # filename_template overrides the registry default of yearly files
+        # named analysis_members/globalStats.$Y-$M-$D_$h.$m.$s.nc; with no time
+        # fields in the template the run writes a single global_stats.nc.
+        globalStatsOutput:
+            type: output
+            filename_template: global_stats.nc
+            output_interval: {{ stats_interval }}
+            clobber_mode: truncate
+            packages: globalStatsAMPKG
+            contents:
+            - xtime
+            - daysSinceStartOfSim
+            - CFLNumberGlobal
+            # the global ocean volume, which is what turns the volume-weighted
+            # sums below into interpretable means
+            - volumeCellGlobal
+            - minGlobalStats
+            - maxGlobalStats
+            - avgGlobalStats
+            - rmsGlobalStats
+            # volume-weighted sums, for domain-integrated quantities such as
+            # kineticEnergyCellSum.  Omega's GlobalStats has no equivalent, so
+            # these are one of the places the two models' statistics differ.
+            - sumGlobalStats
+        # as for globalStatsOutput, filename_template overrides the registry
+        # default of daily files under analysis_members/ so that the run writes
+        # a single mixed_layer_depths.nc
+        mixedLayerDepthsOutput:
+            type: output
+            filename_template: mixed_layer_depths.nc
+            output_interval: {{ output_interval }}
+            clobber_mode: truncate
+            packages: mixedLayerDepthsAMPKG
+            contents:
+            - xtime
+            - tThreshMLD
+
+Omega:
+    # the counterpart of MPAS-Ocean's AM_globalStats above.  The reduction
+    # period is fixed at one day rather than templated from output_interval,
+    # because the period is baked into the Omega variable names
+    # ("..._TimeMean1Day") that mpaso_to_omega.yaml maps.
+    #
+    # Filename is a prefix, not a file name: Omega writes
+    # <Filename>_<period>TimeStats (no .nc), so this gives
+    # global_stats_1DayTimeStats.  SnapshotPeriod is emptied so that only the
+    # daily averages are written, with no second stream of instantaneous
+    # values.
+    #
+    # Omega aborts unless the RestartWrite interval is a whole multiple of the
+    # reduction period, so restart_interval must be a whole number of days
+    # while this is enabled.
+    Analysis:
+        GlobalStats:
+            Enable: true
+            ReductionPeriod: ["1Day"]
+            SnapshotPeriod: []
+            Filename: global_stats
+    IOStreams:
+        RestartWrite:
+            UsePointerFile: true
+            PointerFilename: ocn.pointer
+            Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+            Mode: write
+            IfExists: replace
+            Precision: double
+            Freq: {{ restart_freq }}
+            FreqUnits: seconds
+            UseStartEnd: false
+            Contents:
+            - Restart
+        History:
+            UsePointerFile: false
+            Filename: output.nc
+            FileFreq: 9999
+            FileFreqUnits: Years
+            Mode: write
+            IfExists: append
+            Precision: double
+            Freq: {{ output_freq }}
+            FreqUnits: seconds
+            UseStartEnd: false
+            Contents:
+            - State
+            - Tracers
+            - KineticEnergyCell

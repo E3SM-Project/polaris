@@ -10,7 +10,7 @@ import numpy as np
 import xarray as xr
 
 from polaris.ocean.eos import compute_specvol
-from polaris.ocean.vertical.grid_1d import generate_1d_grid
+from polaris.ocean.vertical.grid_1d import add_1d_grid, generate_1d_grid
 from polaris.ocean.vertical.pstar import init_pstar_vertical_coord
 from polaris.ocean.vertical.ztilde import (
     Gravity,
@@ -418,6 +418,26 @@ class PStarInitStep(Step, ABC):
 
         ds.PseudoThickness.attrs['long_name'] = 'pseudo-layer thickness'
         ds.PseudoThickness.attrs['units'] = 'm'
+
+        # Add the 1D reference vertical coordinate (refBottomDepth, refZMid,
+        # refTopDepth, refInterfaces).  The p-star reference grid is the same
+        # 1D grid used to build the coordinate, so this is iteration
+        # independent and belongs in the one-time output assembly.
+        # MPAS-Ocean requires refBottomDepth as an input; Omega does not use
+        # these fields.
+        add_1d_grid(config, ds)
+        ds.refTopDepth.attrs['long_name'] = 'reference depth of layer top'
+        ds.refTopDepth.attrs['units'] = 'm'
+        ds.refZMid.attrs['long_name'] = 'reference depth of layer midpoint'
+        ds.refZMid.attrs['units'] = 'm'
+        ds.refBottomDepth.attrs['long_name'] = (
+            'reference depth of layer bottom'
+        )
+        ds.refBottomDepth.attrs['units'] = 'm'
+        ds.refInterfaces.attrs['long_name'] = (
+            'reference depth of layer interfaces'
+        )
+        ds.refInterfaces.attrs['units'] = 'm'
 
         return ds
 

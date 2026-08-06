@@ -229,6 +229,24 @@ class OceanIOStep(OceanModelFilesMixin, Step):
         """
         self.component.write_vert_coord_dataset(ds, filename, config)
 
+    def write_forcing_dataset(self, ds, filename, config):
+        """
+        Write a surface forcing dataset, renaming to the native model's
+        variable names and adding a ``Time`` dimension for MPAS-Ocean.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean variable names
+
+        filename : str
+            The path for the NetCDF file to write
+
+        config : polaris.config.PolarisConfigParser
+            Configuration for the task; forwarded to the Ocean component.
+        """
+        self.component.write_forcing_dataset(ds, filename, config)
+
     def write_initial_state_dataset(
         self,
         ds,
