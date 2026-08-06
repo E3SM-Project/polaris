@@ -9,8 +9,8 @@ import xarray as xr
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
+from polaris.coriolis import add_coriolis_to_dataset
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.coriolis import add_coriolis_to_dataset
 
 
 def build_overflow_mesh(step):
