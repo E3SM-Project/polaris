@@ -21,6 +21,9 @@ Reversing the direction is the kind of change a well-meaning refactor makes,
 and it fails as an import error that is hard to place.
 """
 
+from polaris.tasks.e3sm.init.component_inputs.assemble import (
+    AssembleStep as AssembleStep,
+)
 from polaris.tasks.e3sm.init.component_inputs.base_mesh import (
     BaseMeshStep as BaseMeshStep,
 )
@@ -29,6 +32,9 @@ from polaris.tasks.e3sm.init.component_inputs.scrip import (
 )
 from polaris.tasks.e3sm.init.component_inputs.steps import (
     get_component_inputs_steps as get_component_inputs_steps,
+)
+from polaris.tasks.e3sm.init.component_inputs.task import (
+    ComponentInputsTask as ComponentInputsTask,
 )
 from polaris.tasks.e3sm.init.component_inputs.tasks import (
     add_component_inputs_tasks as add_component_inputs_tasks,
