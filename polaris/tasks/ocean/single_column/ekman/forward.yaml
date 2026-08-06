@@ -72,6 +72,7 @@ Omega:
       FileFreqUnits: years
       Contents:
       - State
+      - Forcing
       - GeomZMid
     Forcing:
       UsePointerFile: false
@@ -82,4 +83,5 @@ Omega:
       FreqUnits: OnStartup
       UseStartEnd: false
       Contents:
-      - Forcing
+      - SfcStressZonal
+      - SfcStressMeridional

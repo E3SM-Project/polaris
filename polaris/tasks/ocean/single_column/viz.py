@@ -18,6 +18,7 @@ class Viz(OceanIOStep):
         self,
         component,
         indir,
+        init,
         name='viz',
         ideal_age=False,
         comparisons=None,
@@ -62,9 +63,11 @@ class Viz(OceanIOStep):
             # Include age tracer
             self.variables['iAge'] = 'seconds'
         self.add_input_file(
-            filename='mesh.nc', target='../init/culled_mesh.nc'
+            filename='mesh.nc', work_dir_target=f'{init.path}/culled_mesh.nc'
         )
-        self.add_input_file(filename='init.nc', target='../init/init.nc')
+        self.add_input_file(
+            filename='init.nc', work_dir_target=f'{init.path}/init.nc'
+        )
         for comparison_name, comparison_path in self.comparisons.items():
             self.add_input_file(
                 filename=f'{comparison_name}.nc',
@@ -137,7 +140,8 @@ class Viz(OceanIOStep):
         for field_name, field_units in self.variables.items():
             curves_plotted = 0
             fig = plt.figure(figsize=(3, 5))
-            colors = ['k', 'b', 'r', 'darkgreen']
+            # Use a built-in colormap with >= 13 distinct colors
+            colors = list(plt.get_cmap('tab20').colors)
             for comparison_name, ds_comp, t_days, color in zip(
                 self.comparisons.keys(), ds_list, time_ds, colors, strict=False
             ):
@@ -186,6 +190,7 @@ class Viz(OceanIOStep):
                         )
                         continue
                     var_comp = ds_comp[field_name].mean(dim='nCells')
+                    var_init = ds_init[field_name].mean(dim='nCells')
                     if 'nVertLevelsP1' in var_comp.dims:
                         var_comp = var_comp.isel(nVertLevelsP1=slice(0, -1))
                     # TODO delete this line when MPAS-O bug is fixed
@@ -193,6 +198,7 @@ class Viz(OceanIOStep):
                         var_comp[0] = np.nan
                     plt.plot(
                         var_comp,
+                        # var_comp - var_init,
                         z_mid_final,
                         '-',
                         color=color,
