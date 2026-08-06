@@ -83,7 +83,7 @@ class Forward(OceanModelStep):
         """
         config = self.config
         model = config.get('ocean', 'model')
-        self.target_location = f'realistic_global/{model}'
+        self.target_location = f'realistic_global/{model}/{self.mesh_name}'
         super().setup()
         # TODO: remove as soon as Omega no longer hard-codes this file
         input_filename = f'ocean.{self.mesh_name}.{self.mpaso_id}'
