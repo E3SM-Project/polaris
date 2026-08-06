@@ -43,6 +43,11 @@ class Init(OceanIOStep):
             work_dir_target=f'{base_mesh.path}/graph.info',
         )
 
+        self.add_input_file(
+            filename='reconstruction_weights.nc',
+            work_dir_target=f'{base_mesh.path}/reconstruction_weights.nc',
+        )
+
     def setup(self):
         super().setup()
         self.add_output_files_for_ocean_model_input(

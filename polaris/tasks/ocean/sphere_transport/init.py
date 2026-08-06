@@ -1,9 +1,8 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.io import open_dataset, write_netcdf
+from mpas_tools.io import open_dataset
 
 from polaris.constants import get_constant
-from polaris.mesh.reconstruct import add_reconstruction_weights_to_dataset
 from polaris.ocean.coriolis import add_coriolis_to_dataset
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
@@ -62,6 +61,11 @@ class Init(OceanIOStep):
             work_dir_target=f'{base_mesh.path}/graph.info',
         )
 
+        self.add_input_file(
+            filename='reconstruction_weights.nc',
+            work_dir_target=f'{base_mesh.path}/reconstruction_weights.nc',
+        )
+
     def setup(self):
         super().setup()
         self.add_output_files_for_ocean_model_input(
@@ -92,8 +96,6 @@ class Init(OceanIOStep):
         lonEdge = ds_mesh.lonEdge
 
         ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
-        ds_mesh = add_reconstruction_weights_to_dataset(ds_mesh)
-        write_netcdf(ds_mesh, 'base_mesh_with_weights.nc')
         self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)
 
         ds = ds_mesh.copy()

@@ -267,6 +267,12 @@ class Ocean(Component):
         Write a horizontal mesh dataset, validating that all expected mesh
         variables are present.
 
+        For Omega, the vector-reconstruction stencil and weight fields
+        (produced alongside the base mesh by
+        ``polaris.mesh.spherical.SphericalBaseStep``) are merged in from
+        ``reconstruction_weights.nc`` in the current working directory, since
+        MPAS-Ocean does not support least-squares vector reconstruction.
+
         Parameters
         ----------
         ds : xarray.Dataset
@@ -284,6 +290,18 @@ class Ocean(Component):
         if self.model == 'omega' and self.mpaso_to_omega_var_map is None:
             self._read_var_map()
         assert self.horiz_mesh_vars is not None
+        if self.model == 'omega':
+            recon_filename = 'reconstruction_weights.nc'
+            if not os.path.exists(recon_filename):
+                raise FileNotFoundError(
+                    f'{recon_filename} not found but is required to write '
+                    'the horizontal mesh dataset for Omega. Make sure the '
+                    'base mesh step ran with vector-reconstruction weight '
+                    'generation enabled and that it is added as an input '
+                    'file to this step.'
+                )
+            ds_recon = open_dataset(recon_filename)
+            ds = ds.merge(ds_recon)
         ds = self.map_to_native_model_vars(ds)
         native_vars = self.map_var_list_to_native_model(self.horiz_mesh_vars)
         self._check_vars_present(ds, native_vars, 'write_horiz_mesh_dataset')
@@ -895,7 +913,9 @@ class Ocean(Component):
         text = imp_res.files(package).joinpath(filename).read_text()
         yaml_data = YAML(typ='rt')
         nested_dict = yaml_data.load(text)
-        self.horiz_mesh_vars = nested_dict['ocean']['horiz_mesh_variables']
+        self.horiz_mesh_vars = list(
+            nested_dict['ocean']['horiz_mesh_variables']
+        )
         self.vert_coord_vars = list(
             nested_dict['ocean']['vert_coord_variables']
         )
@@ -903,6 +923,10 @@ class Ocean(Component):
         model_section_map = {'mpas-ocean': 'mpas-ocean', 'omega': 'Omega'}
         model_key = model_section_map.get(self.model or '')
         if model_key:
+            extra = nested_dict.get(model_key, {}).get(
+                'horiz_mesh_variables', []
+            )
+            self.horiz_mesh_vars.extend(extra)
             extra = nested_dict.get(model_key, {}).get(
                 'vert_coord_variables', []
             )

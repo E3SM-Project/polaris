@@ -56,6 +56,11 @@ mpas-ocean:
     - layerThickness
 
 Omega:
+  horiz_mesh_variables:
+    # cell-centered vector-reconstruction fields; not used by MPAS-Ocean
+    - ReconStencilCell
+    - NEdgesReconOnCell
+    - ReconWeightsCell
   vert_coord_variables:
     # [MinLayerCell, MaxLayerCell, BottomGeomDepth,
     # VertCoordMovementWeights, RefPseudoThickness]
