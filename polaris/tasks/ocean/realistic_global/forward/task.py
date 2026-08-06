@@ -23,10 +23,11 @@ class RealisticGlobalForward(Task):
 
     The task runs the shared ``realistic_global/init`` steps for the mesh to
     produce the initial condition and the JRA55-do wind-stress forcing file,
-    then a single short :py:class:`.Forward` run (the ``short`` step, a brief
-    smoke test) whose duration and cadence come from the
-    ``[realistic_global_forward]`` config section.  The target model is
-    resolved from ``[ocean] model`` during component setup.
+    then a single short
+    :py:class:`~polaris.tasks.ocean.realistic_global.forward.forward.Forward`
+    run (the ``short`` step, a brief smoke test) whose duration and cadence
+    come from the ``[realistic_global_forward]`` config section.  The target
+    model is resolved from ``[ocean] model`` during component setup.
     """
 
     def __init__(self, component, mesh_name):
