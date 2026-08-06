@@ -1520,14 +1520,16 @@ def test_diagnostics_prefer_global_statistics(tmp_path, monkeypatch):
     assert float(values['kinetic_energy_max_in_stage']) == pytest.approx(6.0)
 
 
-def test_diagnostics_record_the_tracer_drift(tmp_path, monkeypatch):
+def test_diagnostics_record_the_mean_tracer_change(tmp_path, monkeypatch):
     # temperatureAvg falls by 0.01 degC over a 10-day stage
     stages = ['damped_1', 'simulation']
     _run_with_stats(tmp_path, monkeypatch, 'mpas-ocean', stages, [5.0, 4.0])
     columns = column_names()
     lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
     values = dict(zip(columns, lines[1].split(',')[1:], strict=False))
-    assert float(values['temperature_drift_per_day']) == pytest.approx(-0.001)
+    assert float(values['mean_temperature_change_per_day']) == pytest.approx(
+        -0.001
+    )
 
 
 def test_diagnostics_leave_unreported_metrics_blank(tmp_path, monkeypatch):
@@ -1568,7 +1570,7 @@ def test_diagnostics_fall_back_when_there_are_no_statistics(
     assert float(values['kinetic_energy_max']) == pytest.approx(5.0)
     assert float(values['temperature_max_in_stage']) == pytest.approx(20.0)
     assert values['kinetic_energy_total'] == ''
-    assert values['temperature_drift_per_day'] == ''
+    assert values['mean_temperature_change_per_day'] == ''
 
 
 def test_blow_up_is_caught_mid_stage_from_the_statistics(
