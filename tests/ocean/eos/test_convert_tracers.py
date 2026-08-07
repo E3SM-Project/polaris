@@ -498,6 +498,26 @@ def test_compute_density_ignores_the_convention_for_other_eos(eos_type):
     )
 
 
+def test_compute_density_labels_the_result_in_situ():
+    """The density an equation of state returns is the in-situ density.
+
+    Saying so distinguishes it from a potential density, which Polaris does
+    not currently produce anywhere.
+    """
+    config = _make_eos_config()
+    ds = _make_tracer_ds()
+
+    density = compute_density(
+        config,
+        temperature=ds.temperature,
+        salinity=ds.salinity,
+        pressure=ds.pressure,
+    )
+
+    assert isinstance(density, xr.DataArray)
+    assert density.attrs == {'long_name': 'in-situ density', 'units': 'kg m-3'}
+
+
 def test_compute_density_raises_without_a_location():
     """Converting from the MPAS-Ocean convention needs a location."""
     config = _make_eos_config()
