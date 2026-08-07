@@ -18,8 +18,8 @@ def add_realistic_global_tasks(component):
     component.add_task(Woa23(component=component))
 
     mesh_dict = {
-        'QU.240km': dict(mpaso_id=151209, omega_id=260720, ncells=7153),
-        'EC30to60E2r2': dict(mpaso_id=200908, omega_id=260720, ncells=236853),
+        'QU.240km': dict(mpaso_id=151209, omega_id=260807, ncells=7153),
+        'EC30to60E2r2': dict(mpaso_id=200908, omega_id=260807, ncells=236853),
     }
     for mesh_name, mesh_info in mesh_dict.items():
         subdir = f'spherical/realistic_global/{mesh_name}'
