@@ -602,8 +602,15 @@ class ModelStep(Step):
     def update_io_tasks_config(self, config_model=None):
         """
         Modify model config options so the number of IO tasks and the stride
-        between them are consistent with the number of nodes and cores (one
-        IO task per node).
+        between them are consistent with how MPI tasks are distributed across
+        nodes (one IO task per node).
+
+        The number of tasks per node is based on the machine's resources from
+        mache (cores and GPUs per node, and the maximum MPI tasks per node)
+        together with the CPUs and GPUs this step requests per task.  In
+        particular, on GPU-enabled builds where there is typically one task
+        per GPU, the stride is the number of GPUs per node rather than the
+        number of CPU cores per node.
 
         This updates MPAS-Ocean namelist options directly.  For Omega runs,
         ``OceanModelStep`` maps these MPAS options to Omega yaml config
@@ -615,27 +622,12 @@ class ModelStep(Step):
             If config options are available for multiple models, the model
             that the config options are from.
         """
-        cores = self.ntasks * self.cpus_per_task
+        tasks_per_node = self._get_tasks_per_node()
 
-        parallel_system = self.component.parallel_system
-        if parallel_system is None:
-            raise ValueError(
-                f'Parallel system has not been set for component '
-                f'{self.component.name}'
-            )
-        cores_per_node = parallel_system.get_config_int('cores_per_node')
-        if cores_per_node is None:
-            raise ValueError('cores_per_node must be set in parallel config')
-
-        # update IO tasks based on machine settings and the available cores
-        pio_num_iotasks = int(np.ceil(cores / cores_per_node))
+        # update IO tasks based on how tasks are distributed across nodes
+        # (one IO task per node)
+        pio_num_iotasks = int(np.ceil(self.ntasks / tasks_per_node))
         pio_stride = self.ntasks // pio_num_iotasks
-        if pio_stride > cores_per_node:
-            raise ValueError(
-                f'Not enough nodes for the number of cores.  '
-                f'cores: {cores}, cores per node: '
-                f'{cores_per_node}'
-            )
 
         replacements = {
             'config_pio_num_iotasks': pio_num_iotasks,
@@ -649,6 +641,60 @@ class ModelStep(Step):
     def update_namelist_pio(self, config_model=None):
         """Deprecated alias for :py:meth:`update_io_tasks_config`."""
         self.update_io_tasks_config(config_model=config_model)
+
+    def _get_tasks_per_node(self):
+        """
+        Get the number of MPI tasks that will be placed on each node, based on
+        the machine's resources (from mache) and the resources this step
+        requests per task.
+
+        Returns
+        -------
+        tasks_per_node : int
+            The number of MPI tasks per node
+        """
+        parallel_system = self.component.parallel_system
+        if parallel_system is None:
+            raise ValueError(
+                f'Parallel system has not been set for component '
+                f'{self.component.name}'
+            )
+
+        cores_per_node = parallel_system.cores_per_node
+        if not cores_per_node:
+            raise ValueError('cores_per_node must be set in parallel config')
+
+        # how many tasks fit on a node given the CPUs each task needs
+        tasks_per_node = cores_per_node // self.cpus_per_task
+
+        # the machine (or the compiler-specific config for it) may allow fewer
+        # tasks per node than the cores alone would suggest, e.g. one task per
+        # GPU on GPU-enabled builds
+        max_tasks_per_node = parallel_system.get_config_int(
+            'max_mpi_tasks_per_node'
+        )
+        if max_tasks_per_node:
+            tasks_per_node = min(tasks_per_node, max_tasks_per_node)
+
+        # if this step requires GPUs, tasks are placed according to the GPUs
+        # available on each node, not the CPU cores
+        if self.gpus_per_task > 0:
+            gpus_per_node = parallel_system.gpus_per_node
+            if not gpus_per_node:
+                raise ValueError(
+                    f'Step {self.name} requests {self.gpus_per_task} GPUs per '
+                    f'task but gpus_per_node is not set in the parallel '
+                    f'config'
+                )
+            tasks_per_node = min(
+                tasks_per_node, gpus_per_node // self.gpus_per_task
+            )
+
+        # never more tasks per node than the step has in total, and always at
+        # least one
+        tasks_per_node = max(1, min(tasks_per_node, self.ntasks))
+
+        return tasks_per_node
 
     def partition(self, graph_file='graph.info'):
         """
