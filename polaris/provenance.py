@@ -6,7 +6,14 @@ import sys
 from polaris.build.omega import detect_omega_build_type
 
 
-def write(work_dir, tasks, config=None, machine=None, baseline_dir=None):
+def write(
+    work_dir,
+    tasks,
+    config=None,
+    machine=None,
+    baseline_dir=None,
+    job_options=None,
+):
     """
     Write a file with provenance, such as the git version, conda packages,
     command, and tasks, to the work directory.
@@ -32,6 +39,12 @@ def write(work_dir, tasks, config=None, machine=None, baseline_dir=None):
 
     baseline_dir : str, optional
         The path to the baseline work directory, if any
+
+    job_options : {mache.parallel.slurm.SlurmOptions, \
+mache.parallel.pbs.PbsOptions}, optional
+        The scheduler options that were written to the job script, as
+        returned by :py:func:`polaris.job.write_job_script()`.  If not
+        provided, no scheduler metadata is recorded.
     """
     polaris_git_version = None
     if os.path.exists('.git'):
@@ -85,7 +98,7 @@ def write(work_dir, tasks, config=None, machine=None, baseline_dir=None):
 
     # Add readily parsable, PR-friendly metadata discovered at setup time
     _write_meta(provenance_file, 'machine', machine)
-    _write_scheduler_metadata(provenance_file, config)
+    _write_scheduler_metadata(provenance_file, job_options)
     _write_meta(provenance_file, 'compiler', _get_compiler(config))
     _write_meta(provenance_file, 'work directory', work_dir)
     _write_meta(provenance_file, 'build directory', _get_build_dir(config))
@@ -179,76 +192,6 @@ def _is_executable_file(path):
     )
 
 
-def _get_system(config):
-    if config is None:
-        return None
-    if config.has_option('parallel', 'system'):
-        return config.get('parallel', 'system')
-    return None
-
-
-def _resolve_scheduler_fields(config, system):
-    """Resolve partition/qos/constraint (slurm) or just constraint (pbs)."""
-    partition = None
-    qos = None
-    constraint = None
-
-    if config is None:
-        return partition, qos, constraint
-
-    if system == 'pbs':
-        # PBS: only constraint is relevant for our purposes
-        cons_val = (
-            config.get('job', 'constraint')
-            if config.has_option('job', 'constraint')
-            else None
-        )
-        if cons_val and cons_val != '<<<default>>>':
-            constraint = cons_val
-        elif config.has_option('parallel', 'constraints'):
-            cons_list = config.getlist('parallel', 'constraints')
-            if cons_list:
-                constraint = cons_list[0]
-        return partition, qos, constraint
-
-    # Default to slurm-like resolution
-    part_val = (
-        config.get('job', 'partition')
-        if config.has_option('job', 'partition')
-        else None
-    )
-    if part_val and part_val != '<<<default>>>':
-        partition = part_val
-    elif config.has_option('parallel', 'partitions'):
-        parts = config.getlist('parallel', 'partitions')
-        if parts:
-            partition = parts[0]
-
-    qos_val = (
-        config.get('job', 'qos') if config.has_option('job', 'qos') else None
-    )
-    if qos_val and qos_val != '<<<default>>>':
-        qos = qos_val
-    elif config.has_option('parallel', 'qos'):
-        qos_list = config.getlist('parallel', 'qos')
-        if qos_list:
-            qos = qos_list[0]
-
-    cons_val = (
-        config.get('job', 'constraint')
-        if config.has_option('job', 'constraint')
-        else None
-    )
-    if cons_val and cons_val != '<<<default>>>':
-        constraint = cons_val
-    elif config.has_option('parallel', 'constraints'):
-        cons_list = config.getlist('parallel', 'constraints')
-        if cons_list:
-            constraint = cons_list[0]
-
-    return partition, qos, constraint
-
-
 def _get_compiler(config):
     if config is None:
         return None
@@ -314,11 +257,14 @@ def _write_meta(provenance_file, label, value):
     provenance_file.write(f'{label}: {value}\n\n')
 
 
-def _write_scheduler_metadata(provenance_file, config):
-    """Write partition/qos/constraint metadata when available."""
-    system = _get_system(config)
-    partition, qos, constraint = _resolve_scheduler_fields(config, system)
-    _write_meta(provenance_file, 'partition', partition)
-    _write_meta(provenance_file, 'qos', qos)
-    _write_meta(provenance_file, 'constraint', constraint)
-    # No return value; this function only writes metadata lines
+def _write_scheduler_metadata(provenance_file, job_options):
+    """Write the scheduler options that the job script actually used.
+
+    Slurm machines have a partition and a QOS, PBS machines have a queue,
+    and either may have a constraint, so only the fields that the resolved
+    options actually carry are written.
+    """
+    if job_options is None:
+        return
+    for label in ('partition', 'qos', 'queue', 'constraint'):
+        _write_meta(provenance_file, label, getattr(job_options, label, None))

@@ -77,6 +77,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         mesh_filename: Optional[str] = None,
         partition_graph: bool = True,
         graph_target: Optional[str] = None,
+        target_location='work_dir',
     ) -> None:
         """
         Make a step for running the model
@@ -170,7 +171,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         )
 
         self.dynamic_ntasks = ntasks is None and min_tasks is None
-
+        self.target_location = target_location
         self.config_map: Union[
             None, List[Dict[str, Dict[MapSectionKey, str]]]
         ] = None
@@ -195,9 +196,16 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         elif model == 'mpas-ocean':
             self.config_models = ['ocean', 'mpas-ocean']
             self.make_yaml = False
-            self.add_input_file(
-                filename='graph.info', work_dir_target=self.graph_target
-            )
+            if self.target_location == 'work_dir':
+                self.add_input_file(
+                    filename='graph.info', work_dir_target=self.graph_target
+                )
+            else:
+                self.add_input_file(
+                    filename='graph.info',
+                    target=self.graph_target,
+                    database=self.target_location,
+                )
             self.streams_section = 'streams'
         else:
             raise ValueError(f'Unexpected ocean model: {model}')

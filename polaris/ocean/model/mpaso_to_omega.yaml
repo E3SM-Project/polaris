@@ -76,8 +76,6 @@ variables:
   tracer3: Debug3
 
   # state
-  # Note: layerThickness in MPAS-Ocean requires conversion to
-  #       PseudoThickness in Omega (handled in write_model_dataset)
   normalVelocity: NormalVelocity
   # Note: vertVelocityTop in MPAS-Ocean has no Omega equivalent and
   #       VerticalPseudoVelocity in Omega has no MPAS-Ocean equivalent
@@ -97,6 +95,26 @@ variables:
   zInterface: GeomZInterface
   pressure: PressureMid
 
+  # eos
+  BruntVaisalaFreqTop: BruntVaisalaFreqSq
+
+  # global stats daily variables
+  normalVelocityMax: NormalVelocity_SpatialMax
+  normalVelocityMin: NormalVelocity_SpatialMin
+  normalVelocityAvg: NormalVelocity_SpatialMean
+  normalVelocityRms: NormalVelocity_SpatialStdDev
+  layerThicknessMax: PseudoThickness_SpatialMax
+  layerThicknessMin: PseudoThickness_SpatialMin
+  layerThicknessAvg: PseudoThickness_SpatialMean
+  layerThicknessRms: PseudoThickness_SpatialStdDev
+  temperatureMax: Temperature_SpatialMax
+  temperatureMin: Temperature_SpatialMin
+  temperatureAvg: Temperature_SpatialMean
+  temperatureRms: Temperature_SpatialStdDev
+  salinityMax: Salinity_SpatialMax
+  salinityMin: Salinity_SpatialMin
+  salinityAvg: Salinity_SpatialMean
+  salinityRms: Salinity_SpatialStdDev
 
 config:
 - section:
@@ -202,6 +220,21 @@ config:
     config_disable_vel_pgrad: not PressureGradTendencyEnable
 
 - section:
+    tracer_forcing_activeTracers: SurfaceRestoring
+  options:
+    config_salinity_restoring_constant_piston_velocity: PistonVelocity
+
+- section:
+    tracer_forcing_activeTracers: Tendencies
+  options:
+    config_use_activeTracers_surface_restoring: SurfaceTracerRestoringEnable
+
+- section:
+    bottom_drag: Tendencies
+  options:
+    config_explicit_bottom_drag_coeff: BottomDragCoeff
+
+- section:
     debug: Tendencies
   options:
     config_disable_vel_vmix: not VelVertMixTendencyEnable
@@ -251,6 +284,11 @@ config:
     cvmix: [VertMix, Shear]
   options:
     config_use_cvmix_shear: Enable
+    # Omega implements only the LMD94 (CVMix "KPP") shear form, so the
+    # Pacanowski-Philander options have no counterpart and
+    # config_cvmix_shear_mixing_scheme must be set to KPP on the
+    # MPAS-Ocean side
     config_cvmix_shear_KPP_nu_zero: BaseShearValue
     config_cvmix_shear_KPP_Ri_zero: RiCrit
     config_cvmix_shear_KPP_exp: Exponent
+    config_cvmix_num_ri_smooth_loops: RiSmoothLoops

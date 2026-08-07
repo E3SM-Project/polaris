@@ -1,4 +1,5 @@
 import configparser
+import importlib.resources as imp_res
 
 import cartopy
 import cmocean  # noqa: F401
@@ -10,6 +11,7 @@ from cartopy.geodesic import Geodesic
 from mpas_tools.io import open_dataset
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pyremap.descriptor.utility import interp_extrap_corner
+from ruamel.yaml import YAML
 
 from polaris.viz.helper import get_projection
 from polaris.viz.style import use_mplstyle
@@ -121,7 +123,33 @@ def plot_global_mpas_field(
                 ' as parameters to Descriptor'
             )
         mesh_ds = open_dataset(mesh_filename)
+        model = config.get('ocean', 'model')
+        if model == 'omega':
+            package = 'polaris.ocean.model'
+            filename = 'mpaso_to_omega.yaml'
+            text = imp_res.files(package).joinpath(filename).read_text()
+            yaml_data = YAML(typ='rt')
+            nested_dict = yaml_data.load(text)
+            mpaso_to_omega_dim_map = nested_dict['dimensions']
+            mpaso_to_omega_var_map = nested_dict['variables']
+            # map Omega dimension and variable names back to their
+            # MPAS-Ocean equivalents
+            rename = {
+                omega_dim: mpaso_dim
+                for mpaso_dim, omega_dim in mpaso_to_omega_dim_map.items()
+                if omega_dim in mesh_ds.dims
+            }
+            rename.update(
+                {
+                    omega_var: mpaso_var
+                    for mpaso_var, omega_var in mpaso_to_omega_var_map.items()
+                    if omega_var in mesh_ds
+                }
+            )
+            if rename:
+                mesh_ds = mesh_ds.rename(rename)
         mesh_ds.attrs['is_periodic'] = 'NO'
+
         if cell_indices is not None:
             mesh_ds = mesh_ds.isel(nCells=cell_indices)
         descriptor = mosaic.Descriptor(

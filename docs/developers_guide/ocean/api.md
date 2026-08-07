@@ -419,6 +419,29 @@
    :toctree: generated/
 
    add_realistic_global_tasks
+
+   forward.Forward
+   forward.Forward.setup
+   forward.Forward.runtime_setup
+   forward.Forward.compute_cell_count
+
+   viz.Viz
+   viz.Viz.run
+```
+
+### realistic_global.analysis_members
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.analysis_members
+
+.. autosummary::
+   :toctree: generated/
+
+   AnalysisMembers
+
+   stats_analysis.StatsAnalysis
+   stats_analysis.StatsAnalysis.setup
+   stats_analysis.StatsAnalysis.run
 ```
 
 ### realistic_global.hydrography.woa23
@@ -440,6 +463,10 @@
    ExtrapolateStep
    ExtrapolateStep.setup
    ExtrapolateStep.run
+
+   Woa23VizStep
+   Woa23VizStep.setup
+   Woa23VizStep.run
 ```
 
 ### seamount
@@ -476,7 +503,7 @@
 
    add_single_column_tasks
 
-   cvmix.CVMix
+   vmix.VMix
 
    ekman.Ekman
    ekman.analysis.Analysis
@@ -646,7 +673,8 @@
 
    compute_density
    compute_specvol
-   convert_tracers_to_mpas_ocean
+   convert_tracer_pair
+   convert_tracers
 
    constant.compute_constant_density
    linear.compute_linear_density
@@ -665,6 +693,7 @@
    layer_thickness_from_geom_interfaces
    add_quiescent_normal_velocity
    add_density_from_specvol
+   pressure_for_tracer_conversion
 ```
 
 

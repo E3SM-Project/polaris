@@ -49,13 +49,6 @@ spack = /lus/flare/projects/E3SM_Dec/soft/polaris/aurora/spack
 # whether to use the same modules for hdf5, netcdf-c, netcdf-fortran and
 # pnetcdf as E3SM (spack modules are used otherwise)
 use_e3sm_hdf5_netcdf = True
-
-
-# Config options related to creating a job script
-[job]
-
-# the filesystems used for the job
-filesystems = home:flare
 ```
 
 Additionally, some relevant config options come from the
@@ -69,16 +62,19 @@ Additionally, some relevant config options come from the
 system = pbs
 
 # whether to use mpirun or srun to run a task
-parallel_executable = mpirun
+parallel_executable = mpiexec --label
 
-# cores per node on the machine (with hyperthreading)
-cores_per_node = 208
+# cores per node on the machine (for the oneapi-ifx compiler)
+cores_per_node = 102
 
 # account for running diagnostics jobs
 account = E3SM_Dec
 
-# queues (default is the first)
-queues = prod, debug
+# available queues (default is chosen based on the job size)
+queues = capacity, prod, debug
+
+# the filesystems used for batch jobs
+filesystems = home:flare
 
 # Config options related to spack environments
 [spack]

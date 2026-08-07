@@ -1,13 +1,15 @@
+import numpy as np
 import xarray as xr
 
 from polaris.config import PolarisConfigParser
 
 from .constant import compute_constant_density
 from .linear import compute_linear_density
+from .teos10 import TRACER_ATTRS as TRACER_ATTRS
+from .teos10 import TRACER_CONVENTIONS as TRACER_CONVENTIONS
 from .teos10 import compute_specvol as compute_teos10_specvol
-from .teos10 import (
-    convert_tracers_to_mpas_ocean as convert_tracers_to_mpas_ocean,
-)
+from .teos10 import convert_tracer_pair as convert_tracer_pair
+from .teos10 import convert_tracers as convert_tracers
 
 
 def compute_density(
@@ -15,6 +17,9 @@ def compute_density(
     temperature: xr.DataArray | float,
     salinity: xr.DataArray | float,
     pressure: xr.DataArray | float | None = None,
+    tracer_convention: str = 'teos-10',
+    lon: xr.DataArray | np.ndarray | float | None = None,
+    lat: xr.DataArray | np.ndarray | float | None = None,
 ) -> xr.DataArray | float:
     """
     Compute the density of seawater based on the equation of state specified
@@ -34,6 +39,20 @@ def compute_density(
     pressure : float or xarray.DataArray, optional
         Pressure (in-situ or reference) of the seawater.
 
+    tracer_convention : {'teos-10', 'mpas-ocean'}, optional
+        The convention of ``temperature`` and ``salinity``.  TEOS-10 requires
+        conservative temperature and absolute salinity, so tracers straight
+        out of MPAS-Ocean must say so and are converted first, which needs
+        ``lon`` and ``lat``.  The two conventions are indistinguishable for
+        any other equation of state.
+
+    lon : float, numpy.ndarray or xarray.DataArray, optional
+        Longitude(s) in degrees, needed only to convert from the MPAS-Ocean
+        convention.
+
+    lat : float, numpy.ndarray or xarray.DataArray, optional
+        Latitude(s) in degrees, as for ``lon``.
+
     Returns
     -------
     density : float or xarray.DataArray
@@ -51,6 +70,14 @@ def compute_density(
                 'Pressure must be provided when using the TEOS-10 equation of '
                 'state.'
             )
+        temperature, salinity = _tracers_in_teos10_convention(
+            temperature=temperature,
+            salinity=salinity,
+            tracer_convention=tracer_convention,
+            pressure=pressure,
+            lon=lon,
+            lat=lat,
+        )
         density = 1.0 / compute_teos10_specvol(
             sa=salinity, ct=temperature, p=pressure
         )
@@ -112,3 +139,49 @@ def compute_specvol(
         specvol.attrs['units'] = 'm3 kg-1'
         specvol.attrs['long_name'] = 'specific volume'
     return specvol
+
+
+def _tracers_in_teos10_convention(
+    temperature: xr.DataArray | float,
+    salinity: xr.DataArray | float,
+    tracer_convention: str,
+    pressure: xr.DataArray | float,
+    lon: xr.DataArray | np.ndarray | float | None,
+    lat: xr.DataArray | np.ndarray | float | None,
+) -> tuple[xr.DataArray | float, xr.DataArray | float]:
+    """
+    Return conservative temperature and absolute salinity, converting from the
+    MPAS-Ocean convention if that is what the caller has.
+    """
+    if tracer_convention not in TRACER_CONVENTIONS:
+        raise ValueError(
+            f'Unknown tracer convention {tracer_convention!r}; expected one '
+            'of ' + ', '.join(repr(name) for name in TRACER_CONVENTIONS)
+        )
+
+    if tracer_convention == 'teos-10':
+        return temperature, salinity
+
+    if lon is None or lat is None:
+        raise ValueError(
+            'lon and lat are required to convert tracers from the MPAS-Ocean '
+            'convention to the conservative temperature and absolute '
+            'salinity that TEOS-10 requires.'
+        )
+
+    scalar = not any(
+        isinstance(value, xr.DataArray)
+        for value in (temperature, salinity, pressure, lon, lat)
+    )
+    cons_temp, abs_salin = convert_tracer_pair(
+        temperature=temperature,
+        salinity=salinity,
+        target='teos-10',
+        pressure=pressure,
+        lon=lon,
+        lat=lat,
+    )
+    if scalar:
+        return float(cons_temp), float(abs_salin)
+
+    return cons_temp, abs_salin

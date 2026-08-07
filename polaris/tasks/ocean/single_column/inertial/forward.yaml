@@ -1,6 +1,10 @@
+ocean:
+  eos:
+    config_eos_type: linear
+  eos_linear:
+    config_eos_linear_beta: 0.01
+
 mpas-ocean:
-  time_management:
-    config_run_duration: 0010_00:00:00
   tracer_forcing_activeTracers:
     config_use_activeTracers_surface_bulk_forcing: false
     config_use_activeTracers_surface_restoring: false
@@ -9,3 +13,22 @@ mpas-ocean:
     config_implicit_constant_bottom_drag_coeff: 0.0
   cvmix:
     config_use_cvmix: false
+
+Omega:
+  IOStreams:
+    History:
+      Filename: output.nc
+      Freq: 1
+      FreqUnits: Hours
+      IfExists: append
+      # effectively never
+      FileFreq: 9999
+      FileFreqUnits: years
+      Contents:
+      - State
+      - GeomZMid
+      # Tracers supplies Temperature and Salinity, and Eos supplies the
+      # SpecVol that layerThickness is derived from, as the baseline
+      # comparison for this task requires
+      - Tracers
+      - Eos

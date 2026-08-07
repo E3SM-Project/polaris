@@ -57,13 +57,13 @@ Additionally, some relevant config options come from the
 system = slurm
 
 # whether to use mpirun or srun to run a task
-parallel_executable = srun
+parallel_executable = srun --mpi=pmi2 -l
 
 # cores per node on the machine
-cores_per_node = 128
+cores_per_node = 64
 
-# available partition(s) (default is the first)
-partitions = debug, compute, high
+# available partition(s) (default is chosen based on the job size)
+partitions = compute, debug
 ```
 
 ## Loading and running Polaris on Chrysalis

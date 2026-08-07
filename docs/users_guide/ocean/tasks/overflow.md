@@ -139,8 +139,8 @@ interpreted as conservative temperature (CT) and absolute salinity (SA).
 Omega receives CT and SA directly.  For MPAS-Ocean, CT is converted to
 potential temperature and SA to practical salinity using the
 [GSW toolkit](https://teos-10.github.io/GSW-Python/), evaluated at a
-nominal lon/lat location (config options `overflow:nominal_lon` and
-`overflow:nominal_lat`, both defaulting to 0 degrees) since the planar
+nominal lon/lat location (config options `ocean:nominal_lon` and
+`ocean:nominal_lat`, both defaulting to 0 degrees) since the planar
 mesh has no geographic location.  The Polaris-side (diagnostic) density
 uses TEOS-10 for both models; this is a documented approximation of
 MPAS-Ocean's Jackett-McDougall EOS, acceptable because neither model

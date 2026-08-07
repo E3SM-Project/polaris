@@ -1,4 +1,4 @@
-from polaris.ocean.model import OceanModelStep
+from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
 
 class Forward(OceanModelStep):
@@ -24,7 +24,12 @@ class Forward(OceanModelStep):
         openmp_threads=1,
         validate_vars=None,
         task_name='',
+        task_package=None,
         update_eos=True,
+        enable_vadv=True,
+        enable_hadv=True,
+        enable_restoring=False,
+        constant_diff=False,
     ):
         """
         Create a new test case
@@ -62,7 +67,20 @@ class Forward(OceanModelStep):
 
         task_name : str, optional
             the name of the test case
+
+        task_package : str, optional
+            the python package containing the task's ``forward.yaml``.  If not
+            provided, it is assumed to be
+            ``polaris.tasks.ocean.single_column.<task_name>``
         """
+        if not enable_vadv:
+            name = f'{name}_no_vadv'
+        if not enable_hadv:
+            name = f'{name}_no_hadv'
+        if enable_restoring:
+            name = f'{name}_restoring'
+        if constant_diff:
+            name = f'{name}_constant'
         super().__init__(
             component=component,
             name=name,
@@ -73,8 +91,6 @@ class Forward(OceanModelStep):
             openmp_threads=openmp_threads,
         )
 
-        self.add_yaml_file('polaris.ocean.config', 'output.yaml')
-
         self.add_horiz_mesh_input_file(target='../init/culled_mesh.nc')
         self.add_vert_coord_input_file(target='../init/vert_coord.nc')
         self.add_init_input_file(target='../init/init.nc')
@@ -83,10 +99,11 @@ class Forward(OceanModelStep):
             filename='graph.info', target='../init/culled_graph.info'
         )
 
+        self.add_yaml_file('polaris.ocean.config', 'output.yaml')
         self.add_yaml_file('polaris.tasks.ocean.single_column', 'forward.yaml')
-        self.add_yaml_file(
-            f'polaris.tasks.ocean.single_column.{task_name}', 'forward.yaml'
-        )
+        if task_package is None:
+            task_package = f'polaris.tasks.ocean.single_column.{task_name}'
+        self.add_yaml_file(task_package, 'forward.yaml')
 
         self.add_output_file(filename='output.nc', validate_vars=validate_vars)
 
@@ -94,14 +111,120 @@ class Forward(OceanModelStep):
 
         self.task_name = task_name
 
+        self.enable_hadv = enable_hadv
+        self.enable_vadv = enable_vadv
+        self.enable_restoring = enable_restoring
+
+        self.constant_diff = constant_diff
+
+    def setup(self):
+        """
+        TEMP: symlink initial condition to name hard-coded in Omega
+        """
+        super().setup()
+        model = self.config.get('ocean', 'model')
+        # TODO: remove as soon as Omega no longer hard-codes this file
+        if model == 'omega':
+            self.add_input_file(filename='OmegaMesh.nc', target='init.nc')
+            # Uncomment these lines when coeffs.nc has been added to the
+            # database
+            self.add_input_file(
+                target='coeffs.nc',
+                filename='coeffs.nc',
+                database='single_column',
+            )
+
     def dynamic_model_config(self, at_setup):
         super().dynamic_model_config(at_setup=at_setup)
+
+        time_integrator = self.config.get('single_column', 'time_integrator')
+        duration = self.config.getfloat('single_column', 'run_duration')
+        time_integrator_map = dict([('RK4', 'RungeKutta4')])
+        model = self.config.get('ocean', 'model')
+        if model == 'omega':
+            if time_integrator in time_integrator_map.keys():
+                time_integrator = time_integrator_map[time_integrator]
+                duration_str = get_time_interval_string(days=duration)
+            else:
+                print(
+                    'Warning: mapping from time integrator '
+                    f'{time_integrator} to omega not found, '
+                    'retaining name given in config'
+                )
+        else:
+            duration_str = str(duration * 86400)
+
+        shared_options = {
+            'config_time_integrator': time_integrator,
+            'config_run_duration': duration_str,
+        }
+        mpas_options = {}
+        omega_options = {}
 
         if self.task_name == 'ekman':
             nu = self.config.getfloat(
                 'single_column_ekman', 'vertical_viscosity'
             )
-            self.add_model_config_options(
-                options={'config_cvmix_background_viscosity': nu},
-                config_model='mpas-ocean',
+            shared_options.update({'config_cvmix_background_viscosity': nu})
+        if not self.enable_vadv:
+            mpas_options.update(
+                {
+                    'config_vert_coord_movement': 'impermeable_interfaces',
+                }
             )
+            shared_options.update(
+                {
+                    'config_disable_thick_vadv': True,
+                    'config_disable_vel_vadv': True,
+                    'config_disable_tr_adv': True,
+                }
+            )
+            omega_options.update(
+                {
+                    'TracerVertAdvTendencyEnable': False,
+                }
+            )
+        if not self.enable_hadv:
+            # This makes it inconsistent with MPAS-O, which cannot turn off
+            # hadv without also turning off vadv
+            omega_options.update(
+                {
+                    'TracerHorzAdvTendencyEnable': False,
+                    'PVTendencyEnable': False,
+                    'KETendencyEnable': False,
+                }
+            )
+        if self.enable_restoring:
+            shared_options.update(
+                {
+                    'config_use_activeTracers_surface_restoring': True,
+                }
+            )
+
+        if self.constant_diff:
+            shared_options.update(
+                {
+                    'config_use_cvmix_convection': False,
+                    'config_use_cvmix_shear': False,
+                }
+            )
+        else:
+            shared_options.update(
+                {
+                    'config_use_cvmix_convection': True,
+                    'config_use_cvmix_shear': True,
+                }
+            )
+
+        self.add_model_config_options(
+            options=shared_options,
+            config_model='ocean',
+        )
+        self.add_model_config_options(
+            options=mpas_options,
+            config_model='mpas-ocean',
+        )
+        self.add_model_config_options(
+            options=omega_options,
+            config_model='Omega',
+        )

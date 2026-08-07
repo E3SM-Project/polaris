@@ -155,7 +155,9 @@ Contributors: Xylar Asay-Davis, Claude
 The core algorithm is a fixed-point iteration in pseudo-height space. Let:
 
 - $\eta_0$ = prescribed sea-surface height (m); defaults to $-P_\text{surf}/(\rho_0 g)$,
-  the resting surface-pressure depression for a reference-density fluid
+  the sea-surface depression that balances the surface pressure for a
+  reference-density fluid (being at rest does not imply $\eta_0 = 0$; surface
+  loading depresses the sea surface even at rest)
 - $H_\text{geo}^\star$ = target geometric water-column thickness $= \eta_0 - z_\text{bot}$
 - $P_\text{surf}$ = prescribed sea-surface pressure (Pa; due to atmosphere,
   sea ice, ice shelves, etc.)

@@ -124,9 +124,12 @@ class PStarInitStep(Step, ABC):
 
         At convergence the returned dataset contains all p-star coordinate
         variables, converged tracer fields, specific volume, pressure,
-        geometric height at layer midpoints and interfaces, ``bottomDepth``
-        set to the actual converged geometric water-column thickness, and
-        ``ssh`` computed as the diagnostic geometric sea-surface height.
+        geometric height at layer midpoints and interfaces, ``ssh`` set to the
+        prescribed ``sea_surface_height``, and ``bottomDepth`` diagnosed as the
+        geometric depth of the (surface-anchored) column.  The two agree with
+        the target bathymetry where the iteration converges; where partial-cell
+        snapping prevents an exact match, the residual adjusts ``bottomDepth``
+        (the representable bathymetry) rather than ``ssh``.
 
         Parameters
         ----------
@@ -146,7 +149,9 @@ class PStarInitStep(Step, ABC):
             geom_z_bot``; the iteration adjusts ``BottomPressure`` until
             this target is met, so the converged ``ssh`` equals this value.
             Defaults to ``-surface_pressure / (RhoSw * Gravity)``, i.e. the
-            resting surface-pressure depression for a reference-density fluid.
+            sea-surface depression that balances the surface pressure for a
+            reference-density fluid.  (Being at rest does not imply
+            ``ssh = 0``; surface loading depresses ``ssh`` even at rest.)
 
         Returns
         -------
@@ -283,20 +288,33 @@ class PStarInitStep(Step, ABC):
                     )
                     break
 
-            # full-cell stagnation check — convergence check above takes
+            # Snap stagnation check — the convergence check above takes
             # priority so that a perfect initial guess (scaling = 1) exits
-            # cleanly rather than triggering this warning.
+            # cleanly rather than reporting a snap that did not happen.
+            #
+            # Partial- and full-cell snapping quantize the achievable
+            # pseudo-bottom depth, so a requested bathymetry between two
+            # representable depths cannot be reached: the snap keeps pushing
+            # BottomPressure back and the iteration cannot converge.  This is
+            # expected, not a failure — it is what min_pc_fraction asks for.
+            # The column is anchored at the prescribed sea surface below, so
+            # the residual moves bottomDepth (the representable bathymetry)
+            # and leaves ssh exact.
+            #
+            # This only fires when *every* column is frozen; on a mesh where
+            # some columns are still converging, the loop simply runs out of
+            # iterations.  Either way, the post-loop report below describes
+            # how far the sea floor had to move.
             if (
                 prev_adjusted_bottom_pressure is not None
                 and (
                     adjusted_bottom_pressure == prev_adjusted_bottom_pressure
                 ).all()
             ):
-                logger.warning(
-                    f'Iteration {iteration}: full-cell snap is holding '
-                    'BottomPressure constant — stopping early to avoid '
-                    'non-convergence. bottomDepth will reflect the actual '
-                    'cell bottom rather than the target bathymetry.'
+                logger.info(
+                    f'Iteration {iteration}: cell snapping is holding '
+                    'BottomPressure constant in every column — stopping '
+                    'early.'
                 )
                 break
 
@@ -319,6 +337,18 @@ class PStarInitStep(Step, ABC):
             prev_adjusted_bottom_pressure = adjusted_bottom_pressure
             prev_geom_water_column_thickness = geom_water_column_thickness
 
+        # Report the columns the iteration could not place on the requested
+        # bathymetry, however the loop ended (stagnation, or simply running
+        # out of iterations while other columns were still converging).
+        _report_snapped_bathymetry(
+            logger=logger,
+            goal_geom_water_column_thickness=(
+                goal_geom_water_column_thickness
+            ),
+            geom_water_column_thickness=geom_water_column_thickness,
+            frac_change_threshold=water_col_adjust_frac_change_threshold,
+        )
+
         # Assemble the output dataset from the converged state
         ds['temperature'] = ct
         ds.temperature.attrs['long_name'] = 'conservative temperature'
@@ -336,6 +366,23 @@ class PStarInitStep(Step, ABC):
         ds.pressure.attrs['long_name'] = 'pressure at layer midpoints'
         ds.pressure.attrs['units'] = 'Pa'
 
+        # Anchor the geometric column at the prescribed free surface: ``ssh``
+        # is prescribed (``sea_surface_height``) and ``bottomDepth`` is the
+        # diagnosed geometric depth of the column.
+        # ``geom_height_from_pseudo_height`` builds the column anchored at the
+        # seafloor (its bottom interface equals the raw target ``geom_z_bot``),
+        # so we shift the whole column vertically so its top interface lands on
+        # ``sea_surface_height`` instead.  For cells the iteration can
+        # represent this shift is zero; for partial-cell-snapped cells (whose
+        # geometric column thickness cannot exactly match the target
+        # bathymetry) the snap residual then correctly adjusts ``bottomDepth``
+        # rather than ``ssh`` — the same tradeoff z-star partial cells make.
+        # ``ssh`` therefore matches its prescribed value (0 here, because
+        # ``SurfacePressure = 0``) to machine precision.
+        shift = sea_surface_height - geom_z_min
+        geom_z_mid = geom_z_mid + shift
+        geom_z_inter = geom_z_inter + shift
+
         ds['GeomZMid'] = geom_z_mid
         ds.GeomZMid.attrs['long_name'] = 'geometric height at layer midpoints'
         ds.GeomZMid.attrs['units'] = 'm'
@@ -347,16 +394,17 @@ class PStarInitStep(Step, ABC):
         ds.GeomZInterface.attrs['units'] = 'm'
 
         # Geometric depth of the seafloor below z=0, i.e. the negation of the
-        # actual converged bottom interface height (not the water-column
-        # thickness, which only matches when the sea-surface height is zero).
-        # Omega reads this as BottomGeomDepth and anchors its column there, so
-        # it must be the true bathymetric depth for the diagnosed sea-surface
-        # height (and the resulting geopotential gradient) to be correct.
-        ds['bottomDepth'] = -geom_z_max
+        # (shifted) bottom interface height.  With the surface-anchored column
+        # this is the representable bathymetry consistent with the pseudo
+        # column: it equals the raw target where the iteration converges, and
+        # the partial-cell-snapped depth otherwise.  Omega reads this as
+        # BottomGeomDepth and anchors its column there, so that (together with
+        # BottomPressure) it recovers the same prescribed ``ssh``.
+        ds['bottomDepth'] = -(geom_z_max + shift)
         ds.bottomDepth.attrs['long_name'] = 'seafloor geometric depth'
         ds.bottomDepth.attrs['units'] = 'm'
 
-        ds['ssh'] = geom_z_min
+        ds['ssh'] = sea_surface_height
         ds.ssh.attrs['long_name'] = 'sea surface geometric height'
         ds.ssh.attrs['units'] = 'm'
 
@@ -372,3 +420,33 @@ class PStarInitStep(Step, ABC):
         ds.PseudoThickness.attrs['units'] = 'm'
 
         return ds
+
+
+def _report_snapped_bathymetry(
+    logger,
+    goal_geom_water_column_thickness,
+    geom_water_column_thickness,
+    frac_change_threshold,
+):
+    """
+    Log how far the sea floor had to move in columns where cell snapping
+    kept the iteration from reaching the requested bathymetry.  ``ssh`` is
+    prescribed, so the residual shows up in ``bottomDepth``.
+    """
+    residual = goal_geom_water_column_thickness - geom_water_column_thickness
+    frac_residual = np.abs(residual) / goal_geom_water_column_thickness
+    snapped = frac_residual > frac_change_threshold
+    count = int(snapped.sum().item())
+    if count == 0:
+        return
+
+    total = int(snapped.count().item())
+    max_move = np.abs(residual).where(snapped).max().item()
+    mean_move = np.abs(residual).where(snapped).mean().item()
+    logger.info(
+        f'{count} of {total} columns ({100.0 * count / total:.2f}%) have a '
+        'requested bathymetry that cell snapping cannot represent. '
+        'bottomDepth is the nearest representable depth, moved from the '
+        f'target by up to {max_move:.3f} m (mean {mean_move:.3f} m); ssh is '
+        'unaffected.'
+    )

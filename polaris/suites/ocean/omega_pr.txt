@@ -1,4 +1,6 @@
 ocean/column/horiz_press_grad/salinity_gradient
+ocean/column/vmix_stable
+ocean/column/vmix_unstable
 ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
 ocean/planar/baroclinic_channel/10km/threads
@@ -13,6 +15,9 @@ ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_4
 ocean/planar/overflow/nonlinear/pstar/smoke_test_horiz_adv_order_4_del4
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
+ocean/spherical/realistic_global/QU.240km/analysis_members_test
 
 # Supported but fails
 #ocean/planar/barotropic_channel/default
+ocean/column/ekman
+ocean/column/inertial

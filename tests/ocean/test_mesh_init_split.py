@@ -2,6 +2,8 @@ import importlib
 from configparser import ConfigParser
 from unittest.mock import MagicMock
 
+import gsw
+import numpy as np
 import pytest
 import xarray as xr
 from numpy.testing import assert_allclose
@@ -219,6 +221,251 @@ def test_write_initial_state_dataset_mpas_ocean_omits_surface_pressure(
     ds_out = xr.open_dataset(filename)
     assert 'surfacePressure' not in ds_out
     assert 'SurfacePressure' not in ds_out
+
+
+def _make_tracer_config(
+    model, eos_type='teos-10', nominal_lon=0.0, nominal_lat=0.0
+):
+    """Return a config with the options the tracer conversion reads."""
+    config = ConfigParser()
+    config.add_section('ocean')
+    config.set('ocean', 'model', model)
+    config.set('ocean', 'eos_type', eos_type)
+    config.set('ocean', 'nominal_lon', str(nominal_lon))
+    config.set('ocean', 'nominal_lat', str(nominal_lat))
+    config.add_section('vertical_grid')
+    config.set('vertical_grid', 'surface_pressure', '0.0')
+    config.set('vertical_grid', 'pseudothickness_iter_count', '4')
+    return config
+
+
+# tracers and pressure used by the conversion tests below
+CT = np.array([[3.0], [4.0]])
+SA = np.array([[35.0], [34.5]])
+PRESSURE = np.array([[1.0e6], [2.0e6]])
+
+
+def _make_tracer_state_ds(on_a_sphere=None, lon_cell=None, lat_cell=None):
+    """Return an initial-state dataset with tracers to convert, optionally on
+    a spherical mesh with per-cell locations."""
+    data_vars: dict = dict(
+        normalVelocity=(('nEdges', 'nVertLevels'), [[0.0], [0.0]]),
+        layerThickness=(('nCells', 'nVertLevels'), [[1.0], [1.0]]),
+        PseudoThickness=(('nCells', 'nVertLevels'), [[1.0], [1.0]]),
+        temperature=(('nCells', 'nVertLevels'), CT),
+        salinity=(('nCells', 'nVertLevels'), SA),
+        pressure=(('nCells', 'nVertLevels'), PRESSURE),
+    )
+    if lon_cell is not None:
+        data_vars['lonCell'] = ('nCells', np.deg2rad(lon_cell))
+        data_vars['latCell'] = ('nCells', np.deg2rad(lat_cell))
+    attrs = {} if on_a_sphere is None else dict(on_a_sphere=on_a_sphere)
+    return xr.Dataset(data_vars=data_vars, attrs=attrs)
+
+
+def _expected_mpas_ocean_tracers(lon, lat):
+    """The MPAS-Ocean-convention tracers expected at the given location(s)."""
+    pot_temp = gsw.pt_from_CT(SA, CT)
+    prac_sal = gsw.SP_from_SA(
+        SA,
+        PRESSURE / 1.0e4,
+        np.reshape(lon, (-1, 1)),
+        np.reshape(lat, (-1, 1)),
+    )
+    return pot_temp, prac_sal
+
+
+def test_write_initial_state_dataset_converts_tracers_for_mpas_ocean(tmp_path):
+    """With TEOS-10, tracers built as CT/SA are converted to PT/SP for
+    MPAS-Ocean, without touching the caller's dataset."""
+    component = Ocean()
+    component.model = 'mpas-ocean'
+    component._read_var_map()
+
+    ds = _make_tracer_state_ds()
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(
+        ds, str(filename), _make_tracer_config('mpas-ocean')
+    )
+
+    pot_temp, prac_sal = _expected_mpas_ocean_tracers(0.0, 0.0)
+    ds_out = xr.open_dataset(filename)
+    assert_allclose(ds_out.temperature.values, pot_temp)
+    assert_allclose(ds_out.salinity.values, prac_sal)
+    assert ds_out.temperature.attrs['long_name'] == 'potential temperature'
+    assert ds_out.salinity.attrs['units'] == 'PSU'
+    # the in-memory dataset the step handed over is untouched
+    assert_allclose(ds.temperature.values, CT)
+    assert_allclose(ds.salinity.values, SA)
+
+
+def test_write_initial_state_dataset_keeps_teos10_tracers_for_omega(tmp_path):
+    """Omega uses the TEOS-10 convention, so tracers pass through."""
+    component = Ocean()
+    component.model = 'omega'
+    component._read_var_map()
+
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(
+        _make_tracer_state_ds(), str(filename), _make_tracer_config('omega')
+    )
+
+    ds_out = xr.open_dataset(filename)
+    assert_allclose(ds_out.Temperature.values, CT)
+    assert_allclose(ds_out.Salinity.values, SA)
+
+
+@pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
+def test_write_initial_state_dataset_no_conversion_for_linear_eos(
+    tmp_path, model
+):
+    """The two conventions are indistinguishable for a linear EOS, so no
+    conversion happens even if one is requested explicitly."""
+    component = Ocean()
+    component.model = model
+    component._read_var_map()
+
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(
+        _make_tracer_state_ds(),
+        str(filename),
+        _make_tracer_config(model, eos_type='linear'),
+        tracer_convention='teos-10',
+    )
+
+    ds_out = xr.open_dataset(filename)
+    temperature = component.map_var_list_to_native_model(['temperature'])[0]
+    assert_allclose(ds_out[temperature].values, CT)
+
+
+def test_write_initial_state_dataset_converts_tracers_for_omega(tmp_path):
+    """A task that builds PT/SP under TEOS-10 gets the reverse conversion when
+    running Omega."""
+    component = Ocean()
+    component.model = 'omega'
+    component._read_var_map()
+
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(
+        _make_tracer_state_ds(),
+        str(filename),
+        _make_tracer_config('omega'),
+        tracer_convention='mpas-ocean',
+    )
+
+    abs_sal = gsw.SA_from_SP(SA, PRESSURE / 1.0e4, 0.0, 0.0)
+    cons_temp = gsw.CT_from_pt(abs_sal, CT)
+    ds_out = xr.open_dataset(filename)
+    assert_allclose(ds_out.Temperature.values, cons_temp)
+    assert_allclose(ds_out.Salinity.values, abs_sal)
+    assert ds_out.Temperature.attrs['long_name'] == 'conservative temperature'
+
+
+def test_write_initial_state_dataset_converts_at_cell_locations(tmp_path):
+    """On a spherical mesh, each cell is converted at its own location rather
+    than at the nominal one."""
+    component = Ocean()
+    component.model = 'mpas-ocean'
+    component._read_var_map()
+
+    lon_cell = np.array([0.0, 180.0])
+    lat_cell = np.array([-60.0, 30.0])
+    ds = _make_tracer_state_ds(
+        on_a_sphere='YES', lon_cell=lon_cell, lat_cell=lat_cell
+    )
+
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(
+        ds,
+        str(filename),
+        # the nominal location must be ignored
+        _make_tracer_config('mpas-ocean', nominal_lon=90.0, nominal_lat=-45.0),
+    )
+
+    _, prac_sal = _expected_mpas_ocean_tracers(lon_cell, lat_cell)
+    ds_out = xr.open_dataset(filename)
+    assert_allclose(ds_out.salinity.values, prac_sal)
+
+
+def test_write_initial_state_dataset_converts_at_nominal_location(tmp_path):
+    """On a planar mesh, lonCell/latCell are meaningless, so the nominal
+    location is used instead."""
+    component = Ocean()
+    component.model = 'mpas-ocean'
+    component._read_var_map()
+
+    ds = _make_tracer_state_ds(
+        on_a_sphere='NO',
+        lon_cell=np.array([0.0, 180.0]),
+        lat_cell=np.array([-60.0, 30.0]),
+    )
+
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(
+        ds,
+        str(filename),
+        _make_tracer_config('mpas-ocean', nominal_lon=90.0, nominal_lat=-45.0),
+    )
+
+    _, prac_sal = _expected_mpas_ocean_tracers(90.0, -45.0)
+    ds_out = xr.open_dataset(filename)
+    assert_allclose(ds_out.salinity.values, prac_sal)
+
+
+def test_write_initial_state_dataset_uses_explicit_lon_lat(tmp_path):
+    """Explicit lon/lat arguments win over the mesh and the config."""
+    component = Ocean()
+    component.model = 'mpas-ocean'
+    component._read_var_map()
+
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(
+        _make_tracer_state_ds(),
+        str(filename),
+        _make_tracer_config('mpas-ocean', nominal_lon=90.0, nominal_lat=-45.0),
+        lon=-30.0,
+        lat=15.0,
+    )
+
+    _, prac_sal = _expected_mpas_ocean_tracers(-30.0, 15.0)
+    ds_out = xr.open_dataset(filename)
+    assert_allclose(ds_out.salinity.values, prac_sal)
+
+
+def test_write_initial_state_dataset_raises_without_cell_locations(tmp_path):
+    """A spherical mesh without lonCell/latCell means something upstream
+    dropped them, so falling back to the nominal location would be wrong."""
+    component = Ocean()
+    component.model = 'mpas-ocean'
+    component._read_var_map()
+
+    filename = tmp_path / 'initial_state.nc'
+    with pytest.raises(ValueError, match='lonCell'):
+        component.write_initial_state_dataset(
+            _make_tracer_state_ds(on_a_sphere='YES'),
+            str(filename),
+            _make_tracer_config('mpas-ocean'),
+        )
+
+
+@pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
+def test_write_initial_state_dataset_drops_pressure(tmp_path, model):
+    """pressure is only an intermediate for the tracer conversion, so it does
+    not belong in the initial state."""
+    component = Ocean()
+    component.model = model
+    component._read_var_map()
+
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(
+        _make_tracer_state_ds(),
+        str(filename),
+        _make_tracer_config(model),
+    )
+
+    ds_out = xr.open_dataset(filename)
+    assert 'pressure' not in ds_out
+    assert 'Pressure' not in ds_out
 
 
 def test_write_vert_coord_dataset_noop_for_mpas_ocean(tmp_path):
