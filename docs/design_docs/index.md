@@ -5,6 +5,7 @@
 ```{toctree}
 :titlesonly: true
 
+horiz_press_grad_hydrostatic_consistency
 horiz_press_grad_reference
 overflow_nonlinear_eos
 pstar_init

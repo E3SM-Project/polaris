@@ -12,7 +12,10 @@ from polaris.ocean.vertical.ztilde import Gravity, RhoSw
 from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.horiz_press_grad.column import (
     get_array_from_mid_grad,
-    get_pchip_interpolator,
+    get_pchip_layer_mean,
+)
+from polaris.tasks.ocean.horiz_press_grad.finite_volume import (
+    finite_volume_hpga,
 )
 
 
@@ -29,12 +32,29 @@ class Init(PStarInitStep, OceanIOStep):
     vert_res : float
         The vertical resolution in m
 
+    tilt_option : str or None
+        The name of a ``horiz_press_grad`` config option to override with
+        ``tilt`` before building the columns, or ``None`` to leave the
+        configuration alone.
+
+    tilt : float or None
+        The value to give ``tilt_option`` in m/km.
+
     x : numpy.ndarray
         The x-coordinates of the two columns in km, used by
         :py:meth:`init_tracers` and :py:meth:`_build_pstar_coord_ds`.
     """
 
-    def __init__(self, component, horiz_res, vert_res, indir):
+    def __init__(
+        self,
+        component,
+        horiz_res,
+        vert_res,
+        indir,
+        subdir_suffix=None,
+        tilt_option=None,
+        tilt=None,
+    ):
         """
         Create the step
 
@@ -52,11 +72,27 @@ class Init(PStarInitStep, OceanIOStep):
         indir : str
             The subdirectory that the task belongs to, that this step will
             go into a subdirectory of
+
+        subdir_suffix : str, optional
+            A suffix used in place of the horizontal resolution in the step
+            name, for sweeps that repeat a horizontal resolution
+
+        tilt_option : str, optional
+            The name of a ``horiz_press_grad`` config option to override with
+            ``tilt`` before building the columns
+
+        tilt : float, optional
+            The value to give ``tilt_option`` in m/km
         """
         self.horiz_res = horiz_res
         self.vert_res = vert_res
+        self.tilt_option = tilt_option
+        self.tilt = tilt
         self.x: np.ndarray = np.array([])
-        name = f'init_{resolution_to_string(horiz_res)}'
+        if subdir_suffix is None:
+            name = f'init_{resolution_to_string(horiz_res)}'
+        else:
+            name = f'init_{subdir_suffix}'
         super().__init__(component=component, name=name, indir=indir)
 
     def setup(self):
@@ -71,7 +107,6 @@ class Init(PStarInitStep, OceanIOStep):
         """
         logger = self.logger
         config = self.config
-        hpg_section = config['horiz_press_grad']
         if config.get('ocean', 'model') != 'omega':
             raise ValueError(
                 'The horiz_press_grad test case is only supported for the '
@@ -79,33 +114,10 @@ class Init(PStarInitStep, OceanIOStep):
             )
 
         horiz_res = self.horiz_res
-        vert_res = self.vert_res
-
-        z_tilde_bot_mid = hpg_section.getfloat('z_tilde_bot_mid')
-
-        assert z_tilde_bot_mid is not None, (
-            'The "z_tilde_bot_mid" configuration option must be set in the '
-            '"horiz_press_grad" section.'
-        )
-
-        # it needs to be an error if the full water column can't be evenly
-        # divided by the resolution, because the later analysis will fail
-        if (-z_tilde_bot_mid / vert_res) % 1 != 0:
-            raise ValueError(
-                'The "z_tilde_bot_mid" value must be an integer multiple of '
-                'the vertical resolution to ensure that the vertical grid can '
-                'be evenly divided into layers. Currently, z_tilde_bot_mid = '
-                f'{z_tilde_bot_mid} and vert_res = {vert_res}, which results '
-                f'in {-z_tilde_bot_mid / vert_res} layers.'
-            )
-        vert_levels = int(-z_tilde_bot_mid / vert_res)
-
-        config.set('vertical_grid', 'vert_levels', str(vert_levels))
 
         nx = 2
         ny = 2
         dc = 1e3 * horiz_res
-        dx = 1e3 * horiz_res
         ds_mesh = make_planar_hex_mesh(
             nx=nx, ny=ny, dc=dc, nonperiodic_x=True, nonperiodic_y=True
         )
@@ -133,6 +145,84 @@ class Init(PStarInitStep, OceanIOStep):
                 f'{ncells} cells.'
             )
 
+        ds = self.build_column_state(ds_mesh)
+
+        nvertlevels = ds.sizes['nVertLevels']
+        nedges = ds_mesh.sizes['nEdges']
+
+        ds['normalVelocity'] = xr.DataArray(
+            data=np.zeros((1, nedges, nvertlevels), dtype=float),
+            dims=['Time', 'nEdges', 'nVertLevels'],
+            attrs={
+                'long_name': 'normal velocity',
+                'units': 'm s-1',
+            },
+        )
+        ds.attrs['nx'] = nx
+        ds.attrs['ny'] = ny
+        ds.attrs['dc'] = dc
+
+        self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
+        self.write_initial_state_dataset(ds, 'init.nc', config)
+
+    def build_column_state(self, ds_mesh: xr.Dataset) -> xr.Dataset:
+        """
+        Build the two-column state on ``ds_mesh``: the p-star vertical
+        coordinate, the tracers, specific volume, pressure, geometric height,
+        and the diagnostic Montgomery potential and HPGA.
+
+        :py:meth:`run` calls this once the mesh exists.  It is separate from
+        :py:meth:`run` so that unit tests can build the same state from a
+        minimal two-cell mesh dataset, without mesh generation or file I/O.
+
+        Parameters
+        ----------
+        ds_mesh : xarray.Dataset
+            The horizontal mesh, which must have exactly 2 cells.  Only the
+            ``nCells`` dimension is required, so a stub dataset is enough for
+            testing.
+
+        Returns
+        -------
+        ds : xarray.Dataset
+            The two-column state.
+        """
+        logger = self.logger
+        config = self.config
+        horiz_res = self.horiz_res
+        vert_res = self.vert_res
+        dx = 1e3 * horiz_res
+
+        # a tilt sweep overrides one config option per step, in the same way
+        # vert_levels is set from the vertical resolution below
+        if self.tilt_option is not None:
+            config.set('horiz_press_grad', self.tilt_option, str(self.tilt))
+            logger.info(
+                f'Setting horiz_press_grad:{self.tilt_option} = {self.tilt}'
+            )
+
+        hpg_section = config['horiz_press_grad']
+        z_tilde_bot_mid = hpg_section.getfloat('z_tilde_bot_mid')
+
+        assert z_tilde_bot_mid is not None, (
+            'The "z_tilde_bot_mid" configuration option must be set in the '
+            '"horiz_press_grad" section.'
+        )
+
+        # it needs to be an error if the full water column can't be evenly
+        # divided by the resolution, because the later analysis will fail
+        if (-z_tilde_bot_mid / vert_res) % 1 != 0:
+            raise ValueError(
+                'The "z_tilde_bot_mid" value must be an integer multiple of '
+                'the vertical resolution to ensure that the vertical grid can '
+                'be evenly divided into layers. Currently, z_tilde_bot_mid = '
+                f'{z_tilde_bot_mid} and vert_res = {vert_res}, which results '
+                f'in {-z_tilde_bot_mid / vert_res} layers.'
+            )
+        vert_levels = int(-z_tilde_bot_mid / vert_res)
+
+        config.set('vertical_grid', 'vert_levels', str(vert_levels))
+
         x = horiz_res * np.array([-0.5, 0.5], dtype=float)
         # Store x so init_tracers and _build_pstar_coord_ds can access it
         self.x = x
@@ -154,38 +244,55 @@ class Init(PStarInitStep, OceanIOStep):
             sea_surface_height=geom_ssh,
         )
 
+        self._check_reference_grid_head_room(ds=ds, x=x)
+
+        # The requested bathymetry, kept alongside the achieved bottomDepth so
+        # analysis can tell whether the vertical-grid construction moved the
+        # sea floor (partial-cell snapping does).  bottomDepth itself is a
+        # vert-coord variable and is written to vert_coord.nc, not init.nc.
+        ds['bottomDepthRequested'] = -geom_z_bot
+        ds.bottomDepthRequested.attrs = {
+            'long_name': 'requested seafloor geometric depth',
+            'units': 'm',
+        }
+
         ds['Density'] = 1.0 / ds['SpecVol']
         ds.Density.attrs['long_name'] = 'density'
         ds.Density.attrs['units'] = 'kg m-3'
 
-        nvertlevels = ds.sizes['nVertLevels']
-        nedges = ds_mesh.sizes['nEdges']
-
-        ds['normalVelocity'] = xr.DataArray(
-            data=np.zeros((1, nedges, nvertlevels), dtype=float),
-            dims=['Time', 'nEdges', 'nVertLevels'],
-            attrs={
-                'long_name': 'normal velocity',
-                'units': 'm s-1',
-            },
-        )
-        ds.attrs['nx'] = nx
-        ds.attrs['ny'] = ny
-        ds.attrs['dc'] = dc
-
         self._compute_montgomery_and_hpga(ds=ds, dx=dx, p_mid=ds.pressure)
 
-        self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
-        self.write_initial_state_dataset(ds, 'init.nc', config)
+        # The finite-volume scheme, written alongside the centered one rather
+        # than in place of it: HPGA keeps its name, its meaning and its values,
+        # so the four gradient variants and the resting-state sweeps are
+        # unaffected and their recorded baselines stay valid.  Which of the two
+        # an analysis step compares against is set by the scheme its forward
+        # step ran.
+        #
+        # quadrature_points is the same option that fills in Omega's
+        # PressureGrad:QuadraturePoints, so the two sides integrate with one
+        # rule.  Reading it here rather than defaulting is what keeps
+        # omega_vs_polaris_rms_threshold a check on Omega's arithmetic instead
+        # of a measure of the gap between two quadratures.
+        quadrature_points = config.getint(
+            'horiz_press_grad', 'quadrature_points'
+        )
+        ds['HPGAFiniteVolume'] = finite_volume_hpga(
+            ds=ds, dx=dx, order=quadrature_points
+        )
+
+        return ds
 
     def init_tracers(
         self, ds: xr.Dataset
     ) -> tuple[xr.DataArray, xr.DataArray]:
         """
-        Interpolate conservative temperature and absolute salinity from
-        piecewise pseudo-height profiles defined in the configuration.
+        Compute layer-mean conservative temperature and absolute salinity from
+        the piecewise pseudo-height profiles defined in the configuration.
         """
-        return self._interpolate_t_s(ds=ds, z_tilde_mid=ds.ZTildeMid, x=self.x)
+        return self._interpolate_t_s(
+            ds=ds, z_tilde_interface=ds.ZTildeInterface, x=self.x
+        )
 
     def _build_pstar_coord_ds(
         self,
@@ -386,6 +493,43 @@ class Init(PStarInitStep, OceanIOStep):
             'units': 'g kg-1 m-1',
         }
 
+    def _check_reference_grid_head_room(
+        self, ds: xr.Dataset, x: np.ndarray
+    ) -> None:
+        """
+        Verify that each column's reference pseudo-grid extends below its
+        converged pseudo-bottom depth.
+
+        The p-star iteration converges to a pseudo-bottom depth somewhat
+        greater than the geometric water-column thickness, because in-situ
+        density exceeds ``RhoSw`` at depth.  When a tilt makes one column's
+        ``z_tilde_bot`` shallower than that, the reference grid cannot span
+        the water column, the iteration diverges, and the resulting HPGA is
+        meaningless (order 1 m s-2 rather than the order 1e-5 m s-2 the test
+        measures).  Fail with a clear message rather than reporting nonsense.
+        """
+        z_tilde_bot = get_array_from_mid_grad(self.config, 'z_tilde_bot', x)
+        pseudo_bottom_depth = (
+            ds.BottomPressure / (RhoSw * Gravity)
+        ).values.ravel()
+
+        head_room = -np.asarray(z_tilde_bot) - pseudo_bottom_depth
+        if np.all(head_room > 0.0):
+            return
+
+        details = '; '.join(
+            f'column {icell}: |z_tilde_bot| = {-z_tilde_bot[icell]:.3f} m, '
+            f'pseudo-bottom depth = {pseudo_bottom_depth[icell]:.3f} m, '
+            f'head room = {head_room[icell]:.3f} m'
+            for icell in range(len(head_room))
+        )
+        raise ValueError(
+            'The p-star reference grid does not extend below the converged '
+            'pseudo-bottom depth in every column, so the vertical coordinate '
+            'cannot span the water column. Deepen "z_tilde_bot_mid", make '
+            '"geom_z_bot_mid" shallower, or reduce the tilt. ' + details
+        )
+
     def _get_geom_z_bot(self, x: np.ndarray) -> xr.DataArray:
         """
         Get the geometric sea floor height for each column from the
@@ -475,12 +619,20 @@ class Init(PStarInitStep, OceanIOStep):
     def _interpolate_t_s(
         self,
         ds: xr.Dataset,
-        z_tilde_mid: xr.DataArray,
+        z_tilde_interface: xr.DataArray,
         x: np.ndarray,
     ) -> tuple[xr.DataArray, xr.DataArray]:
         """
-        Interpolate temperature and salinity to p-star layer midpoints using
+        Average temperature and salinity over each p-star layer, using the
         piecewise pseudo-height profiles from configuration.
+
+        Omega's prognostic temperature and salinity are layer means, and the
+        higher-order pressure gradient reconstructs them as mean-preserving
+        polynomials in pressure, so the initial condition supplies layer means
+        rather than samples at layer midpoints.  The two coincide exactly for a
+        profile that is linear in pressure and differ at O(h^2) otherwise, so
+        the choice does not affect a configuration in the scheme's exact set
+        but does affect the residual measured off it.
         """
         z_tilde_node, t_node, s_node = self._get_z_tilde_t_s_nodes(x)
 
@@ -506,11 +658,17 @@ class Init(PStarInitStep, OceanIOStep):
                 'number of mesh columns.'
             )
 
+        z_tilde_top = z_tilde_interface.isel(
+            Time=0, nVertLevelsP1=slice(0, -1)
+        ).values
+        z_tilde_bot = z_tilde_interface.isel(
+            Time=0, nVertLevelsP1=slice(1, None)
+        ).values
+
         for icell in range(ncells):
             z_tilde = z_tilde_node[icell, :]
             temperatures = t_node[icell, :]
             salinities = s_node[icell, :]
-            z_tilde_mid_col = z_tilde_mid.isel(Time=0, nCells=icell).values
 
             if len(z_tilde) < 2:
                 raise ValueError(
@@ -518,24 +676,27 @@ class Init(PStarInitStep, OceanIOStep):
                     'define piecewise linear initial conditions.'
                 )
 
-            t_interp = get_pchip_interpolator(
+            t_mean = get_pchip_layer_mean(
                 z_tilde_nodes=z_tilde,
                 values_nodes=temperatures,
                 name='temperature',
             )
-            s_interp = get_pchip_interpolator(
+            s_mean = get_pchip_layer_mean(
                 z_tilde_nodes=z_tilde,
                 values_nodes=salinities,
                 name='salinity',
             )
-            valid = np.isfinite(z_tilde_mid_col)
+            top = z_tilde_top[icell, :]
+            bot = z_tilde_bot[icell, :]
+            # a layer is valid only where both of its interfaces are
+            valid = np.logical_and(np.isfinite(top), np.isfinite(bot))
             temperature_np[0, icell, :] = np.nan
             salinity_np[0, icell, :] = np.nan
             if np.any(valid):
-                temperature_np[0, icell, valid] = t_interp(
-                    z_tilde_mid_col[valid]
+                temperature_np[0, icell, valid] = t_mean(
+                    top[valid], bot[valid]
                 )
-                salinity_np[0, icell, valid] = s_interp(z_tilde_mid_col[valid])
+                salinity_np[0, icell, valid] = s_mean(top[valid], bot[valid])
 
         temperature = xr.DataArray(
             data=temperature_np,

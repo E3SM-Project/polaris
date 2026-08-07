@@ -208,6 +208,46 @@
    task.HorizPressGradTask
    task.HorizPressGradTask.configure
 
+   resting_state_task.HorizPressGradRestingStateTask
+   resting_state_task.HorizPressGradRestingStateTask.configure
+
+   column.get_array_from_mid_grad
+   column.get_pchip_interpolator
+   column.get_pchip_layer_mean
+
+   edge.edge_delta
+   edge.edge_mean
+
+   eos_expansion.specvol_coefficients
+   eos_expansion.edge_expansion
+   eos_expansion.edge_specvol
+   eos_expansion.edge_specvol_layer_mean
+
+   finite_volume.centered_shift
+   finite_volume.centered_shift_accumulated
+   finite_volume.shift_increments
+   finite_volume.hpga_from_shift
+   finite_volume.hydrostatic_scale
+   finite_volume.matched_pressure_pieces
+   finite_volume.layer_containing_pressure
+   finite_volume.delta_specvol_at_pressure
+   finite_volume.anchor_difference
+   finite_volume.column_scan
+   finite_volume.scan_increments
+   finite_volume.layer_mean_difference
+   finite_volume.finite_volume_hpga
+
+   reconstruction.linear_slope
+   reconstruction.layer_deviation
+   reconstruction.reconstruct
+
+   metrics.get_internal_edge
+   metrics.rms
+   metrics.power_law_fit
+   metrics.write_metric_dataset
+   metrics.format_value_list
+   metrics.format_value_error_pairs
+
    reference.ReferenceColumn
    reference.ReferenceColumn.specvol
    reference.ReferenceColumn.dalpha_dx
@@ -216,6 +256,7 @@
 
    init.Init
    init.Init.run
+   init.Init.build_column_state
 
    forward.Forward
    forward.Forward.setup
@@ -223,6 +264,11 @@
    analysis.Analysis
    analysis.Analysis.setup
    analysis.Analysis.run
+
+   resting_analysis.RestingAnalysis
+   resting_analysis.RestingAnalysis.setup
+   resting_analysis.RestingAnalysis.run
+   resting_analysis.sweep_suffix
 ```
 
 ### ice_shelf_2d
