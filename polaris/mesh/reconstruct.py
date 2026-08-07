@@ -1,3 +1,4 @@
+import time
 from typing import Literal
 
 import numpy as np
@@ -732,6 +733,8 @@ def compute_reconstruction_weights(
         and coefficient fields for the requested reconstruction point location.
     """
 
+    start_time = time.perf_counter()
+
     names = _RECONSTRUCTION_FIELD_NAMES[location]
 
     if names['weights'] in ds:
@@ -765,6 +768,12 @@ def compute_reconstruction_weights(
         'edge-normal values on the reconstruction stencil',
         units='unitless',
     )
+
+    elapsed = time.perf_counter() - start_time
+
+    print('\n')
+    print(f'Computed reconstruction weights in {elapsed:.2f} s')
+    print('\n')
 
     return xr.Dataset(
         {
