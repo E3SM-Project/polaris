@@ -203,7 +203,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target_location</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;realistic_global/</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="c1"># This attribute is used by OceanModelStep</span>
+        <span class="n">target_location</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;realistic_global/</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_location</span> <span class="o">=</span> <span class="n">target_location</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
         <span class="c1"># TODO: remove as soon as Omega no longer hard-codes this file</span>
         <span class="n">input_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;ocean.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mpaso_id</span><span class="si">}</span><span class="s1">&#39;</span>
@@ -214,17 +216,17 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
                 <span class="n">target</span><span class="o">=</span><span class="n">input_filename</span><span class="p">,</span>
                 <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
-                <span class="n">database</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;realistic_global/</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">database</span><span class="o">=</span><span class="n">target_location</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
                 <span class="n">target</span><span class="o">=</span><span class="n">input_filename</span><span class="p">,</span>
                 <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">,</span>
-                <span class="n">database</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;realistic_global/</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">database</span><span class="o">=</span><span class="n">target_location</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
                 <span class="n">target</span><span class="o">=</span><span class="n">input_filename</span><span class="p">,</span>
                 <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
-                <span class="n">database</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;realistic_global/</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">database</span><span class="o">=</span><span class="n">target_location</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">replacements</span><span class="p">[</span><span class="s1">&#39;time_integrator&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;RK4&#39;</span>
@@ -232,12 +234,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
                 <span class="n">target</span><span class="o">=</span><span class="n">input_filename</span><span class="p">,</span>
                 <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
-                <span class="n">database</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;realistic_global/</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">database</span><span class="o">=</span><span class="n">target_location</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
                 <span class="n">target</span><span class="o">=</span><span class="n">input_filename</span><span class="p">,</span>
                 <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
-                <span class="n">database</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;realistic_global/</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">database</span><span class="o">=</span><span class="n">target_location</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
             <span class="n">package</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">,</span>
