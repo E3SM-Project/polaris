@@ -6,6 +6,7 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.attrs import set_attrs
 from polaris.ocean.coriolis import add_coriolis_to_dataset
+from polaris.ocean.init_state import add_density_from_specvol
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.pstar import init_pstar_vertical_coord
 from polaris.ocean.vertical.pstar_init import PStarInitStep
@@ -155,9 +156,7 @@ class Init(PStarInitStep, OceanIOStep):
             sea_surface_height=geom_ssh,
         )
 
-        ds['Density'] = 1.0 / ds['SpecVol']
-        ds.Density.attrs['long_name'] = 'density'
-        ds.Density.attrs['units'] = 'kg m-3'
+        ds = add_density_from_specvol(ds)
 
         nvertlevels = ds.sizes['nVertLevels']
         nedges = ds_mesh.sizes['nEdges']

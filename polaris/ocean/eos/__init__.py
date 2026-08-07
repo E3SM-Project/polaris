@@ -88,7 +88,7 @@ def compute_density(
     else:
         raise ValueError(f'Unsupported equation of state type: {eos_type}')
     if isinstance(density, xr.DataArray):
-        set_attrs(density, long_name='density', units='kg m-3')
+        set_attrs(density, long_name='in-situ density', units='kg m-3')
     return density
 
 
