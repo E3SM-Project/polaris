@@ -641,7 +641,6 @@ class Ocean(Component):
             and 'PseudoThickness' in ds.keys()
             and 'SpecVol' in ds.keys()
         ):
-            print('call geom_thickness_from_ds')
             ds['layerThickness'] = geom_thickness_from_ds(ds, config=config)
         if (
             self.model == 'omega'
