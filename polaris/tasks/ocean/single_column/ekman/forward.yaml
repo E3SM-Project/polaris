@@ -30,7 +30,7 @@ mpas-ocean:
   streams:
     forcing_data:
       type: input
-      filename_template: init.nc
+      filename_template: forcing.nc
       input_interval: initial_only
       contents:
       - windStressZonal
@@ -73,6 +73,12 @@ Omega:
       Contents:
       - State
       - GeomZMid
+      # Tracers supplies Temperature and Salinity, and Eos supplies the
+      # SpecVol that layerThickness is derived from, as the baseline
+      # comparison for this task requires.  Eos also lets the analysis step
+      # use the model's own specific volume rather than a reference density
+      - Tracers
+      - Eos
     Forcing:
       UsePointerFile: false
       Filename: forcing.nc
