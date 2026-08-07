@@ -29,6 +29,73 @@ _RECONSTRUCTION_FIELD_NAMES: dict[ReconstructionType, dict[str, str]] = {
     },
 }
 
+# variables read by build_reconstruction_weights() for each location
+_RECONSTRUCTION_INPUT_VARS: dict[ReconstructionType, tuple[str, ...]] = {
+    'cell': (
+        'xCell',
+        'yCell',
+        'zCell',
+        'xEdge',
+        'yEdge',
+        'zEdge',
+        'verticesOnCell',
+        'edgesOnVertex',
+        'cellsOnEdge',
+    ),
+    'vertex': (
+        'xVertex',
+        'yVertex',
+        'zVertex',
+        'xEdge',
+        'yEdge',
+        'zEdge',
+        'edgesOnVertex',
+        'verticesOnEdge',
+        'cellsOnEdge',
+    ),
+}
+
+
+def select_reconstruction_vars(
+    ds: xr.Dataset, location: ReconstructionType = 'cell'
+) -> xr.Dataset:
+    """
+    Trim an MPAS mesh dataset down to just the variables needed to compute
+    vector-reconstruction weights and stencils at the given location.
+
+    Parameters
+    ----------
+    ds: xr.Dataset
+        MPAS mesh dataset
+
+    location: str ["cell", "vertex"]
+        Point location where the reconstruction occurs
+
+    Returns
+    -------
+    ds: xr.Dataset
+        A minimal dataset containing only the variables (and global attrs)
+        needed for reconstruction at the given location
+    """
+    if location not in _RECONSTRUCTION_INPUT_VARS:
+        raise ValueError(
+            f"Invalid location: {location}. Must be 'cell' or 'vertex'."
+        )
+
+    var_names = [
+        name for name in _RECONSTRUCTION_INPUT_VARS[location] if name in ds
+    ]
+    subset = ds[var_names]
+
+    # maxEdges2 is otherwise only attached to the legacy coeffs_reconstruct
+    # fields (not selected above), so it must be reinstated by hand
+    if location == 'cell' and 'maxEdges2' not in subset.sizes:
+        subset = subset.assign_coords(
+            maxEdges2=np.arange(ds.sizes['maxEdges2'])
+        )
+
+    return subset
+
 
 def fix_out_of_bounds_indices(ds: xr.Dataset) -> xr.Dataset:
     """
@@ -721,6 +788,10 @@ def compute_reconstruction_weights(
             f"Warning: overwriting existing '{names['weights']}' field "
             'in the mesh dataset.'
         )
+
+    # trim ds down to the variables needed for reconstruction, then load
+    # eagerly since the subset is small
+    ds = select_reconstruction_vars(ds, location).load()
 
     # For stencil creation to work all indices in the connectivity arrays must
     # [0, dim_size], where 0 is the invalid index sentinel
