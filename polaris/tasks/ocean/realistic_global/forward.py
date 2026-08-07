@@ -83,7 +83,9 @@ class Forward(OceanModelStep):
         """
         config = self.config
         model = config.get('ocean', 'model')
-        self.target_location = f'realistic_global/{model}/{self.mesh_name}'
+        # This attribute is used by OceanModelStep
+        target_location = f'realistic_global/{model}/{self.mesh_name}'
+        self.target_location = target_location
         super().setup()
         # TODO: remove as soon as Omega no longer hard-codes this file
         input_filename = f'ocean.{self.mesh_name}.{self.mpaso_id}'
@@ -94,17 +96,17 @@ class Forward(OceanModelStep):
             self.add_input_file(
                 target=input_filename,
                 filename='mesh.nc',
-                database=f'realistic_global/{model}',
+                database=target_location,
             )
             self.add_input_file(
                 target=input_filename,
                 filename='vert_coord.nc',
-                database=f'realistic_global/{model}',
+                database=target_location,
             )
             self.add_input_file(
                 target=input_filename,
                 filename='init.nc',
-                database=f'realistic_global/{model}',
+                database=target_location,
             )
         else:
             self.replacements['time_integrator'] = 'RK4'
@@ -112,12 +114,12 @@ class Forward(OceanModelStep):
             self.add_input_file(
                 target=input_filename,
                 filename='mesh.nc',
-                database=f'realistic_global/{model}',
+                database=target_location,
             )
             self.add_input_file(
                 target=input_filename,
                 filename='init.nc',
-                database=f'realistic_global/{model}',
+                database=target_location,
             )
         self.add_yaml_file(
             package=self.package,
