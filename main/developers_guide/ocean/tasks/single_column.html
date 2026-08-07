@@ -241,6 +241,12 @@ also constructed and is equal to zero seconds throughout the column.</p>
 </tr>
 </tbody>
 </table>
+<p>The forcing file holds only these forcing fields and the initial condition
+holds only the initial state, so both ocean models read their forcing from
+<code class="docutils literal notranslate"><span class="pre">forcing.nc</span></code>.  The one exception is Omega’s <code class="docutils literal notranslate"><span class="pre">TracersMonthlySurfClimoCell</span></code>,
+the surface restoring climatology, which Omega registers as an auxiliary
+state variable rather than a member of its <code class="docutils literal notranslate"><span class="pre">Forcing</span></code> group and reads from
+the initial condition.</p>
 </section>
 <section id="forward">
 <h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>

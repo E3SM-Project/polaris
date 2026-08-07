@@ -269,8 +269,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write_vert_coord_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
-        <span class="c1"># create forcing stream</span>
-        <span class="n">ds_forcing</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># create the forcing dataset, which contains only forcing fields (the</span>
+        <span class="c1"># initial state stays in ``ds``)</span>
+        <span class="n">ds_forcing</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
         <span class="n">forcing_array</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
         <span class="n">forcing_array_surface</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">)</span>
         <span class="n">forcing_array_surface</span> <span class="o">=</span> <span class="n">forcing_array_surface</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
@@ -353,14 +354,21 @@
         <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;icebergFreshWaterFlux&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">iceberg_flux</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
         <span class="p">)</span>
-        <span class="n">restoring_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">ds_forcing</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]))</span>
-        <span class="n">restoring_values</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">temperature_surface_restoring_value</span>
-        <span class="n">restoring_values</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">salinity_surface_restoring_value</span>
-        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">&#39;TracersMonthlySurfClimoCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-            <span class="n">restoring_values</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span>
-            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;NTracers&#39;</span><span class="p">,</span> <span class="s1">&#39;NCells&#39;</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span><span class="n">ds_forcing</span><span class="p">,</span> <span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="c1"># TracersMonthlySurfClimoCell is an Omega field with no MPAS-Ocean</span>
+        <span class="c1"># equivalent, and it carries Omega dimension names, so it is only</span>
+        <span class="c1"># written for Omega.  It belongs to Omega&#39;s AuxiliaryState field</span>
+        <span class="c1"># group, not the Forcing group, and the Forcing stream is read before</span>
+        <span class="c1"># the auxiliary state fields are registered.  It therefore has to</span>
+        <span class="c1"># travel with the initial state rather than with the forcing.</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="n">restoring_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]))</span>
+            <span class="n">restoring_values</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">temperature_surface_restoring_value</span>
+            <span class="n">restoring_values</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">salinity_surface_restoring_value</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;TracersMonthlySurfClimoCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">restoring_values</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;NTracers&#39;</span><span class="p">,</span> <span class="s1">&#39;NCells&#39;</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds_forcing</span><span class="p">,</span> <span class="s1">&#39;forcing.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
 </div>
 

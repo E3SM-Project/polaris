@@ -774,7 +774,6 @@
             <span class="ow">and</span> <span class="s1">&#39;PseudoThickness&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
             <span class="ow">and</span> <span class="s1">&#39;SpecVol&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;call geom_thickness_from_ds&#39;</span><span class="p">)</span>
             <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_thickness_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span>

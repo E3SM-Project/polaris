@@ -68,6 +68,13 @@ A forcing netCDF file is also created based on the config options given in the
 | `evaporation_flux`, `rain_flux` | Surface freshwater fluxes |
 | `wind_stress_zonal`, `wind_stress_meridional` | Wind stress values |
 
+The forcing file holds only these forcing fields and the initial condition
+holds only the initial state, so both ocean models read their forcing from
+`forcing.nc`.  The one exception is Omega's `TracersMonthlySurfClimoCell`,
+the surface restoring climatology, which Omega registers as an auxiliary
+state variable rather than a member of its `Forcing` group and reads from
+the initial condition.
+
 ### forward
 
 The class {py:class}`polaris.tasks.ocean.single_column.forward.Forward`
