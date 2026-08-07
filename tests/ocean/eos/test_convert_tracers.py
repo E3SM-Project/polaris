@@ -174,6 +174,49 @@ def test_convert_tracers_same_convention_is_a_no_op():
     assert ds_out is ds
 
 
+def test_convert_tracers_does_not_keep_the_source_conventions_metadata():
+    """A converted tracer describes what it now is, not what it was.
+
+    The attributes seeded here are those WOA23 fields really carry after
+    remapping.  A ``standard_name`` of ``sea_water_conservative_temperature``
+    on a potential temperature would be wrong, and the ``cell_measures`` names
+    an ``area`` variable that the remapping drops.
+    """
+    ds = _make_tracer_ds()
+    ds.temperature.attrs.update(
+        {
+            'standard_name': 'sea_water_conservative_temperature',
+            'units': 'degrees_celsius',
+            'cell_measures': 'area: area',
+            'coordinates': 'lat lon',
+        }
+    )
+    ds.salinity.attrs.update(
+        {
+            'standard_name': 'sea_water_absolute_salinity',
+            'cell_measures': 'area: area',
+        }
+    )
+
+    ds_out = convert_tracers(
+        ds,
+        source='teos-10',
+        target='mpas-ocean',
+        pressure=ds.pressure,
+        lon=0.0,
+        lat=0.0,
+    )
+
+    assert ds_out.temperature.attrs == {
+        'long_name': 'potential temperature',
+        'units': 'degC',
+    }
+    assert ds_out.salinity.attrs == {
+        'long_name': 'practical salinity',
+        'units': 'PSU',
+    }
+
+
 def test_convert_tracers_does_not_modify_input():
     ds = _make_tracer_ds()
     ct = ds.temperature.values.copy()
