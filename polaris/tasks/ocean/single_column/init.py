@@ -234,16 +234,19 @@ class Init(OceanIOStep):
         ds_forcing['icebergFreshWaterFlux'] = (
             iceberg_flux * forcing_array_surface
         )
-        # In Omega, TracersMonthlySurfClimoCell belongs to the AuxiliaryState
-        # field group, not the Forcing group, and the Forcing stream is read
-        # before the auxiliary state fields are registered.  It therefore has
-        # to travel with the initial state rather than with the forcing.
-        restoring_values = np.zeros((2, ds.sizes['nCells']))
-        restoring_values[0, :] = temperature_surface_restoring_value
-        restoring_values[1, :] = salinity_surface_restoring_value
-        ds['TracersMonthlySurfClimoCell'] = xr.DataArray(
-            restoring_values[np.newaxis, :, :],
-            dims=('time', 'NTracers', 'NCells'),
-        )
+        # TracersMonthlySurfClimoCell is an Omega field with no MPAS-Ocean
+        # equivalent, and it carries Omega dimension names, so it is only
+        # written for Omega.  It belongs to Omega's AuxiliaryState field
+        # group, not the Forcing group, and the Forcing stream is read before
+        # the auxiliary state fields are registered.  It therefore has to
+        # travel with the initial state rather than with the forcing.
+        if config.get('ocean', 'model') == 'omega':
+            restoring_values = np.zeros((2, ds.sizes['nCells']))
+            restoring_values[0, :] = temperature_surface_restoring_value
+            restoring_values[1, :] = salinity_surface_restoring_value
+            ds['TracersMonthlySurfClimoCell'] = xr.DataArray(
+                restoring_values[np.newaxis, :, :],
+                dims=('time', 'NTracers', 'NCells'),
+            )
         self.write_initial_state_dataset(ds, 'init.nc', config)
         self.write_model_dataset(ds_forcing, 'forcing.nc', config)

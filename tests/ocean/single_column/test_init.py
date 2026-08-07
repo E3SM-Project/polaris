@@ -125,10 +125,11 @@ def test_surface_restoring_climatology_goes_with_the_initial_state(
     """In Omega, TracersMonthlySurfClimoCell is an auxiliary state variable
     registered in the AuxiliaryState field group, and the Forcing stream is
     read before those fields are defined.  It has to travel with the initial
-    state, not with the forcing."""
-    _, workdir = init_outputs
+    state, not with the forcing.  It has no MPAS-Ocean equivalent, so it is
+    not written at all for MPAS-Ocean."""
+    model, workdir = init_outputs
 
     with xr.open_dataset(workdir / 'init.nc') as ds_init:
-        assert 'TracersMonthlySurfClimoCell' in ds_init
+        assert ('TracersMonthlySurfClimoCell' in ds_init) == (model == 'omega')
     with xr.open_dataset(workdir / 'forcing.nc') as ds_forcing:
         assert 'TracersMonthlySurfClimoCell' not in ds_forcing
