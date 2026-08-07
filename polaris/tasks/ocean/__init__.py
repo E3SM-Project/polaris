@@ -273,11 +273,18 @@ class Ocean(Component):
         Write a horizontal mesh dataset, validating that all expected mesh
         variables are present.
 
-        For Omega, the vector-reconstruction stencil and weight fields
-        (produced alongside the base mesh by
-        ``polaris.mesh.spherical.SphericalBaseStep``) are merged in from
-        ``reconstruction_weights.nc`` in the current working directory, since
-        MPAS-Ocean does not support least-squares vector reconstruction.
+        For Omega on spherical meshes, the vector-reconstruction stencil
+        and weight fields are merged in from ``reconstruction_weights.nc``
+        in the current working directory, since MPAS-Ocean does not
+        support least-squares vector reconstruction. This file must be
+        added as an input to the step, pointing at whichever mesh ``ds``
+        was built from: the base mesh's ``reconstruction_weights.nc``
+        (from ``polaris.mesh.spherical.SphericalBaseStep``) or, for
+        culled meshes, a culled mesh's
+        ``culled_{prefix}_reconstruction_weights.nc`` (from
+        ``polaris.tasks.e3sm.init.topo.cull.CullMeshStep``). Planar
+        meshes (``on_a_sphere == 'NO'``) never compute or require these
+        fields.
 
         Parameters
         ----------
@@ -305,9 +312,10 @@ class Ocean(Component):
                 raise FileNotFoundError(
                     f'{recon_filename} not found but is required to write '
                     'the horizontal mesh dataset for Omega. Make sure the '
-                    'base mesh step ran with vector-reconstruction weight '
-                    'generation enabled and that it is added as an input '
-                    'file to this step.'
+                    'base mesh (or culled mesh) step ran with '
+                    'vector-reconstruction weight generation enabled and '
+                    'that its weights file is added as an input to this '
+                    'step, renamed to reconstruction_weights.nc.'
                 )
             ds_recon = open_dataset(recon_filename)
             ds = ds.merge(ds_recon)

@@ -9,6 +9,7 @@ from mpas_tools.mesh.cull import map_culled_to_base
 from pyremap import MpasCellMeshDescriptor
 
 from polaris import Step
+from polaris.mesh.reconstruct import compute_reconstruction_weights
 from polaris.model_step import make_graph_file
 
 CULL_PREFIXES = ['ocean', 'ocean_no_cavities', 'land']
@@ -74,6 +75,9 @@ class CullMeshStep(Step):
                 self.add_output_file(filename=f'culled_{prefix}_mesh.scrip.nc')
             if prefix.startswith('ocean'):
                 self.add_output_file(filename=f'culled_{prefix}_graph.info')
+                self.add_output_file(
+                    filename=f'culled_{prefix}_reconstruction_weights.nc'
+                )
 
     def setup(self):
         """
@@ -128,7 +132,8 @@ class CullMeshStep(Step):
     def _cull_mesh(self, prefix):
         """
         Cull and sort the mesh to the region specified by the prefix. For
-        ocean regions, also produce a graph file for the culled mesh.
+        ocean regions, also produce a graph file and vector-reconstruction
+        weights for the culled mesh.
         """
         logger = self.logger
 
@@ -174,6 +179,17 @@ class CullMeshStep(Step):
             make_graph_file(
                 mesh_filename=out_filename,
                 graph_filename=f'culled_{prefix}_graph.info',
+            )
+
+            logger.info(
+                f'Compute vector-reconstruction weights at cell centers '
+                f'for culled {prefix} mesh'
+            )
+            ds_weights = compute_reconstruction_weights(
+                ds_culled_mesh, location='cell'
+            )
+            write_netcdf(
+                ds_weights, f'culled_{prefix}_reconstruction_weights.nc'
             )
 
     def _create_scrip_file(self, mesh_filename, prefix):
