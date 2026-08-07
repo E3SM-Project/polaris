@@ -53,6 +53,11 @@ class Ocean(Component):
     vert_coord_vars : list of str
         Variables that belong in the vertical coordinate file (Omega only)
         rather than the initial condition file
+
+    omega_only_horiz_mesh_vars : list of str
+        Horizontal mesh variables that are specific to Omega (currently
+        just the cell-centered vector-reconstruction fields), read from
+        the ``Omega`` section of variables.yaml
     """
 
     def __init__(self):
@@ -66,6 +71,7 @@ class Ocean(Component):
         self.horiz_mesh_vars: Union[None, list[str]] = None
         self.vert_coord_vars: Union[None, list[str]] = None
         self.state_vars: Union[None, list[str]] = None
+        self.omega_only_horiz_mesh_vars: Union[None, list[str]] = None
 
     def configure(self, config, tasks):
         """
@@ -290,7 +296,10 @@ class Ocean(Component):
         if self.model == 'omega' and self.mpaso_to_omega_var_map is None:
             self._read_var_map()
         assert self.horiz_mesh_vars is not None
-        if self.model == 'omega':
+
+        is_spherical = ds.attrs.get('on_a_sphere', 'NO') == 'YES'
+
+        if self.model == 'omega' and is_spherical:
             recon_filename = 'reconstruction_weights.nc'
             if not os.path.exists(recon_filename):
                 raise FileNotFoundError(
@@ -303,7 +312,16 @@ class Ocean(Component):
             ds_recon = open_dataset(recon_filename)
             ds = ds.merge(ds_recon)
         ds = self.map_to_native_model_vars(ds)
-        native_vars = self.map_var_list_to_native_model(self.horiz_mesh_vars)
+        horiz_mesh_vars = self.horiz_mesh_vars
+        if self.model == 'omega' and not is_spherical:
+            # planar meshes never have reconstruction weights and don't
+            # need them (least-squares vector reconstruction is only used
+            # on spherical meshes)
+            omega_only = self.omega_only_horiz_mesh_vars or []
+            horiz_mesh_vars = [
+                var for var in horiz_mesh_vars if var not in omega_only
+            ]
+        native_vars = self.map_var_list_to_native_model(horiz_mesh_vars)
         self._check_vars_present(ds, native_vars, 'write_horiz_mesh_dataset')
         write_netcdf(ds=ds, fileName=filename)
 
@@ -925,6 +943,9 @@ class Ocean(Component):
         if model_key:
             extra = nested_dict.get(model_key, {}).get(
                 'horiz_mesh_variables', []
+            )
+            self.omega_only_horiz_mesh_vars = (
+                list(extra) if model_key == 'Omega' else []
             )
             self.horiz_mesh_vars.extend(extra)
             extra = nested_dict.get(model_key, {}).get(
