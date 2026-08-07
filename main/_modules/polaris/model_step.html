@@ -756,8 +756,15 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">update_io_tasks_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Modify model config options so the number of IO tasks and the stride</span>
-<span class="sd">        between them are consistent with the number of nodes and cores (one</span>
-<span class="sd">        IO task per node).</span>
+<span class="sd">        between them are consistent with how MPI tasks are distributed across</span>
+<span class="sd">        nodes (one IO task per node).</span>
+
+<span class="sd">        The number of tasks per node is based on the machine&#39;s resources from</span>
+<span class="sd">        mache (cores and GPUs per node, and the maximum MPI tasks per node)</span>
+<span class="sd">        together with the CPUs and GPUs this step requests per task.  In</span>
+<span class="sd">        particular, on GPU-enabled builds where there is typically one task</span>
+<span class="sd">        per GPU, the stride is the number of GPUs per node rather than the</span>
+<span class="sd">        number of CPU cores per node.</span>
 
 <span class="sd">        This updates MPAS-Ocean namelist options directly.  For Omega runs,</span>
 <span class="sd">        ``OceanModelStep`` maps these MPAS options to Omega yaml config</span>
@@ -769,27 +776,12 @@
 <span class="sd">            If config options are available for multiple models, the model</span>
 <span class="sd">            that the config options are from.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">cores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span>
+        <span class="n">tasks_per_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_tasks_per_node</span><span class="p">()</span>
 
-        <span class="n">parallel_system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">parallel_system</span>
-        <span class="k">if</span> <span class="n">parallel_system</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Parallel system has not been set for component &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="p">)</span>
-        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">get_config_int</span><span class="p">(</span><span class="s1">&#39;cores_per_node&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">cores_per_node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cores_per_node must be set in parallel config&#39;</span><span class="p">)</span>
-
-        <span class="c1"># update IO tasks based on machine settings and the available cores</span>
-        <span class="n">pio_num_iotasks</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">cores</span> <span class="o">/</span> <span class="n">cores_per_node</span><span class="p">))</span>
+        <span class="c1"># update IO tasks based on how tasks are distributed across nodes</span>
+        <span class="c1"># (one IO task per node)</span>
+        <span class="n">pio_num_iotasks</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">/</span> <span class="n">tasks_per_node</span><span class="p">))</span>
         <span class="n">pio_stride</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">//</span> <span class="n">pio_num_iotasks</span>
-        <span class="k">if</span> <span class="n">pio_stride</span> <span class="o">&gt;</span> <span class="n">cores_per_node</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Not enough nodes for the number of cores.  &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;cores: </span><span class="si">{</span><span class="n">cores</span><span class="si">}</span><span class="s1">, cores per node: &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="p">)</span>
 
         <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;config_pio_num_iotasks&#39;</span><span class="p">:</span> <span class="n">pio_num_iotasks</span><span class="p">,</span>
@@ -804,6 +796,60 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">update_namelist_pio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Deprecated alias for :py:meth:`update_io_tasks_config`.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_io_tasks_config</span><span class="p">(</span><span class="n">config_model</span><span class="o">=</span><span class="n">config_model</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_tasks_per_node</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the number of MPI tasks that will be placed on each node, based on</span>
+<span class="sd">        the machine&#39;s resources (from mache) and the resources this step</span>
+<span class="sd">        requests per task.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tasks_per_node : int</span>
+<span class="sd">            The number of MPI tasks per node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parallel_system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">parallel_system</span>
+        <span class="k">if</span> <span class="n">parallel_system</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Parallel system has not been set for component &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
+        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">cores_per_node</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cores_per_node</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cores_per_node must be set in parallel config&#39;</span><span class="p">)</span>
+
+        <span class="c1"># how many tasks fit on a node given the CPUs each task needs</span>
+        <span class="n">tasks_per_node</span> <span class="o">=</span> <span class="n">cores_per_node</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span>
+
+        <span class="c1"># the machine (or the compiler-specific config for it) may allow fewer</span>
+        <span class="c1"># tasks per node than the cores alone would suggest, e.g. one task per</span>
+        <span class="c1"># GPU on GPU-enabled builds</span>
+        <span class="n">max_tasks_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">get_config_int</span><span class="p">(</span>
+            <span class="s1">&#39;max_mpi_tasks_per_node&#39;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">max_tasks_per_node</span><span class="p">:</span>
+            <span class="n">tasks_per_node</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">tasks_per_node</span><span class="p">,</span> <span class="n">max_tasks_per_node</span><span class="p">)</span>
+
+        <span class="c1"># if this step requires GPUs, tasks are placed according to the GPUs</span>
+        <span class="c1"># available on each node, not the CPU cores</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">gpus_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">gpus_per_node</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">gpus_per_node</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> requests </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span><span class="si">}</span><span class="s1"> GPUs per &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;task but gpus_per_node is not set in the parallel &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;config&#39;</span>
+                <span class="p">)</span>
+            <span class="n">tasks_per_node</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                <span class="n">tasks_per_node</span><span class="p">,</span> <span class="n">gpus_per_node</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span>
+            <span class="p">)</span>
+
+        <span class="c1"># never more tasks per node than the step has in total, and always at</span>
+        <span class="c1"># least one</span>
+        <span class="n">tasks_per_node</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">tasks_per_node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">tasks_per_node</span>
 
 <div class="viewcode-block" id="ModelStep.partition">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.ModelStep.partition.html#polaris.ModelStep.partition">[docs]</a>

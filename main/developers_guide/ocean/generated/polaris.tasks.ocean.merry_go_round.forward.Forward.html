@@ -265,7 +265,7 @@ space and time</p></li>
 <td><p>Determine if we will make yaml files or namelists and streams files, then, determine the number of MPI tasks to use based on the estimated mesh size</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_io_tasks_config</span></code>([config_model])</p></td>
-<td><p>Modify model config options so the number of IO tasks and the stride between them are consistent with the number of nodes and cores (one IO task per node).</p></td>
+<td><p>Modify model config options so the number of IO tasks and the stride between them are consistent with how MPI tasks are distributed across nodes (one IO task per node).</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_eos</span></code>()</p></td>
 <td><p>Modify the namelist to make it consistent with eos config options</p></td>

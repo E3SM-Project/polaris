@@ -306,7 +306,7 @@ instead of MPAS namelist and streams files</p></li>
 <td><p>Setup the command-line arguments</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.update_io_tasks_config.html#polaris.ModelStep.update_io_tasks_config" title="polaris.ModelStep.update_io_tasks_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_io_tasks_config</span></code></a>([config_model])</p></td>
-<td><p>Modify model config options so the number of IO tasks and the stride between them are consistent with the number of nodes and cores (one IO task per node).</p></td>
+<td><p>Modify model config options so the number of IO tasks and the stride between them are consistent with how MPI tasks are distributed across nodes (one IO task per node).</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code>([config_model])</p></td>
 <td><p>Deprecated alias for <a class="reference internal" href="polaris.ModelStep.update_io_tasks_config.html#polaris.ModelStep.update_io_tasks_config" title="polaris.ModelStep.update_io_tasks_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_io_tasks_config()</span></code></a>.</p></td>

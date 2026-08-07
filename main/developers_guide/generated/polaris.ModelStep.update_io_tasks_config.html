@@ -150,8 +150,14 @@
 <dt class="sig sig-object py" id="polaris.ModelStep.update_io_tasks_config">
 <span class="sig-prename descclassname"><span class="pre">ModelStep.</span></span><span class="sig-name descname"><span class="pre">update_io_tasks_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/model_step.html#ModelStep.update_io_tasks_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ModelStep.update_io_tasks_config" title="Link to this definition"></a></dt>
 <dd><p>Modify model config options so the number of IO tasks and the stride
-between them are consistent with the number of nodes and cores (one
-IO task per node).</p>
+between them are consistent with how MPI tasks are distributed across
+nodes (one IO task per node).</p>
+<p>The number of tasks per node is based on the machine’s resources from
+mache (cores and GPUs per node, and the maximum MPI tasks per node)
+together with the CPUs and GPUs this step requests per task.  In
+particular, on GPU-enabled builds where there is typically one task
+per GPU, the stride is the number of GPUs per node rather than the
+number of CPU cores per node.</p>
 <p>This updates MPAS-Ocean namelist options directly.  For Omega runs,
 <code class="docutils literal notranslate"><span class="pre">OceanModelStep</span></code> maps these MPAS options to Omega yaml config
 options.</p>
