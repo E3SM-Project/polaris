@@ -123,6 +123,39 @@ def test_write_initial_state_dataset_omega_drops_vert_coord_vars(tmp_path):
     assert 'MaxLayerCell' not in ds_out
     assert 'BottomGeomDepth' not in ds_out
     assert 'VertCoordMovementWeights' not in ds_out
+    assert 'RefPseudoThickness' not in ds_out
+
+
+def test_write_initial_state_dataset_omega_does_not_rebuild_ref_thickness(
+    tmp_path,
+):
+    """restingThickness does not put RefPseudoThickness back into init.nc.
+
+    RefPseudoThickness belongs to the vertical coordinate file.  It used to
+    be dropped by remove_vert_coord_vars() and then immediately recreated
+    from restingThickness on the way out, at whatever surface pressure the
+    dataset happened to carry -- and labelled as a plain pseudo-thickness,
+    disagreeing with the same variable in vert_coord.nc.
+    """
+    component = Ocean()
+    component.model = 'omega'
+    component._read_var_map()
+
+    ds = _make_tracer_state_ds()
+    ds['layerThickness'] = (('nCells', 'nVertLevels'), [[10.0], [10.0]])
+    ds['restingThickness'] = (('nCells', 'nVertLevels'), [[10.0], [10.0]])
+    ds['SurfacePressure'] = ('nCells', [0.0, 0.0])
+
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(
+        ds, str(filename), _make_tracer_config('omega')
+    )
+
+    ds_out = xr.open_dataset(filename)
+    assert 'RefPseudoThickness' not in ds_out
+    # the layerThickness -> PseudoThickness conversion still runs; only the
+    # resting-thickness one is gone
+    assert 'PseudoThickness' in ds_out
 
 
 def test_write_initial_state_dataset_mpas_ocean_keeps_vert_coord_vars(
