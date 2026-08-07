@@ -17,7 +17,7 @@ def compute_edge_normal_vec(ds: xr.Dataset) -> xr.DataArray:
         Normal vector for each edge in the mesh
     """
 
-    periodic = ds.attrs['is_periodic'].lower() == 'yes'
+    periodic = ds.attrs.get('is_periodic', 'NO') == 'YES'
     if periodic:
         period = np.array([ds.attrs['x_period'], ds.attrs['y_period'], 0.0])
     else:
