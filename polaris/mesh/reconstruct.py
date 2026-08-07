@@ -10,7 +10,6 @@ import dask
 import numpy as np
 import xarray as xr
 from dask.diagnostics import ProgressBar
-from scipy import linalg
 
 from polaris.mesh.vector import compute_edge_normal_vec
 
@@ -427,12 +426,12 @@ def rotate_local_to_cartesian(
     stencil_dim = _stencil_dim(weights)
 
     return xr.apply_ufunc(
-        lambda U, w: np.einsum('lg,le->ge', U, w),
+        lambda U, w: np.einsum('...lg,...le->...ge', U, w),
         rotation_matrix,
         weights,
         input_core_dims=[['d1', 'd2'], ['R3', stencil_dim]],
         output_core_dims=[['R3', stencil_dim]],
-        vectorize=True,
+        vectorize=False,
         dask='parallelized',
         output_dtypes=[weights.dtype],
         dask_gufunc_kwargs={
@@ -461,11 +460,11 @@ def solve_psuedo_inverse(M: xr.DataArray) -> xr.DataArray:
     stencil_dim = _stencil_dim(M)
 
     return xr.apply_ufunc(
-        linalg.pinv,
+        np.linalg.pinv,
         M,
         input_core_dims=[[stencil_dim, 'SIX']],
         output_core_dims=[['SIX', stencil_dim]],
-        vectorize=True,
+        vectorize=False,
         dask='parallelized',
         output_dtypes=[M.dtype],
         dask_gufunc_kwargs={
