@@ -1,7 +1,7 @@
 import importlib.resources as imp_res
 from configparser import ConfigParser
 from types import SimpleNamespace
-from typing import cast
+from typing import Any, cast
 
 import pytest
 from ruamel.yaml import YAML
@@ -63,6 +63,7 @@ class _FakeStep:
         eos_type='teos-10',
         path='WORK',
         forcing_filename='forcing.nc',
+        init_filename='init.nc',
     ):
         self.path = path
         self.calls = []
@@ -70,6 +71,7 @@ class _FakeStep:
         # forward run, which always reads the initial state
         self.stage = None
         self.forcing_filename = forcing_filename
+        self.init_filename = init_filename
         self.config = ConfigParser()
         self.config.add_section('ocean')
         self.config.set('ocean', 'model', model)
@@ -87,8 +89,14 @@ class _FakeStep:
     def add_forcing_input_file(self, **kwargs):
         self.calls.append(('forcing', kwargs))
 
+    def add_input_file(self, **kwargs):
+        self.calls.append((kwargs.get('filename'), kwargs))
+
     def get_forcing_filename(self):
         return self.forcing_filename
+
+    def get_init_filename(self):
+        return self.init_filename
 
 
 # --- ForwardStage ---
@@ -589,42 +597,94 @@ def test_forcing_streams_yaml_points_at_the_staged_file(
     assert stream[filename_option] == 'custom_forcing.nc'
 
 
-def test_database_initial_condition_mpas_ocean():
-    ic = DatabaseInitialCondition(
-        mesh_name='QU240km',
-        mesh_id=151209,
+def _database_ic(**overrides) -> DatabaseInitialCondition:
+    values: dict[str, Any] = dict(
+        mesh_name='QU.240km',
+        mpaso_id=151209,
+        omega_id=260807,
         min_res=240.0,
-        approx_cell_count=10417,
+        approx_cell_count=7153,
     )
+    values.update(overrides)
+    return DatabaseInitialCondition(**values)
+
+
+def test_database_initial_condition_mpas_ocean():
+    """
+    One zerovel file supplies both the mesh and the initial state, and the
+    graph comes from the database beside it rather than from an upstream step.
+    """
+    ic = _database_ic()
     assert ic.graph_target is None
     assert ic.min_res == 240.0
-    assert ic.approx_cell_count == 10417
+    assert ic.approx_cell_count == 7153
 
     step = _FakeStep(model='mpas-ocean', eos_type='teos-10')
     ic.add_input_files(cast(OceanModelStep, step))
     by_kind = dict(step.calls)
-    # only the initial condition is pulled from the database for MPAS-Ocean
-    assert set(by_kind) == {'init'}
-    assert by_kind['init']['target'] == 'ocean.QU240km.151209.teos10.nc'
-    assert by_kind['init']['database'] == 'realistic_global/mpas-ocean'
+    assert set(by_kind) == {'init', 'horiz_mesh', 'graph.info'}
+    database = 'realistic_global/mpas-ocean/QU.240km'
+    target = 'ocean.QU.240km.151209.zerovel.nc'
+    for kind in ('init', 'horiz_mesh'):
+        assert by_kind[kind]['target'] == target
+        assert by_kind[kind]['database'] == database
+    assert by_kind['graph.info']['target'] == 'graph.info.151209'
+    assert by_kind['graph.info']['database'] == database
 
 
-def test_database_initial_condition_omega_also_adds_mesh():
-    ic = DatabaseInitialCondition(
-        mesh_name='QU240km',
-        mesh_id=151209,
-        min_res=240.0,
-        approx_cell_count=10417,
-        eos_type='teos10',
-    )
-    step = _FakeStep(model='omega')
+def test_database_initial_condition_omega():
+    """
+    Omega reads one file as mesh, vertical coordinate and initial state, and
+    partitions internally, so it needs no graph.
+    """
+    ic = _database_ic()
+    step = _FakeStep(model='omega', eos_type='teos-10')
     ic.add_input_files(cast(OceanModelStep, step))
     by_kind = dict(step.calls)
-    assert set(by_kind) == {'init', 'horiz_mesh'}
-    target = 'ocean.QU240km.151209.teos10.nc'
-    assert by_kind['init']['target'] == target
-    assert by_kind['horiz_mesh']['target'] == target
-    assert by_kind['horiz_mesh']['database'] == 'realistic_global/omega'
+    assert set(by_kind) == {'init', 'horiz_mesh', 'vert_coord'}
+    # 'teos-10' from config is normalized to the 'teos10' in the filename
+    target = 'ocean.QU.240km.151209.teos10.260807.nc'
+    for kind in ('init', 'horiz_mesh', 'vert_coord'):
+        assert by_kind[kind]['target'] == target
+        assert by_kind[kind]['database'] == 'realistic_global/omega/QU.240km'
+
+
+def test_database_initial_condition_needs_an_omega_id_for_omega():
+    """
+    The Omega filename carries a second id.  Without it the name would be
+    silently wrong, and the failure would be a download error far from the
+    cause.
+    """
+    ic = _database_ic(omega_id=None)
+    step = _FakeStep(model='omega')
+    with pytest.raises(ValueError, match='omega_id'):
+        ic.add_input_files(cast(OceanModelStep, step))
+    # MPAS-Ocean does not need it
+    ic.add_input_files(cast(OceanModelStep, _FakeStep(model='mpas-ocean')))
+
+
+def test_database_forcing_streams_read_the_initial_condition():
+    """
+    Every realistic_global forward run is wind-forced.  A database source
+    carries the wind stress inside the initial-condition file, so the forcing
+    streams have to be pointed at that file rather than at a forcing file that
+    does not exist.
+    """
+    ic = _database_ic()
+    assert ic.provides_forcing_file
+    step = _FakeStep(model='mpas-ocean', init_filename='init.nc')
+    assert ic.get_forcing_filename(cast(OceanModelStep, step)) == 'init.nc'
+    # a step-backed source keeps using its own staged forcing file
+    step_ic = StepInitialCondition(
+        cast(Step, _FakeStep(path='WORK/initial_state')),
+        min_res=240.0,
+        approx_cell_count=7153,
+        forcing_step=cast(Step, _FakeStep(path='WORK/forcing')),
+    )
+    assert (
+        step_ic.get_forcing_filename(cast(OceanModelStep, step))
+        == 'forcing.nc'
+    )
 
 
 # --- Forward.compute_cell_count ---
