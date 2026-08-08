@@ -194,6 +194,17 @@ seaice/api
    ModelStep.partition
 ```
 
+### attrs
+
+```{eval-rst}
+.. currentmodule:: polaris.attrs
+
+.. autosummary::
+   :toctree: generated/
+
+   set_attrs
+```
+
 ### config
 
 ```{eval-rst}
