@@ -66,8 +66,16 @@ class MappingFileStep(Step):
             ntasks=ntasks,
             min_tasks=min_tasks,
         )
+        # use_tmp=False because pyremap would otherwise put the SCRIP and
+        # MOAB .h5m files in a temporary directory under /tmp, which is
+        # node-local on many HPC machines.  The MPI tasks running the mapping
+        # tool are typically spread over several nodes, so the files must be
+        # in the step's work directory on a shared filesystem.
         self.remapper = Remapper(
-            ntasks=ntasks, map_filename=map_filename, method=method
+            ntasks=ntasks,
+            map_filename=map_filename,
+            method=method,
+            use_tmp=False,
         )
 
     def run(self):

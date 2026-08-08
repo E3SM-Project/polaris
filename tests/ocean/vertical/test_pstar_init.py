@@ -35,6 +35,10 @@ OUTPUT_VARS = [
     'maxLevelCell',
     'RefPseudoThickness',
     'vertCoordMovementWeights',
+    'refTopDepth',
+    'refZMid',
+    'refBottomDepth',
+    'refInterfaces',
 ]
 
 # ---------------------------------------------------------------------------
@@ -204,6 +208,9 @@ def test_minimal_subclass_returns_complete_dataset():
 
     for var in OUTPUT_VARS:
         assert var in ds, f'{var!r} missing from output dataset'
+
+    # refInterfaces spans layer interfaces (one more than layer midpoints)
+    assert ds.sizes['nVertLevelsP1'] == ds.sizes['nVertLevels'] + 1
 
 
 def test_every_output_variable_is_labelled():

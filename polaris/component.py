@@ -213,6 +213,54 @@ class Component:
             )
         self.configs[config.filepath] = config
 
+    def get_or_create_shared_config(self, filepath, create=None):
+        """
+        Get a shared config from the component if it exists, otherwise build
+        and add it.
+
+        The companion to :py:meth:`get_or_create_shared_step`, and needed for
+        the same reason.  A ``get_*_steps()`` helper is called once per
+        consumer, so building its config unconditionally hands the second
+        caller a config that the shared steps -- created on the first call --
+        are not using.  Options set on it reach nothing, and passing it to
+        :py:meth:`polaris.Task.set_shared_config` raises, because a different
+        config is already registered at that path.
+
+        Parameters
+        ----------
+        filepath : str
+            The path of the config file relative to the base work directory,
+            which is what identifies a shared config
+
+        create : callable, optional
+            Called with no arguments to build the config, and only when it does
+            not already exist -- so it must not be relied on for anything a
+            later caller needs.  It must return a
+            :py:class:`polaris.config.PolarisConfigParser` whose ``filepath``
+            is ``filepath``.  A config builder that returns a new parser, as
+            several in Polaris do, can be passed directly.  The default builds
+            an empty parser.
+
+        Returns
+        -------
+        config : polaris.config.PolarisConfigParser
+            The shared config parser
+        """
+        if filepath in self.configs:
+            return self.configs[filepath]
+        if create is None:
+            config = PolarisConfigParser(filepath=filepath)
+        else:
+            config = create()
+            if config.filepath != filepath:
+                raise ValueError(
+                    f'The config built for {filepath} has filepath '
+                    f'{config.filepath}; it would be registered under a path '
+                    f'it does not know about.'
+                )
+        self.add_config(config)
+        return config
+
     def configure(self, config, tasks):
         """
         Configure the component
@@ -319,6 +367,7 @@ class Component:
             pkg_file = imp_res.files(package).joinpath(filename)
             with pkg_file.open('r') as data_file:
                 self.cached_files = json.load(data_file)
-        except FileNotFoundError:
-            # no cached files for this core
+        except (FileNotFoundError, ModuleNotFoundError, TypeError):
+            # the component has no package of its own or no cached files in
+            # it, so there is nothing to read
             pass
