@@ -21,6 +21,12 @@ For examples, see:
 - {ref}`dev-ocean` in the Developer's Guide
 - {ref}`dev-ocean-baroclinic-channel` tasks in the Developer's Guide
 
+Similarly, each time a machine is added or removed, or a compiler or MPI
+library is added, removed or renamed, the pull request making the change must
+also update `docs/developers_guide/supported_machines.yaml`, from which the
+table of supported machines in the Developer's Guide is generated.  See
+{ref}`dev-supported-machines-yaml`.
+
 Documentation for each component in the User's guide should include a label
 with the name of the component:
 

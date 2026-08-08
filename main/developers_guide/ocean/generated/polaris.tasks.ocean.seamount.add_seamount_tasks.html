@@ -140,7 +140,12 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.seamount.add_seamount_tasks">
 <span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.seamount.</span></span><span class="sig-name descname"><span class="pre">add_seamount_tasks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/seamount.html#add_seamount_tasks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.seamount.add_seamount_tasks" title="Link to this definition"></a></dt>
-<dd><p>Add a task following the seamount test case</p>
+<dd><p>Add tasks following the seamount test case</p>
+<p>Variants combine the equation of state (linear or nonlinear) with the
+vertical coordinate used for the initial condition, <code class="docutils literal notranslate"><span class="pre">sigma</span></code>
+(terrain-following) or <code class="docutils literal notranslate"><span class="pre">zstar</span></code>.  Both coordinates are geometric, so
+both are supported by MPAS-Ocean and by Omega, which reads them as
+pseudo-thickness.</p>
 <dl class="simple">
 <dt>component<span class="classifier">polaris.ocean.Ocean</span></dt><dd><p>the ocean component that the task will be added to</p>
 </dd>

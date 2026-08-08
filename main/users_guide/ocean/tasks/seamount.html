@@ -75,7 +75,9 @@
 <li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation 2-d</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">seamount</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#variants">variants</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#default-task">default task</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#short-task">short task</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
@@ -154,7 +156,59 @@
 This case tests the error due to pressure gradients in tilted layers.</p>
 <section id="supported-models">
 <h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
-<p>These tasks support only MPAS-Ocean.</p>
+<p>These tasks support both MPAS-Ocean and Omega.</p>
+<p>The vertical coordinate is built in geometric height in either case, and is
+converted to the pseudo-height (<code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code>) that Omega’s p-star
+dynamics read when <code class="docutils literal notranslate"><span class="pre">model</span> <span class="pre">=</span> <span class="pre">omega</span></code>.  Both models therefore start from the same
+geometric layer positions, which is what makes the two comparable.  The
+conversion integrates gauge pressure down each column through the configured
+equation of state, so it needs no p-star-specific initialization and no
+reference pseudo-grid.</p>
+<p>Because Omega’s linear equation of state has no reference temperature or
+salinity, <code class="docutils literal notranslate"><span class="pre">eos_linear_Tref</span></code> and <code class="docutils literal notranslate"><span class="pre">eos_linear_Sref</span></code> must both be zero; the
+Beckmann and Haidvogel reference state is folded into <code class="docutils literal notranslate"><span class="pre">eos_linear_rhoref</span></code>
+instead.</p>
+<p>Omega has no split time stepper, so it is limited by the barotropic gravity
+wave.  Rather than let the two models use different integrators, MPAS-Ocean
+gives up its split-explicit scheme and both run RK4 at the same <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code>
+until Omega gains a split time stepper.  <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> therefore has no
+effect unless <code class="docutils literal notranslate"><span class="pre">time_integrator</span></code> is set back to a split-explicit scheme.</p>
+</section>
+<section id="variants">
+<span id="ocean-seamount-variants"></span><h2>variants<a class="headerlink" href="#variants" title="Link to this heading"></a></h2>
+<p>Each task exists in four trees, combining the equation of state with the
+vertical coordinate used for the initial condition:
+<code class="docutils literal notranslate"><span class="pre">planar/seamount/{linear,nonlinear}/{sigma,zstar}</span></code>.</p>
+<p>The coordinate chooses how much the layers tilt:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sigma</span></code> — the terrain-following coordinate, and the main target.  Every
+layer is tilted relative to the isobars by construction, so the pressure
+gradient error is exercised throughout the water column.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">zstar</span></code> — the control.  Layers are nearly level, so the spurious velocity
+should be much smaller.  Partial bottom cells are used here: z-star cuts
+the reference grid at the seafloor, and without snapping the seamount
+flanks produce bottom cells only centimetres thick.  Set
+<code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">full</span></code> for the limiting case in which the layers are
+exactly level and the pressure gradient vanishes to machine precision.</p></li>
+</ul>
+<p>The equation of state chooses whether density depends on pressure:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">linear</span></code> — <code class="docutils literal notranslate"><span class="pre">rho</span> <span class="pre">=</span> <span class="pre">rhoref</span> <span class="pre">-</span> <span class="pre">alpha</span> <span class="pre">*</span> <span class="pre">(T</span> <span class="pre">-</span> <span class="pre">Tref)</span> <span class="pre">+</span> <span class="pre">beta</span> <span class="pre">*</span> <span class="pre">(S</span> <span class="pre">-</span> <span class="pre">Sref)</span></code>, with
+no pressure dependence at all.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> — TEOS-10 for Omega and Jackett-McDougall (<code class="docutils literal notranslate"><span class="pre">jm</span></code>) for
+MPAS-Ocean, the closest nonlinear equation of state it has.  The thermal
+expansion coefficient then varies along a tilted layer, which the linear
+trees cannot represent.</p></li>
+</ul>
+<p>The two equations of state are given the same buoyancy stratification, as
+described under <a class="reference internal" href="#ocean-seamount-init"><span class="std std-ref">initial conditions</span></a>, so a difference in spurious
+velocity between the <code class="docutils literal notranslate"><span class="pre">linear</span></code> and <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees is attributable to the
+equation of state and not to a different <code class="docutils literal notranslate"><span class="pre">N^2</span></code>.</p>
+<p>One caveat on cross-model comparison: TEOS-10 and Jackett-McDougall are
+genuinely different functions, not two implementations of one, so the two
+models are only expected to agree qualitatively in the <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees.
+In the <code class="docutils literal notranslate"><span class="pre">linear</span></code> trees they solve the same equation of state and can be
+compared directly.</p>
 </section>
 <section id="default-task">
 <span id="ocean-seamount-default"></span><h2>default task<a class="headerlink" href="#default-task" title="Link to this heading"></a></h2>
@@ -162,7 +216,7 @@ This case tests the error due to pressure gradients in tilted layers.</p>
 <h3>description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
 <p>The test case begins with a zero velocity field and is unforced, so the exact solution is to remain motionless.
 The seamount rises from a flat sea floor in the center of the domain.
-In a pure z-level vertical coordinate without partial bottom cells (<code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">full</span></code>), the pressure gradient will remain zero and induce no flow to machine precision. When any layer tilting is added, including from partial bottom cells, some flow is introduced by the pressure gradient error. This is fundamentally because the pressure must be extrapolated vertically at cell centers to the mid-depth of the edge. The default setting is the sigma coordinate. These are the images produced in the <code class="docutils literal notranslate"><span class="pre">viz</span></code> folder.</p>
+In a pure z-level vertical coordinate without partial bottom cells (<code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">full</span></code>), the pressure gradient will remain zero and induce no flow to machine precision. When any layer tilting is added, including from partial bottom cells, some flow is introduced by the pressure gradient error. This is fundamentally because the pressure must be extrapolated vertically at cell centers to the mid-depth of the edge. The default setting is the sigma coordinate. These are the images produced in the <code class="docutils literal notranslate"><span class="pre">viz</span></code> folder, which runs by default in this task because the 6 day forward run is too long to want to repeat just to get the plots.</p>
 <a class="reference internal image-reference" href="../../../_images/seamount_velocity_max_t.png"><img alt="../../../_images/seamount_velocity_max_t.png" class="align-center" src="../../../_images/seamount_velocity_max_t.png" style="width: 700px;" />
 </a>
 <a class="reference internal image-reference" href="../../../_images/seamount_final_kineticEnergyCell_section.png"><img alt="../../../_images/seamount_final_kineticEnergyCell_section.png" class="align-center" src="../../../_images/seamount_final_kineticEnergyCell_section.png" style="width: 700px;" />
@@ -173,13 +227,37 @@ In a pure z-level vertical coordinate without partial bottom cells (<code class=
 <section id="mesh">
 <h3>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h3>
 <p>The domain is planar and periodic on the zonal and the
-meridional boundaries. The 6.7 km resolution is tested by default,
+meridional boundaries. The 6.4 km resolution is tested by default,
 which is set by the <code class="docutils literal notranslate"><span class="pre">resolution</span></code> config option. The domain is
-320 km by 320 km, as given by the config options <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code>.</p>
+320 km by 320 km, as given by the config options <code class="docutils literal notranslate"><span class="pre">lx</span></code> and <code class="docutils literal notranslate"><span class="pre">ly</span></code>,
+which at 6.4 km is exactly 50 cells across; the hexagonal mesh is 58 cells
+in the other direction, for 321.5 km.</p>
+<p>Neither the domain size nor the resolution is prescribed by Beckmann and
+Haidvogel — only the seamount shape and the stratification are. The
+quantity that determines how hard this case is on a tilted coordinate is
+the discrete steepness of the seamount, <code class="docutils literal notranslate"><span class="pre">max</span> <span class="pre">|dh|</span> <span class="pre">/</span> <span class="pre">(h1</span> <span class="pre">+</span> <span class="pre">h2)</span></code> between
+adjacent cells, which for a Gaussian seamount is about
+<code class="docutils literal notranslate"><span class="pre">1.5</span> <span class="pre">*</span> <span class="pre">resolution</span> <span class="pre">/</span> <span class="pre">seamount_width</span></code>, or 0.21 here.</p>
 </section>
 <section id="vertical-grid">
 <h3>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h3>
-<p>The default setting is a sigma (terrain-following) vertical coordinate. One may also test z-level coordinates (<code class="docutils literal notranslate"><span class="pre">coord_type</span> <span class="pre">=</span> <span class="pre">z-level</span></code>) with full cells (<code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">full</span></code>) or partial bottom cells (<code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">None</span></code>). Here <code class="docutils literal notranslate"><span class="pre">None</span></code> means no alteration, so it uses original bottom depth.</p>
+<p>The coordinate is set by the task tree, <code class="docutils literal notranslate"><span class="pre">sigma</span></code> or <code class="docutils literal notranslate"><span class="pre">zstar</span></code>, as described in
+<a class="reference internal" href="#ocean-seamount-variants"><span class="std std-ref">variants</span></a>. <code class="docutils literal notranslate"><span class="pre">coord_type</span></code> therefore lives in
+<code class="docutils literal notranslate"><span class="pre">seamount_sigma.cfg</span></code> / <code class="docutils literal notranslate"><span class="pre">seamount_zstar.cfg</span></code> rather than in the shared config
+below. One may also test <code class="docutils literal notranslate"><span class="pre">coord_type</span> <span class="pre">=</span> <span class="pre">z-level</span></code>.</p>
+<p>All of these are geometric coordinates, so all of them reach Omega through
+the same pseudo-height conversion, under either equation of state.</p>
+<p>The 32 levels divide the 5000 m bottom depth into exact 156.25 m layers. That
+is a multiple of 16, which Omega prefers, and it sits in the range the
+literature uses for this case (20 in Beckmann and Haidvogel, 20-30 in
+Shchepetkin and McWilliams). It also keeps the z-star tree usable: with the
+10 levels this task used previously, the 500 m summit column would have had a
+single level.</p>
+<p><code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">None</span></code> means no alteration, so the original bottom depth
+is used; <code class="docutils literal notranslate"><span class="pre">partial</span></code> snaps the bottom cell to at least <code class="docutils literal notranslate"><span class="pre">min_pc_fraction</span></code> of a
+full cell, and <code class="docutils literal notranslate"><span class="pre">full</span></code> snaps it to a whole cell. The z-star tree overrides the
+default below to <code class="docutils literal notranslate"><span class="pre">partial</span></code>, because without snapping the seamount flanks
+produce bottom cells only centimetres thick.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
 <span class="k">[vertical_grid]</span>
 
@@ -187,38 +265,88 @@ which is set by the <code class="docutils literal notranslate"><span class="pre"
 <span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5000.0</span>
 
 <span class="c1"># Number of vertical levels</span>
-<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span>
+<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32</span>
 
 <span class="c1"># The type of vertical grid</span>
 <span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">uniform</span>
 
-<span class="c1"># The type of vertical coordinate (e.g. z-level, z-star)</span>
-<span class="na">coord_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">sigma</span>
-
 <span class="c1"># Whether to use &quot;partial&quot; or &quot;full&quot;, or &quot;None&quot; to not alter the topography</span>
 <span class="na">partial_cell_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+
+<span class="c1"># The minimum fraction of a layer for partial cells</span>
+<span class="na">min_pc_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
 </pre></div>
 </div>
 </section>
 <section id="initial-conditions">
-<h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h3>
+<span id="ocean-seamount-init"></span><h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h3>
 <p>Salinity is constant throughout the domain at the value given by the config
-option <code class="docutils literal notranslate"><span class="pre">constant_salinity</span></code> (35 PSU by default).  The initial density
+option <code class="docutils literal notranslate"><span class="pre">constant_salinity</span></code> (35 by default), read as practical salinity in
+the <code class="docutils literal notranslate"><span class="pre">linear</span></code> trees and as absolute salinity in the <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> ones.  The
+initial density
 is based on the formulas given in <a class="reference external" href="https://journals.ametsoc.org/view/journals/phoc/23/8/1520-0485_1993_023_1736_nsofaa_2_0_co_2.xml">Beckmann and Haidvogel (1993)</a> equations 15-16.
-The initial temperature is back-computed from this density with an assumed linear equation of state using
-<code class="docutils literal notranslate"><span class="pre">seamount_density_Tref</span></code> and <code class="docutils literal notranslate"><span class="pre">seamount_density_alpha</span></code>.</p>
+Temperature is then back-computed from that density, so the profile rather
+than the temperature is what the two equations of state have in common.</p>
+<p>In the <code class="docutils literal notranslate"><span class="pre">linear</span></code> trees the inversion is algebraic: the equation of state that
+Polaris and both ocean models apply,
+<code class="docutils literal notranslate"><span class="pre">rho</span> <span class="pre">=</span> <span class="pre">rhoref</span> <span class="pre">-</span> <span class="pre">alpha</span> <span class="pre">*</span> <span class="pre">(T</span> <span class="pre">-</span> <span class="pre">Tref)</span> <span class="pre">+</span> <span class="pre">beta</span> <span class="pre">*</span> <span class="pre">(S</span> <span class="pre">-</span> <span class="pre">Sref)</span></code>, is solved for <code class="docutils literal notranslate"><span class="pre">T</span></code>
+using the <code class="docutils literal notranslate"><span class="pre">eos_linear_*</span></code> options in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section. The salinity term
+matters: dropping it would leave the model’s density offset from the
+Beckmann and Haidvogel profile by <code class="docutils literal notranslate"><span class="pre">beta</span> <span class="pre">*</span> <span class="pre">S</span></code>, which is harmless in
+MPAS-Ocean but not in Omega, where the geometric-to-pseudo-height mapping
+depends on the absolute density.</p>
+<p>In the <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees the profile is read as a <strong>potential density
+referenced to the surface</strong>, and conservative temperature comes from
+<code class="docutils literal notranslate"><span class="pre">gsw.CT_from_rho</span></code> at zero reference pressure.  It cannot be read as in-situ
+density: TEOS-10 in-situ density at 5000 m is near 1050 kg m^{-3} from
+compression alone, well outside the 1025-1028 kg m^{-3} range the profile
+spans, so no temperature would reproduce it below about 1000 m.  Referencing
+to the surface also means the <code class="docutils literal notranslate"><span class="pre">linear</span></code> and <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees share a
+buoyancy stratification exactly while their in-situ densities differ by more
+than 20 kg m^{-3} at depth — which is the point, since that difference is
+what a nonlinear equation of state contributes to the pressure gradient
+error.</p>
+<p>Omega receives conservative temperature and absolute salinity directly.  For
+MPAS-Ocean the <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> tracers are converted to potential temperature and
+practical salinity at a nominal lon/lat location (config options
+<code class="docutils literal notranslate"><span class="pre">ocean:nominal_lon</span></code> and <code class="docutils literal notranslate"><span class="pre">ocean:nominal_lat</span></code>, both defaulting to 0 degrees)
+since the planar mesh has no geographic location.</p>
 </section>
 <section id="forcing">
 <h3>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h3>
 <p>N/A</p>
+</section>
+<section id="vertical-mixing-and-bottom-drag">
+<h3>vertical mixing and bottom drag<a class="headerlink" href="#vertical-mixing-and-bottom-drag" title="Link to this heading"></a></h3>
+<p>All vertical mixing is off in both models. The exact solution is a resting
+ocean, so the only thing that would trigger convection is a spurious pressure
+gradient — the quantity being measured — and convection is a known source of
+MPAS-Ocean/Omega divergence, since Omega uses a single coefficient for both
+convective diffusivity and viscosity. Convection and shear mixing are
+switched off explicitly and the background diffusivity and viscosity are
+zeroed, because Omega defaults them on; MPAS-Ocean additionally sets
+<code class="docutils literal notranslate"><span class="pre">config_use_cvmix</span> <span class="pre">=</span> <span class="pre">false</span></code>, which leaves its vertical viscosity and
+diffusivity at zero.</p>
+<p>Only the coefficients are zeroed. The implicit vertical mixing solve itself
+stays on in both models, because that is what applies the implicit bottom
+drag; Omega aborts if the vertical mixing tendency is disabled while the
+bottom drag is implicit.</p>
+<p>Bottom drag is implicit and constant in both models, at
+<code class="docutils literal notranslate"><span class="pre">bottom_drag_coeff</span> <span class="pre">=</span> <span class="pre">1.0e-3</span></code>. That is an order of magnitude below the value
+comparable idealized planar cases use. The implicit drag damping timescale is
+<code class="docutils literal notranslate"><span class="pre">h_bot</span> <span class="pre">/</span> <span class="pre">(Cd</span> <span class="pre">*</span> <span class="pre">|u|)</span></code>, and the bottom layer over the seamount summit is only
+about 16 m thick, so at <code class="docutils literal notranslate"><span class="pre">1.0e-2</span></code> a 5 cm/s spurious velocity would damp in
+under half a day against a 6 day run — capping a bad pressure gradient while
+leaving a good one untouched, and compressing the dynamic range this test
+exists to measure.</p>
 </section>
 <section id="time-step-and-run-duration">
 <h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h3>
 <p>The time step for forward integration is automatically computed based on the gridcell size. The run duration is as follows.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[seamount_default]</span>
 
-<span class="c1"># Run duration (days)</span>
-<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">6.</span>
+<span class="c1"># Run duration (hours)</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">144.</span>
 
 <span class="c1"># Output interval (hours)</span>
 <span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.</span>
@@ -231,11 +359,21 @@ The initial temperature is back-computed from this density with an assumed linea
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the seamount case</span>
 <span class="k">[seamount]</span>
 
-<span class="c1"># Timestep per km horizontal resolution (s)</span>
-<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10.</span>
+<span class="c1"># Timestep per km horizontal resolution (s), shared by both models</span>
+<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.0</span>
 
-<span class="c1"># Barotropic timestep per km horizontal resolution (s)</span>
+<span class="c1"># Barotropic timestep per km horizontal resolution (s), MPAS-Ocean only, and</span>
+<span class="c1"># unused unless time_integrator is a split-explicit scheme</span>
 <span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.5</span>
+
+<span class="c1"># Time integrator, shared by both models</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+
+<span class="c1"># Horizontal tracer advection order, shared by both models</span>
+<span class="na">horiz_adv_order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>
+
+<span class="c1"># Constant bottom drag coefficient</span>
+<span class="na">bottom_drag_coeff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-3</span>
 
 <span class="c1"># The width of the domain in the across-slope dimension (km)</span>
 <span class="na">ly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">320</span>
@@ -243,8 +381,8 @@ The initial temperature is back-computed from this density with an assumed linea
 <span class="c1"># The length of the domain in the along-slope dimension (km)</span>
 <span class="na">lx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">320</span>
 
-<span class="c1"># Distance from two cell centers (km)</span>
-<span class="na">resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">6.7</span>
+<span class="c1"># Distance between two cell centers (km)</span>
+<span class="na">resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">6.4</span>
 
 <span class="c1"># Bottom depth at bottom of seamount</span>
 <span class="na">max_bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${vertical_grid:bottom_depth}</span>
@@ -271,33 +409,102 @@ The initial temperature is back-computed from this density with an assumed linea
 <span class="c1"># Density reference depth for exponential vertical stratification (m)</span>
 <span class="na">seamount_density_depth_exp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">500.0</span>
 
-<span class="c1"># Density reference for eos to initialize temperature (kg m^{-3})</span>
-<span class="na">seamount_density_ref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1028.0</span>
-
-<span class="c1"># Reference temperature for eos to initialize temperature (C)</span>
-<span class="na">seamount_density_Tref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5.0</span>
-
-<span class="c1"># Linear thermal expansion coefficient to initialize temperature (kg m^{-3} C^{-1})</span>
-<span class="na">seamount_density_alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.2</span>
-
 <span class="c1"># Height of sea mount, H_0 (m)</span>
 <span class="na">seamount_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4500.0</span>
 
 <span class="c1"># Width parameter of sea mount, e-folding length (m)</span>
 <span class="na">seamount_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">40.0e3</span>
 
-<span class="c1"># Salinity of the water in the entire domain (PSU)</span>
+<span class="c1"># Salinity of the water in the entire domain, read as practical salinity</span>
+<span class="c1"># (PSU) for the linear trees and as absolute salinity (g kg^-1) for the</span>
+<span class="c1"># nonlinear ones</span>
 <span class="na">constant_salinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">35.0</span>
-
-<span class="c1"># Coriolis parameter for entire domain (s^{-1})</span>
-<span class="na">coriolis_parameter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-1.0e-4</span>
 </pre></div>
 </div>
+<p>The <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees add no config options of their own; they take their
+equation of state from <code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos</span></code>’s <code class="docutils literal notranslate"><span class="pre">teos10.cfg</span></code> and the nominal
+location for the salinity conversion from the shared <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section.</p>
+<p>The Coriolis parameter is set in the shared <code class="docutils literal notranslate"><span class="pre">coriolis</span></code> section:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for Coriolis</span>
+<span class="k">[coriolis]</span>
+
+<span class="c1"># type of Coriolis: zero, constant, beta_plane, spherical, or rotated_sphere</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">constant</span>
+
+<span class="c1"># the constant Coriolis parameter</span>
+<span class="na">constant_f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-1.0e-4</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">linear</span></code> trees configure their equation of state in <code class="docutils literal notranslate"><span class="pre">ocean</span></code>, through
+<code class="docutils literal notranslate"><span class="pre">seamount_linear.cfg</span></code>. <code class="docutils literal notranslate"><span class="pre">eos_linear_Tref</span></code> must be zero, because Omega’s
+linear equation of state has no reference temperature; the Beckmann and
+Haidvogel reference state (1028 kg m^{-3} at T = 5 C, S = 35 PSU) is folded
+into <code class="docutils literal notranslate"><span class="pre">eos_linear_rhoref</span></code> instead, as
+<code class="docutils literal notranslate"><span class="pre">1028.0</span> <span class="pre">+</span> <span class="pre">0.2</span> <span class="pre">*</span> <span class="pre">5.0</span> <span class="pre">-</span> <span class="pre">0.8</span> <span class="pre">*</span> <span class="pre">35.0</span> <span class="pre">=</span> <span class="pre">1001.0</span></code>. <code class="docutils literal notranslate"><span class="pre">eos_linear_beta</span></code> and
+<code class="docutils literal notranslate"><span class="pre">eos_linear_Sref</span></code> come from <code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos</span></code>’s <code class="docutils literal notranslate"><span class="pre">linear.cfg</span></code>. These
+options have no meaning in the <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees, which is why they live in
+a per-variant config rather than the shared one.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related the ocean component</span>
+<span class="k">[ocean]</span>
+
+<span class="c1"># Equation of state reference density when T and S are the reference values</span>
+<span class="na">eos_linear_rhoref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1001.</span>
+
+<span class="c1"># Equation of state -drho/dT</span>
+<span class="na">eos_linear_alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.2</span>
+
+<span class="c1"># Equation of state reference temperature</span>
+<span class="na">eos_linear_Tref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees instead pick up <code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos</span></code>’s <code class="docutils literal notranslate"><span class="pre">teos10.cfg</span></code>,
+which sets <code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">teos-10</span></code> and nothing else; Polaris maps that to <code class="docutils literal notranslate"><span class="pre">jm</span></code>
+for MPAS-Ocean.</p>
 </section>
 <section id="cores">
 <h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
 <p>The number of cores is determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file.</p>
+</section>
+</section>
+<section id="short-task">
+<span id="ocean-seamount-short"></span><h2>short task<a class="headerlink" href="#short-task" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">short</span></code> task is the <code class="docutils literal notranslate"><span class="pre">default</span></code> task run for 1 hour instead of 6 days.  It
+exists for regression testing: an hour is far too short for the spurious
+circulation to develop, so it says nothing about the pressure gradient error,
+but it is long enough to catch a change in the answer cheaply.  It is
+otherwise identical to the <code class="docutils literal notranslate"><span class="pre">default</span></code> task — same mesh, vertical grid, initial
+condition, time step and physics — and it exists in all four trees.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> step is present but does not run by default here, since re-running
+the task to get the plots costs almost nothing.</p>
+<p>Two of the four are in the <code class="docutils literal notranslate"><span class="pre">mpaso_pr</span></code> and <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suites:
+<code class="docutils literal notranslate"><span class="pre">planar/seamount/linear/zstar/short</span></code> and
+<code class="docutils literal notranslate"><span class="pre">planar/seamount/nonlinear/sigma/short</span></code>.  That pair covers both equations of
+state and both vertical coordinates in two runs rather than four.</p>
+</section>
+<section id="id2">
+<h3>time step and run duration<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>The time step is computed from the gridcell size exactly as in the <code class="docutils literal notranslate"><span class="pre">default</span></code>
+task.  Only the duration and output interval differ:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[seamount_short]</span>
+
+<span class="c1"># Run duration (hours)</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.</span>
+
+<span class="c1"># Output interval (hours)</span>
+<span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
+</pre></div>
+</div>
+<p>The output interval is half the run duration so that the time series the
+<code class="docutils literal notranslate"><span class="pre">viz</span></code> step plots has more than a single point in it.</p>
+</section>
+<section id="id3">
+<h3>config options<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>The short task adds no config options beyond the <code class="docutils literal notranslate"><span class="pre">[seamount_short]</span></code> section
+above; everything else comes from the shared options listed under
+<a class="reference internal" href="#ocean-seamount-default"><span class="std std-ref">default task</span></a>.</p>
 </section>
 </section>
 </section>

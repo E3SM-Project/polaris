@@ -120,8 +120,8 @@
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.seamount.default.Default.html#polaris.tasks.ocean.seamount.default.Default">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The default seamount test case simply creates the mesh and</span>
-<span class="sd">    initial condition, then performs a short forward run on 4 cores.</span>
+<span class="sd">    The default seamount test case creates the mesh and initial condition,</span>
+<span class="sd">    then performs a 6 day forward run and plots the results.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Default.__init__">
@@ -154,9 +154,9 @@
             <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
-            <span class="n">Viz</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">),</span> <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span>
-        <span class="p">)</span></div>
+        <span class="c1"># the forward run is 6 days long, so it is worth always producing the</span>
+        <span class="c1"># plots rather than making the user re-run the task to get them</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Viz</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">))</span></div>
 </div>
 
 </pre></div>

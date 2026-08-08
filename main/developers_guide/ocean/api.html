@@ -901,10 +901,10 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.add_seamount_tasks.html#polaris.tasks.ocean.seamount.add_seamount_tasks" title="polaris.tasks.ocean.seamount.add_seamount_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_seamount_tasks</span></code></a>(component)</p></td>
-<td><p>Add a task following the seamount test case</p></td>
+<td><p>Add tasks following the seamount test case</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.default.Default.html#polaris.tasks.ocean.seamount.default.Default" title="polaris.tasks.ocean.seamount.default.Default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default</span></code></a>(component, indir, init)</p></td>
-<td><p>The default seamount test case simply creates the mesh and initial condition, then performs a short forward run on 4 cores.</p></td>
+<td><p>The default seamount test case creates the mesh and initial condition, then performs a 6 day forward run and plots the results.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.forward.Forward.html#polaris.tasks.ocean.seamount.forward.Forward" title="polaris.tasks.ocean.seamount.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, init[, ...])</p></td>
 <td><p>A step for performing forward MPAS-Ocean runs as part of seamount test cases.</p></td>
@@ -924,10 +924,19 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.init.Init.run.html#polaris.tasks.ocean.seamount.init.Init.run" title="polaris.tasks.ocean.seamount.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.viz.Viz.html#polaris.tasks.ocean.seamount.viz.Viz" title="polaris.tasks.ocean.seamount.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.init_utils.compute_target_density.html#polaris.tasks.ocean.seamount.init_utils.compute_target_density" title="polaris.tasks.ocean.seamount.init_utils.compute_target_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_utils.compute_target_density</span></code></a>(config, z_mid)</p></td>
+<td><p>Compute the target Beckmann and Haidvogel stratification, either the linear profile of their eqn 15 or the exponential profile of their eqn 16.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.init_utils.compute_tracers.html#polaris.tasks.ocean.seamount.init_utils.compute_tracers" title="polaris.tasks.ocean.seamount.init_utils.compute_tracers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_utils.compute_tracers</span></code></a>(config, z_mid)</p></td>
+<td><p>Compute the temperature and salinity that reproduce the Beckmann and Haidvogel stratification under the configured equation of state.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.short.Short.html#polaris.tasks.ocean.seamount.short.Short" title="polaris.tasks.ocean.seamount.short.Short"><code class="xref py py-obj docutils literal notranslate"><span class="pre">short.Short</span></code></a>(component, indir, init)</p></td>
+<td><p>The short seamount test case creates the mesh and initial condition, then performs a 1 hour forward run.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.viz.Viz.html#polaris.tasks.ocean.seamount.viz.Viz" title="polaris.tasks.ocean.seamount.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir)</p></td>
 <td><p>A step for plotting the results of the default seamount forward step</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.viz.Viz.run.html#polaris.tasks.ocean.seamount.viz.Viz.run" title="polaris.tasks.ocean.seamount.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.viz.Viz.run.html#polaris.tasks.ocean.seamount.viz.Viz.run" title="polaris.tasks.ocean.seamount.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the task</p></td>
 </tr>
 </tbody>
@@ -1235,14 +1244,20 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.convert_tracers.html#polaris.ocean.eos.convert_tracers" title="polaris.ocean.eos.convert_tracers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_tracers</span></code></a>(ds, source, target, ...[, ...])</p></td>
 <td><p>Convert temperature and salinity pairs in <code class="docutils literal notranslate"><span class="pre">ds</span></code> between the TEOS-10 convention (conservative temperature and absolute salinity) and the MPAS-Ocean convention (potential temperature and practical salinity) using GSW.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.constant.compute_constant_density.html#polaris.ocean.eos.constant.compute_constant_density" title="polaris.ocean.eos.constant.compute_constant_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constant.compute_constant_density</span></code></a>(config, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.ct_from_potential_density.html#polaris.ocean.eos.ct_from_potential_density" title="polaris.ocean.eos.ct_from_potential_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ct_from_potential_density</span></code></a>(sigma_0, sa)</p></td>
+<td><p>Compute the conservative temperature that gives a target potential density referenced to the surface.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.constant.compute_constant_density.html#polaris.ocean.eos.constant.compute_constant_density" title="polaris.ocean.eos.constant.compute_constant_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constant.compute_constant_density</span></code></a>(config, ...)</p></td>
 <td><p>Compute the density of seawater based on the constant equation of state with the value specified in the configuration.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.linear.compute_linear_density.html#polaris.ocean.eos.linear.compute_linear_density" title="polaris.ocean.eos.linear.compute_linear_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linear.compute_linear_density</span></code></a>(config, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.linear.compute_linear_density.html#polaris.ocean.eos.linear.compute_linear_density" title="polaris.ocean.eos.linear.compute_linear_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linear.compute_linear_density</span></code></a>(config, ...)</p></td>
 <td><p>Compute the density of seawater based on the the linear equation of state with coefficients specified in the configuration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.teos10.compute_specvol.html#polaris.ocean.eos.teos10.compute_specvol" title="polaris.ocean.eos.teos10.compute_specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">teos10.compute_specvol</span></code></a>(sa, ct, p)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.teos10.compute_specvol.html#polaris.ocean.eos.teos10.compute_specvol" title="polaris.ocean.eos.teos10.compute_specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">teos10.compute_specvol</span></code></a>(sa, ct, p)</p></td>
 <td><p>Compute specific volume from co-located p, CT and SA.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.eos.teos10.ct_from_potential_density.html#polaris.ocean.eos.teos10.ct_from_potential_density" title="polaris.ocean.eos.teos10.ct_from_potential_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">teos10.ct_from_potential_density</span></code></a>(sigma_0, sa)</p></td>
+<td><p>Compute the conservative temperature that gives a target potential density referenced to the surface.</p></td>
 </tr>
 </tbody>
 </table>

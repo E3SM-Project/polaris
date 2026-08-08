@@ -489,6 +489,11 @@
    init.Init.setup
    init.Init.run
 
+   init_utils.compute_target_density
+   init_utils.compute_tracers
+
+   short.Short
+
    viz.Viz
    viz.Viz.run
 ```
@@ -675,10 +680,12 @@
    compute_specvol
    convert_tracer_pair
    convert_tracers
+   ct_from_potential_density
 
    constant.compute_constant_density
    linear.compute_linear_density
    teos10.compute_specvol
+   teos10.ct_from_potential_density
 ```
 
 

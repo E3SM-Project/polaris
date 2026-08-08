@@ -110,33 +110,73 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.seamount</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span> <span class="k">as</span> <span class="n">PolarisConfigParser</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span> <span class="k">as</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.seamount.default</span><span class="w"> </span><span class="kn">import</span> <span class="n">Default</span> <span class="k">as</span> <span class="n">Default</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.seamount.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span> <span class="k">as</span> <span class="n">Init</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.seamount.short</span><span class="w"> </span><span class="kn">import</span> <span class="n">Short</span> <span class="k">as</span> <span class="n">Short</span>
 
 
 <div class="viewcode-block" id="add_seamount_tasks">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.seamount.add_seamount_tasks.html#polaris.tasks.ocean.seamount.add_seamount_tasks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_seamount_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add a task following the seamount test case</span>
+<span class="sd">    Add tasks following the seamount test case</span>
+
+<span class="sd">    Variants combine the equation of state (linear or nonlinear) with the</span>
+<span class="sd">    vertical coordinate used for the initial condition, ``sigma``</span>
+<span class="sd">    (terrain-following) or ``zstar``.  Both coordinates are geometric, so</span>
+<span class="sd">    both are supported by MPAS-Ocean and by Omega, which reads them as</span>
+<span class="sd">    pseudo-thickness.</span>
 
 <span class="sd">    component : polaris.ocean.Ocean</span>
 <span class="sd">        the ocean component that the task will be added to</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">indir</span> <span class="o">=</span> <span class="s1">&#39;planar/seamount&#39;</span>
-    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;seamount.cfg&#39;</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">config_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.eos&#39;</span><span class="p">,</span> <span class="s1">&#39;linear.cfg&#39;</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.seamount&#39;</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">eos_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="s1">&#39;nonlinear&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">coord_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;zstar&#39;</span><span class="p">]:</span>
+            <span class="n">_add_seamount_variant_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">eos_type</span><span class="p">,</span> <span class="n">coord_type</span><span class="p">)</span></div>
 
-    <span class="n">init_step</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_seamount_variant_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">eos_type</span><span class="p">,</span> <span class="n">coord_type</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add the seamount tasks for one combination of equation of state</span>
+<span class="sd">    (``&#39;linear&#39;`` or ``&#39;nonlinear&#39;``) and vertical coordinate for the</span>
+<span class="sd">    initial condition (``&#39;sigma&#39;`` or ``&#39;zstar&#39;``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">taskdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;planar/seamount/</span><span class="si">{</span><span class="n">eos_type</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">coord_type</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;seamount.cfg&#39;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span>
+        <span class="n">filepath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">taskdir</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
+        <span class="n">eos_cfg</span> <span class="o">=</span> <span class="s1">&#39;linear.cfg&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">eos_cfg</span> <span class="o">=</span> <span class="s1">&#39;teos10.cfg&#39;</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.eos&#39;</span><span class="p">,</span> <span class="n">eos_cfg</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.seamount&#39;</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
+        <span class="c1"># the linear equation of state needs coefficients that reproduce the</span>
+        <span class="c1"># Beckmann and Haidvogel profile; the nonlinear trees take everything</span>
+        <span class="c1"># they need from teos10.cfg</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">&#39;polaris.tasks.ocean.seamount&#39;</span><span class="p">,</span> <span class="s1">&#39;seamount_linear.cfg&#39;</span>
+        <span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+        <span class="s1">&#39;polaris.tasks.ocean.seamount&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;seamount_</span><span class="si">{</span><span class="n">coord_type</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+    <span class="p">)</span>
+
+    <span class="n">init_step</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">taskdir</span><span class="p">)</span>
     <span class="n">init_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
 
-    <span class="n">default</span> <span class="o">=</span> <span class="n">Default</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">)</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="n">Default</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">taskdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">)</span>
     <span class="n">default</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
-    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">default</span><span class="p">)</span></div>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
 
+    <span class="n">short</span> <span class="o">=</span> <span class="n">Short</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">taskdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">)</span>
+    <span class="n">short</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">short</span><span class="p">)</span>
 </pre></div>
 
            </div>

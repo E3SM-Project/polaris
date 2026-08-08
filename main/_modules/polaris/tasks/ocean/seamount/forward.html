@@ -232,18 +232,29 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="o">=</span><span class="n">at_setup</span><span class="p">)</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">resolution</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;seamount&#39;</span><span class="p">,</span> <span class="s1">&#39;resolution&#39;</span><span class="p">)</span>
-        <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;seamount&#39;</span><span class="p">,</span> <span class="s1">&#39;dt_per_km&#39;</span><span class="p">)</span>
-        <span class="n">btr_dt_per_km</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;seamount&#39;</span><span class="p">,</span> <span class="s1">&#39;btr_dt_per_km&#39;</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;seamount&#39;</span><span class="p">]</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="n">resolution</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;resolution&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Both models take the same time step with the same integrator:</span>
+        <span class="c1"># Omega has no split time stepper, so MPAS-Ocean gives up its</span>
+        <span class="c1"># split-explicit one to stay comparable</span>
+        <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;dt_per_km&#39;</span><span class="p">)</span>
+        <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time_integrator&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">_omega_time_integrator</span><span class="p">(</span><span class="n">time_integrator</span><span class="p">)</span>
+
+        <span class="n">btr_dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;btr_dt_per_km&#39;</span><span class="p">)</span>
         <span class="n">dt_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">dt_per_km</span> <span class="o">*</span> <span class="n">resolution</span><span class="p">)</span>
         <span class="n">btr_dt_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
             <span class="n">seconds</span><span class="o">=</span><span class="n">btr_dt_per_km</span> <span class="o">*</span> <span class="n">resolution</span>
         <span class="p">)</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;seamount_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">task_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
-        <span class="n">run_duration</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;run_duration&#39;</span><span class="p">)</span>
-        <span class="n">output_interval</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;output_interval&#39;</span><span class="p">)</span>
+
+        <span class="n">task_section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;seamount_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">task_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+        <span class="n">run_duration</span> <span class="o">=</span> <span class="n">task_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;run_duration&#39;</span><span class="p">)</span>
+        <span class="n">output_interval</span> <span class="o">=</span> <span class="n">task_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;output_interval&#39;</span><span class="p">)</span>
         <span class="n">run_duration_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
-            <span class="n">seconds</span><span class="o">=</span><span class="n">run_duration</span> <span class="o">*</span> <span class="mf">86400.0</span>
+            <span class="n">seconds</span><span class="o">=</span><span class="n">run_duration</span> <span class="o">*</span> <span class="mf">3600.0</span>
         <span class="p">)</span>
         <span class="n">output_interval_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
             <span class="n">seconds</span><span class="o">=</span><span class="n">output_interval</span> <span class="o">*</span> <span class="mf">3600.0</span>
@@ -252,8 +263,15 @@
         <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">dt</span><span class="o">=</span><span class="n">dt_str</span><span class="p">,</span>
             <span class="n">btr_dt</span><span class="o">=</span><span class="n">btr_dt_str</span><span class="p">,</span>
+            <span class="n">time_integrator</span><span class="o">=</span><span class="n">time_integrator</span><span class="p">,</span>
             <span class="n">run_duration</span><span class="o">=</span><span class="n">run_duration_str</span><span class="p">,</span>
             <span class="n">output_interval</span><span class="o">=</span><span class="n">output_interval_str</span><span class="p">,</span>
+            <span class="c1"># Omega&#39;s History stream takes an integer frequency, so express</span>
+            <span class="c1"># the interval in seconds to avoid truncating a fractional hour</span>
+            <span class="n">output_freq</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">output_interval</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">3600.0</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="n">output_freq_units</span><span class="o">=</span><span class="s1">&#39;seconds&#39;</span><span class="p">,</span>
+            <span class="n">horiz_adv_order</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;horiz_adv_order&#39;</span><span class="p">),</span>
+            <span class="n">bottom_drag_coeff</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;bottom_drag_coeff&#39;</span><span class="p">),</span>
             <span class="n">nu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
@@ -284,6 +302,17 @@
         <span class="k">return</span> <span class="n">cell_count</span></div>
 </div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_omega_time_integrator</span><span class="p">(</span><span class="n">time_integrator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Map an MPAS-Ocean time-integrator name to its Omega equivalent, leaving</span>
+<span class="sd">    names that are already Omega&#39;s alone.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">time_integrator_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="s1">&#39;RK4&#39;</span><span class="p">,</span> <span class="s1">&#39;RungeKutta4&#39;</span><span class="p">)])</span>
+    <span class="k">if</span> <span class="n">time_integrator</span> <span class="ow">in</span> <span class="n">time_integrator_map</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">time_integrator_map</span><span class="p">[</span><span class="n">time_integrator</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">time_integrator</span>
 </pre></div>
 
            </div>

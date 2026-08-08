@@ -127,7 +127,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="adding-a-new-machine">
-<h1>Adding a New Machine<a class="headerlink" href="#adding-a-new-machine" title="Link to this heading"></a></h1>
+<span id="dev-adding-new-machines"></span><h1>Adding a New Machine<a class="headerlink" href="#adding-a-new-machine" title="Link to this heading"></a></h1>
 <p>Support for a new HPC machine in Polaris requires coordinated updates
 across multiple tools — primarily in
 <a class="reference external" href="https://github.com/E3SM-Project/mache"><code class="docutils literal notranslate"><span class="pre">mache</span></code></a>, but also in the E3SM Spack
@@ -173,6 +173,27 @@ updated branch</p></li>
 <li><p>If new versions of external tools are required, update the
 <a class="reference internal" href="testing/updating_spack_fork.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">spack_for_mache_&lt;version&gt;</span></code></span></a> branch of the
 <a class="reference external" href="https://github.com/E3SM-Project/spack">E3SM Spack fork</a></p></li>
+</ul>
+</li>
+<li><p><strong>Add the machine to Polaris</strong></p>
+<ul class="simple">
+<li><p>Add a config file for the machine in <code class="docutils literal notranslate"><span class="pre">polaris/machines/</span></code>, with the
+<code class="docutils literal notranslate"><span class="pre">[deploy]</span></code> options describing the supported compilers and their MPI
+libraries and, for machines that support standalone MPAS builds, the
+<code class="docutils literal notranslate"><span class="pre">[build]</span></code> make targets</p></li>
+</ul>
+</li>
+<li><p><strong>Document the machine</strong></p>
+<ul class="simple">
+<li><p>Add a page for the machine to <code class="docutils literal notranslate"><span class="pre">docs/developers_guide/machines/</span></code> and one
+to <code class="docutils literal notranslate"><span class="pre">docs/users_guide/machines/</span></code>, and add both to the <code class="docutils literal notranslate"><span class="pre">toctree</span></code> in the
+corresponding <code class="docutils literal notranslate"><span class="pre">index.md</span></code></p></li>
+<li><p>Add the machine to <code class="docutils literal notranslate"><span class="pre">docs/developers_guide/supported_machines.yaml</span></code>, with
+one entry per supported model, compiler, and MPI combination.  This file
+is the source of the supported machine table in the Developer’s Guide and
+must be updated whenever machines are added or removed, or compilers and
+MPI libraries are added, removed, or renamed.  See
+<a class="reference internal" href="../machines/index.html#dev-supported-machines-yaml"><span class="std std-ref">Keeping supported_machines.yaml Up to Date</span></a>.</p></li>
 </ul>
 </li>
 </ol>

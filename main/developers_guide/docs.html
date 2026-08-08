@@ -133,6 +133,11 @@ For examples, see:</p>
 <li><p><a class="reference internal" href="ocean/index.html#dev-ocean"><span class="std std-ref">Ocean component</span></a> in the Developer’s Guide</p></li>
 <li><p><a class="reference internal" href="ocean/tasks/baroclinic_channel.html#dev-ocean-baroclinic-channel"><span class="std std-ref">baroclinic_channel</span></a> tasks in the Developer’s Guide</p></li>
 </ul>
+<p>Similarly, each time a machine is added or removed, or a compiler or MPI
+library is added, removed or renamed, the pull request making the change must
+also update <code class="docutils literal notranslate"><span class="pre">docs/developers_guide/supported_machines.yaml</span></code>, from which the
+table of supported machines in the Developer’s Guide is generated.  See
+<a class="reference internal" href="machines/index.html#dev-supported-machines-yaml"><span class="std std-ref">Keeping supported_machines.yaml Up to Date</span></a>.</p>
 <p>Documentation for each component in the User’s guide should include a label
 with the name of the component:</p>
 <div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>(ocean)=

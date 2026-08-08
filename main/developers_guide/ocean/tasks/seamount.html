@@ -88,6 +88,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">seamount</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#short">short</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="single_column.html">single_column</a></li>
@@ -149,23 +150,81 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="seamount">
 <span id="dev-ocean-seamount"></span><h1>seamount<a class="headerlink" href="#seamount" title="Link to this heading"></a></h1>
-<p>The seamount task group is currently comprised of one <code class="docutils literal notranslate"><span class="pre">default</span></code> task.</p>
+<p>The seamount task group is comprised of a <code class="docutils literal notranslate"><span class="pre">default</span></code> task and a <code class="docutils literal notranslate"><span class="pre">short</span></code> task
+in each of four task trees,
+<code class="docutils literal notranslate"><span class="pre">planar/seamount/{linear,nonlinear}/{sigma,zstar}</span></code>, combining the equation of
+state with the vertical coordinate used for the initial condition.  This
+follows the <code class="docutils literal notranslate"><span class="pre">planar/overflow/{eos}/{coord}</span></code> pattern.</p>
 <section id="framework">
 <h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
 <p>The shared config options for <code class="docutils literal notranslate"><span class="pre">seamount</span></code> tests  are described in
-<a class="reference internal" href="../../../users_guide/ocean/tasks/seamount.html#ocean-seamount"><span class="std std-ref">seamount</span></a> in the User’s Guide.</p>
+<a class="reference internal" href="../../../users_guide/ocean/tasks/seamount.html#ocean-seamount"><span class="std std-ref">seamount</span></a> in the User’s Guide.  <code class="docutils literal notranslate"><span class="pre">coord_type</span></code>, and for z-star
+<code class="docutils literal notranslate"><span class="pre">partial_cell_type</span></code>, live in per-coordinate <code class="docutils literal notranslate"><span class="pre">seamount_sigma.cfg</span></code> and
+<code class="docutils literal notranslate"><span class="pre">seamount_zstar.cfg</span></code> overrides layered on top of the shared <code class="docutils literal notranslate"><span class="pre">seamount.cfg</span></code>.
+The equation of state is layered on the same way: <code class="docutils literal notranslate"><span class="pre">seamount_linear.cfg</span></code>
+carries the <code class="docutils literal notranslate"><span class="pre">eos_linear_*</span></code> options, which mean nothing to the nonlinear
+trees and so are added only for the linear ones.  <code class="docutils literal notranslate"><span class="pre">add_seamount_tasks()</span></code>
+also picks up <code class="docutils literal notranslate"><span class="pre">linear.cfg</span></code> or <code class="docutils literal notranslate"><span class="pre">teos10.cfg</span></code> from <code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos</span></code> per
+tree; the nonlinear trees need nothing beyond that.</p>
+<p>Neither equation of state needs new plumbing.  <code class="docutils literal notranslate"><span class="pre">update_namelist_eos()</span></code>
+already maps <code class="docutils literal notranslate"><span class="pre">teos-10</span></code> to <code class="docutils literal notranslate"><span class="pre">jm</span></code> for MPAS-Ocean and passes it through to
+Omega, and the geometric-to-pseudo-height conversion described below
+dispatches on <code class="docutils literal notranslate"><span class="pre">eos_type</span></code> through
+<a class="reference internal" href="../generated/polaris.ocean.eos.compute_specvol.html#polaris.ocean.eos.compute_specvol" title="polaris.ocean.eos.compute_specvol"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.compute_specvol()</span></code></a>.</p>
 <p>Additionally, the tests share a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with a few common model
-config options related to time management, time integration, and Laplacian
-viscosity, as well as defining <code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">input</span></code>, <code class="docutils literal notranslate"><span class="pre">restart</span></code>, and <code class="docutils literal notranslate"><span class="pre">output</span></code>
-streams.</p>
+config options related to time management, time integration, Laplacian
+viscosity, bottom drag and vertical mixing, as well as defining <code class="docutils literal notranslate"><span class="pre">mesh</span></code>,
+<code class="docutils literal notranslate"><span class="pre">input</span></code>, <code class="docutils literal notranslate"><span class="pre">restart</span></code>, and <code class="docutils literal notranslate"><span class="pre">output</span></code> streams.  It is split into a shared <code class="docutils literal notranslate"><span class="pre">ocean:</span></code>
+section and model-specific <code class="docutils literal notranslate"><span class="pre">mpas-ocean:</span></code> and <code class="docutils literal notranslate"><span class="pre">Omega:</span></code> sections.</p>
+<section id="support-for-both-ocean-models">
+<h3>support for both ocean models<a class="headerlink" href="#support-for-both-ocean-models" title="Link to this heading"></a></h3>
+<p>Both coordinates are geometric, so one <code class="docutils literal notranslate"><span class="pre">init</span></code> step serves either model.  When
+<code class="docutils literal notranslate"><span class="pre">model</span> <span class="pre">=</span> <span class="pre">omega</span></code>, <code class="docutils literal notranslate"><span class="pre">Ocean.write_vert_coord_dataset()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Ocean.write_model_dataset()</span></code> convert <code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>
+into <code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> by integrating gauge pressure
+down each column through the configured equation of state.  No p-star-specific
+initialization is involved and no reference pseudo-grid is needed, so the
+seamount does not use
+<a class="reference internal" href="../generated/polaris.ocean.vertical.pstar_init.PStarInitStep.html#polaris.ocean.vertical.pstar_init.PStarInitStep" title="polaris.ocean.vertical.pstar_init.PStarInitStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.vertical.pstar_init.PStarInitStep</span></code></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">tests/ocean/seamount/test_sigma_to_pseudo.py</span></code> covers that conversion: the
+geometric round trip, that sigma layers stay proportional to column depth, and
+that interior interfaces sit at genuinely different pressures from column to
+column, with a flat-bottom negative control for the last of these.</p>
+<p><code class="docutils literal notranslate"><span class="pre">tests/ocean/seamount/test_tracers.py</span></code> covers the initial condition: that
+both equation-of-state branches reproduce the same Beckmann and Haidvogel
+profile, and the negative control that in-situ density under TEOS-10 really
+does depart from it with depth.</p>
+</section>
 <section id="init">
 <h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.seamount.init.Init.html#polaris.tasks.ocean.seamount.init.Init" title="polaris.tasks.ocean.seamount.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.seamount.init.Init</span></code></a>
 defines a step for setting up the initial state for each test case.</p>
 <p>First, a mesh appropriate for the resolution is generated using
 <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools master)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>. The bottom topography
-is defined along with a vertical grid with 10 layers by default.  Next, the
-ocean state is generated with a vertical temperature stratification.</p>
+is defined along with a vertical grid with 32 layers by default.  Next, the
+ocean state is generated with a vertical temperature stratification,
+back-computed from the target Beckmann and Haidvogel density so that the
+density the model sees matches the profile the test intends.</p>
+<p>The profile and the back-solve live in
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">polaris.tasks.ocean.seamount.init_utils</span></code>, a leaf module free of
+<code class="docutils literal notranslate"><span class="pre">mpas_tools</span></code> and of the step framework so the unit tests can import it.
+<a class="reference internal" href="../generated/polaris.tasks.ocean.seamount.init_utils.compute_tracers.html#polaris.tasks.ocean.seamount.init_utils.compute_tracers" title="polaris.tasks.ocean.seamount.init_utils.compute_tracers"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.seamount.init_utils.compute_tracers()</span></code></a> branches
+on <code class="docutils literal notranslate"><span class="pre">eos_type</span></code>: the linear equation of state is inverted algebraically with
+the salinity term included, and TEOS-10 is inverted with
+<a class="reference internal" href="../generated/polaris.ocean.eos.ct_from_potential_density.html#polaris.ocean.eos.ct_from_potential_density" title="polaris.ocean.eos.ct_from_potential_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.ct_from_potential_density()</span></code></a>, which reads the
+profile as a potential density referenced to the surface.  See
+<a class="reference internal" href="../../../users_guide/ocean/tasks/seamount.html#ocean-seamount-init"><span class="std std-ref">initial conditions</span></a> in the User’s Guide for why the surface reference
+is the only workable one and what it buys.</p>
+<p>The step leaves its tracers in the convention implied by <code class="docutils literal notranslate"><span class="pre">eos_type</span></code> and does
+nothing model-specific: in the <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees, the framework converts them
+to potential temperature and practical salinity at the nominal lon/lat when
+the model is MPAS-Ocean (see <a class="reference internal" href="../framework.html#dev-ocean-framework-init-state"><span class="std std-ref">Initial state</span></a>), computing
+the pressure that conversion needs from the layer thicknesses since a
+geometric vertical coordinate carries none.</p>
+<p>Note that the tracers carry the <code class="docutils literal notranslate"><span class="pre">Time</span></code> dimension that <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and
+the rest of the state have.  TEOS-10 requires its inputs to be aligned; the
+linear equation of state did not, which is why the seamount got away without
+it for a while.</p>
 </section>
 <section id="forward">
 <h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
@@ -173,15 +232,19 @@ ocean state is generated with a vertical temperature stratification.</p>
 defines a step for running the ocean from the initial condition produced in
 the <code class="docutils literal notranslate"><span class="pre">init</span></code> step. Namelist and streams files are updated in
 <a class="reference internal" href="../generated/polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config()</span></code></a>
-with time steps determined algorithmically based on config options.  The
+with time steps determined algorithmically based on config options.  Both
+models take the same step from <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and the same integrator from
+<code class="docutils literal notranslate"><span class="pre">time_integrator</span></code>; the only model-dependent part is translating the
+integrator name to Omega’s (<code class="docutils literal notranslate"><span class="pre">RK4</span></code> becomes <code class="docutils literal notranslate"><span class="pre">RungeKutta4</span></code>).  The
 number of cells is approximated from config options in
 <a class="reference internal" href="../generated/polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count()</span></code></a>
 so that this can be used to constrain the number of MPI tasks that Polaris
 tasks have as their target and minimum (if the resources are not explicitly
 prescribed).  For MPAS-Ocean, PIO namelist options are modified and a
 graph partition is generated as part of <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code>.  Next, the ocean
-model is run. The duration is set by <code class="docutils literal notranslate"><span class="pre">run_duration</span></code> in the config section
-corresponding to the task (<code class="docutils literal notranslate"><span class="pre">seamount_default</span></code>). Finally,
+model is run. The duration is set by <code class="docutils literal notranslate"><span class="pre">run_duration</span></code>, in hours, in the config
+section corresponding to the task (<code class="docutils literal notranslate"><span class="pre">seamount_default</span></code> or <code class="docutils literal notranslate"><span class="pre">seamount_short</span></code>,
+selected by the <code class="docutils literal notranslate"><span class="pre">task_name</span></code> passed to the step). Finally,
 the variables <code class="docutils literal notranslate"><span class="pre">kineticEnergyCell</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the
 <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> file are visualized in the <code class="docutils literal notranslate"><span class="pre">viz</span></code> directory.</p>
 </section>
@@ -190,14 +253,37 @@ the variables <code class="docutils literal notranslate"><span class="pre">kinet
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.seamount.viz.Viz.html#polaris.tasks.ocean.seamount.viz.Viz" title="polaris.tasks.ocean.seamount.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.seamount.viz.Viz</span></code></a> plots the maximum velocity
 as a function of time; a horizontal cross-section of the normal velocity;
 and a vertical cross-section of the kinetic energy. The vertical cross-section
-is also convenient to see the vertical coordinate (sigma versus z-level) and
+is also convenient to see the vertical coordinate (sigma versus z-star) and
 the bottom topography.</p>
+<p>The transect needs a geometric layer thickness, and <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> is the
+right field for both models.  Omega writes <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> rather than a
+geometric thickness, but <code class="docutils literal notranslate"><span class="pre">Ocean.open_model_dataset()</span></code> converts it on read,
+as <code class="docutils literal notranslate"><span class="pre">RhoSw</span> <span class="pre">*</span> <span class="pre">SpecVol</span> <span class="pre">*</span> <span class="pre">PseudoThickness</span></code>.  That is why <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code> has to be in
+the Omega <code class="docutils literal notranslate"><span class="pre">History</span></code> stream alongside <code class="docutils literal notranslate"><span class="pre">State</span></code>.</p>
 </section>
 </section>
 <section id="default">
 <span id="dev-ocean-seamount-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.seamount.default.Default.html#polaris.tasks.ocean.seamount.default.Default" title="polaris.tasks.ocean.seamount.default.Default"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.seamount.default.Default</span></code></a>
-test runs the <code class="docutils literal notranslate"><span class="pre">init</span></code> step, a short <code class="docutils literal notranslate"><span class="pre">forward</span></code> step, and the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step.</p>
+test runs the <code class="docutils literal notranslate"><span class="pre">init</span></code> step, a 6 day <code class="docutils literal notranslate"><span class="pre">forward</span></code> step, and the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step.  It is
+added once per tree, so four times.  Unlike most tasks, <code class="docutils literal notranslate"><span class="pre">viz</span></code> runs by
+default here: the forward run is long enough that it is not worth making the
+user re-run the task just to get the plots.</p>
+</section>
+<section id="short">
+<span id="dev-ocean-seamount-short"></span><h2>short<a class="headerlink" href="#short" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.seamount.short.Short.html#polaris.tasks.ocean.seamount.short.Short" title="polaris.tasks.ocean.seamount.short.Short"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.seamount.short.Short</span></code></a> test is the same
+task with a 1 hour <code class="docutils literal notranslate"><span class="pre">forward</span></code> step, and it too is added once per tree.  It
+exists as a regression test rather than a measurement: an hour is far too
+short for the spurious circulation to develop.  <code class="docutils literal notranslate"><span class="pre">viz</span></code> is opt-in here, as
+usual, because re-running the task to get the plots is cheap.</p>
+<p>The two tasks differ only in their config section, <code class="docutils literal notranslate"><span class="pre">seamount_default</span></code> versus
+<code class="docutils literal notranslate"><span class="pre">seamount_short</span></code>, which is what <code class="xref py py-class docutils literal notranslate"><span class="pre">Forward</span></code> looks up from its
+<code class="docutils literal notranslate"><span class="pre">task_name</span></code>.</p>
+<p>Two of the four short tasks are in the <code class="docutils literal notranslate"><span class="pre">mpaso_pr</span></code> and <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suites,
+<code class="docutils literal notranslate"><span class="pre">linear/zstar</span></code> and <code class="docutils literal notranslate"><span class="pre">nonlinear/sigma</span></code>, which covers both equations of state
+and both coordinates in two runs.  Nothing from the seamount is in the
+nightly suites yet; the <code class="docutils literal notranslate"><span class="pre">default</span></code> tasks are 6 day runs.</p>
 </section>
 </section>
 
