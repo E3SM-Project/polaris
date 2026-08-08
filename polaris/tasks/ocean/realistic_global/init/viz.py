@@ -306,8 +306,11 @@ class VizInitStep(OceanIOStep):
                     'wind stress magnitude [N m$^{-2}$]',
                 ),
             ]
+            viz_dict = get_viz_defaults()
             for da, out_name, label in plots:
-                _set_colormap(config, section_name, 'cmo.balance', da)
+                _set_colormap(
+                    config, section_name, _cmap_for(viz_dict, out_name), da
+                )
                 plot_global_mpas_field(
                     mesh_filename='mesh.nc',
                     da=da,
