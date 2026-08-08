@@ -139,11 +139,14 @@ def test_realistic_global_forward_without_init_steps():
         init_condition=init_condition,
         subdir_name='cached_forward',
     )
-    assert list(task.steps) == ['short']
+    # the forward run and its two diagnostics, and nothing upstream of them
+    assert list(task.steps) == ['short', 'global_stats', 'viz']
     assert task.subdir == (
         'spherical/realistic_global/QU.240km/cached_forward/task'
     )
     assert task.steps['short'].init_condition is init_condition
+    # the diagnostics are diagnostics, not part of the run
+    assert task.steps_to_run == ['short']
 
 
 def test_realistic_global_init_one_task_per_mesh():
