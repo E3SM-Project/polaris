@@ -70,6 +70,19 @@ no sizing field and the check is skipped. The motivation, mechanisms and
 threshold justification are documented in the `unified_mesh_cull_leak`
 design doc (see {ref}`design-docs`).
 
+The thresholds come from `cull.cfg`, but a unified mesh can override them in
+its own `polaris/mesh/spherical/unified/<mesh_name>.cfg`, which is read after
+`cull.cfg` when the cull config is assembled.  `u.oi6to18.lr6to10` does this:
+one ocean-interior edge sits at 0.643 times the local ocean background width,
+so that mesh sets `min_dc_edge_ratio = 0.64` while every other mesh keeps the
+0.65 default.
+
+Prefer a per-mesh override to lowering the shared default, and prefer either
+to tolerating a number of violating edges.  A single fine edge constrains the
+global time step just as much as a cluster does, so the useful output of this
+diagnostic is the *lower bound* on edge size -- a count tolerance would hide
+exactly the number a forward run needs to size its time step from.
+
 The Antarctic land-ice ownership mask also includes southern cells that have
 already been removed from the open-ocean cull mask, so the cull workflow
 remains consistent with the remapped topography masks.
