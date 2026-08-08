@@ -1,6 +1,8 @@
 from polaris import Task as Task
 from polaris.config import PolarisConfigParser as PolarisConfigParser
-from polaris.tasks.ocean.realistic_global.forward import Forward as Forward
+from polaris.tasks.ocean.realistic_global.analysis_members.forward import (
+    Forward as Forward,
+)
 from polaris.tasks.ocean.realistic_global.restart.restart_step import (
     RestartStep as RestartStep,
 )
@@ -129,7 +131,7 @@ class Restart(Task):
         # shares, so that its restart cannot be mistaken for the chain's
         full_run = Forward(
             component=component,
-            package='polaris.tasks.ocean.realistic_global',
+            package='polaris.tasks.ocean.realistic_global.analysis_members',
             name='full_run',
             subdir=f'{subdir}/full_run',
             replacements=dict(shared, run_duration=FULL_DURATION),
