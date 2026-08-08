@@ -421,11 +421,6 @@
 
    add_realistic_global_tasks
 
-   forward.Forward
-   forward.Forward.setup
-   forward.Forward.runtime_setup
-   forward.Forward.compute_cell_count
-
    viz.Viz
    viz.Viz.run
 
@@ -477,6 +472,11 @@
    :toctree: generated/
 
    AnalysisMembers
+
+   forward.Forward
+   forward.Forward.setup
+   forward.Forward.runtime_setup
+   forward.Forward.compute_cell_count
 
    stats_analysis.StatsAnalysis
    stats_analysis.StatsAnalysis.setup
