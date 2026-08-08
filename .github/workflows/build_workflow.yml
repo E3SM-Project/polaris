@@ -86,10 +86,13 @@ jobs:
         uses: actions/cache@v6
         env:
           # Increase this value to reset cache if deploy inputs have not changed in the workflow
-          CACHE_NUMBER: 0
+          CACHE_NUMBER: 1
         with:
+          # cache the content-addressed package tarballs but deliberately not
+          # repodata, which must be refetched each run so a stale index can
+          # never persist across runs
           path: |
-            ~/.cache/rattler/cache
+            ${{ github.workspace }}/.pixi-cache/pkgs
             ~/.pixi/bin
           key: ${{ runner.os }}-${{ matrix.python-version }}-pixi-${{ env.CACHE_NUMBER }}-${{ hashFiles('deploy.py', 'deploy/**', 'pyproject.toml') }}
 
