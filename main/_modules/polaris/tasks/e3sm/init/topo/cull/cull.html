@@ -120,6 +120,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyremap</span><span class="w"> </span><span class="kn">import</span> <span class="n">MpasCellMeshDescriptor</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_reconstruction_weights</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.model_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_graph_file</span>
 
 <span class="n">CULL_PREFIXES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;ocean_no_cavities&#39;</span><span class="p">,</span> <span class="s1">&#39;land&#39;</span><span class="p">]</span>
@@ -188,7 +189,10 @@
             <span class="k">if</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">SCRIP_PREFIXES</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;culled_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_mesh.scrip.nc&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">prefix</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;culled_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_graph.info&#39;</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;culled_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_graph.info&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;culled_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_reconstruction_weights.nc&#39;</span>
+                <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CullMeshStep.setup">
@@ -253,7 +257,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_cull_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Cull and sort the mesh to the region specified by the prefix. For</span>
-<span class="sd">        ocean regions, also produce a graph file for the culled mesh.</span>
+<span class="sd">        ocean regions, also produce a graph file and vector-reconstruction</span>
+<span class="sd">        weights for the culled mesh.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
 
@@ -299,6 +304,17 @@
             <span class="n">make_graph_file</span><span class="p">(</span>
                 <span class="n">mesh_filename</span><span class="o">=</span><span class="n">out_filename</span><span class="p">,</span>
                 <span class="n">graph_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;culled_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_graph.info&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Compute vector-reconstruction weights at cell centers &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;for culled </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> mesh&#39;</span>
+            <span class="p">)</span>
+            <span class="n">ds_weights</span> <span class="o">=</span> <span class="n">compute_reconstruction_weights</span><span class="p">(</span>
+                <span class="n">ds_culled_mesh</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;cell&#39;</span>
+            <span class="p">)</span>
+            <span class="n">write_netcdf</span><span class="p">(</span>
+                <span class="n">ds_weights</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;culled_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_reconstruction_weights.nc&#39;</span>
             <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_scrip_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>

@@ -72,7 +72,6 @@
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Ocean utilities</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">add_reconstruction_weights</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#parallel-performance">Parallel performance</a></li>
 </ul>
 </li>
 </ul>
@@ -136,16 +135,15 @@ MPAS-Ocean or Omega mesh file.</p>
 <a class="reference external" href="https://doi.org/10.1016/j.jcp.2014.04.043">Peixoto and Barros (2014)</a>
 using a two-ring edge stencil (see Figure 5 of that paper).</p>
 <p>The script auto-detects whether the input file uses MPAS-Ocean or Omega
-naming conventions and writes output in the same convention.  Only the
-small mesh/grid variables are loaded; large state/tracer fields are
-skipped, making it safe to run on production meshes.</p>
+naming conventions and writes output in the same convention.
+<code class="docutils literal notranslate"><span class="pre">compute_reconstruction_weights()</span></code> internally selects only the small
+mesh/grid variables needed for the calculation, so large state/tracer
+fields are never loaded, making it safe to run on production meshes.</p>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./utils/omega/add_reconstruction_weights.py<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-i<span class="w"> </span>&lt;input_mesh.nc&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-o<span class="w"> </span>&lt;output_mesh.nc&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span><span class="o">[</span>-w<span class="w"> </span>&lt;num_workers&gt;<span class="o">]</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span><span class="o">[</span>-c<span class="w"> </span>&lt;chunk_size&gt;<span class="o">]</span>
+<span class="w">    </span>-o<span class="w"> </span>&lt;output_mesh.nc&gt;
 </pre></div>
 </div>
 <table class="docutils align-default">
@@ -161,48 +159,13 @@ skipped, making it safe to run on production meshes.</p>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span></code> / <code class="docutils literal notranslate"><span class="pre">--output_file</span></code></p></td>
 <td><p>Output file (copy of input with weights appended)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-w</span></code> / <code class="docutils literal notranslate"><span class="pre">--num_workers</span></code></p></td>
-<td><p>Number of dask worker processes (enables parallel mode)</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-c</span></code> / <code class="docutils literal notranslate"><span class="pre">--chunk_size</span></code></p></td>
-<td><p>Cells per dask chunk (default: 1000)</p></td>
-</tr>
 </tbody>
 </table>
-<p>Passing either <code class="docutils literal notranslate"><span class="pre">-w</span></code> or <code class="docutils literal notranslate"><span class="pre">-c</span></code> enables dask parallelism. If <code class="docutils literal notranslate"><span class="pre">-c</span></code> is given
-without <code class="docutils literal notranslate"><span class="pre">-w</span></code>, the worker count is inferred from mache (requires running
-on a recognised machine).</p>
-</section>
-<section id="parallel-performance">
-<h2>Parallel performance<a class="headerlink" href="#parallel-performance" title="Link to this heading"></a></h2>
-<p>The script uses a local multiprocessing dask scheduler and can exploit
-all cores on a single node. Based on timing tests on Chrysalis with the
-EC30to60 mesh (~1.8 M cells, 32 workers):</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head text-center"><p><code class="docutils literal notranslate"><span class="pre">num_workers</span></code></p></th>
-<th class="head text-right"><p><code class="docutils literal notranslate"><span class="pre">chunk_size</span></code></p></th>
-<th class="head text-right"><p>wall time</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td class="text-center"><p>32</p></td>
-<td class="text-right"><p>7000</p></td>
-<td class="text-right"><p>~5m 57s</p></td>
-</tr>
-<tr class="row-odd"><td class="text-center"><p>32</p></td>
-<td class="text-right"><p>3700</p></td>
-<td class="text-right"><p>~4m 42s</p></td>
-</tr>
-<tr class="row-even"><td class="text-center"><p>32</p></td>
-<td class="text-right"><p>1850</p></td>
-<td class="text-right"><p>~4m 16s</p></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Fewer workers with more, smaller chunks per worker tends to be faster
-than filling each worker with one large chunk.</strong>  Start with a chunk size
-that gives several chunks per worker and tune from there.</p>
+<p>For production-sized meshes (e.g. <code class="docutils literal notranslate"><span class="pre">6to18km</span></code>) the script should be run on a
+compute node. Since the mesh connectivity information needed to compute the
+weights fits into memory, the reconstruction weights are computed serially
+using numpy/xarray, as recommended by
+<a class="reference external" href="https://docs.dask.org/en/stable/array-best-practices.html#use-numpy">Dask best practices</a>.</p>
 </section>
 </section>
 
