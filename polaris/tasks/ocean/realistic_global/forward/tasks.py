@@ -1,6 +1,14 @@
 from polaris.mesh.base import get_base_mesh_step_names
 from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
+from polaris.tasks.ocean.realistic_global.init.steps import (
+    get_realistic_init_steps,
+)
+from polaris.tasks.ocean.realistic_global.mesh_info import (
+    estimate_ocean_cell_count,
+    min_res_for_mesh,
+)
 
+from .initial_condition import StepInitialCondition
 from .task import RealisticGlobalForward
 
 
@@ -24,9 +32,20 @@ def add_realistic_global_forward_tasks(component):
     """
     mesh_names = list(get_base_mesh_step_names()) + list(UNIFIED_MESH_NAMES)
     for mesh_name in mesh_names:
+        init_steps, _ = get_realistic_init_steps(
+            component=component, mesh_name=mesh_name, include_viz=False
+        )
+        init_condition = StepInitialCondition(
+            init_steps['initial_state'],
+            min_res=min_res_for_mesh(mesh_name),
+            approx_cell_count=estimate_ocean_cell_count(mesh_name),
+            forcing_step=init_steps['forcing'],
+        )
         component.add_task(
             RealisticGlobalForward(
                 component=component,
                 mesh_name=mesh_name,
+                init_condition=init_condition,
+                init_steps=init_steps,
             )
         )
