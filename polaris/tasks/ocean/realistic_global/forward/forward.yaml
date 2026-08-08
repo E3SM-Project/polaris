@@ -53,6 +53,17 @@ mpas-ocean:
     cvmix:
         config_use_cvmix_kpp: true
         config_cvmix_shear_mixing_scheme: KPP
+    # Global statistics are the cheapest way to see a run going wrong before
+    # it NaNs, which matters most for the long spin-ups this task feeds into.
+    # Omega's equivalent is the GlobalStats analysis group below.
+    AM_globalStats:
+        config_AM_globalStats_enable: true
+        config_AM_globalStats_compute_interval: output_interval
+        # compute and write at t = 0 too, so the time series has a starting
+        # point to take anomalies against
+        config_AM_globalStats_compute_on_startup: true
+        config_AM_globalStats_write_on_startup: true
+        config_AM_globalStats_text_file: false
     streams:
         restart:
             output_interval: {{ restart_interval }}
@@ -68,8 +79,47 @@ mpas-ocean:
             - layerThickness
             - kineticEnergyCell
             - relativeVorticityCell
+        # a stream of its own, so the scalar time series stays out of the 3-D
+        # output and has an obvious counterpart on the Omega side.
+        # filename_template overrides the registry default of yearly files
+        # named analysis_members/globalStats.$Y-$M-$D_$h.$m.$s.nc; with no time
+        # fields in the template the run writes a single global_stats.nc.
+        globalStatsOutput:
+            type: output
+            filename_template: global_stats.nc
+            output_interval: {{ output_interval }}
+            clobber_mode: truncate
+            packages: globalStatsAMPKG
+            contents:
+            - xtime
+            - daysSinceStartOfSim
+            - CFLNumberGlobal
+            - minGlobalStats
+            - maxGlobalStats
+            - avgGlobalStats
+            - rmsGlobalStats
 
 Omega:
+    # the counterpart of MPAS-Ocean's AM_globalStats above.  The reduction
+    # period is fixed at one day rather than templated from output_interval,
+    # because the period is baked into the Omega variable names
+    # ("..._TimeMean1Day") that mpaso_to_omega.yaml maps.
+    #
+    # Filename is a prefix, not a file name: Omega writes
+    # <Filename>_<period>TimeStats (no .nc), so this gives
+    # global_stats_1DayTimeStats.  SnapshotPeriod is emptied so that only the
+    # daily averages are written, with no second stream of instantaneous
+    # values.
+    #
+    # Omega aborts unless the RestartWrite interval is a whole multiple of the
+    # reduction period, so restart_interval must be a whole number of days
+    # while this is enabled.
+    Analysis:
+        GlobalStats:
+            Enable: true
+            ReductionPeriod: ["1Day"]
+            SnapshotPeriod: []
+            Filename: global_stats
     IOStreams:
         RestartWrite:
             UsePointerFile: true

@@ -100,7 +100,13 @@ variables:
   # eos
   BruntVaisalaFreqTop: BruntVaisalaFreqSq
 
-  # global stats daily variables
+  # global statistics.  MPAS-Ocean packs these into min/max/avg/rms arrays
+  # indexed by variable, while Omega gives each its own variable named for the
+  # spatial reduction, so the mapping is one entry per pair.
+  # Note: MPAS-Ocean's rms* is a root mean square while Omega's SpatialStdDev
+  #       is a standard deviation.  The two are equal only for a zero-mean
+  #       field, so this pair is a name correspondence, not an equivalence;
+  #       StatsAnalysis converts the MPAS-Ocean side before plotting.
   normalVelocityMax: NormalVelocity_SpatialMax
   normalVelocityMin: NormalVelocity_SpatialMin
   normalVelocityAvg: NormalVelocity_SpatialMean
