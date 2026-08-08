@@ -6,6 +6,10 @@ from polaris.tasks.ocean.realistic_global.forward.forward import Forward
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
     InitialCondition,
 )
+from polaris.tasks.ocean.realistic_global.forward.stats_analysis import (
+    StatsAnalysis,
+)
+from polaris.tasks.ocean.realistic_global.forward.viz import Viz
 from polaris.tasks.ocean.realistic_global.mesh_configs import (
     add_realistic_global_mesh_config,
 )
@@ -24,7 +28,9 @@ class RealisticGlobalForward(Task):
     step (``short``, a brief smoke test) whose duration and cadence come from
     the ``[realistic_global_forward]`` config section, with any per-mesh
     overrides applied on top.  The target model is resolved from
-    ``[ocean] model`` during component setup.
+    ``[ocean] model`` during component setup.  Two diagnostic steps that are
+    not run by default follow it: ``global_stats`` plots time series of the
+    run's global statistics, and ``viz`` plots global maps of its state.
 
     Where the model's input files come from is the initial condition's
     business, not the task's, which is what lets one task cover two rather
@@ -108,3 +114,18 @@ class RealisticGlobalForward(Task):
         )
         forward_step.set_shared_config(config, link=config_filename)
         self.add_step(forward_step)
+
+        # both are diagnostics rather than part of the run, so neither is on by
+        # default; the statistics time series is the more useful of the two on
+        # the long spin-ups this task is a building block for
+        stats_analysis = StatsAnalysis(
+            component=component,
+            indir=base,
+            forward_step=forward_step,
+        )
+        stats_analysis.set_shared_config(config, link=config_filename)
+        self.add_step(stats_analysis, run_by_default=False)
+
+        viz = Viz(component=component, indir=base, forward=forward_step)
+        viz.set_shared_config(config, link=config_filename)
+        self.add_step(viz, run_by_default=False)

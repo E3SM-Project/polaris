@@ -4,15 +4,19 @@ from types import SimpleNamespace
 from typing import Any, cast
 
 import pytest
+import xarray as xr
 from ruamel.yaml import YAML
 
 from polaris import Step
+from polaris.config import PolarisConfigParser
 from polaris.ocean.global_stats_names import global_stats_var_names
 from polaris.ocean.model import OceanModelStep
+from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global.forward import (
     DatabaseInitialCondition,
     Forward,
     ForwardStage,
+    StatsAnalysis,
     StepInitialCondition,
 )
 from polaris.yaml import PolarisYaml
@@ -684,6 +688,129 @@ def test_database_forcing_streams_read_the_initial_condition():
         step_ic.get_forcing_filename(cast(OceanModelStep, step))
         == 'forcing.nc'
     )
+
+
+# --- StatsAnalysis ---
+
+
+class _FakeForwardStep:
+    """Stands in for the forward step StatsAnalysis reads from."""
+
+    def __init__(self, path='WORK/short', stage=None):
+        self.path = path
+        self.stage = stage
+
+
+class _RecordingStatsAnalysis(StatsAnalysis):
+    """A StatsAnalysis that records what setup() adds instead of resolving
+    real paths."""
+
+    def __init__(self, component, forward_step, config):
+        self.added: list = []
+        super().__init__(
+            component=component, indir='WORK', forward_step=forward_step
+        )
+        self.config = config
+
+    def add_input_file(self, **kwargs: Any):  # type: ignore[override]
+        self.added.append(kwargs)
+
+    def add_output_file(self, *args, **kwargs):
+        pass
+
+
+def _stats_step(model, stage=None, stats_interval='0001_00:00:00'):
+    component = Ocean()
+    component.model = model
+    component._read_variables_yaml()
+    config = ConfigParser()
+    config.add_section('ocean')
+    config.set('ocean', 'model', model)
+    forward_config = _forward_config(stats_interval=stats_interval)
+    config.add_section('realistic_global_forward')
+    for option, value in forward_config.items('realistic_global_forward'):
+        config.set('realistic_global_forward', option, value)
+    step = _RecordingStatsAnalysis(
+        component=component,
+        forward_step=_FakeForwardStep(stage=stage),
+        config=cast(Any, config),
+    )
+    return step, step.added
+
+
+@pytest.mark.parametrize(
+    'stats_interval, expected',
+    [
+        ('0001_00:00:00', 'WORK/short/global_stats_1DayInstants'),
+        ('0000_06:00:00', 'WORK/short/global_stats_6HourInstants'),
+    ],
+)
+def test_stats_analysis_reads_omegas_instants_file(stats_interval, expected):
+    """
+    Omega builds the real filename from the configured prefix, the analysis
+    period and the kind of output.  The forward runs ask for instantaneous
+    samples, so the file is ``<prefix>_<period>Instants`` -- not the
+    ``TimeStats`` name a temporal reduction would write, which is what this
+    step looked for while nothing configured a reduction.
+    """
+    step, added = _stats_step('omega', stats_interval=stats_interval)
+    step.setup()
+    assert [entry['work_dir_target'] for entry in added] == [expected]
+
+
+def test_stats_analysis_reads_mpas_oceans_plain_file():
+    """MPAS-Ocean writes the configured filename as given."""
+    step, added = _stats_step('mpas-ocean')
+    step.setup()
+    assert [entry['work_dir_target'] for entry in added] == [
+        'WORK/short/global_stats.nc'
+    ]
+
+
+def test_stats_analysis_prefers_the_forward_steps_stage():
+    """
+    A stage carried by the forward step wins over the config, so that a
+    multi-stage workflow whose stages differ finds each one's own file.
+    """
+    stage = ForwardStage.from_config(
+        _forward_config(stats_interval='0000_00:30:00')
+    )
+    step, added = _stats_step(
+        'omega', stage=stage, stats_interval='0001_00:00:00'
+    )
+    step.setup()
+    assert [entry['work_dir_target'] for entry in added] == [
+        'WORK/short/global_stats_30MinuteInstants'
+    ]
+
+
+def test_stats_analysis_fields_come_from_the_forward_config():
+    """
+    The fields to plot are a forward-run option, so every forward task has
+    it.  Left empty, as it is by default, the step plots whatever the run
+    wrote statistics for.
+    """
+    config = PolarisConfigParser()
+    config.add_from_package(
+        'polaris.tasks.ocean.realistic_global.forward',
+        'realistic_global_forward.cfg',
+    )
+    component = Ocean()
+    component.model = 'mpas-ocean'
+    step = StatsAnalysis(
+        component=component, indir='WORK', forward_step=_FakeForwardStep()
+    )
+    step.config = config
+    ds = xr.Dataset(
+        {
+            'temperatureMax': ('Time', [1.0]),
+            'temperatureMin': ('Time', [0.0]),
+        }
+    )
+    assert step._fields(ds, 'mpas-ocean') == ['temperature']
+
+    config.set('realistic_global_forward_stats', 'fields', 'salinity')
+    assert step._fields(ds, 'mpas-ocean') == ['salinity']
 
 
 # --- Forward.compute_cell_count ---

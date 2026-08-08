@@ -8,10 +8,10 @@ from polaris.config import PolarisConfigParser as PolarisConfigParser
 from polaris.tasks.ocean.realistic_global.analysis_members.forward import (
     Forward as Forward,
 )
-from polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis import (  # noqa: E501
+from polaris.tasks.ocean.realistic_global.forward.stats_analysis import (
     StatsAnalysis as StatsAnalysis,
 )
-from polaris.tasks.ocean.realistic_global.viz import Viz as Viz
+from polaris.tasks.ocean.realistic_global.forward.viz import Viz as Viz
 
 
 class AnalysisMembers(Task):
