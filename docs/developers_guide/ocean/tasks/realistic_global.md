@@ -72,9 +72,12 @@ than reading the mesh, since the mesh is not available at setup time.
 
 ### viz
 
-The class {py:class}`polaris.tasks.ocean.realistic_global.viz.Viz` plots
-global maps of each state variable at the start and end of the run, plus the
-zonal and meridional wind stress from the initial condition.  The list of
+The class {py:class}`polaris.tasks.ocean.realistic_global.forward.viz.Viz`
+plots global maps of each state variable at the start and end of the run, plus
+the zonal and meridional wind stress that forced it.  Which file the stress
+comes from is the forward run's initial condition's business: a file of its
+own when the `init` workflow produced one, or the initial condition itself
+when the stress travels inside it.  The list of
 variables comes from the ocean component's `state_vars`, with
 `normalVelocity` replaced by `kineticEnergyCell` because the normal velocity
 lives on edges and is not directly plottable as a cell field.  Variables
@@ -98,17 +101,19 @@ affects the whole task.
 ### global_stats
 
 The class
-{py:class}`polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis`
+{py:class}`polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis`
 plots, for each state variable, the minimum, maximum and mean over time along
 with a shaded standard-deviation envelope, and a companion panel showing the
 same quantities as anomalies relative to their initial values.
 
 This step normalizes two differences between the models:
 
-- **Output location.** Omega writes the statistics to a separate
-  `global_stats_1DayTimeStats` file, whereas MPAS-Ocean writes
-  `global_stats.nc`.  The input file is therefore selected in `setup()`, once
-  the model is known.
+- **Output location.** MPAS-Ocean writes `global_stats.nc` as named, while
+  Omega treats the name as a prefix and builds the real one from the analysis
+  period and the kind of output: `global_stats_1DayInstants` for daily
+  instantaneous samples, or `..._1DayTimeStats` had a temporal reduction been
+  asked for.  The input file is therefore selected in `setup()`, once the
+  model and the period are known.
 - **Standard deviation.** Omega writes the standard deviation directly in its
   `Rms` field, while MPAS-Ocean writes a true root-mean-square, so the
   standard deviation is recovered as
