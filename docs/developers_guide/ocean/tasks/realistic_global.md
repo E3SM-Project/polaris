@@ -358,3 +358,14 @@ maps and transects use MPAS-Ocean names for both models.  It produces:
   produced with {py:class}`mpas_tools.viz.mpas_to_xdmf.MpasToXdmf`.  For Omega
   the native variable names are preserved and only the dimension names are
   renamed to their MPAS-Ocean equivalents, as required by the converter.
+
+Colormaps come from the shared viz defaults in
+{py:func}`polaris.viz.get_viz_defaults`, looked up by variable name, so a
+variable gets the same colormap everywhere it is plotted; none are named in
+the plotting code.  The limits, by contrast, are computed per plot from the
+data range and written into `[realistic_global_init_viz]` just before each
+call.  That is deliberate and differs from the `analysis_members` `viz` step,
+which reads fixed limits from `realistic_global.cfg`: fixed limits are what
+you want to compare runs or times against each other, and the data range is
+what you want when the question is whether a brand-new initial condition is
+sane.  For a diverging colormap the range is made symmetric about zero.
