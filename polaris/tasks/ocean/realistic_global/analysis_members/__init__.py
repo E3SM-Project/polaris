@@ -9,6 +9,9 @@ from polaris.tasks.ocean.realistic_global.analysis_members.forward import (
     DURATIONS as DURATIONS,
 )
 from polaris.tasks.ocean.realistic_global.analysis_members.forward import (
+    AnalysisMembersForward as AnalysisMembersForward,
+)
+from polaris.tasks.ocean.realistic_global.analysis_members.forward import (
     Forward as Forward,
 )
 from polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis import (  # noqa: E501
@@ -89,7 +92,7 @@ class AnalysisMembers(Task):
         config.add_from_package(package, f'{mesh_name}.cfg')
         self.set_shared_config(config, link=config_filename)
 
-        forward_step = Forward(
+        forward_step = AnalysisMembersForward(
             component=component,
             indir=subdir,
             mesh_name=mesh_name,
