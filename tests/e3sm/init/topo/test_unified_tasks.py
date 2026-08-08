@@ -15,6 +15,7 @@ from polaris.tasks.mesh.base.steps import get_base_mesh_steps
 
 COARSE_MESH_NAME = 'u.oi240.lr240'
 FINE_MESH_NAME = 'u.oi30.lr10'
+LEAKY_MESH_NAME = 'u.oi6to18.lr6to10'
 
 
 def test_get_remap_topo_steps_includes_upstream_base_mesh_steps():
@@ -247,6 +248,37 @@ def test_coarse_unified_mesh_uses_ne120_topography():
     )
     assert cull_task.steps[combine_topo_step_name].subdir.endswith(
         'cubed_sphere/ne120'
+    )
+
+
+def test_cull_config_uses_the_default_dc_edge_floor():
+    """
+    The dcEdge floor is the CFL guard, so every mesh keeps the shared default
+    unless it has a documented reason not to.
+    """
+    _reset_shared_components()
+
+    _, config = get_cull_topo_steps(mesh_name=FINE_MESH_NAME)
+
+    assert config.getfloat('cull_mesh', 'min_dc_edge_ratio') == 0.65
+
+
+def test_leaky_mesh_overrides_the_dc_edge_floor():
+    """
+    u.oi6to18.lr6to10 has a single ocean-interior edge at 0.643 times the
+    local ocean background width, so its own config lowers the floor rather
+    than the shared default being weakened for every mesh.  A forward run on
+    this mesh has to size its time step for that edge.
+    """
+    _reset_shared_components()
+
+    _, config = get_cull_topo_steps(mesh_name=LEAKY_MESH_NAME)
+
+    override = config.getfloat('cull_mesh', 'min_dc_edge_ratio')
+    assert override == 0.64
+    assert override < 0.643, (
+        'the override has to sit below the measured minimum ratio for this '
+        'mesh, or the cull step fails again'
     )
 
 
