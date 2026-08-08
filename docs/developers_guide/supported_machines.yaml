@@ -14,7 +14,7 @@ machines:
   - name: chrysalis
     models:
       - model: MPAS
-        compiler: intel
+        compiler: intel-classic
         mpi: openmpi
         mpas_target: ifort
       - model: MPAS
@@ -22,7 +22,7 @@ machines:
         mpi: openmpi
         mpas_target: gfortran
       - model: Omega
-        compiler: oneapi-ifx
+        compiler: intel
         mpi: openmpi
         mpas_target: null
       - model: Omega
@@ -30,7 +30,7 @@ machines:
         mpi: openmpi
         mpas_target: null
       - model: Omega
-        compiler: intel
+        compiler: null
         mpi: openmpi
         mpas_target: null
 

@@ -2,13 +2,13 @@
 
 # Chrysalis
 
-## oneapi-ifx
+## intel
 
 This is the default polaris compiler on Chrysalis.  If the environment has
 been set up properly (see {ref}`dev-conda-env`), you should be able to source:
 
 ```bash
-source load_polaris_chrysalis_oneapi-ifx_openmpi.sh
+source load_polaris_chrysalis_intel_openmpi.sh
 ```
 
 You cannot build standalone MPAS components with this compiler at this time.
@@ -27,12 +27,12 @@ Then, you can build the MPAS model with
 make [DEBUG=true] [OPENMP=true] [ALBANY=true] gfortran
 ```
 
-## intel
+## intel-classic
 
 If the environment has been set up properly, you should be able to source:
 
 ```bash
-source load_polaris_chrysalis_intel_openmpi.sh
+source load_polaris_chrysalis_intel-classic_openmpi.sh
 ```
 
 Then, you can build the MPAS model with
@@ -40,4 +40,3 @@ Then, you can build the MPAS model with
 ```bash
 make [DEBUG=true] [OPENMP=true] ifort
 ```
-

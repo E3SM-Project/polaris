@@ -1,3 +1,5 @@
+(dev-adding-new-machines)=
+
 # Adding a New Machine
 
 Support for a new HPC machine in Polaris requires coordinated updates
@@ -46,6 +48,25 @@ After updating `mache`, you'll need to:
    * If new versions of external tools are required, update the
      [`spack_for_mache_<version>`](testing/updating_spack_fork.md) branch of the
      [E3SM Spack fork](https://github.com/E3SM-Project/spack)
+
+3. **Add the machine to Polaris**
+
+   * Add a config file for the machine in `polaris/machines/`, with the
+     `[deploy]` options describing the supported compilers and their MPI
+     libraries and, for machines that support standalone MPAS builds, the
+     `[build]` make targets
+
+4. **Document the machine**
+
+   * Add a page for the machine to `docs/developers_guide/machines/` and one
+     to `docs/users_guide/machines/`, and add both to the `toctree` in the
+     corresponding `index.md`
+   * Add the machine to `docs/developers_guide/supported_machines.yaml`, with
+     one entry per supported model, compiler, and MPI combination.  This file
+     is the source of the supported machine table in the Developer's Guide and
+     must be updated whenever machines are added or removed, or compilers and
+     MPI libraries are added, removed, or renamed.  See
+     {ref}`dev-supported-machines-yaml`.
 
 ---
 
