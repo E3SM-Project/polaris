@@ -229,15 +229,19 @@ class Forward(OceanModelStep):
         # to turn it off
         self.add_yaml_file(self.package, self.forcing_yaml_filename)
 
-        # the input streams, in contrast, are only added when the initial
-        # condition stages a forcing file of its own, since MPAS-Ocean aborts
-        # when an input stream names a file that is not there
+        # the input streams, in contrast, are only added when the model reads
+        # its forcing from a staged file, since MPAS-Ocean aborts when an input
+        # stream names a file that is not there.  Which file that is belongs to
+        # the initial condition: a database source carries the wind stress in
+        # the initial-condition file rather than one of its own.
         if self.init_condition.provides_forcing_file:
             self.add_yaml_file(
                 self.package,
                 self.forcing_streams_yaml_filename,
                 template_replacements=dict(
-                    forcing_filename=self.get_forcing_filename()
+                    forcing_filename=self.init_condition.get_forcing_filename(
+                        self
+                    )
                 ),
             )
 
