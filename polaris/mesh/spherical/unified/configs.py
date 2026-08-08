@@ -56,8 +56,8 @@ def get_unified_mesh_config(mesh_name, filepath=None):
     config_filename = _get_mesh_config_filename(mesh_name)
     family_name = _get_mesh_family_name(config_filename)
     config = PolarisConfigParser(filepath=filepath)
-    config.add_from_package(PACKAGE, DEFAULT_CONFIG_FILENAME)
     config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
+    config.add_from_package(PACKAGE, DEFAULT_CONFIG_FILENAME)
     config.add_from_package(RIVER_CONFIG_PACKAGE, RIVER_CONFIG_FILENAME)
     config.add_from_package(
         SIZING_FIELD_CONFIG_PACKAGE, SIZING_FIELD_CONFIG_FILENAME

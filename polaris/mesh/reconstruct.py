@@ -1,16 +1,8 @@
-"""
-NOTE: Intermediate connectivity arrays are computed using the lightweight
-synchronous dask scheduler to avoid the overhead of spinning up a process
-pool for small integer topology data.
-"""
-
+import time
 from typing import Literal
 
-import dask
 import numpy as np
 import xarray as xr
-from dask.diagnostics import ProgressBar
-from scipy import linalg
 
 from polaris.mesh.vector import compute_edge_normal_vec
 
@@ -20,15 +12,82 @@ ReconstructionType = Literal['cell', 'vertex']
 _RECONSTRUCTION_FIELD_NAMES: dict[ReconstructionType, dict[str, str]] = {
     'cell': {
         'stencil': 'reconstructStencilCell',
-        'n_edges': 'nCellReconstructEdges',
+        'n_edges': 'nEdgesReconstructOnCell',
         'weights': 'reconstructWeightsCell',
     },
     'vertex': {
         'stencil': 'reconstructStencilVertex',
-        'n_edges': 'nVertexReconstructEdges',
+        'n_edges': 'nEdgesReconstructOnVertex',
         'weights': 'reconstructWeightsVertex',
     },
 }
+
+# variables read by build_reconstruction_weights() for each location
+_RECONSTRUCTION_INPUT_VARS: dict[ReconstructionType, tuple[str, ...]] = {
+    'cell': (
+        'xCell',
+        'yCell',
+        'zCell',
+        'xEdge',
+        'yEdge',
+        'zEdge',
+        'verticesOnCell',
+        'edgesOnVertex',
+        'cellsOnEdge',
+    ),
+    'vertex': (
+        'xVertex',
+        'yVertex',
+        'zVertex',
+        'xEdge',
+        'yEdge',
+        'zEdge',
+        'edgesOnVertex',
+        'verticesOnEdge',
+        'cellsOnEdge',
+    ),
+}
+
+
+def select_reconstruction_vars(
+    ds: xr.Dataset, location: ReconstructionType = 'cell'
+) -> xr.Dataset:
+    """
+    Trim an MPAS mesh dataset down to just the variables needed to compute
+    vector-reconstruction weights and stencils at the given location.
+
+    Parameters
+    ----------
+    ds: xr.Dataset
+        MPAS mesh dataset
+
+    location: str ["cell", "vertex"]
+        Point location where the reconstruction occurs
+
+    Returns
+    -------
+    ds: xr.Dataset
+        A minimal dataset containing only the variables (and global attrs)
+        needed for reconstruction at the given location
+    """
+    if location not in _RECONSTRUCTION_INPUT_VARS:
+        raise ValueError(
+            f"Invalid location: {location}. Must be 'cell' or 'vertex'."
+        )
+
+    var_names = [
+        name for name in _RECONSTRUCTION_INPUT_VARS[location] if name in ds
+    ]
+    subset = ds[var_names]
+
+    # maxEdges2 is otherwise only attached to the legacy coeffs_reconstruct
+    # fields (not selected above), so it must be reinstated by hand
+    if location == 'cell' and 'maxEdges2' not in subset.sizes:
+        subset = subset.assign_coords(
+            maxEdges2=np.arange(ds.sizes['maxEdges2'])
+        )
+
+    return subset
 
 
 def fix_out_of_bounds_indices(ds: xr.Dataset) -> xr.Dataset:
@@ -133,8 +192,6 @@ def construct_edgesOnVerticesOnCell(ds: xr.Dataset) -> xr.DataArray:
 
     maxEdges2 = ds.sizes['maxEdges2']
 
-    ds['verticesOnCell'] = ds.verticesOnCell.compute(scheduler='sync')
-
     conn = ds.edgesOnVertex[ds.verticesOnCell - 1]
     conn = conn.where(ds.verticesOnCell != 0, 0)
 
@@ -145,12 +202,8 @@ def construct_edgesOnVerticesOnCell(ds: xr.Dataset) -> xr.DataArray:
         input_core_dims=[['maxEdges', 'vertexDegree']],
         output_core_dims=[['maxEdges2']],
         vectorize=True,
-        dask='parallelized',
         output_dtypes=[conn.dtype],
-        dask_gufunc_kwargs={
-            'output_sizes': {'maxEdges2': maxEdges2},
-        },
-    ).compute(scheduler='sync')
+    )
 
 
 def construct_edgesOnVerticesOnVertex(ds: xr.Dataset) -> xr.DataArray:
@@ -176,8 +229,6 @@ def construct_edgesOnVerticesOnVertex(ds: xr.Dataset) -> xr.DataArray:
     max_neighbors = 2 * vertex_degree
     nine = 3 * vertex_degree
 
-    ds['edgesOnVertex'] = ds.edgesOnVertex.compute(scheduler='sync')
-
     # one-ring of neighboring vertices (including the vertex itself),
     conn = ds.verticesOnEdge[ds.edgesOnVertex - 1]
     conn = conn.where(ds.edgesOnVertex != 0, 0)
@@ -189,11 +240,7 @@ def construct_edgesOnVerticesOnVertex(ds: xr.Dataset) -> xr.DataArray:
         input_core_dims=[['vertexDegree', 'TWO']],
         output_core_dims=[['maxVertexNeighbors']],
         vectorize=True,
-        dask='parallelized',
         output_dtypes=[conn.dtype],
-        dask_gufunc_kwargs={
-            'output_sizes': {'maxVertexNeighbors': max_neighbors},
-        },
     )
 
     # union of edgesOnVertex over the two-ring edge stencil for target vertex
@@ -206,12 +253,8 @@ def construct_edgesOnVerticesOnVertex(ds: xr.Dataset) -> xr.DataArray:
         input_core_dims=[['maxVertexNeighbors', 'vertexDegree']],
         output_core_dims=[['NINE']],
         vectorize=True,
-        dask='parallelized',
         output_dtypes=[conn.dtype],
-        dask_gufunc_kwargs={
-            'output_sizes': {'NINE': nine},
-        },
-    ).compute(scheduler='sync')
+    )
 
 
 def construct_rotation_matrix(
@@ -252,14 +295,12 @@ def construct_rotation_matrix(
     # directly from the coordinate arrays, rather than hard-coding it
     point_dim = x_hat.dims[0]
     n_points = x_hat.sizes[point_dim]
-    # preserve existing chunking along point_dim. If None; use a single chunk
-    point_chunks = ds.chunksizes.get(point_dim, -1)
 
     # return identity matrix for planar meshes
     if ds.attrs['on_a_sphere'] == 'NO':
         return xr.DataArray(
             np.ones((n_points, 3, 3)), dims=(point_dim, 'd1', 'd2')
-        ).chunk({point_dim: point_chunks, 'd1': -1, 'd2': -1})
+        )
 
     c_y = np.sqrt(y_hat**2 + z_hat**2)
     s_y = x_hat
@@ -282,9 +323,7 @@ def construct_rotation_matrix(
     U_y[:, 2, 0] = s_y
     U_y[:, 2, 2] = c_y
 
-    return xr.DataArray(
-        np.matmul(U_y, U_x), dims=(point_dim, 'd1', 'd2')
-    ).chunk({point_dim: point_chunks, 'd1': -1, 'd2': -1})
+    return xr.DataArray(np.matmul(U_y, U_x), dims=(point_dim, 'd1', 'd2'))
 
 
 def project_edge_normal_to_tangent_plane(
@@ -308,7 +347,6 @@ def project_edge_normal_to_tangent_plane(
     """
 
     stencil_dim = _stencil_dim(stencil)
-    stencil_size = stencil.sizes[stencil_dim]
 
     # get the edge normal vector for the edges in the stencil
     edge_normal_vector = normal_vector.isel(nEdges=stencil - 1)
@@ -320,11 +358,7 @@ def project_edge_normal_to_tangent_plane(
         input_core_dims=[['d1', 'd2'], [stencil_dim, 'R3']],
         output_core_dims=[[stencil_dim, 'R3']],
         vectorize=True,
-        dask='parallelized',
         output_dtypes=[edge_normal_vector.dtype],
-        dask_gufunc_kwargs={
-            'output_sizes': {stencil_dim: stencil_size, 'R3': 3},
-        },
     )
 
 
@@ -427,26 +461,19 @@ def rotate_local_to_cartesian(
     stencil_dim = _stencil_dim(weights)
 
     return xr.apply_ufunc(
-        lambda U, w: np.einsum('lg,le->ge', U, w),
+        lambda U, w: np.einsum('...lg,...le->...ge', U, w),
         rotation_matrix,
         weights,
         input_core_dims=[['d1', 'd2'], ['R3', stencil_dim]],
         output_core_dims=[['R3', stencil_dim]],
-        vectorize=True,
-        dask='parallelized',
+        vectorize=False,
         output_dtypes=[weights.dtype],
-        dask_gufunc_kwargs={
-            'output_sizes': {'R3': 3, stencil_dim: weights.sizes[stencil_dim]},
-        },
     )
 
 
 def solve_psuedo_inverse(M: xr.DataArray) -> xr.DataArray:
     """
-    Solve the batched pseudo-inverse of a matrix M using scipy.linalg.pinv
-
-    Will parallelize over the reconstruction-point dimension if M is a
-    dask array and chunked along said dimension.
+    Solve the batched pseudo-inverse of a matrix M using numpy.linalg.pinv
 
     Parameters
     ----------
@@ -461,16 +488,12 @@ def solve_psuedo_inverse(M: xr.DataArray) -> xr.DataArray:
     stencil_dim = _stencil_dim(M)
 
     return xr.apply_ufunc(
-        linalg.pinv,
+        np.linalg.pinv,
         M,
         input_core_dims=[[stencil_dim, 'SIX']],
         output_core_dims=[['SIX', stencil_dim]],
-        vectorize=True,
-        dask='parallelized',
+        vectorize=False,
         output_dtypes=[M.dtype],
-        dask_gufunc_kwargs={
-            'output_sizes': {'SIX': 6, stencil_dim: M.sizes[stencil_dim]},
-        },
     )
 
 
@@ -510,10 +533,10 @@ def build_reconstruction_weights(
 
     # compute the normal vector for each edge in Cartesian coordinates
     cartesian_normal_vector = compute_edge_normal_vec(ds)
-    # build the edge coord vec (nEdges, R3), w/ single chunk along the R3 dim
+    # build the edge coord vec (nEdges, R3)
     cartesian_edge_coords = xr.concat(
         [ds.xEdge, ds.yEdge, ds.zEdge], dim='R3'
-    ).T.chunk({'R3': -1})
+    ).T
 
     # project the normal vector onto the tangent plane at the cell center
     local_normal_vector = project_edge_normal_to_tangent_plane(
@@ -531,11 +554,6 @@ def build_reconstruction_weights(
     matrix = xr.concat(
         [local_normal_vector.isel(R3=[0, 1])] * 3, dim='R3'
     ).rename({'R3': 'SIX'})
-
-    # We just want to parallelize over the reconstruction point dimension
-    # so we set a single chunk along all other dimensions
-    stencil_dim = _stencil_dim(stencil)
-    matrix = matrix.chunk({'SIX': -1, stencil_dim: -1})
 
     matrix.loc[{'SIX': [2, 3]}] *= local_edge_coords.isel(R3=0)
     matrix.loc[{'SIX': [4, 5]}] *= local_edge_coords.isel(R3=1)
@@ -715,6 +733,8 @@ def compute_reconstruction_weights(
         and coefficient fields for the requested reconstruction point location.
     """
 
+    start_time = time.perf_counter()
+
     names = _RECONSTRUCTION_FIELD_NAMES[location]
 
     if names['weights'] in ds:
@@ -722,6 +742,10 @@ def compute_reconstruction_weights(
             f"Warning: overwriting existing '{names['weights']}' field "
             'in the mesh dataset.'
         )
+
+    # trim ds down to the variables needed for reconstruction, then load
+    # eagerly since the subset is small
+    ds = select_reconstruction_vars(ds, location).load()
 
     # For stencil creation to work all indices in the connectivity arrays must
     # [0, dim_size], where 0 is the invalid index sentinel
@@ -745,8 +769,11 @@ def compute_reconstruction_weights(
         units='unitless',
     )
 
-    with ProgressBar():
-        stencil, n_edges, weights = dask.compute(stencil, n_edges, weights)
+    elapsed = time.perf_counter() - start_time
+
+    print('\n')
+    print(f'Computed reconstruction weights in {elapsed:.2f} s')
+    print('\n')
 
     return xr.Dataset(
         {

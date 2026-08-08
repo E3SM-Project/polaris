@@ -17,7 +17,7 @@ def compute_edge_normal_vec(ds: xr.Dataset) -> xr.DataArray:
         Normal vector for each edge in the mesh
     """
 
-    periodic = ds.attrs['is_periodic'].lower() == 'yes'
+    periodic = ds.attrs.get('is_periodic', 'NO') == 'YES'
     if periodic:
         period = np.array([ds.attrs['x_period'], ds.attrs['y_period'], 0.0])
     else:
@@ -25,15 +25,8 @@ def compute_edge_normal_vec(ds: xr.Dataset) -> xr.DataArray:
         # formulas below are correct for non-periodic meshes as well
         period = np.array([0.0, 0.0, 0.0])
 
-    # concatenating along a new R3 dim leaves it chunked into one chunk
-    # per input array; force it back to a single chunk so it can be used
-    # as a core dimension in apply_ufunc(dask='parallelized', ...) calls
-    vec_cell = xr.concat([ds.xCell, ds.yCell, ds.zCell], dim='R3').T.chunk(
-        {'R3': -1}
-    )
-    vec_edge = xr.concat([ds.xEdge, ds.yEdge, ds.zEdge], dim='R3').T.chunk(
-        {'R3': -1}
-    )
+    vec_cell = xr.concat([ds.xCell, ds.yCell, ds.zCell], dim='R3').T
+    vec_edge = xr.concat([ds.xEdge, ds.yEdge, ds.zEdge], dim='R3').T
 
     cell_1 = ds.cellsOnEdge.isel(TWO=0) - 1
     cell_2 = ds.cellsOnEdge.isel(TWO=1) - 1

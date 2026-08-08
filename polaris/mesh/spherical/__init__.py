@@ -15,6 +15,7 @@ from mpas_tools.viz.paraview_extractor import extract_vtk
 
 from polaris import Step
 from polaris.constants import get_constant
+from polaris.mesh.reconstruct import compute_reconstruction_weights
 from polaris.mesh.spherical.quality import check_cell_polygon_quality
 from polaris.model_step import make_graph_file
 
@@ -90,12 +91,16 @@ class SphericalBaseStep(Step):
         Add output files
         """
         config = self.config
+        section = config['spherical_mesh']
         for option in [
             'jigsaw_mesh_filename',
             'mpas_mesh_filename',
             'cell_width_filename',
         ]:
-            filename = config.get('spherical_mesh', option)
+            filename = section.get(option)
+            self.add_output_file(filename=filename)
+        if section.getboolean('generate_reconstruction_weights'):
+            filename = section.get('reconstruction_weights_filename')
             self.add_output_file(filename=filename)
         self.add_output_file(filename='graph.info')
 
@@ -133,6 +138,19 @@ class SphericalBaseStep(Step):
         write_netcdf(ds_mesh, mpas_mesh_filename)
 
         self._check_cell_polygon_quality(ds_mesh=ds_mesh)
+
+        if section.getboolean('generate_reconstruction_weights'):
+            logger.info('\n')
+            logger.info(
+                'Compute vector-reconstruction weights at cell centers'
+            )
+            reconstruction_weights_filename = section.get(
+                'reconstruction_weights_filename'
+            )
+            ds_weights = compute_reconstruction_weights(
+                ds_mesh, location='cell'
+            )
+            write_netcdf(ds_weights, reconstruction_weights_filename)
 
         if section.getboolean('add_mesh_density'):
             logger.info('Add meshDensity into the mesh file')

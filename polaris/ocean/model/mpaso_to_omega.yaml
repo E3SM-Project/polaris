@@ -47,13 +47,13 @@ variables:
   kiteAreasOnVertex: KiteAreasOnVertex
   weightsOnEdge: WeightsOnEdge
 
-  # # variables used for LSTSQ vector reconstruction
-  reconstructStencilCell: ReconstructStencilCell
-  reconstructStencilVertex: ReconstructStencilVertex
-  nCellReconstructEdges: NCellReconstructEdges
-  nVertexReconstructEdges: NVertexReconstructEdges
-  reconstructWeightsCell: ReconstructWeightsCell
-  reconstructWeightsVertex: ReconstructWeightsVertex
+  # variables used for LSTSQ vector reconstruction
+  reconstructStencilCell: ReconStencilCell
+  reconstructStencilVertex: ReconStencilVertex
+  nEdgesReconstructOnCell: NEdgesReconOnCell
+  nEdgesReconstructOnVertex: NEdgesReconOnVertex
+  reconstructWeightsCell: ReconWeightsCell
+  reconstructWeightsVertex: ReconWeightsVertex
 
   # Coriolis
   fCell: FCell
