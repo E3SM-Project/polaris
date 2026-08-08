@@ -145,11 +145,11 @@ class DatabaseInitialCondition(InitialCondition):
     An initial condition staged in the Polaris input-file database and
     referenced by a constructed filename.
 
-    The graph partition file for MPAS-Ocean is built from the mesh by the base
-    ``OceanModelStep`` (``graph_target`` is ``None``).  This source is
-    implemented and unit-tested but is not yet wired into a registered task;
-    the exact database layout and graph handling are finalized when the
-    corresponding files are staged.
+    This source is implemented and unit-tested but is not yet wired into a
+    registered task; the exact database layout, and the graph partition file
+    MPAS-Ocean needs, are settled when the corresponding files are staged.
+    Until then ``graph_target`` stays ``None`` and nothing supplies
+    ``graph.info``, so an MPAS-Ocean step built on this source fails at setup.
 
     The run is still wind-forced, but the wind stress travels in the database
     initial-condition file rather than a separate forcing file, so
