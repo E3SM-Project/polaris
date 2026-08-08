@@ -15,6 +15,10 @@ env:
 jobs:
   publish-docs:
     runs-on: ubuntu-latest
+    env:
+      # mache's bootstrap.py defaults this to a /tmp path that can't be cached
+      # between runs, so pin it to a stable, cacheable location
+      PIXI_CACHE_DIR: ${{ github.workspace }}/.pixi-cache
     defaults:
       run:
         shell: bash -l {0}
@@ -34,12 +38,20 @@ jobs:
         uses: actions/cache@v6
         env:
           # Increase this value to reset cache if deploy inputs have not changed in the workflow
-          CACHE_NUMBER: 0
+          CACHE_NUMBER: 1
         with:
+          # cache the content-addressed package tarballs but deliberately not
+          # repodata, which must be refetched each run so a stale index can
+          # never persist across runs
           path: |
-            ~/.cache/rattler/cache
+            ${{ github.workspace }}/.pixi-cache/pkgs
             ~/.pixi/bin
           key: ${{ runner.os }}-${{ env.PYTHON_VERSION }}-pixi-${{ env.CACHE_NUMBER }}-${{ hashFiles('deploy.py', 'deploy/**', 'pyproject.toml') }}
+          # a run whose deploy inputs changed can still reuse most tarballs
+          # from the previous key; a partially stale pkgs directory only costs
+          # a few extra downloads
+          restore-keys: |
+            ${{ runner.os }}-${{ env.PYTHON_VERSION }}-pixi-${{ env.CACHE_NUMBER }}-
 
       - name: Install polaris
         run: |
