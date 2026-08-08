@@ -37,11 +37,13 @@ options for the `viz` step live in `realistic_global.cfg`, while the
 
 ### forward
 
-The class {py:class}`polaris.tasks.ocean.realistic_global.forward.Forward`
-is a shared {py:class}`polaris.ocean.model.OceanModelStep` used by tasks in
-this group.  Unlike most Polaris forward steps, it does not build its own
-mesh and initial condition; instead it downloads cached, model-specific files
-from the `realistic_global` section of the Polaris input database.
+The class
+{py:class}`polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward`
+is a shared {py:class}`polaris.ocean.model.OceanModelStep` used by the
+`analysis_members` tasks.  Unlike most Polaris forward steps, it does not
+build its own mesh and initial condition; instead it downloads cached,
+model-specific files from the `realistic_global` section of the Polaris input
+database.
 
 Because the file layout differs between the two models, the input files are
 added in `setup()` rather than `__init__()`, once `config` is available and
