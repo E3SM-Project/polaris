@@ -5,10 +5,12 @@ from polaris import (
     Task as Task,
 )
 from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.tasks.ocean.realistic_global.analysis_members.forward import (
+    Forward as Forward,
+)
 from polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis import (  # noqa: E501
     StatsAnalysis as StatsAnalysis,
 )
-from polaris.tasks.ocean.realistic_global.forward import Forward as Forward
 from polaris.tasks.ocean.realistic_global.viz import Viz as Viz
 
 
@@ -86,7 +88,7 @@ class AnalysisMembers(Task):
                 run_duration='0001_00:00:00',
             ),
         }
-        package = 'polaris.tasks.ocean.realistic_global'
+        package = 'polaris.tasks.ocean.realistic_global.analysis_members'
         replacements = {
             'time_integrator': 'RungeKutta4',
             'run_duration': mesh_info[mesh_name]['run_duration'],
