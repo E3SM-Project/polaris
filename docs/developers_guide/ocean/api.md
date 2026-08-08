@@ -513,11 +513,6 @@
 
    add_realistic_global_tasks
 
-   forward.Forward
-   forward.Forward.setup
-   forward.Forward.runtime_setup
-   forward.Forward.compute_cell_count
-
    viz.Viz
    viz.Viz.run
 
@@ -572,6 +567,11 @@
 
    forward.Forward
    forward.Forward.setup
+   forward.Forward.runtime_setup
+   forward.Forward.compute_cell_count
+
+   forward.AnalysisMembersForward
+   forward.AnalysisMembersForward.setup
 
    stats_analysis.StatsAnalysis
    stats_analysis.StatsAnalysis.setup

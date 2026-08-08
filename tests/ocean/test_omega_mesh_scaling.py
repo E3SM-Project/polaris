@@ -29,7 +29,7 @@ def test_realistic_global_turns_mesh_scaling_on():
     )
     yaml = PolarisYaml.read(
         filename='forward.yaml',
-        package='polaris.tasks.ocean.realistic_global',
+        package='polaris.tasks.ocean.realistic_global.analysis_members',
         replacements=replacements,
         model='Omega',
         streams_section='IOStreams',
