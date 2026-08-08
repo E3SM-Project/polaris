@@ -302,7 +302,13 @@ composes the full chain:
    MPAS-Ocean; the conversion itself is the framework's (see
    {ref}`dev-ocean-framework-init-state`), with this step supplying the
    per-cell longitude and latitude from the culled mesh because
-   `pstar_init.nc` has no horizontal mesh fields.
+   `pstar_init.nc` has no horizontal mesh fields.  It also writes `mesh.nc`,
+   adding the Coriolis fields via {py:func}`polaris.coriolis.add_coriolis_to_dataset`.
+   For Omega, `write_horiz_mesh_dataset()` merges in the cell-centered
+   vector-reconstruction fields from `reconstruction_weights.nc`, so the step
+   links **cull_mesh**'s `culled_ocean_reconstruction_weights.nc` under that
+   name.  The weights have to be the *culled* mesh's, not the base mesh's,
+   since that is the mesh the initial condition is built on.
 8. **forcing** ({py:class}`~polaris.tasks.ocean.realistic_global.init.forcing.ForcingStep`):
    writes the model-specific `forcing.nc` from `jra55_on_mesh.nc` via
    {py:meth}`polaris.ocean.model.OceanIOStep.write_forcing_dataset`.  Omega
