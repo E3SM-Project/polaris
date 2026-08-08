@@ -8,12 +8,25 @@ from polaris.ocean.global_stats_names import (
 )
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.model.time import get_time_since_start
+from polaris.tasks.ocean.realistic_global.forward.stage import ForwardStage
 
 
 class StatsAnalysis(OceanIOStep):
     """
-    A step that plots time series of the global statistics a forward step
-    wrote
+    A step for plotting time series of a forward run's global statistics.
+
+    Both models write the global minimum, maximum, mean and spread of each
+    state variable, but not in the same form: MPAS-Ocean writes a root mean
+    square where Omega writes a standard deviation, so the MPAS-Ocean values
+    are converted before plotting.
+
+    Attributes
+    ----------
+    forward_step : polaris.Step
+        The forward step whose statistics are plotted.
+
+    output_filename : str
+        The MPAS-Ocean statistics file, and the prefix of the Omega one.
     """
 
     def __init__(
@@ -24,6 +37,27 @@ class StatsAnalysis(OceanIOStep):
         output_filename='global_stats.nc',
         name='global_stats',
     ):
+        """
+        Create the step.
+
+        Parameters
+        ----------
+        component : polaris.tasks.ocean.Ocean
+            The ocean component the step belongs to.
+
+        indir : str
+            The directory the step is in, to which ``name`` is appended.
+
+        forward_step : polaris.Step
+            The forward step whose statistics are plotted.
+
+        output_filename : str, optional
+            The name MPAS-Ocean writes its statistics to.  Omega uses the same
+            name without its extension as a filename prefix.
+
+        name : str, optional
+            The name of the step.
+        """
         self.forward_step = forward_step
         self.output_filename = output_filename
         super().__init__(
@@ -33,10 +67,26 @@ class StatsAnalysis(OceanIOStep):
         )
 
     def setup(self):
+        """
+        Link the forward step's statistics file.
+
+        Omega treats the configured name as a prefix and builds the real one
+        from the analysis period and the kind of output: an instantaneous
+        chain writes ``<prefix>_<period>Instants`` and a temporal reduction
+        writes ``<prefix>_<period>TimeStats``, neither with a ``.nc``
+        extension (``AnalysisGroup::createAnalysisGroupStreams``).  The
+        realistic_global forward runs configure instantaneous samples, whose
+        variable names carry no time-mean period, so the name is built from
+        the same stage the forward step renders its config from.
+        """
         model = self.config.get('ocean', 'model')
         if model == 'omega':
-            filename = self.output_filename.split('.')[0]
-            target = f'{self.forward_step.path}/{filename}_1DayTimeStats'
+            stage = getattr(self.forward_step, 'stage', None)
+            if stage is None:
+                stage = ForwardStage.from_config(self.config)
+            prefix = self.output_filename.split('.')[0]
+            filename = f'{prefix}_{stage.stats_period()}Instants'
+            target = f'{self.forward_step.path}/{filename}'
         else:
             target = f'{self.forward_step.path}/{self.output_filename}'
         self.add_input_file(
@@ -84,7 +134,9 @@ class StatsAnalysis(OceanIOStep):
 
     def _fields(self, ds, model):
         """Get the fields to plot, in Polaris-standard names"""
-        fields = self.config.getlist('analysis_members', 'fields')
+        fields = self.config.getlist(
+            'realistic_global_forward_stats', 'fields'
+        )
         if fields:
             return fields
         # the honest default: whatever the run wrote statistics for
