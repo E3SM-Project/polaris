@@ -513,9 +513,6 @@
 
    add_realistic_global_tasks
 
-   viz.Viz
-   viz.Viz.run
-
    mesh_info.estimate_cell_count
    mesh_info.estimate_ocean_cell_count
 ```
@@ -572,10 +569,6 @@
 
    forward.AnalysisMembersForward
    forward.AnalysisMembersForward.setup
-
-   stats_analysis.StatsAnalysis
-   stats_analysis.StatsAnalysis.setup
-   stats_analysis.StatsAnalysis.run
 ```
 
 ### realistic_global.restart
@@ -616,6 +609,7 @@
    stage.ForwardStage
    stage.ForwardStage.from_config
    stage.ForwardStage.model_replacements
+   stage.ForwardStage.stats_period
    stage.ForwardStage.check_damping_supported
    stage.ForwardStage.bottom_drag_options
    stage.ForwardStage.restart_stream_replacements
@@ -624,12 +618,22 @@
 
    initial_condition.InitialCondition
    initial_condition.InitialCondition.add_input_files
+   initial_condition.InitialCondition.get_forcing_filename
 
    initial_condition.StepInitialCondition
    initial_condition.StepInitialCondition.add_input_files
 
    initial_condition.DatabaseInitialCondition
    initial_condition.DatabaseInitialCondition.add_input_files
+   initial_condition.DatabaseInitialCondition.get_forcing_filename
+
+   stats_analysis.StatsAnalysis
+   stats_analysis.StatsAnalysis.setup
+   stats_analysis.StatsAnalysis.run
+
+   viz.Viz
+   viz.Viz.setup
+   viz.Viz.run
 ```
 
 ### realistic_global.hydrography.woa23

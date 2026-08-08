@@ -177,11 +177,43 @@ def test_realistic_global_forward_without_init_steps():
         init_condition=init_condition,
         subdir_name='cached_forward',
     )
-    assert list(task.steps) == ['short']
+    # the forward run and its two diagnostics, and nothing upstream of them
+    assert list(task.steps) == ['short', 'global_stats', 'viz']
     assert task.subdir == (
         'spherical/realistic_global/QU.240km/cached_forward/task'
     )
     assert task.steps['short'].init_condition is init_condition
+    # the diagnostics are diagnostics, not part of the run
+    assert task.steps_to_run == ['short']
+
+
+def test_forward_task_config_has_the_viz_colormaps():
+    """
+    Every forward task has a viz step, which reads its colormaps from
+    realistic_global.cfg, so the task's config has to include that file.
+    """
+    init_condition = DatabaseInitialCondition(
+        mesh_name='QU.240km',
+        mpaso_id=151209,
+        omega_id=260807,
+        min_res=240.0,
+        approx_cell_count=7153,
+    )
+    task = RealisticGlobalForward(
+        component=Ocean(),
+        mesh_name='QU.240km',
+        init_condition=init_condition,
+    )
+    config = task.config
+    config.combine()
+    for field in [
+        'temperature',
+        'salinity',
+        'layerThickness',
+        'windStress',
+        'kineticEnergyCell',
+    ]:
+        assert config.has_section(f'realistic_global_viz_{field}')
 
 
 def test_realistic_global_init_one_task_per_mesh():
