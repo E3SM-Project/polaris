@@ -27,20 +27,25 @@ def get_unified_base_mesh_config(mesh_name, filepath=None):
     config : polaris.config.PolarisConfigParser
         The shared config options for the named unified base mesh.
     """
+
+    def create():
+        config = get_unified_mesh_config(
+            mesh_name=mesh_name, filepath=filepath
+        )
+        config.add_from_package(
+            'polaris.tasks.mesh.spherical.unified.base_mesh', 'base_mesh.cfg'
+        )
+
+        min_cell_width, max_cell_width = _get_mesh_cell_width_bounds(config)
+        config.set('spherical_mesh', 'prefix', 'UN')
+        config.set('spherical_mesh', 'min_cell_width', f'{min_cell_width:g}')
+        config.set('spherical_mesh', 'max_cell_width', f'{max_cell_width:g}')
+        return config
+
     component = _get_mesh_component()
-    if filepath in component.configs:
-        return component.configs[filepath]
-
-    config = get_unified_mesh_config(mesh_name=mesh_name, filepath=filepath)
-    config.add_from_package(
-        'polaris.tasks.mesh.spherical.unified.base_mesh', 'base_mesh.cfg'
+    return component.get_or_create_shared_config(
+        filepath=filepath, create=create
     )
-
-    min_cell_width, max_cell_width = _get_mesh_cell_width_bounds(config)
-    config.set('spherical_mesh', 'prefix', 'UN')
-    config.set('spherical_mesh', 'min_cell_width', f'{min_cell_width:g}')
-    config.set('spherical_mesh', 'max_cell_width', f'{max_cell_width:g}')
-    return config
 
 
 def get_unified_base_mesh_steps(mesh_name, include_viz=False):

@@ -143,24 +143,27 @@ def get_remap_topo_steps(mesh_name, smoothing=False, include_viz=False):
 
 
 def _get_remap_topo_config(filepath, base_mesh_step, low_res):
-    component = e3sm_init
-    if filepath in component.configs:
-        return component.configs[filepath]
-
-    config = PolarisConfigParser(filepath=filepath)
-    config.add_from_package('polaris.tasks.e3sm.init.topo.remap', 'remap.cfg')
-    if low_res:
+    def create():
+        config = PolarisConfigParser(filepath=filepath)
         config.add_from_package(
-            'polaris.tasks.e3sm.init.topo.remap', 'remap_low_res.cfg'
+            'polaris.tasks.e3sm.init.topo.remap', 'remap.cfg'
         )
-    config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
+        if low_res:
+            config.add_from_package(
+                'polaris.tasks.e3sm.init.topo.remap', 'remap_low_res.cfg'
+            )
+        config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
 
-    convention = base_mesh_step.config.get(
-        'spherical_mesh', 'antarctic_boundary_convention'
+        convention = base_mesh_step.config.get(
+            'spherical_mesh', 'antarctic_boundary_convention'
+        )
+        config.set(
+            'spherical_mesh',
+            'antarctic_boundary_convention',
+            convention,
+        )
+        return config
+
+    return e3sm_init.get_or_create_shared_config(
+        filepath=filepath, create=create
     )
-    config.set(
-        'spherical_mesh',
-        'antarctic_boundary_convention',
-        convention,
-    )
-    return config

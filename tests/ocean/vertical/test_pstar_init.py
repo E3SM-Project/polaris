@@ -199,9 +199,16 @@ def test_minimal_subclass_returns_complete_dataset():
         'maxLevelCell',
         'RefPseudoThickness',
         'vertCoordMovementWeights',
+        'refTopDepth',
+        'refZMid',
+        'refBottomDepth',
+        'refInterfaces',
     ]
     for var in required:
         assert var in ds, f'{var!r} missing from output dataset'
+
+    # refInterfaces spans layer interfaces (one more than layer midpoints)
+    assert ds.sizes['nVertLevelsP1'] == ds.sizes['nVertLevels'] + 1
 
 
 def test_constant_density_converges_cleanly(caplog):

@@ -11,6 +11,12 @@ from polaris.ocean.vertical.grid_1d.tanh_dz import (
     create_tanh_dz_grid as create_tanh_dz_grid,
 )
 
+# The 1D reference vertical coordinate variables added by ``add_1d_grid``.
+# Kept here as the single source of truth so that consumers that need to
+# route or exclude these variables (e.g. dropping them from Omega output)
+# stay in sync with what ``add_1d_grid`` actually writes.
+REF_COORD_VARS = ['refTopDepth', 'refZMid', 'refBottomDepth', 'refInterfaces']
+
 
 def generate_1d_grid(config):
     """

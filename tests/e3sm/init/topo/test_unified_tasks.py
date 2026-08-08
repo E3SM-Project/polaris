@@ -1,3 +1,5 @@
+import os
+
 from polaris.component import Component
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.topo.cull import (
@@ -112,8 +114,19 @@ def test_remap_topo_task_uses_factory_symlink_keys():
     )
 
     assert list(task.steps) == [step.name for step in steps.values()]
+    # the factory's suggested names are used as-is, except for the steps that
+    # live in the task's own directory, whose symlinks would sit beside them
+    suggested = {step.name: symlink for symlink, step in steps.items()}
+    beside = {
+        name
+        for name, step in task.steps.items()
+        if os.path.dirname(step.subdir) == task.subdir
+    }
+    assert beside
     assert task.step_symlinks == {
-        step.name: symlink for symlink, step in steps.items()
+        name: symlink
+        for name, symlink in suggested.items()
+        if name not in beside
     }
 
 
@@ -132,8 +145,19 @@ def test_cull_topo_task_uses_factory_symlink_keys():
     )
 
     assert list(task.steps) == [step.name for step in steps.values()]
+    # the factory's suggested names are used as-is, except for the steps that
+    # live in the task's own directory, whose symlinks would sit beside them
+    suggested = {step.name: symlink for symlink, step in steps.items()}
+    beside = {
+        name
+        for name, step in task.steps.items()
+        if os.path.dirname(step.subdir) == task.subdir
+    }
+    assert beside
     assert task.step_symlinks == {
-        step.name: symlink for symlink, step in steps.items()
+        name: symlink
+        for name, symlink in suggested.items()
+        if name not in beside
     }
 
 
