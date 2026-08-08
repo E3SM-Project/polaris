@@ -1,7 +1,9 @@
 import os
 import shutil
 
-from polaris.tasks.ocean.realistic_global.forward import Forward
+from polaris.tasks.ocean.realistic_global.analysis_members.forward import (
+    Forward,
+)
 
 #: The package holding this task's yaml overrides
 PACKAGE = 'polaris.tasks.ocean.realistic_global.restart'
@@ -80,7 +82,7 @@ class RestartStep(Forward):
         """
         super().__init__(
             component=component,
-            package='polaris.tasks.ocean.realistic_global',
+            package='polaris.tasks.ocean.realistic_global.analysis_members',
             name=name,
             subdir=subdir,
             mesh_name=mesh_name,
