@@ -43,8 +43,8 @@ class InitialStateStep(OceanIOStep):
         Upstream step that produces ``pstar_init.nc``.
 
     cull_mesh_step : polaris.Step
-        Upstream cull-mesh step whose outputs include the MPAS mesh file
-        and graph file.
+        Upstream cull-mesh step whose outputs include the MPAS mesh file,
+        the graph file and the vector-reconstruction weights.
     """
 
     def __init__(
@@ -69,8 +69,9 @@ class InitialStateStep(OceanIOStep):
             The step that produces ``pstar_init.nc``.
 
         cull_mesh_step : polaris.Step
-            The step that produces ``culled_ocean_mesh.nc``
-            and ``culled_ocean_graph.info``.
+            The step that produces ``culled_ocean_mesh.nc``,
+            ``culled_ocean_graph.info`` and
+            ``culled_ocean_reconstruction_weights.nc``.
         """
         super().__init__(
             component=component,
@@ -106,6 +107,17 @@ class InitialStateStep(OceanIOStep):
             work_dir_target=os.path.join(
                 self.cull_mesh_step.path,
                 'culled_ocean_graph.info',
+            ),
+        )
+        # Omega reads the cell-centered vector-reconstruction fields from the
+        # horizontal mesh, and write_horiz_mesh_dataset() merges them in from
+        # reconstruction_weights.nc.  They are computed for the culled ocean
+        # mesh, not the base mesh, so they have to come from the cull step.
+        self.add_input_file(
+            filename='reconstruction_weights.nc',
+            work_dir_target=os.path.join(
+                self.cull_mesh_step.path,
+                'culled_ocean_reconstruction_weights.nc',
             ),
         )
         self.add_output_files_for_ocean_model_input(
