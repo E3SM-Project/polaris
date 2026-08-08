@@ -130,4 +130,7 @@ Common user-tunable options are:
 	culled ocean/sea-ice domain.  The mask step fails if resolution intended for
 	the land/river domain has leaked into the CFL-limited ocean/sea-ice domain
 	(see the {ref}`design doc <design-docs>` `unified_mesh_cull_leak` for the
-	motivation and choice of defaults).
+	motivation and choice of defaults).  A mesh whose known minimum sits below
+	the default overrides these in its own unified-mesh config rather than
+	relaxing the default for every mesh; `u.oi6to18.lr6to10` sets
+	`min_dc_edge_ratio = 0.64` for a single edge at a ratio of 0.643.
