@@ -21,6 +21,7 @@ from polaris.ocean.vertical.diagnostics import (
     geom_thickness_from_ds,
     pseudothickness_from_ds,
 )
+from polaris.ocean.vertical.grid_1d import REF_COORD_VARS
 from polaris.ocean.vertical.ztilde import (
     geom_height_from_pseudo_height,
     get_iter_count_for_eos,
@@ -58,6 +59,9 @@ class Ocean(Component):
         Horizontal mesh variables that are specific to Omega (currently
         just the cell-centered vector-reconstruction fields), read from
         the ``Omega`` section of variables.yaml
+
+    forcing_vars : list of str
+        Variables that belong in the surface forcing file
     """
 
     def __init__(self):
@@ -72,6 +76,7 @@ class Ocean(Component):
         self.vert_coord_vars: Union[None, list[str]] = None
         self.state_vars: Union[None, list[str]] = None
         self.omega_only_horiz_mesh_vars: Union[None, list[str]] = None
+        self.forcing_vars: Union[None, list[str]] = None
 
     def configure(self, config, tasks):
         """
@@ -213,16 +218,19 @@ class Ocean(Component):
             variables are present in the dataset after mapping.
         """
         if self.model == 'omega':
-            # fields to be converted from geometric to pseudo thickness
+            # fields to be converted from geometric to pseudo thickness.
+            # RefPseudoThickness is deliberately absent: it belongs to the
+            # vertical coordinate, and write_vert_coord_dataset() derives it
+            # from restingThickness at zero surface pressure, which is the
+            # only correct way to do it.
             mpas_to_omega_vars = {
                 'layerThickness': 'PseudoThickness',
-                'restingThickness': 'RefPseudoThickness',
                 'vertAleTransportTop': 'TotalVerticalPseudoVelocity',
                 'vertVelocityTop': 'VerticalPseudoVelocity',
             }
             for mpas_var, omega_var in mpas_to_omega_vars.items():
                 if mpas_var in ds.keys() and omega_var not in ds.keys():
-                    if mpas_var in ['layerThickness', 'restingThickness']:
+                    if mpas_var == 'layerThickness':
                         pseudothickness, spec_vol = pseudothickness_from_ds(
                             ds, config=config, src_var_name=mpas_var
                         )
@@ -231,10 +239,7 @@ class Ocean(Component):
                             and spec_vol is not None
                         ):
                             ds[omega_var] = pseudothickness
-                            if (
-                                'SpecVol' not in ds.keys()
-                                and mpas_var == 'layerThickness'
-                            ):
+                            if 'SpecVol' not in ds.keys():
                                 ds['SpecVol'] = spec_vol
                     elif mpas_var in [
                         'vertVelocityTop',
@@ -432,6 +437,60 @@ class Ocean(Component):
         ds_vc = ds_vc[native_vars]
         write_netcdf(ds=ds_vc, fileName=filename)
 
+    def write_forcing_dataset(self, ds, filename, config):
+        """
+        Write a surface forcing dataset for Omega's ``Forcing`` stream or
+        MPAS-Ocean's ``forcing_data`` stream.
+
+        The two models disagree about the time dimension.  Omega's
+        ``SfcStressForcingVars`` registers 1-D fields on ``NCells``, while
+        MPAS-Ocean's Registry declares
+        ``dimensions="nCells Time"``.  A ``Time`` dimension of length one is
+        therefore added for MPAS-Ocean and omitted for Omega.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            A dataset containing MPAS-Ocean or native model variable names,
+            including the forcing variables
+
+        filename : str
+            The path for the NetCDF file to write
+
+        config : polaris.config.PolarisConfigParser
+            Configuration for the task (unused for now, accepted so the
+            signature matches the other ``write_*_dataset`` helpers)
+        """
+        if self.forcing_vars is None:
+            self._read_variables_yaml()
+        if self.model == 'omega' and self.mpaso_to_omega_var_map is None:
+            self._read_var_map()
+        assert self.forcing_vars is not None
+
+        native_vars = self.map_var_list_to_native_model(self.forcing_vars)
+
+        ds_forcing = self.map_to_native_model_vars(ds.copy())
+        self._check_vars_present(
+            ds_forcing, native_vars, 'write_forcing_dataset'
+        )
+        ds_forcing = ds_forcing[native_vars]
+
+        cell_dim = 'NCells' if self.model == 'omega' else 'nCells'
+        for var in native_vars:
+            da = ds_forcing[var]
+            if self.model == 'omega':
+                # Omega reads time-independent 1-D fields on cells
+                if 'Time' in da.dims:
+                    ds_forcing[var] = da.isel(Time=0, drop=True)
+            else:
+                # MPAS-Ocean's Registry requires a Time dimension
+                if 'Time' not in da.dims:
+                    ds_forcing[var] = da.expand_dims(dim='Time', axis=0)
+            ds_forcing[var].attrs = da.attrs
+            assert cell_dim in ds_forcing[var].dims
+
+        write_netcdf(ds=ds_forcing, fileName=filename)
+
     def remove_vert_coord_vars(self, ds):
         """
         Remove vertical coordinate variables from a dataset.
@@ -524,6 +583,14 @@ class Ocean(Component):
         ds = self.remove_horiz_mesh_vars(ds)
         if self.model == 'omega':
             ds = self.remove_vert_coord_vars(ds)
+
+            # Omega uses RefPseudoThickness, not the 1D reference depth
+            # coordinate, so drop those fields (added by the p-star init for
+            # MPAS-Ocean) from the Omega initial state.
+            drop = [v for v in REF_COORD_VARS if v in ds]
+            if drop:
+                ds = ds.drop_vars(drop)
+
             # Omega requires a surface pressure in its initial state but
             # MPAS-Ocean does not, so only add it for Omega.  This is the one
             # place the vertical_grid:surface_pressure config option is read
@@ -946,6 +1013,7 @@ class Ocean(Component):
             nested_dict['ocean']['vert_coord_variables']
         )
         self.state_vars = list(nested_dict['ocean']['state_variables'])
+        self.forcing_vars = list(nested_dict['ocean']['forcing_variables'])
         model_section_map = {'mpas-ocean': 'mpas-ocean', 'omega': 'Omega'}
         model_key = model_section_map.get(self.model or '')
         if model_key:

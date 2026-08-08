@@ -3,6 +3,7 @@ import os
 import xarray as xr
 
 from polaris import Step
+from polaris.attrs import set_attrs
 from polaris.mesh.spherical.coastline import CONVENTIONS
 
 
@@ -175,9 +176,19 @@ class MaskTopoStep(Step):
             for var in var_names:
                 out_var = f'{prefix}_masked_{var}'
                 ds[out_var] = ds[var] * mask
-                ds[out_var].attrs = ds[var].attrs
+                # a masked field is the same quantity over a smaller area, so
+                # it keeps the source's metadata -- but as a copy, so the two
+                # variables do not end up sharing one attrs dict
+                ds[out_var].attrs = dict(ds[var].attrs)
             out_var = f'{prefix}_mask'
             ds[out_var] = mask
+            # the masks are derived from base_elevation and the ice masks, so
+            # without this they claim to be a bedrock elevation in metres
+            set_attrs(
+                ds[out_var],
+                long_name=f'fraction of the cell covered by {prefix}',
+                units='1',
+            )
 
         ds.to_netcdf(out_filename)
 

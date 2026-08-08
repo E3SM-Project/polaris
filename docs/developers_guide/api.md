@@ -125,6 +125,7 @@ seaice/api
    Component.add_step
    Component.remove_step
    Component.add_config
+   Component.get_or_create_shared_config
    Component.get_or_create_shared_step
    Component.set_parallel_system
    Component.get_available_resources
@@ -194,6 +195,17 @@ seaice/api
    ModelStep.partition
 ```
 
+### attrs
+
+```{eval-rst}
+.. currentmodule:: polaris.attrs
+
+.. autosummary::
+   :toctree: generated/
+
+   set_attrs
+```
+
 ### config
 
 ```{eval-rst}
@@ -204,6 +216,22 @@ seaice/api
 
    PolarisConfigParser
    PolarisConfigParser.setup
+```
+
+### coriolis
+
+```{eval-rst}
+.. currentmodule:: polaris.coriolis
+
+.. autosummary::
+   :toctree: generated/
+
+   add_coriolis_to_dataset
+   add_beta_plane_coriolis
+   add_constant_coriolis
+   add_rotated_sphere_coriolis
+   add_spherical_coriolis
+   add_zero_coriolis
 ```
 
 ### io

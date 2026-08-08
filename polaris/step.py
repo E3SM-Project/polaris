@@ -589,6 +589,17 @@ class Step:
         step : polaris.Step
             The step that is a dependency
 
+        Adding the same dependency again under the same name does nothing, so
+        that a ``get_*_steps()`` helper which wires a dependency outside a step
+        constructor is safe to call once per consumer, as shared steps are.
+        Adding a *different* step under a name already in use is still an
+        error, which is what the ``name`` argument exists to resolve.
+
+        Parameters
+        ----------
+        step : polaris.Step
+            The step that is a dependency
+
         name : str, optional
             The name of the step used to access it in the ``dependencies``
             dictionary.  By default, it is ``step.name`` but another name may
@@ -597,8 +608,13 @@ class Step:
         if name is None:
             name = step.name
         if name in self.dependencies:
+            if self.dependencies[name] is step:
+                # already wired; returning rather than falling through matters
+                # because neither add_output_file() nor add_input_file()
+                # de-duplicates
+                return
             raise ValueError(
-                'Adding a dependency that is already in dependencies.'
+                f'A different dependency has already been added as {name!r}.'
             )
         self.dependencies[name] = step
         step.is_dependency = True

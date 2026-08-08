@@ -16,24 +16,7 @@ from .extrapolate import ExtrapolateStep
 from .viz import Woa23VizStep
 
 
-def get_woa23_topography_step():
-    """
-    Get the cached combined-topography step for the WOA23 target grid.
-
-    Returns
-    -------
-    combine_topo_step : polaris.tasks.e3sm.init.topo.combine.step.CombineStep
-        A shared step from ``e3sm/init`` configured for the WOA23 0.25-degree
-        latitude-longitude grid.
-    """
-    steps, _ = get_lat_lon_topo_steps(
-        component=e3sm_init, resolution=0.25, include_viz=False
-    )
-    woa23_res_name = format_lat_lon_resolution_name(0.25)
-    return steps[TopoCombineStep.get_name('lat_lon', woa23_res_name)]
-
-
-def get_woa23_steps(component, combine_topo_step):
+def get_woa23_steps(component, include_viz=False):
     """
     Get the shared steps for building the reusable WOA23 hydrography product.
 
@@ -42,28 +25,48 @@ def get_woa23_steps(component, combine_topo_step):
     component : polaris.tasks.ocean.Ocean
         The ocean component the steps belong to.
 
-    combine_topo_step : polaris.tasks.e3sm.init.topo.combine.step.CombineStep
-        The cached ``e3sm/init`` step that produces topography on the WOA23
-        grid.
+    include_viz : bool, optional
+        Whether to include the :py:class:`.Woa23VizStep` in the returned
+        steps.  The step is always created as a shared component step so it is
+        part of the workflow, but it is only added to the returned dict (and
+        therefore to a task's ``steps_to_run``) when this is ``True``.  The
+        standalone :py:class:`.Woa23` task passes ``include_viz=True``; other
+        consumers that reuse the hydrography product as a dependency leave it
+        ``False`` so the plots are not regenerated.
 
     Returns
     -------
     steps : dict of {str: polaris.Step}
-        Shared steps for combining and extrapolating WOA23 data, keyed by
-        step name.
+        All shared steps keyed by their suggested symlink names for use
+        in a task.  Upstream shared combine topography steps are also included.
 
     config : polaris.config.PolarisConfigParser
         The shared config options for the task and its steps.
     """
     subdir = 'spherical/realistic_global/hydrography/woa23'
     config_filename = 'woa23.cfg'
-    config = PolarisConfigParser(
-        filepath=os.path.join(component.name, subdir, config_filename)
+
+    def create():
+        config = PolarisConfigParser(filepath=filepath)
+        config.add_from_package(
+            'polaris.tasks.ocean.realistic_global.hydrography.woa23',
+            config_filename,
+        )
+        return config
+
+    filepath = os.path.join(component.name, subdir, config_filename)
+    config = component.get_or_create_shared_config(
+        filepath=filepath, create=create
     )
-    config.add_from_package(
-        'polaris.tasks.ocean.realistic_global.hydrography.woa23',
-        config_filename,
+
+    topo_steps, _ = get_lat_lon_topo_steps(
+        component=e3sm_init, resolution=0.25, include_viz=False
     )
+    woa23_res_name = format_lat_lon_resolution_name(0.25)
+    combine_topo_name = TopoCombineStep.get_name('lat_lon', woa23_res_name)
+    # give the step an simpler symlink name
+    combine_topo_step = topo_steps.pop(combine_topo_name)
+    topo_steps['combine_topo'] = combine_topo_step
 
     combine_subdir = os.path.join(subdir, 'combine')
     combine_step = component.get_or_create_shared_step(
@@ -83,19 +86,21 @@ def get_woa23_steps(component, combine_topo_step):
         combine_topo_step=combine_topo_step,
     )
 
-    viz_subdir = os.path.join(subdir, 'viz')
-    viz_step = component.get_or_create_shared_step(
-        step_cls=Woa23VizStep,
-        subdir=viz_subdir,
-        config=config,
-        config_filename=config_filename,
-        extrapolate_step=extrapolate_step,
-        combine_topo_step=combine_topo_step,
-    )
+    steps: dict[str, Step] = dict(topo_steps)
+    steps['woa23_combine'] = combine_step
+    steps['woa23_extrapolate'] = extrapolate_step
 
-    steps: dict[str, Step] = {
-        combine_step.name: combine_step,
-        extrapolate_step.name: extrapolate_step,
-        viz_step.name: viz_step,
-    }
+    if include_viz:
+        viz_subdir = os.path.join(subdir, 'viz')
+        viz_step = component.get_or_create_shared_step(
+            step_cls=Woa23VizStep,
+            subdir=viz_subdir,
+            config=config,
+            config_filename=config_filename,
+            extrapolate_step=extrapolate_step,
+            combine_topo_step=combine_topo_step,
+        )
+
+        steps['woa23_viz'] = viz_step
+
     return steps, config

@@ -33,6 +33,17 @@ viz_dict = {
     'seaIceFraction': {'colormap': 'cmo.ice', 'units': r''},
     'default': {'colormap': 'cmo.dense', 'units': r''},
 }
+viz_dict['windStressZonal'] = {
+    'colormap': 'cmo.balance',
+    'units': r'N/m$^2$',
+}
+viz_dict['windStressMeridional'] = viz_dict['windStressZonal']
+# a magnitude is non-negative, so it wants a sequential map rather than the
+# diverging one used for the signed components
+viz_dict['windStressMagnitude'] = {
+    'colormap': 'cmo.speed',
+    'units': r'N/m$^2$',
+}
 viz_dict['temperatureInteriorRestoringValue'] = viz_dict['temperature']
 viz_dict['salinityInteriorRestoringValue'] = viz_dict['salinity']
 viz_dict['vertVelocityTop'] = viz_dict['velocity']

@@ -61,6 +61,16 @@ def _make_state_ds(surface_pressure=None):
     return xr.Dataset(data_vars=data_vars)
 
 
+def _make_ref_coord_ds():
+    """A minimal initial state plus the four 1D reference coordinate vars."""
+    ds = _make_state_ds()
+    ds['refTopDepth'] = ('nVertLevels', [0.0])
+    ds['refZMid'] = ('nVertLevels', [-5.0])
+    ds['refBottomDepth'] = ('nVertLevels', [10.0])
+    ds['refInterfaces'] = ('nVertLevelsP1', [0.0, 10.0])
+    return ds
+
+
 def test_write_initial_state_dataset_omega_drops_horiz_mesh_vars(tmp_path):
     component = Ocean()
     component.model = 'omega'
@@ -123,6 +133,39 @@ def test_write_initial_state_dataset_omega_drops_vert_coord_vars(tmp_path):
     assert 'MaxLayerCell' not in ds_out
     assert 'BottomGeomDepth' not in ds_out
     assert 'VertCoordMovementWeights' not in ds_out
+    assert 'RefPseudoThickness' not in ds_out
+
+
+def test_write_initial_state_dataset_omega_does_not_rebuild_ref_thickness(
+    tmp_path,
+):
+    """restingThickness does not put RefPseudoThickness back into init.nc.
+
+    RefPseudoThickness belongs to the vertical coordinate file.  It used to
+    be dropped by remove_vert_coord_vars() and then immediately recreated
+    from restingThickness on the way out, at whatever surface pressure the
+    dataset happened to carry -- and labelled as a plain pseudo-thickness,
+    disagreeing with the same variable in vert_coord.nc.
+    """
+    component = Ocean()
+    component.model = 'omega'
+    component._read_var_map()
+
+    ds = _make_tracer_state_ds()
+    ds['layerThickness'] = (('nCells', 'nVertLevels'), [[10.0], [10.0]])
+    ds['restingThickness'] = (('nCells', 'nVertLevels'), [[10.0], [10.0]])
+    ds['SurfacePressure'] = ('nCells', [0.0, 0.0])
+
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(
+        ds, str(filename), _make_tracer_config('omega')
+    )
+
+    ds_out = xr.open_dataset(filename)
+    assert 'RefPseudoThickness' not in ds_out
+    # the layerThickness -> PseudoThickness conversion still runs; only the
+    # resting-thickness one is gone
+    assert 'PseudoThickness' in ds_out
 
 
 def test_write_initial_state_dataset_mpas_ocean_keeps_vert_coord_vars(
@@ -221,6 +264,44 @@ def test_write_initial_state_dataset_mpas_ocean_omits_surface_pressure(
     ds_out = xr.open_dataset(filename)
     assert 'surfacePressure' not in ds_out
     assert 'SurfacePressure' not in ds_out
+
+
+def test_write_initial_state_dataset_omega_drops_ref_coord_vars(tmp_path):
+    component = Ocean()
+    component.model = 'omega'
+    component._read_var_map()
+
+    config = _make_surface_pressure_config('omega')
+
+    ds = _make_ref_coord_ds()
+
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(ds, str(filename), config)
+
+    ds_out = xr.open_dataset(filename)
+    assert 'Temperature' in ds_out
+    for var in ('refTopDepth', 'refZMid', 'refBottomDepth', 'refInterfaces'):
+        assert var not in ds_out
+
+
+def test_write_initial_state_dataset_mpas_ocean_keeps_ref_coord_vars(
+    tmp_path,
+):
+    component = Ocean()
+    component.model = 'mpas-ocean'
+    component._read_var_map()
+
+    config = _make_surface_pressure_config('mpas-ocean')
+
+    ds = _make_ref_coord_ds()
+
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(ds, str(filename), config)
+
+    ds_out = xr.open_dataset(filename)
+    assert 'temperature' in ds_out
+    for var in ('refTopDepth', 'refZMid', 'refBottomDepth', 'refInterfaces'):
+        assert var in ds_out
 
 
 def _make_tracer_config(
