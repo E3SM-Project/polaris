@@ -7,6 +7,7 @@ import pytest
 from ruamel.yaml import YAML
 
 from polaris import Step
+from polaris.ocean.global_stats_names import global_stats_var_names
 from polaris.ocean.model import OceanModelStep
 from polaris.tasks.ocean.realistic_global.forward import (
     DatabaseInitialCondition,
@@ -201,6 +202,63 @@ def test_stats_interval_is_independent_of_the_output_interval():
     assert rep['stats_interval'] == '0000_01:00:00'
     assert rep['output_interval'] == '0010_00:00:00'
     assert rep['stats_freq'] == '3600'
+
+
+@pytest.mark.parametrize(
+    'stats_interval, expected',
+    [
+        ('0001_00:00:00', '1Day'),
+        ('0002_00:00:00', '2Day'),
+        ('0000_06:00:00', '6Hour'),
+        ('0000_00:30:00', '30Minute'),
+        ('0000_00:00:45', '45Second'),
+        # 1 day 12 hours has no whole-day form, so it falls back to hours
+        ('0001_12:00:00', '36Hour'),
+    ],
+)
+def test_omega_stats_period_follows_the_stats_interval(
+    stats_interval, expected
+):
+    """
+    Omega spells the GlobalStats cadence as a period string rather than an
+    interval, so stats_interval has to be translated.  It is the same knob for
+    both models; it must not silently apply to MPAS-Ocean alone.
+    """
+    stage = ForwardStage.from_config(
+        _forward_config(stats_interval=stats_interval)
+    )
+    assert stage.stats_period() == expected
+    rep = stage.model_replacements('omega', min_res=30.0)
+    assert rep['stats_period'] == expected
+
+
+def test_omega_global_stats_are_snapshots_not_reductions():
+    """
+    Omega names a temporal reduction ``<stem>_TimeMean<period>`` and an
+    instantaneous sample plain ``<stem>``.  The readers build the plain names
+    -- ``global_stats_var_names`` with no time-mean period -- so the analysis
+    group has to be configured for snapshots or the variables they look for
+    will not exist in the output.
+    """
+    stage = ForwardStage.from_config(_forward_config())
+    yaml = PolarisYaml.read(
+        filename='forward.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        replacements=stage.model_replacements('omega', min_res=30.0),
+        model='Omega',
+    )
+    global_stats = yaml.configs['Analysis']['GlobalStats']
+    assert global_stats['ReductionPeriod'] == []
+    assert global_stats['SnapshotPeriod'] == ['1Day']
+
+    # the names the readers look for are the plain (snapshot) form
+    names = global_stats_var_names(
+        fields=['temperature'],
+        stats=['max'],
+        model='omega',
+        field_map={'temperature': 'Temperature'},
+    )
+    assert names[('temperature', 'max')] == 'Temperature_SpatialMax'
 
 
 def test_bottom_drag_options():

@@ -128,3 +128,54 @@ def duration_to_seconds(duration):
         + int(minutes) * 60.0
         + float(seconds)
     )
+
+
+def duration_to_omega_period(duration):
+    """
+    Convert an MPAS-style time-interval string to an Omega period string
+
+    Omega spells an analysis period as a count followed by a unit, e.g.
+    ``1Day`` or ``6Hour``.  It splits the string at the first non-digit and
+    appends an ``s`` to the unit if there is not one already, so both
+    ``6Hour`` and ``6Hours`` name the same period.  The string is also echoed
+    verbatim into the name of the file the analysis group writes
+    (``<prefix>_<period>Instants`` for a snapshot period, or
+    ``<prefix>_<period>TimeStats`` for a reduction period), so whatever is put
+    in the config has to be the same string used to find the output later.
+
+    The largest unit that divides the interval exactly is used, since that is
+    the form a reader expects: one day rather than 24 hours.
+
+    Parameters
+    ----------
+    duration : str
+        A time interval in the format ``DDDD_HH:MM:SS.SSS``, where the
+        ``DDDD_`` day prefix and the fractional seconds are both optional
+
+    Returns
+    -------
+    period : str
+        The interval as an Omega period string, e.g. ``'1Day'``
+
+    Raises
+    ------
+    ValueError
+        If the interval is not a positive whole number of seconds
+    """
+    seconds = duration_to_seconds(duration)
+    if seconds <= 0 or seconds != int(seconds):
+        raise ValueError(
+            f'An Omega period must be a positive whole number of seconds, '
+            f'but {duration!r} is {seconds} s.'
+        )
+    seconds = int(seconds)
+    for unit_seconds, unit in [
+        (86400, 'Day'),
+        (3600, 'Hour'),
+        (60, 'Minute'),
+        (1, 'Second'),
+    ]:
+        if seconds % unit_seconds == 0:
+            return f'{seconds // unit_seconds}{unit}'
+    # unreachable: every whole number of seconds is divisible by 1
+    raise AssertionError(f'Could not express {duration!r} as an Omega period')

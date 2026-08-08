@@ -2,7 +2,11 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 from polaris.config import PolarisConfigParser
-from polaris.mpas.time import duration_to_seconds, get_time_interval_string
+from polaris.mpas.time import (
+    duration_to_omega_period,
+    duration_to_seconds,
+    get_time_interval_string,
+)
 
 # Map from the neutral (MPAS-Ocean) time-integrator names to the Omega names.
 # Only integrators with an Omega equivalent appear here; a neutral name that is
@@ -86,10 +90,9 @@ class ForwardStage:
         The interval between writes of the global statistics, which is
         deliberately separate from ``output_interval``: the statistics are a
         handful of scalars, so they can be written far more often than the 3-D
-        output and are what makes an excursion within a stage visible.
-        MPAS-Ocean only -- Omega's ``GlobalStats`` reduction period is baked
-        into the variable names that ``mpaso_to_omega`` maps, so its statistics
-        stay daily.
+        output and are what makes an excursion within a stage visible.  It
+        drives MPAS-Ocean's ``globalStatsOutput`` stream and Omega's
+        ``GlobalStats`` snapshot period alike.
 
     mpaso_time_integrator : str
         The time integrator to use for MPAS-Ocean.
@@ -363,12 +366,30 @@ class ForwardStage:
             output_freq=str(output_freq),
             restart_freq=str(restart_freq),
             stats_freq=str(stats_freq),
+            stats_period=self.stats_period(),
             dt=dt,
             btr_dt=btr_dt,
             time_integrator=time_integrator,
             start_time=self.start_time,
             do_restart='true' if self.do_restart else 'false',
         )
+
+    def stats_period(self) -> str:
+        """
+        ``stats_interval`` as an Omega analysis period string.
+
+        Omega's ``GlobalStats`` group takes its cadence as a period string
+        rather than an interval in seconds, and echoes that same string into
+        the name of the file it writes, so the value here is also what
+        :py:class:`~polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis`
+        uses to find that file.
+
+        Returns
+        -------
+        str
+            The period, e.g. ``'1Day'``.
+        """
+        return duration_to_omega_period(self.stats_interval)
 
     def check_damping_supported(self, model: str) -> None:
         """

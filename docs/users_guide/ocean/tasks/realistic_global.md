@@ -492,9 +492,9 @@ the state variables, plus the global CFL number for MPAS-Ocean.  This is the
 cheapest way to see a run going wrong before it NaNs, which matters most for
 the longer spin-ups that build on this task.  MPAS-Ocean produces it through
 the `globalStats` analysis member, in `global_stats.nc`, and Omega through its
-`GlobalStats` analysis group, in `global_stats_1DayTimeStats` — Omega treats
-the configured file name as a prefix and appends the reduction period, with no
-`.nc` extension.
+`GlobalStats` analysis group, in `global_stats_1DayInstants` at the default
+`stats_interval` — Omega treats the configured file name as a prefix and
+appends the period and the kind of output, with no `.nc` extension.
 
 The two files hold the same quantities under different variable names;
 `polaris/ocean/model/mpaso_to_omega.yaml` maps between them.  One caveat there:
@@ -502,10 +502,13 @@ MPAS-Ocean's `rms*` is a root mean square while Omega's `SpatialStdDev` is a
 standard deviation, so that pair is a name correspondence rather than an
 equivalence.
 
-Omega's reduction period is fixed at one day because the period is part of its
-variable names.  Omega also aborts unless its restart interval is a whole
-multiple of that period, so `restart_interval` must be a whole number of days
-for an Omega run.
+Omega samples the statistics instantaneously rather than averaging them over
+the period, because that is what the mapped variable names mean: Omega names a
+time-averaged quantity `<name>_TimeMean<period>` and an instantaneous one
+plainly `<name>`.  Averaging would also constrain `restart_interval`, since
+Omega aborts unless the restart interval is a whole multiple of an averaging
+period; instantaneous sampling carries no such constraint.  MPAS-Ocean writes
+an instantaneous sample too, so the two are comparable.
 
 MPAS-Ocean additionally writes the temperature-threshold mixed-layer depth at
 `output_interval`, through the `mixedLayerDepths` analysis member, in
@@ -641,11 +644,15 @@ run_duration = 0001_00:00:00
 output_interval = 0001_00:00:00
 
 # Interval between writes to the restart stream (DDDD_HH:MM:SS); leave blank to
-# default to run_duration (a single restart at the end of the run).  For Omega
-# this must be a whole number of days, since Omega aborts unless its restart
-# interval is a whole multiple of the GlobalStats reduction period, which
-# forward.yaml fixes at one day.
+# default to run_duration (a single restart at the end of the run)
 restart_interval =
+
+# Interval between writes of the global statistics (DDDD_HH:MM:SS).  These are
+# a handful of scalars, so they are written far more often than the 3-D output
+# and are what makes an excursion within a run visible.  Drives MPAS-Ocean's
+# globalStatsOutput stream and Omega's GlobalStats snapshot period alike; for
+# Omega it must be a whole number of seconds.
+stats_interval = 0001_00:00:00
 
 # Baroclinic time step per km of the mesh minimum resolution (s/km).  Only used
 # for split time stepping (split_explicit_ab2).
