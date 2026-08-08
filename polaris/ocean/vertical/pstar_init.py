@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import xarray as xr
 
+from polaris.attrs import set_attrs
 from polaris.ocean.eos import compute_specvol
 from polaris.ocean.vertical.grid_1d import generate_1d_grid
 from polaris.ocean.vertical.pstar import init_pstar_vertical_coord
@@ -90,23 +91,14 @@ class PStarInitStep(Step, ABC):
         config = self.config
         ds = ds_mesh.copy()
         ds['BottomPressure'] = bottom_pressure
-        ds.BottomPressure.attrs['long_name'] = 'seafloor pressure'
-        ds.BottomPressure.attrs['units'] = 'Pa'
+        set_attrs(ds.BottomPressure, long_name='seafloor pressure', units='Pa')
         if surface_pressure is None:
             surface_pressure = xr.zeros_like(bottom_pressure)
         ds['SurfacePressure'] = surface_pressure
-        ds.SurfacePressure.attrs['long_name'] = 'sea surface pressure'
-        ds.SurfacePressure.attrs['units'] = 'Pa'
+        set_attrs(
+            ds.SurfacePressure, long_name='sea surface pressure', units='Pa'
+        )
         init_pstar_vertical_coord(config, ds)
-        if 'vertCoordMovementWeights' not in ds:
-            ds['vertCoordMovementWeights'] = xr.DataArray(
-                data=np.ones(ds.sizes['nVertLevels'], dtype=float),
-                dims=['nVertLevels'],
-                attrs={
-                    'long_name': 'vertical coordinate movement weights',
-                    'units': '1',
-                },
-            )
         return ds
 
     def run_pstar_init(
@@ -351,20 +343,24 @@ class PStarInitStep(Step, ABC):
 
         # Assemble the output dataset from the converged state
         ds['temperature'] = ct
-        ds.temperature.attrs['long_name'] = 'conservative temperature'
-        ds.temperature.attrs['units'] = 'degC'
+        set_attrs(
+            ds.temperature,
+            long_name='conservative temperature',
+            units='degC',
+        )
 
         ds['salinity'] = sa
-        ds.salinity.attrs['long_name'] = 'absolute salinity'
-        ds.salinity.attrs['units'] = 'g kg-1'
+        set_attrs(ds.salinity, long_name='absolute salinity', units='g kg-1')
 
         ds['SpecVol'] = spec_vol
-        ds.SpecVol.attrs['long_name'] = 'specific volume'
-        ds.SpecVol.attrs['units'] = 'm3 kg-1'
+        set_attrs(ds.SpecVol, long_name='specific volume', units='m3 kg-1')
 
         ds['pressure'] = p_mid
-        ds.pressure.attrs['long_name'] = 'pressure at layer midpoints'
-        ds.pressure.attrs['units'] = 'Pa'
+        set_attrs(
+            ds.pressure,
+            long_name='pressure at layer midpoints',
+            units='Pa',
+        )
 
         # Anchor the geometric column at the prescribed free surface: ``ssh``
         # is prescribed (``sea_surface_height``) and ``bottomDepth`` is the
@@ -384,14 +380,18 @@ class PStarInitStep(Step, ABC):
         geom_z_inter = geom_z_inter + shift
 
         ds['GeomZMid'] = geom_z_mid
-        ds.GeomZMid.attrs['long_name'] = 'geometric height at layer midpoints'
-        ds.GeomZMid.attrs['units'] = 'm'
+        set_attrs(
+            ds.GeomZMid,
+            long_name='geometric height at layer midpoints',
+            units='m',
+        )
 
         ds['GeomZInterface'] = geom_z_inter
-        ds.GeomZInterface.attrs['long_name'] = (
-            'geometric height at layer interfaces'
+        set_attrs(
+            ds.GeomZInterface,
+            long_name='geometric height at layer interfaces',
+            units='m',
         )
-        ds.GeomZInterface.attrs['units'] = 'm'
 
         # Geometric depth of the seafloor below z=0, i.e. the negation of the
         # (shifted) bottom interface height.  With the surface-anchored column
@@ -401,23 +401,15 @@ class PStarInitStep(Step, ABC):
         # BottomGeomDepth and anchors its column there, so that (together with
         # BottomPressure) it recovers the same prescribed ``ssh``.
         ds['bottomDepth'] = -(geom_z_max + shift)
-        ds.bottomDepth.attrs['long_name'] = 'seafloor geometric depth'
-        ds.bottomDepth.attrs['units'] = 'm'
+        set_attrs(
+            ds.bottomDepth, long_name='seafloor geometric depth', units='m'
+        )
 
         ds['ssh'] = sea_surface_height
-        ds.ssh.attrs['long_name'] = 'sea surface geometric height'
-        ds.ssh.attrs['units'] = 'm'
+        set_attrs(ds.ssh, long_name='sea surface geometric height', units='m')
 
-        ds.ZTildeMid.attrs['long_name'] = 'pseudo-height at layer midpoints'
-        ds.ZTildeMid.attrs['units'] = 'm'
-
-        ds.ZTildeInterface.attrs['long_name'] = (
-            'pseudo-height at layer interfaces'
-        )
-        ds.ZTildeInterface.attrs['units'] = 'm'
-
-        ds.PseudoThickness.attrs['long_name'] = 'pseudo-layer thickness'
-        ds.PseudoThickness.attrs['units'] = 'm'
+        # PseudoThickness, ZTildeMid and ZTildeInterface are labelled by
+        # init_pstar_vertical_coord(), which is what creates them.
 
         return ds
 

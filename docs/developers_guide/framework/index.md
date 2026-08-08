@@ -24,6 +24,7 @@ commands
 config
 logging
 io
+attrs
 mpas
 model
 build

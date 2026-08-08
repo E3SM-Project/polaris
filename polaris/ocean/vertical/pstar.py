@@ -19,6 +19,7 @@ density, and :math:`g` is gravitational acceleration.
 import numpy as np
 import xarray as xr
 
+from polaris.attrs import set_attrs
 from polaris.constants import get_constant
 from polaris.ocean.vertical import compute_zint_zmid_from_layer_thickness
 from polaris.ocean.vertical.grid_1d import generate_1d_grid
@@ -43,7 +44,8 @@ def init_pstar_vertical_coord(config, ds):
     analogue of z-star's ``layerThickness = restingThickness *
     (ssh + bottomDepth) / bottomDepth``.
 
-    The following new variables are added to ``ds``:
+    The following new variables are added to ``ds``, each with its own
+    ``long_name`` and (where meaningful) ``units``:
 
     * ``minLevelCell`` — index of the topmost valid layer (1-based; always
       1, since non-zero top levels are not supported)
@@ -55,7 +57,9 @@ def init_pstar_vertical_coord(config, ds):
     * ``ZTildeMid`` — pseudo-height at layer midpoints
     * ``vertCoordMovementWeights`` — weights for coordinate movement (all 1)
 
-    ``BottomPressure`` in ``ds`` is updated to the post-snap value.
+    ``BottomPressure`` in ``ds`` is updated to the post-snap value.  Its
+    attributes are those the caller gave it: this function does not presume to
+    label a variable it did not create.
 
     Parameters
     ----------
@@ -74,11 +78,22 @@ def init_pstar_vertical_coord(config, ds):
     ref_pseudo_depth_bot = xr.DataArray(interfaces[1:], dims=['nVertLevels'])
 
     ds['vertCoordMovementWeights'] = xr.ones_like(ref_pseudo_depth_bot)
+    set_attrs(
+        ds.vertCoordMovementWeights,
+        long_name='vertical coordinate movement weights',
+        units='1',
+    )
 
     min_vert_levels = config.getint('vertical_grid', 'min_vert_levels')
     min_layer_thickness = config.getfloat(
         'vertical_grid', 'min_layer_thickness'
     )
+
+    # BottomPressure belongs to the caller, so keep its attributes to put back
+    # after we overwrite it below.  Everything derived from it here gets its
+    # own attributes, since xarray would otherwise propagate "seafloor
+    # pressure" onto depths, thicknesses, level indices and masks alike.
+    bottom_pressure_attrs = dict(ds.BottomPressure.attrs)
 
     # pseudo_bottom_depth is defined at zero SurfacePressure: it sets the
     # boundaries of RefPseudoThickness.
@@ -102,6 +117,7 @@ def init_pstar_vertical_coord(config, ds):
     # (SurfacePressure = 0) determines the snap; SurfacePressure then scales
     # the layers uniformly, analogous to ssh in z-star.
     ds['BottomPressure'] = pseudo_bottom_depth * (RhoSw * Gravity)
+    ds.BottomPressure.attrs = bottom_pressure_attrs
 
     # Reference pseudo-thicknesses (as if SurfacePressure = 0), then scale by
     # (BottomPressure - SurfacePressure) / BottomPressure to account for the
@@ -125,15 +141,28 @@ def init_pstar_vertical_coord(config, ds):
         min_level_cell, max_level_cell, ds.sizes['nVertLevels']
     )
     ds['cellMask'] = cell_mask
+    set_attrs(
+        ds.cellMask,
+        long_name='Mask on cells that determines if computations should be '
+        'done on cells.',
+    )
 
     ref_pseudo_thickness = ref_pseudo_thickness.where(cell_mask)
     ds['RefPseudoThickness'] = ref_pseudo_thickness.copy()
+    set_attrs(
+        ds.RefPseudoThickness,
+        long_name='reference pseudo-layer thickness at zero surface pressure',
+        units='m',
+    )
 
     pseudo_thickness = (ref_pseudo_thickness * scale).where(cell_mask)
     pseudo_thickness = pseudo_thickness.expand_dims(dim='Time', axis=0)
 
     # add Time dimension to PseudoThickness but not RefPseudoThickness
     ds['PseudoThickness'] = pseudo_thickness
+    set_attrs(
+        ds.PseudoThickness, long_name='pseudo-layer thickness', units='m'
+    )
 
     ds['ZTildeInterface'], ds['ZTildeMid'] = (
         compute_zint_zmid_from_layer_thickness(
@@ -143,10 +172,27 @@ def init_pstar_vertical_coord(config, ds):
             max_level_cell=max_level_cell,
         )
     )
+    set_attrs(
+        ds.ZTildeInterface,
+        long_name='pseudo-height at layer interfaces',
+        units='m',
+    )
+    set_attrs(
+        ds.ZTildeMid, long_name='pseudo-height at layer midpoints', units='m'
+    )
 
-    # fortran 1-based indexing
+    # fortran 1-based indexing.  A level index has no meaningful unit, so
+    # these get a long_name and nothing else.
     ds['minLevelCell'] = min_level_cell + 1
+    set_attrs(
+        ds.minLevelCell,
+        long_name='Index to the first active ocean cell in each column.',
+    )
     ds['maxLevelCell'] = max_level_cell + 1
+    set_attrs(
+        ds.maxLevelCell,
+        long_name='Index to the last active ocean cell in each column.',
+    )
 
 
 def _compute_min_max_level_cell(

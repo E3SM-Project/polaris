@@ -2,6 +2,8 @@
 Helpers for adding layer-thickness fields to an initial-state dataset.
 """
 
+from polaris.attrs import set_attrs
+
 
 def layer_thickness_from_geom_interfaces(ds):
     """
@@ -32,12 +34,14 @@ def layer_thickness_from_geom_interfaces(ds):
 
     cell_mask = ds['cellMask'].astype(bool)
     layer_thick = layer_thick.where(cell_mask, other=0.0)
-    layer_thick.attrs['long_name'] = 'layer thickness'
-    layer_thick.attrs['units'] = 'm'
+    set_attrs(layer_thick, long_name='layer thickness', units='m')
 
+    # ``ds[name] = da`` copies the attributes, so the two fields can share an
+    # array and still describe themselves differently.
     ds['restingThickness'] = layer_thick
-    ds.restingThickness.attrs['long_name'] = 'resting layer thickness'
-    ds.restingThickness.attrs['units'] = 'm'
+    set_attrs(
+        ds.restingThickness, long_name='resting layer thickness', units='m'
+    )
 
     ds['layerThickness'] = layer_thick
     return ds
