@@ -95,6 +95,11 @@ jobs:
             ${{ github.workspace }}/.pixi-cache/pkgs
             ~/.pixi/bin
           key: ${{ runner.os }}-${{ matrix.python-version }}-pixi-${{ env.CACHE_NUMBER }}-${{ hashFiles('deploy.py', 'deploy/**', 'pyproject.toml') }}
+          # a run whose deploy inputs changed can still reuse most tarballs
+          # from the previous key; a partially stale pkgs directory only costs
+          # a few extra downloads
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.python-version }}-pixi-${{ env.CACHE_NUMBER }}-
 
       - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
         name: Install polaris
