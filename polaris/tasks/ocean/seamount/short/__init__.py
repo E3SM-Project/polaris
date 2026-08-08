@@ -3,10 +3,12 @@ from polaris.tasks.ocean.seamount.forward import Forward as Forward
 from polaris.tasks.ocean.seamount.viz import Viz as Viz
 
 
-class Default(Task):
+class Short(Task):
     """
-    The default seamount test case creates the mesh and initial condition,
-    then performs a 6 day forward run and plots the results.
+    The short seamount test case creates the mesh and initial condition, then
+    performs a 1 hour forward run.  It is too short to say anything about the
+    pressure gradient error but long enough to catch a regression, so it is
+    the variant that belongs in the pull request suites.
     """
 
     def __init__(self, component, indir, init):
@@ -24,7 +26,7 @@ class Default(Task):
         init : polaris.tasks.ocean.seamount.init.Init
             A shared step for creating the initial state
         """
-        task_name = 'default'
+        task_name = 'short'
         super().__init__(component=component, name=task_name, indir=indir)
 
         self.add_step(init, symlink='init')
@@ -37,6 +39,8 @@ class Default(Task):
             indir=self.subdir,
         )
         self.add_step(forward_step)
-        # the forward run is 6 days long, so it is worth always producing the
-        # plots rather than making the user re-run the task to get them
-        self.add_step(Viz(component=component, indir=self.subdir))
+        # unlike the default task, the forward run here is cheap to repeat, so
+        # the plots are opt-in as they are elsewhere in Polaris
+        self.add_step(
+            Viz(component=component, indir=self.subdir), run_by_default=False
+        )

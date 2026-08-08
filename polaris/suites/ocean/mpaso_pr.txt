@@ -1,3 +1,8 @@
+ocean/column/ekman
+ocean/column/vmix_stable
+ocean/column/vmix_unstable
+ocean/column/ideal_age
+ocean/column/inertial
 ocean/planar/baroclinic_channel/10km/threads
 ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
@@ -13,10 +18,7 @@ ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_2
 ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_3
 ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_4
 ocean/planar/overflow/nonlinear/pstar/smoke_test_horiz_adv_order_4_del4
-ocean/column/ekman
-ocean/column/vmix_stable
-ocean/column/vmix_unstable
-ocean/column/ideal_age
-ocean/column/inertial
+ocean/planar/seamount/linear/zstar/short
+ocean/planar/seamount/nonlinear/sigma/short
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart

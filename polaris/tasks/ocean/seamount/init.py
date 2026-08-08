@@ -7,6 +7,7 @@ from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.coriolis import add_coriolis_to_dataset
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
+from polaris.tasks.ocean.seamount.init_utils import compute_tracers
 
 
 class Init(OceanIOStep):
@@ -68,33 +69,8 @@ class Init(OceanIOStep):
         # from overflow. Delete when not needed.
         max_bottom_depth = section.getfloat('max_bottom_depth')
 
-        seamount_stratification_type = section.get(
-            'seamount_stratification_type'
-        )
-        seamount_density_coef_linear = section.getfloat(
-            'seamount_density_coef_linear'
-        )
-        seamount_density_coef_exp = section.getfloat(
-            'seamount_density_coef_exp'
-        )
-        seamount_density_gradient_linear = section.getfloat(
-            'seamount_density_gradient_linear'
-        )
-        seamount_density_gradient_exp = section.getfloat(
-            'seamount_density_gradient_exp'
-        )
-        seamount_density_depth_linear = section.getfloat(
-            'seamount_density_depth_linear'
-        )
-        seamount_density_depth_exp = section.getfloat(
-            'seamount_density_depth_exp'
-        )
-        eos_linear_rhoref = self.config.getfloat('ocean', 'eos_linear_rhoref')
-        eos_linear_tref = self.config.getfloat('ocean', 'eos_linear_tref')
-        eos_linear_alpha = self.config.getfloat('ocean', 'eos_linear_alpha')
         seamount_height = section.getfloat('seamount_height')
         seamount_width = section.getfloat('seamount_width')
-        constant_salinity = section.getfloat('constant_salinity')
 
         ds = ds_mesh.copy()
 
@@ -113,34 +89,16 @@ class Init(OceanIOStep):
         ds['ssh'] = xr.zeros_like(ds.xCell)
 
         init_vertical_coord(config, ds)
-        z_mid = ds.zMid.squeeze('Time')
 
-        # Set stratification using temperature.
-        # See Beckmann and Haidvogel 1993 eqn 15-16.
-        if seamount_stratification_type == 'linear':
-            densityCell = (
-                seamount_density_coef_linear
-                - seamount_density_gradient_linear
-                * z_mid
-                / seamount_density_depth_linear
-            )
-
-        elif seamount_stratification_type == 'exponential':
-            densityCell = (
-                seamount_density_coef_exp
-                - seamount_density_gradient_exp
-                * np.exp(z_mid / seamount_density_depth_exp)
-            )
-
-        # Back-solve linear EOS for temperature, with S=S_ref
-        # T = T_ref - (rho - rho_ref)/alpha
-        temperature = (
-            eos_linear_tref
-            - (densityCell - eos_linear_rhoref) / eos_linear_alpha
-        )
+        # Set the Beckmann and Haidvogel 1993 eqn 15-16 stratification,
+        # carried entirely by temperature since salinity is constant.  The
+        # tracers keep the Time dimension that zMid carries, matching
+        # layerThickness and the other state variables; TEOS-10 requires
+        # its inputs to be aligned, and the linear EOS did not.
+        temperature, salinity = compute_tracers(config, ds.zMid)
 
         ds['temperature'] = temperature
-        ds['salinity'] = constant_salinity * xr.ones_like(temperature)
+        ds['salinity'] = salinity
         ds['normalVelocity'] = (
             (
                 'Time',
@@ -154,4 +112,7 @@ class Init(OceanIOStep):
         ds.attrs['dc'] = dc
 
         self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
+        # the tracers are in the convention implied by eos_type, so
+        # write_initial_state_dataset() converts them to the model's
+        # convention on its own
         self.write_initial_state_dataset(ds, 'init.nc', config)
