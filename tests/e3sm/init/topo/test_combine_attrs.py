@@ -48,8 +48,27 @@ def test_combined_fields_keep_none_of_the_inherited_attrs():
     _label_combined_fields(combined)
 
     for field in FRACTIONS + HEIGHTS:
-        attrs = combined[field].attrs
-        assert set(attrs) == {'long_name', 'units'}, field
+        expected = {'long_name', 'units'}
+        if field == 'ice_thickness':
+            expected.add('standard_name')
+        assert set(combined[field].attrs) == expected, field
+
+
+def test_ice_thickness_keeps_its_cf_standard_name():
+    """The one standard_name that really describes what the field holds.
+
+    The others are dropped rather than guessed: an unverified standard_name
+    is worse than none.
+    """
+    combined = _make_combined()
+
+    _label_combined_fields(combined)
+
+    standard_name = combined.ice_thickness.attrs['standard_name']
+    assert standard_name == 'land_ice_thickness'
+    for field in FRACTIONS + HEIGHTS:
+        if field != 'ice_thickness':
+            assert 'standard_name' not in combined[field].attrs, field
 
 
 @pytest.mark.parametrize('field', FRACTIONS)

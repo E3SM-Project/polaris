@@ -953,6 +953,13 @@ def _label_combined_fields(combined):
     ``units`` would leave the rest of them in place.  Everything downstream of
     the combined topography inherits from here in turn, so this is the place
     to get it right.
+
+    ``ice_thickness`` keeps the CF ``standard_name`` it arrives with from
+    BedMachine/Bedmap3, since that one really does describe what it holds.
+    The other five have no ``standard_name``: a couple of CF names look like
+    candidates (``bedrock_altitude``, ``sea_area_fraction``), but none has
+    been checked against the standard-name table, and an unverified one is
+    worse than none.
     """
     fractions = {
         'ice_mask': 'fraction of the cell covered by ice',
@@ -964,10 +971,13 @@ def _label_combined_fields(combined):
         'ice_draft': 'elevation of the ice-ocean interface',
         'ice_thickness': 'ice thickness',
     }
+    standard_names = {'ice_thickness': 'land_ice_thickness'}
     for field, long_name in fractions.items():
         set_attrs(combined[field], long_name=long_name, units='1')
     for field, long_name in heights.items():
         set_attrs(combined[field], long_name=long_name, units='m')
+    for field, standard_name in standard_names.items():
+        combined[field].attrs['standard_name'] = standard_name
 
 
 def _write_netcdf_with_fill_values(ds, filename, format='NETCDF4'):
