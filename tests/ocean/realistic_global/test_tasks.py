@@ -2,6 +2,10 @@ from polaris.mesh.base import get_base_mesh_step_names
 from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global import add_realistic_global_tasks
+from polaris.tasks.ocean.realistic_global.forward import (
+    DatabaseInitialCondition,
+    RealisticGlobalForward,
+)
 
 
 def test_add_realistic_global_tasks_registers_woa23():
@@ -112,6 +116,34 @@ def test_realistic_global_forward_icos240km_steps():
     assert task.steps['initial_state'].subdir == (
         'spherical/realistic_global/icos240km/init/initial_state'
     )
+
+
+def test_realistic_global_forward_without_init_steps():
+    """
+    The task is the same either way; only where the model inputs come from
+    changes.  A source that downloads a cached initial condition brings no
+    upstream steps with it, so the task is just the forward run, and its
+    directory name keeps it apart from the init-chain task on the same mesh.
+    """
+    component = Ocean()
+    init_condition = DatabaseInitialCondition(
+        mesh_name='QU.240km',
+        mpaso_id=151209,
+        omega_id=260807,
+        min_res=240.0,
+        approx_cell_count=7153,
+    )
+    task = RealisticGlobalForward(
+        component=component,
+        mesh_name='QU.240km',
+        init_condition=init_condition,
+        subdir_name='cached_forward',
+    )
+    assert list(task.steps) == ['short']
+    assert task.subdir == (
+        'spherical/realistic_global/QU.240km/cached_forward/task'
+    )
+    assert task.steps['short'].init_condition is init_condition
 
 
 def test_realistic_global_init_one_task_per_mesh():
