@@ -53,7 +53,10 @@ class Forward(OceanModelStep):
             min_tasks=min_tasks,
             update_eos=update_eos,
             openmp_threads=1,
-            graph_target=f'graph.info.{mpaso_id}',
+            # graph.info comes from the input-file database rather than an
+            # upstream step, so it is added in setup() once the model (and so
+            # the database subdirectory) is known
+            graph_target=None,
         )
         self.mesh_name = mesh_name
         self.mpaso_id = mpaso_id
@@ -83,9 +86,13 @@ class Forward(OceanModelStep):
         """
         config = self.config
         model = config.get('ocean', 'model')
-        # This attribute is used by OceanModelStep
         target_location = f'realistic_global/{model}/{self.mesh_name}'
-        self.target_location = target_location
+        if model == 'mpas-ocean':
+            self.add_input_file(
+                filename='graph.info',
+                target=f'graph.info.{self.mpaso_id}',
+                database=target_location,
+            )
         super().setup()
         # TODO: remove as soon as Omega no longer hard-codes this file
         input_filename = f'ocean.{self.mesh_name}.{self.mpaso_id}'

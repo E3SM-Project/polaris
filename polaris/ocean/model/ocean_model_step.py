@@ -49,9 +49,10 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         A nested dictionary that maps from MPAS-Ocean to Omega model config
         options
 
-    graph_target : str
+    graph_target : str or None
         The name of the graph partition file to link to (relative to the base
-        working directory)
+        working directory), or ``None`` when the step supplies ``graph.info``
+        itself
     """
 
     # make sure component is of type Ocean, using a string to avoid circular
@@ -77,7 +78,6 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         mesh_filename: Optional[str] = None,
         partition_graph: bool = True,
         graph_target: Optional[str] = None,
-        target_location='work_dir',
     ) -> None:
         """
         Make a step for running the model
@@ -145,12 +145,12 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
             option of the ``[executables]`` config section.
 
         graph_target : str, optional
-            The graph file name (relative to the base work directory).
-            If none, it will be created.
+            The graph file name (relative to the base work directory).  Leave
+            it unset only if the step adds ``graph.info`` itself -- from the
+            input-file database, say, or by passing ``make_graph=True`` with a
+            ``mesh_filename``.  MPAS-Ocean cannot run without the file, so an
+            unset target with nothing else providing it fails at setup.
         """
-        if graph_target is None:
-            self.make_graph = True
-
         super().__init__(
             component=component,
             name=name,
@@ -171,7 +171,6 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         )
 
         self.dynamic_ntasks = ntasks is None and min_tasks is None
-        self.target_location = target_location
         self.config_map: Union[
             None, List[Dict[str, Dict[MapSectionKey, str]]]
         ] = None
@@ -196,16 +195,13 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         elif model == 'mpas-ocean':
             self.config_models = ['ocean', 'mpas-ocean']
             self.make_yaml = False
-            if self.target_location == 'work_dir':
+            if self.graph_target is not None:
                 self.add_input_file(
                     filename='graph.info', work_dir_target=self.graph_target
                 )
-            else:
-                self.add_input_file(
-                    filename='graph.info',
-                    target=self.graph_target,
-                    database=self.target_location,
-                )
+            # a step with no graph_target provides graph.info some other way --
+            # from the input-file database, or by building it from the mesh --
+            # and has already added it by the time this runs
             self.streams_section = 'streams'
         else:
             raise ValueError(f'Unexpected ocean model: {model}')
