@@ -28,6 +28,7 @@ docs/_build/
 
 # pixi
 .pixi/
+.pixi-cache/
 pixi.lock
 pixi-env/
 

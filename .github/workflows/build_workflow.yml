@@ -54,6 +54,10 @@ jobs:
     name: test polaris - py ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      # mache's bootstrap.py defaults this to a /tmp path that can't be cached
+      # between runs, so pin it to a stable, cacheable location
+      PIXI_CACHE_DIR: ${{ github.workspace }}/.pixi-cache
     defaults:
       run:
         shell: bash -l {0}

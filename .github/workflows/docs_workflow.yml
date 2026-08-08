@@ -15,6 +15,10 @@ env:
 jobs:
   publish-docs:
     runs-on: ubuntu-latest
+    env:
+      # mache's bootstrap.py defaults this to a /tmp path that can't be cached
+      # between runs, so pin it to a stable, cacheable location
+      PIXI_CACHE_DIR: ${{ github.workspace }}/.pixi-cache
     defaults:
       run:
         shell: bash -l {0}
