@@ -154,8 +154,6 @@ def setup_tasks(
         config_file=config_file,
         machine=machine,
         component_path=component_path,
-        component=component,
-        model=model,
         build=build,
         branch=branch,
         cmake_flags=cmake_flags,
@@ -165,27 +163,33 @@ def setup_tasks(
         work_dir=work_dir,
     )
 
-    component.configure(basic_config, list(tasks.values()))
+    component_config = _get_component_config(
+        basic_config=basic_config,
+        component=component,
+        model=model,
+    )
+
+    component.configure(component_config, list(tasks.values()))
     set_parallel_systems(tasks, basic_config)
 
     provenance.write(
         work_dir,
         tasks,
-        config=basic_config,
+        config=component_config,
         machine=machine,
         baseline_dir=baseline_dir,
     )
-    section = basic_config['build']
+    section = component_config['build']
     build = section.getboolean('build')
 
     if build:
         _build_model(
-            basic_config=basic_config,
+            component_config=component_config,
             component=component,
             machine=machine,
         )
 
-    _check_pcd_version(basic_config=basic_config, component=component)
+    _check_pcd_version(component_config=component_config, component=component)
 
     if clean_tasks:
         print('')
@@ -194,7 +198,7 @@ def setup_tasks(
         print('')
 
     _setup_configs(
-        basic_config=basic_config,
+        component_config=component_config,
         component=component,
         tasks=tasks,
         work_dir=work_dir,
@@ -292,7 +296,7 @@ def setup_tasks(
             provenance.write(
                 work_dir,
                 tasks,
-                config=basic_config,
+                config=component_config,
                 machine=machine,
                 baseline_dir=baseline_dir,
                 job_options=job_options,
@@ -654,7 +658,7 @@ def _expand_and_mark_cached_steps(tasks, cached_steps):
 
 
 def _setup_configs(
-    basic_config,
+    component_config,
     component,
     tasks,
     work_dir,
@@ -662,7 +666,7 @@ def _setup_configs(
 ):
     """Set up config parsers for this component"""
 
-    common_config = basic_config.copy()
+    common_config = component_config.copy()
 
     if copy_executable:
         common_config.set('setup', 'copy_executable', 'True')
@@ -907,8 +911,6 @@ def _get_basic_config(
     config_file,
     machine,
     component_path,
-    component,
-    model,
     build,
     branch,
     cmake_flags,
@@ -918,17 +920,13 @@ def _get_basic_config(
     work_dir,
 ):
     """
-    Get a base config parser for the machine and component but not a specific
-    task
+    Get a base config parser for the machine and the command line but not for
+    any component, task or step
     """
     config = PolarisConfigParser()
 
     if config_file is not None:
         config.add_user_config(config_file)
-
-    # set the model from the command line if provided
-    if model is not None:
-        config.set(component.name, 'model', model, user=True)
 
     # start with default polaris config options
     config.add_from_package('polaris', 'default.cfg')
@@ -949,13 +947,6 @@ def _get_basic_config(
         config.set('paths', 'polaris_branch', polaris_branch)
     else:
         config.set('paths', 'polaris_branch', os.getcwd())
-
-    # add the config options for the component
-    config.add_from_package(
-        f'polaris.{component.name.replace("/", ".")}',
-        f'{component.name}.cfg',
-        exception=False,
-    )
 
     # set the component_path path from the command line if provided
     if component_path is not None:
@@ -995,6 +986,48 @@ def _get_basic_config(
         config.set('build', 'build', 'True', user=True)
 
     config.set('paths', 'base_work_dir', work_dir, user=True)
+
+    return config
+
+
+def _get_component_config(basic_config, component, model=None):
+    """
+    Get the config options for a component: the basic config options plus the
+    component's own config file.
+
+    This is the config that the component's ``configure()`` method modifies
+    and that gets prepended to the config of each task and shared step the
+    component owns.
+
+    Parameters
+    ----------
+    basic_config : polaris.config.PolarisConfigParser
+        The config options for the machine and the command line
+
+    component : polaris.Component
+        The component to get config options for
+
+    model : str, optional
+        The model to run, if provided on the command line
+
+    Returns
+    -------
+    config : polaris.config.PolarisConfigParser
+        The config options for the component
+    """
+    config = PolarisConfigParser()
+    config.prepend(basic_config)
+
+    # set the model from the command line if provided
+    if model is not None:
+        config.set(component.name, 'model', model, user=True)
+
+    # add the config options for the component
+    config.add_from_package(
+        f'polaris.{component.name.replace("/", ".")}',
+        f'{component.name}.cfg',
+        exception=False,
+    )
 
     return config
 
@@ -1087,19 +1120,19 @@ def _check_dependencies(tasks):
                     )
 
 
-def _build_model(basic_config, component, machine):
-    model = basic_config.get(component.name, 'model')
-    section = basic_config['build']
+def _build_model(component_config, component, machine):
+    model = component_config.get(component.name, 'model')
+    section = component_config['build']
     branch = section.get('branch')
     clean_build = section.getboolean('clean')
     quiet_build = section.getboolean('quiet')
     debug = section.getboolean('debug')
     cmake_flags = section.get('cmake_flags')
 
-    build_dir = basic_config.get('paths', 'component_path')
+    build_dir = component_config.get('paths', 'component_path')
 
-    if basic_config.has_option('parallel', 'account'):
-        account = basic_config.get('parallel', 'account')
+    if component_config.has_option('parallel', 'account'):
+        account = component_config.get('parallel', 'account')
     else:
         account = None
 
@@ -1116,7 +1149,7 @@ def _build_model(basic_config, component, machine):
             log_filename=log_filename,
         )
     elif model == 'mpas-ocean':
-        section = basic_config['build']
+        section = component_config['build']
         compiler = section.get('compiler')
         mpilib = section.get('mpi')
         key = f'{compiler}_{mpilib}_target'
@@ -1144,16 +1177,16 @@ def _build_model(basic_config, component, machine):
         )
 
 
-def _check_pcd_version(basic_config, component):
+def _check_pcd_version(component_config, component):
     """Check that Polaris and branch PCD versions match when applicable."""
     if component.name != 'ocean':
         return
 
-    model = basic_config.get('ocean', 'model')
+    model = component_config.get('ocean', 'model')
     if model not in ['mpas-ocean', 'omega']:
         return
 
-    branch = basic_config.get('build', 'branch')
+    branch = component_config.get('build', 'branch')
     check_pcd_version_matches_branch(branch=branch, model=model)
 
 
