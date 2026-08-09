@@ -124,17 +124,19 @@ def _get_forward_stage(mesh_name):
 # the comment.  These are what keep a forward run stable, so they are checked
 # explicitly rather than through a round trip.
 FORWARD_EXPECTED: dict[str, dict[str, object]] = {
-    # Compass qu240
+    # Compass qu240, except that the Leith closure and frazil ice are
+    # deliberately not carried over: they were a smoke-test convenience there
+    # and that purpose does not apply here yet
     'u.oi240.lr240': dict(
         mom_del2=1.0e3,
         mom_del4=1.2e11,
         tracer_del2=10.0,
         tracer_del4=1.2e11,
-        use_Leith_del2=True,
+        use_Leith_del2=False,
         hmix_scaling='ref_cell_width',
         use_GM=True,
         use_Redi=True,
-        use_frazil_ice_formation=True,
+        use_frazil_ice_formation=False,
     ),
     # Compass qu
     'u.oi30.lr10': dict(
