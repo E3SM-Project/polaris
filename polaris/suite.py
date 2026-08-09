@@ -3,7 +3,11 @@ import importlib.resources as imp_res
 import sys
 from typing import List
 
-from polaris.setup import setup_tasks
+from polaris.setup import (
+    add_component_model_args,
+    get_component_model_args,
+    setup_tasks,
+)
 
 
 def setup_suite(component, suite_name, work_dir, **kwargs):
@@ -159,6 +163,7 @@ def main():
         action='store_true',
         help='If the model should be built in debug mode.',
     )
+    add_component_model_args(parser)
 
     args = parser.parse_args(sys.argv[2:])
 
@@ -179,6 +184,7 @@ def main():
         quiet_build=args.quiet_build,
         cmake_flags=args.cmake_flags,
         debug=args.debug,
+        component_args=get_component_model_args(args),
     )
 
 

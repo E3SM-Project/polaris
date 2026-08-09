@@ -39,6 +39,7 @@ def setup_tasks(
     quiet_build=None,
     cmake_flags=None,
     debug=None,
+    component_args=None,
 ):
     """
     Set up one or more tasks
@@ -118,6 +119,12 @@ def setup_tasks(
     debug : bool, optional
         Whether to build the model in debug mode
 
+    component_args : dict of dict, optional
+        The model, component path and branch for components other than the one
+        that owns the tasks, with the component names as keys.  These come from
+        the ``--<component>_model``, ``--<component>_path`` and
+        ``--<component>_branch`` flags.
+
     Returns
     -------
     tasks : dict of polaris.Task
@@ -154,9 +161,7 @@ def setup_tasks(
     basic_config = _get_basic_config(
         config_file=config_file,
         machine=machine,
-        component_path=component_path,
         build=build,
-        branch=branch,
         cmake_flags=cmake_flags,
         debug=debug,
         clean_build=clean_build,
@@ -164,16 +169,26 @@ def setup_tasks(
         work_dir=work_dir,
     )
 
+    components_in_use = get_components_in_use(tasks)
+
+    component_args = _get_component_args(
+        component=component,
+        components_in_use=components_in_use,
+        model=model,
+        component_path=component_path,
+        branch=branch,
+        component_args=component_args or dict(),
+    )
+
     component_configs = _get_component_configs(
         basic_config=basic_config,
-        component=component,
-        tasks=tasks,
-        model=model,
+        components_in_use=components_in_use,
+        component_args=component_args,
     )
     component_config = component_configs[component.name]
 
     steps_by_component = get_steps_by_component(tasks)
-    for component_in_use in get_components_in_use(tasks):
+    for component_in_use in components_in_use:
         name = component_in_use.name
         component_in_use.configure(
             component_configs[name], steps_by_component[name]
@@ -188,13 +203,12 @@ def setup_tasks(
         machine=machine,
         baseline_dir=baseline_dir,
     )
-    section = component_config['build']
-    build = section.getboolean('build')
 
-    if build:
-        component.build_model(config=component_config, machine=machine)
-
-    component.check_model_version(config=component_config)
+    _build_models(
+        components_in_use=components_in_use,
+        component_configs=component_configs,
+        machine=machine,
+    )
 
     if clean_tasks:
         print('')
@@ -562,6 +576,7 @@ def main():
         action='store_true',
         help='If the model should be built in debug mode.',
     )
+    add_component_model_args(parser)
 
     args = parser.parse_args(sys.argv[2:])
     cached = None
@@ -610,6 +625,7 @@ def main():
         quiet_build=args.quiet_build,
         cmake_flags=args.cmake_flags,
         debug=args.debug,
+        component_args=get_component_model_args(args),
     )
 
 
@@ -959,9 +975,7 @@ def __get_machine_and_check_params(
 def _get_basic_config(
     config_file,
     machine,
-    component_path,
     build,
-    branch,
     cmake_flags,
     debug,
     clean_build,
@@ -997,15 +1011,8 @@ def _get_basic_config(
     else:
         config.set('paths', 'polaris_branch', os.getcwd())
 
-    # set the component_path path from the command line if provided
-    if component_path is not None:
-        component_path = os.path.abspath(component_path)
-        config.set('paths', 'component_path', component_path, user=True)
-
     if build is not None:
         config.set('build', 'build', str(build), user=True)
-    if branch is not None:
-        config.set('build', 'branch', os.path.abspath(branch), user=True)
     compiler = os.environ['POLARIS_COMPILER']
     mpi = os.environ['POLARIS_MPI']
     config.set('build', 'machine', machine, user=True)
@@ -1039,7 +1046,79 @@ def _get_basic_config(
     return config
 
 
-def _get_component_configs(basic_config, component, tasks, model=None):
+def add_component_model_args(parser):
+    """
+    Add ``--<component>_model``, ``--<component>_path`` and
+    ``--<component>_branch`` flags for each component that has a model.
+
+    The unqualified ``--model``, ``-p``/``--component_path`` and ``--branch``
+    flags apply to the component that owns the tasks being set up.  These flags
+    are how the model, path or branch of any other component is set.
+
+    Parameters
+    ----------
+    parser : argparse.ArgumentParser
+        The parser to add the flags to
+    """
+    for component in get_components(add_tasks=False):
+        if not component.has_model():
+            continue
+        name = component.name
+        prefix = name.replace('/', '_')
+        parser.add_argument(
+            f'--{prefix}_model',
+            dest=f'{prefix}_model',
+            help=f'The model to run for the {name} component.',
+        )
+        parser.add_argument(
+            f'--{prefix}_path',
+            dest=f'{prefix}_path',
+            help=f'The path where the {name} component executable and '
+            f'default namelists have been (or will be) built.',
+            metavar='PATH',
+        )
+        parser.add_argument(
+            f'--{prefix}_branch',
+            dest=f'{prefix}_branch',
+            help=f'The branch of the {name} component model to build.',
+            metavar='PATH',
+        )
+
+
+def get_component_model_args(args):
+    """
+    Get the model, component path and branch for each component they were
+    provided for on the command line
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        The parsed command-line arguments
+
+    Returns
+    -------
+    component_args : dict of dict
+        The options for each component they were provided for, with the
+        component names as keys
+    """
+    options = dict(model='model', path='component_path', branch='branch')
+
+    component_args: Dict[str, Dict[str, str]] = dict()
+    for component in get_components(add_tasks=False):
+        if not component.has_model():
+            continue
+        prefix = component.name.replace('/', '_')
+        for flag, option in options.items():
+            value = getattr(args, f'{prefix}_{flag}', None)
+            if value is not None:
+                component_args.setdefault(component.name, dict())[option] = (
+                    value
+                )
+
+    return component_args
+
+
+def _get_component_configs(basic_config, components_in_use, component_args):
     """
     Get the config options for each component in use: the component that owns
     the tasks being set up, the components that own steps in those tasks and
@@ -1050,14 +1129,12 @@ def _get_component_configs(basic_config, component, tasks, model=None):
     basic_config : polaris.config.PolarisConfigParser
         The config options for the machine and the command line
 
-    component : polaris.Component
-        The component that owns the tasks being set up
+    components_in_use : list of polaris.Component
+        The components in use for the tasks being set up
 
-    tasks : dict of polaris.Task
-        The tasks being set up
-
-    model : str, optional
-        The model to run, if provided on the command line
+    component_args : dict of dict
+        The model, component path and branch from the command line for each
+        component they were provided for
 
     Returns
     -------
@@ -1066,19 +1143,19 @@ def _get_component_configs(basic_config, component, tasks, model=None):
         as keys
     """
     component_configs = dict()
-    for component_in_use in get_components_in_use(tasks):
-        # --model applies to the component that owns the tasks
-        component_model = model if component_in_use is component else None
-        component_configs[component_in_use.name] = _get_component_config(
+    for component in components_in_use:
+        component_configs[component.name] = _get_component_config(
             basic_config=basic_config,
-            component=component_in_use,
-            model=component_model,
+            component=component,
+            **component_args.get(component.name, dict()),
         )
 
     return component_configs
 
 
-def _get_component_config(basic_config, component, model=None):
+def _get_component_config(
+    basic_config, component, model=None, component_path=None, branch=None
+):
     """
     Get the config options for a component: the basic config options plus the
     component's own config file.
@@ -1097,6 +1174,13 @@ def _get_component_config(basic_config, component, model=None):
 
     model : str, optional
         The model to run, if provided on the command line
+
+    component_path : str, optional
+        The path to the component's build, if provided on the command line
+
+    branch : str, optional
+        The branch to build the component's model from, if provided on the
+        command line
 
     Returns
     -------
@@ -1117,7 +1201,106 @@ def _get_component_config(basic_config, component, model=None):
         exception=False,
     )
 
+    # set the component_path from the command line if provided
+    if component_path is not None:
+        config.set(
+            'paths',
+            'component_path',
+            os.path.abspath(component_path),
+            user=True,
+        )
+
+    if branch is not None:
+        config.set('build', 'branch', os.path.abspath(branch), user=True)
+
     return config
+
+
+def _get_component_args(
+    component, components_in_use, model, component_path, branch, component_args
+):
+    """
+    Work out which component each of the model, component path and branch
+    options from the command line applies to.
+
+    The unqualified options apply to the component that owns the tasks being
+    set up.  The ``--<component>_*`` options apply to the component they name.
+
+    Returns
+    -------
+    component_args : dict of dict
+        The model, component path and branch for each component they were
+        provided for, with the component names as keys
+    """
+    resolved: Dict[str, Dict[str, str]] = dict()
+
+    unqualified = dict(
+        model=model, component_path=component_path, branch=branch
+    )
+    unqualified = {
+        option: value
+        for option, value in unqualified.items()
+        if value is not None
+    }
+
+    if len(unqualified) > 0:
+        if not component.has_model():
+            flags = _get_model_flags(components_in_use)
+            raise ValueError(
+                f'The {component.name} component has no model, so --model, '
+                f'-p/--component_path and --branch do not apply to the tasks '
+                f'being set up.  Use the flags for the component whose model '
+                f'you mean: {flags}.'
+            )
+        resolved[component.name] = unqualified
+
+    names_in_use = [other.name for other in components_in_use]
+    for name, options in component_args.items():
+        if name not in names_in_use:
+            prefix = name.replace('/', '_')
+            raise ValueError(
+                f'--{prefix}_* was provided but the {name} component is not '
+                f'used by the tasks being set up.'
+            )
+        resolved.setdefault(name, dict()).update(options)
+
+    return resolved
+
+
+def _build_models(components_in_use, component_configs, machine):
+    """
+    Build the model of each component that has one and whose config options
+    ask for a build, and check that each model is compatible with polaris
+    """
+    for component in components_in_use:
+        if not component.has_model():
+            continue
+
+        config = component_configs[component.name]
+        if config.getboolean('build', 'build'):
+            component.build_model(config=config, machine=machine)
+
+        component.check_model_version(config=config)
+
+
+def _get_model_flags(components_in_use):
+    """
+    Get a printable list of the per-component command-line flags for the
+    components in use that have a model
+    """
+    flags = list()
+    for component in components_in_use:
+        if not component.has_model():
+            continue
+        prefix = component.name.replace('/', '_')
+        flags.extend(
+            [f'--{prefix}_model', f'--{prefix}_path', f'--{prefix}_branch']
+        )
+
+    if len(flags) == 0:
+        return 'none of the components in use has a model'
+
+    return ', '.join(flags)
 
 
 def _add_tasks_by_number(numbers, all_tasks, tasks, cached_steps):

@@ -1,6 +1,7 @@
 import importlib.resources as imp_res
 import json
 import os
+from configparser import RawConfigParser
 
 from mache.parallel import ParallelSystem, get_parallel_system
 from mpas_tools.io import open_dataset, write_netcdf
@@ -53,7 +54,27 @@ class Component:
 
         self.cached_files = dict()
         self.parallel_system: ParallelSystem | None = None
+        self._has_model: bool | None = None
         self._read_cached_files()
+
+    def has_model(self):
+        """
+        Whether this component has a model executable, and therefore whether
+        options like the path to that executable apply to it.
+
+        This is determined by whether any of the component's config files
+        defines ``component`` in the ``[executables]`` section, so a component
+        that gains a model does not also have to be listed somewhere.
+
+        Returns
+        -------
+        has_model : bool
+            Whether this component has a model executable
+        """
+        if self._has_model is None:
+            self._has_model = self._detect_model_configs()
+
+        return self._has_model
 
     def set_parallel_system(self, config: PolarisConfigParser) -> None:
         """
@@ -341,6 +362,29 @@ class Component:
             for Omega). The base implementation ignores it.
         """
         write_netcdf(ds=ds, fileName=filename)
+
+    def _detect_model_configs(self):
+        """
+        Determine whether any of the component's config files describes a
+        model executable
+        """
+        package = f'polaris.{self.name.replace("/", ".")}'
+        try:
+            pkg_files = list(imp_res.files(package).iterdir())
+        except (ModuleNotFoundError, FileNotFoundError, NotADirectoryError):
+            return False
+
+        for pkg_file in pkg_files:
+            if not pkg_file.name.endswith('.cfg'):
+                continue
+            # the config files use extended interpolation, which we don't
+            # want to resolve here
+            config = RawConfigParser()
+            config.read_string(pkg_file.read_text())
+            if config.has_option('executables', 'component'):
+                return True
+
+        return False
 
     def _read_cached_files(self):
         """Read in the dictionary of cached files from cached_files.json"""
