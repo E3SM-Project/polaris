@@ -327,8 +327,14 @@ stage.  Both otherwise fail only after the model has run.
 
 The statistics file is opened by relative path rather than declared as a step
 input, so a stage that did not write one degrades to computing what it can from
-`output.nc`.  Its name differs by model (`diagnostics.STATS_FILENAMES`): Omega
-treats its `Filename` as a prefix and appends the reduction period with no `.nc`.
+`output.nc`.  Its name comes from
+{py:meth}`polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename`
+on the stage itself, because for Omega it depends on the stage: Omega treats
+its `Filename` as a prefix and appends its own analysis period with no `.nc`,
+so a stage writing hourly statistics writes them somewhere a daily one does
+not.  MPAS-Ocean's name does not move, which is exactly what makes the Omega
+one moving easy to miss — and the symptom is silence, since a name that is not
+found reads as a stage that wrote no statistics.
 
 The checks live in
 {py:mod}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks`,
