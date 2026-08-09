@@ -49,6 +49,9 @@ def _forward_config(**overrides):
         GM_closure='',
         GM_constant_kappa='',
         use_Redi='True',
+        use_KPP='True',
+        use_submesoscale='True',
+        pressure_gradient_type='Jacobian_from_TS',
         use_frazil_ice_formation='False',
         start_time='0001-01-01_00:00:00',
     )
@@ -376,6 +379,57 @@ def test_horiz_mixing_options_are_all_mapped_to_omega():
         step._map_mpaso_to_omega_section_option(option=option, value=value)
 
 
+@pytest.mark.parametrize('use_kpp', [True, False])
+def test_vert_mixing_options_state_kpp_either_way(use_kpp):
+    """
+    The KPP boundary layer is stated whether it is on or off, since Omega turns
+    it on by default and leaving it out would give Omega a boundary layer that
+    MPAS-Ocean does not have.
+    """
+    options = ForwardStage(use_KPP=use_kpp).vert_mixing_options()
+    assert options == {'config_use_cvmix_kpp': use_kpp}
+
+
+def test_vert_mixing_options_are_all_mapped_to_omega():
+    """
+    As for horizontal mixing, an unmapped option in this neutral bucket would
+    only warn, so it would be silently dropped for Omega.
+    """
+    step = OceanModelStep.__new__(OceanModelStep)
+    step._read_config_map()
+    for option, value in ForwardStage().vert_mixing_options().items():
+        # raises ValueError if the option has no Omega counterpart
+        step._map_mpaso_to_omega_section_option(option=option, value=value)
+
+
+def test_mpaso_physics_options_have_no_omega_counterpart():
+    """
+    Nothing in the MPAS-Ocean-only bucket may have an Omega counterpart in
+    ``mpaso_to_omega``.  That bucket never reaches Omega, which runs its own
+    default instead, so an option that Omega gains is silently left behind
+    there.  That is how Omega came to run KPP, its default, in tasks that had
+    turned KPP off.  Once an option is mapped, it belongs in a neutral bucket.
+
+    This catches only what is mapped: an Omega option that is on by default
+    and has no entry in the map yet goes unnoticed.
+    """
+    step = OceanModelStep.__new__(OceanModelStep)
+    step._read_config_map()
+    # a stage that produces every option the bucket can hold
+    stage = ForwardStage(
+        hmix_scaling='ref_cell_width',
+        hmix_ref_cell_width=30.0e3,
+        mom_del4_div_factor=10.0,
+        use_GM=True,
+        GM_closure='constant',
+        GM_constant_kappa=600.0,
+        pressure_gradient_type='Jacobian_from_TS',
+    )
+    for option, value in stage.mpaso_physics_options().items():
+        with pytest.raises(ValueError, match='No mapping found'):
+            step._map_mpaso_to_omega_section_option(option=option, value=value)
+
+
 def test_forward_yaml_neutral_options_are_all_mapped_to_omega():
     """
     Everything in the ``ocean`` section of ``forward.yaml`` is meant to reach
@@ -464,6 +518,25 @@ def test_mpaso_physics_options_gm_settings_only_when_gm_is_on():
     assert not options['config_use_GM']
     assert 'config_GM_closure' not in options
     assert 'config_GM_constant_kappa' not in options
+
+
+def test_mpaso_only_physics_is_always_stated():
+    """
+    The submesoscale parameterization is stated either way rather than only
+    when on, so that turning it off in a user or per-mesh config undoes a
+    default that turned it on.  The pressure gradient is the exception: a
+    blank value means "leave the model default".
+    """
+    on = ForwardStage(
+        use_submesoscale=True,
+        pressure_gradient_type='Jacobian_from_TS',
+    ).mpaso_physics_options()
+    assert on['config_submesoscale_enable']
+    assert on['config_pressure_gradient_type'] == 'Jacobian_from_TS'
+
+    off = ForwardStage().mpaso_physics_options()
+    assert off['config_submesoscale_enable'] is False
+    assert 'config_pressure_gradient_type' not in off
 
 
 def test_mpaso_physics_options_rejects_unknown_hmix_scaling():
