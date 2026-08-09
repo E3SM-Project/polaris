@@ -1,8 +1,11 @@
+from typing import cast
+
 import pytest
 
 from polaris.config import PolarisConfigParser
 from polaris.mesh.base import get_base_mesh_step_names
 from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
+from polaris.ocean.model import OceanModelStep
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global import add_realistic_global_tasks
 from polaris.tasks.ocean.realistic_global.forward import (
@@ -263,6 +266,86 @@ def test_cached_forward_model_config_renders(mesh_name, model):
             assert 'config_use_cvmix_kpp' not in section
             assert 'config_submesoscale_enable' not in section
             assert 'config_pressure_gradient_type' not in section
+
+
+class _ConfigOnlyStep:
+    """
+    A stand-in for the forward step that carries a real task config.
+
+    The point is the config: an InitialCondition reads whatever it needs from
+    it, and a fake that supplies those options itself cannot tell whether the
+    task's own config file actually provides them.
+    """
+
+    def __init__(self, config):
+        self.config = config
+        self.calls = []
+
+    def add_horiz_mesh_input_file(self, **kwargs):
+        self.calls.append(('horiz_mesh', kwargs))
+
+    def add_vert_coord_input_file(self, **kwargs):
+        self.calls.append(('vert_coord', kwargs))
+
+    def add_init_input_file(self, **kwargs):
+        self.calls.append(('init', kwargs))
+
+    def add_input_file(self, **kwargs):
+        self.calls.append((kwargs.get('filename'), kwargs))
+
+    def get_init_filename(self):
+        return self.config.get('ocean_staged_files', 'init_filename')
+
+
+@pytest.mark.parametrize('mesh_name', sorted(CACHED_MESHES))
+@pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
+def test_cached_task_config_has_what_the_database_source_needs(
+    mesh_name, model
+):
+    """
+    Build the config the task builds, and let the initial condition read from
+    it.  A missing option here is a setup-time crash on a real machine, which
+    is what happened when [ocean] eos_type lived only in a config file that
+    the cached tasks stopped including.
+    """
+    config = _task_config(mesh_name, model)
+    init_condition = DatabaseInitialCondition(
+        mesh_name=mesh_name,
+        mpaso_id=CACHED_MESHES[mesh_name]['mpaso_id'],
+        omega_id=CACHED_MESHES[mesh_name]['omega_id'],
+        min_res=CACHED_MESHES[mesh_name]['min_res'],
+        approx_cell_count=CACHED_MESHES[mesh_name]['cell_count'],
+    )
+    step = _ConfigOnlyStep(config)
+    init_condition.add_input_files(cast(OceanModelStep, step))
+
+    by_kind = dict(step.calls)
+    assert 'init' in by_kind
+    assert by_kind['init']['target'].startswith(f'ocean.{mesh_name}.')
+    if model == 'omega':
+        # 'teos-10' from config, normalized, has to reach the filename
+        assert '.teos10.' in by_kind['init']['target']
+        assert 'graph.info' not in by_kind
+    else:
+        assert by_kind['init']['target'].endswith('.zerovel.nc')
+        assert 'graph.info' in by_kind
+
+    # the forcing streams are pointed at whatever holds the wind stress
+    assert init_condition.get_forcing_filename(cast(OceanModelStep, step))
+
+
+def _task_config(mesh_name, model):
+    """The config a RealisticGlobalForward on ``mesh_name`` would build."""
+    config = PolarisConfigParser()
+    config.add_from_package('polaris.ocean', 'ocean.cfg')
+    config.add_from_package(
+        'polaris.tasks.ocean.realistic_global.forward',
+        'realistic_global_forward.cfg',
+    )
+    add_realistic_global_mesh_config(config, mesh_name)
+    config.set('ocean', 'model', model)
+    config.combine()
+    return config
 
 
 def _stage_for_mesh(mesh_name):
