@@ -678,6 +678,22 @@ def test_omega_history_stream_is_diagnosable():
         assert group in contents, f'{group} missing from the History stream'
 
 
+def test_wind_stress_reaches_edges_the_same_way_in_both_models():
+    """
+    MPAS-Ocean interpolates the cell-centred wind stress onto an edge from two
+    adjacent cells by default, and four when this is set.  Four is what E3SM
+    runs with, and is also Omega's only option, so setting it serves both the
+    E3SM-like runs and the model comparison: without it the two models would
+    put different momentum on the same edges from the same stress field.
+    """
+    yaml = PolarisYaml.read(
+        filename='forcing.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        model='mpas-ocean',
+    )
+    assert yaml.configs['forcing']['config_bulk_wind_stress_interp_isotropic']
+
+
 def test_omega_forcing_stream_is_actually_read():
     """
     Omega's Default.yml gives the Forcing stream ``FreqUnits: Never``, which
