@@ -597,6 +597,17 @@ on the same mesh.
 ### config options
 
 ```cfg
+# Options related to the ocean component
+[ocean]
+
+# The equation of state.  The whole realistic_global family is TEOS-10, and it
+# is stated here as well as in realistic_global_init.cfg so that a forward task
+# is self-contained: a run from a cached initial condition never sets the init
+# workflow's config up at all, and still has to name the equation of state to
+# find the right file in the database.
+eos_type = teos-10
+
+
 # Options for realistic global ocean forward runs
 [realistic_global_forward]
 
