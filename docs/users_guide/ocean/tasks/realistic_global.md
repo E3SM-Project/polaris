@@ -435,6 +435,16 @@ the momentum input holds up a circulation.
 Both models default it to off, and it is set for every realistic global forward
 run: there is no config option to run without wind forcing.
 
+`forcing.yaml` also sets `config_bulk_wind_stress_interp_isotropic` for
+MPAS-Ocean, on every forward run.  Both models take the stress at cell centres
+and project it onto edges themselves, but not the same way by default:
+MPAS-Ocean uses the two cells adjacent to an edge, and Omega uses four.  This
+is set because four is what E3SM runs with today, so it is the E3SM-like
+choice for the unified meshes; it also happens to be Omega's only option, so
+the two models end up applying the same momentum without anything further
+being said.  The isotropic form is slightly less accurate and Omega may not
+keep it, so this is worth revisiting when that is decided.
+
 Where the wind stress comes from is a separate question, answered by the
 forward step's initial condition.  When it stages a forcing file of its own — as
 the init workflow does — `forcing_streams.yaml` points each model's input stream
