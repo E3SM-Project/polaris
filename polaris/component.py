@@ -228,6 +228,37 @@ class Component:
         """
         pass
 
+    def build_model(self, config, machine):
+        """
+        Build the model for this component.  Components with a model that
+        polaris knows how to build should override this method.
+
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            the config options for this component
+
+        machine : str
+            The name of the machine to build the model on
+        """
+        raise ValueError(
+            f'An automated build is not implemented for the {self.name} '
+            f'component'
+        )
+
+    def check_model_version(self, config):
+        """
+        Check that the model this component will run is compatible with this
+        version of polaris.  Components that have such a check should override
+        this method.
+
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            the config options for this component
+        """
+        pass
+
     def get_or_create_shared_step(
         self, step_cls, subdir, config, config_filename=None, **kwargs
     ):

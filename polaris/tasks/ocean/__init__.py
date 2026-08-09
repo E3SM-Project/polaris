@@ -9,7 +9,10 @@ from mpas_tools.vector.reconstruct import reconstruct_variable
 from ruamel.yaml import YAML
 
 from polaris import Component
+from polaris.build.mpas_ocean import build_mpas_ocean
+from polaris.build.omega import build_omega
 from polaris.constants import get_constant
+from polaris.constants.pcd import check_pcd_version_matches_branch
 from polaris.mesh.reconstruct import (
     cartesian_to_local_geographic,
     tangential_reconstruction,
@@ -132,6 +135,89 @@ class Ocean(Component):
         self.model = model
         if model == 'omega':
             self._read_var_map()
+
+    def build_model(self, config, machine):
+        """
+        Build MPAS-Ocean or Omega
+
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            the config options for this component
+
+        machine : str
+            The name of the machine to build the model on
+        """
+        model = config.get('ocean', 'model')
+        section = config['build']
+        branch = section.get('branch')
+        clean_build = section.getboolean('clean')
+        quiet_build = section.getboolean('quiet')
+        debug = section.getboolean('debug')
+        cmake_flags = section.get('cmake_flags')
+
+        build_dir = config.get('paths', 'component_path')
+
+        if config.has_option('parallel', 'account'):
+            account = config.get('parallel', 'account')
+        else:
+            account = None
+
+        if model == 'omega':
+            log_filename = os.path.join(build_dir, 'build_omega.log')
+            build_omega(
+                branch=branch,
+                build_dir=build_dir,
+                clean=clean_build,
+                quiet=quiet_build,
+                debug=debug,
+                cmake_flags=cmake_flags,
+                account=account,
+                log_filename=log_filename,
+            )
+        elif model == 'mpas-ocean':
+            compiler = section.get('compiler')
+            mpilib = section.get('mpi')
+            key = f'{compiler}_{mpilib}_target'
+            if not section.has_option(key):
+                raise ValueError(
+                    f'The build target {key} is not defined in the [build] '
+                    f'section of the config file for machine {machine}.'
+                )
+            make_target = section.get(key)
+
+            log_filename = os.path.join(build_dir, 'build_mpas_ocean.log')
+            build_mpas_ocean(
+                branch=branch,
+                build_dir=build_dir,
+                clean=clean_build,
+                quiet=quiet_build,
+                debug=debug,
+                make_flags=cmake_flags,
+                make_target=make_target,
+                log_filename=log_filename,
+            )
+        else:
+            raise ValueError(
+                f'Automated build is not implemented for model {model}'
+            )
+
+    def check_model_version(self, config):
+        """
+        Check that the PCD version in polaris matches the one in the branch of
+        the ocean model that will be run
+
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            the config options for this component
+        """
+        model = config.get('ocean', 'model')
+        if model not in ['mpas-ocean', 'omega']:
+            return
+
+        branch = config.get('build', 'branch')
+        check_pcd_version_matches_branch(branch=branch, model=model)
 
     def map_to_native_model_vars(self, ds):
         """

@@ -7,14 +7,11 @@ import warnings
 from typing import Dict, List
 
 from polaris import Task, provenance
-from polaris.build.mpas_ocean import build_mpas_ocean
-from polaris.build.omega import build_omega
 from polaris.component_graph import (
     get_components_in_use,
     get_steps_by_component,
 )
 from polaris.config import PolarisConfigParser
-from polaris.constants.pcd import check_pcd_version_matches_branch
 from polaris.io import symlink
 from polaris.job import write_job_script
 from polaris.machines import discover_machine
@@ -195,13 +192,9 @@ def setup_tasks(
     build = section.getboolean('build')
 
     if build:
-        _build_model(
-            component_config=component_config,
-            component=component,
-            machine=machine,
-        )
+        component.build_model(config=component_config, machine=machine)
 
-    _check_pcd_version(component_config=component_config, component=component)
+    component.check_model_version(config=component_config)
 
     if clean_tasks:
         print('')
@@ -1213,76 +1206,6 @@ def _check_dependencies(tasks):
                         f'{task.path} step {step.name} was '
                         f'not set up.'
                     )
-
-
-def _build_model(component_config, component, machine):
-    model = component_config.get(component.name, 'model')
-    section = component_config['build']
-    branch = section.get('branch')
-    clean_build = section.getboolean('clean')
-    quiet_build = section.getboolean('quiet')
-    debug = section.getboolean('debug')
-    cmake_flags = section.get('cmake_flags')
-
-    build_dir = component_config.get('paths', 'component_path')
-
-    if component_config.has_option('parallel', 'account'):
-        account = component_config.get('parallel', 'account')
-    else:
-        account = None
-
-    if model == 'omega':
-        log_filename = os.path.join(build_dir, 'build_omega.log')
-        build_omega(
-            branch=branch,
-            build_dir=build_dir,
-            clean=clean_build,
-            quiet=quiet_build,
-            debug=debug,
-            cmake_flags=cmake_flags,
-            account=account,
-            log_filename=log_filename,
-        )
-    elif model == 'mpas-ocean':
-        section = component_config['build']
-        compiler = section.get('compiler')
-        mpilib = section.get('mpi')
-        key = f'{compiler}_{mpilib}_target'
-        if not section.has_option(key):
-            raise ValueError(
-                f'The build target {key} is not defined in the [build] '
-                f'section of the config file for machine {machine}.'
-            )
-        make_target = section.get(key)
-
-        log_filename = os.path.join(build_dir, 'build_mpas_ocean.log')
-        build_mpas_ocean(
-            branch=branch,
-            build_dir=build_dir,
-            clean=clean_build,
-            quiet=quiet_build,
-            debug=debug,
-            make_flags=cmake_flags,
-            make_target=make_target,
-            log_filename=log_filename,
-        )
-    else:
-        raise ValueError(
-            f'Automated build is not implemented for model {model}'
-        )
-
-
-def _check_pcd_version(component_config, component):
-    """Check that Polaris and branch PCD versions match when applicable."""
-    if component.name != 'ocean':
-        return
-
-    model = component_config.get('ocean', 'model')
-    if model not in ['mpas-ocean', 'omega']:
-        return
-
-    branch = component_config.get('build', 'branch')
-    check_pcd_version_matches_branch(branch=branch, model=model)
 
 
 def _get_suite_config(basic_config, component_name, suite_name):
