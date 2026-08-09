@@ -497,6 +497,7 @@
    stage.ForwardStage.from_config
    stage.ForwardStage.model_replacements
    stage.ForwardStage.stats_period
+   stage.ForwardStage.stats_filename
    stage.ForwardStage.check_damping_supported
    stage.ForwardStage.bottom_drag_options
    stage.ForwardStage.restart_stream_replacements
