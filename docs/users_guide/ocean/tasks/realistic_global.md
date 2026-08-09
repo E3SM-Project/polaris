@@ -14,10 +14,9 @@ tasks:
 - {ref}`ocean-realistic-global-init`, which creates mesh-specific ocean initial
   conditions from that hydrography and forcing together with the culled mesh
   from `e3sm/init`.
-- {ref}`ocean-realistic-global-analysis-members`, forward runs on realistic
-  global meshes that exercise the analysis members: short runs comparing the
-  global statistics of MPAS-Ocean and Omega, and one-year Omega runs writing
-  what the {ref}`ocean-analysis` tasks read.
+- {ref}`ocean-realistic-global-forward`, short forward runs from either of two
+  sources of initial condition: the `init` workflow above, or a cached file
+  downloaded from the Polaris input database.
 - {ref}`ocean-realistic-global-restart`, a short run split across a restart,
   checking that the history output survives the restart intact.
 
@@ -26,9 +25,7 @@ tasks:
 The `woa23` and `jra55` tasks are model-independent and do not require either
 MPAS-Ocean or Omega to be built.
 
-The `init` task and the `short` `analysis_members` tasks support both
-MPAS-Ocean and Omega.  The `1_year` tasks support only Omega, since the
-analysis reads only Omega output.
+The `init` and forward tasks support both MPAS-Ocean and Omega.
 
 The `restart` task supports Omega only.  It is a regression test for the way
 Omega writes its history time axis across a restart, and MPAS-Ocean stamps its
@@ -527,213 +524,6 @@ per `remap_min_cells_per_task` cells.  Both are rounded to the nearest whole
 task, so they are rules of thumb rather than hard limits.  The other steps of
 this task run serially.
 
-(ocean-realistic-global-analysis-members)=
-
-## analysis_members
-
-These tasks perform a forward run on a realistic global mesh with the
-global-statistics analysis member enabled, then plot time series of the
-resulting statistics.  There are two runs on each mesh:
-
-- `short` compares the analysis-member output of MPAS-Ocean and Omega on the
-  same mesh and initial condition.
-- `1_year` runs Omega for a year with its `MonthlyAverages` and `MOC` analysis
-  groups on, writing what the {ref}`ocean-analysis` tasks read.  It is meant
-  to become a cached step for regression testing the `omega_analysis` suite.
-
-| mesh | cells | time step | barotropic step | `short` run |
-|------|-------|-----------|-----------------|-------------|
-| `QU.240km` | 7,153 | 1 h | 3 min | 5 days |
-| `EC30to60E2r2` | 236,853 | 30 min | 1 min | 1 day |
-
-They can be set up with, e.g.:
-
-```bash
-polaris setup -t ocean/spherical/realistic_global/QU.240km/analysis_members/short ...
-polaris setup -t ocean/spherical/realistic_global/QU.240km/analysis_members/1_year ...
-```
-
-The `QU.240km` `short` run is in the `omega_pr` suite.  The `1_year` runs are
-in no suite.  The `QU.240km` year takes about 8 minutes on a Chrysalis node,
-and the `EC30to60E2r2` year about 50 minutes on 6 nodes, writing about 40 GB.
-
-### description
-
-The `short` tasks contain three steps:
-
-1. `forward` runs the ocean model from a cached initial condition, writing
-   both a regular `output.nc` history file and the global statistics produced
-   by the analysis member.
-2. `global_stats` plots time series of the minimum, maximum, mean and standard
-   deviation of each state variable, both as absolute values and as anomalies
-   relative to the initial value.  This step is not run by default.
-3. `viz` plots global maps of the state variables at the beginning and end of
-   the run, along with the zonal and meridional wind stress.  This step is not
-   run by default.
-
-The `global_stats` step accounts for a difference between the two models:
-Omega writes the standard deviation directly, whereas MPAS-Ocean writes the
-root-mean-square, from which the standard deviation is computed.
-
-WARNING: As of Omega commit [061d0ab](https://github.com/E3SM-Project/Omega/commit/061d0ab90b2027ac584b997292b3911fa3755af3),
-Omega does not area- or volume-weight the global stats while MPAS-Ocean does.
-Thus, the two models' stats cannot be directly compared.
-
-The `1_year` tasks contain the `forward` and `global_stats` steps.  The run
-writes, in the `forward` step's work directory:
-
-- `monthly_means_1MonthTimeStats.<year>-<month>.nc`, the monthly means
-  from the `MonthlyAverages` group of conservative temperature, absolute
-  salinity, pseudo-thickness, specific volume, the layer-midpoint and
-  interface elevations, sea surface height, normal velocity and kinetic
-  energy;
-- `moc_1MonthTimeStats.<year>-<month>.nc`, the monthly-mean global
-  overturning streamfunction from the `MOC` group, in 60 latitude bins on
-  `QU.240km` and Omega's default of 180 on `EC30to60E2r2`;
-- `global_stats_1DayInstants`, daily global statistics of the state, kinetic
-  energy and sea surface height;
-- `output/ocn.hist.<year>-<month>.nc`, a monthly snapshot of the same fields
-  as the monthly means, taken at the instant each mean is finalized, as a
-  check on the means.
-
-Omega names a time-mean file for the instant it was finalized, the start of
-the following month, so the twelve files covering year 1 are named `0001-02`
-through `0002-01`.  The analysis accounts for this; see {ref}`ocean-analysis`.
-
-To analyze the run, point the `omega_analysis` suite at the `omega.yml` in
-the `forward` step's work directory:
-
-```cfg
-[ocean_analysis]
-
-omega_config_filename = <work_dir>/ocean/spherical/realistic_global/<mesh>/analysis_members/1_year/forward/omega.yml
-
-[ocean_analysis_climatology]
-
-start_year = 1
-end_year = 1
-
-[ocean_analysis_time_series]
-
-start_year = 1
-end_year = 1
-```
-
-### mesh
-
-The meshes are standard E3SM global ocean meshes downloaded from the Polaris
-input database rather than generated by the task: the quasi-uniform 240-km
-`QU.240km` mesh and the eddy-closure `EC30to60E2r2` mesh, which varies from
-30 km to 60 km.
-
-### vertical grid
-
-The vertical grid is the one supplied with the cached initial condition for
-each mesh, so there are no vertical-grid config options for these tasks.
-
-### initial conditions
-
-The initial condition is a cached, model-specific file from the
-`realistic_global` section of the Polaris input database. For Omega, a
-TEOS-10 initial condition is used and the same file supplies the mesh,
-vertical coordinate and initial state. For MPAS-Ocean, a `zerovel` (zero
-initial velocity) file supplies the mesh and initial state.
-
-### forcing
-
-Zonal and meridional wind stress are read from the initial-condition file and
-applied through bulk wind stress. Vertical mixing uses CVMix with convection
-and shear mixing enabled, and a constant implicit bottom drag coefficient of
-1.0e-3 is applied.
-
-The harmonic and biharmonic momentum viscosities are set per mesh by the
-`mom_del2` and `mom_del4` config options, raised from Omega's defaults of
-1.0e3 m^2/s and 1.2e11 m^4/s to reduce, but not remove, grid-scale noise in
-the velocity.  On `QU.240km`, the biharmonic viscosity is raised to 1.0e15
-m^4/s.  On `EC30to60E2r2`, the harmonic viscosity is raised to 1.0e4 m^2/s,
-since Omega does not scale the biharmonic viscosity with cell width and it
-cannot be raised enough to damp the 60-km cells without going unstable in the
-30-km ones.  These values are provisional until Omega has KPP and the fix to
-its pressure-gradient errors over bathymetry.  These are coarse runs for
-testing the analysis members, not scientifically valid simulations.
-
-### time step and run duration
-
-The time steps and the length of the `short` run are set per mesh by the
-`dt`, `btr_dt` and `short_run_duration` config options, as shown in the table
-above.  On `QU.240km` they are E3SM's values for this mesh.  The
-forward run uses the split-explicit time stepper (`SplitExplicitRK2` in
-Omega).  The `short` run writes output, including the global statistics, once
-per day.
-
-The `1_year` run lasts 365 days from `0001-01-01`, one year on the No Leap
-calendar.  Restarts are written monthly, because Omega requires the restart
-interval to be a multiple of every averaging period.
-
-### config options
-
-```cfg
-[ocean]
-
-# Equation of state type
-eos_type = teos-10
-
-[realistic_global]
-
-# Time step duration per kilometer [s]
-dt_per_km = 3.0
-
-# options for the analysis_members tasks
-[analysis_members]
-
-# The fields to plot global statistics for, using MPAS-Ocean (Polaris
-# standard) names.  Leave this empty, as it is by default, to plot every
-# field the run wrote statistics for, which is what the models' own default
-# lists give.  A field the run did not write is skipped with a message, not
-# an error.
-fields =
-
-# The baroclinic and barotropic time steps: E3SM's MPAS-Ocean values for
-# oQU240.  A 2-hour step gave a growing surface hotspot along the Aleutians in
-# a one-year run.
-dt = 01:00:00
-btr_dt = 00:03:00
-
-# The length of the short run.  The 1_year run is always 365 days.
-short_run_duration = 0005_00:00:00
-
-# The number of latitude bins of the 1_year run's MOC: three degrees, since
-# Omega's default of one degree is finer than the mesh
-moc_num_bins = 60
-
-# The harmonic momentum viscosity (m^2/s): Omega's default
-mom_del2 = 1.0e3
-
-# The biharmonic momentum viscosity (m^4/s).  Omega's default of 1.2e11 is
-# meant for much finer meshes and leaves grid-scale noise in the velocity on
-# this one.  1.0e15 gave the least of the values tried in one-year runs;
-# 3.0e15 is unstable with a 1-hour time step.  Some noise remains in the
-# wind-driven top layer.
-mom_del4 = 1.0e15
-```
-
-The time steps, run length, MOC bins and viscosities are for `QU.240km`.  On
-`EC30to60E2r2`, `dt` is 30 minutes, `btr_dt` 1 minute, `short_run_duration`
-1 day, `moc_num_bins` 180, `mom_del2` 1.0e4 and `mom_del4` 1.2e11.
-
-The `viz` step is controlled by the
-`[realistic_global_viz_temperature]`, `[realistic_global_viz_salinity]`,
-`[realistic_global_viz_layerThickness]`, `[realistic_global_viz_windStress]`
-and `[realistic_global_viz_kineticEnergyCell]` sections, each of which
-supports the standard Polaris colormap options described in
-{ref}`dev-visualization-global`.
-
-### cores
-
-The number of cores used by the `forward` step is determined
-algorithmically from the number of cells in the mesh. The `global_stats` and
-`viz` steps run serially.
-
 (ocean-realistic-global-restart)=
 
 ## restart
@@ -776,7 +566,7 @@ which is the usual exact-restart check.
 ### mesh
 
 The `QU.240km` quasi-uniform 240-km mesh, downloaded from the Polaris input
-database, as for the `analysis_members` tasks.
+database, as for the `cached_forward` tasks.
 
 ### vertical grid
 
@@ -790,7 +580,7 @@ and initial state.
 
 ### forcing
 
-As for the `analysis_members` tasks: zonal and meridional wind stress from the
+As for the `cached_forward` tasks: zonal and meridional wind stress from the
 initial-condition file, applied through bulk wind stress.
 
 ### time step and run duration
@@ -825,19 +615,84 @@ from the number of cells in the mesh.  The `validate` step runs serially.
 
 (ocean-realistic-global-forward)=
 
-## forward
+## forward and cached_forward
 
 A forward run of the ocean model selected by the `[ocean] model` config option
 (MPAS-Ocean or Omega), starting from a `realistic_global` initial condition.
-The `short` run is a one-day smoke test:
-it checks that the model runs stably on the mesh and initial condition, not that
-the simulation is physically interesting.
+The `short` step is a brief run: it checks that the model runs stably on the
+mesh and initial condition, not that the simulation is physically interesting.
+Two further steps, `global_stats` and `viz`, plot the run's statistics and its
+state; neither is run by default.
+
+The two tasks are built from the same steps and differ only in where the
+initial condition comes from — and, because of that, in what they are for.
+
+`forward` runs on a mesh and initial condition that
+{ref}`ocean-realistic-global-init` builds, and can be set up for any mesh
+Polaris knows how to build:
+
+```bash
+polaris setup -t ocean/spherical/realistic_global/qu240km/forward ...
+```
+
+`cached_forward` downloads a ready-made initial condition instead, so it runs
+without the WOA23 remapping and topography culling the `init` chain does
+first.  It is defined for the two meshes whose initial conditions have been
+staged:
+
+| mesh | cells | time step | run duration |
+|------|-------|-----------|--------------|
+| `QU.240km` | 7,153 | 10 min | 5 days |
+| `EC30to60E2r2` | 236,853 | 45 s | 1 day |
+
+```bash
+polaris setup -t ocean/spherical/realistic_global/QU.240km/cached_forward ...
+```
+
+(ocean-realistic-global-forward-purposes)=
+
+### what `forward` and `cached_forward` are for
+
+These are not two sizes of the same test.  They answer different questions,
+and that is what decides how each is configured.
+
+**`cached_forward` compares MPAS-Ocean with Omega.**  Both models start from
+the same initial condition on the same mesh, so the interesting result is how
+their answers differ.  Anything one model has that the other lacks works
+against that, so these runs use only the physics Omega also has: no
+Gent-McWilliams, no Redi, no KPP boundary layer, no submesoscale
+parameterization, and MPAS-Ocean's default `pressure_and_zmid` pressure
+gradient rather than `Jacobian_from_TS`.  Both models use RK4.
+
+The list of things turned off describes what Omega lacks today, not a
+considered choice of physics, and it should shrink as Omega gains
+capabilities.
+
+**`forward` tests the mesh itself, in E3SM, with MPAS-Ocean.**  Here the point
+is that the mesh behaves the way it will in a real E3SM configuration, so these
+runs use E3SM's physics: GM, Redi, KPP, the submesoscale parameterization and
+`Jacobian_from_TS`, with the resolution-dependent mixing each mesh needs.
+MPAS-Ocean uses split-explicit time stepping, which is what makes the long
+spin-ups this task feeds into affordable.
+
+Omega can run these too, but only as a smoke test.  It has no split-explicit
+integrator, which makes RK4 and its short time step the only option and
+dynamic adjustment impractical; and the physics it is missing means the
+adjustment coefficients cannot yet be tuned in any meaningful way.
+
+:::{note}
+`cached_forward` is expected to be temporary.  Once Omega has the full physics
+and the Polaris initialization workflow has been tested end to end, there will
+be no reason to keep a separate task on hand-staged initial conditions, and
+the comparison can be made on meshes Polaris builds itself.
+:::
 
 ### surface forcing
 
-The run is forced by the time-invariant JRA55-do wind stress written by the
-init workflow's [`forcing` step](#ocean-realistic-global-init).  Wind stress is
-the only forcing: there is no surface restoring and there are no thermal or
+The run is forced by time-invariant JRA55-do wind stress — written by the init
+workflow's [`forcing` step](#ocean-realistic-global-init) for `forward`, and
+carried inside the cached initial-condition file for `cached_forward`.  Wind
+stress is the only forcing: there is no surface restoring and there are no thermal or
 freshwater fluxes, so the tracers spin down from the initial condition while
 the momentum input holds up a circulation.
 
@@ -850,7 +705,9 @@ Where the wind stress comes from is a separate question, answered by the
 forward step's initial condition.  When it stages a forcing file of its own — as
 the init workflow does — `forcing_streams.yaml` points each model's input stream
 at the file named by the `[ocean_staged_files] forcing_filename` config option
-(`forcing.nc` by default).  For MPAS-Ocean that is a `forcing` stream holding
+(`forcing.nc` by default).  A cached initial condition carries the stress
+inside the initial-condition file, so the same streams are pointed there
+instead.  For MPAS-Ocean that is a `forcing` stream holding
 just the two wind-stress variables, rather than the Registry's `forcing_data`
 stream, which would also demand the sea-ice and atmospheric pressures and the
 tracer restoring fields.
@@ -895,7 +752,9 @@ The horizontal mixing coefficients, the eddy parameterizations and the way
 mixing is scaled across a variable-resolution mesh all depend on the mesh, so
 they are config options rather than fixed values, and most meshes override them
 in their [per-mesh config file](#ocean-realistic-global-mesh-configs).  The
-defaults follow how these meshes are configured in E3SM.
+defaults follow how these meshes are configured in E3SM, which is what the
+`forward` tasks want; `cached_forward` overrides several of them for the
+reasons in {ref}`ocean-realistic-global-forward-purposes`.
 
 A coefficient and its on/off switch are a single option: leaving `mom_del2`
 blank turns harmonic momentum mixing off, and giving it a value turns it on with
@@ -942,26 +801,36 @@ eddying `RRSwISC6to18E3r5` mesh and nowhere else.  It reaches Omega as
 `DivFactor`.
 
 Some settings are not config options because they should not vary: they are
-pinned in `forward.yaml` purely so that MPAS-Ocean and Omega agree.  Where the
-two models' own defaults differ, the MPAS-Ocean default wins — horizontal
-tracer advection order is pinned to 3 (Omega defaults to 2), and bottom drag to
-implicit constant drag with a coefficient of 1e-3 (Omega has no bottom drag by
-default).  The CVMix convection and shear-mixing parameters are pinned too;
-those values already match both models, and stating them is what keeps them
-from drifting apart.
+pinned in `forward.yaml` purely so that MPAS-Ocean and Omega agree: horizontal
+tracer advection order 3, implicit constant bottom drag with a coefficient of
+1e-3, and the CVMix convection, shear-mixing and KPP parameters.  Where the two
+models' own defaults differ, the MPAS-Ocean default wins, so KPP's Langmuir
+turbulence, on by default in Omega, is off.  The rest already match both
+models, and stating them is what keeps them from drifting apart.
 
-Gent-McWilliams, Redi, the Leith closure, frazil ice and the submesoscale eddy
-parameterization are applied only for MPAS-Ocean.  Omega has no equivalent for
-any of them and is not expected to gain GM or Redi, so the two models
-deliberately differ here; the `short` runs are smoke tests rather than a model
-intercomparison, and a careful comparison would need its own config options
-chosen for that purpose.
+Gent-McWilliams (`use_GM`), Redi (`use_Redi`), the submesoscale eddy
+parameterization (`use_submesoscale`), the Leith closure (`use_Leith_del2`),
+frazil ice (`use_frazil_ice_formation`) and the pressure-gradient formulation
+(`pressure_gradient_type`) are applied only for MPAS-Ocean.  Polaris has no
+Omega counterpart for any of them, and Omega is not expected to gain GM or
+Redi.  The KPP boundary layer (`use_KPP`) applies to both models.
 
-The submesoscale parameterization is pinned on in `forward.yaml` rather than
-being a config option: it is on in E3SM and in the equivalent Compass tests,
-but the MPAS-Ocean Registry default is off.  `config_Redi_min_layers_diag_terms`
-is pinned to 0 for the same reason — the Registry default of 6 skips the Redi
-diagnostic terms in the top six layers, and Compass computes them everywhere.
+They are config options rather than fixed values precisely because the two
+tasks want opposite answers — see
+{ref}`ocean-realistic-global-forward-purposes`.  The defaults are the
+E3SM-like ones, which is what `forward` wants; `cached_forward` turns them off
+in its per-mesh config so that MPAS-Ocean and Omega stay comparable.  Several
+of them are off by default in MPAS-Ocean itself, so leaving them alone would
+not have given E3SM's configuration either.
+
+Blank `pressure_gradient_type` leaves the MPAS-Ocean Registry default of
+`pressure_and_zmid`, the ordinary counterpart to Omega's `Centered`;
+`Jacobian_from_TS` is how E3SM runs and has no Omega equivalent.
+
+`config_Redi_min_layers_diag_terms` is pinned to 0 in `forward.yaml` rather
+than being an option — the Registry default of 6 skips the Redi diagnostic
+terms in the top six layers, and Compass computes them everywhere.  It has an
+effect only where Redi is on.
 
 ### time integrator
 
@@ -970,7 +839,9 @@ The time integrator is the one setting chosen per model rather than shared:
 `omega_time_integrator` to `RK4`.  Omega has no split time stepper yet, so
 `RK4` (translated to `RungeKutta4`) is the only integrator it supports, while
 MPAS-Ocean needs split time stepping to make the month-long spin-ups that build
-on this workflow affordable.  Both options use neutral (MPAS-Ocean) naming, and
+on this workflow affordable.  The `cached_forward` tasks set
+`mpaso_time_integrator = RK4` so that both models advance the same way, at the
+cost of MPAS-Ocean taking the short step too.  Both options use neutral (MPAS-Ocean) naming, and
 an `omega_time_integrator` that Omega does not support is an error at run time
 rather than at setup, so the option can still be changed after setting a task
 up.  Once Omega gains a split integrator the two are expected to become the
@@ -1133,3 +1004,37 @@ use_frazil_ice_formation = False
 # Simulation start time (config_start_time)
 start_time = 0001-01-01_00:00:00
 ```
+
+### mesh
+
+`forward` runs on a mesh built by {ref}`ocean-realistic-global-init`, so the
+mesh is whichever one the task is registered for.  `cached_forward` runs on the
+standard E3SM mesh that comes with its cached initial condition: the
+quasi-uniform 240-km `QU.240km`, or the eddy-closure `EC30to60E2r2`, which
+varies from 30 km to 60 km.
+
+### vertical grid
+
+For `forward`, the vertical grid is the one the `init` workflow built, set by
+the `[vertical_grid]` section of the mesh's
+[per-mesh config file](#ocean-realistic-global-mesh-configs).  For
+`cached_forward` it arrives with the cached initial condition, so those meshes
+have no `[vertical_grid]` section at all.
+
+### initial conditions
+
+For `forward`, the mesh, vertical coordinate, initial state and wind-stress
+forcing are the outputs of the `init` workflow's steps, which the task runs
+first.
+
+For `cached_forward`, a single model-specific file from the `realistic_global`
+section of the Polaris input database supplies all of them.  MPAS-Ocean reads a
+`zerovel` (zero initial velocity) file along with a prebuilt graph partition
+file; Omega reads a TEOS-10 file converted from it, and partitions internally.
+
+### cores
+
+The number of cores used by the `short` step is determined algorithmically from
+the number of cells in the mesh — read from the mesh file once it exists, and
+estimated from the mesh definition before that.  The `global_stats` and `viz`
+steps run serially.
