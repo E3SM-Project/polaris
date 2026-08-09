@@ -4,6 +4,7 @@ from polaris.config import PolarisConfigParser
 from polaris.mesh.base import get_base_mesh_step_names
 from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
 from polaris.tasks.ocean.realistic_global.forward import ForwardStage
+from polaris.tasks.ocean.realistic_global.forward.tasks import CACHED_MESHES
 from polaris.tasks.ocean.realistic_global.mesh_configs import (
     add_realistic_global_mesh_config,
     get_mesh_config_names,
@@ -42,8 +43,12 @@ def test_config_files_are_named_for_real_meshes(mesh_name):
     otherwise be silently ignored, since a mesh without a config file is
     a valid, common case.
     """
-    valid_mesh_names = set(get_base_mesh_step_names()) | set(
-        UNIFIED_MESH_NAMES
+    # the cached meshes are real meshes too; Polaris does not build them, but
+    # it runs forward tasks on them from cached initial conditions
+    valid_mesh_names = (
+        set(get_base_mesh_step_names())
+        | set(UNIFIED_MESH_NAMES)
+        | set(CACHED_MESHES)
     )
     assert mesh_name in valid_mesh_names
 
