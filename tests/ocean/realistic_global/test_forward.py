@@ -624,6 +624,27 @@ def test_forcing_streams_yaml_points_at_the_staged_file(
     assert stream[filename_option] == 'custom_forcing.nc'
 
 
+def test_omega_history_stream_is_diagnosable():
+    """
+    A history stream of just State, Tracers and KineticEnergyCell writes six
+    variables, which is enough to see that a run went wrong and not enough to
+    see why.  AuxiliaryState, SshCell and Eos add the vorticity, divergence,
+    del2, free-surface and stratification fields -- 18 more variables on
+    QU.240km -- that separate a dynamics problem from a stratification one.
+    """
+    stage = ForwardStage.from_config(_forward_config())
+    yaml = PolarisYaml.read(
+        filename='forward.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        replacements=stage.model_replacements('omega', min_res=30.0),
+        model='Omega',
+        streams_section='IOStreams',
+    )
+    contents = yaml.streams['History']['Contents']
+    for group in ('State', 'Tracers', 'AuxiliaryState', 'SshCell', 'Eos'):
+        assert group in contents, f'{group} missing from the History stream'
+
+
 def test_omega_forcing_stream_is_actually_read():
     """
     Omega's Default.yml gives the Forcing stream ``FreqUnits: Never``, which
