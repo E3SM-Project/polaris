@@ -134,6 +134,11 @@ FORWARD_EXPECTED: dict[str, dict[str, object]] = {
         tracer_del4=1.2e11,
         use_Leith_del2=False,
         hmix_scaling='ref_cell_width',
+        # the coefficients above are Compass's, quoted at 240 km, so the
+        # reference is this mesh's own width and they are used as given.
+        # Leaving it at the shared 30 km default would scale them by 240/30
+        # -- silently, since scaling by the wrong reference is still scaling
+        hmix_ref_cell_width=240.0e3,
         use_GM=True,
         use_Redi=True,
         use_frazil_ice_formation=False,
