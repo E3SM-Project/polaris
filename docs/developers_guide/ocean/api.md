@@ -615,6 +615,7 @@
    stage.ForwardStage.bottom_drag_options
    stage.ForwardStage.restart_stream_replacements
    stage.ForwardStage.horiz_mixing_options
+   stage.ForwardStage.vert_mixing_options
    stage.ForwardStage.mpaso_physics_options
 
    initial_condition.InitialCondition
