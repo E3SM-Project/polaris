@@ -1372,6 +1372,24 @@ Rayleigh damping runs the other way round from the other options: it is off in
 config (`damping` is blank) and turned on per stage by the schedule, so the
 `simulation` stage gets an undamped run simply by omitting `damping`.
 
+The boundary layer, the submesoscale parameterization and the pressure gradient
+are stage-settable on the same terms as everything else, which is worth saying
+because the shipped schedules never touch them: `use_KPP`, `use_submesoscale`
+and `pressure_gradient_type` are `[realistic_global_forward]` options, so a
+schedule may vary them from stage to stage.  All three default to what E3SM
+runs, and a stage that says nothing keeps that.  Varying them is a real thing to
+want — `use_KPP: false` for the earliest, most heavily damped stages, say, where
+the boundary-layer scheme is mixing a surface layer that the damping is still
+holding down — but no shipped schedule does, so treat it as untried rather than
+merely unused.
+
+:::{note}
+`use_KPP` applies to both models.  The other two have no Omega counterpart, so
+a schedule that sets them is describing an MPAS-Ocean run.  Unlike `damping`,
+they do not raise for Omega; they are simply not translated, and an Omega run
+proceeds without them.
+:::
+
 :::{warning}
 Rayleigh damping is MPAS-Ocean only.  Omega has no equivalent
 ([Omega#495](https://github.com/E3SM-Project/Omega/issues/495)), so a stage that
