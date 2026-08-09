@@ -201,8 +201,8 @@ class VizDynamicAdjustmentStep(Step):
         origin = self.stages[0].start_time if self.stages else None
         stage_data = []
         for stage in self.stages:
-            path = stage_stats_path(stage.name, model)
-            if path is None or not os.path.exists(path):
+            path = stage_stats_path(stage, model)
+            if not os.path.exists(path):
                 self.logger.info(
                     f'Stage {stage.name!r} wrote no statistics; skipping it.'
                 )
