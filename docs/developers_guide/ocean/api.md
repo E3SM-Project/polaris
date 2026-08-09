@@ -500,6 +500,7 @@
    :toctree: generated/
 
    tasks.add_realistic_global_forward_tasks
+   tasks.add_realistic_global_cached_forward_tasks
 
    task.RealisticGlobalForward
 

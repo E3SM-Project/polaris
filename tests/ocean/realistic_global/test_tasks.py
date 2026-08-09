@@ -1,3 +1,4 @@
+from polaris.config import PolarisConfigParser
 from polaris.mesh.base import get_base_mesh_step_names
 from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
 from polaris.tasks.ocean import Ocean
@@ -5,6 +6,11 @@ from polaris.tasks.ocean.realistic_global import add_realistic_global_tasks
 from polaris.tasks.ocean.realistic_global.forward import (
     DatabaseInitialCondition,
     RealisticGlobalForward,
+)
+from polaris.tasks.ocean.realistic_global.forward.tasks import CACHED_MESHES
+from polaris.tasks.ocean.realistic_global.mesh_configs import (
+    add_realistic_global_mesh_config,
+    get_realistic_global_mesh_config,
 )
 
 
@@ -116,6 +122,56 @@ def test_realistic_global_forward_icos240km_steps():
     assert task.steps['initial_state'].subdir == (
         'spherical/realistic_global/icos240km/init/initial_state'
     )
+
+
+def test_add_realistic_global_tasks_registers_cached_forward():
+    """
+    The cached tasks are the cheap members of the family: no init chain, so
+    they can run without remapping WOA23 first.  They sit beside the
+    init-chain task on the same mesh name, which is why the directory differs.
+    """
+    component = Ocean()
+    add_realistic_global_tasks(component=component)
+
+    for mesh_name in CACHED_MESHES:
+        task_subdir = (
+            f'spherical/realistic_global/{mesh_name}/cached_forward/task'
+        )
+        assert task_subdir in component.tasks, (
+            f'Expected cached forward task for mesh={mesh_name!r} not found'
+        )
+        task = component.tasks[task_subdir]
+        assert list(task.steps) == ['short', 'global_stats', 'viz']
+        assert task.steps_to_run == ['short']
+
+
+def test_cached_meshes_have_a_per_mesh_config():
+    """
+    The cached initial conditions were tuned with an explicit time step and
+    run duration.  Without a per-mesh config the task would silently fall back
+    to the shared defaults, which are scaled from a mesh minimum resolution
+    these meshes do not report.
+    """
+    section = 'realistic_global_forward'
+    for mesh_name, mesh_info in CACHED_MESHES.items():
+        assert get_realistic_global_mesh_config(mesh_name) is not None, (
+            f'No per-mesh config for mesh={mesh_name!r}'
+        )
+        # build the config the way the task does, so the assertions are about
+        # what the run actually sees
+        config = PolarisConfigParser()
+        config.add_from_package(
+            'polaris.tasks.ocean.realistic_global.forward',
+            'realistic_global_forward.cfg',
+        )
+        assert add_realistic_global_mesh_config(config, mesh_name)
+        config.combine()
+        assert config.get(section, 'dt').strip()
+        assert config.get(section, 'run_duration').strip()
+        # both models advance the same way, so the comparison is like for like
+        assert config.get(section, 'mpaso_time_integrator').strip() == 'RK4'
+        assert config.get(section, 'omega_time_integrator').strip() == 'RK4'
+        assert mesh_info['cell_count'] > 0
 
 
 def test_realistic_global_forward_without_init_steps():
