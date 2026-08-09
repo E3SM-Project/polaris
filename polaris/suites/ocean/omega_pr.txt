@@ -17,6 +17,7 @@ ocean/planar/seamount/linear/zstar/short
 ocean/planar/seamount/nonlinear/sigma/short
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
+ocean/spherical/realistic_global/QU.240km/cached_forward/task
 
 # Supported but fails
 #ocean/planar/barotropic_channel/default
