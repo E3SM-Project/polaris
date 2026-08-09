@@ -45,6 +45,9 @@ def _forward_config(**overrides):
         GM_closure='',
         GM_constant_kappa='',
         use_Redi='True',
+        use_KPP='True',
+        use_submesoscale='True',
+        pressure_gradient_type='Jacobian_from_TS',
         use_frazil_ice_formation='False',
         start_time='0001-01-01_00:00:00',
     )
@@ -455,6 +458,28 @@ def test_mpaso_physics_options_gm_settings_only_when_gm_is_on():
     assert not options['config_use_GM']
     assert 'config_GM_closure' not in options
     assert 'config_GM_constant_kappa' not in options
+
+
+def test_mpaso_only_physics_is_always_stated():
+    """
+    The KPP boundary layer and the submesoscale parameterization are stated
+    either way rather than only when on, so that turning them off in a user or
+    per-mesh config undoes a default that turned them on.  The pressure
+    gradient is the exception: a blank value means "leave the model default".
+    """
+    on = ForwardStage(
+        use_KPP=True,
+        use_submesoscale=True,
+        pressure_gradient_type='Jacobian_from_TS',
+    ).mpaso_physics_options()
+    assert on['config_use_cvmix_kpp']
+    assert on['config_submesoscale_enable']
+    assert on['config_pressure_gradient_type'] == 'Jacobian_from_TS'
+
+    off = ForwardStage().mpaso_physics_options()
+    assert off['config_use_cvmix_kpp'] is False
+    assert off['config_submesoscale_enable'] is False
+    assert 'config_pressure_gradient_type' not in off
 
 
 def test_mpaso_physics_options_rejects_unknown_hmix_scaling():
