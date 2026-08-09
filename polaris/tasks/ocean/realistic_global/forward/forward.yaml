@@ -100,6 +100,14 @@ mpas-ocean:
             - layerThickness
             - kineticEnergyCell
             - relativeVorticityCell
+            # counterparts to what the Omega History stream below writes, so
+            # that the two models can be compared on the same fields.  ssh is
+            # mapped to Omega's SshCell in mpaso_to_omega.yaml, so
+            # open_model_dataset gives both models the same name; density has
+            # no Omega counterpart in the map, since Omega carries the
+            # specific volume instead.
+            - ssh
+            - density
         # a stream of its own, so the scalar time series stays out of the 3-D
         # output and has an obvious counterpart on the Omega side.
         # filename_template overrides the registry default of yearly files
