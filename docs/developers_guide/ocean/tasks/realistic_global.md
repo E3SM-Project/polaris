@@ -172,8 +172,12 @@ This step normalizes two differences between the models:
   Omega treats the name as a prefix and builds the real one from the analysis
   period and the kind of output: `global_stats_1DayInstants` for daily
   instantaneous samples, or `..._1DayTimeStats` had a temporal reduction been
-  asked for.  The input file is therefore selected in `setup()`, once the
-  model and the period are known.
+  asked for.  Both names come from
+  {py:meth}`polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename`,
+  which lives on the stage because the period does; this step only asks it, in
+  `setup()`, once the model is known.  Anything else that reads a stage's
+  statistics asks the same question the same way, so the two cannot drift
+  apart.
 - **Standard deviation.** Omega writes the standard deviation directly in its
   `Rms` field, while MPAS-Ocean writes a true root-mean-square, so the
   standard deviation is recovered as
