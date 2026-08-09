@@ -617,6 +617,60 @@ def test_schedule_overrides_a_config_option(tmp_path):
     assert stage.mom_del4 == pytest.approx(1.2e11)
 
 
+def test_schedule_can_set_the_mpaso_only_physics(tmp_path):
+    """
+    The boundary layer, the submesoscale parameterization and the pressure
+    gradient became config options when the forward runs grew a second
+    purpose, which makes them stage options here for free: the schedule
+    vocabulary is the ForwardStage fields.
+
+    "For free" is the reason to test it.  Nothing in this package mentions
+    these three, so a change upstream that renamed or removed one would show
+    up only as a schedule key that silently stopped applying, and nothing here
+    would notice.  A stage that turns the boundary layer off is also a
+    plausible thing to want: KPP is what makes an early, heavily damped stage
+    mix its surface layer.
+    """
+    config = _config_for_schedule(
+        tmp_path,
+        """
+        dynamic_adjustment:
+          stages:
+            only_stage:
+              run_duration: 1_00:00:00
+              use_KPP: false
+              use_submesoscale: false
+              pressure_gradient_type: pressure_and_zmid
+        """,
+    )
+    stage = load_schedule_stages('icos240km', config)[0]
+    assert stage.use_KPP is False
+    assert stage.use_submesoscale is False
+    assert stage.pressure_gradient_type == 'pressure_and_zmid'
+
+    options = stage.mpaso_physics_options()
+    assert options['config_use_cvmix_kpp'] is False
+    assert options['config_submesoscale_enable'] is False
+    assert options['config_pressure_gradient_type'] == 'pressure_and_zmid'
+
+    # a stage that says nothing about them keeps the E3SM-like config defaults
+    default = load_schedule_stages(
+        'icos240km',
+        _config_for_schedule(
+            tmp_path,
+            """
+            dynamic_adjustment:
+              stages:
+                only_stage:
+                  run_duration: 1_00:00:00
+            """,
+        ),
+    )[0]
+    assert default.use_KPP is True
+    assert default.use_submesoscale is True
+    assert default.pressure_gradient_type == 'Jacobian_from_TS'
+
+
 def test_blank_schedule_value_clears_an_optional_field(tmp_path):
     config = _config_for_schedule(
         tmp_path,
