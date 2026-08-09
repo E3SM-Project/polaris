@@ -38,10 +38,111 @@ The config options for these tasks are described in
 {ref}`ocean-realistic-global` in the User's Guide.  The shared colormap
 options for the `viz` step live in `realistic_global.cfg`.
 
-The `forward` and `cached_forward` tasks are built from the same steps in
-`realistic_global.forward`, differing only in the
+(dev-ocean-realistic-global-forward)=
+
+## forward
+
+The `realistic_global.forward` package holds one forward-run capability that
+both the `forward` and `cached_forward` tasks are built from.  They differ in
+one argument: the
 {py:class}`~polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition`
-they are given; the two steps below are the diagnostics both of them carry.
+they are given.  Everything else — the step, the model config, the diagnostics
+— is shared.  Why the two are configured differently is a question about
+purpose rather than code; see
+{ref}`ocean-realistic-global-forward-purposes` in the User's Guide.
+
+The package is deliberately split three ways, so that adding a new source of
+initial condition, a new run setting, or a new consumer each touches one place:
+
+| module | answers |
+|---|---|
+| `initial_condition.py` | *where do the model input files come from?* |
+| `stage.py` | *what settings does this run use?* |
+| `forward.py` | *run the model* |
+
+### Forward
+
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.forward.Forward` is an
+{py:class}`~polaris.ocean.model.OceanModelStep` that defers both of those
+questions rather than answering them itself.
+
+`setup()` asks the initial condition to add its input files *before* calling
+the base class, so that `OceanModelStep` sees a finalized `graph_target` and
+input list.  A step whose graph comes from the input-file database rather than
+an upstream work directory leaves `graph_target` unset and adds `graph.info`
+itself; see {py:meth}`~polaris.ocean.model.OceanModelStep.setup`.
+
+`compute_cell_count()` reads `nCells` from the mesh once it exists, and before
+that falls back to the initial condition's `approx_cell_count`.  Both are
+needed: resources are sized during setup, when an initial condition built by
+the `init` workflow has not been produced yet.
+
+`dynamic_model_config()` is the single place where model-agnostic settings
+become model-facing ones.  It renders `forward.yaml` from the stage, always
+adds `forcing.yaml` (every realistic global forward run is wind-forced, and
+there is no option to turn that off), adds `forcing_streams.yaml` when the
+initial condition stages a file for it, and applies the horizontal-mixing
+options in MPAS-Ocean naming so that `mpaso_to_omega.yaml` translates them.
+
+### ForwardStage
+
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage` is
+a dataclass of model-agnostic run settings — durations, cadences, time steps,
+damping, mixing and the physics switches — built from a
+`[realistic_global_forward]` config section by
+{py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.from_config`.
+
+A simple forward run uses one.  It is a *stage* rather than a *config* because
+a multi-stage workflow such as dynamic adjustment builds a sequence of them and
+sets the restart fields to chain one into the next; the step supports that
+already even though nothing here uses it yet.
+
+{py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.model_replacements`
+maps a stage onto template replacements, and is where the two models diverge:
+the time integrator is chosen per model, the time step follows from that
+choice, and a non-split integrator has to advance on the short barotropic step.
+The MPAS-Ocean-only physics is separated into
+{py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.mpaso_physics_options`
+from the options both models share in
+{py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.horiz_mixing_options`.
+
+An unsupported `omega_time_integrator`, and a `damping` Omega cannot honor, are
+errors at run time rather than at setup, so that a task can be set up and the
+config changed before it is run.
+
+### InitialCondition
+
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition`
+is the abstraction the whole package is arranged around.  It knows where the
+model input files come from, and the forward step asks rather than deciding.
+
+- {py:class}`~polaris.tasks.ocean.realistic_global.forward.initial_condition.StepInitialCondition`
+  links the mesh, vertical coordinate, initial state and forcing from the
+  `init` workflow's step directories, and reuses the graph it already built.
+  It links the initial state only when the run reads one, since a stage
+  continuing from a restart does not.
+- {py:class}`~polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition`
+  downloads a single cached file that supplies everything at once, plus a
+  prebuilt graph for MPAS-Ocean.
+
+`get_forcing_filename()` is what lets both work through one mechanism: a source
+that stages a forcing file names it, and a source whose wind stress travels
+inside the initial condition names that file instead, so the forcing streams
+are pointed at the right place without the step knowing which case it is in.
+
+### the model config files
+
+| file | what it does |
+|---|---|
+| `forward.yaml` | a Jinja2 template: time management, time step, output/restart/statistics streams |
+| `forcing.yaml` | turns wind forcing on; always added |
+| `forcing_streams.yaml` | points each model's forcing stream at the staged file; added only when one is staged |
+| `restart_streams.yaml` | the restart read/write side; added only for a stage in a restart chain |
+
+`forward.yaml`'s `ocean:` section is model-neutral and reaches Omega through
+`mpaso_to_omega.yaml`; a unit test checks that every option in it has an Omega
+counterpart, since an unmapped option only warns and would silently give the
+two models different physics.
 
 ### viz
 
