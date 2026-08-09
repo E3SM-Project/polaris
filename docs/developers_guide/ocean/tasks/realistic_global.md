@@ -3,7 +3,7 @@
 # realistic_global
 
 The `realistic_global` tasks in `polaris.tasks.ocean.realistic_global` use
-realistic global ocean meshes, bathymetry and forcing.  They fall into four
+realistic global ocean meshes, bathymetry and forcing.  They fall into five
 groups:
 
 - `hydrography/woa23`, a mesh-independent preprocessing task that builds a
@@ -13,18 +13,22 @@ groups:
   wind-stress product from JRA55-do 10-m winds.
 - `init`, which creates mesh-specific ocean initial conditions using that
   hydrography and forcing together with the culled mesh from `e3sm/init`.
-- `analysis_members`, short forward runs on realistic global meshes that
-  exercise the global-statistics analysis member in both MPAS-Ocean and Omega.
+- `forward`, short forward runs on the meshes `init` builds.
+- `cached_forward`, the same forward runs on initial conditions downloaded from
+  the Polaris input database instead.
 
 Tasks are added to the ocean component by
 {py:func}`polaris.tasks.ocean.realistic_global.add_realistic_global_tasks`,
-which registers the `woa23` and `jra55` tasks, one `init` task per MPAS mesh,
-and one `analysis_members` task per mesh in its `mesh_dict`.  Adding a new mesh
-to `analysis_members` requires only a new entry in that dictionary giving the
-MPAS-Ocean and Omega initial-condition IDs and the cell count, plus a matching
-entry in the `mesh_info` dictionary in
-{py:class}`polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers`
-giving the time step and run duration.
+which registers the `woa23` and `jra55` tasks, one `init` and one `forward`
+task per MPAS mesh, and one `cached_forward` task per mesh in
+{py:data}`polaris.tasks.ocean.realistic_global.forward.tasks.CACHED_MESHES`.
+Adding a cached mesh requires an entry in that dictionary giving the
+MPAS-Ocean and Omega initial-condition IDs, the minimum resolution and the
+cell count, plus a `<mesh_name>.cfg` in `mesh_configs` giving the time step and
+run duration.
+
+The two kinds of forward task serve different purposes, which is what decides
+their physics; see {ref}`ocean-realistic-global-forward` in the User's Guide.
 
 (dev-ocean-realistic-global-framework)=
 
@@ -32,43 +36,12 @@ giving the time step and run duration.
 
 The config options for these tasks are described in
 {ref}`ocean-realistic-global` in the User's Guide.  The shared colormap
-options for the `viz` step live in `realistic_global.cfg`, while the
-`analysis_members` tasks add `analysis_members.cfg`.
+options for the `viz` step live in `realistic_global.cfg`.
 
-### forward
-
-The class
-{py:class}`polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward`
-is a shared {py:class}`polaris.ocean.model.OceanModelStep` used by the
-`analysis_members` tasks.  Unlike most Polaris forward steps, it does not
-build its own mesh and initial condition; instead it downloads cached,
-model-specific files from the `realistic_global` section of the Polaris input
-database.
-
-Because the file layout differs between the two models, the input files are
-added in `setup()` rather than `__init__()`, once `config` is available and
-the target model is known:
-
-- For Omega, a single file is linked three times, as `mesh.nc`,
-  `vert_coord.nc` and `init.nc`, because a single file contains the converted
-  mesh, initial condition, and vertical coordinate from MPAS-Ocean.
-- For MPAS-Ocean, a `zerovel` file is linked as both `mesh.nc` and `init.nc`,
-  and the `time_integrator` template replacement is rewritten from
-  `RungeKutta4` to MPAS-Ocean's `RK4`.
-
-`setup()` also renders `forward.yaml` with the template replacements supplied
-by the task, so the time step, run duration and output interval can be varied
-per mesh.
-
-The helper `_make_restart_dir()` creates the `restart/` directory that
-Omega's `RestartWrite` stream writes into.  Omega does not create this
-directory itself, so without it the restart write fails at the end of the run.
-It is called from both `setup()` and `runtime_setup()` so the directory exists
-whether or not setup and run happen in the same invocation.  MPAS-Ocean needs
-no equivalent because the MPAS framework creates stream directories itself.
-
-`compute_cell_count()` returns the cell count passed in by the task rather
-than reading the mesh, since the mesh is not available at setup time.
+The `forward` and `cached_forward` tasks are built from the same steps in
+`realistic_global.forward`, differing only in the
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition`
+they are given; the two steps below are the diagnostics both of them carry.
 
 ### viz
 
@@ -83,20 +56,6 @@ variables comes from the ocean component's `state_vars`, with
 lives on edges and is not directly plottable as a cell field.  Variables
 missing from a given file are logged and skipped, so the step does not fail
 when a model writes a different subset of fields.
-
-(dev-ocean-realistic-global-analysis-members)=
-
-## analysis_members
-
-The {py:class}`polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers`
-task runs the ocean model with the global-statistics analysis member enabled
-and plots the resulting time series.  It contains a `forward` step, a
-`global_stats` step and a `viz` step; only `forward` runs by default.
-
-Each task builds its own {py:class}`polaris.config.PolarisConfigParser` from
-`realistic_global.cfg` and `analysis_members.cfg` and shares it with all three
-steps, so that a user editing the config file in the task work directory
-affects the whole task.
 
 ### global_stats
 
@@ -371,7 +330,7 @@ Colormaps come from the shared viz defaults in
 variable gets the same colormap everywhere it is plotted; none are named in
 the plotting code.  The limits, by contrast, are computed per plot from the
 data range and written into `[realistic_global_init_viz]` just before each
-call.  That is deliberate and differs from the `analysis_members` `viz` step,
+call.  That is deliberate and differs from the forward `viz` step,
 which reads fixed limits from `realistic_global.cfg`: fixed limits are what
 you want to compare runs or times against each other, and the data range is
 what you want when the question is whether a brand-new initial condition is
