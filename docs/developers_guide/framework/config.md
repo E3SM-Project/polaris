@@ -181,6 +181,48 @@ class Rpe(Task):
                      indir=self.subdir))
 ```
 
+(dev-component-config)=
+
+## Where a task's or step's config options come from
+
+Every config parser belongs to exactly one component, and gets that
+component's config options and nothing else from any other component.
+
+During setup, polaris builds a config parser for each component **in use** --
+the component that owns the tasks being set up, the components that own steps
+in those tasks and the components of any dependencies of those steps
+({py:func}`polaris.component_graph.get_components_in_use()`).  A component's
+config parser is made up of:
+
+1. the config options for the machine and the command line
+   (`polaris/default.cfg`, the machine config files, a config file passed with
+   `-f` and options like `-p`)
+2. the component's own config file, `polaris/<component>/<component>.cfg`
+3. whatever the component's
+   {py:meth}`polaris.Component.configure()` method adds, such as the ocean's
+   `mpas_ocean.cfg` or `omega.cfg`
+
+That config parser is then prepended to the config parser of each task and
+shared step the component owns, so a task's or step's own config files always
+take precedence over the component's.
+
+This means that a shared step gets the config options of **its own**
+component, not those of the component that owns the task that includes it.  A
+shared ocean step gets the ocean's config options whether it was set up as
+part of an ocean task or as part of an `e3sm/init` task, so a step behaves the
+same however it was reached.  Two rules follow, and setup raises if either is
+broken:
+
+- a step from a component other than its task's must be a shared step with a
+  shared config file, since a step without one would get its config options
+  from the task, and so from the wrong component
+- a shared config file must be used by steps from only one component, since it
+  is that component's config options it will be given
+
+The suite's config file (`polaris/suites/<component>/<suite>.cfg`) is not part
+of any of this.  It applies only to the suite's job script, so that a task or
+step behaves the same whether or not it was set up as part of a suite.
+
 ## Comments in config files
 
 One of the main advantages of {py:class}`tranche.Tranche`

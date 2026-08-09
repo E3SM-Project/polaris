@@ -92,11 +92,16 @@ The command-line options are:
 
 ```none
 $ polaris setup --help
-usage: polaris setup [-h] [-t PATH [PATH ...]] [-n NUM [NUM ...]] [-f FILE] [-m MACH] -w
-                     PATH [-b PATH] [-p PATH] [--suite_name SUITE]
-                     [--cached STEP [STEP ...]] [--free_running STEP [STEP ...]] [--copy_executable] [--clean_tasks]
-                     [--model MODEL] [--build] [--branch BRANCH] [--clean_build]
-                     [--quiet_build] [--cmake_flags CMAKE_FLAGS] [--debug]
+usage: polaris setup [-h] [-t PATH [PATH ...]] [-n NUM [NUM ...]] [-f FILE]
+                     [-m MACH] -w PATH [-b PATH] [-p PATH]
+                     [--suite_name SUITE] [--cached STEP [STEP ...]]
+                     [--free_running STEP [STEP ...]] [--copy_executable]
+                     [--clean_tasks] [--model MODEL] [--build]
+                     [--branch BRANCH] [--clean_build] [--quiet_build]
+                     [--cmake_flags CMAKE_FLAGS] [--debug]
+                     [--ocean_model OCEAN_MODEL] [--ocean_path PATH]
+                     [--ocean_branch PATH] [--seaice_model SEAICE_MODEL]
+                     [--seaice_path PATH] [--seaice_branch PATH]
 
 ```
 
@@ -127,9 +132,26 @@ The default for the `landice` component is
 `e3sm_submodules/MALI-Dev/components/mpas-albany-landice`.
 For the `ocean` component, the default value of `component_path` comes from the
 ocean configuration file; by default, both MPAS-Ocean and Omega use the
-`build` subdirectory of the base work directory supplied with `-w`.  If you
-use MPAS-Ocean or Omega in a different location, supply that directory
+`ocean_build` subdirectory of the base work directory supplied with `-w`.  If
+you use MPAS-Ocean or Omega in a different location, supply that directory
 explicitly with `-p` or via a config file.
+
+`-p`, `--model` and `--branch` apply to the component that owns the tasks you
+are setting up.  A task may also include shared steps from another component,
+and that component may have a model of its own to find or build.  Each
+component with a model has its own flags for this:
+
+```bash
+polaris setup -t e3sm/init/<mesh>/component_inputs/tasks/all \
+  -m $MACHINE -w $WORKDIR --ocean_path $OCEAN_BUILD
+```
+
+The available flags are `--<component>_model`, `--<component>_path` and
+`--<component>_branch` (`--ocean_model`, `--seaice_path` and so on); a `/` in
+a component name becomes `_`.  If the component that owns the tasks has no
+model of its own, as `e3sm/init` does not, `-p`, `--model` and `--branch` have
+nothing to apply to and polaris raises an error naming the flags to use
+instead.
 
 When `-p` is provided for the `ocean` component, Polaris first checks whether
 the component executable and required files are already present in that
@@ -220,9 +242,10 @@ The following flags give additional control over this behavior:
 
 Defaults and paths:
 
-- Build output directory (`-p`/`--component_path`) defaults to the `build`
-  subdirectory of the base work directory you pass with `-w` for both
-  MPAS-Ocean and Omega.
+- Build output directory (`-p`/`--component_path`) defaults to the
+  `ocean_build` subdirectory of the base work directory you pass with `-w` for
+  both MPAS-Ocean and Omega.  It is named after the component so that two
+  components in the same work directory do not build over one another.
 - Generated build scripts are saved to:
    - Omega: `./build_omega/build_omega_<machine>_<compiler>.sh`
    - MPAS-Ocean: `./build_mpas_ocean/build_mpas_ocean_<machine>_<compiler>_<mpi>.sh`
@@ -264,8 +287,12 @@ options are:
 $ polaris suite --help
 usage: polaris suite [-h] -c COMPONENT -t SUITE [-f FILE] [-m MACH] [-b PATH]
                      -w PATH [-p PATH] [--copy_executable] [--clean_tasks]
-                     [--model MODEL] [--build] [--branch BRANCH] [--clean_build]
-                     [--quiet_build] [--cmake_flags CMAKE_FLAGS] [--debug]
+                     [--model MODEL] [--build] [--branch BRANCH]
+                     [--clean_build] [--quiet_build]
+                     [--cmake_flags CMAKE_FLAGS] [--debug]
+                     [--ocean_model OCEAN_MODEL] [--ocean_path PATH]
+                     [--ocean_branch PATH] [--seaice_model SEAICE_MODEL]
+                     [--seaice_path PATH] [--seaice_branch PATH]
 ```
 
 The `-h` or `--help` options will display the help message describing the
