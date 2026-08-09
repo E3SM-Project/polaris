@@ -44,20 +44,20 @@ mpas-ocean:
         config_start_time: '{{ start_time }}'
     time_integration:
         config_btr_dt: {{ btr_dt }}
-    # MPAS-Ocean is configured the way it runs in E3SM rather than to match
-    # Omega: these options have no Omega counterpart.
     eos:
         config_eos_type: jm
-    pressure_gradient:
-        config_pressure_gradient_type: Jacobian_from_TS
     cvmix:
-        config_use_cvmix_kpp: true
+        # Omega implements only the LMD94 shear form, which CVMix calls KPP, so
+        # there is no counterpart option to translate; MPAS-Ocean defaults to
+        # 'PP'.  This is the shear scheme, not the boundary layer, which is
+        # config_use_cvmix_kpp and comes from config.
         config_cvmix_shear_mixing_scheme: KPP
-    submesoscale_eddy_parameterization:
-        # on as in E3SM and in the Compass global_ocean tests; the MPAS-Ocean
-        # Registry default is off.  Omega has no submesoscale parameterization,
-        # so this is one of the places the two models necessarily differ.
-        config_submesoscale_enable: true
+    # The boundary layer, the submesoscale parameterization and the pressure
+    # gradient are config options rather than fixed values here, because the
+    # two purposes this step serves want different answers: an E3SM-like run on
+    # a unified mesh wants all of them, and a run whose point is to compare
+    # MPAS-Ocean with Omega wants only what Omega also has.  See
+    # ForwardStage.mpaso_physics_options.
     Redi_isopycnal_mixing:
         # the Registry default of 6 skips the Redi diagnostic terms in the top
         # 6 layers; Compass computes them everywhere, and matching it keeps the

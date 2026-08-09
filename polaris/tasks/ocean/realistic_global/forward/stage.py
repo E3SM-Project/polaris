@@ -162,6 +162,22 @@ class ForwardStage:
     use_Redi : bool
         Whether to use Redi isopycnal mixing.
 
+    use_KPP : bool
+        Whether to use the CVMix KPP boundary-layer scheme.  MPAS-Ocean only;
+        Omega has no boundary-layer scheme at all, so a run meant to be
+        comparable with Omega turns this off.
+
+    use_submesoscale : bool
+        Whether to use the submesoscale eddy parameterization.  MPAS-Ocean
+        only, and on as in E3SM rather than at the MPAS-Ocean Registry default
+        of off.
+
+    pressure_gradient_type : str or None
+        The MPAS-Ocean horizontal pressure gradient formulation; ``None``
+        leaves the Registry default of ``pressure_and_zmid``, which is the
+        ordinary counterpart to Omega's ``Centered``.  ``Jacobian_from_TS`` is
+        how E3SM runs and has no Omega equivalent.
+
     use_frazil_ice_formation : bool
         Whether to form frazil ice.
 
@@ -210,6 +226,9 @@ class ForwardStage:
     GM_closure: Optional[str] = None
     GM_constant_kappa: Optional[float] = None
     use_Redi: bool = False
+    use_KPP: bool = False
+    use_submesoscale: bool = False
+    pressure_gradient_type: Optional[str] = None
     use_frazil_ice_formation: bool = False
     do_restart: bool = False
     start_time: str = '0001-01-01_00:00:00'
@@ -279,6 +298,11 @@ class ForwardStage:
             GM_closure=_opt_str(config, section, 'GM_closure'),
             GM_constant_kappa=_opt_float(config, section, 'GM_constant_kappa'),
             use_Redi=config.getboolean(section, 'use_Redi'),
+            use_KPP=config.getboolean(section, 'use_KPP'),
+            use_submesoscale=config.getboolean(section, 'use_submesoscale'),
+            pressure_gradient_type=_opt_str(
+                config, section, 'pressure_gradient_type'
+            ),
             use_frazil_ice_formation=config.getboolean(
                 section, 'use_frazil_ice_formation'
             ),
@@ -516,9 +540,16 @@ class ForwardStage:
         Physics options that only MPAS-Ocean has.
 
         The Leith closure, the horizontal-mixing scaling, the del4 divergence
-        factor, Gent-McWilliams, Redi and frazil ice have no Omega equivalent,
-        and GM and Redi are not expected to gain one, so these are applied with
-        ``config_model='mpas-ocean'``.
+        factor, Gent-McWilliams, Redi, the KPP boundary layer, the
+        submesoscale parameterization, the pressure-gradient formulation and
+        frazil ice have no Omega equivalent, and GM and Redi are not expected
+        to gain one, so these are applied with ``config_model='mpas-ocean'``.
+
+        Whether they are wanted depends on what the run is for.  A forward run
+        on a unified mesh is testing that mesh in E3SM, so it runs E3SM's
+        physics; a run on a cached initial condition exists to compare
+        MPAS-Ocean with Omega, so anything Omega lacks only makes the two runs
+        less comparable.  Both switches live in config rather than here.
 
         Returns
         -------
@@ -529,8 +560,14 @@ class ForwardStage:
             'config_use_Leith_del2': self.use_Leith_del2,
             'config_use_GM': self.use_GM,
             'config_use_Redi': self.use_Redi,
+            'config_use_cvmix_kpp': self.use_KPP,
+            'config_submesoscale_enable': self.use_submesoscale,
             'config_use_frazil_ice_formation': self.use_frazil_ice_formation,
         }
+        if self.pressure_gradient_type is not None:
+            options['config_pressure_gradient_type'] = (
+                self.pressure_gradient_type
+            )
 
         _check_hmix_scaling(self.hmix_scaling)
         # both flags every time, so that turning scaling off in a user config

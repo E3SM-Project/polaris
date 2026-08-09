@@ -733,6 +733,21 @@ GM_constant_kappa =
 # Whether to use Redi isopycnal mixing.  MPAS-Ocean only; Omega has no Redi.
 use_Redi = True
 
+# Whether to use the CVMix KPP boundary-layer scheme.  MPAS-Ocean only; Omega
+# has no boundary-layer scheme at all.
+use_KPP = True
+
+# Whether to use the submesoscale eddy parameterization.  MPAS-Ocean only.  On
+# as in E3SM and in the Compass global_ocean tests; the MPAS-Ocean Registry
+# default is off.
+use_submesoscale = True
+
+# The MPAS-Ocean horizontal pressure gradient formulation.  Leave blank for the
+# Registry default of pressure_and_zmid, which is the ordinary counterpart to
+# Omega's Centered.  Jacobian_from_TS is how E3SM runs and has no Omega
+# equivalent.
+pressure_gradient_type = Jacobian_from_TS
+
 # Whether to form frazil ice.  MPAS-Ocean only.
 use_frazil_ice_formation = False
 
