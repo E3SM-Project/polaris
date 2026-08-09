@@ -624,6 +624,32 @@ def test_forcing_streams_yaml_points_at_the_staged_file(
     assert stream[filename_option] == 'custom_forcing.nc'
 
 
+def test_omega_forcing_stream_is_actually_read():
+    """
+    Omega's Default.yml gives the Forcing stream ``FreqUnits: Never``, which
+    does not mean "read on demand": ``IOStream::create`` returns early for
+    'never' and never registers the stream, and ``Forcing`` then falls back to
+    zero forcing with only an info-level log line.  The run completes, looks
+    fine, and is unforced.
+
+    Every realistic_global forward run is wind-forced, so this must not be
+    inherited.  ``OnStartup`` registers the stream and reads it before the
+    first step.
+    """
+    yaml = PolarisYaml.read(
+        filename='forcing_streams.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        replacements=dict(forcing_filename='forcing.nc'),
+        model='Omega',
+        streams_section='IOStreams',
+    )
+    freq_units = yaml.streams['Forcing']['FreqUnits']
+    assert freq_units.lower() != 'never', (
+        'FreqUnits: Never makes Omega skip the Forcing stream and run unforced'
+    )
+    assert freq_units == 'OnStartup'
+
+
 def _database_ic(**overrides) -> DatabaseInitialCondition:
     values: dict[str, Any] = dict(
         mesh_name='QU.240km',
