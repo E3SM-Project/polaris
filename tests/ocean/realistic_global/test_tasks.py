@@ -5,6 +5,7 @@ from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global import add_realistic_global_tasks
 from polaris.tasks.ocean.realistic_global.forward import (
     DatabaseInitialCondition,
+    ForwardStage,
     RealisticGlobalForward,
 )
 from polaris.tasks.ocean.realistic_global.forward.tasks import CACHED_MESHES
@@ -172,6 +173,59 @@ def test_cached_meshes_have_a_per_mesh_config():
         assert config.get(section, 'mpaso_time_integrator').strip() == 'RK4'
         assert config.get(section, 'omega_time_integrator').strip() == 'RK4'
         assert mesh_info['cell_count'] > 0
+
+
+def test_cached_meshes_turn_off_what_omega_lacks():
+    """
+    The cached tasks exist to compare MPAS-Ocean with Omega, so MPAS-Ocean
+    physics that Omega has no counterpart for only makes the two runs less
+    comparable.  The init-chain tasks are the opposite case: they test the
+    unified meshes in E3SM, so they want E3SM's physics.
+    """
+    section = 'realistic_global_forward'
+    mpaso_only = ['use_GM', 'use_Redi', 'use_KPP', 'use_submesoscale']
+
+    for mesh_name in CACHED_MESHES:
+        stage = _stage_for_mesh(mesh_name)
+        for option in mpaso_only:
+            assert not getattr(stage, option), (
+                f'{option} should be off on cached mesh {mesh_name!r}'
+            )
+        # blank leaves MPAS-Ocean's pressure_and_zmid, the counterpart to
+        # Omega's Centered; Jacobian_from_TS has no Omega equivalent
+        assert stage.pressure_gradient_type is None
+        options = stage.mpaso_physics_options()
+        assert not options['config_use_cvmix_kpp']
+        assert not options['config_submesoscale_enable']
+        assert 'config_pressure_gradient_type' not in options
+
+    # the defaults, which every init-chain mesh gets, are the E3SM-like ones
+    config = PolarisConfigParser()
+    config.add_from_package(
+        'polaris.tasks.ocean.realistic_global.forward',
+        'realistic_global_forward.cfg',
+    )
+    config.combine()
+    for option in mpaso_only:
+        assert config.getboolean(section, option), (
+            f'{option} should be on by default, for the E3SM-like runs'
+        )
+    assert (
+        config.get(section, 'pressure_gradient_type').strip()
+        == 'Jacobian_from_TS'
+    )
+
+
+def _stage_for_mesh(mesh_name):
+    """The ForwardStage a task on ``mesh_name`` would build."""
+    config = PolarisConfigParser()
+    config.add_from_package(
+        'polaris.tasks.ocean.realistic_global.forward',
+        'realistic_global_forward.cfg',
+    )
+    add_realistic_global_mesh_config(config, mesh_name)
+    config.combine()
+    return ForwardStage.from_config(config)
 
 
 def test_realistic_global_forward_without_init_steps():
