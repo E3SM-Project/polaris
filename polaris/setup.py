@@ -165,8 +165,6 @@ def setup_tasks(
         work_dir=work_dir,
     )
 
-    _add_suite_config(basic_config, component.name, suite_name)
-
     component.configure(basic_config, list(tasks.values()))
     set_parallel_systems(tasks, basic_config)
 
@@ -273,8 +271,11 @@ def setup_tasks(
         print(f'minimum gpus: {max_of_min_gpus}')
 
     if machine is not None:
+        suite_config = _get_suite_config(
+            basic_config, component.name, suite_name
+        )
         job_options = write_job_script(
-            config=basic_config,
+            config=suite_config,
             machine=machine,
             target_cores=max_cores,
             min_cores=max_of_min_cores,
@@ -1154,6 +1155,36 @@ def _check_pcd_version(basic_config, component):
 
     branch = basic_config.get('build', 'branch')
     check_pcd_version_matches_branch(branch=branch, model=model)
+
+
+def _get_suite_config(basic_config, component_name, suite_name):
+    """
+    Get a copy of ``basic_config`` with the suite's config options added.
+
+    The suite's config options are used only for the suite's job script.  They
+    must not be added to ``basic_config`` itself, because that would propagate
+    them to the config options of every task and step in the suite.
+
+    Parameters
+    ----------
+    basic_config : polaris.config.PolarisConfigParser
+        The config options for the machine and the command line
+
+    component_name : str
+        The name of the component that the suite belongs to
+
+    suite_name : str
+        The name of the suite, or ``'custom'`` if tasks are not being set
+        up as part of a suite
+
+    Returns
+    -------
+    suite_config : polaris.config.PolarisConfigParser
+        The config options to use for the suite's job script
+    """
+    suite_config = basic_config.copy()
+    _add_suite_config(suite_config, component_name, suite_name)
+    return suite_config
 
 
 def _add_suite_config(config, component_name, suite_name):
