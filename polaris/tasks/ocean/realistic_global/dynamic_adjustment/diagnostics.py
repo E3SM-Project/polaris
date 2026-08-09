@@ -44,14 +44,6 @@ from polaris.mpas.time import duration_to_seconds
 from polaris.ocean.model.time import get_days_since_start
 from polaris.tasks.ocean.realistic_global.forward.stage import ForwardStage
 
-# The global-statistics filename each model writes, as configured by
-# ``forward.yaml``.  Omega treats its ``Filename`` as a prefix and appends the
-# reduction period, with no ``.nc`` extension.
-STATS_FILENAMES = {
-    'mpas-ocean': 'global_stats.nc',
-    'omega': 'global_stats_1DayTimeStats',
-}
-
 
 @dataclass(frozen=True)
 class Metric:
@@ -530,44 +522,35 @@ def log_summary(
         logger.info(f'  {stage_name.ljust(stage_width)}{"".join(cells)}')
 
 
-def stats_filename_for_model(model: str) -> Optional[str]:
-    """
-    The global-statistics filename the given model writes, or ``None`` when the
-    model is not one this workflow knows about.
-
-    Parameters
-    ----------
-    model : str
-        The configured ocean model.
-
-    Returns
-    -------
-    str or None
-        The filename, without a directory.
-    """
-    return STATS_FILENAMES.get(model)
-
-
-def stage_stats_path(stage_name: str, model: str) -> Optional[str]:
+def stage_stats_path(stage: ForwardStage, model: str) -> str:
     """
     Where a stage's global-statistics file sits, relative to a sibling step's
     work directory.
 
+    The filename is the stage's own
+    :py:meth:`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename`,
+    so it cannot disagree with what the stage told the model to write.  It
+    takes the stage rather than its name because Omega's name depends on
+    ``stats_interval``, which only the stage knows.
+
+    A path is returned whether or not the file exists; the callers all have to
+    handle a stage that wrote no statistics anyway, since a stage shorter than
+    its statistics interval writes none.
+
     Parameters
     ----------
-    stage_name : str
-        The stage's name, which is also its work-directory name.
+    stage : ForwardStage
+        The stage, whose name is also its work-directory name.
 
     model : str
         The configured ocean model.
 
     Returns
     -------
-    str or None
-        The path, or ``None`` when the model has no known statistics file.
+    str
+        The path, relative to a sibling step's work directory.
     """
-    filename = stats_filename_for_model(model)
-    return None if filename is None else f'../{stage_name}/{filename}'
+    return f'../{stage.name}/{stage.stats_filename(model)}'
 
 
 def extreme_and_day(
