@@ -475,22 +475,6 @@
    Jra55VizStep.run
 ```
 
-### realistic_global.analysis_members
-
-```{eval-rst}
-.. currentmodule:: polaris.tasks.ocean.realistic_global.analysis_members
-
-.. autosummary::
-   :toctree: generated/
-
-   AnalysisMembers
-
-   forward.Forward
-   forward.Forward.setup
-   forward.Forward.runtime_setup
-   forward.Forward.compute_cell_count
-```
-
 ### realistic_global.forward
 
 ```{eval-rst}
