@@ -1,3 +1,5 @@
+import pytest
+
 from polaris.config import PolarisConfigParser
 from polaris.mesh.base import get_base_mesh_step_names
 from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
@@ -13,6 +15,7 @@ from polaris.tasks.ocean.realistic_global.mesh_configs import (
     add_realistic_global_mesh_config,
     get_realistic_global_mesh_config,
 )
+from polaris.yaml import PolarisYaml
 
 
 def test_add_realistic_global_tasks_registers_woa23():
@@ -214,6 +217,52 @@ def test_cached_meshes_turn_off_what_omega_lacks():
         config.get(section, 'pressure_gradient_type').strip()
         == 'Jacobian_from_TS'
     )
+
+
+@pytest.mark.parametrize('mesh_name', sorted(CACHED_MESHES))
+@pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
+def test_cached_forward_model_config_renders(mesh_name, model):
+    """
+    Render the model config a cached task would run with, for both models.
+
+    This is the closest a unit test gets to a `polaris setup` smoke check: it
+    exercises the whole chain from per-mesh config through ForwardStage to the
+    rendered yaml, without needing the cached initial condition to be
+    downloaded first.
+    """
+    stage = _stage_for_mesh(mesh_name)
+    replacements = stage.model_replacements(model, min_res=1.0)
+
+    # both models advance the same way, on the tuned step
+    assert replacements['dt'] == stage.dt
+    expected_integrator = 'RungeKutta4' if model == 'omega' else 'RK4'
+    assert replacements['time_integrator'] == expected_integrator
+    assert replacements['run_duration'] == stage.run_duration
+
+    yaml = PolarisYaml.read(
+        filename='forward.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        replacements=replacements,
+        model='Omega' if model == 'omega' else 'ocean',
+    )
+    if model == 'omega':
+        global_stats = yaml.configs['Analysis']['GlobalStats']
+        assert global_stats['SnapshotPeriod'] == [stage.stats_period()]
+        assert global_stats['ReductionPeriod'] == []
+    else:
+        # the physics with no Omega counterpart is off, so the two models are
+        # running as nearly the same configuration as they can
+        options = stage.mpaso_physics_options()
+        assert not options['config_use_GM']
+        assert not options['config_use_Redi']
+        assert not options['config_use_cvmix_kpp']
+        assert not options['config_submesoscale_enable']
+        assert 'config_pressure_gradient_type' not in options
+        # nothing in forward.yaml puts them back
+        for section in yaml.configs.values():
+            assert 'config_use_cvmix_kpp' not in section
+            assert 'config_submesoscale_enable' not in section
+            assert 'config_pressure_gradient_type' not in section
 
 
 def _stage_for_mesh(mesh_name):
