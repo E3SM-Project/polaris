@@ -1,4 +1,5 @@
 import datetime
+import importlib.resources as imp_res
 import logging
 import os
 import textwrap
@@ -9,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import xarray as xr
+from ruamel.yaml import YAML
 
 from polaris.config import PolarisConfigParser
 from polaris.mpas.time import duration_to_seconds
@@ -20,9 +22,9 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks import (
     check_temperature_max,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
-    STATS_FILENAMES,
     column_names,
     extreme_and_day,
+    stage_stats_path,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
     SECTION,
@@ -1376,26 +1378,49 @@ def test_validate_does_not_judge_the_kinetic_energy(tmp_path, monkeypatch):
 # --- per-stage diagnostics ---
 
 
+# Statistics Omega's GlobalStats does not report at all, as opposed to
+# reporting under another name.  A blank column for one of these is the
+# expected result, not a failure to find the file.
+OMEGA_UNREPORTED = (
+    'kineticEnergyCellMax',
+    'kineticEnergyCellAvg',
+    'kineticEnergyCellSum',
+    'volumeCellGlobal',
+    'CFLNumberGlobal',
+)
+
+
+def _omega_stats_names():
+    """
+    The Omega name for each MPAS-Ocean statistic, read from the map the code
+    under test reads it from.
+
+    Taking these from ``mpaso_to_omega.yaml`` rather than writing them out is
+    the point: when Omega's naming last moved -- daily reductions to
+    instantaneous snapshots -- a copy of the old names here made the tests
+    agree with each other and with nothing else.
+    """
+    return YAML(typ='rt').load(
+        imp_res.files('polaris.ocean.model')
+        .joinpath('mpaso_to_omega.yaml')
+        .read_text()
+    )['variables']
+
+
 def _write_stage_stats(directory, stage_name, model, **series):
     """
-    Write one stage's global-statistics file with the variable names the given
-    model would have used.
+    Write one stage's global-statistics file under the name and with the
+    variable names the given model would have used.
+
+    The stage is rebuilt with the default statistics interval, matching the
+    stages the steps under test are given; for Omega that interval is part of
+    the filename.
     """
     if model == 'omega':
+        var_map = _omega_stats_names()
         names = {
-            'kineticEnergyCellMax': None,  # Omega reports no kinetic energy
-            'kineticEnergyCellAvg': None,
-            'kineticEnergyCellSum': None,
-            'volumeCellGlobal': None,
-            'CFLNumberGlobal': None,
-            'temperatureMax': 'Temperature_SpatialMax_TimeMean1Day',
-            'temperatureMin': 'Temperature_SpatialMin_TimeMean1Day',
-            'temperatureAvg': 'Temperature_SpatialMean_TimeMean1Day',
-            'salinityMax': 'Salinity_SpatialMax_TimeMean1Day',
-            'salinityMin': 'Salinity_SpatialMin_TimeMean1Day',
-            'salinityAvg': 'Salinity_SpatialMean_TimeMean1Day',
-            'layerThicknessMin': 'PseudoThickness_SpatialMin_TimeMean1Day',
-            'normalVelocityMax': 'NormalVelocity_SpatialMax_TimeMean1Day',
+            key: None if key in OMEGA_UNREPORTED else var_map.get(key, key)
+            for key in series
         }
         time_dim = 'time'
     else:
@@ -1410,7 +1435,7 @@ def _write_stage_stats(directory, stage_name, model, **series):
         data[native] = ((time_dim,), np.array(values, dtype=float))
     stats_dir = directory / stage_name
     stats_dir.mkdir(parents=True, exist_ok=True)
-    filename = STATS_FILENAMES[model]
+    filename = ForwardStage(name=stage_name).stats_filename(model)
     xr.Dataset(data).to_netcdf(stats_dir / filename)
 
 
@@ -1551,6 +1576,34 @@ def test_diagnostics_leave_unreported_metrics_blank(tmp_path, monkeypatch):
     assert float(values['kinetic_energy_max']) == pytest.approx(5.0)
     # and what Omega does report still comes from the statistics
     assert float(values['temperature_max_in_stage']) == pytest.approx(30.0)
+
+
+def test_stats_path_follows_the_stage_for_omega():
+    """
+    Omega puts the statistics period in the filename, so two stages of the same
+    sequence that write statistics at different cadences write them to
+    different files.  The path therefore has to come from the stage, not from
+    the model alone -- the assumption that cost us a silent fallback to
+    output.nc when Omega moved from daily reductions to snapshots.
+    """
+    daily = ForwardStage(name='damped_1')
+    hourly = ForwardStage(name='damped_2', stats_interval='0000_01:00:00')
+
+    assert stage_stats_path(daily, 'omega') == (
+        '../damped_1/global_stats_1DayInstants'
+    )
+    assert stage_stats_path(hourly, 'omega') == (
+        '../damped_2/global_stats_1HourInstants'
+    )
+
+    # MPAS-Ocean's name does not move, which is why the Omega one moving is
+    # easy to miss
+    assert stage_stats_path(daily, 'mpas-ocean') == (
+        '../damped_1/global_stats.nc'
+    )
+    assert stage_stats_path(hourly, 'mpas-ocean') == (
+        '../damped_2/global_stats.nc'
+    )
 
 
 def test_diagnostics_fall_back_when_there_are_no_statistics(
