@@ -1022,8 +1022,8 @@ global statistics output and name it after the two, so
 `polaris.ocean.global_stats_names` builds the names rather than listing them.
 It is a leaf module for the same reason `sim_files` is, and it lives under
 `polaris.ocean` rather than under the analysis package because the
-`realistic_global` `analysis_members` task reads the same kind of output from
-a forward step in its own task.
+`global_stats` step of the `realistic_global` forward tasks reads the same
+kind of output from a forward step in its own task.
 
 Three things about it are worth knowing:
 
