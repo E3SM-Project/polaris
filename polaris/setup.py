@@ -9,6 +9,7 @@ from typing import Dict, List
 from polaris import Task, provenance
 from polaris.build.mpas_ocean import build_mpas_ocean
 from polaris.build.omega import build_omega
+from polaris.component_graph import get_components_in_use
 from polaris.config import PolarisConfigParser
 from polaris.constants.pcd import check_pcd_version_matches_branch
 from polaris.io import symlink
@@ -163,11 +164,13 @@ def setup_tasks(
         work_dir=work_dir,
     )
 
-    component_config = _get_component_config(
+    component_configs = _get_component_configs(
         basic_config=basic_config,
         component=component,
+        tasks=tasks,
         model=model,
     )
+    component_config = component_configs[component.name]
 
     component.configure(component_config, list(tasks.values()))
     set_parallel_systems(tasks, basic_config)
@@ -198,8 +201,7 @@ def setup_tasks(
         print('')
 
     _setup_configs(
-        component_config=component_config,
-        component=component,
+        component_configs=component_configs,
         tasks=tasks,
         work_dir=work_dir,
         copy_executable=copy_executable,
@@ -658,47 +660,52 @@ def _expand_and_mark_cached_steps(tasks, cached_steps):
 
 
 def _setup_configs(
-    component_config,
-    component,
+    component_configs,
     tasks,
     work_dir,
     copy_executable,
 ):
-    """Set up config parsers for this component"""
+    """Set up config parsers for each component in use"""
 
-    common_config = component_config.copy()
+    common_configs = dict()
+    for name, component_config in component_configs.items():
+        common_config = component_config.copy()
 
-    if copy_executable:
-        common_config.set('setup', 'copy_executable', 'True')
+        if copy_executable:
+            common_config.set('setup', 'copy_executable', 'True')
 
-    if 'POLARIS_BRANCH' in os.environ:
-        polaris_branch = os.environ['POLARIS_BRANCH']
-        common_config.set('paths', 'polaris_branch', polaris_branch)
-    else:
-        common_config.set('paths', 'polaris_branch', os.getcwd())
+        if 'POLARIS_BRANCH' in os.environ:
+            polaris_branch = os.environ['POLARIS_BRANCH']
+            common_config.set('paths', 'polaris_branch', polaris_branch)
+        else:
+            common_config.set('paths', 'polaris_branch', os.getcwd())
 
-    initial_configs = _add_task_configs(component, tasks, common_config)
+        common_configs[name] = common_config
+
+    initial_configs = _add_task_configs(tasks, common_configs)
 
     # okay, we're finally ready to configure all the tasks and add configs
     # to the "owned" steps
     configs = _configure_tasks_and_add_step_configs(
-        tasks, initial_configs, common_config
+        tasks, initial_configs, common_configs
     )
 
-    _write_configs(common_config, configs, component.name, work_dir)
+    _write_configs(common_configs, configs, work_dir)
 
     _symlink_configs(tasks, work_dir)
 
 
-def _add_task_configs(component, tasks, common_config):
+def _add_task_configs(tasks, common_configs):
     """
     Add config parsers for tasks and steps that don't already have shared ones
     """
 
     # get a list of shared steps and add config files for tasks to the
-    # component
+    # component that owns them
     configs = dict()
+    owners = dict()
     for task in tasks.values():
+        component = task.component
         if task.config.filepath is None:
             task.config_filename = f'{task.name}.cfg'
             task.config.filepath = os.path.join(
@@ -706,18 +713,20 @@ def _add_task_configs(component, tasks, common_config):
             )
         component.add_config(task.config)
         configs[task.config.filepath] = task.config
+        owners[task.config.filepath] = component
 
-    # now go through all the configs and prepend the common config options,
-    # then run the setup() method for each in case there is some customization
-    for config in configs.values():
-        config.prepend(common_config)
+    # now go through all the configs and prepend the config options of the
+    # component that owns each one, then run the setup() method for each in
+    # case there is some customization
+    for filepath, config in configs.items():
+        config.prepend(common_configs[owners[filepath].name])
         config.setup()
 
     return configs
 
 
 def _configure_tasks_and_add_step_configs(
-    tasks, initial_configs, common_config
+    tasks, initial_configs, common_configs
 ):
     """
     Call the configure() method for each task and add configs to "owned" steps
@@ -738,8 +747,10 @@ def _configure_tasks_and_add_step_configs(
     # new steps were added
     configs = dict()
     new_configs = dict()
+    owners = dict()
     for task in tasks.values():
         configs[task.config.filepath] = task.config
+        owners[task.config.filepath] = task.component
         for step in task.steps.values():
             if step.has_shared_config:
                 if step.config.filepath is None:
@@ -747,26 +758,62 @@ def _configure_tasks_and_add_step_configs(
                     step.config.filepath = os.path.join(
                         step.component.name, step.subdir, step.config_filename
                     )
+                _check_config_owner(step, owners)
                 configs[step.config.filepath] = step.config
                 if step.config.filepath not in initial_configs:
                     new_configs[step.config.filepath] = step.config
                     step.component.add_config(step.config)
             else:
+                _check_step_component(step, task)
                 step._set_config(task.config, link=task.config_filename)
 
-    for config in new_configs.values():
-        config.prepend(common_config)
+    for filepath, config in new_configs.items():
+        config.prepend(common_configs[owners[filepath].name])
         config.setup()
 
     return configs
 
 
-def _write_configs(common_config, configs, component_name, work_dir):
+def _check_config_owner(step, owners):
+    """
+    Make sure a shared config is used by steps from only one component, and
+    keep track of which component owns it
+    """
+    filepath = step.config.filepath
+    owner = owners.get(filepath)
+    if owner is None:
+        owners[filepath] = step.component
+    elif owner is not step.component:
+        raise ValueError(
+            f'The shared config file {filepath} is used by steps from more '
+            f'than one component: {owner.name} and {step.component.name}.  A '
+            f'shared config file belongs to a single component, which '
+            f'provides its config options.'
+        )
+
+
+def _check_step_component(step, task):
+    """
+    Make sure a step that will get its config options from the task belongs to
+    the same component as the task
+    """
+    if step.component is not task.component:
+        raise ValueError(
+            f'Step {step.name} in {task.path} belongs to component '
+            f'{step.component.name} but the task belongs to component '
+            f'{task.component.name}.  A step from another component must be '
+            f'a shared step with a shared config file, so that it gets the '
+            f'config options of its own component.'
+        )
+
+
+def _write_configs(common_configs, configs, work_dir):
     """Write out all the config files"""
 
-    # add the common config at the component level
-    common_config.filepath = f'{component_name}.cfg'
-    configs[common_config.filepath] = common_config
+    # add the common config for each component at the component level
+    for name, common_config in common_configs.items():
+        common_config.filepath = f'{name}.cfg'
+        configs[common_config.filepath] = common_config
 
     # finally, write out the config files
     for config in configs.values():
@@ -988,6 +1035,45 @@ def _get_basic_config(
     config.set('paths', 'base_work_dir', work_dir, user=True)
 
     return config
+
+
+def _get_component_configs(basic_config, component, tasks, model=None):
+    """
+    Get the config options for each component in use: the component that owns
+    the tasks being set up, the components that own steps in those tasks and
+    the components of any dependencies of those steps.
+
+    Parameters
+    ----------
+    basic_config : polaris.config.PolarisConfigParser
+        The config options for the machine and the command line
+
+    component : polaris.Component
+        The component that owns the tasks being set up
+
+    tasks : dict of polaris.Task
+        The tasks being set up
+
+    model : str, optional
+        The model to run, if provided on the command line
+
+    Returns
+    -------
+    component_configs : dict of polaris.config.PolarisConfigParser
+        The config options for each component in use, with the component names
+        as keys
+    """
+    component_configs = dict()
+    for component_in_use in get_components_in_use(tasks):
+        # --model applies to the component that owns the tasks
+        component_model = model if component_in_use is component else None
+        component_configs[component_in_use.name] = _get_component_config(
+            basic_config=basic_config,
+            component=component_in_use,
+            model=component_model,
+        )
+
+    return component_configs
 
 
 def _get_component_config(basic_config, component, model=None):
