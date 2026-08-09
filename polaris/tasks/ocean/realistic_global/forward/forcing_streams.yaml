@@ -26,16 +26,26 @@ mpas-ocean:
 
 Omega:
     IOStreams:
-        # mirrors Omega's Default.yml Forcing stream apart from the filename.
-        # Freq/FreqUnits are inert here: Forcing::init() reads the stream once
-        # at startup rather than on a schedule.
+        # Omega's own Default.yml gives this stream FreqUnits: Never, which
+        # does not mean "read it on demand" -- IOStream::create returns early
+        # for 'never' and the stream is never registered at all, with only a
+        # warning.  Forcing::readStreamIntoArrays then fails to read it and
+        # falls back to *zero forcing*, logging at info level and running on.
+        # A run configured that way looks fine and is unforced, which is
+        # exactly the silent failure this task is built to avoid.
+        #
+        # OnStartup registers the stream and reads it before the first step,
+        # which is when Forcing wants it: Forcing::init() calls
+        # readStreamIntoArrays() once and never re-reads.
         Forcing:
             UsePointerFile: false
             Filename: {{ forcing_filename }}
             Mode: read
             Precision: double
             Freq: 1
-            FreqUnits: Never
+            FreqUnits: OnStartup
             UseStartEnd: false
+            # the field group Omega puts SfcStressZonal and SfcStressMeridional
+            # in (SfcStressForcingVars::registerFields)
             Contents:
             - Forcing
