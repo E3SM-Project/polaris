@@ -29,7 +29,7 @@ entry in that dictionary giving the MPAS-Ocean and Omega initial-condition IDs,
 the minimum resolution and the cell count, plus a `<mesh_name>.cfg` in
 `mesh_configs` giving the time step and run duration.
 
-The two kinds of forward task serve different purposes, which is what decides
+`forward` and `cached_forward` serve different purposes, which is what decides
 their physics; see {ref}`ocean-realistic-global-forward` in the User's Guide.
 
 (dev-ocean-realistic-global-framework)=
