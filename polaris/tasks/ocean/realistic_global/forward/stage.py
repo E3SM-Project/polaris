@@ -404,9 +404,8 @@ class ForwardStage:
 
         Omega's ``GlobalStats`` group takes its cadence as a period string
         rather than an interval in seconds, and echoes that same string into
-        the name of the file it writes, so the value here is also what
-        :py:class:`~polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis`
-        uses to find that file.
+        the name of the file it writes, which is why
+        :py:meth:`stats_filename` is built on top of this.
 
         Returns
         -------
@@ -414,6 +413,46 @@ class ForwardStage:
             The period, e.g. ``'1Day'``.
         """
         return duration_to_omega_period(self.stats_interval)
+
+    def stats_filename(
+        self, model: str, output_filename: str = 'global_stats.nc'
+    ) -> str:
+        """
+        The name of the global-statistics file ``model`` writes for this stage.
+
+        MPAS-Ocean writes the configured name as given, because
+        ``forward.yaml`` sets a ``filename_template`` with no time fields in
+        it.  Omega treats the same name as a *prefix* and builds the real one
+        from the analysis period and the kind of output: an instantaneous
+        chain writes ``<prefix>_<period>Instants`` and a temporal reduction
+        writes ``<prefix>_<period>TimeStats``, neither with a ``.nc``
+        extension (``AnalysisGroup::createAnalysisGroupStreams``).  The
+        realistic_global forward runs configure instantaneous samples, whose
+        variable names are the ones ``mpaso_to_omega.yaml`` maps.
+
+        This lives on the stage rather than in either of its callers because
+        the period is a property of the stage, and because a reader who wants
+        to know what file a stage produces should not have to find out from a
+        plotting step.
+
+        Parameters
+        ----------
+        model : str
+            The ocean model, as ``[ocean] model`` spells it.
+
+        output_filename : str, optional
+            The name MPAS-Ocean writes its statistics to, and the stem Omega
+            uses as a prefix.
+
+        Returns
+        -------
+        str
+            The filename the model writes.
+        """
+        if model != 'omega':
+            return output_filename
+        prefix = output_filename.split('.')[0]
+        return f'{prefix}_{self.stats_period()}Instants'
 
     def check_damping_supported(self, model: str) -> None:
         """

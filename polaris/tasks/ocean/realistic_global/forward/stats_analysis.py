@@ -71,25 +71,19 @@ class StatsAnalysis(OceanIOStep):
         """
         Link the forward step's statistics file.
 
-        Omega treats the configured name as a prefix and builds the real one
-        from the analysis period and the kind of output: an instantaneous
-        chain writes ``<prefix>_<period>Instants`` and a temporal reduction
-        writes ``<prefix>_<period>TimeStats``, neither with a ``.nc``
-        extension (``AnalysisGroup::createAnalysisGroupStreams``).  The
-        realistic_global forward runs configure instantaneous samples, whose
-        variable names are the ones ``mpaso_to_omega.yaml`` maps, so the name
-        is built from the same stage the forward step renders its config from.
+        What the file is called depends on the model and, for Omega, on the
+        statistics period, so the name comes from
+        :py:meth:`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename`
+        on the same stage the forward step renders its config from.  That is
+        also why the entry is added here rather than in ``__init__()``, where
+        the model is not yet known.
         """
         model = self.config.get('ocean', 'model')
-        if model == 'omega':
-            stage = getattr(self.forward_step, 'stage', None)
-            if stage is None:
-                stage = ForwardStage.from_config(self.config)
-            prefix = self.output_filename.split('.')[0]
-            filename = f'{prefix}_{stage.stats_period()}Instants'
-            target = f'{self.forward_step.path}/{filename}'
-        else:
-            target = f'{self.forward_step.path}/{self.output_filename}'
+        stage = getattr(self.forward_step, 'stage', None)
+        if stage is None:
+            stage = ForwardStage.from_config(self.config)
+        filename = stage.stats_filename(model, self.output_filename)
+        target = f'{self.forward_step.path}/{filename}'
         self.add_input_file(
             filename='output.nc',
             work_dir_target=target,
