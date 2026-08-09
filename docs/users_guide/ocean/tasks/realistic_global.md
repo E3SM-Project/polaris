@@ -451,6 +451,15 @@ tracer restoring fields.
 The run writes `output.nc` at `output_interval` and a restart at
 `restart_interval`.
 
+`output.nc` holds more than the prognostic state.  For MPAS-Ocean it is the
+tracers, velocity, layer thickness, kinetic energy and relative vorticity; for
+Omega it is the `State`, `Tracers`, `AuxiliaryState`, `SshCell` and `Eos`
+groups, which add the vorticity, divergence and del2 terms, the free surface
+and the specific volume and buoyancy frequency.  The extra fields cost file
+size and are worth it: without them a run that goes wrong can be seen to have
+gone wrong but not diagnosed, and these runs exist partly to be compared
+against each other.
+
 It also writes a time series of the global minimum, maximum, mean and RMS of
 the state variables, plus the global CFL number for MPAS-Ocean.  This is the
 cheapest way to see a run going wrong before it NaNs, which matters most for

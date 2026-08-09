@@ -186,7 +186,25 @@ Omega:
             Freq: {{ output_freq }}
             FreqUnits: seconds
             UseStartEnd: false
+            # State brings NormalVelocity, PseudoThickness and
+            # SurfacePressure; Tracers brings Temperature and Salinity.  The
+            # three groups after them are what makes a run diagnosable rather
+            # than merely inspectable, and are worth their file size here:
+            #   AuxiliaryState  the vorticity, divergence and del2 terms that
+            #                   show *where* a run is going wrong, plus
+            #                   KineticEnergyCell
+            #   SshCell         the free surface, the first thing to look at
+            #                   for a barotropic problem
+            #   Eos             SpecVol, SpecVolDisplaced and
+            #                   BruntVaisalaFreqSq, needed to tell a
+            #                   stratification problem from a dynamics one
+            # KineticEnergyCell is named as well, redundantly, because it is
+            # the field most often wanted and should not quietly disappear if
+            # AuxiliaryState is ever regrouped.
             Contents:
             - State
             - Tracers
+            - AuxiliaryState
+            - SshCell
+            - Eos
             - KineticEnergyCell
