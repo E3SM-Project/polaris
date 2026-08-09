@@ -1267,11 +1267,41 @@ def _get_component_args(
     return resolved
 
 
+def _check_model_executables(components_in_use, component_configs):
+    """
+    Make sure no two components in use expect their model executable in the
+    same place, which would mean one of them building over the other
+    """
+    executables: Dict[str, str] = dict()
+    for component in components_in_use:
+        if not component.has_model():
+            continue
+
+        config = component_configs[component.name]
+        if not config.has_option('executables', 'component'):
+            continue
+
+        executable = config.get('executables', 'component')
+        other = executables.get(executable)
+        if other is not None:
+            other_prefix = other.replace('/', '_')
+            prefix = component.name.replace('/', '_')
+            raise ValueError(
+                f'The {other} and {component.name} components both expect '
+                f'their model executable at {executable}.  Use '
+                f'--{other_prefix}_path and --{prefix}_path to give them '
+                f'different build directories.'
+            )
+        executables[executable] = component.name
+
+
 def _build_models(components_in_use, component_configs, machine):
     """
     Build the model of each component that has one and whose config options
     ask for a build, and check that each model is compatible with polaris
     """
+    _check_model_executables(components_in_use, component_configs)
+
     for component in components_in_use:
         if not component.has_model():
             continue
