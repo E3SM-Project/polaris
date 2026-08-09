@@ -245,10 +245,14 @@ class Forward(OceanModelStep):
                 ),
             )
 
-        # horizontal mixing is supported by both models, so it is added in
-        # MPAS-Ocean naming and translated to Omega by OceanModelStep
+        # horizontal mixing and the KPP boundary layer are supported by both
+        # models, so they are added in MPAS-Ocean naming and translated to
+        # Omega by OceanModelStep
         self.add_model_config_options(
             options=stage.horiz_mixing_options(), config_model='ocean'
+        )
+        self.add_model_config_options(
+            options=stage.vert_mixing_options(), config_model='ocean'
         )
 
         if model == 'mpas-ocean':
