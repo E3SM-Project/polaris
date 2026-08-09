@@ -1,5 +1,8 @@
 from polaris import Component, Step, Task
-from polaris.component_graph import get_components_in_use
+from polaris.component_graph import (
+    get_components_in_use,
+    get_steps_by_component,
+)
 
 
 def get_task(component, name, steps=()):
@@ -65,6 +68,36 @@ def test_each_component_appears_once():
     tasks = {first.path: first, second.path: second}
 
     assert get_components_in_use(tasks) == [e3sm_init, ocean]
+
+
+def test_steps_are_grouped_by_the_component_that_owns_them():
+    """
+    Each step goes with its own component, not with the component of the task
+    it belongs to.  This is what a component's configure() method is given.
+    """
+    ocean = Component(name='ocean')
+    e3sm_init = Component(name='e3sm/init')
+    ocean_step = Step(component=ocean, name='an_ocean_step')
+    e3sm_init_step = Step(component=e3sm_init, name='an_e3sm_init_step')
+    task = get_task(e3sm_init, 'a_task', steps=[ocean_step, e3sm_init_step])
+
+    steps_by_component = get_steps_by_component({task.path: task})
+
+    assert steps_by_component == {
+        'e3sm/init': [e3sm_init_step],
+        'ocean': [ocean_step],
+    }
+
+
+def test_a_component_with_no_steps_has_an_entry():
+    """
+    The component that owns a task always has an entry, so that its
+    configure() method gets called with an empty list rather than not at all.
+    """
+    mesh = Component(name='mesh')
+    task = get_task(mesh, 'a_task')
+
+    assert get_steps_by_component({task.path: task}) == {'mesh': []}
 
 
 def test_a_circular_dependency_does_not_recurse_forever():

@@ -9,7 +9,10 @@ from typing import Dict, List
 from polaris import Task, provenance
 from polaris.build.mpas_ocean import build_mpas_ocean
 from polaris.build.omega import build_omega
-from polaris.component_graph import get_components_in_use
+from polaris.component_graph import (
+    get_components_in_use,
+    get_steps_by_component,
+)
 from polaris.config import PolarisConfigParser
 from polaris.constants.pcd import check_pcd_version_matches_branch
 from polaris.io import symlink
@@ -172,7 +175,13 @@ def setup_tasks(
     )
     component_config = component_configs[component.name]
 
-    component.configure(component_config, list(tasks.values()))
+    steps_by_component = get_steps_by_component(tasks)
+    for component_in_use in get_components_in_use(tasks):
+        name = component_in_use.name
+        component_in_use.configure(
+            component_configs[name], steps_by_component[name]
+        )
+
     set_parallel_systems(tasks, basic_config)
 
     provenance.write(

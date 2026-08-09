@@ -73,22 +73,23 @@ class Ocean(Component):
         self.state_vars: Union[None, list[str]] = None
         self.omega_only_horiz_mesh_vars: Union[None, list[str]] = None
 
-    def configure(self, config, tasks):
+    def configure(self, config, steps):
         """
         Configure the component
 
         Parameters
         ----------
         config : polaris.config.PolarisConfigParser
-            config options to modify
+            the config options for this component, to modify
 
-        tasks : list of polaris.Task
-            The tasks to be set up for this component
+        steps : list of polaris.Step
+            The steps this component owns among those being set up.  These may
+            belong to tasks in another component.
         """
         section = config['ocean']
         model = section.get('model')
         has_ocean_io_steps, has_ocean_model_steps = (
-            self._has_ocean_io_model_steps(tasks)
+            self._has_ocean_io_model_steps(steps)
         )
         if not (has_ocean_model_steps or has_ocean_io_steps):
             # No ocean I/O or model steps, so no model detection or build
@@ -908,9 +909,9 @@ class Ocean(Component):
                 'missing from the dataset: ' + ', '.join(missing)
             )
 
-    def _has_ocean_io_model_steps(self, tasks) -> Tuple[bool, bool]:
+    def _has_ocean_io_model_steps(self, steps) -> Tuple[bool, bool]:
         """
-        Determine if any steps in this component descend from OceanIOStep or
+        Determine if any of the steps descend from OceanIOStep or
         OceanModelStep
         """
         # local import to avoid circular imports
@@ -918,14 +919,10 @@ class Ocean(Component):
         from polaris.ocean.model.ocean_model_step import OceanModelStep
 
         has_ocean_model_steps = any(
-            isinstance(step, OceanModelStep)
-            for task in tasks
-            for step in task.steps.values()
+            isinstance(step, OceanModelStep) for step in steps
         )
         has_ocean_io_steps = any(
-            isinstance(step, OceanIOStep)
-            for task in tasks
-            for step in task.steps.values()
+            isinstance(step, OceanIOStep) for step in steps
         )
 
         return has_ocean_io_steps, has_ocean_model_steps

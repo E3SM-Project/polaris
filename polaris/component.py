@@ -213,17 +213,18 @@ class Component:
             )
         self.configs[config.filepath] = config
 
-    def configure(self, config, tasks):
+    def configure(self, config, steps):
         """
         Configure the component
 
         Parameters
         ----------
         config : polaris.config.PolarisConfigParser
-            config options to modify
+            the config options for this component, to modify
 
-        tasks : list of polaris.Task
-            The tasks to be set up for this component
+        steps : list of polaris.Step
+            The steps this component owns among those being set up.  These may
+            belong to tasks in another component.
         """
         pass
 
