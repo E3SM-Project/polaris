@@ -28,6 +28,7 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import 
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
     SECTION,
+    _format_time,
     excluded_days_in_stage,
     load_schedule_stages,
 )
@@ -1719,7 +1720,14 @@ def _label_rows(stage_lengths):
         days = int(length)
         hours = int(round((length - days) * 24))
         stage = mock.Mock(
-            start_time=start.strftime('%Y-%m-%d_%H:%M:%S'),
+            # the schedule's own formatter, not strftime.  These runs start in
+            # year 1, and whether strftime zero-pads a year below 1000 is not
+            # portable: Python 3.14 pads it, 3.13 leaves it to the platform and
+            # emits '1-01-01_00:00:00', which %Y then refuses to parse back.
+            # That is why _format_time builds the string itself, and why a test
+            # that reaches for strftime instead is testing a string no schedule
+            # ever produces.
+            start_time=_format_time(start, ':'),
             run_duration=f'{days}_{hours:02d}:00:00',
             damping=1.0e-4,
         )
