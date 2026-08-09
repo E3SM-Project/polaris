@@ -624,6 +624,39 @@ def test_forcing_streams_yaml_points_at_the_staged_file(
     assert stream[filename_option] == 'custom_forcing.nc'
 
 
+def test_mpaso_output_stream_has_omega_counterparts():
+    """
+    These runs exist partly to be compared against each other, so the two
+    models' output should cover the same fields.  ssh is the counterpart to
+    Omega's SshCell -- and is mapped to it, so both models present it under
+    one name -- and density is the closest thing to Omega's Eos fields, which
+    carry the specific volume instead.
+    """
+    stage = ForwardStage.from_config(_forward_config())
+    yaml = PolarisYaml.read(
+        filename='forward.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        replacements=stage.model_replacements('mpas-ocean', min_res=30.0),
+        model='mpas-ocean',
+    )
+    contents = yaml.streams['output']['contents']
+    for var in (
+        'tracers',
+        'normalVelocity',
+        'layerThickness',
+        'ssh',
+        'density',
+    ):
+        assert var in contents, f'{var} missing from the output stream'
+
+    var_map = YAML(typ='rt').load(
+        imp_res.files('polaris.ocean.model')
+        .joinpath('mpaso_to_omega.yaml')
+        .read_text()
+    )['variables']
+    assert var_map['ssh'] == 'SshCell'
+
+
 def test_omega_history_stream_is_diagnosable():
     """
     A history stream of just State, Tracers and KineticEnergyCell writes six
