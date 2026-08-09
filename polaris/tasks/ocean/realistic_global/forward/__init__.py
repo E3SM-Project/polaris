@@ -20,6 +20,9 @@ from polaris.tasks.ocean.realistic_global.forward.task import (
     RealisticGlobalForward as RealisticGlobalForward,
 )
 from polaris.tasks.ocean.realistic_global.forward.tasks import (
+    add_realistic_global_cached_forward_tasks as add_realistic_global_cached_forward_tasks,  # noqa: E501
+)
+from polaris.tasks.ocean.realistic_global.forward.tasks import (
     add_realistic_global_forward_tasks as add_realistic_global_forward_tasks,
 )
 from polaris.tasks.ocean.realistic_global.forward.viz import Viz as Viz
