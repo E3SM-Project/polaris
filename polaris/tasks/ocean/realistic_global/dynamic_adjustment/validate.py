@@ -114,7 +114,7 @@ class Validate(Step):
                 component=self.component,
                 config=config,
                 stage=stage,
-                stats_filename=stage_stats_path(stage.name, model),
+                stats_filename=stage_stats_path(stage, model),
                 output_filename=f'output_{stage.name}.nc',
                 logger=self.logger,
                 exclude_days=excluded_days_in_stage(
@@ -194,8 +194,8 @@ class StageCheck(Step):
         stage_name = self.stage.name
 
         model = config.get('ocean', 'model')
-        path = stage_stats_path(stage_name, model)
-        if path is None or not os.path.exists(path):
+        path = stage_stats_path(self.stage, model)
+        if not os.path.exists(path):
             logger.info(
                 f'Stage {stage_name!r} wrote no global statistics; skipping '
                 f'its checks.'
