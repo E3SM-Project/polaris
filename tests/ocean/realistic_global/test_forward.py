@@ -244,6 +244,58 @@ def test_omega_stats_period_follows_the_stats_interval(
     assert rep['stats_period'] == expected
 
 
+def test_stats_filename_matches_what_each_model_writes():
+    """
+    The statistics file has two names and one source of truth.  MPAS-Ocean
+    writes the configured name as given; Omega treats it as a prefix and
+    appends its own period and output kind.  Both are checked against
+    forward.yaml rather than against literals, because the way this breaks is
+    that the yaml changes and a reader elsewhere goes on looking for the old
+    name -- finding nothing, and silently falling back.
+    """
+    stage = ForwardStage.from_config(_forward_config())
+
+    mpaso_yaml = PolarisYaml.read(
+        filename='forward.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        replacements=stage.model_replacements('mpas-ocean', min_res=30.0),
+        model='mpas-ocean',
+    )
+    written = mpaso_yaml.streams['globalStatsOutput']['filename_template']
+    assert stage.stats_filename('mpas-ocean') == written
+
+    omega_yaml = PolarisYaml.read(
+        filename='forward.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        replacements=stage.model_replacements('omega', min_res=30.0),
+        model='Omega',
+    )
+    global_stats = omega_yaml.configs['Analysis']['GlobalStats']
+    prefix = global_stats['Filename']
+    (period,) = global_stats['SnapshotPeriod']
+    # snapshots, so 'Instants'; a reduction would be '<period>TimeStats'
+    assert stage.stats_filename('omega') == f'{prefix}_{period}Instants'
+    assert not stage.stats_filename('omega').endswith('.nc')
+
+
+def test_stats_filename_follows_the_stats_interval_for_omega():
+    """
+    Omega bakes the period into the filename, so a stage that writes its
+    statistics more often writes them somewhere else.  MPAS-Ocean's name does
+    not move, which is exactly why this is easy to miss.
+    """
+    hourly = ForwardStage.from_config(
+        _forward_config(stats_interval='0000_01:00:00')
+    )
+    assert hourly.stats_filename('omega') == 'global_stats_1HourInstants'
+    assert hourly.stats_filename('mpas-ocean') == 'global_stats.nc'
+
+    # a caller that stages the file under another name gets that name back,
+    # with Omega's decoration applied to the stem rather than the extension
+    assert hourly.stats_filename('mpas-ocean', 'stats.nc') == 'stats.nc'
+    assert hourly.stats_filename('omega', 'stats.nc') == 'stats_1HourInstants'
+
+
 def test_omega_global_stats_are_snapshots_not_reductions():
     """
     Omega names a temporal reduction ``<stem>_TimeMean<period>`` and an
