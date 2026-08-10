@@ -1,3 +1,4 @@
+import dataclasses
 import importlib.resources as imp_res
 from configparser import ConfigParser
 from types import SimpleNamespace
@@ -49,6 +50,7 @@ def _forward_config(**overrides):
         use_submesoscale='True',
         pressure_gradient_type='Jacobian_from_TS',
         use_frazil_ice_formation='False',
+        output_density='True',
         start_time='0001-01-01_00:00:00',
     )
     values.update(overrides)
@@ -242,6 +244,49 @@ def test_omega_stats_period_follows_the_stats_interval(
     assert stage.stats_period() == expected
     rep = stage.model_replacements('omega', min_res=30.0)
     assert rep['stats_period'] == expected
+
+
+@pytest.mark.parametrize('output_density', [True, False])
+def test_density_output_follows_its_switch(output_density):
+    """
+    density is 3-D and most of what the output stream costs, so a long staged
+    run can turn it off.  ssh rides in the same part of the stream, is 2-D, and
+    must survive either way -- it is the field that makes the two models
+    comparable at the surface.
+    """
+    stage = dataclasses.replace(
+        ForwardStage.from_config(_forward_config()),
+        output_density=output_density,
+    )
+    yaml = PolarisYaml.read(
+        filename='forward.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        replacements=stage.model_replacements('mpas-ocean', min_res=30.0),
+        model='mpas-ocean',
+    )
+    contents = yaml.streams['output']['contents']
+    assert ('density' in contents) is output_density
+    assert 'ssh' in contents
+    # the rest of the stream is untouched by the switch
+    for var in ('tracers', 'normalVelocity', 'layerThickness'):
+        assert var in contents
+
+
+def test_density_switch_is_passed_as_a_bool():
+    """
+    The replacement has to be a real bool.  Most of model_replacements is
+    strings -- do_restart is the 'true'/'false' spelling MPAS-Ocean wants --
+    but this one is tested by a jinja {% if %}, and jinja counts the non-empty
+    string 'false' as true, so a string here would write density always and
+    silently.
+    """
+    stage = dataclasses.replace(
+        ForwardStage.from_config(_forward_config()), output_density=False
+    )
+    value = stage.model_replacements('mpas-ocean', min_res=30.0)[
+        'output_density'
+    ]
+    assert value is False
 
 
 def test_stats_filename_matches_what_each_model_writes():
