@@ -307,12 +307,13 @@ class CullMaskStep(Step):
 
     def refine_land_cull_mask(self, ds_base_mesh, ds_topo, cull_mask):
         """
-        Refine the mask for culling ocean from the land. Subclasses can
-        override this method to first refine the mask and then call the base
-        class method to make sure that 1) ocean critical transects are excluded
-        from the land and 2) all cells that are not part of the ocean (without
-        ice-shelf cavities) are excluded from the land cull mask (someone
-        is supposed to own every cell on the globe).
+        Refine the mask for culling ocean from the land.  The mask passed in
+        is already the complement of the ocean without ice-shelf cavities,
+        which the base class returns unaltered: someone is supposed to own
+        every cell on the globe and no one is supposed to own it twice.
+
+        Subclasses can override this method to define a different land
+        domain.
 
         Parameters
         ----------
@@ -330,35 +331,6 @@ class CullMaskStep(Step):
         cull_mask : xarray.DataArray
             The refined cull mask
         """
-        logger = self.logger
-
-        # the land cull mask must include the ocean critical transects and
-        # exclude anything that was added to the ocean without cavities
-        # during the flood fill, etc. in _create_ocean_no_cavities_cull_mask()
-
-        # critical ocean transects must be culled from land
-        crit_ocean_filename = 'critical_ocean_transects_mask.nc'
-        if os.path.exists(crit_ocean_filename):
-            logger.info(
-                'Applying critical ocean transect mask to land cull mask.'
-            )
-            ds_crit = open_dataset(crit_ocean_filename)
-            preserve_ocean = ds_crit.regionCellMasks.isel(nRegions=0) > 0
-            cull_mask = np.logical_or(cull_mask, preserve_ocean)
-
-        ds_ocean_no_cavity_cull_mask = open_dataset(
-            'ocean_no_cavities_cull_mask.nc'
-        )
-
-        ocean_no_cavity_mask = (
-            ds_ocean_no_cavity_cull_mask.oceanNoCavitiesCullMask == 0
-        )
-
-        # only cull cells from the land if they are not going to be culled
-        # from the ocean (without cavities).  Someone is supposed to own
-        # every cell on the globe.
-        cull_mask = np.logical_and(cull_mask, ocean_no_cavity_mask)
-
         cull_mask = xr.where(cull_mask, 1, 0)
         return cull_mask
 
@@ -724,20 +696,25 @@ class CullMaskStep(Step):
 
     def _create_land_cull_mask(self):
         """
-        Create a mask for culling ocean from the land such that makes sure to
-        include all cells that are not in the ocean without ice-shelf cavities
-        and excludes critical ocean transects
+        Create a mask for culling ocean from the land.  The land domain is the
+        complement of the ocean without ice-shelf cavities, so that every cell
+        on the globe is owned by exactly one of the two.
         """
         logger = self.logger
         logger.info('Creating land cull mask.')
 
-        ds_topo = open_dataset('topography_unsmoothed.nc')
-        land_frac = ds_topo.land_frac
-        cull_mask = land_frac < 0.5
+        ds_ocean_no_cavities = open_dataset('ocean_no_cavities_cull_mask.nc')
+
+        # cull from the land exactly the cells that the ocean without
+        # ice-shelf cavities retains.  A land-fraction test of its own is not
+        # needed and would not be consistent: the ocean without cavities has
+        # already been through the critical transects, the land-locked-cell
+        # check and the flood fill.
+        cull_mask = ds_ocean_no_cavities.oceanNoCavitiesCullMask == 0
 
         cull_mask = self.refine_land_cull_mask(
             ds_base_mesh=open_dataset('base_mesh.nc'),
-            ds_topo=ds_topo,
+            ds_topo=open_dataset('topography_unsmoothed.nc'),
             cull_mask=cull_mask,
         )
 
