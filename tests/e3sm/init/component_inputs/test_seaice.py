@@ -5,7 +5,11 @@ import numpy as np
 import xarray as xr
 
 from polaris.constants import get_constant
+from polaris.remap import MappingFileStep
 from polaris.tasks.e3sm.init import e3sm_init
+from polaris.tasks.e3sm.init.component_inputs.seaice_graph_partition import (
+    MAP_DEPENDENCY,
+)
 from polaris.tasks.e3sm.init.component_inputs.seaice_initial_condition import (
     SeaiceInitialConditionStep,
 )
@@ -77,6 +81,41 @@ def test_the_seaice_steps_read_only_the_culled_mesh():
         } == {'culled_ocean_mesh.nc': f'{cull_path}/culled_ocean_mesh.nc'}, (
             name
         )
+
+
+def test_the_mapping_file_is_built_by_its_own_step():
+    """
+    Building the weights is an MPI job sized for the mapping tool; using them
+    is not.  The partitioning step must therefore not be a MappingFileStep,
+    and must reach the weights through the step that is.
+    """
+    _reset_shared_components()
+    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+
+    partition_map = steps['seaice_partition_map']
+    graph_partition = steps['seaice_graph_partition']
+
+    assert isinstance(partition_map, MappingFileStep)
+    assert not isinstance(graph_partition, MappingFileStep)
+
+    # the mapping file's path is not known until the map step has run, so it
+    # has to arrive as a dependency rather than as a declared input
+    assert graph_partition.dependencies[MAP_DEPENDENCY] is partition_map
+    assert MAP_DEPENDENCY not in [
+        entry['filename'] for entry in graph_partition.input_data
+    ]
+
+
+def test_the_mapping_step_asks_for_enough_tasks_to_partition():
+    """
+    pyremap partitions the SCRIP files with ``mbpart <ntasks>``, which rejects
+    a request for a single partition.  The floor of 2 belongs to the step that
+    runs the mapping tool, so it has to have travelled with it.
+    """
+    _reset_shared_components()
+    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+
+    assert steps['seaice_partition_map'].min_tasks >= 2
 
 
 def test_the_seaice_steps_belong_to_e3sm_init():
