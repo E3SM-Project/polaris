@@ -17,7 +17,8 @@ def setup_suite(component, suite_name, work_dir, **kwargs):
     Parameters
     ----------
     component : str
-        The component ('ocean', 'landice', etc.) of the suite
+        The component ('ocean', 'landice', etc.) of the suite.  The tasks in
+        the suite need not all belong to this component.
 
     suite_name : str
         The name of the suite.  A file ``<suite_name>.txt`` must exist
@@ -45,6 +46,7 @@ def setup_suite(component, suite_name, work_dir, **kwargs):
         task_list=tasks,
         cached=cached,
         suite_name=suite_name,
+        suite_component=component,
         **kwargs,
     )
 

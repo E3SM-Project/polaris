@@ -28,6 +28,7 @@ def setup_tasks(
     baseline_dir=None,
     component_path=None,
     suite_name='custom',
+    suite_component=None,
     cached=None,
     free_running=None,
     copy_executable=False,
@@ -75,6 +76,12 @@ def setup_tasks(
     suite_name : str, optional
         The name of the suite if tasks are being set up through a suite or
         ``'custom'`` if not
+
+    suite_component : str, optional
+        The name of the component the suite belongs to, which is where its
+        config file comes from.  A suite may contain tasks from other
+        components, so this is not necessarily the component of any of the
+        tasks.  Defaults to the component of the first task.
 
     cached : list of list of str, optional
         For each task in ``tasks``, which steps (if any) should read their
@@ -153,10 +160,13 @@ def setup_tasks(
     _add_tasks_by_number(numbers, all_tasks, tasks, cached_steps)
     _add_tasks_by_name(task_list, all_tasks, cached, tasks, cached_steps)
 
-    # the component of the first task is the one the suite belongs to and the
-    # one the unqualified command-line options apply to
+    # the unqualified command-line options apply to the component of the
+    # first task
     first_path = next(iter(tasks))
     component = tasks[first_path].component
+
+    if suite_component is None:
+        suite_component = component.name
 
     basic_config = _get_basic_config(
         config_file=config_file,
@@ -294,7 +304,7 @@ def setup_tasks(
 
     if machine is not None:
         suite_config = _get_suite_config(
-            basic_config, component.name, suite_name
+            basic_config, suite_component, suite_name
         )
         job_options = write_job_script(
             config=suite_config,
