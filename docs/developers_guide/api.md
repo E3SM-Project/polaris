@@ -126,6 +126,10 @@ seaice/api
    Component.remove_step
    Component.add_config
    Component.get_or_create_shared_config
+   Component.configure
+   Component.has_model
+   Component.build_model
+   Component.check_model_version
    Component.get_or_create_shared_step
    Component.set_parallel_system
    Component.get_available_resources
@@ -204,6 +208,18 @@ seaice/api
    :toctree: generated/
 
    set_attrs
+```
+
+### component_graph
+
+```{eval-rst}
+.. currentmodule:: polaris.component_graph
+
+.. autosummary::
+   :toctree: generated/
+
+   get_components_in_use
+   get_steps_by_component
 ```
 
 ### config

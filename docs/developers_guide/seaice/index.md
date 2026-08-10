@@ -3,7 +3,20 @@
 # Sea ice component
 
 The `seaice` component currently consists of single column tests.  The
-component has the following config options as follows:
+component-wide config options say which model it runs:
+
+```cfg
+# This config file has default config options for the seaice component
+
+# Options related the sea-ice component
+[seaice]
+
+# Which model is used.  MPAS-Seaice is currently the only option.
+model = mpas-seaice
+```
+
+The config options for MPAS-Seaice itself are in `mpas_seaice.cfg`, added
+during setup by `SeaIce.configure()`:
 
 ```cfg
 # This config file has default config options for MPAS-Seaice

@@ -23,12 +23,25 @@ _components: List[Component] = [
 _tasks_added = False
 
 
-def get_components():
+def get_components(add_tasks=True):
     """
-    Add all tasks to the Polaris components
+    Get the Polaris components
+
+    Parameters
+    ----------
+    add_tasks : bool, optional
+        Whether to add all tasks to the components.  Building the tasks is by
+        far the most expensive part of getting the components, so this can be
+        ``False`` for callers that only need the components themselves (e.g.
+        to add command-line arguments for each of them).
+
+    Returns
+    -------
+    components : list of polaris.Component
+        The components
     """
     global _tasks_added
-    if not _tasks_added:
+    if add_tasks and not _tasks_added:
         # add tasks to each component
         add_e3sm_init_tasks(component=e3sm_init)
         add_mesh_tasks(component=mesh)

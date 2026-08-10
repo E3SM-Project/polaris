@@ -9,7 +9,10 @@ from mpas_tools.vector.reconstruct import reconstruct_variable
 from ruamel.yaml import YAML
 
 from polaris import Component
+from polaris.build.mpas_ocean import build_mpas_ocean
+from polaris.build.omega import build_omega
 from polaris.constants import get_constant
+from polaris.constants.pcd import check_pcd_version_matches_branch
 from polaris.mesh.reconstruct import (
     cartesian_to_local_geographic,
     tangential_reconstruction,
@@ -74,22 +77,23 @@ class Ocean(Component):
         self.state_vars: Union[None, list[str]] = None
         self.omega_only_horiz_mesh_vars: Union[None, list[str]] = None
 
-    def configure(self, config, tasks):
+    def configure(self, config, steps):
         """
         Configure the component
 
         Parameters
         ----------
         config : polaris.config.PolarisConfigParser
-            config options to modify
+            the config options for this component, to modify
 
-        tasks : list of polaris.Task
-            The tasks to be set up for this component
+        steps : list of polaris.Step
+            The steps this component owns among those being set up.  These may
+            belong to tasks in another component.
         """
         section = config['ocean']
         model = section.get('model')
         has_ocean_io_steps, has_ocean_model_steps = (
-            self._has_ocean_io_model_steps(tasks)
+            self._has_ocean_io_model_steps(steps)
         )
         if not (has_ocean_model_steps or has_ocean_io_steps):
             # No ocean I/O or model steps, so no model detection or build
@@ -132,6 +136,89 @@ class Ocean(Component):
         self.model = model
         if model == 'omega':
             self._read_var_map()
+
+    def build_model(self, config, machine):
+        """
+        Build MPAS-Ocean or Omega
+
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            the config options for this component
+
+        machine : str
+            The name of the machine to build the model on
+        """
+        model = config.get('ocean', 'model')
+        section = config['build']
+        branch = section.get('branch')
+        clean_build = section.getboolean('clean')
+        quiet_build = section.getboolean('quiet')
+        debug = section.getboolean('debug')
+        cmake_flags = section.get('cmake_flags')
+
+        build_dir = config.get('paths', 'component_path')
+
+        if config.has_option('parallel', 'account'):
+            account = config.get('parallel', 'account')
+        else:
+            account = None
+
+        if model == 'omega':
+            log_filename = os.path.join(build_dir, 'build_omega.log')
+            build_omega(
+                branch=branch,
+                build_dir=build_dir,
+                clean=clean_build,
+                quiet=quiet_build,
+                debug=debug,
+                cmake_flags=cmake_flags,
+                account=account,
+                log_filename=log_filename,
+            )
+        elif model == 'mpas-ocean':
+            compiler = section.get('compiler')
+            mpilib = section.get('mpi')
+            key = f'{compiler}_{mpilib}_target'
+            if not section.has_option(key):
+                raise ValueError(
+                    f'The build target {key} is not defined in the [build] '
+                    f'section of the config file for machine {machine}.'
+                )
+            make_target = section.get(key)
+
+            log_filename = os.path.join(build_dir, 'build_mpas_ocean.log')
+            build_mpas_ocean(
+                branch=branch,
+                build_dir=build_dir,
+                clean=clean_build,
+                quiet=quiet_build,
+                debug=debug,
+                make_flags=cmake_flags,
+                make_target=make_target,
+                log_filename=log_filename,
+            )
+        else:
+            raise ValueError(
+                f'Automated build is not implemented for model {model}'
+            )
+
+    def check_model_version(self, config):
+        """
+        Check that the PCD version in polaris matches the one in the branch of
+        the ocean model that will be run
+
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            the config options for this component
+        """
+        model = config.get('ocean', 'model')
+        if model not in ['mpas-ocean', 'omega']:
+            return
+
+        branch = config.get('build', 'branch')
+        check_pcd_version_matches_branch(branch=branch, model=model)
 
     def map_to_native_model_vars(self, ds):
         """
@@ -917,9 +1004,9 @@ class Ocean(Component):
                 'missing from the dataset: ' + ', '.join(missing)
             )
 
-    def _has_ocean_io_model_steps(self, tasks) -> Tuple[bool, bool]:
+    def _has_ocean_io_model_steps(self, steps) -> Tuple[bool, bool]:
         """
-        Determine if any steps in this component descend from OceanIOStep or
+        Determine if any of the steps descend from OceanIOStep or
         OceanModelStep
         """
         # local import to avoid circular imports
@@ -927,14 +1014,10 @@ class Ocean(Component):
         from polaris.ocean.model.ocean_model_step import OceanModelStep
 
         has_ocean_model_steps = any(
-            isinstance(step, OceanModelStep)
-            for task in tasks
-            for step in task.steps.values()
+            isinstance(step, OceanModelStep) for step in steps
         )
         has_ocean_io_steps = any(
-            isinstance(step, OceanIOStep)
-            for task in tasks
-            for step in task.steps.values()
+            isinstance(step, OceanIOStep) for step in steps
         )
 
         return has_ocean_io_steps, has_ocean_model_steps
