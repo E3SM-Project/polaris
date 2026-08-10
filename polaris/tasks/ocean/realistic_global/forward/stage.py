@@ -181,6 +181,16 @@ class ForwardStage:
     use_frazil_ice_formation : bool
         Whether to form frazil ice.
 
+    output_density : bool
+        Whether to write ``density`` to the 3-D output stream.  It is there so
+        that MPAS-Ocean and Omega can be compared on the same fields, and it is
+        the one field in that stream expensive enough to deserve a switch: it
+        is 3-D and accounts for roughly 13% of the output volume, which on a
+        long staged spin-up is tens of gigabytes per stage.  A run that is not
+        being compared with Omega, and is not being read for stratification,
+        can turn it off.  MPAS-Ocean only; Omega's ``History`` stream carries
+        specific volume through its ``Eos`` group instead.
+
     do_restart : bool
         Whether the run continues from an existing restart.
 
@@ -230,6 +240,7 @@ class ForwardStage:
     use_submesoscale: bool = False
     pressure_gradient_type: Optional[str] = None
     use_frazil_ice_formation: bool = False
+    output_density: bool = True
     do_restart: bool = False
     start_time: str = '0001-01-01_00:00:00'
     restart_in: Optional[str] = None
@@ -306,12 +317,13 @@ class ForwardStage:
             use_frazil_ice_formation=config.getboolean(
                 section, 'use_frazil_ice_formation'
             ),
+            output_density=config.getboolean(section, 'output_density'),
             start_time=config.get(section, 'start_time').strip(),
         )
 
     def model_replacements(
         self, model: str, min_res: float, at_setup: bool = False
-    ) -> Dict[str, str]:
+    ) -> Dict[str, Any]:
         """
         Map the stage onto template replacements for ``forward.yaml``.
 
@@ -343,8 +355,11 @@ class ForwardStage:
 
         Returns
         -------
-        dict of str
-            The template replacements for ``forward.yaml``.
+        dict
+            The template replacements for ``forward.yaml``.  The values are
+            strings, which are substituted into the template, except for the
+            few that a ``{% if %}`` tests rather than substitutes; those are
+            bools, because jinja counts the string ``'false'`` as true.
         """
         if model == 'omega':
             time_integrator = self.omega_time_integrator
@@ -396,6 +411,10 @@ class ForwardStage:
             time_integrator=time_integrator,
             start_time=self.start_time,
             do_restart='true' if self.do_restart else 'false',
+            # a real bool, not the 'true'/'false' strings above: this one is
+            # tested by a jinja {% if %} rather than substituted into the
+            # text, and jinja counts the string 'false' as true
+            output_density=self.output_density,
         )
 
     def stats_period(self) -> str:

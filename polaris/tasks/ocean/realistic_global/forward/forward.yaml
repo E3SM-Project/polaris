@@ -106,8 +106,13 @@ mpas-ocean:
             # open_model_dataset gives both models the same name; density has
             # no Omega counterpart in the map, since Omega carries the
             # specific volume instead.
+            #
+            # density is behind a switch because it is 3-D and is most of what
+            # this stream costs; ssh is 2-D and always written.
             - ssh
+            {%- if output_density %}
             - density
+            {%- endif %}
         # a stream of its own, so the scalar time series stays out of the 3-D
         # output and has an obvious counterpart on the Omega side.
         # filename_template overrides the registry default of yearly files
