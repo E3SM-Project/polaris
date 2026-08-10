@@ -251,6 +251,8 @@ def _get_component_inputs_config(base_subdir, mesh_name):
 
     def create():
         config = PolarisConfigParser(filepath=filepath)
+        # provides [mapping] map_tool, used by MappingFileStep
+        config.add_from_package('polaris.remap', 'mapping.cfg')
         config.add_from_package(CONFIG_PACKAGE, CONFIG_FILENAME)
         if mesh_name in UNIFIED_MESH_NAMES:
             config.add_from_package(
