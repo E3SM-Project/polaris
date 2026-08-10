@@ -159,9 +159,10 @@ with, rather than renaming every staged file to today's.
 
 ## Running on a login node
 
-Everything except the sea-ice graph partitioning is post-processing of files
-that already exist, and is safe to run on a login node.  The sea-ice
-partitioning builds a mapping file with MPI and wants a compute node.
+Everything except `seaice_partition_map` is post-processing of files that
+already exist, and is safe to run on a login node.  That one step builds the
+remapping weights the sea-ice partitioning needs, using MPI, and wants a
+compute node; the partitioning itself only applies them and is serial.
 
 The `ocean` and `all` tasks additionally depend on the dynamic-adjustment
 model runs, which are compute-node jobs in their own right.

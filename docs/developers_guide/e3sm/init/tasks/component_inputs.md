@@ -39,8 +39,17 @@ up waiting on a model run it has no use for.
 | `OceanGraphPartitionStep` | `culled_ocean_graph.info` | `mpas-o.graph.info.part.*` |
 | `SeaiceMeshStep` | `culled_ocean_mesh.nc` | `seaice_mesh.nc` |
 | `SeaiceInitialConditionStep` | `culled_ocean_mesh.nc` | `seaice_initial_condition.nc` |
-| `SeaiceGraphPartitionStep` | `seaice_mesh.nc`, QU60km climatology | `mpas-seaice.graph.info.part.*` |
+| `SeaicePartitionMapStep` | `seaice_mesh.nc`, QU60km climatology | the QU60km-to-mesh mapping file |
+| `SeaiceGraphPartitionStep` | `seaice_mesh.nc`, QU60km climatology and ice-present mask, the mapping file | `mpas-seaice.graph.info.part.*` |
 | `AssembleStep` | the above | `assembled_files/` |
+
+The sea-ice partitioning is two steps rather than one because building the
+remapping weights is an MPI job sized for the mapping tool, while using them
+is serial.  `SeaicePartitionMapStep` descends from
+{py:class}`polaris.remap.MappingFileStep`; `SeaiceGraphPartitionStep` depends
+on it and reads the weights off its remapper, since the mapping file's path is
+not known until it has run.  This is the same division `realistic_global` uses
+between `Woa23MapStep` and `RemapWoa23Step`.
 
 Work directories are `e3sm/init/<mesh>/component_inputs/<step_name>`, and the
 tasks are at `e3sm/init/<mesh>/component_inputs/tasks/{ocean,seaice,all}`.
