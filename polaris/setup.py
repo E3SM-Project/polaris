@@ -153,8 +153,8 @@ def setup_tasks(
     _add_tasks_by_number(numbers, all_tasks, tasks, cached_steps)
     _add_tasks_by_name(task_list, all_tasks, cached, tasks, cached_steps)
 
-    # get the component of the first task.  We'll ensure that all tasks are
-    # for this component
+    # the component of the first task is the one the suite belongs to and the
+    # one the unqualified command-line options apply to
     first_path = next(iter(tasks))
     component = tasks[first_path].component
 
