@@ -265,27 +265,10 @@ class CullMaskStep(Step):
         latitude_threshold = section.getfloat('sea_ice_latitude_threshold')
         iterations = section.getint('land_locked_cell_iterations')
 
-        # critical land transects must be culled from ocean
-        crit_land_filename = 'critical_land_transects_mask.nc'
-        if os.path.exists(crit_land_filename):
-            logger.info(
-                'Applying critical land transect mask to ocean cull mask.'
-            )
-            ds_crit = open_dataset(crit_land_filename)
-            preserve_land = ds_crit.regionCellMasks.isel(nRegions=0) > 0
-            cull_mask = np.logical_or(cull_mask, preserve_land)
-
-        # critical ocean transects must not be culled from ocean
-        crit_ocean_filename = 'critical_ocean_transects_mask.nc'
-        if os.path.exists(crit_ocean_filename):
-            logger.info(
-                'Applying critical ocean transect mask to ocean cull mask.'
-            )
-            ds_crit = open_dataset(crit_ocean_filename)
-            preserve_ocean = ds_crit.regionCellMasks.isel(nRegions=0) > 0
-            cull_mask = np.logical_and(
-                cull_mask, np.logical_not(preserve_ocean)
-            )
+        cull_mask = self._apply_critical_transects(
+            cull_mask=cull_mask,
+            mask_name='ocean cull mask',
+        )
 
         region_cell_mask = xr.where(cull_mask, 1, 0).expand_dims(
             dim='nRegions', axis=1
@@ -507,6 +490,68 @@ class CullMaskStep(Step):
             write_netcdf(ds_mask, 'critical_ocean_transects_mask.nc')
             logger.info('Wrote critical_ocean_transects_mask.nc.')
 
+    def _apply_critical_transects(
+        self, cull_mask, mask_name, ocean_cull_mask=None
+    ):
+        """
+        Apply the critical land blockages and the critical ocean passages to
+        an ocean cull mask.  Cells along critical land transects must be
+        culled from the ocean and cells along critical ocean transects must
+        not be.  The same treatment is applied to the ocean with and without
+        ice-shelf cavities, so that a passage that keeps a cell in the ocean
+        also keeps it in the ocean without cavities.
+
+        Parameters
+        ----------
+        cull_mask : xarray.DataArray
+            The cull mask to update
+
+        mask_name : str
+            The name of the mask being updated, used in log messages
+
+        ocean_cull_mask : xarray.DataArray, optional
+            The cull mask for the ocean including ice-shelf cavities.  If
+            given, critical ocean transects are preserved only at cells that
+            the ocean itself retains, so the resulting domain cannot contain
+            cells that are absent from the ocean.
+
+        Returns
+        -------
+        cull_mask : xarray.DataArray
+            The updated cull mask
+        """
+        logger = self.logger
+
+        # critical land transects must be culled from the ocean
+        crit_land_filename = 'critical_land_transects_mask.nc'
+        if os.path.exists(crit_land_filename):
+            logger.info(
+                f'Applying critical land transect mask to {mask_name}.'
+            )
+            ds_crit = open_dataset(crit_land_filename)
+            preserve_land = ds_crit.regionCellMasks.isel(nRegions=0) > 0
+            cull_mask = np.logical_or(cull_mask, preserve_land)
+
+        # critical ocean transects must not be culled from the ocean
+        crit_ocean_filename = 'critical_ocean_transects_mask.nc'
+        if os.path.exists(crit_ocean_filename):
+            logger.info(
+                f'Applying critical ocean transect mask to {mask_name}.'
+            )
+            ds_crit = open_dataset(crit_ocean_filename)
+            preserve_ocean = ds_crit.regionCellMasks.isel(nRegions=0) > 0
+            if ocean_cull_mask is not None:
+                # a critical ocean transect cell that the ocean does not
+                # retain must not be added back here
+                preserve_ocean = np.logical_and(
+                    preserve_ocean, np.logical_not(ocean_cull_mask)
+                )
+            cull_mask = np.logical_and(
+                cull_mask, np.logical_not(preserve_ocean)
+            )
+
+        return cull_mask
+
     def _create_ocean_cull_mask(self):
         """
         Create a mask for culling land and grounded land ice from the ocean
@@ -607,6 +652,15 @@ class CullMaskStep(Step):
 
         # Exclude all land ice, not just the grounded ice
         cull_mask = np.logical_or(ocean_cull_mask, land_ice_mask)
+
+        # excluding the land ice can undo the critical transects that were
+        # applied to the ocean cull mask, so they have to be applied again
+        cull_mask = self._apply_critical_transects(
+            cull_mask=cull_mask,
+            mask_name='ocean no-cavities cull mask',
+            ocean_cull_mask=ocean_cull_mask,
+        )
+
         cull_mask_orig = cull_mask.copy()
 
         region_cell_mask = xr.where(cull_mask, 1, 0).expand_dims(
