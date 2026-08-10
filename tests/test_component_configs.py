@@ -197,7 +197,7 @@ def test_a_shared_config_belongs_to_one_component(basic_config, tmp_path):
     mesh = Component(name='mesh')
     e3sm_init = Component(name='e3sm/init')
     ocean_step = get_shared_step(ocean, 'an_ocean_step', 'shared')
-    mesh_step = Step(component=mesh, name='a_mesh_step', subdir='mesh_shared')
+    mesh_step = Step(component=mesh, name='a_mesh_step', subdir='shared')
     mesh_step.set_shared_config(ocean_step.config, link='an_ocean_step.cfg')
     task = Task(component=e3sm_init, name='a_task')
     task.add_step(step=ocean_step)
