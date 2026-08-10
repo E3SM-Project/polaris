@@ -24,6 +24,9 @@ from polaris.tasks.e3sm.init.component_inputs.seaice_initial_condition import (
     SeaiceInitialConditionStep,
 )
 from polaris.tasks.e3sm.init.component_inputs.seaice_mesh import SeaiceMeshStep
+from polaris.tasks.e3sm.init.component_inputs.seaice_partition_map import (
+    SeaicePartitionMapStep,
+)
 from polaris.tasks.e3sm.init.topo.cull.steps import get_cull_topo_steps
 from polaris.tasks.ocean import ocean
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps import (
@@ -169,12 +172,24 @@ def _add_seaice_steps(steps, config, base_subdir, cull_mesh_step):
     )
     steps['seaice_initial_condition'] = seaice_initial_condition
 
+    # building the weights is an MPI job sized for the mapping tool; using
+    # them is not, so they are separate steps
+    seaice_partition_map = e3sm_init.get_or_create_shared_step(
+        step_cls=SeaicePartitionMapStep,
+        subdir=os.path.join(base_subdir, 'seaice_partition_map'),
+        config=config,
+        config_filename=CONFIG_FILENAME,
+        seaice_mesh_step=seaice_mesh,
+    )
+    steps['seaice_partition_map'] = seaice_partition_map
+
     seaice_graph_partition = e3sm_init.get_or_create_shared_step(
         step_cls=SeaiceGraphPartitionStep,
         subdir=os.path.join(base_subdir, 'seaice_graph_partition'),
         config=config,
         config_filename=CONFIG_FILENAME,
         seaice_mesh_step=seaice_mesh,
+        partition_map_step=seaice_partition_map,
     )
     steps['seaice_graph_partition'] = seaice_graph_partition
 

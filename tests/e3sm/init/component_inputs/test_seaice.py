@@ -19,10 +19,13 @@ MESH_NAME = 'u.oi30.lr10'
 
 SEAICE_STEPS = ['seaice_mesh', 'seaice_initial_condition']
 
-# reads the sea-ice mesh and a database climatology rather than the culled
-# mesh directly, so it is checked for ocean-independence but not for its
-# exact input list
-ALL_SEAICE_STEPS = SEAICE_STEPS + ['seaice_graph_partition']
+# these read the sea-ice mesh and a database climatology rather than the
+# culled mesh directly, so they are checked for ocean-independence but not
+# for their exact input lists
+ALL_SEAICE_STEPS = SEAICE_STEPS + [
+    'seaice_partition_map',
+    'seaice_graph_partition',
+]
 
 LOGGER = logging.getLogger('test_seaice')
 
@@ -40,7 +43,13 @@ def test_the_seaice_steps_reach_no_ocean_step():
 
     for name in ALL_SEAICE_STEPS:
         step = steps[name]
-        assert not step.dependencies, name
+        # a sea-ice step may depend on another sea-ice step -- the partition
+        # step needs the mapping file.  What it may never do is reach the
+        # ocean, so check where the dependency leads rather than that there
+        # is none.
+        for dep_name, dep in step.dependencies.items():
+            assert dep.component.name != ocean.name, (name, dep_name)
+            assert dep_name in ALL_SEAICE_STEPS, (name, dep_name)
         for entry in step.input_data:
             target = entry['work_dir_target']
             if target is None:
