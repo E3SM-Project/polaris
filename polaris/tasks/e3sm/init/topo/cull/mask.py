@@ -19,6 +19,9 @@ from polaris import Step
 from polaris.mesh.spherical.critical_transects import (
     load_default_critical_transects,
 )
+from polaris.tasks.e3sm.init.topo.cull.consistency import (
+    check_cull_mask_consistency,
+)
 from polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics import (
     check_ocean_dc_edge,
 )
@@ -313,7 +316,9 @@ class CullMaskStep(Step):
         every cell on the globe and no one is supposed to own it twice.
 
         Subclasses can override this method to define a different land
-        domain.
+        domain, but one that breaks the complementarity must also override
+        :py:meth:`CullMaskStep._check_mask_consistency`, which would
+        otherwise reject the resulting masks.
 
         Parameters
         ----------
@@ -347,6 +352,7 @@ class CullMaskStep(Step):
         self._create_ocean_no_cavities_cull_mask()
         self._create_land_cull_mask()
         self._combine_masks()
+        self._check_mask_consistency()
         self._check_ocean_dc_edge()
         logger.info('Completed CullMaskStep run sequence.')
 
@@ -748,6 +754,29 @@ class CullMaskStep(Step):
 
         write_netcdf(ds_masks, 'cull_masks.nc')
         logger.info('Wrote cull_masks.nc.')
+
+    def _check_mask_consistency(self):
+        """
+        Check that the ocean, ocean without ice-shelf cavities, land and
+        land-ice masks describe consistent domains.
+        """
+        config = self.config
+        convention = config.get(
+            'spherical_mesh', 'antarctic_boundary_convention'
+        )
+
+        ds_masks = open_dataset('cull_masks.nc')
+
+        check_cull_mask_consistency(
+            ocean_cull_mask=ds_masks.oceanCullMask.values,
+            ocean_no_cavities_cull_mask=(
+                ds_masks.oceanNoCavitiesCullMask.values
+            ),
+            land_cull_mask=ds_masks.landCullMask.values,
+            land_ice_mask=ds_masks.landIceMask.values,
+            convention=convention,
+            logger=self.logger,
+        )
 
     def _check_ocean_dc_edge(self):
         """
