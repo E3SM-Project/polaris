@@ -122,6 +122,7 @@
    get_cull_topo_steps
    add_cull_topo_tasks
 
+   consistency.check_cull_mask_consistency
    dc_edge_diagnostics.check_ocean_dc_edge
 ```
 

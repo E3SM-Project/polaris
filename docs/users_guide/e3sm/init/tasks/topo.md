@@ -131,3 +131,14 @@ Common user-tunable options are:
 	the land/river domain has leaked into the CFL-limited ocean/sea-ice domain
 	(see the {ref}`design doc <design-docs>` `unified_mesh_cull_leak` for the
 	motivation and choice of defaults).
+
+Cull tasks produce three culled meshes: `ocean`, `ocean_no_cavities` and
+`land`.  The land mesh is the exact complement of `ocean_no_cavities`, so
+every cell of the base mesh is owned by exactly one of the two, and
+`ocean_no_cavities` is always a subset of `ocean`.  The two ocean meshes
+differ only by the ice-shelf cavity cells, so with the default
+`calving_front` convention, which leaves no cavities, they are identical.
+Critical land transects and critical ocean transects are applied to both
+ocean meshes in the same way; a cell that a critical ocean passage keeps in
+the ocean is treated as open water rather than as an ice-shelf cavity.  The
+mask step fails if any of these relationships does not hold.

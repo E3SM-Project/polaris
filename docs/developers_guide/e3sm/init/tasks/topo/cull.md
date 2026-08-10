@@ -17,7 +17,8 @@ a specific part of the process:
   creates masks for land, ocean (with and without ice-shelf cavities), and
   Antarctic land ice. This step uses critical transects, flood-filling, and
   land-locked cell detection to ensure the masks are physically consistent
-  and contiguous.
+  and contiguous, and it checks the resulting masks against the invariants
+  described in [Mask Invariants](#mask-invariants) below.
 - **Mesh Culling**: The {py:class}`polaris.tasks.e3sm.init.topo.cull.CullMeshStep`
   uses the generated masks to cull the MPAS base mesh, producing separate
   meshes for land, ocean/sea-ice, and ocean without ice-shelf cavities. It also
@@ -74,12 +75,59 @@ The Antarctic land-ice ownership mask also includes southern cells that have
 already been removed from the open-ocean cull mask, so the cull workflow
 remains consistent with the remapped topography masks.
 
+(mask-invariants)=
+## Mask Invariants
+
+The three cull masks and the land-ice mask together describe how the globe is
+divided between the components, and `CullMaskStep` guarantees the following,
+for every value of `antarctic_boundary_convention`:
+
+1. The ocean without ice-shelf cavities is a subset of the ocean. Never the
+   reverse.
+2. The land is exactly the complement of the ocean without cavities, so every
+   cell on the globe is owned by exactly one of the two.
+3. The land-ice mask is zero at every cell the ocean without cavities retains.
+   Equivalently, the ice-shelf cavity cells of the ocean mesh are exactly the
+   cells the ocean retains and the ocean without cavities does not.
+4. Critical land blockages and critical ocean passages are applied identically
+   to the ocean and to the ocean without cavities.
+5. Under `calving_front` the ocean and the ocean without cavities are
+   identical, so the ocean and the land partition the base mesh.
+
+Invariant 4 is why `CullMaskStep._apply_critical_transects` is shared between
+`refine_ocean_cull_mask` and the ocean-without-cavities mask: removing the
+land ice from the ocean mask would otherwise undo a critical passage that had
+kept an ice-covered cell in the ocean. In the without-cavities pass the
+passage override is restricted to cells the ocean itself retains, which is
+what makes invariant 1 hold by construction.
+
+Invariant 3 is the decision that critical transects outrank the ice masks. A
+cell that a passage forces into the ocean is treated as open water rather than
+as an ice-shelf cavity. That is what makes `calving_front` genuinely
+cavity-free, and under `grounding_line` and `bedrock_zero` it keeps the
+sea-ice mesh from owning a cell that the ocean mesh models as a cavity.
+
+The land-locked-cell ("confined inlet") check is deliberately asymmetric: it
+runs on the with-cavities domain for the ocean and on the without-cavities
+domain for the ocean without cavities, so a confined inlet is judged against
+the connectivity each mesh actually has.
+
+After all masks are written, `CullMaskStep` calls
+{py:func}`polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency`,
+which raises a `ValueError` listing the offending cell indices if any of
+invariants 1, 2, 3 or 5 is violated. These are hard failures because a
+violation means the culled meshes handed downstream are wrong in a way that is
+hard to notice later.
+
 ## Workflow
 
 1. **Mask Generation**: The `CullMaskStep` creates masks for ocean, ocean
    without cavities, land, and Antarctic land ice. It uses critical transects,
    flood-filling from seed points, and land-locked cell detection to ensure the
-   masks are contiguous and scientifically meaningful.
+   masks are contiguous and scientifically meaningful. The ocean and the ocean
+   without cavities each get the same critical land blockages and critical
+   ocean passages; the land is then the complement of the ocean without
+   cavities.
 2. **Mesh Culling**: The `CullMeshStep` uses the generated masks to cull the
    MPAS base mesh, producing separate meshes for land, ocean/sea-ice, and ocean
    without ice-shelf cavities. It also generates mapping files and graph files
@@ -151,6 +199,17 @@ class MyCustomCullMaskStep(CullMaskStep):
         # e.g., add or remove cells based on scientific criteria
         return cull_mask
 ```
+
+Note that `refine_ocean_cull_mask` alters only the ocean domain directly. Its
+result still reaches the ocean without ice-shelf cavities, because that mask
+starts from the ocean cull mask, but the critical transects, land-locked-cell
+check and flood fill are re-run there independently.
+
+`refine_land_cull_mask` receives the complement of the ocean without cavities
+and returns it unaltered in the base class, so overriding it means departing
+from invariant 2 above. A subclass that does so must also override
+`CullMaskStep._check_mask_consistency`, which would otherwise reject the
+resulting masks.
 
 You can then use your custom step in place of the default `CullMaskStep` when
 constructing your workflow.
