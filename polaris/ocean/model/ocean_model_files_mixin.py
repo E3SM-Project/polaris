@@ -147,6 +147,7 @@ class OceanModelFilesMixin:
         ----------
         filename : str, optional
             Explicit local filename, overriding the placeholder.
+
         **kwargs
             Additional keyword arguments forwarded to
             :py:meth:`polaris.Step.add_input_file`.
