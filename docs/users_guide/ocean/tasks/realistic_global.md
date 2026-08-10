@@ -760,6 +760,14 @@ pressure_gradient_type = Jacobian_from_TS
 # Whether to form frazil ice.  MPAS-Ocean only.
 use_frazil_ice_formation = False
 
+# Whether to write density to the 3-D output stream.  MPAS-Ocean only; Omega
+# writes specific volume through its Eos group instead.  On by default, since
+# it is part of what makes the two models comparable on the same fields and a
+# short run can afford it.  It is the only field in that stream with a switch
+# of its own, because it is 3-D and is roughly 13% of the output volume, which
+# starts to matter once a workflow writes the stream many times over.
+output_density = True
+
 # Simulation start time (config_start_time)
 start_time = 0001-01-01_00:00:00
 ```
