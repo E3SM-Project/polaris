@@ -1,37 +1,112 @@
+import numpy as np
+
 from polaris.constants import get_constant
+from polaris.ocean.model.time import get_days_since_start
 
 cp_sw = get_constant('seawater_specific_heat_capacity_reference')
 rho_sw = get_constant('seawater_density_reference')
 
+# Freshwater/mass fluxes that the model adds to the (pseudo-)thickness
+# equation.  ``seaIceSalinityFlux`` also enters the thickness equation, so it
+# appears in the mass budget as well as the salt budget.
+# flux variables (polaris/native names) that enter each budget
+MASS_FLUX_VARS = [
+    'snowFlux',
+    'rainFlux',
+    'evaporationFlux',
+    'seaIceFreshWaterFlux',
+    'iceRunoffFlux',
+    'riverRunoffFlux',
+    'seaIceSalinityFlux',
+]
+HEAT_FLUX_VARS = [
+    'latentHeatFlux',
+    'sensibleHeatFlux',
+    'shortWaveHeatFlux',
+    'longWaveHeatFluxUp',
+    'longWaveHeatFluxDown',
+    'seaIceHeatFlux',
+]
+SALT_FLUX_VARS = ['seaIceSalinityFlux']
+
+# mass fluxes that also carry an SST-dependent enthalpy flux; if any is
+# nonzero, the heat budget cannot be closed with these terms alone
+ENTHALPY_FLUX_VARS = [
+    'rainFlux',
+    'riverRunoffFlux',
+    'snowFlux',
+    'iceRunoffFlux',
+]
+
+_FLUX_VARS = {
+    'mass': MASS_FLUX_VARS,
+    'energy': HEAT_FLUX_VARS,
+    'salt': SALT_FLUX_VARS,
+}
+
 
 def compute_total_mass(ds_mesh, ds):
     """
-    Compute the total mass in an ocean model output file using a constant
-    density
+    Compute the total mass in an ocean model output file
+
+    If a pseudo-thickness field is present, a non-Boussinesq approach is
+    used, in which the pseudo-thickness carries the layer mass per unit area
+    (``rho_sw * pseudoThickness``).  Otherwise, the mass is computed from the
+    layer thickness using a constant reference density.
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        The mesh dataset, containing ``areaCell``
+
+    ds : xarray.Dataset
+        The dataset containing a layer thickness or pseudo-thickness for a
+        single time slice
+
+    Returns
+    -------
+    total_mass : float
+        The total mass in kg over the whole domain
     """
-    ds = _reduce_dataset_time_dim(ds)
+    ds = _reduce_dataset_time_dim(ds, caller='compute_total_mass')
     area_cell = ds_mesh.areaCell
-    layer_thickness = _get_layer_thickness(ds)
-    total_mass = rho_sw * (
-        area_cell * layer_thickness.sum(dim='nVertLevels')
-    ).sum(dim='nCells')
+    thickness = _get_mass_thickness(ds)
+    # For omega this is equivalent to \rho * h * A
+    # For mpas-o this is equivalent to \rho_ref * h * A
+    total_mass = rho_sw * (area_cell * thickness.sum(dim='nVertLevels')).sum(
+        dim='nCells'
+    )
     return total_mass
 
 
 def compute_total_energy(ds_mesh, ds):
     """
     Compute the total heat content in an ocean model output file
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        The mesh dataset, containing ``areaCell``
+
+    ds : xarray.Dataset
+        The dataset containing ``temperature`` and a layer thickness for a
+        single time slice
+
+    Returns
+    -------
+    total_energy : float
+        The total heat content in J over the whole domain
     """
-    ds = _reduce_dataset_time_dim(ds)
+    ds = _reduce_dataset_time_dim(ds, caller='compute_total_energy')
     area_cell = ds_mesh.areaCell
-    layer_thickness = _get_layer_thickness(ds)
+    thickness = _get_mass_thickness(ds)
     temperature = ds.temperature
     total_energy = (
         rho_sw
         * cp_sw
-        * (
-            area_cell * (layer_thickness * temperature).sum(dim='nVertLevels')
-        ).sum(dim='nCells')
+        * (area_cell * (thickness * temperature).sum(dim='nVertLevels')).sum(
+            dim='nCells'
+        )
     )
     return total_energy
 
@@ -39,44 +114,195 @@ def compute_total_energy(ds_mesh, ds):
 def compute_total_tracer(ds_mesh, ds, tracer_name='tracer1'):
     """
     Compute the total tracer in an ocean model output file
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        The mesh dataset, containing ``areaCell``
+
+    ds : xarray.Dataset
+        The dataset containing the tracer and a layer thickness for a single
+        time slice
+
+    tracer_name : str, optional
+        The name of the tracer to integrate
+
+    Returns
+    -------
+    total_tracer : float
+        The volume integral of the tracer over the whole domain
     """
-    ds = _reduce_dataset_time_dim(ds)
+    ds = _reduce_dataset_time_dim(ds, caller='compute_total_tracer')
     area_cell = ds_mesh.areaCell
-    layer_thickness = _get_layer_thickness(ds)
+    thickness = _get_mass_thickness(ds)
     tracer = ds[tracer_name]
     total_tracer = (
-        area_cell * (layer_thickness * tracer).sum(dim='nVertLevels')
+        area_cell * (thickness * tracer).sum(dim='nVertLevels')
     ).sum(dim='nCells')
     return total_tracer
 
 
 def compute_total_salt(ds_mesh, ds):
     """
-    Compute the total salt in an ocean model output file
+    Compute the total mass of salt in an ocean model output file using a
+    constant density
+
+    Salinity is assumed to be in g/kg (i.e. grams of salt per kilogram of
+    seawater), so the volume integral of ``layerThickness * salinity`` is
+    converted to a salt mass with ``rho_sw / 1000``.
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        The mesh dataset, containing ``areaCell``
+
+    ds : xarray.Dataset
+        The dataset containing ``salinity`` and a layer thickness
+
+    Returns
+    -------
+    total_salt : float
+        The total mass of salt in kg over the whole domain
     """
-    return compute_total_tracer(ds_mesh, ds, tracer_name='salinity')
+    total_salinity = compute_total_tracer(ds_mesh, ds, tracer_name='salinity')
+    print('compute_total_salt')
+    return (rho_sw / 1000.0) * total_salinity
 
 
-def _reduce_dataset_time_dim(ds):
+def get_elapsed_seconds(ds):
+    """
+    Elapsed seconds between two time indices of an output dataset, supporting
+    Omega's numeric ``time`` and MPAS-Ocean's ``daysSinceStartOfSim``.
+    """
+    start_time = get_days_since_start(ds.isel(Time=0)) * 86400.0
+    end_time = get_days_since_start(ds.isel(Time=-1)) * 86400.0
+    return end_time - start_time
+
+
+def compute_flux_forcing(ds_mesh, ds, budget, dt):
+    """
+    Integrate the surface forcing fluxes that contribute to a given budget
+    over the duration of a run, assuming the fluxes are constant in time
+
+    Only the flux variables that are present in ``ds`` contribute, so the
+    forcing fields must be included in the output stream for the
+    corresponding budget to be checked against the forcing.
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        The mesh dataset, containing ``areaCell``
+
+    ds : xarray.Dataset
+        The output dataset, which may contain surface forcing flux variables
+
+    budget : {'mass', 'energy', 'salt'}
+        The budget for which to accumulate the surface fluxes
+
+    dt : float
+        The elapsed time of the run in seconds
+
+    Returns
+    -------
+    total : float
+        The accumulated flux in the same units as the corresponding
+        ``compute_total_*`` function (kg for mass and salt, J for energy).
+        Zero if none of the relevant variables are present in ``ds``.
+    """
+    if budget not in _FLUX_VARS:
+        raise ValueError(f'Unknown conservation budget "{budget}"')
+    area_cell = ds_mesh.areaCell
+    total = 0.0
+    for var in _FLUX_VARS[budget]:
+        if var in ds:
+            flux = _drop_time(ds[var])
+            inst_flux = (flux * area_cell).sum(dim='nCells').values
+            print(f'{var}: {inst_flux}')
+            # ensure inst_flux is a python float (sum any remaining dims)
+            inst_flux = float(np.sum(inst_flux))
+            total += inst_flux
+    return total * dt
+
+
+def has_enthalpy_forcing(ds):
+    """
+    Whether any mass flux that carries an SST-dependent enthalpy heat flux is
+    active, in which case the energy budget cannot be closed with the direct
+    heat fluxes alone
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The output dataset, which may contain surface forcing flux variables
+
+    Returns
+    -------
+    active : bool
+        ``True`` if any enthalpy-carrying mass flux is present and nonzero
+    """
+    for var in ENTHALPY_FLUX_VARS:
+        if var in ds and np.any(ds[var].values != 0.0):
+            return True
+    return False
+
+
+def _drop_time(da):
+    """
+    Return a data array with any time dimension removed, using the first time
+    slice since the forcing is assumed constant in time
+    """
+    for time_dim in ['time', 'Time']:
+        if time_dim in da.dims:
+            da = da.isel({time_dim: 0})
+    return da
+
+
+def _reduce_dataset_time_dim(ds, caller):
+    """
+    Drop the time dimension from a dataset, which must contain at most a
+    single time slice
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The dataset to reduce
+
+    caller : str
+        The name of the calling function, used in the error message
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        The dataset with any time dimension removed
+    """
     for time_dim in ['time', 'Time']:
         if time_dim in ds.dims:
             if ds.sizes[time_dim] > 1:
-                raise ValueError(
-                    'compute_total_energy is designed to work on a dataset '
-                    'with one time slice'
+                print(
+                    f'Warning: {caller} requires a dataset with a single '
+                    f'time slice but the "{time_dim}" dimension has size '
+                    f'{ds.sizes[time_dim]}, using last time slice.'
                 )
-            else:
-                ds = ds.isel(time_dim=0)
+                ds = ds.isel({time_dim: -1})
     return ds
 
 
-def _get_layer_thickness(ds):
-    if 'PseudoThickness' in ds:
-        return ds.PseudoThickness
-    elif 'layerThickness' in ds:
-        return ds.layerThickness
-    else:
-        raise ValueError(
-            'compute_total_energy requires either PseudoThickness or '
-            'layerThickness to be present in the dataset'
-        )
+def _get_mass_thickness(ds):
+    """
+    Return the thickness field to use in the mass budget, preferring the
+    pseudo-thickness (non-Boussinesq) over the layer thickness (Boussinesq)
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The dataset containing a layer thickness or pseudo-thickness
+
+    Returns
+    -------
+    thickness : xarray.DataArray
+        The thickness field to integrate
+    """
+    for var in ['pseudoThickness', 'PseudoThickness']:
+        if var in ds:
+            return ds[var]
+    return ds.layerThickness
