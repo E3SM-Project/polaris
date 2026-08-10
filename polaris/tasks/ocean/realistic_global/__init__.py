@@ -20,7 +20,7 @@ def add_realistic_global_tasks(component):
     mesh_dict = {
         'QU.240km': dict(mpaso_id=151209, omega_id=260807, ncells=7153),
         'EC30to60E2r2': dict(mpaso_id=200908, omega_id=260807, ncells=236853),
-        'RRS18to6v3': dict(mpaso_id=210321, omega_id=260803, ncells=3693225),
+        'RRS18to6v3': dict(mpaso_id=210321, omega_id=260807, ncells=3693225),
     }
     for mesh_name, mesh_info in mesh_dict.items():
         subdir = f'spherical/realistic_global/{mesh_name}'
