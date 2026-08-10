@@ -13,6 +13,53 @@ def get_task(component, name, steps=()):
     return task
 
 
+def test_a_step_is_registered_with_its_own_component():
+    """
+    A step belongs to its own component, whichever component's task adds it.
+    Registering it with the task's component would put it in a component that
+    does not provide its config options and does not know how to run it.
+    """
+    ocean = Component(name='ocean')
+    e3sm_init = Component(name='e3sm/init')
+    step = Step(component=ocean, name='a_shared_step')
+    get_task(e3sm_init, 'a_task', steps=[step])
+
+    assert ocean.steps == {step.subdir: step}
+    assert e3sm_init.steps == {}
+
+
+def test_steps_in_different_components_may_share_a_subdir():
+    """
+    Two steps in one task may have the same subdirectory as long as they are
+    in different components, since the component name is part of the path.
+    """
+    ocean = Component(name='ocean')
+    mesh = Component(name='mesh')
+    e3sm_init = Component(name='e3sm/init')
+    ocean_step = Step(component=ocean, name='an_ocean_step', subdir='shared')
+    mesh_step = Step(component=mesh, name='a_mesh_step', subdir='shared')
+
+    get_task(e3sm_init, 'a_task', steps=[ocean_step, mesh_step])
+
+    assert ocean.steps == {'shared': ocean_step}
+    assert mesh.steps == {'shared': mesh_step}
+
+
+def test_removing_a_step_removes_it_from_its_own_component():
+    """
+    A step no task is using is removed from the component it belongs to, not
+    from the component of the task it was removed from.
+    """
+    ocean = Component(name='ocean')
+    e3sm_init = Component(name='e3sm/init')
+    step = Step(component=ocean, name='a_shared_step')
+    task = get_task(e3sm_init, 'a_task', steps=[step])
+
+    task.remove_step(step)
+
+    assert ocean.steps == {}
+
+
 def test_the_task_component_is_in_use():
     """A task with no steps still puts its own component in use."""
     ocean = Component(name='ocean')
