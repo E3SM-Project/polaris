@@ -3,24 +3,28 @@ import os
 import xarray as xr
 from mpas_tools.logging import check_call
 
-from polaris.remap import MappingFileStep
+from polaris.step import Step
 from polaris.tasks.e3sm.init.component_inputs.models import check_seaice_model
-from polaris.tasks.e3sm.init.component_inputs.names import get_mesh_short_name
 from polaris.tasks.e3sm.init.component_inputs.partitions import get_core_list
+from polaris.tasks.e3sm.init.component_inputs.seaice_partition_map import (
+    CLIMATOLOGY_FILENAME,
+)
 
 #: The base name the partition files carry.  As with the ocean partitions,
 #: the creation date is added when the files are staged, not here.
 GRAPH_BASENAME = 'mpas-seaice.graph.info'
 
-#: The QU60km sea-ice climatology the partitioning weights cells by, and the
-#: mask of where ice is present in it.
-PARTITION_DATABASE_FILES = (
-    'seaice_QU60km_polar.nc',
-    'icePresent_QU60km_polar.nc',
-)
+#: The name the mapping-file step is registered under as a dependency.
+MAP_DEPENDENCY = 'seaice_partition_map'
+
+#: The mask of where ice is present in the QU60km climatology.  The
+#: climatology itself comes from
+#: :py:mod:`polaris.tasks.e3sm.init.component_inputs.seaice_partition_map`,
+#: which also names it.
+ICE_PRESENT_FILENAME = 'icePresent_QU60km_polar.nc'
 
 
-class SeaiceGraphPartitionStep(MappingFileStep):
+class SeaiceGraphPartitionStep(Step):
     """
     A step for partitioning the sea-ice mesh.
 
@@ -29,6 +33,11 @@ class SeaiceGraphPartitionStep(MappingFileStep):
     physics is spread evenly rather than the cell count -- which is why this
     needs a QU60km climatology and a mapping file, and the ocean partitioning
     needs neither.
+
+    The weights come from
+    :py:class:`~polaris.tasks.e3sm.init.component_inputs.seaice_partition_map.SeaicePartitionMapStep`
+    rather than being built here, so that this step is the serial work it
+    actually is.
 
     The mesh being partitioned is
     :py:class:`~polaris.tasks.e3sm.init.component_inputs.seaice_mesh.SeaiceMeshStep`'s
@@ -39,6 +48,11 @@ class SeaiceGraphPartitionStep(MappingFileStep):
     As with the ocean partitions, the core counts follow from a cell count
     that is not known until the mesh exists, so the partition files cannot be
     declared as outputs at setup.
+
+    Attributes
+    ----------
+    seaice_mesh_step : polaris.Step
+        The step that wrote ``seaice_mesh.nc``.
     """
 
     def __init__(
@@ -46,6 +60,7 @@ class SeaiceGraphPartitionStep(MappingFileStep):
         component,
         subdir,
         seaice_mesh_step,
+        partition_map_step,
         name='seaice_graph_partition',
     ):
         """
@@ -62,23 +77,20 @@ class SeaiceGraphPartitionStep(MappingFileStep):
         seaice_mesh_step : polaris.Step
             The step that wrote ``seaice_mesh.nc``.
 
+        partition_map_step : polaris.Step
+            The step that built the QU60km-to-mesh mapping file.
+
         name : str, optional
             The name of the step.
         """
-        super().__init__(
-            component=component,
-            name=name,
-            subdir=subdir,
-            # pyremap partitions the SCRIP files with "mbpart <ntasks>", which
-            # rejects a request for a single partition, so the floor is 2
-            ntasks=36,
-            min_tasks=2,
-            method='bilinear',
-        )
+        super().__init__(component=component, name=name, subdir=subdir)
         self.seaice_mesh_step = seaice_mesh_step
-        self.mesh_short_name = None
 
-        for filename in PARTITION_DATABASE_FILES:
+        # the mapping file's path is not known until the step has run, so it
+        # comes from the dependency rather than being declared as an input
+        self.add_dependency(partition_map_step, name=MAP_DEPENDENCY)
+
+        for filename in (CLIMATOLOGY_FILENAME, ICE_PRESENT_FILENAME):
             self.add_input_file(
                 filename=filename,
                 target=filename,
@@ -94,43 +106,36 @@ class SeaiceGraphPartitionStep(MappingFileStep):
 
     def setup(self):
         """
-        Resolve what the mapping file is named after, before anything runs.
+        Refuse a model whose packaging is not supported, before anything runs.
         """
         super().setup()
         check_seaice_model(self.config)
-        self.mesh_short_name = get_mesh_short_name(self.config)
 
     def run(self):
         """
-        Build the QU60km mapping file, then partition the mesh.
+        Weight the mesh by the sea-ice climatology, then partition it.
         """
         check_seaice_model(self.config)
         config = self.config
         logger = self.logger
-        short_name = get_mesh_short_name(config)
 
-        self.remapper.src_from_mpas(
-            filename='seaice_QU60km_polar.nc', mesh_name='QU60km'
-        )
-        self.remapper.dst_from_mpas(
-            filename='seaice_mesh.nc', mesh_name=short_name
-        )
-        # builds the mapping file
-        super().run()
+        # the mapping file (and the path it was written to) comes from the
+        # step that built it
+        remapper = self.dependencies[MAP_DEPENDENCY].remapper
 
         check_call(
             [
                 'prepare_seaice_partitions',
                 '-i',
-                'seaice_QU60km_polar.nc',
+                CLIMATOLOGY_FILENAME,
                 '-p',
-                'icePresent_QU60km_polar.nc',
+                ICE_PRESENT_FILENAME,
                 '-m',
                 'seaice_mesh.nc',
                 '-o',
                 '.',
                 '-w',
-                self.remapper.map_filename,
+                remapper.map_filename,
             ],
             logger,
         )
