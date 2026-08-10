@@ -633,7 +633,9 @@ class CullMaskStep(Step):
         floating) from the ocean such that the ocean is contiguous, excludes
         critical land transects, includes critical ocean transects and accounts
         for land-locked.  Update the land-ice mask to include any areas that
-        will be removed from the open ocean by these updates.
+        will be removed from the open ocean by these updates and to exclude
+        any cells that critical ocean transects keep in the ocean without
+        cavities.
         """
         logger = self.logger
         logger.info('Creating ocean no-cavities cull mask.')
@@ -702,6 +704,13 @@ class CullMaskStep(Step):
             land_ice_mask,
             cull_mask_added,
         )
+
+        # critical transects outrank the ice masks: a cell that a critical
+        # ocean transect keeps in the ocean without cavities is open water,
+        # not an ice-shelf cavity.  This makes the cavity cells of the ocean
+        # mesh exactly those cells the ocean retains and the ocean without
+        # cavities does not.
+        land_ice_mask = np.logical_and(land_ice_mask, cull_mask > 0)
 
         ds_mask = xr.Dataset()
         ds_mask['oceanNoCavitiesCullMask'] = cull_mask
