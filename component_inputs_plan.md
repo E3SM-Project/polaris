@@ -1,8 +1,8 @@
 # Plan: `component_inputs` under `e3sm/init`
 
-Branch: `add-e3sm-init-component-inputs`, based on
-`add-realistic-global-ocean-dynamic-adjustment` at `a7b6358a9` ("Document the
-startup window").
+Branch: `add-e3sm-init-component-inputs`, rebased 2026-08-10 onto
+`add-realistic-global-ocean-dynamic-adjustment` at `fce8c386b` ("Document the
+dynamic-adjustment output override").
 
 Design: `docs/design_docs/e3sm_init_component_inputs.md` on the
 `add-global-ocean-init-design` branch, updated in `aa106978e` ("Update the
@@ -16,16 +16,59 @@ anything the implementation teaches us — go into it then.
 Reference, not a port target:
 `~/compass/main/compass/ocean/tests/global_ocean/files_for_e3sm/`.
 
-Working document, untracked.
+Working document, committed to the branch so that the reasoning travels with
+the code. It comes out before the PR.
 
-## Where we are
+## Status
 
-Nothing exists yet. `polaris/tasks/e3sm/init/` contains only `topo/`
-(`combine`, `remap`, `cull`), and the branch is otherwise identical to the
-dynamic-adjustment branch it sits on.
+**All 14 commits have landed.** The plan below is kept as the record of what
+was decided and why; where a decision moved, the section says so rather than
+being rewritten to look prescient.
 
-What the upstream workflows already give us is more than the design assumed
-when it was written, and it changes the shape of several steps.
+What is verified as of 2026-08-10, on `u.oi240.lr240`:
+
+* `pytest tests` — 863 passed, 65 of them the `component_inputs` tests
+* `pre-commit` clean on all 36 files the branch touches
+* `polaris setup` succeeds for all three targets: `all`, `ocean`, and
+  `seaice` (the last with no `--ocean_*` flags, since it pulls in no ocean
+  steps at all — setup now says so outright if you pass them)
+
+What has *not* happened yet: nothing has been run. Every checklist item under
+"After the code" below is still open.
+
+### The cross-component config dependency
+
+Setting up the `ocean` and `all` targets was broken for a reason that had
+nothing to do with this branch: `polaris setup` assembled config options for
+the component that owned the *task*, so an `e3sm/init` task pulling in ocean
+shared steps never loaded `polaris/ocean/ocean.cfg` and never ran
+`Ocean.configure()`. `[ocean] model` was missing outright, and once supplied
+it stayed the unresolved literal `detect`.
+
+That is fixed on `fix-cross-component-step-config`, which reached this branch
+through `add-realistic-global-ocean-dynamic-adjustment`. Every config now
+belongs to exactly one component and gets that component's config file and
+`configure()`, so a shared step's options are the same no matter which
+component's task pulled it in — verified here by diffing the ocean shared
+configs from an ocean-task setup, an `e3sm/init`-task setup, and a setup
+containing both: identical option for option.
+
+The visible consequence for this branch is the command line. Since `e3sm/init`
+owns no model, the unqualified `-p` and `--model` do not apply to these tasks;
+use `--ocean_model` and `--ocean_path`:
+
+```
+polaris setup -t e3sm/init/u.oi240.lr240/component_inputs/tasks/all \
+    -w <workdir> --ocean_model mpas-ocean --ocean_path <mpaso build>
+```
+
+The default ocean build directory also moved from `<work_dir>/build` to
+`<work_dir>/ocean_build` so that two components cannot build over each other.
+
+## What the upstream workflows give us
+
+More than the design assumed when it was written, which is what changed the
+shape of several steps.
 
 `CullMeshStep` (`e3sm/init/<mesh>/topo/cull/mesh`) writes, for each of the
 prefixes `ocean`, `ocean_no_cavities` and `land`:
@@ -47,7 +90,9 @@ Compass steps become staging or inversion rather than computation.
 (`ocean/spherical/realistic_global/<mesh>/init/initial_state`) writes `mesh.nc`
 (the culled ocean mesh plus Coriolis) and `init.nc`, both built from
 `culled_ocean_mesh.nc` — the full ocean domain, which is the right choice.
-`polaris.ocean.coriolis.add_coriolis_to_dataset` already exists.
+`add_coriolis_to_dataset` already exists; it has since moved from
+`polaris.ocean.coriolis` to `polaris.coriolis`, which is what D7 below ended
+up depending on.
 
 `RealisticGlobalDynamicAdjustment` chains `Forward` stages; the last one's
 restart is the ocean initial condition we want.
@@ -75,19 +120,16 @@ Test mesh: `u.oi240.lr240` (`u03.oi240.lr240`) first, since everything here is
 cheap post-processing of a mesh that already exists. `u.oi30.lr10`
 (`u02.oi30.lr10`) once oi240 looks right.
 
-## Blocking dependency
+## Blocking dependency — resolved
 
 The ocean initial condition comes from the final dynamic-adjustment stage's
-restart, but `RealisticGlobalDynamicAdjustment._setup_steps()` builds its
-`Forward` stages privately — they are not shared steps, so no other task can
-depend on them. Xylar is tasking the upstream dynamic-adjustment PR with adding
-a `get_dynamic_adjustment_steps(component, mesh_name)` accessor, matching
-`get_realistic_init_steps` and `get_cull_topo_steps`.
-
-Until that lands, commits 1–6 and 10–12 below are unblocked; commits 7–9 (the
-ocean products) need it. If it slips, they can be written against
-`init_steps['initial_state']` and re-pointed in a one-line change, but that
-should be a fallback, not the plan.
+restart, and those `Forward` stages were originally built privately, so no
+other task could depend on them. The upstream dynamic-adjustment branch added
+`get_realistic_dynamic_adjustment_steps(component, mesh_name, include_viz)`,
+matching `get_realistic_init_steps` and `get_cull_topo_steps`. It returns
+`(steps, config, stages)`; `steps.py` takes the last stage and its
+`restart_out` from that. The fallback of writing commits 7–9 against
+`init_steps['initial_state']` was never needed.
 
 ## Design decisions
 
@@ -260,11 +302,18 @@ computes `fCell`, `fEdge`, `fVertex` from latitude rather than copying them out
 of an ocean restart as Compass does — they are functions of latitude alone, and
 copying them is the accidental coupling this design exists to remove.
 
-`polaris.ocean.coriolis.add_coriolis_to_dataset` does exactly this but reads
-`[coriolis] type` from the ocean config, which is the wrong knob for a sea-ice
-step on a sphere. **Open:** reuse it and require `type = sphere`, or compute
-`2 Ω sin(lat)` directly in the sea-ice step. Leaning toward the latter — three
-lines, no config coupling to a section the step has no business reading.
+`add_coriolis_to_dataset` does exactly this but reads `[coriolis] type` from
+the config, which is the wrong knob for a sea-ice step on a sphere.
+
+**Settled, and better than either option considered here.** The Coriolis
+helpers were not ocean-specific at all — they touch only mesh coordinates and
+write mesh fields — so they moved to the framework as `polaris/coriolis.py`
+on `move-coriolis-to-framework`, which reached this branch through
+`unified-mesh-base-branch`. `SeaiceInitialConditionStep` calls
+`add_spherical_coriolis(ds)` from there: no reimplementation, and no config
+coupling, because that function takes no config and reads no `[coriolis]`
+option. The layering violation that prompted the question is gone rather than
+worked around.
 
 ### D8. Graph partitions
 
@@ -280,12 +329,11 @@ Sea-ice: `prepare_seaice_partitions` and `create_seaice_partitions` from
 `icePresent_QU60km_polar.nc`, plus a QU60km→mesh bilinear map built with
 `pyremap`.
 
-**Action item for Xylar:** those two files are not in the Polaris database.
-They exist at
-`/lcrc/group/e3sm/public_html/mpas_standalonedata/mpas-seaice/partition/` and
-need to be copied to `.../polaris/seaice/partition/` before
-`database='partition', database_component='seaice'` resolves. This blocks
-commit 12 only.
+**Done.** Both files are now in the Polaris database at
+`/lcrc/group/e3sm/public_html/polaris/seaice/partition/`, alongside a `README`
+recording where they came from, and
+`database='partition', database_component='seaice'` resolves — the
+`seaice` target's setup links them into the step's work directory.
 
 ### D9. Omega raises
 
@@ -307,7 +355,19 @@ The unit tests in commits 4, 6, 9, 11 and 13 are what runs in CI.
 ## Open questions
 
 1. Does anything beyond the SCRIP files and index maps need staging for
-   `ocean_no_cavities` — the culled mesh itself, for instance? Assuming not.
+   `ocean_no_cavities` — the culled mesh itself, for instance? Built on the
+   assumption that it does not: `SCRIP_REGIONS` stages all three regions'
+   SCRIP files and `BaseMeshStep` writes all three prefixes' index maps, but
+   no `ocean_no_cavities` mesh file is staged. Still unconfirmed against a
+   real E3SM run, so it stays open until step 5 of the checklist below.
+2. New, from the rebase rather than the design: `component_inputs` stages
+   `mpaso.<short>.<date>.nc` under `inputdata/ocn/mpas-o/<short>/`, while
+   `DatabaseInitialCondition` on the forward side reads
+   `ocean.<mesh>.<mpaso_id>.zerovel.nc` from the Polaris input-file database.
+   The two do not collide, and the commit that added the latter says renaming
+   waits until `realistic_global/init` can produce database initial conditions
+   itself. Worth deciding whether this workflow's output is eventually what
+   feeds that database, and if so which naming wins.
 
 ## Settled: ice-shelf cavities are out of scope
 
@@ -412,47 +472,66 @@ around for the index maps.
 Consequence for this branch: the D3 map field names track the prefixes directly,
 and the D5 table stages all three SCRIP files. Both are correct as planned.
 
-## Proposed commit series
+## Commit series — all landed
 
 Repo convention: code and tests as separate commits, docs last. Where a change
 is small enough that a separate test commit would be noise, tests ride along.
 
-| # | Commit | What it does |
-|---|--------|--------------|
-| 1 | Add the `component_inputs` package skeleton | D1: empty package, `component_inputs.cfg` with `[component_inputs]`, `add_component_inputs_tasks` wired into `add_e3sm_init_tasks`, no steps yet. `polaris list` still works. |
-| 2 | Name the staged component-input files | D4, D5: `names.py` — short name, creation date, one function per staged path; register `e3sm_short_name` for `u01.oi6to18.lr6to10`, `u02.oi30.lr10` and `u03.oi240.lr240` in their per-mesh configs. Nothing calls it yet. |
-| 3 | Map base-mesh indices to the culled meshes | D3: `maps.py` with `map_base_to_culled`, including the two input assertions. Pure function, no step. |
-| 4 | Test the base-to-culled index maps | D3: hand-built forward maps; present elements one-based, absent zero, `mapBaseTo*[mapCulledToBase*[i]] == i + 1` round trip, base-mesh dimensioning, both assertions firing. |
-| 5 | Stage the base mesh with its culled-mesh maps | `BaseMeshStep` writing `base_mesh_with_maps.nc`; `ScripStep` staging the cull step's SCRIP files; both added by `get_component_inputs_steps`. |
-| 6 | Test the shared component-input steps | Steps declare the cull step's outputs as inputs; the family gate decides whether maps are written; the three named meshes resolve their short name from the per-mesh config; a mesh with no assigned name fails at setup naming the option. |
-| 7 | Add the MPAS-Ocean mesh and initial-condition steps | D9: `OceanMeshStep` (mesh vars, vertical-coordinate reference fields, `cellMask`, `ssh`, `zMid`; no land-ice fields, no cavity gating) and `OceanInitialConditionStep` from the final dynamic-adjustment restart. **Needs the upstream shared-step accessor.** |
-| 8 | Add the ocean graph partitions | D8: `partitions.py` with `get_core_list`, plus `OceanGraphPartitionStep` over `culled_ocean_graph.info`. |
-| 9 | Test the ocean component inputs | `get_core_list` bounds and factor rules; the IC step depends on the last stage's restart, not on `initial_state`; Omega raises. |
-| 10 | Add the MPAS-Seaice mesh and initial-condition steps | D7: both from `culled_ocean_mesh.nc`; Coriolis computed, not copied. |
-| 11 | Test that sea-ice does not depend on the ocean | D7: the sea-ice task's step list contains no ocean step and no dynamic-adjustment dependency; `fCell`/`fEdge`/`fVertex` match `2 Ω sin(lat)`. |
-| 12 | Add the sea-ice graph partitions | D8: `SeaiceGraphPartitionStep`, QU60km database inputs, bilinear map, `create_seaice_partitions`. **Needs the database files staged.** |
-| 13 | Assemble the staged component-input tree | D6: `AssembleStep`, the three tasks (`ocean`, `seaice`, `all`), the `README`, plus tests that each staged file appears under its expected path. |
-| 14 | Document the `component_inputs` tasks | User guide page under `docs/users_guide/e3sm/init/tasks/`, developer guide page and API entries, both indexes updated. |
+The series went in as planned, in the planned order — the upstream accessor
+landed in time, so the fallback ordering under the table was not needed. SHAs
+are as of the 2026-08-10 rebase and change whenever the branch is rebased.
 
-Commits 1–6 are the shared mesh staging and are unblocked today. 7–9 are the
-ocean side and wait on the upstream accessor. 10–12 are the sea-ice side, and
-12 waits on the database files. 13 is what makes the tree assemble; 14 is docs.
+| # | SHA | Commit | What it does |
+|---|-----|--------|--------------|
+| 1 | `02a141191` | Add the `component_inputs` package skeleton | D1: empty package, `component_inputs.cfg` with `[component_inputs]`, `add_component_inputs_tasks` wired into `add_e3sm_init_tasks`, no steps yet. `polaris list` still works. |
+| 2 | `9e972b53e` | Name the staged component-input files | D4, D5: `names.py` — short name, creation date, one function per staged path; register `e3sm_short_name` for `u01.oi6to18.lr6to10`, `u02.oi30.lr10` and `u03.oi240.lr240` in their per-mesh configs. Nothing calls it yet. |
+| 3 | `894d3d2fa` | Map base-mesh indices to the culled meshes | D3: `maps.py` with `map_base_to_culled`, including the two input assertions. Pure function, no step. |
+| 4 | `9d1da33b6` | Test the base-to-culled index maps | D3: hand-built forward maps; present elements one-based, absent zero, `mapBaseTo*[mapCulledToBase*[i]] == i + 1` round trip, base-mesh dimensioning, both assertions firing. |
+| 5 | `b34251794` | Stage the base mesh with its culled-mesh maps | `BaseMeshStep` writing `base_mesh_with_maps.nc`; `ScripStep` staging the cull step's SCRIP files; both added by `get_component_inputs_steps`. |
+| 6 | `e4904a612` | Test the shared component-input steps | Steps declare the cull step's outputs as inputs; the family gate decides whether maps are written; the three named meshes resolve their short name from the per-mesh config; a mesh with no assigned name fails at setup naming the option. |
+| 7 | `abab5fb90` | Add the MPAS-Ocean mesh and initial-condition steps | D9: `OceanMeshStep` (mesh vars, vertical-coordinate reference fields, `cellMask`, `ssh`, `zMid`; no land-ice fields, no cavity gating) and `OceanInitialConditionStep` from the final dynamic-adjustment restart. |
+| 8 | `ac6deb280` | Add the ocean graph partitions | D8: `partitions.py` with `get_core_list`, plus `OceanGraphPartitionStep` over `culled_ocean_graph.info`. |
+| 9 | `089fb36c5` | Test the ocean component inputs | `get_core_list` bounds and factor rules; the IC step depends on the last stage's restart, not on `initial_state`; Omega raises. |
+| 10 | `b05ea6d0e` | Add the MPAS-Seaice mesh and initial-condition steps | D7: both from `culled_ocean_mesh.nc`; Coriolis computed, not copied. |
+| 11 | `6ada5b958` | Test that sea-ice does not depend on the ocean | D7: the sea-ice task's step list contains no ocean step and no dynamic-adjustment dependency; `fCell`/`fEdge`/`fVertex` match `2 Ω sin(lat)`. |
+| 12 | `afe50734e` | Add the sea-ice graph partitions | D8: `SeaiceGraphPartitionStep`, QU60km database inputs, bilinear map, `create_seaice_partitions`. |
+| 13 | `47c5dc735` | Assemble the staged component-input tree | D6: `AssembleStep`, the three tasks (`ocean`, `seaice`, `all`), the `README`, plus tests that each staged file appears under its expected path. |
+| 14 | `416721057` | Document the `component_inputs` tasks | User guide page under `docs/users_guide/e3sm/init/tasks/`, developer guide page and API entries, both indexes updated. |
 
-If the upstream accessor is late, the order becomes 1–6, 10–11, 13, then 7–9
-and 12 — the sea-ice side genuinely does not need the ocean, and building it
-first would prove that rather than assert it.
+Commits 1–6 are the shared mesh staging, 7–9 the ocean side, 10–12 the
+sea-ice side; 13 is what makes the tree assemble, and 14 is docs. Both of the
+dependencies that could have forced a reordering — the upstream shared-step
+accessor for 7–9, the QU60km database files for 12 — landed in time.
 
 ## After the code
 
-1. `pytest tests/e3sm/init/` green (this worktree has no `pixi-env/` yet —
-   it needs `./deploy.py`, which is Xylar's to run).
-2. `polaris setup` the `u.oi240.lr240` `component_inputs/all` task and read the
-   config and the declared inputs before running anything.
-3. Run it — all of it is post-processing of an existing mesh, so it is login-node
-   safe apart from the sea-ice partitioning, which wants a compute node.
-4. Check `base_mesh_with_maps.nc` by hand: the round-trip identity, and that the
-   ocean and land maps are complementary where they should be.
-5. Inspect `assembled_files/` against the D5 table.
-6. Repeat on `u.oi30.lr10`.
-7. Update the design doc on its own branch with anything the implementation
-   taught us.
+Done:
+
+1. ~~`pytest tests/e3sm/init/` green.~~ The whole suite is green — 863 passed,
+   including the 65 `component_inputs` tests — and `pre-commit` is clean.
+2. ~~`polaris setup` the `u.oi240.lr240` `component_inputs/all` task and read
+   the config and the declared inputs before running anything.~~ All three
+   targets set up. The ocean shared config resolves `[ocean] model =
+   mpas-ocean` and carries `[ocean_staged_files]`; the `component_inputs`
+   config carries no `[ocean]` section at all, which is the separation the
+   cross-component fix is there to give. The `seaice` target links the two
+   QU60km database files into the partition step.
+
+Still to do, in order:
+
+3. Run it on `u.oi240.lr240` — all of it is post-processing of an existing
+   mesh, so it is login-node safe apart from the sea-ice partitioning, which
+   wants a compute node. The ocean side also needs the dynamic-adjustment
+   chain to have run for that mesh.
+4. Check `base_mesh_with_maps.nc` by hand: the round-trip identity, and that
+   the ocean and land maps are complementary where they should be.
+5. Inspect `assembled_files/` against the D5 table — the paths, and that the
+   creation date is the same in every filename.
+6. Repeat on `u.oi30.lr10`. Note that its mesh changed with the dcEdge fix on
+   `unified-mesh-base-branch` (`coastline_transition_land_km` 60 → 90 km), so
+   it needs a fresh work directory rather than an existing one.
+7. Then `u.oi.so12to30.lr10` under its `uXX` placeholder, as the workflow test
+   on the one regionally refined mesh — see D4.
+8. Update the design doc on its own branch with anything the implementation
+   taught us, and unpause it.
+9. Remove this file before opening the PR.
