@@ -197,6 +197,10 @@
    seaice_initial_condition.SeaiceInitialConditionStep.setup
    seaice_initial_condition.SeaiceInitialConditionStep.run
 
+   seaice_partition_map.SeaicePartitionMapStep
+   seaice_partition_map.SeaicePartitionMapStep.setup
+   seaice_partition_map.SeaicePartitionMapStep.run
+
    seaice_graph_partition.SeaiceGraphPartitionStep
    seaice_graph_partition.SeaiceGraphPartitionStep.setup
    seaice_graph_partition.SeaiceGraphPartitionStep.run
