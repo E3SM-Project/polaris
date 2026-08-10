@@ -61,6 +61,7 @@ from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
 from polaris.tasks.ocean.realistic_global.mesh_configs import (
     add_realistic_global_mesh_config,
 )
+from polaris.yaml import PolarisYaml
 
 matplotlib.use('Agg')
 
@@ -616,6 +617,36 @@ def test_schedule_overrides_a_config_option(tmp_path):
     assert stage.use_GM is False
     # and an option it does not mention still comes from config
     assert stage.mom_del4 == pytest.approx(1.2e11)
+
+
+@pytest.mark.parametrize(
+    'mesh_name', ['icos240km', 'u.oi30.lr10', 'u.oi6to18.lr6to10']
+)
+def test_stages_do_not_write_density(mesh_name):
+    """
+    density is in the forward output stream so MPAS-Ocean and Omega can be
+    compared on the same fields.  A dynamic adjustment is not that comparison,
+    and it writes the stream once per stage on the largest meshes Polaris
+    builds, so this workflow turns it off in config.
+
+    Checked per mesh because the per-mesh config files are applied *after* this
+    one, so a mesh could quietly turn it back on.  ssh is asserted alongside:
+    it shares the same block of the stream but is 2-D, and dropping it with
+    density would be the easy mistake.
+    """
+    stages = load_schedule_stages(mesh_name, _config(mesh_name))
+    for stage in stages:
+        assert stage.output_density is False, stage.name
+
+    yaml = PolarisYaml.read(
+        filename='forward.yaml',
+        package=FORWARD_CONFIG_PACKAGE,
+        replacements=stages[0].model_replacements('mpas-ocean', min_res=30.0),
+        model='mpas-ocean',
+    )
+    contents = yaml.streams['output']['contents']
+    assert 'density' not in contents
+    assert 'ssh' in contents
 
 
 def test_schedule_can_set_the_mpaso_only_physics(tmp_path):
