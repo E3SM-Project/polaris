@@ -305,7 +305,7 @@ class OceanIOStep(OceanModelFilesMixin, Step):
     def open_model_dataset(
         self,
         filename,
-        config,
+        config=None,
         tracer_convention=None,
         lon=None,
         lat=None,
@@ -321,8 +321,8 @@ class OceanIOStep(OceanModelFilesMixin, Step):
         filename : str
             The path for the NetCDF file to open
 
-        config : polaris.config.PolarisConfigParser
-            Configuration for the task; forwarded to the Ocean component.
+        config : polaris.config.PolarisConfigParser, optional
+            Configuration for the task; defaults to the step's config
 
         tracer_convention : {'teos-10', 'mpas-ocean'}, optional
             The convention of ``temperature`` and ``salinity`` in the dataset
@@ -353,6 +353,8 @@ class OceanIOStep(OceanModelFilesMixin, Step):
         ds : xarray.Dataset
             The dataset with variables named as expected in MPAS-Ocean
         """
+        if config is None:
+            config = self.config
         if logger is None:
             logger = self.logger
         return self.component.open_model_dataset(

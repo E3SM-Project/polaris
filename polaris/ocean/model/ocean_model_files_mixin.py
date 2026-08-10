@@ -30,6 +30,66 @@ class OceanModelFilesMixin:
     config: 'PolarisConfigParser'
     input_data: list[dict[str, Any]]
     add_input_file: Callable[..., None]
+    logger: Any
+
+    # --- dataset access ---
+
+    def open_model_dataset(
+        self,
+        filename,
+        config=None,
+        tracer_convention=None,
+        lon=None,
+        lat=None,
+        logger=None,
+        **kwargs,
+    ):
+        """
+        Open a dataset, mapping Omega variable and dimension names to their
+        MPAS-Ocean equivalents if appropriate.
+
+        Parameters
+        ----------
+        filename : str
+            The path for the NetCDF file to open
+
+        config : polaris.config.PolarisConfigParser, optional
+            Configuration for the task; defaults to the step's config
+
+        tracer_convention : str, optional
+            The tracer convention to use when renaming variables
+
+        lon : str, optional
+            The name of the longitude coordinate, if any
+
+        lat : str, optional
+            The name of the latitude coordinate, if any
+
+        logger : logging.Logger, optional
+            A logger; defaults to the step's logger
+
+        **kwargs
+            Additional keyword arguments forwarded to
+            :py:meth:`polaris.tasks.ocean.Ocean.open_model_dataset`
+
+        Returns
+        -------
+        ds : xarray.Dataset
+            The dataset with variables named as expected in MPAS-Ocean
+        """
+        if config is None:
+            config = self.config
+        if logger is None:
+            logger = self.logger
+        return self.component.open_model_dataset(
+            filename,
+            config=config,
+            tracer_convention=tracer_convention,
+            lon=lon,
+            lat=lat,
+            logger=logger,
+            **kwargs,
+        )
 
     # --- filename getters ---
 
