@@ -22,7 +22,6 @@ MASS_FLUX_VARS = [
     'iceRunoffFlux',
     'riverRunoffFlux',
     'icebergFreshWaterFlux',  # Note: not available for Omega
-    'subglacialRunoffFlux',  # Note: not available for Omega
 ]
 
 MASS_ASSOC_SALT_FLUX_VARS = [
@@ -53,7 +52,6 @@ ENTHALPY_FLUX_VARS = [
     'rainFlux',
     'evaporationFlux',
     'riverRunoffFlux',
-    'subglacialRunoffFlux',
 ]
 
 _FLUX_VARS = {
