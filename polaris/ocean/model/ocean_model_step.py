@@ -516,22 +516,25 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         success = True
         mesh_filename = self.get_horiz_mesh_filename()
         init_filename = self.get_init_filename()
+        ds_mesh = self.open_model_dataset(
+            os.path.join(self.work_dir, mesh_filename)
+        )
+        ds_init = self.open_model_dataset(
+            os.path.join(self.work_dir, init_filename)
+        )
+        time_index_end = 0
         for filename, properties_to_check in self.properties_to_check.items():
             properties = [
                 prop.replace(' conservation', '')
                 for prop in properties_to_check
             ]
 
-            ds_mesh = self.open_model_dataset(
-                os.path.join(self.work_dir, mesh_filename)
-            )
-            ds_init = self.open_model_dataset(
-                os.path.join(self.work_dir, init_filename)
-            )
             ds = self.open_model_dataset(
                 os.path.join(self.work_dir, filename), decode_times=True
             )
-            dt = get_elapsed_seconds(ds)
+            ds_end = ds.isel(Time=time_index_end)
+            dt = get_elapsed_seconds(ds_end)
+            print(f'elapsed seconds: {dt}')
             for output_property in properties:
                 func: Callable[..., Any]
                 kwargs: Dict[str, Any] = {}
@@ -561,6 +564,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                         output_property,
                         dt,
                         model=config.get('ocean', 'model'),
+                        config=config,
                     )
 
                 relative_error = self._compute_rel_err(
@@ -569,6 +573,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                     ds_init=ds_init,
                     ds=ds,
                     expected_change=expected_change,
+                    time_index_end=time_index_end,
                     **kwargs,
                 )
                 passed = relative_error <= tol
@@ -589,7 +594,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         ds,
         ds_init=None,
         time_index_start=0,
-        time_index_end=-1,
+        time_index_end=0,
         expected_change=0.0,
         **kwargs,
     ):
@@ -604,9 +609,13 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         if ds_init is not None:
             ds_start = ds_init
         else:
-            ds_start = ds.isel(Time=time_index_start, keep_dims=False)
-        init_val = float(func(ds_mesh, ds_start, **kwargs).values)
-        ds_end = ds.isel(Time=time_index_end, keep_dims=False)
+            ds_start = ds
+        init_val = float(
+            func(
+                ds_mesh, ds_start.isel(Time=time_index_start), **kwargs
+            ).values
+        )
+        ds_end = ds.isel(Time=time_index_end)
         final_val = float(func(ds_mesh, ds_end, **kwargs).values)
         residual = (final_val - init_val) - expected_change
         print(f'init {init_val}, final {final_val}')

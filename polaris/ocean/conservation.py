@@ -1,6 +1,7 @@
 import numpy as np
 
 from polaris.constants import get_constant
+from polaris.ocean.eos import compute_ct_freezing
 from polaris.ocean.model.time import get_days_since_start
 
 # TODO cp_sw = get_constant('seawater_specific_heat_capacity_reference')
@@ -46,12 +47,15 @@ FUSION_FLUX_VARS = [
 
 SALT_FLUX_VARS = ['seaIceSalinityFlux']
 
-# mass fluxes that also carry an SST-dependent enthalpy flux; if any is
-# nonzero, the heat budget cannot be closed with these terms alone
+# Mass fluxes that may also carry an enthalpy flux, ``flux * cp_sw * T``.
+# Which of these are active, and the temperature ``T`` applied to each, is
+# model dependent and is resolved by ``_get_enthalpy_flux_vars``.
 ENTHALPY_FLUX_VARS = [
     'rainFlux',
     'evaporationFlux',
     'riverRunoffFlux',
+    'snowFlux',
+    'iceRunoffFlux',
 ]
 
 _FLUX_VARS = {
@@ -185,18 +189,40 @@ def compute_total_salt(ds_mesh, ds):
     return (rho_sw / 1000.0) * total_salinity
 
 
-def get_elapsed_seconds(ds):
+def get_elapsed_seconds(ds, time_index_start=None, time_index_end=-1):
     """
-    Elapsed seconds between two time indices of an output dataset, supporting
+    Elapsed seconds between two states of an output dataset, supporting
     Omega's numeric ``time`` and MPAS-Ocean's ``daysSinceStartOfSim``.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The output dataset
+
+    time_index_start : int, optional
+        The time index in ``ds`` at the start of the interval.  By default,
+        the interval starts at the beginning of the simulation (the initial
+        condition), rather than at a time in the output file.
+
+    time_index_end : int, optional
+        The time index in ``ds`` at the end of the interval
+
+    Returns
+    -------
+    dt : float
+        The elapsed time in seconds
     """
-    # start_time = get_days_since_start(ds.isel(Time=0)) * 86400.0
-    start_time = 0.0
-    end_time = get_days_since_start(ds.isel(Time=-1)) * 86400.0
+    if time_index_start is None:
+        start_time = 0.0
+    else:
+        start_time = (
+            get_days_since_start(ds.isel(Time=time_index_start)) * 86400.0
+        )
+    end_time = get_days_since_start(ds.isel(Time=time_index_end)) * 86400.0
     return end_time - start_time
 
 
-def compute_flux_forcing(ds_mesh, ds, budget, dt, model=None):
+def compute_flux_forcing(ds_mesh, ds, budget, dt, model=None, config=None):
     """
     Integrate the surface forcing fluxes that contribute to a given budget
     over the duration of a run, assuming the fluxes are constant in time
@@ -223,6 +249,11 @@ def compute_flux_forcing(ds_mesh, ds, budget, dt, model=None):
         The model name, required for the energy budget when
         enthalpy-carrying mass fluxes (e.g. rain, evaporation, runoff) are
         active
+
+    config : polaris.config.PolarisConfigParser, optional
+        Configuration options, used to compute the freezing temperature from
+        the equation of state when a frozen mass flux carries an enthalpy
+        flux and the model's freezing temperature is not in the output
 
     Returns
     -------
@@ -260,22 +291,62 @@ def compute_flux_forcing(ds_mesh, ds, budget, dt, model=None):
         total *= rho_sw / 1000.0
 
     if budget == 'energy':
+        # frozen mass fluxes are melted by the ocean, absorbing the latent
+        # heat of fusion.  The enthalpy of the resulting meltwater is handled
+        # below, since the two models apply different temperatures to it.
         for var in FUSION_FLUX_VARS:
             if var in ds:
                 flux = _drop_time(ds[var])
                 inst_flux = float((flux * area_cell).sum(dim='nCells').values)
                 total -= latent_heat_fusion[model] * inst_flux
-                print(f'{var}: {-latent_heat_fusion[model] * inst_flux}')
+                print(
+                    f'{var} (fusion): {-latent_heat_fusion[model] * inst_flux}'
+                )
 
-        total += _compute_enthalpy_forcing(ds_mesh, ds, model)
+        # MPAS-Ocean applies an evaporation enthalpy flux
+        # (accumulatedEvapTemperatureFlux) and clamps the river runoff
+        # temperature at 0 C, whereas Omega folds the evaporation enthalpy
+        # into LatentHeatFlux, applies no clamp, and additionally adds the
+        # cp_sw * T_f enthalpy of the meltwater from frozen mass fluxes (see
+        # SfcTracerForcingOnCell).
+        if model == 'mpas-ocean':
+            temperature_sources = {
+                'rainFlux': 'surface',
+                'evaporationFlux': 'surface',
+                'riverRunoffFlux': 'surface_clamped',
+            }
+        elif model == 'omega':
+            temperature_sources = {
+                'rainFlux': 'surface',
+                'riverRunoffFlux': 'surface',
+                'snowFlux': 'freezing',
+                'iceRunoffFlux': 'freezing',
+            }
+        else:
+            raise ValueError(
+                f'"model" is "{model}", which is not one of '
+                f'{sorted(cp_sw.keys())}.  A valid model name is required '
+                'to compute the enthalpy contribution to the energy budget.'
+            )
+        temperature_sources = {
+            var: source
+            for var, source in temperature_sources.items()
+            if var in ENTHALPY_FLUX_VARS
+        }
+
+        total += _compute_enthalpy_forcing(
+            ds_mesh, ds, model, temperature_sources, config
+        )
 
     return total * dt
 
 
-def _compute_enthalpy_forcing(ds_mesh, ds, model):
+def _compute_enthalpy_forcing(
+    ds_mesh, ds, model, temperature_sources, config=None
+):
     """
-    Accumulate the SST-dependent enthalpy heat flux carried by mass fluxes
-    such as rain, evaporation and runoff, i.e. ``flux * cp_sw * SST``
+    Accumulate the enthalpy heat flux carried by mass fluxes such as rain,
+    evaporation and runoff, i.e. ``flux * cp_sw * T``
 
     Parameters
     ----------
@@ -288,23 +359,31 @@ def _compute_enthalpy_forcing(ds_mesh, ds, model):
     model : {'omega', 'mpas-ocean'}
         The model name, used to select the specific heat capacity
 
+    temperature_sources : dict of str
+        A mapping from flux variable name to the temperature the model
+        applies to that flux, one of:
+
+        * ``'surface'``: the temperature of the top model layer
+        * ``'surface_clamped'``: the top-layer temperature clamped to be
+          >= 0 C, since fresh water cannot be colder than 0 C
+        * ``'freezing'``: the local freezing temperature, applied to frozen
+          mass fluxes that the ocean melts
+
+    config : polaris.config.PolarisConfigParser, optional
+        Configuration options, used to compute the freezing temperature from
+        the equation of state when it is not available in the output
+
     Returns
     -------
     total : float
         The instantaneous enthalpy heat flux in W, zero if no
         enthalpy-carrying mass fluxes are present
     """
-    active = [var for var in ENTHALPY_FLUX_VARS if var in ds]
+    active = {
+        var: source for var, source in temperature_sources.items() if var in ds
+    }
     if not active:
         return 0.0
-
-    if model not in cp_sw:
-        raise ValueError(
-            'An enthalpy-carrying mass flux is present in the output but '
-            f'"model" is "{model}", which is not one of '
-            f'{sorted(cp_sw.keys())}.  A valid model name is required to '
-            'compute the enthalpy contribution to the energy budget.'
-        )
 
     if 'temperature' not in ds:
         raise ValueError(
@@ -314,21 +393,76 @@ def _compute_enthalpy_forcing(ds_mesh, ds, model):
         )
 
     area_cell = ds_mesh.areaCell
-    sst = _drop_time(ds.temperature).isel(nVertLevels=0)
+    surface_temperature = _drop_time(ds.temperature).isel(nVertLevels=0)
 
     total = 0.0
-    for var in active:
+    for var, source in active.items():
+        if source == 'surface':
+            temperature = surface_temperature
+        elif source == 'surface_clamped':
+            # fresh water cannot be colder than 0 C
+            temperature = np.maximum(surface_temperature, 0.0)
+        elif source == 'freezing':
+            temperature = _get_freezing_temperature(ds, config)
+        else:
+            raise ValueError(
+                f'Unknown enthalpy temperature source "{source}" for "{var}"'
+            )
         flux = _drop_time(ds[var])
         inst_flux = float(
-            np.sum(
-                (cp_sw[model] * flux * sst * area_cell)
-                .sum(dim='nCells')
-                .values
-            )
+            (cp_sw[model] * flux * temperature * area_cell)
+            .sum(dim='nCells')
+            .values
         )
-        print(f'{var} (enthalpy): {inst_flux}')
+        print(f'{var} (enthalpy, {source}): {inst_flux}')
         total += inst_flux
     return total
+
+
+def _get_freezing_temperature(ds, config=None):
+    """
+    Return the freezing temperature of the top model layer
+
+    The model's own freezing temperature is used if it is available in the
+    output.  Otherwise, it is computed from the surface salinity with the
+    equation of state given by the config options, neglecting the (small)
+    gauge pressure at the surface.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The output dataset
+
+    config : polaris.config.PolarisConfigParser, optional
+        Configuration options, required if the freezing temperature is not
+        in the output
+
+    Returns
+    -------
+    t_freezing : xarray.DataArray
+        The freezing temperature in the top layer of each column
+    """
+    for var in ['freezingTemperature', 'CtFreezing', 'TFreezing']:
+        if var in ds:
+            t_freezing = _drop_time(ds[var])
+            if 'nVertLevels' in t_freezing.dims:
+                t_freezing = t_freezing.isel(nVertLevels=0)
+            return t_freezing
+
+    if 'salinity' not in ds:
+        raise ValueError(
+            'A frozen mass flux carries an enthalpy flux at the freezing '
+            'temperature, but neither a freezing temperature nor "salinity" '
+            'is available in the output to compute it.'
+        )
+    if config is None:
+        raise ValueError(
+            'A frozen mass flux carries an enthalpy flux at the freezing '
+            'temperature, which is not in the output, so config options are '
+            'required to compute it from the equation of state.'
+        )
+    salinity = _drop_time(ds.salinity).isel(nVertLevels=0)
+    return compute_ct_freezing(config, salinity, pressure=0.0)
 
 
 def _drop_time(da):
