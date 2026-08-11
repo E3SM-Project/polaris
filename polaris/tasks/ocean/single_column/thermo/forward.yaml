@@ -26,6 +26,8 @@ ocean:
     config_disable_thick_sflux: false
   tracer_forcing_activeTracers:
     config_salinity_restoring_constant_piston_velocity: 1.585e-5
+  ocean_constants:
+    config_density0: 1026.0
 
 mpas-ocean:
   frazil_ice:
@@ -61,9 +63,14 @@ mpas-ocean:
       - latentHeatFlux
       - sensibleHeatFlux
       - shortWaveHeatFlux
+      - longWaveHeatFluxUp
+      - longWaveHeatFluxDown
       - evaporationFlux
       - rainFlux
+      - snowFlux
       - seaIceFreshWaterFlux
+      - seaIceHeatFlux
+      - seaIceSalinityFlux
       - icebergFreshWaterFlux
       - riverRunoffFlux
       - iceRunoffFlux
@@ -117,9 +124,14 @@ mpas-ocean:
       - latentHeatFlux
       - sensibleHeatFlux
       - shortWaveHeatFlux
+      - longWaveHeatFluxUp
+      - longWaveHeatFluxDown
       - evaporationFlux
       - rainFlux
+      - snowFlux
       - seaIceFreshWaterFlux
+      - seaIceHeatFlux
+      - seaIceSalinityFlux
       - icebergFreshWaterFlux
       - riverRunoffFlux
       - iceRunoffFlux
