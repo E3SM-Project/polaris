@@ -373,3 +373,48 @@ threshold. The `calving_front` runs must additionally show `ocean` and
 Because this changes which cells are culled, baseline comparisons against
 `main` will differ on every mesh, which is the expected outcome rather than
 a failure.
+
+## `bedrock_zero` is available but not yet fully supported
+
+On `u.oi30.lr10` with `antarctic_boundary_convention = bedrock_zero`, the
+cull-mask step passes every check in this document and then fails the
+`dcEdge` diagnostic at sixteen edges around ten cells near 69.7 degrees
+south, 140 degrees east, in Adelie Land.
+
+The ten cells are ice-shelf cavity cells: in `ocean`, out of
+`ocean_no_cavities`, all flagged as land ice. Under `bedrock_zero` the
+ocean extends into subglacial basins below sea level, and these cells sit
+in one. They are meshed at 11 to 19 km against a 30 km ocean background,
+so their `dcEdge` ratio falls to 0.373 against a floor of 0.65.
+
+The cause predates this design. The coastline product for `bedrock_zero`
+takes its candidate ocean to be everything below sea level, which does
+include the basin, and then flood fills at the 0.125 degree coastline
+resolution, where the barrier between the basin and the sea is unbroken.
+The basin is therefore dropped, and the sizing field assigns it land or
+river resolution. The MPAS cull works at mesh scale, where the same
+barrier is diluted, so its own flood fill connects the basin and keeps it
+as ocean. That is Mechanism A of the `unified_mesh_cull_leak` design doc,
+and `build_effective_ocean_mask` exists to compensate for it, but its
+hysteresis growth does not bridge this barrier under this convention.
+
+What changed is only that the old implementation hid it. Its land-locked
+check applied the B-grid vertex criterion to the ocean, which removed
+exactly these cells. Under the criteria set out here the ocean keeps them,
+because a C-grid needs only two active edges. The margin was already thin:
+the same mesh under the old code reported a minimum ratio of 0.654 against
+the same 0.65 floor.
+
+`calving_front`, which is the default, and `grounding_line` are unaffected,
+reporting minimum ratios of 0.664 and 0.743.
+
+Fixing this means teaching the sizing field's cull emulation to bridge
+barriers that the mesh-scale cull dilutes. That belongs to the
+`unified_mesh_cull_leak` subsystem: it would change the sizing field and
+therefore the base mesh of every unified mesh, which is well outside the
+scope of the land-locked criteria.
+
+The convention is therefore available but not yet ready for production
+use, and is expected to need further debugging before it is. It behaves
+correctly at 240 km, where the base mesh is uniform and no land or river
+resolution exists to leak.
