@@ -106,16 +106,17 @@ def test_the_mapping_file_is_built_by_its_own_step():
     ]
 
 
-def test_the_mapping_step_asks_for_enough_tasks_to_partition():
+def test_the_mapping_tool_resources_travelled_to_the_mapping_step():
     """
-    pyremap partitions the SCRIP files with ``mbpart <ntasks>``, which rejects
-    a request for a single partition.  The floor of 2 belongs to the step that
-    runs the mapping tool, so it has to have travelled with it.
+    Building the weights is the MPI job; using them is not.  The task count
+    that sizes the mapping tool belongs to the step that runs it, and the
+    partitioning step is left serial.
     """
     _reset_shared_components()
     steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
 
-    assert steps['seaice_partition_map'].min_tasks >= 2
+    assert steps['seaice_partition_map'].ntasks > 1
+    assert steps['seaice_graph_partition'].ntasks == 1
 
 
 def test_the_seaice_steps_belong_to_e3sm_init():
