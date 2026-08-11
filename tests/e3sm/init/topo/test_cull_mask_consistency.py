@@ -5,7 +5,9 @@ import pytest
 
 from polaris.tasks.e3sm.init.topo.cull.consistency import (
     check_cull_mask_consistency,
+    check_land_locked_criteria,
 )
+from tests.mesh.hex_mesh import cell_index, hex_mesh
 
 # four base-mesh cells: 0 and 1 are ocean, 2 and 3 are land and land ice
 OCEAN = [0, 0, 1, 1]
@@ -100,3 +102,76 @@ def _check(
         convention=convention,
         logger=logging.getLogger('test_cull_mask_consistency'),
     )
+
+
+def test_domains_differing_by_a_non_cavity_fails():
+    # cell 1 is in the ocean but not without cavities, and is not land ice
+    with pytest.raises(ValueError, match='differ by something other'):
+        _check(
+            convention='grounding_line',
+            ocean=[0, 0, 1, 1],
+            no_cavities=[0, 1, 1, 1],
+            land=[1, 0, 0, 0],
+            land_ice=[0, 0, 1, 1],
+        )
+
+
+def test_land_ice_in_the_ocean_fails_under_calving_front():
+    with pytest.raises(ValueError, match='leaves no ice-shelf cavities'):
+        _check(land_ice=[1, 0, 1, 1])
+
+
+def test_land_locked_criteria_pass_on_a_clean_domain():
+    ds_mesh = hex_mesh(5, 5, lat_of_row=lambda row: 20.0)
+    cull = _cull(_all_cells(5, 5))
+    check_land_locked_criteria(
+        ds_mesh=ds_mesh,
+        ocean_cull_mask=cull,
+        ocean_no_cavities_cull_mask=cull,
+        latitude_threshold=43.0,
+        logger=logging.getLogger('test_cull_mask_consistency'),
+    )
+
+
+def test_land_locked_criteria_catch_a_dead_end():
+    ds_mesh = hex_mesh(5, 5, lat_of_row=lambda row: 20.0)
+    keep = np.zeros(25, dtype=bool)
+    keep[cell_index(5, 1, 1)] = True
+    keep[ds_mesh.cellsOnCell.values[cell_index(5, 1, 1), 0] - 1] = True
+    cull = _cull(keep)
+
+    with pytest.raises(ValueError, match='fewer than two active edges'):
+        check_land_locked_criteria(
+            ds_mesh=ds_mesh,
+            ocean_cull_mask=cull,
+            ocean_no_cavities_cull_mask=cull,
+            latitude_threshold=43.0,
+            logger=logging.getLogger('test_cull_mask_consistency'),
+        )
+
+
+def test_land_locked_criteria_catch_a_missing_vertex_poleward():
+    # a row of cells: two active edges each, but no active vertex
+    ds_mesh = hex_mesh(5, 5, lat_of_row=lambda row: 60.0 if row else 20.0)
+    keep = np.zeros(25, dtype=bool)
+    for col in range(5):
+        keep[cell_index(5, col, 0)] = True
+        keep[cell_index(5, col, 2)] = True
+    cull = _cull(keep)
+
+    with pytest.raises(ValueError, match='no active vertex'):
+        check_land_locked_criteria(
+            ds_mesh=ds_mesh,
+            ocean_cull_mask=cull,
+            ocean_no_cavities_cull_mask=cull,
+            latitude_threshold=43.0,
+            logger=logging.getLogger('test_cull_mask_consistency'),
+        )
+
+
+def _all_cells(n_cols, n_rows):
+    return np.ones(n_cols * n_rows, dtype=bool)
+
+
+def _cull(keep_mask):
+    return np.where(keep_mask, 0, 1)
