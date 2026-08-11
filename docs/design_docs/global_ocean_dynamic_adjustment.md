@@ -31,6 +31,14 @@ compact configuration file, execute them as a restart chain for the configured
 model, and leave a clean path for model-specific tuning and validation as the
 capability matures.
 
+The capability has landed for MPAS-Ocean, with schedules for all four unified
+meshes, and has been run end to end on `u.oi30.lr10` and `u.oi6to18.lr6to10`.
+The parts of this document that the implementation changed are the validation
+strategy — there is deliberately no automated settling criterion — and the
+schedule format, which became a delta on the forward-run config options rather
+than a self-contained description of a run. Both are recorded in the sections
+below.
+
 ## Requirements
 
 ### Requirement: A staged dynamic-adjustment workflow can be created from a global initial condition
@@ -110,7 +118,7 @@ restart chaining, or gross excursions in key diagnostics.
 
 ### Algorithm Design: A staged dynamic-adjustment workflow can be created from a global initial condition
 
-Date last modified: 2026/07/05
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -133,9 +141,27 @@ Compass names, but the mental model is the same: a sequence of several
 `damped_adjustment_*` stages followed by a final `simulation` stage, which has
 proven useful across several global meshes.
 
+The relationship between the schedule and the config options turned out to be
+the important design decision, and it went further than "maps onto
+`ForwardStage`". A stage *is* a forward run, so it starts from the
+`[realistic_global_forward]` config options for its mesh — including the
+per-mesh overrides — and the schedule supplies only what varies from stage to
+stage. The horizontal mixing coefficients, the eddy parameterizations and the
+time integrators are therefore the same as they would be for a `forward` run on
+that mesh, and no schedule mentions them. Keeping the schedule a delta is what
+stops it from becoming a second configuration system that has to track
+`ForwardStage` field by field.
+
+The corollary is that a schedule key must name a real forward-run setting. A key
+that names nothing is an error at setup rather than a silent fall back to the
+config value, so a schedule cannot quietly go stale when an option is renamed.
+Damping runs the other way round from every other option: it is off in config
+and turned on per stage, so the final `simulation` stage gets an undamped run
+simply by omitting it.
+
 ### Algorithm Design: The same conceptual workflow supports either MPAS-Ocean or Omega
 
-Date last modified: 2026/06/14
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -153,6 +179,17 @@ The initial implementation does not need to guarantee that MPAS-Ocean and Omega
 use identical low-level damping controls. The requirement is instead that
 either model can participate in the same staged-adjustment workflow abstraction
 and that model-specific differences are isolated in one place.
+
+That isolation landed in the forward workflow rather than here: the mapping is
+`ForwardStage.model_replacements` and the `mpaso_to_omega.yaml` translation the
+model-neutral template already goes through, so this workflow contributes no
+model-specific code of its own. One expectation did not survive, though. Damping
+has no closest available control in Omega — Omega has no Rayleigh damping at all
+([Omega#495](https://github.com/E3SM-Project/Omega/issues/495)) — so a stage
+that sets `damping` raises for Omega rather than being approximated or dropped.
+An Omega dynamic adjustment therefore needs an undamped schedule, which none of
+the shipped ones is. Reporting success on a run that silently omitted the
+damping the schedule asked for would make the whole exercise meaningless.
 
 ### Algorithm Design: Dynamic adjustment is decomposed into inspectable restart stages
 
@@ -176,9 +213,9 @@ and do not need to be entered redundantly by hand.
 
 ### Algorithm Design: Adjustment schedules are reusable but easy to tune
 
-Date last modified: 2026/03/22
+Date last modified: 2026/08/11
 
-Contributors: Xylar Asay-Davis, Codex
+Contributors: Xylar Asay-Davis, Codex, Claude
 
 The most practical near-term design is to store default schedules in small
 YAML files associated with a mesh, task, or mesh family, following the same
@@ -192,80 +229,146 @@ Polaris should support two complementary modes:
 This keeps the common case simple while avoiding hard-coded stage definitions
 in Python.
 
+Both landed: a checked-in `<mesh_name>.yaml` when the mesh has one and
+`default.yaml` otherwise, with a `schedule` config option naming an alternate
+file. The one constraint worth stating is that the set of steps depends on the
+schedule, and a Polaris step graph is fixed at setup. So a schedule change takes
+effect at `polaris setup`, not at run time, and the task rebuilds its stages
+during `configure()` — after the user's config has been merged — because a stage
+whose name survived a change would otherwise come back from the shared-step
+cache still carrying its old run duration.
+
 ### Algorithm Design: The workflow includes basic validation that the adjustment remained well behaved
 
-Date last modified: 2026/07/05
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
 Validation focuses on clear failure modes rather than exhaustive physical
-assessment. The initial strategy is:
+assessment. The strategy as implemented is:
 
 1. Confirm that each stage completed and wrote the restart the next stage
    consumes (enforced by the Polaris dependency graph and each stage's declared
    input/output restart files).
-2. Confirm that the final stage produced its `output.nc`.
-3. Check the maximum `temperature` in every stage against a loose threshold to
-   detect numerical blow-up.
-4. For the last few stages, verify that the maximum cell kinetic energy is
-   flattening (does not increase by more than a small tolerance).
-5. Optionally compare a small set of final-state variables against a baseline
-   for regression testing.
+2. Bound the maximum `temperature`, the maximum `salinity` and the maximum CFL
+   number reached at any point in each stage, to catch numerical blow-up and a
+   time step too long for the flow the stage produced.
+3. Collect a per-stage diagnostics table and plot the underlying time series, so
+   that whether the adjustment settled is read by a person rather than asserted
+   by a threshold.
+4. Compare a small set of final-state variables against a baseline for
+   regression testing.
 
-Rather than an analysis-member summary, these read `output.nc` directly, since
-it already contains `kineticEnergyCell` and the tracers. This is similar in
-spirit to the existing Compass validation, which checks selected output
-variables and simple thresholds.
+Item 4 of the earlier strategy — requiring the maximum cell kinetic energy to
+flatten over the last few stages — was removed. It was rewritten three times
+(kinetic-energy levels, then the fractional change stage over stage, then that
+change per unit time) and **every** revision was forced by a healthy run failing
+it. The quantity is not comparable across stages: a schedule's stages differ in
+length by up to 70x, the final stage switches the damping off so its energy
+rises by design, and a stage whose energy happens to dip makes the next ordinary
+rise read as an acceleration. Three samples cannot separate any of that from a
+run that is genuinely running away. Whether an adjustment settled is now read
+from the diagnostics table and the figure, which show the whole series; the
+checks that remain are bounds on quantities with real failure modes behind them.
+An automated settling criterion should not be re-added without evidence that it
+survives schedules whose stages differ in length and damping.
+
+The other change is where the numbers come from. Rather than reading
+`output.nc`, the checks read each stage's global-statistics file wherever the
+configured model reports the quantity, because the model has already reduced it
+over the whole domain at the statistics cadence — so an excursion in the middle
+of a stage is visible, which it is not in an end-of-stage field. `output.nc` is
+the fallback, and only for maxima and minima, which mean the same thing however
+they are obtained. A volume-weighted mean does not, so a metric the model does
+not report is left blank rather than quietly replaced with an unweighted one.
+
+Two exclusions make the bounds mean what they say. A stage is never judged on
+the sample written before its first time step: for the first stage that sample
+is the initial condition, which dynamic adjustment did not produce, and for
+every later stage it is the predecessor's final state, which that stage's own
+check already covered. And the tracer bounds ignore a configurable window at the
+start of the *sequence*, over which the initial condition's artifacts are still
+mixing away. The window is measured from the sequence rather than from each
+stage deliberately: what it skips belongs to the initial condition, and a
+per-stage window would instead stop watching just after every damping change,
+which is where a schedule that steps the damping down too fast would show
+itself. For the same reason the CFL bound does not get the window at all.
 
 ## Implementation
 
 ### Implementation: A staged dynamic-adjustment workflow can be created from a global initial condition
 
-Date last modified: 2026/07/05
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
-Polaris adds a new `realistic_global` dynamic-adjustment task that consumes the
+Polaris adds a `realistic_global` dynamic-adjustment task that consumes the
 outputs of the shared `realistic_global/init` steps. The task reads a schedule
 file and instantiates one forward model step per stage, reusing the
-`realistic_global` `Forward` step and its `ForwardStage` settings object.
+`realistic_global` `Forward` step and its `ForwardStage` settings object
+unchanged.
 
-The schedule uses Polaris-native keys that map onto `ForwardStage` fields. A
-`shared` block supplies per-stage defaults; each stage overrides what it needs.
-For example:
+The schedule uses Polaris-native keys that name `ForwardStage` fields, which is
+to say `[realistic_global_forward]` config options. A `shared` block supplies
+per-stage defaults; each stage overrides what it needs. The `u.oi240.lr240`
+schedule, shortened:
 
 ```yaml
 dynamic_adjustment:
   shared:
-    time_integrator: split_explicit_ab2
     output_interval: 10_00:00:00
+    restart_interval: 10_00:00:00
     start_time: 0001-01-01_00:00:00
   stages:
     damped_adjustment_1:
-      run_duration: 02_00:00:00
-      restart_interval: 02_00:00:00
-      dt: 00:05:00
-      btr_dt: 00:00:15
+      run_duration: 10_00:00:00
+      dt: 02:00:00
+      btr_dt: 00:06:00
       damping: 1.0e-4
     simulation:
       run_duration: 10_00:00:00
-      restart_interval: 10_00:00:00
-      dt: 00:10:00
-      btr_dt: 00:00:15
-      # damping omitted => no Rayleigh damping
+      dt: 02:00:00
+      btr_dt: 00:06:00
+      # damping omitted => the config default, which is no Rayleigh damping
 ```
 
+Nothing about the physics or the time integrators appears here: those come from
+`[realistic_global_forward]` and the mesh's own overrides, and
+`load_schedule_stages` applies the schedule on top with `dataclasses.replace`.
 Time steps may instead be given per km of mesh minimum resolution
-(`dt_per_km`/`btr_dt_per_km`), matching the existing `ForwardStage` support.
-The parser computes each stage's cumulative start/stop time and the restart
-filenames, so the restart chain is deterministic and not entered by hand. This
-port renames Compass' `steps` to `stages` and `Rayleigh_damping_coeff` to
-`damping`, and drops `land_ice_flux_mode`, which `realistic_global` does not
-yet model.
+(`dt_per_km`/`btr_dt_per_km`), matching the existing `ForwardStage` support. The
+parser computes each stage's cumulative start/stop time and the shared
+`restarts/rst.<stop-time>.nc` filenames, so the restart chain is deterministic
+and not entered by hand. This port renames Compass' `steps` to `stages` and
+`Rayleigh_damping_coeff` to `damping`, and drops `land_ice_flux_mode`, which
+`realistic_global` does not yet model.
+
+Four rules keep a schedule honest, all enforced at setup:
+
+* Keys are validated against `SCHEDULE_FIELDS` — the `ForwardStage` fields minus
+  the ones the restart chain owns — and coerced to each field's declared type. A
+  renamed or misspelled option raises instead of falling back to the config
+  value, and `do_restart`, `restart_in` and `restart_out` cannot be set by a
+  stage at all. `start_time` is accepted only in the `shared` block, since it is
+  where the chain begins and each stage's own start time follows from the
+  durations before it.
+* `run_duration` is the one key a stage must set, since the chain's timing
+  follows from it.
+* `restart_interval` defaults to the stage's own `run_duration` rather than to
+  the config value, because every stage has to write the restart the next one
+  reads.
+* A `restart_interval` must put the stage's stop time on MPAS-Ocean's restart
+  alarm, which is measured from a fixed reference time and not from where the
+  stage starts, and a `stats_interval` must be no longer than the stage.
+  Otherwise the restart the next stage needs is never written, or the statistics
+  hold only the record written at startup — and both fail only after the model
+  has run. `output_interval` is deliberately not checked: an interval longer
+  than the stage is a legitimate way to say "no 3-D output during the damped
+  stages", which is what the ported Compass schedules do.
 
 ### Implementation: The same conceptual workflow supports either MPAS-Ocean or Omega
 
-Date last modified: 2026/07/05
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -284,126 +387,261 @@ This separation keeps the workflow portable even though Omega needs different
 config names and a different subset of controls. Since each task targets a
 single configured model, no within-task branching is required.
 
-The first implementation wires the restart chain end-to-end for **MPAS-Ocean**,
-where restarts are read via `config_do_restart`/`config_start_time` from a
-shared restart stream. The schedule and stage abstraction remain
-model-agnostic, but Omega restart *reading* (which uses a pointer file) is left
-as a documented follow-up, and `split_explicit_ab2` is not yet supported for
-Omega. This matches current Omega limitations for realistic global runs.
+The implementation wires the restart chain end-to-end for **MPAS-Ocean**, where
+the restart stream is both an input and an output stream, so one
+`filename_template` serves both directions and the read side is just
+`config_do_restart` and `config_start_time`. The start time is stated explicitly
+rather than through a restart-pointer file.
+
+The schedule and stage abstraction remain model-agnostic, and the Omega read
+side is written — a separate `RestartRead` stream in `restart_streams.yaml`,
+switched on per stage — but unrun. Omega's restart filenames carry no `.nc`
+extension and it is not established whether Omega appends one, so the restart
+files are declared as step inputs and outputs for MPAS-Ocean only;
+[Omega#482](https://github.com/E3SM-Project/Omega/issues/482), where restarts
+and history output interact badly, will change how an Omega restart run has to
+be configured. `split_explicit_ab2` also remains unsupported for Omega, which
+makes RK4 and its much shorter time step the only option and a month-long Omega
+adjustment impractical for now. Together with the damping error described above,
+these are current Omega limitations for realistic global runs rather than gaps
+in this workflow.
 
 ### Implementation: Dynamic adjustment is decomposed into inspectable restart stages
 
-Date last modified: 2026/03/22
+Date last modified: 2026/08/11
 
-Contributors: Xylar Asay-Davis, Codex
+Contributors: Xylar Asay-Davis, Codex, Claude
 
-Each stage should live in its own work directory and should declare:
+Each stage lives in its own work directory under
+`spherical/realistic_global/{mesh_name}/dynamic_adjustment/{stage_name}` and
+declares:
 
 1. The restart or initial-condition input it consumes.
 2. The restart file it produces for the next stage.
 3. A stage-local output file for diagnostics or later validation.
 
-The Python driver should compute restart times from cumulative run durations so
-the user does not have to provide both a stage duration and an absolute stop
-time. This is another area where the existing Compass helper logic can be
-ported almost directly.
+The stages share a `restarts` directory beside them, so a break in the chain is
+caught by Polaris before the model launches. The Python driver computes restart
+times from cumulative run durations, so the user does not have to provide both a
+stage duration and an absolute stop time.
+
+The whole chain — the shared `init` steps, one `Forward` step per stage, a
+`StageCheck` after each, `validate` and `viz` — is built by
+`get_realistic_dynamic_adjustment_steps(component, mesh_name, include_viz)`
+through `Component.get_or_create_shared_step`, following the same pattern as
+`get_realistic_init_steps`. It returns the stages alongside the steps and
+config, because which stage hands off the adjusted state, and what that restart
+file is called, both depend on the schedule: `stages[-1].restart_out` is what a
+downstream workflow is after. `e3sm/init`'s component inputs is such a workflow,
+and gets the same step instances rather than a second copy of a chain that costs
+days.
+
+Two details are specific to this workflow. Consecutive stages are linked with
+`Step.add_dependency` rather than through their input/output files alone,
+because a stage's restart filename comes from the schedule rather than from the
+step, so the wiring is not available inside a step's constructor the way the
+`init` steps do it; re-adding the same dependency is a no-op, which is what
+makes calling the accessor again safe. And each stage's check is a step of its
+own, run immediately after that stage, rather than work the forward step does
+after the model exits: a Polaris step is sized for its MPI call, so folding the
+check in would hold the model's whole allocation open to compare a few scalars —
+and a stage that is already out of bounds stops the sequence instead of costing
+the rest of the job.
 
 ### Implementation: Adjustment schedules are reusable but easy to tune
 
-Date last modified: 2026/03/22
-
-Contributors: Xylar Asay-Davis, Codex
-
-Default schedules should likely live with the relevant global mesh or task
-package. This makes them version-controlled, easy to review, and easy to tune
-for a specific resolution family.
-
-For the initial implementation, it is sufficient to support a small number of
-checked-in schedules rather than inventing a sophisticated automatic tuning
-procedure. The important design point is that the schedule is data-driven and
-not embedded in Python logic.
-
-### Implementation: The workflow includes basic validation that the adjustment remained well behaved
-
-Date last modified: 2026/07/05
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
-Validation is a lightweight `Validate` step plus the built-in baseline
-comparison. Rather than depend on an analysis member, the checks read each
-stage's `output.nc`, which already carries `kineticEnergyCell` and the tracers
-(`temperature`, `salinity`):
+The schedules live with the task package, which makes them version-controlled,
+easy to review, and easy to tune for a specific resolution family. Five are
+checked in: one for each of the four unified meshes, and `default.yaml` for
+everything else. The `u.oi30.lr10`, `u.oi6to18.lr6to10` and
+`u.oi.so12to30.lr10` schedules are ported from Compass' `ec30to60`, `rrs6to18`
+and `so12to30`; `u.oi240.lr240` follows the same damping ramp on ten-day stages,
+so that the shape the finer meshes use is exercised on the cheapest mesh that
+has a realistic initial condition.
+
+`default.yaml`, which the coarse base meshes such as `icos240km` and `qu240km`
+fall back to, is two stages. That is deliberate: it is a quick check that a mesh
+runs at all rather than an adjustment worth keeping, and a mesh that deserves a
+real one deserves a schedule of its own.
+
+No automatic tuning procedure was invented, as this section intended. A user
+retunes by editing the checked-in YAML or by pointing the `schedule` config
+option at another file before setup.
+
+### Implementation: The workflow includes basic validation that the adjustment remained well behaved
+
+Date last modified: 2026/08/11
+
+Contributors: Xylar Asay-Davis, Codex, Claude
+
+Validation ended up split between a per-stage `StageCheck` step and a final
+`Validate` step, plus the built-in baseline comparison:
 
 1. A baseline comparison of the final `simulation/output.nc`
    (`temperature`, `salinity`, `layerThickness`, `normalVelocity`), handled by
    the forward step's built-in `validate_vars` mechanism.
-2. A threshold check that the maximum `temperature` in every stage stays below
-   a configurable limit, to catch numerical blow-up (Compass parity).
-3. A "settling" heuristic requiring that the maximum `kineticEnergyCell` at the
-   end of each of the last few stages does not increase by more than a small
-   configurable tolerance.
+2. Three thresholds per stage, applied by `StageCheck` immediately after that
+   stage: the maximum `temperature` below `temperature_max`, the maximum
+   `salinity` below `salinity_max`, and the maximum CFL number below `cfl_max`.
+   Each reports *when* the extreme occurred as well as how large it was, which
+   is usually most of the diagnosis, and each is skipped with a log line when
+   the configured model does not report the quantity.
+3. `Validate` applies no checks at all. It collects one row of diagnostics per
+   stage, writes `dynamic_adjustment_stats.csv` and logs the same table, so the
+   summary a user reads and the checks that passed are one calculation rather
+   than two.
 
-The threshold and kinetic-energy checks are MPAS-Ocean scope for now, matching
-the restart-chain implementation; the abstraction leaves room for Omega
-equivalents. The common concept remains "each stage completed and wrote its
-restart, and the final adjusted state looks reasonable."
+The settling heuristic this section listed as item 3 was removed, for the
+reasons given in the corresponding Algorithm Design section above.
+
+The diagnostics are defined by a `METRICS` list, each naming the
+global-statistics variable it reads in MPAS-Ocean naming (which
+`open_model_dataset` maps Omega's names onto), how to reduce that variable's
+time series over the stage, and the `output.nc` field to fall back to when the
+model does not report it. Metrics with no honest fallback are left blank: a
+maximum means the same thing computed either way, a volume-weighted mean does
+not. Two derived columns, the mean temperature and salinity change per day, are
+a conservation check rather than a settling one — these runs are forced by wind
+alone with no surface fluxes, so both should be zero to within machine noise,
+and `u.oi30.lr10` reaches -4e-17 °C/day.
+
+Omega's `GlobalStats` covers temperature, salinity, layer thickness and normal
+velocity but has no kinetic energy, CFL number or volume-weighted sums, so those
+columns are blank for an Omega run and the CFL check is skipped. A blank means
+"this model does not report it", and the log says which source each metric came
+from.
+
+The two tracer thresholds are blow-up detectors, not plausibility bounds, and
+they are set above the WOA23 source artifacts rather than above the physics.
+NOAA's January WOA23 analysis contains one bad cell off Sumatra that reaches
+35.8 °C in the `u.oi6to18.lr6to10` initial condition and erodes slowly enough to
+still be present when the third stage begins, and a Red Sea salinity blob at
+1150 m that settles near 42.6 PSU for the rest of the adjustment. A bound placed
+at the physics would fail the opening stages of a healthy run; a real blow-up
+produces hundreds of degrees or NaN, so there is ample room between the two.
+This is also what the sequence-wide startup window exists for.
+
+A `viz` step plots the same statistics as time series — kinetic energy, maximum
+normal velocity, CFL number, tracer extremes, mean tracer change and minimum
+layer thickness on one continuous axis, with stage boundaries marked and each
+stage labelled with its damping. A summary row cannot distinguish a quantity
+that was flat through a stage from one that spiked and recovered, and those call
+for different changes to the schedule; the figure can. It belongs to the
+standalone task: a workflow that only wants the relaxed restart is not asking
+about a completed adjustment.
+
+The common concept remains "each stage completed and wrote its restart, and the
+final adjusted state looks reasonable" — with the second half now answered by a
+person reading a table and a figure, rather than by a threshold pretending to.
 
 ## Testing
 
 ### Testing and Validation: A staged dynamic-adjustment workflow can be created from a global initial condition
 
-Date last modified: 2026/03/22
-
-Contributors: Xylar Asay-Davis, Codex
-
-Unit tests should cover schedule parsing, cumulative restart-time calculation,
-and error handling for malformed schedules.
-
-An integration test should confirm that a short multi-stage adjustment can be
-set up and run on a coarse global mesh.
-
-### Testing and Validation: The same conceptual workflow supports either MPAS-Ocean or Omega
-
-Date last modified: 2026/06/14
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
-Model-specific smoke tests should confirm that the same staged schedule can be
-translated into a runnable MPAS-Ocean or Omega workflow (for the configured
-model), even if the resulting low-level model options are not identical.
+Unit tests cover schedule parsing, cumulative restart-time calculation, and
+error handling for malformed schedules — a missing `dynamic_adjustment` key, a
+missing `stages` block, a stage that is not a mapping, a missing
+`run_duration`, an unknown key in a stage or in `shared`, a chain-owned option a
+stage tried to set, and `start_time` outside `shared`. Others cover the
+semantics the format depends on: that a schedule value overrides the config
+option of the same name, that a blank value clears an optional field, that
+`restart_interval` defaults to the stage duration, and that stages inherit the
+per-mesh overrides, the physics options and the time integrators without
+mentioning them.
+
+The two cadence rules get tests of their own, since both otherwise fail only
+after the model has run: a `restart_interval` that misses the stage end raises,
+one measured from the fixed reference rather than the stage start is accepted,
+and a `stats_interval` longer than the stage raises while an `output_interval`
+longer than the stage does not.
+
+Running a short multi-stage adjustment on a coarse global mesh remains the
+integration test, and is what `default.yaml` and the `u.oi240.lr240` schedule
+are for. It is not something a suite can run.
+
+### Testing and Validation: The same conceptual workflow supports either MPAS-Ocean or Omega
+
+Date last modified: 2026/08/11
+
+Contributors: Xylar Asay-Davis, Codex, Claude
+
+Model-specific tests confirm that the same staged schedule renders for either
+configured model, even though the resulting low-level options are not
+identical: the diagnostics summary is built for both, a blow-up is caught for
+both, and an Omega stage declares no restart files, matching the unrun state of
+that path. The differences that must *not* pass silently get tests of their own
+— a `damping` an Omega run cannot honor raises, and the statistics filename each
+model actually writes is pinned, since Omega's moves with the statistics
+interval and a name that is not found reads as a stage that wrote nothing.
 
 ### Testing and Validation: Dynamic adjustment is decomposed into inspectable restart stages
 
-Date last modified: 2026/03/22
+Date last modified: 2026/08/11
 
-Contributors: Xylar Asay-Davis, Codex
+Contributors: Xylar Asay-Davis, Codex, Claude
 
-Regression tests should verify that each stage writes the restart needed by the
-next stage and that the final stage produces the expected relaxed restart and
-diagnostic output files.
+Tests verify that the restart chain is consistent — each stage's `restart_out`
+is the next stage's `restart_in`, all in one shared `restarts` directory — that
+a stage in a chain declares both ends of it while a lone stage declares neither,
+and that the last stage names the restart a downstream consumer is after.
+
+Because these steps are shared, a second group of tests covers what sharing
+means: that two consumers asking for the same mesh get the same step instances,
+that every step is registered on the component, that the shared config is reused
+rather than rebuilt, that the `viz` step is created but returned only when
+asked, and that `configure()` rebuilds the stages only when the schedule
+actually changed.
 
 ### Testing and Validation: Adjustment schedules are reusable but easy to tune
 
-Date last modified: 2026/03/22
+Date last modified: 2026/08/11
 
-Contributors: Xylar Asay-Davis, Codex
+Contributors: Xylar Asay-Davis, Codex, Claude
 
-At least one checked-in schedule should be exercised in regression testing so
-future changes to parser logic or model-option mapping do not silently break
-the default workflow.
+Every checked-in schedule is exercised, not just one, so that a change to the
+parser or to the model-option mapping cannot silently break any of them. The
+tests assert the properties that make a schedule an adjustment rather than an
+arbitrary sequence of runs: each unified mesh has the expected number of stages,
+the damping ramps monotonically down, the final stage is undamped, and every
+stage writes statistics within its own duration. A mesh with no file of its own
+falls back to `default.yaml`, and that fallback chains correctly too.
 
 ### Testing and Validation: The workflow includes basic validation that the adjustment remained well behaved
 
-Date last modified: 2026/03/22
+Date last modified: 2026/08/11
 
-Contributors: Xylar Asay-Davis, Codex
+Contributors: Xylar Asay-Davis, Codex, Claude
 
-Regression testing should include loose threshold checks or baseline
-comparisons on a few key fields or diagnostics to catch obvious failures such
-as numerical instability, missing restart chaining, or grossly unphysical
-state variables.
+Regression testing includes loose threshold checks and a baseline comparison on
+a few key fields, to catch obvious failures such as numerical instability,
+missing restart chaining, or grossly unphysical state variables.
 
-Where practical, these tests should also confirm that the end-of-stage summary
-for the last few stages shows tapering behavior in at least one kinetic-energy
-metric, so that a schedule that is technically stable but clearly not settling
-down is easier to catch.
+The tests around those thresholds are mostly about *which samples* a stage is
+judged on, because that is where the checks are easy to get wrong: that the
+sample written before a stage's first time step is excluded, that an extreme
+after it is still caught, that the startup window skips only the stages it
+actually reaches, that a sample landing exactly on the window's edge is
+excluded, that a stage left with nothing to judge is reported rather than
+silently passed, and that the CFL check deliberately watches inside the window
+the tracer checks skip. A further pair confirms that a blow-up in the middle of
+a stage is caught from the statistics — the case an end-of-stage field would
+miss — and that the summary applies the same windows the checks do, so the CSV
+and the checks cannot disagree.
+
+This section previously asked for a test that the last few stages show tapering
+behavior in a kinetic-energy metric. There is instead a test asserting that
+`Validate` does *not* judge the kinetic energy, for the reasons in the Algorithm
+Design section: three samples of a quantity that is not comparable across stages
+cannot distinguish a healthy adjustment from a runaway, and every attempt to
+make them failed healthy runs. Whether a schedule is settling is read from the
+diagnostics table and the `viz` figure, whose own tests confirm that the series
+is plotted, that stages without statistics are skipped, and that stage labels
+stay legible when a schedule opens with stages far shorter than the axis.
