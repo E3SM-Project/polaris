@@ -118,9 +118,8 @@ Common user-tunable options are:
 - `include_critical_transects`: Whether critical land and ocean transects from
 	`geometric_features` are enforced during masking.
 - `sea_ice_latitude_threshold`: Latitude poleward of which ocean transects are
-	widened to avoid land-locked sea-ice cells.
-- `land_locked_cell_iterations`: Number of passes used to detect and remove
-	land-locked ocean cells.
+	widened and sea ice is taken to form, so cells without a usable velocity
+	vertex are removed from the sea-ice domain.
 - `land_ice_max_latitude`: Southern latitude threshold used to classify
 	critical land transects as land ice.
 - `land_ice_min_fraction`: Minimum land-ice fraction used in south-pole flood

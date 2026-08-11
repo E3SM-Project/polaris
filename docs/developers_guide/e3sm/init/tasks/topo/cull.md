@@ -42,9 +42,9 @@ The culling steps are configured through the `[cull_mesh]` section in the config
 - `cpus_per_task` and `min_cpus_per_task`: Number of cores to use for culling.
 - `include_critical_transects`: Whether to use critical land and ocean
   transects from geometric_features to enforce connectivity.
-- `sea_ice_latitude_threshold`: Latitude above which transects are widened to prevent land-locked sea-ice cells.
-- `land_locked_cell_iterations`: Number of passes to check for land-locked
-  ocean cells.
+- `sea_ice_latitude_threshold`: Latitude poleward of which transects are
+  widened and sea ice is taken to form, so the B-grid vertex criterion
+  applies.
 - `land_ice_max_latitude`: Latitude, south of which critical land transects are
   considered to belong to land ice.
 - `land_ice_min_fraction`: Minimum land-ice fraction for flood-filling the
@@ -107,10 +107,19 @@ as an ice-shelf cavity. That is what makes `calving_front` genuinely
 cavity-free, and under `grounding_line` and `bedrock_zero` it keeps the
 sea-ice mesh from owning a cell that the ocean mesh models as a cavity.
 
-The land-locked-cell ("confined inlet") check is deliberately asymmetric: it
-runs on the with-cavities domain for the ocean and on the without-cavities
-domain for the ocean without cavities, so a confined inlet is judged against
-the connectivity each mesh actually has.
+The land-locked-cell check is deliberately asymmetric between the two ocean
+domains, because the two models place different demands on the mesh.
+MPAS-Ocean and Omega are C-grids with velocities at edges, so an ocean cell
+needs at least two active edges: a way in and a way out. MPAS-Seaice is a
+B-grid with velocities at vertices, so a sea-ice cell needs at least one
+active vertex, or ice drifting into it has no velocity point to leave by.
+The vertex criterion is the stronger of the two and applies only to the
+ocean without cavities, and only poleward of `sea_ice_latitude_threshold`,
+where sea ice can form. The two domains are refined together by
+{py:func}`polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells`,
+alternating until neither changes, because removing a cell from one can
+strand a cell in the other. The requirements and the algorithm are set out
+in the `land_locked_cells` design doc (see {ref}`design-docs`).
 
 After all masks are written, `CullMaskStep` calls
 {py:func}`polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency`,

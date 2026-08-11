@@ -10,12 +10,10 @@ from geometric_features import (
 from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.logging import check_call
 from mpas_tools.mesh.mask import compute_mpas_flood_fill_mask
-from mpas_tools.ocean.coastline_alteration import (
-    add_land_locked_cells_to_mask,
-    widen_transect_edge_masks,
-)
+from mpas_tools.ocean.coastline_alteration import widen_transect_edge_masks
 
 from polaris import Step
+from polaris.mesh.connectivity import seed_mask_from_points
 from polaris.mesh.spherical.critical_transects import (
     load_default_critical_transects,
 )
@@ -24,6 +22,10 @@ from polaris.tasks.e3sm.init.topo.cull.consistency import (
 )
 from polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics import (
     check_ocean_dc_edge,
+)
+from polaris.tasks.e3sm.init.topo.cull.land_locked import (
+    remove_land_locked_cells,
+    remove_ocean_land_locked_cells,
 )
 
 
@@ -246,6 +248,13 @@ class CullMaskStep(Step):
         mask and then call the base class method to handle critical transects
         and land-locked cells.
 
+        The base class applies the critical transects, removes the cells with
+        fewer than two active edges, through which a C-grid cannot
+        circulate, and discards whatever is left unconnected to the open
+        ocean. The sea-ice criteria are not applied here; they belong to the
+        ocean without ice-shelf cavities and are applied when the two domains
+        are refined together. See the ``land_locked_cells`` design document.
+
         Parameters
         ----------
         ds_base_mesh : xarray.Dataset
@@ -263,50 +272,20 @@ class CullMaskStep(Step):
             The refined cull mask
         """
         logger = self.logger
-        config = self.config
-        section = config['cull_mesh']
-        latitude_threshold = section.getfloat('sea_ice_latitude_threshold')
-        iterations = section.getint('land_locked_cell_iterations')
 
         cull_mask = self._apply_critical_transects(
             cull_mask=cull_mask,
             mask_name='ocean cull mask',
         )
 
-        region_cell_mask = xr.where(cull_mask, 1, 0).expand_dims(
-            dim='nRegions', axis=1
-        )
-        ds_mask = xr.Dataset()
-        # make a copy so we can modify `regionCellMasks`
-        ds_mask['regionCellMasks'] = region_cell_mask.copy()
-        write_netcdf(ds_mask, 'ocean_cull_mask_with_critical_transects.nc')
-        logger.info('Wrote ocean_cull_mask_with_critical_transects.nc.')
-
-        ds_mask = add_land_locked_cells_to_mask(
-            ds_mask,
-            ds_base_mesh,
-            latitude_threshold=latitude_threshold,
-            nSweeps=iterations,
-        )
-        write_netcdf(ds_mask, 'ocean_cull_mask_with_land_locked_cells.nc')
-        logger.info('Wrote ocean_cull_mask_with_land_locked_cells.nc.')
-
-        ocean_mask = 1 - ds_mask.regionCellMasks.isel(nRegions=0)
-
-        gf = GeometricFeatures()
-        fc_seed = gf.read(
-            componentName='ocean', objectType='point', tags=['seed_point']
-        )
-        # create a mask for the flood fill seed points
-        ds_seed_mask = compute_mpas_flood_fill_mask(
-            dsMesh=ds_base_mesh,
-            daGrow=ocean_mask,
-            fcSeed=fc_seed,
-            logger=logger,
+        logger.info('Removing land-locked cells from the ocean.')
+        ocean_mask = remove_ocean_land_locked_cells(
+            ds_mesh=ds_base_mesh,
+            ocean_mask=np.logical_not(cull_mask),
+            ocean_seed_mask=self._ocean_seed_mask(ds_base_mesh),
         )
 
-        cull_mask = 1 - ds_seed_mask.cellSeedMask
-        return cull_mask
+        return xr.DataArray(np.logical_not(ocean_mask), dims=('nCells',))
 
     def refine_land_cull_mask(self, ds_base_mesh, ds_topo, cull_mask):
         """
@@ -349,7 +328,7 @@ class CullMaskStep(Step):
         self._create_critical_transects()
         self._create_ocean_cull_mask()
         self._create_land_ice_mask()
-        self._create_ocean_no_cavities_cull_mask()
+        self._refine_ocean_domains()
         self._create_land_cull_mask()
         self._combine_masks()
         self._check_mask_consistency()
@@ -554,8 +533,8 @@ class CullMaskStep(Step):
         ds_mask = xr.Dataset()
         ds_mask['oceanCullMask'] = cull_mask
 
-        write_netcdf(ds_mask, 'ocean_cull_mask.nc')
-        logger.info('Wrote ocean_cull_mask.nc.')
+        write_netcdf(ds_mask, 'ocean_cull_mask_preliminary.nc')
+        logger.info('Wrote ocean_cull_mask_preliminary.nc.')
 
     def _create_land_ice_mask(self):
         """
@@ -573,7 +552,7 @@ class CullMaskStep(Step):
         ds_topo = open_dataset('topography_unsmoothed.nc')
         land_ice_frac = ds_topo.ice_frac
 
-        ds_ocean_cull_mask = open_dataset('ocean_cull_mask.nc')
+        ds_ocean_cull_mask = open_dataset('ocean_cull_mask_preliminary.nc')
         ocean_cull_mask = ds_ocean_cull_mask.oceanCullMask > 0
 
         land_ice_present = self._antarctic_land_ice_ownership(
@@ -605,32 +584,34 @@ class CullMaskStep(Step):
         write_netcdf(ds_mask, 'land_ice_mask_preliminary.nc')
         logger.info('Wrote land_ice_mask_preliminary.nc.')
 
-    def _create_ocean_no_cavities_cull_mask(self):
+    def _refine_ocean_domains(self):
         """
-        Create a mask for culling land and all land ice (both grounded and
-        floating) from the ocean such that the ocean is contiguous, excludes
-        critical land transects, includes critical ocean transects and accounts
-        for land-locked.  Update the land-ice mask to include any areas that
-        will be removed from the open ocean by these updates and to exclude
-        any cells that critical ocean transects keep in the ocean without
-        cavities.
+        Refine the ocean and the ocean without ice-shelf cavities together,
+        removing the cells through which the ocean cannot circulate and
+        those in which sea ice would be trapped, and write the final cull
+        masks and land-ice mask.
+
+        The two domains are refined together because removing a cell from
+        one can strand a cell in the other, and because only here is the
+        land-ice mask available to say which cells may legitimately be in
+        the ocean but not in the ocean without cavities.  See the
+        ``land_locked_cells`` design document.
         """
         logger = self.logger
-        logger.info('Creating ocean no-cavities cull mask.')
+        logger.info('Refining the ocean and ocean no-cavities domains.')
         config = self.config
         section = config['cull_mesh']
         latitude_threshold = section.getfloat('sea_ice_latitude_threshold')
-        iterations = section.getint('land_locked_cell_iterations')
 
         ds_base_mesh = open_dataset('base_mesh.nc')
 
-        ds_ocean_cull_mask = open_dataset('ocean_cull_mask.nc')
-        ocean_cull_mask = ds_ocean_cull_mask.oceanCullMask > 0
+        ds_preliminary = open_dataset('ocean_cull_mask_preliminary.nc')
+        ocean_cull_mask = ds_preliminary.oceanCullMask > 0
 
         ds_land_ice_mask = open_dataset('land_ice_mask_preliminary.nc')
         land_ice_mask = ds_land_ice_mask.landIceMask > 0
 
-        # Exclude all land ice, not just the grounded ice
+        # exclude all land ice, not just the grounded ice
         cull_mask = np.logical_or(ocean_cull_mask, land_ice_mask)
 
         # excluding the land ice can undo the critical transects that were
@@ -641,46 +622,14 @@ class CullMaskStep(Step):
             ocean_cull_mask=ocean_cull_mask,
         )
 
-        cull_mask_orig = cull_mask.copy()
-
-        region_cell_mask = xr.where(cull_mask, 1, 0).expand_dims(
-            dim='nRegions', axis=1
-        )
-        ds_mask = xr.Dataset()
-        # make a copy so we can modify `regionCellMasks`
-        ds_mask['regionCellMasks'] = region_cell_mask.copy()
-
-        ds_mask = add_land_locked_cells_to_mask(
-            ds_mask,
-            ds_base_mesh,
+        ocean, no_cavities = remove_land_locked_cells(
+            ds_mesh=ds_base_mesh,
+            ocean_mask=np.logical_not(ocean_cull_mask).values,
+            no_cavities_mask=np.logical_not(cull_mask).values,
+            land_ice_mask=land_ice_mask.values,
+            ocean_seed_mask=self._ocean_seed_mask(ds_base_mesh),
             latitude_threshold=latitude_threshold,
-            nSweeps=iterations,
-        )
-
-        cull_mask = ds_mask.regionCellMasks.isel(nRegions=0)
-
-        gf = GeometricFeatures()
-        fc_ocean_seed = gf.read(
-            componentName='ocean', objectType='point', tags=['seed_point']
-        )
-
-        logger.info('Flood filling ocean no-cavities mask from seed points.')
-        ds_mask = compute_mpas_flood_fill_mask(
-            dsMesh=ds_base_mesh,
-            daGrow=xr.where(cull_mask, 0, 1),
-            fcSeed=fc_ocean_seed,
-            logger=self.logger,
-        )
-
-        cull_mask = xr.where(ds_mask.cellSeedMask > 0, 0, 1)
-
-        cull_mask_added = np.logical_and(
-            cull_mask,
-            np.logical_not(cull_mask_orig),
-        )
-        land_ice_mask = np.logical_or(
-            land_ice_mask,
-            cull_mask_added,
+            logger=logger,
         )
 
         # critical transects outrank the ice masks: a cell that a critical
@@ -688,15 +637,22 @@ class CullMaskStep(Step):
         # not an ice-shelf cavity.  This makes the cavity cells of the ocean
         # mesh exactly those cells the ocean retains and the ocean without
         # cavities does not.
-        land_ice_mask = np.logical_and(land_ice_mask, cull_mask > 0)
+        land_ice = np.logical_and(land_ice_mask.values, ~no_cavities)
 
         ds_mask = xr.Dataset()
-        ds_mask['oceanNoCavitiesCullMask'] = cull_mask
+        ds_mask['oceanCullMask'] = _cull_mask_array(ocean)
+        write_netcdf(ds_mask, 'ocean_cull_mask.nc')
+        logger.info('Wrote ocean_cull_mask.nc.')
+
+        ds_mask = xr.Dataset()
+        ds_mask['oceanNoCavitiesCullMask'] = _cull_mask_array(no_cavities)
         write_netcdf(ds_mask, 'ocean_no_cavities_cull_mask.nc')
         logger.info('Wrote ocean_no_cavities_cull_mask.nc.')
 
         ds_mask = xr.Dataset()
-        ds_mask['landIceMask'] = land_ice_mask
+        ds_mask['landIceMask'] = xr.DataArray(
+            np.where(land_ice, 1, 0), dims=('nCells',)
+        )
         write_netcdf(ds_mask, 'land_ice_mask.nc')
         logger.info('Wrote land_ice_mask.nc.')
 
@@ -810,6 +766,24 @@ class CullMaskStep(Step):
         )
 
     @staticmethod
+    def _ocean_seed_mask(ds_base_mesh):
+        """
+        Find the base-mesh cells nearest the ocean seed points, used to
+        seed the flood fill that keeps the ocean contiguous.
+        """
+        gf = GeometricFeatures()
+        fc_seed = gf.read(
+            componentName='ocean', objectType='point', tags=['seed_point']
+        )
+        points = np.array(
+            [
+                feature['geometry']['coordinates']
+                for feature in fc_seed.features
+            ]
+        )
+        return seed_mask_from_points(ds_base_mesh, points[:, 0], points[:, 1])
+
+    @staticmethod
     def _antarctic_land_ice_ownership(
         ds_topo,
         ocean_cull_mask,
@@ -825,3 +799,11 @@ class CullMaskStep(Step):
             ocean_cull_mask, lat_cell < land_ice_max_latitude
         )
         return np.logical_or(land_ice_present, antarctic_not_ocean)
+
+
+def _cull_mask_array(keep_mask):
+    """
+    Convert a boolean mask of cells to keep into a cull mask, which is 1
+    where cells are culled away and 0 where they are kept.
+    """
+    return xr.DataArray(np.where(keep_mask, 0, 1), dims=('nCells',))

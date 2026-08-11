@@ -274,6 +274,13 @@ seaice/api
 
    planar.compute_planar_hex_nx_ny
 
+   connectivity.active_edge_masks
+   connectivity.count_active_edges
+   connectivity.has_active_vertex
+   connectivity.transport_link_mask
+   connectivity.connected_to_seeds
+   connectivity.seed_mask_from_points
+
    spherical.SphericalBaseStep
    spherical.SphericalBaseStep.setup
    spherical.SphericalBaseStep.run

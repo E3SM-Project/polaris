@@ -7,6 +7,41 @@ from polaris.mesh.connectivity import (
 )
 
 
+def remove_ocean_land_locked_cells(ds_mesh, ocean_mask, ocean_seed_mask):
+    """
+    Refine the ocean domain alone, removing the cells through which a C-grid
+    cannot circulate and those that are not connected to the open ocean.
+
+    A cell needs at least two active edges, a way in and a way out.  The two
+    need not be adjacent and no condition on vertices applies, because the
+    ocean's velocities live at edges.
+
+    This is the ocean half of :py:func:`remove_land_locked_cells` and is used
+    on its own where the ocean domain is needed before the land-ice mask
+    exists.
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        An MPAS mesh with ``cellsOnCell`` and ``nEdgesOnCell``
+
+    ocean_mask : numpy.ndarray
+        A boolean mask on cells, True for the candidate ocean domain
+
+    ocean_seed_mask : numpy.ndarray
+        A boolean mask on cells, True at the seed cells for the flood fill
+
+    Returns
+    -------
+    ocean_mask : numpy.ndarray
+        The refined ocean domain
+    """
+    ocean = np.asarray(ocean_mask).astype(bool).copy()
+    seeds = np.asarray(ocean_seed_mask).astype(bool)
+    ocean = _enforce_ocean_criteria(ds_mesh, ocean)
+    return connected_to_seeds(ds_mesh, ocean, seeds)
+
+
 def remove_land_locked_cells(
     ds_mesh,
     ocean_mask,
@@ -92,8 +127,7 @@ def remove_land_locked_cells(
         n_no_cavities = int(no_cavities.sum())
 
         # the ocean needs two active edges per cell and has to be contiguous
-        ocean = _enforce_ocean_criteria(ds_mesh, ocean)
-        ocean = connected_to_seeds(ds_mesh, ocean, seeds)
+        ocean = remove_ocean_land_locked_cells(ds_mesh, ocean, seeds)
 
         # nothing survives without cavities that the ocean has dropped
         no_cavities = np.logical_and(no_cavities, ocean)

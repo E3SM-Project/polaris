@@ -124,5 +124,7 @@
 
    consistency.check_cull_mask_consistency
    dc_edge_diagnostics.check_ocean_dc_edge
+   land_locked.remove_land_locked_cells
+   land_locked.remove_ocean_land_locked_cells
 ```
 
