@@ -74,16 +74,16 @@ def test_update_ntasks_from_cell_count(mesh_name):
     cells_per_task = section.getint('remap_cells_per_task')
     min_cells_per_task = section.getint('remap_min_cells_per_task')
 
-    assert step.ntasks == max(2, round(cell_count / cells_per_task))
-    assert step.min_tasks == max(2, round(cell_count / min_cells_per_task))
+    assert step.ntasks == max(1, round(cell_count / cells_per_task))
+    assert step.min_tasks == max(1, round(cell_count / min_cells_per_task))
 
 
-def test_update_ntasks_never_asks_for_a_single_task():
+def test_update_ntasks_never_asks_for_no_tasks():
     """
-    pyremap partitions the SCRIP files with "mbpart <ntasks>", and mbpart
-    rejects a request for a single partition.  See pyremap_mbpart_bug.md.
+    Rounding a small cell count can reach zero, which is not a task count a
+    step can run with.
     """
     step = _make_step('icos240km')
     step._update_ntasks()
-    assert step.ntasks >= 2
-    assert step.min_tasks >= 2
+    assert step.ntasks >= 1
+    assert step.min_tasks >= 1
