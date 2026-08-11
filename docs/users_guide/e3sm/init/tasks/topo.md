@@ -118,9 +118,8 @@ Common user-tunable options are:
 - `include_critical_transects`: Whether critical land and ocean transects from
 	`geometric_features` are enforced during masking.
 - `sea_ice_latitude_threshold`: Latitude poleward of which ocean transects are
-	widened to avoid land-locked sea-ice cells.
-- `land_locked_cell_iterations`: Number of passes used to detect and remove
-	land-locked ocean cells.
+	widened and sea ice is taken to form, so cells without a usable velocity
+	vertex are removed from the sea-ice domain.
 - `land_ice_max_latitude`: Southern latitude threshold used to classify
 	critical land transects as land ice.
 - `land_ice_min_fraction`: Minimum land-ice fraction used in south-pole flood
@@ -140,3 +139,22 @@ Common user-tunable options are:
 	that reach 0.51 on the finest meshes, at a different location every
 	build.  See the {ref}`design docs <design-docs>` `unified_mesh_cull_leak`
 	and `unified_mesh_dc_edge_noise`.
+
+Cull tasks produce three culled meshes: `ocean`, `ocean_no_cavities` and
+`land`.  The land mesh is the exact complement of `ocean_no_cavities`, so
+every cell of the base mesh is owned by exactly one of the two, and
+`ocean_no_cavities` is always a subset of `ocean`.  The two ocean meshes
+differ only by the ice-shelf cavity cells, so with the default
+`calving_front` convention, which leaves no cavities, they are identical.
+Critical land transects and critical ocean transects are applied to both
+ocean meshes in the same way; a cell that a critical ocean passage keeps in
+the ocean is treated as open water rather than as an ice-shelf cavity.
+
+Cells in which the models could not work are removed from both meshes: the
+ocean is a C-grid, so each of its cells needs at least two edges shared with
+another ocean cell, and sea ice is a B-grid, so each cell of
+`ocean_no_cavities` poleward of `sea_ice_latitude_threshold` also needs a
+vertex whose surrounding cells are all in that mesh, or ice drifting in
+could never leave.  The mask step fails if any of this does not hold, or if
+removing such cells would close a critical ocean passage, in which case it
+names the passage.
