@@ -48,12 +48,16 @@ simulated state can be attributed to model formulation rather than to different
 initial geometries. The p-star iteration runs even when the configured model is
 MPAS-Ocean; there is no separate z-star path.
 
-The Polaris ocean framework separates model inputs across three files: a horizontal
-mesh file (`mesh.nc`), a vertical coordinate file (`vert_coord.nc`; Omega only), and an
-initial-state file (`init.nc`). The realistic init workflow must respect this split: the
-mesh file comes from the upstream `e3sm/init` cull workflow; the vertical coordinate and
-initial state are written by the init steps using the framework's `write_vert_coord_dataset`
-and `write_initial_state_dataset` helpers. For MPAS-Ocean, `write_vert_coord_dataset` is a
+The Polaris ocean framework separates model inputs across staged files: a
+horizontal mesh file (`mesh.nc`), a vertical coordinate file (`vert_coord.nc`;
+Omega only), an initial-state file (`init.nc`) and — added after this document
+was first written — a surface-forcing file (`forcing.nc`), described under
+[Wind forcing](#wind-forcing). The realistic init workflow writes all of them,
+through the framework's `write_horiz_mesh_dataset`, `write_vert_coord_dataset`,
+`write_initial_state_dataset` and `write_forcing_dataset` helpers. The
+horizontal geometry is entirely the upstream `e3sm/init` cull workflow's;
+`mesh.nc` is that culled mesh with the fields the model's mesh stream needs but
+the cull step does not produce. For MPAS-Ocean, `write_vert_coord_dataset` is a
 no-op and the vertical coordinate variables remain in `init.nc`.
 
 The primary software challenges are to replace a large, monolithic Fortran
@@ -349,54 +353,68 @@ ocean, sea-ice, land, and river workflows.
 
 ### Implementation: A reusable global hydrography product is available from WOA
 
-Date last modified: 2026/06/01
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
-The first implemented pieces of this part of the design are now in place.
-`e3sm/init` can create combined topography on a native 0.25-degree
-latitude-longitude grid, and `ocean/spherical/realistic_global/hydrography/woa23` builds the
-corresponding reusable WOA23 product on that grid. The WOA23 task currently
-consists of:
+This part of the design has landed. `e3sm/init` creates combined topography on
+a native 0.25-degree latitude-longitude grid, and the WOA23 steps under
+`ocean/spherical/realistic_global/hydrography/woa23` build the corresponding
+reusable product on that grid:
 
-1. `combine`, which merges January and annual WOA23 climatologies into
+1. `combine_topo`, the shared `e3sm/init` `CombineStep` for the 0.25-degree
+   lat-lon grid, cached by default so the expensive blending is not repeated
+2. `combine`, which merges January and annual WOA23 climatologies into
    `woa_combined.nc`, using annual values at depths where the monthly fields
-   are not available
-2. `extrapolate`, which builds a 3D ocean mask from the combined topography and
+   are not available, and derives conservative temperature and absolute
+   salinity from WOA23's in-situ temperature and practical salinity with `gsw`
+3. `extrapolate`, which builds a 3D ocean mask from the combined topography and
    produces the reusable product `woa23_decav_0.25_jan_extrap.nc`
-3. `viz`, an optional diagnostics step for maps and Antarctic transects
+4. `viz`, a diagnostics step for maps and Antarctic transects, created as a
+   shared step but not run by default
 
-The task is currently implemented under
-`polaris/tasks/ocean/global_ocean/hydrography/woa23` and must be renamed to
-`polaris/tasks/ocean/spherical/realistic_global/hydrography/woa23` as part of adopting the
-`realistic` framework name. All associated Python module paths, configuration
-references, and any cached output paths that embed the task name will need to be
-updated at the same time.
+The steps are assembled by `get_woa23_steps(component, include_viz)`, which
+returns them keyed by symlink name along with their shared config. A consumer
+that needs only the hydrography product — the mesh-specific init steps, for
+instance — gets the same step instances rather than a second copy of the
+preprocessing.
 
-This provides a concrete implementation starting point for the reusable
-hydrography portion of the broader design.
+The rename worked out differently from what this section anticipated. The work
+directories did move under the `realistic_global` family, but the Python
+package did not gain a `spherical` level: the code is
+`polaris.tasks.ocean.realistic_global.hydrography.woa23`. Work-directory paths
+and module paths are separate concerns in Polaris and only the first is what a
+user navigates, so there was no reason to make the module path longer. The same
+split holds throughout this workflow: mesh-specific steps run under
+`ocean/spherical/realistic_global/{mesh_name}/init` and live in
+`polaris.tasks.ocean.realistic_global.init`.
 
 ### Implementation: The workflow produces consistent tracer initial conditions for the configured model
 
-Date last modified: 2026/06/14
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
-The workflow should define a model-neutral intermediate dataset (the `pstar_init`
-step output) and a thin model-specific writer or translator layer in
-`initial_state`. That separation makes it possible for the p-star iteration,
-WOA23 remapping, and chunking logic to be shared regardless of the configured
-target model.
+The workflow defines a model-neutral intermediate dataset (the `pstar_init`
+step output) and leaves the model-specific translation to the write. That
+separation is what lets the p-star iteration, WOA23 remapping and chunking
+logic be shared regardless of the configured target model.
 
-Existing Polaris utilities in `polaris.ocean.eos` are a natural place to keep
-thermodynamic calculations that are independent of the task itself. If
-additional conversions between tracer conventions are needed, they should be
-implemented in similarly reusable utility modules rather than embedded directly
-in a task step.
+The translator layer ended up in the framework rather than in `initial_state`:
+`OceanIOStep.write_initial_state_dataset` takes the convention the dataset's
+tracers are in and converts them to the one the configured model expects,
+defaulting to the convention implied by `eos_type`. The task step supplies only
+what the framework cannot know — the per-cell longitude and latitude the
+conversion needs, which `pstar_init.nc` does not carry. Putting it there means
+every task that writes an initial state converts tracers the same way, and a
+step cannot forget to.
+
+Thermodynamic calculations that are independent of the task live in
+`polaris.ocean.eos` and `polaris.ocean.init_state`, as this section intended.
 
 ### Implementation: The p-star iteration yields a model-independent geometric vertical grid
 
-Date last modified: 2026/06/14
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -415,10 +433,33 @@ configured by setting `grid_type` in the `[vertical_grid]` section of
 `realistic_global_init.cfg`. The `pstar_init` step passes this reference grid
 to `generate_1d_grid` (in `polaris/ocean/vertical/grid_1d/__init__.py`),
 which returns the interface depths used to dimension the p-star iteration. The
-current choice for the realistic global init task is the pre-defined
-`80layerE3SMv1` grid. The `grid_type` option must be present in the config;
-if it is absent, `generate_1d_grid` raises
-`ValueError: Unexpected grid type: None`.
+default for the realistic global init task is the pre-defined `80layerE3SMv1`
+grid. The `grid_type` option must be present in the config; if it is absent,
+`generate_1d_grid` raises `ValueError: Unexpected grid type: None`.
+
+The vertical grid turned out to be one of the things that has to vary from mesh
+to mesh, which this document did not anticipate. It is set per mesh through
+`polaris.tasks.ocean.realistic_global.mesh_configs`: an optional
+`<mesh_name>.cfg` whose options are added after the task's own config file and
+therefore override it. The three 240 km meshes replace the 80-layer default
+with a 16-level `tanh_dz` grid over a 3000 m bottom depth, because they exist
+for fast smoke-testing rather than for realistic simulation. The same mechanism
+carries the ocean-culled cell count used to size MPI tasks, and later the
+per-mesh forward-run options described in
+[global_ocean_forward.md](global_ocean_forward.md). Anything that describes
+what the *ocean* does on a mesh belongs there rather than in the mesh
+component's own per-mesh config, which describes the mesh itself.
+
+Three behaviors of the iteration were settled during implementation rather than
+in [pstar_init.md](pstar_init.md), which specifies the fixed-point algorithm
+itself. The column is anchored at the prescribed sea surface, so `ssh` matches
+its prescribed value to machine precision and any residual left by partial-cell
+snapping adjusts the diagnosed `bottomDepth` — the representable bathymetry —
+rather than `ssh`, mirroring z-star partial cells. Columns too shallow to hold
+`min_vert_levels` layers, or shallower than `min_bottom_depth`, are clamped.
+And isolated bathymetry holes — cells deeper than every ocean neighbor — are
+capped at their deepest neighbor's level and re-solved, through
+`polaris.ocean.vertical.bathymetry_holes.fill_max_level_holes`.
 
 The output of the coupled initialization step — converged geometric layer
 thicknesses, CT and SA, specific volume, and associated coordinate fields — shall
@@ -445,8 +486,13 @@ Surface forcing is *not* written by `initial_state`. Wind stress is produced by
 a separate `forcing` step and written to its own `forcing.nc`, described under
 [Wind forcing](#wind-forcing) below. Restoring fields remain future work.
 
-The mesh file (`mesh.nc`) for the realistic init workflow comes from the upstream
-`e3sm/init` cull step and is not produced by any step in this workflow.
+The mesh file (`mesh.nc`) is written by `initial_state` rather than linked from
+upstream. The culled mesh from `e3sm/init` is not by itself a complete ocean
+mesh stream: `add_coriolis_to_dataset` adds `fCell`, `fEdge` and `fVertex`,
+and for Omega `write_horiz_mesh_dataset` merges in the cell-centered
+vector-reconstruction weights, which have to be the *culled* mesh's since that
+is the mesh the initial condition is built on. The horizontal geometry itself
+is still entirely the cull step's; nothing here re-derives it.
 
 The p-star iteration shall run even when the configured model is MPAS-Ocean,
 since the converged geometric grid is always defined through the p-star
@@ -458,72 +504,91 @@ construction.
 
 ### Implementation: The capability is decomposed into inspectable Polaris steps
 
-Date last modified: 2026/06/14
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
-An initial decomposition can now start from the pieces that have already been
-implemented:
+The decomposition landed with more steps than this section first sketched,
+because remapping turned out to be worth separating from the mapping files it
+uses, and because wind forcing arrived as a second remapped source. The chain
+is assembled by `get_realistic_init_steps(component, mesh_name, include_viz)`,
+which builds every step with `Component.get_or_create_shared_step` and returns
+them keyed by symlink name along with the per-mesh shared config. Steps run
+under `ocean/spherical/realistic_global/{mesh_name}/init`, except the
+mesh-independent preprocessing, which is shared across meshes:
 
-1. `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.2500_degree/task`:
-   create combined topography on the native WOA grid; this step also supplies
-   the culled `mesh.nc` consumed by all downstream steps
-2. `ocean/spherical/realistic_global/hydrography/woa23/combine`: merge WOA23 climatologies
-   on that grid
-3. `ocean/spherical/realistic_global/hydrography/woa23/extrapolate`: create the reusable,
-   extrapolated WOA23 product
-4. `ocean/spherical/realistic_global/hydrography/woa23/viz`: optional hydrography
-   diagnostics
-5. `pstar_init`: perform the coupled p-star and hydrography
-   initialization described in [pstar_init.md](pstar_init.md), producing
-   the converged geometric grid, CT and SA on that grid, and all associated
-   p-star coordinate fields; this step writes a single combined
-   intermediate NetCDF file (`pstar_init.nc`) in neutral naming rather
-   than the final split model files, so all outputs remain inspectable
-   regardless of the target model
-6. `initial_state`: consume the `pstar_init` intermediate dataset,
-   apply model-specific tracer conversions, populate remaining required
-   fields, and write the split output files: `vert_coord.nc` (via
-   `write_vert_coord_dataset`; Omega only) and `init.nc` (via
-   `write_initial_state_dataset`)
-7. `diagnostics`: create any additional mesh-specific plots and lightweight
-   summaries for sanity checking
+1. the upstream `e3sm/init` cull-topography steps, from
+   `get_cull_topo_steps`, which supply the culled ocean mesh, its graph and
+   the remapped topography
+2. the WOA23 hydrography steps described above, from `get_woa23_steps`
+3. the JRA55-do wind-stress steps, from `get_jra55_steps` (see
+   [Wind forcing](#wind-forcing))
+4. `cull_topo`: reindex the remapped topography from the base mesh to the
+   culled ocean mesh using `ocean_map_culled_to_base.nc`, producing
+   `topography_culled.nc`, which is validated against a baseline when one is
+   provided
+5. `woa23_map`: build the bilinear mapping file from the 0.25-degree WOA23
+   lat-lon grid to the culled MPAS mesh. This is the one MPI step of the
+   hydrography chain, and its task count is sized from the approximate culled
+   ocean cell count
+6. `remap_woa23`: apply those weights with `ncremap`, producing
+   `woa23_on_mesh.nc`
+7. `jra55_map` and `remap_jra55`: the same two steps for the wind stress
+8. `pstar_init`: perform the coupled p-star and hydrography initialization
+   described in [pstar_init.md](pstar_init.md), producing the converged
+   geometric grid, CT and SA on that grid, and all associated p-star
+   coordinate fields; this step writes a single combined intermediate NetCDF
+   file (`pstar_init.nc`) in neutral naming rather than the final split model
+   files, so all outputs remain inspectable regardless of the target model
+9. `initial_state`: consume the `pstar_init` intermediate dataset, apply
+   model-specific tracer conversions, populate remaining required fields, and
+   write `mesh.nc`, `vert_coord.nc` (Omega only) and `init.nc`
+10. `forcing`: write the model-specific `forcing.nc` from `jra55_on_mesh.nc`
+11. `viz`: plots and sanity checks of the initial condition, vertical
+    coordinate and forcing
 
-This decomposition also suggests a preliminary division of work among
-developers:
+Each remap is two steps rather than one because the original single step both
+reimplemented what `polaris.remap.MappingFileStep` already provides and ran an
+MPI operation (`mbtempest`) and a serial one (`ncremap`) together, which does
+not schedule well under task parallelism. Splitting them also lets the mapping
+step size its own task count from the estimated ocean cell count while the
+`ncremap` call stays serial.
 
-1. WOA preprocessing and caching.
-2. Coupled hydrography interpolation, Omega pseudo-height iteration, and
-   model-neutral geometric-grid construction (`RealisticPStarInitStep`).
-3. MPAS-Ocean-specific tracer and ALE output support based on the shared grid.
-4. Omega-specific tracer and p-star output support based on the shared grid.
-5. Diagnostics, validation, and regression tests.
+The step this section called `diagnostics` landed as `viz`, matching the name
+used elsewhere in Polaris. It is created as a shared step but returned — and so
+run — only when `include_viz=True`, which the standalone `RealisticGlobalInit`
+task passes and consumers that reuse the init outputs as dependencies do not.
+Those consumers exist: the forward and dynamic-adjustment workflows and
+`e3sm/init`'s component inputs all call `get_realistic_init_steps` and get the
+same step instances rather than a second copy of a chain that costs hours.
 
-Within this decomposition, the `initial_state` step still needs to port several
-pieces of legacy init-mode functionality that are not part of
-`pstar_init` and are not already handled upstream in `e3sm/init`. For
-the initial implementation, the responsibilities of `initial_state` should
-likely include:
+Within this decomposition, `initial_state` is what ports the pieces of legacy
+init-mode functionality that are neither part of `pstar_init` nor already
+handled upstream in `e3sm/init`. As implemented, it:
 
-1. Consume the outputs of `pstar_init`, including the converged
-   geometric layer thicknesses and the model-agnostic hydrographic state on the
-   target mesh.
-2. Convert that hydrographic state into the tracer conventions required by the
-   configured model and populate the model's active tracer fields.
-3. Populate quiescent dynamical initial conditions, such as setting
-   `normalVelocity` to zero.
-4. Populate restoring fields derived from the initialized tracer state, such as
-   surface and interior restoring values and their associated restoring rates
-   or piston velocities, when those are part of the supported workflow.
-6. Compute any remaining derived fields required by the target model's initial
-   condition or forcing files that are not already natural outputs of
-   `pstar_init`, such as density-related diagnostics.
-6. Write the final split output files using the Polaris ocean framework helpers:
-   `write_vert_coord_dataset` to produce `vert_coord.nc` for Omega (a no-op for
-   MPAS-Ocean, which keeps vertical coordinate variables in `init.nc`) and
-   `write_initial_state_dataset` to produce `init.nc`. The forcing file
-   analogous to `init_mode_forcing_data.nc` is written by a separate `forcing`
-   step rather than by `initial_state`.
+1. Consumes the outputs of `pstar_init`, including the converged geometric
+   layer thicknesses and the model-agnostic hydrographic state on the target
+   mesh.
+2. Converts that hydrographic state into the tracer conventions required by the
+   configured model — CT and SA kept for Omega, converted to potential
+   temperature and practical salinity for MPAS-Ocean. The conversion itself
+   belongs to the framework's initial-state helpers; this step supplies the
+   per-cell longitude and latitude they need, since `pstar_init.nc` carries no
+   horizontal mesh fields.
+3. Populates quiescent dynamical initial conditions, setting `normalVelocity`
+   to zero.
+4. Computes the remaining derived fields, notably in-situ density from the
+   specific volume the p-star iteration produced.
+5. Writes `mesh.nc` through `write_horiz_mesh_dataset`, `vert_coord.nc`
+   through `write_vert_coord_dataset` (Omega only; a no-op for MPAS-Ocean,
+   which keeps vertical coordinate variables in `init.nc`) and `init.nc`
+   through `write_initial_state_dataset`.
+
+Restoring fields did not land. Surface and interior restoring values and their
+piston velocities are not part of the supported workflow yet, so nothing
+computes them; the forcing file that replaces the legacy
+`init_mode_forcing_data.nc` carries wind stress alone and is written by the
+separate `forcing` step rather than by `initial_state`.
 
 The first implementation should explicitly exclude or defer several categories
 of legacy init-mode behavior that are present in
@@ -541,16 +606,17 @@ of legacy init-mode behavior that are present in
 5. Any inland-sea culling or other mesh/topography correction that is more
    appropriately handled upstream in `e3sm/init`.
 
-Some details remain to be decided during implementation. In particular, we will
-need to determine which legacy diagnostics, such as Haney-number-related fields
-or density diagnostics, are still required as part of the final output schema
-for the supported MPAS-Ocean and Omega workflows, and which should instead be
-treated as optional diagnostics or validation products.
+The legacy diagnostics this section left open were decided as follows.
+Haney-number fields are not written at all — the `viz` step's port of Compass'
+`plot_initial_state` drops those panels rather than reproducing them — since
+Haney-number coordinates are out of scope. In-situ density is written, because
+the p-star iteration already produces the specific volume it comes from and
+because it is what the Omega stratification check reads.
 
 (wind-forcing)=
 ### Implementation: Wind forcing
 
-Date last modified: 2026/08/03
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -582,7 +648,7 @@ correction, the current-relative wind, and sea-ice drag deliberately omitted as
 second-order for this purpose.
 
 **Remapping.** Bilinear, with `map_tool` at the Polaris default (`moab`), no
-padding of the source grid, and a nearest-neighbour fill of the small residual
+padding of the source grid, and a nearest-neighbor fill of the small residual
 polar cap. Each of these was settled by measurement, and each has a failure mode
 that is easy to reintroduce:
 
@@ -602,7 +668,11 @@ that is easy to reintroduce:
   360 degrees.
 - mbtempest's coverage stops at the extrapolated corner, leaving 891 km^2
   uncovered at the North Pole -- under one cell for meshes coarser than about
-  30 km -- which is filled from the nearest valid neighbour.
+  30 km -- which is filled from the nearest valid neighbor. Both stress
+  components are taken from the same donor cell so the filled vector stays
+  physical, and a missing count beyond `max_polar_fill_fraction` (with an
+  absolute floor of `min_allowed_polar_fill` for coarse meshes) fails the step
+  rather than being filled silently.
 
 **Steps.** Deriving the global product is mesh-independent, and although the
 reduction itself takes seconds it needs several GiB of raw winds, so the
@@ -611,7 +681,7 @@ WOA23 hydrography product:
 
 | subdir | step | output |
 | --- | --- | --- |
-| `forcing/jra55/stress` | `Jra55StressStep` (cached) | `jra55_stress.nc` |
+| `forcing/jra55/stress` | `Jra55StressStep` | `jra55_stress.nc` |
 | `forcing/jra55/viz` | `Jra55VizStep` | diagnostic plots |
 | `{mesh}/init/jra55_map` | `Jra55MapStep` | bilinear weights |
 | `{mesh}/init/remap_jra55` | `RemapJra55Step` | `jra55_on_mesh.nc` |
@@ -630,8 +700,16 @@ registers 1-D fields on `NCells`, while MPAS-Ocean's Registry declares
 `dimensions="nCells Time"`, so `write_forcing_dataset` adds `Time=1` for
 MPAS-Ocean only.
 
+`Jra55StressStep` is *intended* to be `default_cached`, so that the multi-GiB
+download happens only when the product is deliberately regenerated. The flag is
+not set until the product is in the cache database, because setting it first
+makes any setup that does not include the standalone `jra55` task fail with
+"has not been added to the cache database". It belongs in the same change that
+adds the `cached_files.json` entry.
+
 The read side -- staging `forcing.nc` as a model *input*, and the associated
-namelist and config settings -- belongs to the forward-model work, not here.
+namelist and config settings -- belonged to the forward-model work and landed
+there; see [global_ocean_forward.md](global_ocean_forward.md).
 
 ### Implementation: The workflow is practical for very large global meshes
 
@@ -666,15 +744,27 @@ task.
 
 ### Testing and Validation: Open-ocean global initial conditions can be created from a culled mesh
 
-Date last modified: 2026/03/22
+Date last modified: 2026/08/11
 
-Contributors: Xylar Asay-Davis, Codex
+Contributors: Xylar Asay-Davis, Codex, Claude
 
 The first level of testing should verify that the workflow can consume outputs
 from an `e3sm/init` culled-mesh step and produce complete initial-condition
 files for at least one supported global mesh. A small or moderate mesh should
 be used for routine regression tests, with larger meshes reserved for
 integration testing.
+
+That split landed differently than "small mesh in a regression suite" suggests.
+The whole chain — culling, remapping and the p-star iteration — costs hours on
+any mesh worth initializing, so no task in this family belongs in a PR suite;
+routine regression testing is the unit tests above, and the workflow itself is
+exercised by running it on a mesh. The 240 km meshes exist for exactly that,
+which is why they override the vertical grid down to 16 levels. Initial
+conditions built this way have been carried through dynamic adjustment on
+`u.oi30.lr10` and `u.oi6to18.lr6to10`, which is where the WOA23 source
+artifacts documented in
+[global_ocean_dynamic_adjustment.md](global_ocean_dynamic_adjustment.md) were
+found.
 
 ### Testing and Validation: A reusable global hydrography product is available from WOA
 
@@ -729,14 +819,26 @@ than silently falling back to the legacy z-star construction.
 
 ### Testing and Validation: The capability is decomposed into inspectable Polaris steps
 
-Date last modified: 2026/03/22
+Date last modified: 2026/08/11
 
-Contributors: Xylar Asay-Davis, Codex
+Contributors: Xylar Asay-Davis, Codex, Claude
 
-Each major step should have at least one lightweight regression test or unit
-test that verifies its primary output exists, has the expected variables, and
-passes basic sanity checks. The diagnostics step should be validated with smoke
-tests to make sure it continues to run as intermediate formats evolve.
+Each major step has unit tests under `tests/ocean/realistic_global/`, mirroring
+the package layout: `init/test_woa23_map.py` and `init/test_jra55_map.py` for
+the mapping steps and how their task counts scale, `init/test_remap_woa23.py`
+and `init/test_remap_jra55.py` for what the remapped products contain and for
+the polar fill, `init/test_pstar_init.py` for the column helpers,
+`init/test_initial_state.py` for which upstream files the step reads, and
+`init/test_forcing.py` for the per-model forcing file. `test_tasks.py` checks
+that one task is registered per mesh and that its step list is what the
+decomposition says, and `test_mesh_configs.py` that the per-mesh overrides
+reach the right options without displacing the rest.
+
+The `viz` step is covered by `init/test_viz_config.py` rather than by a smoke
+test: it checks that the step reads only config sections that exist and that no
+colormap is chosen by a literal in the plotting code. Rendering the plots needs
+a real initial condition, so that part is exercised by running the task rather
+than in CI.
 
 ### Testing and Validation: The workflow is practical for very large global meshes
 
