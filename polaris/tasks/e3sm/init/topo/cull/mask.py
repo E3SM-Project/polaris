@@ -18,6 +18,7 @@ from polaris.mesh.spherical.critical_transects import (
     load_default_critical_transects,
 )
 from polaris.tasks.e3sm.init.topo.cull.consistency import (
+    check_critical_passages,
     check_cull_mask_consistency,
 )
 from polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics import (
@@ -329,6 +330,7 @@ class CullMaskStep(Step):
         self._create_ocean_cull_mask()
         self._create_land_ice_mask()
         self._refine_ocean_domains()
+        self._check_critical_passages()
         self._create_land_cull_mask()
         self._combine_masks()
         self._check_mask_consistency()
@@ -710,6 +712,26 @@ class CullMaskStep(Step):
 
         write_netcdf(ds_masks, 'cull_masks.nc')
         logger.info('Wrote cull_masks.nc.')
+
+    def _check_critical_passages(self):
+        """
+        Check that removing land-locked cells did not close any critical
+        ocean passage.
+        """
+        logger = self.logger
+        filename = 'critical_ocean_transects_widened.nc'
+        if not os.path.exists(filename):
+            logger.info(
+                'No critical ocean transects, skipping the passage check.'
+            )
+            return
+
+        ds_masks = open_dataset('ocean_cull_mask.nc')
+        check_critical_passages(
+            ocean_cull_mask=ds_masks.oceanCullMask.values,
+            ds_transects=open_dataset(filename),
+            logger=logger,
+        )
 
     def _check_mask_consistency(self):
         """

@@ -136,6 +136,80 @@ def check_cull_mask_consistency(
     logger.info(f'Cull mask consistency check passed: {counts}.')
 
 
+def check_critical_passages(
+    ocean_cull_mask,
+    ds_transects,
+    logger,
+    max_cells=10,
+):
+    """
+    Check that no cell on a critical ocean passage was culled from the
+    ocean.
+
+    A critical passage exists to keep a strait open that the topography
+    alone would close, so a cell removed from one is a passage that the
+    mesh cannot support: either it is too coarse to resolve the strait, or
+    the transect wanders onto land.  Either way the transect is the thing
+    to fix, so the error names it.
+
+    Parameters
+    ----------
+    ocean_cull_mask : xarray.DataArray or numpy.ndarray
+        The final ocean cull mask on base-mesh cells (1 where cells are
+        culled, 0 where they are kept)
+
+    ds_transects : xarray.Dataset
+        The widened critical ocean transects, with ``transectCellMasks``
+        and ``transectNames``
+
+    logger : logging.Logger
+        The logger for summary output
+
+    max_cells : int, optional
+        The maximum number of offending cell indices to report per transect
+
+    Raises
+    ------
+    ValueError
+        If any critical passage lost a cell
+    """
+    culled = np.asarray(ocean_cull_mask) > 0
+    cell_masks = ds_transects.transectCellMasks.values > 0
+    names = [_decode(name) for name in ds_transects.transectNames.values]
+
+    problems: list[str] = []
+    for index, name in enumerate(names):
+        _add_problem(
+            problems,
+            mask=culled & cell_masks[:, index],
+            message=f'cells culled from the ocean on {name!r}',
+            max_cells=max_cells,
+        )
+
+    if problems:
+        message = (
+            'Critical ocean passages lost cells to the removal of '
+            'land-locked cells. The mesh cannot keep these passages open, '
+            'so the transects need modification in geometric_features (or '
+            'the mesh needs more resolution there):\n' + '\n'.join(problems)
+        )
+        logger.error(message)
+        raise ValueError(message)
+
+    logger.info(
+        f'Critical ocean passage check passed: {len(names)} transects intact.'
+    )
+
+
+def _decode(name):
+    """
+    Decode a transect name that may be stored as bytes.
+    """
+    if isinstance(name, bytes):
+        return name.decode()
+    return str(name)
+
+
 def _add_problem(problems, mask, message, max_cells):
     """
     Append a description of the offending cells to ``problems`` if any.
