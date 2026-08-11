@@ -60,10 +60,8 @@ class SeaicePartitionMapStep(MappingFileStep):
             component=component,
             name=name,
             subdir=subdir,
-            # pyremap partitions the SCRIP files with "mbpart <ntasks>", which
-            # rejects a request for a single partition, so the floor is 2
             ntasks=36,
-            min_tasks=2,
+            min_tasks=1,
             method='bilinear',
         )
         self.seaice_mesh_step = seaice_mesh_step
