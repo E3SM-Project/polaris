@@ -139,5 +139,13 @@ differ only by the ice-shelf cavity cells, so with the default
 `calving_front` convention, which leaves no cavities, they are identical.
 Critical land transects and critical ocean transects are applied to both
 ocean meshes in the same way; a cell that a critical ocean passage keeps in
-the ocean is treated as open water rather than as an ice-shelf cavity.  The
-mask step fails if any of these relationships does not hold.
+the ocean is treated as open water rather than as an ice-shelf cavity.
+
+Cells in which the models could not work are removed from both meshes: the
+ocean is a C-grid, so each of its cells needs at least two edges shared with
+another ocean cell, and sea ice is a B-grid, so each cell of
+`ocean_no_cavities` poleward of `sea_ice_latitude_threshold` also needs a
+vertex whose surrounding cells are all in that mesh, or ice drifting in
+could never leave.  The mask step fails if any of this does not hold, or if
+removing such cells would close a critical ocean passage, in which case it
+names the passage.

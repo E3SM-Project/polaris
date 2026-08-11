@@ -90,9 +90,20 @@ for every value of `antarctic_boundary_convention`:
    Equivalently, the ice-shelf cavity cells of the ocean mesh are exactly the
    cells the ocean retains and the ocean without cavities does not.
 4. Critical land blockages and critical ocean passages are applied identically
-   to the ocean and to the ocean without cavities.
-5. Under `calving_front` the ocean and the ocean without cavities are
-   identical, so the ocean and the land partition the base mesh.
+   to the ocean and to the ocean without cavities, and no cell of a critical
+   ocean passage is culled from the ocean.
+5. The two ocean domains differ only by ice-shelf cavities: every cell in the
+   ocean but not in the ocean without cavities carries land ice.
+6. Under `calving_front` no cell of the ocean carries land ice, since that
+   convention ends the ocean at the calving front.
+7. Every cell of either ocean domain has at least two active edges; every cell
+   of the ocean without cavities poleward of `sea_ice_latitude_threshold` has
+   at least one active vertex; and every cell of that domain can move sea ice
+   to the part of it equatorward of the threshold, where ice melts.
+
+Invariants 1, 5 and 6 together mean the two ocean domains are identical under
+`calving_front`, so the ocean and the land partition the base mesh. That is a
+consequence of the requirements rather than a separate assertion.
 
 Invariant 4 is why `CullMaskStep._apply_critical_transects` is shared between
 `refine_ocean_cull_mask` and the ocean-without-cavities mask: removing the
@@ -121,12 +132,18 @@ alternating until neither changes, because removing a cell from one can
 strand a cell in the other. The requirements and the algorithm are set out
 in the `land_locked_cells` design doc (see {ref}`design-docs`).
 
-After all masks are written, `CullMaskStep` calls
+After all masks are written, `CullMaskStep` checks them. Invariants 1, 2, 3,
+5 and 6 are the province of
 {py:func}`polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency`,
-which raises a `ValueError` listing the offending cell indices if any of
-invariants 1, 2, 3 or 5 is violated. These are hard failures because a
-violation means the culled meshes handed downstream are wrong in a way that is
-hard to notice later.
+which needs only the masks; invariant 7 belongs to
+{py:func}`polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria`,
+which needs the mesh as well; and the passage half of invariant 4 is checked
+by
+{py:func}`polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages`,
+which names the transect responsible so it can be fixed in
+`geometric_features`. Each raises a `ValueError` listing the offending cell
+indices. These are hard failures because a violation means the culled meshes
+handed downstream are wrong in a way that is hard to notice later.
 
 ## Workflow
 
