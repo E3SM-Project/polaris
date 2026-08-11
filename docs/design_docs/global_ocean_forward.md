@@ -23,16 +23,26 @@ cadence come from config). The framework is deliberately shaped so that the two
 other forward run types from Compass — a restart test and the staged dynamic
 adjustment described in
 [global_ocean_dynamic_adjustment.md](global_ocean_dynamic_adjustment.md) — are
-straightforward to build on top of it later, but neither is implemented here.
+straightforward to build on top of it later.
+
+That first phase has landed, and so has more than it promised. Two runnable
+task families exist rather than one — `forward` on a mesh the `init` workflow
+builds, and `cached_forward` on an initial condition downloaded from the
+Polaris input-file database — and they turned out to answer different
+questions, which is what decides the physics each one runs. Restart chaining
+landed as well and dynamic adjustment is built on it without modifying the
+forward step, exactly as this document called for. A restart test is still not
+implemented.
 
 A forward run must be able to obtain its model inputs (horizontal mesh, vertical
-coordinate, initial state, and graph) from either of two sources: a file staged
-in the Polaris input-file database and referenced by name, or the outputs of the
-upstream `realistic_global/init` steps. It must express the per-run controls —
-run duration, output and restart cadence, time step, and damping — in a
-model-agnostic form and translate them, in a single place, to the configuration
-options of the configured model. It must also write restart files, so that a
-sequence of forward runs can be chained.
+coordinate, initial state, surface forcing, and graph) from either of two
+sources: a file staged in the Polaris input-file database and referenced by
+name, or the outputs of the upstream `realistic_global/init` steps. It must
+express the per-run controls — run duration, output and restart cadence, time
+step, damping, and the mixing and parameterization settings that vary with the
+mesh — in a model-agnostic form and translate them, in a single place, to the
+configuration options of the configured model. It must also write restart
+files, so that a sequence of forward runs can be chained.
 
 The primary software challenge is not the forward integration itself, which
 Polaris' `OceanModelStep` already supports, but the workflow abstractions around
@@ -68,13 +78,13 @@ changes.
 
 ### Requirement: Forward runs can start from a database initial condition or from the init workflow
 
-Date last modified: 2026/07/03
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Claude
 
 A forward run shall be able to obtain the model inputs it consumes (horizontal
-mesh, vertical coordinate for Omega, initial state, and, for MPAS-Ocean, a graph
-partition file) from either of two sources:
+mesh, vertical coordinate for Omega, initial state, surface forcing, and, for
+MPAS-Ocean, a graph partition file) from either of two sources:
 
 1. A file staged in the Polaris input-file database and referenced by name.
 2. The outputs of the upstream `realistic_global/init` steps for the same mesh
@@ -83,6 +93,29 @@ partition file) from either of two sources:
 The choice of source shall be a property of how the task is assembled, not a
 branch inside the forward step. Adding a third source in the future shall not
 require modifying the forward step or the run-settings logic.
+
+### Requirement: The two sources of initial condition answer different questions
+
+Date last modified: 2026/08/11
+
+Contributors: Xylar Asay-Davis, Claude
+
+A run from a cached initial condition and a run from the `init` workflow are not
+two sizes of the same test, and the framework shall not treat them as though
+they were. This became clear only once both were runnable, so it is recorded
+here rather than having been designed in.
+
+A run on a cached initial condition exists to compare MPAS-Ocean with Omega on
+one mesh and one initial condition, so it shall use only the physics both models
+have: anything one model has and the other lacks works against the comparison. A
+run on a mesh the `init` workflow builds exists to check that the mesh behaves
+the way it will in a real E3SM configuration, so it shall use E3SM's physics for
+that mesh.
+
+Every model setting the two need to disagree on shall therefore be a Polaris
+config option rather than a fixed value, and the defaults shall be the E3SM-like
+ones. The two shall be registered as separate tasks so that one mesh could carry
+both without them colliding.
 
 ### Requirement: Per-run settings are described in a common, model-agnostic form
 
@@ -199,9 +232,9 @@ forward step holds one such object and defers all questions of provenance to it.
 Two concrete implementations are needed:
 
 1. A source backed by the upstream `realistic_global/init` steps, which links the
-   `mesh`, `vertical coordinate`, `initial state`, and `graph` files from the
-   initialization step's work directory. This is the source exercised by the
-   first runnable task, since those outputs already exist in the same run.
+   `mesh`, `vertical coordinate`, `initial state`, `forcing` and `graph` files
+   from the initialization steps' work directories. This is the source used by
+   the first runnable task, since those outputs already exist in the same run.
 2. A source backed by the Polaris input-file database, which constructs the input
    filename from the mesh, the configured model, and the equation of state, and
    registers it as a database input.
@@ -210,6 +243,22 @@ Because the required filenames and the model-specific handling of the vertical
 coordinate and graph depend on the configured model, the source applies its input
 files when the model is known (during step setup) rather than at construction
 time.
+
+### Algorithm Design: The two sources of initial condition answer different questions
+
+Date last modified: 2026/08/11
+
+Contributors: Xylar Asay-Davis, Claude
+
+The difference belongs in config rather than in code. Both tasks build the same
+forward step from the same settings structure; what differs is the values that
+structure is built from, which the per-mesh config file already supplies for
+other reasons. No branch anywhere asks which kind of task it is in.
+
+A consequence worth stating: the list of settings a cached run turns off
+describes what Omega lacks today, not a considered choice of physics. It should
+shrink as Omega gains capabilities, and keeping it in config is what makes
+shrinking it a one-line change rather than a code change.
 
 ### Algorithm Design: Per-run settings are described in a common, model-agnostic form
 
@@ -303,7 +352,7 @@ neither and is not expected to gain them.
 
 ### Implementation: A reusable forward-run capability runs a realistic global ocean simulation
 
-Date last modified: 2026/07/03
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -317,20 +366,32 @@ output file. It does not read config in its constructor, because the target mode
 is not known until setup.
 
 Resource sizing overrides `compute_cell_count` to return the exact `nCells` read
-from the mesh input file when it exists, and otherwise a configured
-`approx_cell_count`; the base class turns this into `ntasks`/`min_tasks` using the
-existing `goal_cells_per_core`/`max_cells_per_core` options.
+from the mesh input file when it exists, and otherwise an `approx_cell_count`;
+the base class turns this into `ntasks`/`min_tasks` using the existing
+`goal_cells_per_core`/`max_cells_per_core` options. The approximate count is a
+property of the initial condition rather than a config option, since it is the
+initial condition that knows which mesh it is for: a step-backed source takes it
+from `mesh_info.estimate_ocean_cell_count`, and a database-backed one from the
+count recorded for that cached mesh.
 
 The runnable task is `RealisticGlobalForward`, added once per supported mesh by a
 factory `add_realistic_global_forward_tasks`, following the structure of the init
 factory in `polaris/tasks/ocean/realistic_global/init/tasks.py`. Its work
-directory is mesh-first, `spherical/realistic_global/{mesh_name}/forward`,
-matching the init layout. The factory is registered from
+directory is mesh-first, `spherical/realistic_global/{mesh_name}/{subdir_name}`,
+matching the init layout, with `subdir_name` distinguishing `forward` from
+`cached_forward`. The factory is registered from
 `polaris/tasks/ocean/realistic_global/__init__.py`.
+
+The task holds three steps rather than one. The forward run itself is named
+`short` rather than `forward`, because that is what it is: a brief run that
+checks the model is stable on this mesh and initial condition, not a simulation
+worth interpreting. Two diagnostic steps follow it, neither run by default:
+`global_stats` plots time series of the run's global statistics, and `viz` plots
+global maps of its state.
 
 ### Implementation: Forward runs can start from a database initial condition or from the init workflow
 
-Date last modified: 2026/07/03
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -350,26 +411,81 @@ used and the graph is not partitioned.
 
 `DatabaseInitialCondition` constructs the input filename from the mesh name, the
 configured model, and the equation of state, and registers it with
-`add_init_input_file(database=..., target=...)`. This source is implemented and
-unit-tested but is not wired into a registered task until the corresponding
-initial-condition files are staged in the database; the exact handling of the
-MPAS-Ocean graph for this source (building it from the mesh versus downloading a
-prebuilt graph) is finalized at that time.
+`add_init_input_file(database=..., target=...)`. It is now wired into the
+`cached_forward` tasks described above. The MPAS-Ocean graph question was
+settled in favor of downloading a prebuilt graph partition file alongside the
+initial condition rather than building one from the mesh; Omega partitions
+internally and needs neither.
+
+Two things the design did not anticipate fell out of this abstraction once
+surface forcing existed. The initial condition also answers *where the wind
+stress lives*, through `get_forcing_filename()`: a source that stages a forcing
+file of its own names it, and a source whose stress travels inside the
+initial-condition file names that file instead, so the forcing streams are
+pointed at the right place without the forward step knowing which case it is
+in. And `StepInitialCondition` links the initial state only when the run
+actually reads one, since a stage continuing from a restart does not — a detail
+that belongs to the source rather than to the step for the same reason.
+
+### Implementation: The two sources of initial condition answer different questions
+
+Date last modified: 2026/08/11
+
+Contributors: Xylar Asay-Davis, Claude
+
+`add_realistic_global_cached_forward_tasks` registers one task per entry of
+`forward/tasks.py`'s `CACHED_MESHES`, with a `subdir_name` of `cached_forward`
+rather than `forward` so that a mesh could carry both. Each entry gives the
+MPAS-Ocean and Omega initial-condition IDs on the Polaris server, the minimum
+resolution and the cell count. The two meshes are `QU.240km` and
+`EC30to60E2r2`, whose initial conditions were converted from existing E3SM ones
+by `utils/omega/convert_mpaso_ic_to_omega.py` and uploaded. A cached mesh also
+needs a `mesh_configs/<mesh_name>.cfg` giving its time step and run duration,
+since neither follows from a mesh Polaris did not build.
+
+`QU.240km.cfg` is where the comparison intent is written down: `RK4` for
+MPAS-Ocean as well as Omega, so the two advance the same way at the cost of
+MPAS-Ocean taking the short step; and `use_GM`, `use_Redi`, `use_KPP`,
+`use_submesoscale` and `pressure_gradient_type` turned off or left at the model
+default. The unified meshes' configs do the opposite, stating E3SM's mixing and
+parameterizations for their resolution.
+
+The cached tasks are the only members of this family cheap enough for a PR
+suite: `ocean/spherical/realistic_global/QU.240km/cached_forward/task` is in
+both `mpaso_pr` and `omega_pr`. Nothing built on the `init` chain belongs in a
+suite, since that chain is hours of preprocessing before the model starts.
+
+`cached_forward` is expected to be temporary. Once Omega has the full physics
+and the initialization workflow has been exercised end to end, the comparison
+can be made on meshes Polaris builds itself and the hand-staged initial
+conditions can go.
 
 ### Implementation: Per-run settings are described in a common, model-agnostic form
 
-Date last modified: 2026/07/03
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Claude
 
 The settings structure is a small dataclass, `ForwardStage`, in
 `forward/stage.py`, with a class method that builds one from a
 `[realistic_global_forward]` config section. Its fields cover the run duration,
-output interval, restart interval, time integrator, optional explicit `dt`/`btr_dt`,
-`dt_per_km`/`btr_dt_per_km`, a damping (Rayleigh) coefficient, and the restart-in
-fields (`do_restart`, `start_time`, `restart_in`). Durations are duration strings
-of the form `DDDD_HH:MM:SS`, matching the schedule format in
+output interval, restart interval, statistics interval, the two time
+integrators, optional explicit `dt`/`btr_dt`, `dt_per_km`/`btr_dt_per_km`, a
+damping (Rayleigh) coefficient, the mixing and parameterization options
+described further below, and the restart fields (`do_restart`, `start_time`,
+`restart_in`, `restart_out`). Durations are duration strings of the form
+`DDDD_HH:MM:SS`, matching the schedule format in
 [global_ocean_dynamic_adjustment.md](global_ocean_dynamic_adjustment.md).
+
+The time integrator turned out to be the one setting that cannot be shared, so
+there are two fields rather than one: `mpaso_time_integrator`, defaulting to
+`split_explicit_ab2`, and `omega_time_integrator`, defaulting to `RK4`. Omega
+has no split time stepper, while MPAS-Ocean needs one to make the month-long
+spin-ups built on this framework affordable. The time step follows from that
+choice rather than being chosen separately: a split integrator advances on the
+long baroclinic step and subcycles the barotropic mode, and a non-split
+integrator has to advance on the short barotropic step. With the defaults, the
+two models therefore run the same mesh at very different time steps.
 
 The mapping onto model configuration happens only in the forward step's
 `dynamic_model_config`, which renders `forward/forward.yaml` with template
@@ -378,10 +494,18 @@ replacements derived from the stage. Durations are formatted with
 explicitly it is computed as the per-kilometer value times the mesh minimum
 resolution. The time-integrator name is mapped to Omega where needed, exactly as
 `ConvergenceForward` does. The template's model-neutral `ocean:` block is
-auto-translated to Omega through the existing `mpaso_to_omega.yaml` map, while the
-barotropic time step, Rayleigh damping, and restart controls appear under the
-`mpas-ocean:` section (with Omega equivalents in the `Omega:` section left as a
-documented future refinement).
+auto-translated to Omega through the existing `mpaso_to_omega.yaml` map, while
+the barotropic time step and Rayleigh damping appear under the `mpas-ocean:`
+section. The restart controls did gain an Omega counterpart, in
+`restart_streams.yaml` rather than in the main template; see below.
+
+Where a model cannot honor a setting, the mapping raises rather than dropping
+it: an `omega_time_integrator` Omega does not support, and a non-blank `damping`
+under Omega, which has no Rayleigh damping at all
+([Omega#495](https://github.com/E3SM-Project/Omega/issues/495)). Both raise at
+run time rather than at setup, so that a task can be set up and its config
+changed before it is run. Reporting success on a run that quietly dropped the
+damping it was asked for is the failure mode this avoids.
 
 ```python
 def dynamic_model_config(self, at_setup):
@@ -393,60 +517,138 @@ def dynamic_model_config(self, at_setup):
 
 ### Implementation: The framework composes into restart and dynamic-adjustment workflows
 
-Date last modified: 2026/07/03
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Claude
 
-`forward/forward.yaml` declares a restart stream whose interval is the stage's
-restart interval, and the model-neutral time block carries the start time and
-restart flag. The simple forward task leaves the restart-in fields unset, so it
-starts from the initial condition and (by default) writes a single restart at the
-end of the run. A future restart test constructs two `Forward` steps with
-different durations and restart settings; a future dynamic-adjustment task builds
-a list of `ForwardStage`s from a per-mesh YAML schedule and chains restarts, in
-both cases reusing `Forward` and `InitialCondition` unchanged.
+The restart stream is declared in `restart_streams.yaml`, added only for a stage
+that is part of a restart chain, and the model-neutral time block carries the
+start time and restart flag. The simple forward task leaves the restart fields
+unset, so it starts from the initial condition and writes a single restart at
+the end of the run.
+
+Dynamic adjustment is built on exactly this and needed no change to the forward
+step: it builds a list of `ForwardStage`s from a per-mesh YAML schedule and sets
+each one's `restart_in` and `restart_out` so that consecutive stages share a
+`restarts` directory. For MPAS-Ocean the restart stream is both an input and an
+output stream, so one `filename_template` serves both directions and the read
+side is just `config_do_restart` and `config_start_time`; the start time is
+stated explicitly rather than using a restart-pointer file. Omega needs a
+separate `RestartRead` stream, which the `Omega` block of
+`restart_streams.yaml` supplies, switched on per stage by
+`ForwardStage.restart_stream_replacements`.
+
+That Omega block is written but unrun: Omega's restart filenames carry no `.nc`
+extension and it is not established whether Omega appends one, so the restart
+files are declared as step inputs and outputs for MPAS-Ocean only.
+[Omega#482](https://github.com/E3SM-Project/Omega/issues/482), where restarts
+and history output interact badly, will also change how an Omega restart run has
+to be configured.
+
+A restart test — two `Forward` steps with different durations and restart
+settings, compared for bit-for-bit agreement — is still not implemented. Nothing
+about it needs the forward step to change.
 
 ### Implementation: Forward steps produce inspectable outputs and support basic validation
 
-Date last modified: 2026/07/03
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Claude
 
-The output and restart streams are declared in `forward/forward.yaml`: an
-MPAS-Ocean `output` stream and `restart` stream, and the corresponding Omega
-`IOStreams` (`History` and `RestartWrite`). The `Forward` step registers its
+The 3-D output stream is declared in `forward/forward.yaml` — an MPAS-Ocean
+`output` stream and the corresponding Omega `History` `IOStream` — and the
+restart streams in `restart_streams.yaml`. The `Forward` step registers its
 output file through `add_output_file` with an optional `validate_vars` list
-(defaulting to a small set such as `temperature`, `salinity`, `layerThickness`,
-`normalVelocity`) and optional `check_properties`, reusing the baseline-comparison
-and conservation checks already implemented in `OceanModelStep`.
+(`temperature`, `salinity`, `layerThickness`, `normalVelocity`) and optional
+`check_properties`, reusing the baseline-comparison and conservation checks
+already implemented in `OceanModelStep`.
 
-Surface forcing (wind stress and restoring) is intentionally out of scope for the
-first forward runs because the current `realistic_global/init` workflow does not
-yet produce those fields; the first runs are a spin-down from the initial
-condition. Forcing is a clean future extension via a forcing step and additional
-streams in the template.
+The output stream carries more than the prognostic state: kinetic energy and
+relative vorticity for MPAS-Ocean, and for Omega the `AuxiliaryState`, `SshCell`
+and `Eos` groups, which add the vorticity, divergence and del2 terms, the free
+surface and the specific volume and buoyancy frequency. The extra fields cost
+file size and are worth it, because a run that goes wrong can otherwise be seen
+to have gone wrong but not diagnosed, and these runs exist partly to be compared
+against each other. Density is the one field in that stream with a switch of its
+own (`output_density`), because it is 3-D and roughly 13% of the output volume,
+which starts to matter once a workflow writes the stream many times over.
+
+Global statistics are the other output, and the more useful one. Both models
+write a time series of the global minimum, maximum, mean and RMS of the state
+variables — MPAS-Ocean through its `globalStats` analysis member and Omega
+through its `GlobalStats` analysis group, plus the global CFL number for
+MPAS-Ocean — on a `stats_interval` cadence deliberately separate from the 3-D
+`output_interval`. They are a handful of scalars, so they can be written far
+more often than 3-D fields, which is what makes an excursion *within* a run
+visible rather than only at its end. Two model differences are handled once, in
+`ForwardStage.stats_filename`, so that everything reading a stage's statistics
+asks the same question the same way: Omega treats the configured name as a
+prefix and appends its analysis period and the kind of output with no `.nc`
+extension, and Omega's statistics are taken as instantaneous snapshots rather
+than temporal reductions, both because that is what the mapped variable names
+mean and because an averaging period would constrain the restart interval.
+
+Surface forcing is no longer out of scope, and it is not optional either. Every
+realistic global forward run is forced by the time-invariant JRA55-do wind
+stress the `init` workflow produces: `forcing.yaml` is always added, and there
+is no config option to run without it. `forcing_streams.yaml` points each model's
+input stream at whichever file the initial condition names. There is still no
+surface restoring and there are no thermal or freshwater fluxes, so the tracers
+spin down from the initial condition while the momentum input holds up a
+circulation.
+
+Two diagnostic steps, neither run by default, read these outputs: `global_stats`
+(`StatsAnalysis`) plots the statistics as time series with a
+standard-deviation envelope and an anomaly panel, and `viz` plots global maps of
+each state variable at the start and end of the run along with the wind stress
+that forced it.
 
 ### Implementation: Physics and mixing options vary with the mesh
 
-Date last modified: 2026/07/21
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Claude
 
 `realistic_global_forward.cfg` gains the mixing and parameterization options:
 `mom_del2`, `mom_del4`, `tracer_del2` and `tracer_del4` (blank meaning off),
-`use_Leith_del2`, `hmix_scaling` (`none`, `ref_cell_width` or
-`scale_with_mesh`) with `hmix_ref_cell_width`, `use_GM` with `GM_closure` and
-`GM_constant_kappa`, `use_Redi`, and `use_frazil_ice_formation`. The defaults
-match the shared baseline of the Compass `global_ocean` forward runs that this
-framework replaces.
+`mom_del4_div_factor`, `use_Leith_del2`, `hmix_scaling` with
+`hmix_ref_cell_width`, `use_GM` with `GM_closure` and `GM_constant_kappa`,
+`use_Redi`, `use_KPP`, `use_submesoscale`, `pressure_gradient_type`,
+`use_frazil_ice_formation` and `output_density`. The list grew past what this
+section first named once the `forward` tasks had to reproduce E3SM's
+configuration rather than a Compass baseline: the defaults are now the
+E3SM-like ones, and the `cached_forward` tasks override them for the reasons
+given above. Several are off in MPAS-Ocean itself, so leaving them alone would
+not have given E3SM's configuration either.
+
+`hmix_scaling` has two values, `none` and `ref_cell_width`, not the three this
+section anticipated. MPAS-Ocean's third combination — `scaleWithMesh` with
+`use_ref_cell_width` false — scales by the legacy `meshDensity` field, which
+every E3SM v4 mesh writes as uniformly 1.0, so that branch silently applies no
+scaling at all. Offering it would only let a user ask for scaling and get none.
+The two flags MPAS-Ocean does need are set together by `ref_cell_width`, since
+`config_hmix_use_ref_cell_width` is read only inside
+`if (config_hmix_scaleWithMesh)` and setting the first alone has the same silent
+failure.
+
+Settings that should *not* vary are pinned in `forward.yaml` rather than made
+options, purely so that the two models agree: horizontal tracer advection order
+3 (Omega defaults to 2), implicit constant bottom drag at 1e-3 (Omega has none
+by default), the CVMix convection and shear-mixing parameters, and
+`config_Redi_min_layers_diag_terms = 0`, which computes the Redi diagnostic
+terms in the top layers the Registry default skips. Where the two models'
+defaults differ, the MPAS-Ocean default wins.
 
 `ForwardStage` gains the corresponding fields and two methods beside the existing
 `bottom_drag_options`: `horiz_mixing_options` returns the neutral del2/del4
 options for momentum and tracers, and `mpaso_physics_options` returns the
-MPAS-Ocean-only Leith, horizontal-mixing-scaling, Gent-McWilliams, Redi and
-frazil options. `Forward.dynamic_model_config` adds the first with
-`config_model='ocean'`, so `OceanModelStep.map_yaml_options` translates it for
-Omega, and the second with `config_model='mpas-ocean'`.
+MPAS-Ocean-only options — the Leith closure, horizontal-mixing scaling, the
+biharmonic divergence factor, Gent-McWilliams, Redi, KPP, the submesoscale
+parameterization, the pressure-gradient formulation and frazil ice.
+`Forward.dynamic_model_config` adds the first with `config_model='ocean'`, so
+`OceanModelStep.map_yaml_options` translates it for Omega, and the second with
+`config_model='mpas-ocean'`. Omega has no equivalent for anything in the second
+bucket and is not expected to gain GM or Redi.
 
 Per-mesh overrides live in `mesh_configs/<mesh_name>.cfg` under the same
 `[realistic_global_forward]` section, applied by `add_realistic_global_mesh_config`
@@ -474,7 +676,7 @@ would have been dropped for Omega with only a warning.
 
 ### Testing and Validation: A reusable forward-run capability runs a realistic global ocean simulation
 
-Date last modified: 2026/07/03
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -486,16 +688,44 @@ duration, cadence, time step, and time integrator, without running the model.
 Where a model build is available, a short end-to-end run on a coarse mesh should
 confirm that the output file and a restart file are written.
 
+What landed is `tests/ocean/realistic_global/test_forward.py`, which renders the
+model config for both models and checks it rather than requiring a setup, plus
+`test_tasks.py`, which checks that a task is registered per mesh with the step
+list this design calls for. Resource sizing is covered by tests that
+`compute_cell_count` falls back to the initial condition's estimate before the
+mesh exists, and raises rather than guessing when there is no estimate. The
+end-to-end run is the cached `QU.240km` task in the two PR suites.
+
 ### Testing and Validation: Forward runs can start from a database initial condition or from the init workflow
 
-Date last modified: 2026/07/03
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Claude
 
-Unit tests should confirm that `StepInitialCondition` registers the four inputs
-and sets the graph target from the init step's work directory, and that
-`DatabaseInitialCondition` constructs the expected database filename and target
-for each configured model.
+Unit tests confirm that `StepInitialCondition` registers its inputs and sets the
+graph target from the init step's work directory, that it skips the initial
+state on a stage continuing from a restart, and that it requires a forcing step
+and wires the forcing file; and that `DatabaseInitialCondition` constructs the
+expected database filename and target for each configured model, raising when an
+Omega run has no Omega initial-condition ID. A further pair of tests checks the
+seam between the two: that the forcing streams point at the staged file for one
+source and at the initial condition itself for the other.
+
+### Testing and Validation: The two sources of initial condition answer different questions
+
+Date last modified: 2026/08/11
+
+Contributors: Xylar Asay-Davis, Claude
+
+Unit tests confirm that every cached mesh has a per-mesh config, that those
+configs turn off what Omega lacks, that the model config a cached task renders
+is what those options imply, and that the task's config carries what the
+database source needs — the equation of state above all, since a cached run
+never sets the `init` workflow's config up at all and still has to name the
+equation of state to find the right file.
+
+The end-to-end check is the PR suites, which run the cached `QU.240km` task for
+both models on every pull request.
 
 ### Testing and Validation: Per-run settings are described in a common, model-agnostic form
 
@@ -511,18 +741,21 @@ step and Rayleigh damping only for MPAS-Ocean.
 
 ### Testing and Validation: The framework composes into restart and dynamic-adjustment workflows
 
-Date last modified: 2026/07/03
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Claude
 
-Tests in this phase should confirm that the restart stream is emitted with the
-configured interval and that the restart-in settings render the expected restart
-flag and start time. Full restart-test and dynamic-adjustment regression tests
-belong to the later work that builds those workflows on this framework.
+Tests confirm that the restart-in settings render the expected restart flag and
+start time, that `restart_stream_replacements` switches Omega's read side on,
+and that `restart_streams.yaml` requests Omega's `RestartRead` stream. Which
+files a step declares is checked from the dynamic-adjustment side, where the
+chain is built: that a stage in a chain declares both ends of it, that a lone
+stage declares neither, and that an Omega stage declares no restart files at
+all, matching the unrun state of that path.
 
 ### Testing and Validation: Forward steps produce inspectable outputs and support basic validation
 
-Date last modified: 2026/07/03
+Date last modified: 2026/08/11
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -531,6 +764,17 @@ validation variables and that, when property checks are requested, they are wire
 to the existing conservation checks. Baseline comparison of the validation
 variables should be exercised through the standard Polaris validation path once a
 baseline is available.
+
+Two classes of test landed that this section did not anticipate, both guarding
+against a failure that is silent by construction. An option in the neutral
+`ocean:` block with no entry in `mpaso_to_omega.yaml` only warns, so a check
+that every neutral option in `forward.yaml`, in `forcing.yaml` and in the
+horizontal-mixing bucket has an Omega counterpart is what keeps the two models
+from quietly running different physics. And the statistics filename moves for
+Omega but not for MPAS-Ocean, and a name that is not found reads as a stage that
+wrote no statistics, so tests pin the filename each model actually writes, that
+it follows the statistics interval for Omega, and that Omega's statistics are
+snapshots rather than reductions.
 
 ### Testing and Validation: Physics and mixing options vary with the mesh
 
