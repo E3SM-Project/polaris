@@ -3,9 +3,13 @@ import numpy as np
 from polaris.constants import get_constant
 from polaris.ocean.model.time import get_days_since_start
 
-cp_sw = get_constant('seawater_specific_heat_capacity_reference')
+# TODO cp_sw = get_constant('seawater_specific_heat_capacity_reference')
+cp_sw = {'omega': 3991.86795711963, 'mpas-ocean': 3996.0}
 rho_sw = get_constant('seawater_density_reference')
-
+latent_heat_fusion = {
+    'omega': get_constant('latent_heat_of_fusion_reference'),
+    'mpas-ocean': 3.337e5,
+}
 # Freshwater/mass fluxes that the model adds to the (pseudo-)thickness
 # equation.  ``seaIceSalinityFlux`` also enters the thickness equation, so it
 # appears in the mass budget as well as the salt budget.
@@ -17,8 +21,14 @@ MASS_FLUX_VARS = [
     'seaIceFreshWaterFlux',
     'iceRunoffFlux',
     'riverRunoffFlux',
-    'seaIceSalinityFlux',
+    'icebergFreshWaterFlux',  # Note: not available for Omega
+    'subglacialRunoffFlux',  # Note: not available for Omega
 ]
+
+MASS_ASSOC_SALT_FLUX_VARS = [
+    'seaIceSalinityFlux',  # Note: this is not correct for MPAS-O
+]
+
 HEAT_FLUX_VARS = [
     'latentHeatFlux',
     'sensibleHeatFlux',
@@ -26,16 +36,24 @@ HEAT_FLUX_VARS = [
     'longWaveHeatFluxUp',
     'longWaveHeatFluxDown',
     'seaIceHeatFlux',
+    'icebergHeatFlux',
 ]
+
+# mass fluxes (kg/m^2/s) that enter the heat budget as -flux * L_f
+FUSION_FLUX_VARS = [
+    'snowFlux',
+    'iceRunoffFlux',
+]
+
 SALT_FLUX_VARS = ['seaIceSalinityFlux']
 
 # mass fluxes that also carry an SST-dependent enthalpy flux; if any is
 # nonzero, the heat budget cannot be closed with these terms alone
 ENTHALPY_FLUX_VARS = [
     'rainFlux',
+    'evaporationFlux',
     'riverRunoffFlux',
-    'snowFlux',
-    'iceRunoffFlux',
+    'subglacialRunoffFlux',
 ]
 
 _FLUX_VARS = {
@@ -72,14 +90,14 @@ def compute_total_mass(ds_mesh, ds):
     area_cell = ds_mesh.areaCell
     thickness = _get_mass_thickness(ds)
     # For omega this is equivalent to \rho * h * A
-    # For mpas-o this is equivalent to \rho_ref * h * A
+    # For mpas-ocean this is equivalent to \rho_ref * h * A
     total_mass = rho_sw * (area_cell * thickness.sum(dim='nVertLevels')).sum(
         dim='nCells'
     )
     return total_mass
 
 
-def compute_total_energy(ds_mesh, ds):
+def compute_total_energy(ds_mesh, ds, model):
     """
     Compute the total heat content in an ocean model output file
 
@@ -103,7 +121,7 @@ def compute_total_energy(ds_mesh, ds):
     temperature = ds.temperature
     total_energy = (
         rho_sw
-        * cp_sw
+        * cp_sw[model]
         * (area_cell * (thickness * temperature).sum(dim='nVertLevels')).sum(
             dim='nCells'
         )
@@ -174,12 +192,13 @@ def get_elapsed_seconds(ds):
     Elapsed seconds between two time indices of an output dataset, supporting
     Omega's numeric ``time`` and MPAS-Ocean's ``daysSinceStartOfSim``.
     """
-    start_time = get_days_since_start(ds.isel(Time=0)) * 86400.0
+    # start_time = get_days_since_start(ds.isel(Time=0)) * 86400.0
+    start_time = 0.0
     end_time = get_days_since_start(ds.isel(Time=-1)) * 86400.0
     return end_time - start_time
 
 
-def compute_flux_forcing(ds_mesh, ds, budget, dt):
+def compute_flux_forcing(ds_mesh, ds, budget, dt, model=None):
     """
     Integrate the surface forcing fluxes that contribute to a given budget
     over the duration of a run, assuming the fluxes are constant in time
@@ -202,6 +221,11 @@ def compute_flux_forcing(ds_mesh, ds, budget, dt):
     dt : float
         The elapsed time of the run in seconds
 
+    model : {'omega', 'mpas-ocean'}, optional
+        The model name, required for the energy budget when
+        enthalpy-carrying mass fluxes (e.g. rain, evaporation, runoff) are
+        active
+
     Returns
     -------
     total : float
@@ -216,34 +240,97 @@ def compute_flux_forcing(ds_mesh, ds, budget, dt):
     for var in _FLUX_VARS[budget]:
         if var in ds:
             flux = _drop_time(ds[var])
-            inst_flux = (flux * area_cell).sum(dim='nCells').values
+            inst_flux = float((flux * area_cell).sum(dim='nCells').values)
             print(f'{var}: {inst_flux}')
-            # ensure inst_flux is a python float (sum any remaining dims)
-            inst_flux = float(np.sum(inst_flux))
             total += inst_flux
+
+    if budget == 'mass':
+        # salt fluxes (kg salt / m^2 / s) also add mass to the (pseudo-)
+        # thickness equation
+        for var in MASS_ASSOC_SALT_FLUX_VARS:
+            if var in ds:
+                flux = _drop_time(ds[var])
+                inst_flux = float((flux * area_cell).sum(dim='nCells').values)
+                print(f'{var} (mass-associated): {inst_flux}')
+                total += inst_flux
+
+    if budget == 'salt' and model == 'mpas-ocean':
+        # MPAS-Ocean applies seaIceSalinityFlux * sflux_factor
+        # (sflux_factor = 1) as a tendency of h*S in psu m/s, so the
+        # corresponding change in salt mass (as computed by
+        # compute_total_salt) carries the same rho_sw/1000 conversion
+        total *= rho_sw / 1000.0
+
+    if budget == 'energy':
+        for var in FUSION_FLUX_VARS:
+            if var in ds:
+                flux = _drop_time(ds[var])
+                inst_flux = float((flux * area_cell).sum(dim='nCells').values)
+                total -= latent_heat_fusion[model] * inst_flux
+                print(f'{var}: {-latent_heat_fusion[model] * inst_flux}')
+
+        total += _compute_enthalpy_forcing(ds_mesh, ds, model)
+
     return total * dt
 
 
-def has_enthalpy_forcing(ds):
+def _compute_enthalpy_forcing(ds_mesh, ds, model):
     """
-    Whether any mass flux that carries an SST-dependent enthalpy heat flux is
-    active, in which case the energy budget cannot be closed with the direct
-    heat fluxes alone
+    Accumulate the SST-dependent enthalpy heat flux carried by mass fluxes
+    such as rain, evaporation and runoff, i.e. ``flux * cp_sw * SST``
 
     Parameters
     ----------
+    ds_mesh : xarray.Dataset
+        The mesh dataset, containing ``areaCell``
+
     ds : xarray.Dataset
         The output dataset, which may contain surface forcing flux variables
 
+    model : {'omega', 'mpas-ocean'}
+        The model name, used to select the specific heat capacity
+
     Returns
     -------
-    active : bool
-        ``True`` if any enthalpy-carrying mass flux is present and nonzero
+    total : float
+        The instantaneous enthalpy heat flux in W, zero if no
+        enthalpy-carrying mass fluxes are present
     """
-    for var in ENTHALPY_FLUX_VARS:
-        if var in ds and np.any(ds[var].values != 0.0):
-            return True
-    return False
+    active = [var for var in ENTHALPY_FLUX_VARS if var in ds]
+    if not active:
+        return 0.0
+
+    if model not in cp_sw:
+        raise ValueError(
+            'An enthalpy-carrying mass flux is present in the output but '
+            f'"model" is "{model}", which is not one of '
+            f'{sorted(cp_sw.keys())}.  A valid model name is required to '
+            'compute the enthalpy contribution to the energy budget.'
+        )
+
+    if 'temperature' not in ds:
+        raise ValueError(
+            'An enthalpy-carrying mass flux is present in the output but '
+            '"temperature" is not available, so the enthalpy contribution '
+            'to the energy budget cannot be computed.'
+        )
+
+    area_cell = ds_mesh.areaCell
+    sst = _drop_time(ds.temperature).isel(nVertLevels=0)
+
+    total = 0.0
+    for var in active:
+        flux = _drop_time(ds[var])
+        inst_flux = float(
+            np.sum(
+                (cp_sw[model] * flux * sst * area_cell)
+                .sum(dim='nCells')
+                .values
+            )
+        )
+        print(f'{var} (enthalpy): {inst_flux}')
+        total += inst_flux
+    return total
 
 
 def _drop_time(da):

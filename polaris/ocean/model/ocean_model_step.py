@@ -1,4 +1,5 @@
 import importlib.resources as imp_res
+import os
 from types import ModuleType
 from typing import (
     TYPE_CHECKING,
@@ -21,7 +22,6 @@ from polaris.ocean.conservation import (
     compute_total_salt,
     compute_total_tracer,
     get_elapsed_seconds,
-    has_enthalpy_forcing,
 )
 from polaris.ocean.model.ocean_model_files_mixin import OceanModelFilesMixin
 
@@ -515,14 +515,22 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         checked = False
         success = True
         mesh_filename = self.get_horiz_mesh_filename()
+        init_filename = self.get_init_filename()
         for filename, properties_to_check in self.properties_to_check.items():
             properties = [
                 prop.replace(' conservation', '')
                 for prop in properties_to_check
             ]
 
-            ds_mesh = self.open_model_dataset(mesh_filename)
-            ds = self.open_model_dataset(filename, decode_times=True)
+            ds_mesh = self.open_model_dataset(
+                os.path.join(self.work_dir, mesh_filename)
+            )
+            ds_init = self.open_model_dataset(
+                os.path.join(self.work_dir, init_filename)
+            )
+            ds = self.open_model_dataset(
+                os.path.join(self.work_dir, filename), decode_times=True
+            )
             dt = get_elapsed_seconds(ds)
             for output_property in properties:
                 func: Callable[..., Any]
@@ -530,14 +538,8 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                 if output_property == 'mass':
                     func = compute_total_mass
                 elif output_property == 'energy':
-                    if has_enthalpy_forcing(ds):
-                        logger.info(
-                            '    energy conservation: skipped (a mass flux '
-                            'carries an SST-dependent enthalpy heat flux '
-                            'that is not accounted for in this check)'
-                        )
-                        continue
                     func = compute_total_energy
+                    kwargs['model'] = self.config.get('ocean', 'model')
                 elif output_property == 'salt':
                     func = compute_total_salt
                 elif output_property == 'tracer':
@@ -547,7 +549,6 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                     raise ValueError(
                         f'Unknown property to check: {output_property}'
                     )
-
                 tol = config.getfloat(
                     'ocean', f'{output_property}_conservation_tolerance'
                 )
@@ -555,12 +556,17 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                 expected_change = 0.0
                 if output_property in ['mass', 'energy', 'salt']:
                     expected_change = compute_flux_forcing(
-                        ds_mesh, ds, output_property, dt
+                        ds_mesh,
+                        ds,
+                        output_property,
+                        dt,
+                        model=config.get('ocean', 'model'),
                     )
 
                 relative_error = self._compute_rel_err(
                     func,
                     ds_mesh=ds_mesh,
+                    ds_init=ds_init,
                     ds=ds,
                     expected_change=expected_change,
                     **kwargs,
@@ -581,6 +587,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         func,
         ds_mesh,
         ds,
+        ds_init=None,
         time_index_start=0,
         time_index_end=-1,
         expected_change=0.0,
@@ -589,13 +596,18 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         """
         Compute the error in a budget, relative to the expected change if it
         is nonzero and to the initial content otherwise
+
+        The initial value is taken from ``ds_init`` if it is provided, so that
+        the budget starts from the true initial condition rather than the
+        first output time slice.
         """
-        init_val = float(
-            func(ds_mesh, ds.isel(Time=time_index_start), **kwargs).values
-        )
-        final_val = float(
-            func(ds_mesh, ds.isel(Time=time_index_end), **kwargs).values
-        )
+        if ds_init is not None:
+            ds_start = ds_init
+        else:
+            ds_start = ds.isel(Time=time_index_start, keep_dims=False)
+        init_val = float(func(ds_mesh, ds_start, **kwargs).values)
+        ds_end = ds.isel(Time=time_index_end, keep_dims=False)
+        final_val = float(func(ds_mesh, ds_end, **kwargs).values)
         residual = (final_val - init_val) - expected_change
         print(f'init {init_val}, final {final_val}')
         print(f'recorded change {residual}, expected {expected_change}')
