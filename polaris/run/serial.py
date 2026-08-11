@@ -577,10 +577,27 @@ def _run_task(task, available_resources):
         if step.properties_to_check:
             checked, properties_passed = step.check_properties()
             if checked:
+                passed_log = os.path.join(
+                    step.work_dir, 'property_check_passed.log'
+                )
+                failed_log = os.path.join(
+                    step.work_dir, 'property_check_failed.log'
+                )
                 if properties_passed:
                     property_str = pass_str
+                    write_log = passed_log
+                    remove_log = failed_log
+                    message = 'property check passed\n'
                 else:
+                    # TODO enhance message
                     property_str = fail_str
+                    write_log = failed_log
+                    remove_log = passed_log
+                    message = 'property check failed\n'
+                with open(write_log, 'w') as f:
+                    f.write(message)
+                if os.path.exists(remove_log):
+                    os.remove(remove_log)
                 _print_to_stdout(
                     task, f'          property checks:  {property_str}'
                 )
