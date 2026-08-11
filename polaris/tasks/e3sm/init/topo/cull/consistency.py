@@ -1,5 +1,12 @@
 import numpy as np
 
+from polaris.mesh.connectivity import (
+    connected_to_seeds,
+    count_active_edges,
+    has_active_vertex,
+    transport_link_mask,
+)
+
 
 def check_cull_mask_consistency(
     ocean_cull_mask,
@@ -30,12 +37,20 @@ def check_cull_mask_consistency(
        is enforced by construction in
        :py:meth:`polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_ocean_cull_mask`
        rather than checked here.
-    5. Under ``calving_front`` the ocean and the ocean without cavities
-       are identical, so the ocean and the land partition the base mesh.
-       Under that convention ``ocean_frac`` and ``ice_frac`` are averages
-       of disjoint source-resolution sets, so ``ice_frac > 0.5`` implies
-       ``ocean_frac < 0.5`` and every land-ice cell is already outside
-       the ocean on the fraction test alone.
+    5. The two ocean domains differ only by ice-shelf cavities: every cell
+       in the ocean but not in the ocean without cavities carries land ice.
+    6. Under ``calving_front`` no cell of the ocean carries land ice, since
+       that convention ends the ocean at the calving front.
+
+    Invariants 1, 5 and 6 together mean the two ocean domains are identical
+    under ``calving_front``, without that equality having to be asserted
+    directly: the cells they could differ by all carry land ice, and under
+    that convention the ocean has none.
+
+    The grid criteria that decide which cells are usable at all -- two
+    active edges per ocean cell, an active vertex per sea-ice cell where sea
+    ice forms -- are checked separately by
+    :py:func:`check_land_locked_criteria`, which needs the mesh.
 
     Parameters
     ----------
@@ -105,14 +120,24 @@ def check_cull_mask_consistency(
         max_cells=max_cells,
     )
 
+    _add_problem(
+        problems,
+        mask=ocean & ~no_cavities & ~land_ice,
+        message=(
+            'cells are in the ocean but not in the ocean without ice-shelf '
+            'cavities, yet carry no land ice, so the two domains differ by '
+            'something other than a cavity'
+        ),
+        max_cells=max_cells,
+    )
+
     if convention == 'calving_front':
         _add_problem(
             problems,
-            mask=ocean != no_cavities,
+            mask=ocean & land_ice,
             message=(
-                'cells differ between the ocean and the ocean without '
-                f'ice-shelf cavities, but the {convention} convention '
-                'leaves no ice-shelf cavities for them to differ by'
+                f'cells in the ocean carry land ice, but the {convention} '
+                'convention leaves no ice-shelf cavities in the ocean'
             ),
             max_cells=max_cells,
         )
@@ -134,6 +159,111 @@ def check_cull_mask_consistency(
         raise ValueError(message)
 
     logger.info(f'Cull mask consistency check passed: {counts}.')
+
+
+def check_land_locked_criteria(
+    ds_mesh,
+    ocean_cull_mask,
+    ocean_no_cavities_cull_mask,
+    latitude_threshold,
+    logger,
+    max_cells=20,
+):
+    """
+    Check that no land-locked cells survive in either ocean domain.
+
+    Three post-conditions of removing land-locked cells:
+
+    1. Every cell of either domain has at least two active edges, so that a
+       C-grid has a way to move water in and a way to move it out.
+    2. Every cell of the ocean without cavities poleward of the sea-ice
+       latitude threshold has at least one active vertex, so that a B-grid
+       has a velocity point by which ice can leave it.
+    3. Every cell of the ocean without cavities can reach the part of that
+       domain equatorward of the threshold, where ice melts, over edges
+       that carry B-grid flux.
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        An MPAS mesh with ``cellsOnCell``, ``nEdgesOnCell`` and ``latCell``
+
+    ocean_cull_mask : xarray.DataArray or numpy.ndarray
+        The ocean cull mask on base-mesh cells (1 where cells are culled)
+
+    ocean_no_cavities_cull_mask : xarray.DataArray or numpy.ndarray
+        The cull mask for the ocean without ice-shelf cavities
+
+    latitude_threshold : float
+        The latitude in degrees poleward of which sea ice can form
+
+    logger : logging.Logger
+        The logger for summary output
+
+    max_cells : int, optional
+        The maximum number of offending cell indices to report
+
+    Raises
+    ------
+    ValueError
+        If any of the criteria is violated
+    """
+    ocean = np.asarray(ocean_cull_mask) == 0
+    no_cavities = np.asarray(ocean_no_cavities_cull_mask) == 0
+    poleward = np.abs(np.degrees(ds_mesh.latCell.values)) >= latitude_threshold
+
+    problems: list[str] = []
+
+    for name, mask in [
+        ('the ocean', ocean),
+        ('the ocean without ice-shelf cavities', no_cavities),
+    ]:
+        _add_problem(
+            problems,
+            mask=mask & (count_active_edges(ds_mesh, mask) < 2),
+            message=f'cells of {name} have fewer than two active edges',
+            max_cells=max_cells,
+        )
+
+    _add_problem(
+        problems,
+        mask=no_cavities & poleward & ~has_active_vertex(ds_mesh, no_cavities),
+        message=(
+            'cells of the ocean without ice-shelf cavities poleward of the '
+            'sea-ice latitude threshold have no active vertex, so sea ice '
+            'there has no velocity point to leave by'
+        ),
+        max_cells=max_cells,
+    )
+
+    seeds = no_cavities & ~poleward
+    if seeds.any():
+        reachable = connected_to_seeds(
+            ds_mesh,
+            no_cavities,
+            seeds,
+            link_mask=transport_link_mask(ds_mesh, no_cavities),
+        )
+        _add_problem(
+            problems,
+            mask=no_cavities & ~reachable,
+            message=(
+                'cells of the ocean without ice-shelf cavities cannot move '
+                'sea ice to the equatorward part of the domain, where it '
+                'melts'
+            ),
+            max_cells=max_cells,
+        )
+
+    if problems:
+        message = (
+            'Land-locked cells survive in the culled ocean domains:\n'
+            + '\n'.join(problems)
+        )
+        logger.error(message)
+        raise ValueError(message)
+
+    logger.info('Land-locked cell check passed.')
 
 
 def check_critical_passages(

@@ -20,6 +20,7 @@ from polaris.mesh.spherical.critical_transects import (
 from polaris.tasks.e3sm.init.topo.cull.consistency import (
     check_critical_passages,
     check_cull_mask_consistency,
+    check_land_locked_criteria,
 )
 from polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics import (
     check_ocean_dc_edge,
@@ -744,6 +745,18 @@ class CullMaskStep(Step):
         )
 
         ds_masks = open_dataset('cull_masks.nc')
+
+        check_land_locked_criteria(
+            ds_mesh=open_dataset('base_mesh.nc'),
+            ocean_cull_mask=ds_masks.oceanCullMask.values,
+            ocean_no_cavities_cull_mask=(
+                ds_masks.oceanNoCavitiesCullMask.values
+            ),
+            latitude_threshold=config.getfloat(
+                'cull_mesh', 'sea_ice_latitude_threshold'
+            ),
+            logger=self.logger,
+        )
 
         check_cull_mask_consistency(
             ocean_cull_mask=ds_masks.oceanCullMask.values,
