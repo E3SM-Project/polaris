@@ -139,8 +139,8 @@ class Jra55MapStep(MappingFileStep):
         section = config['realistic_global_init']
         cells_per_task = section.getint('remap_cells_per_task')
         min_cells_per_task = section.getint('remap_min_cells_per_task')
-        # the floor is 2, not 1: pyremap partitions the SCRIP files with
-        # "mbpart <ntasks>", and mbpart rejects a request for a single
-        # partition (see pyremap_mbpart_bug.md)
-        self.ntasks = max(2, round(cell_count / cells_per_task))
-        self.min_tasks = max(2, round(cell_count / min_cells_per_task))
+        # the floor is 1 only to keep rounding from asking for no tasks at
+        # all: pyremap skips "mbpart <ntasks>" when a single task is
+        # requested, so a mesh coarse enough to want one task remaps on one
+        self.ntasks = max(1, round(cell_count / cells_per_task))
+        self.min_tasks = max(1, round(cell_count / min_cells_per_task))
