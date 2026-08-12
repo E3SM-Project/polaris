@@ -3,6 +3,8 @@ dimensions:
   nCells: NCells
   nEdges: NEdges
   nVertices: NVertices
+  nRegions: NRegions
+  nTransects: NTransects
   nTracers: NTracers
   maxEdges: MaxEdges
   maxEdges2: MaxEdges2
@@ -98,7 +100,13 @@ variables:
   # eos
   BruntVaisalaFreqTop: BruntVaisalaFreqSq
 
-  # global stats daily variables
+  # global statistics.  MPAS-Ocean packs these into min/max/avg/rms arrays
+  # indexed by variable, while Omega gives each its own variable named for the
+  # spatial reduction, so the mapping is one entry per pair.
+  # Note: MPAS-Ocean's rms* is a root mean square while Omega's SpatialStdDev
+  #       is a standard deviation.  The two are equal only for a zero-mean
+  #       field, so this pair is a name correspondence, not an equivalence;
+  #       StatsAnalysis converts the MPAS-Ocean side before plotting.
   normalVelocityMax: NormalVelocity_SpatialMax
   normalVelocityMin: NormalVelocity_SpatialMin
   normalVelocityAvg: NormalVelocity_SpatialMean
@@ -168,6 +176,7 @@ config:
     config_use_mom_del2: VelDiffTendencyEnable
     config_mom_del2: ViscDel2
     config_use_tracer_del2: TracerDiffTendencyEnable
+    config_tracer_del2: EddyDiff2
 
 - section:
     hmix_del4: Tendencies
@@ -175,6 +184,7 @@ config:
     config_use_mom_del4: VelHyperDiffTendencyEnable
     config_mom_del4: ViscDel4
     config_use_tracer_del4: TracerHyperDiffTendencyEnable
+    config_tracer_del4: EddyDiff4
 
 - section:
     forcing: Tendencies

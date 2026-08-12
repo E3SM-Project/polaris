@@ -378,8 +378,29 @@ class RemapTopoStep(Step):
                 var_out = var
                 ds_out[var_out] = ds_in[var]
 
-            ds_out[var_out].attrs = ds_in[var].attrs
+            ds_out[var_out].attrs = dict(ds_in[var].attrs)
+
+        _clean_remapped_attrs(ds_out)
 
         write_netcdf(ds_out, 'topography_remapped.nc')
 
         logger.info('  Done.')
+
+
+def _clean_remapped_attrs(ds_out):
+    """
+    Drop the CF attributes that no longer describe the remapped topography.
+
+    ``ncremap`` adds ``cell_measures = 'area: area'`` and
+    ``coordinates = 'lat lon'`` to everything it writes, and this step drops
+    ``area``, ``lat`` and ``lon``.  Both attributes are therefore left naming
+    variables that are not in the file.
+
+    ``grid_mapping`` comes the other way, in from the projected Antarctic
+    source data, and names a ``mapping`` variable that does not survive
+    remapping to the MPAS mesh either.
+    """
+    dangling = ['cell_measures', 'coordinates', 'grid_mapping']
+    for var in ds_out.data_vars:
+        for attr in dangling:
+            ds_out[var].attrs.pop(attr, None)

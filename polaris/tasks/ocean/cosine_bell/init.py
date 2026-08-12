@@ -4,7 +4,7 @@ from mpas_tools.io import open_dataset
 from mpas_tools.transects import lon_lat_to_cartesian
 from mpas_tools.vector import Vector
 
-from polaris.ocean.coriolis import add_coriolis_to_dataset
+from polaris.coriolis import add_coriolis_to_dataset
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 

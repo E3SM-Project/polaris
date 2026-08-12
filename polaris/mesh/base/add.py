@@ -116,12 +116,15 @@ def _get_base_mesh_config(
     config_filename,
 ):
     filepath = os.path.join(component.name, subdir, config_filename)
-    if filepath in component.configs:
-        return component.configs[filepath]
 
-    config = PolarisConfigParser(filepath=filepath)
-    config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
-    config.set('spherical_mesh', 'prefix', MESH_NAME_PREFIXES[prefix])
-    config.set('spherical_mesh', 'min_cell_width', f'{min_res:g}')
-    config.set('spherical_mesh', 'max_cell_width', f'{max_res:g}')
-    return config
+    def create():
+        config = PolarisConfigParser(filepath=filepath)
+        config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
+        config.set('spherical_mesh', 'prefix', MESH_NAME_PREFIXES[prefix])
+        config.set('spherical_mesh', 'min_cell_width', f'{min_res:g}')
+        config.set('spherical_mesh', 'max_cell_width', f'{max_res:g}')
+        return config
+
+    return component.get_or_create_shared_config(
+        filepath=filepath, create=create
+    )

@@ -18,6 +18,7 @@ def _make_config(
     horiz_mesh_filename='mesh.nc',
     vert_coord_filename='vert_coord.nc',
     init_filename='init.nc',
+    forcing_filename='forcing.nc',
     model='omega',
 ):
     config = ConfigParser()
@@ -31,6 +32,7 @@ def _make_config(
         'ocean_staged_files', 'vert_coord_filename', vert_coord_filename
     )
     config.set('ocean_staged_files', 'init_filename', init_filename)
+    config.set('ocean_staged_files', 'forcing_filename', forcing_filename)
     return config
 
 
@@ -59,6 +61,16 @@ def _make_state_ds(surface_pressure=None):
     if surface_pressure is not None:
         data_vars['SurfacePressure'] = ('nCells', surface_pressure)
     return xr.Dataset(data_vars=data_vars)
+
+
+def _make_ref_coord_ds():
+    """A minimal initial state plus the four 1D reference coordinate vars."""
+    ds = _make_state_ds()
+    ds['refTopDepth'] = ('nVertLevels', [0.0])
+    ds['refZMid'] = ('nVertLevels', [-5.0])
+    ds['refBottomDepth'] = ('nVertLevels', [10.0])
+    ds['refInterfaces'] = ('nVertLevelsP1', [0.0, 10.0])
+    return ds
 
 
 def test_write_initial_state_dataset_omega_drops_horiz_mesh_vars(tmp_path):
@@ -123,6 +135,39 @@ def test_write_initial_state_dataset_omega_drops_vert_coord_vars(tmp_path):
     assert 'MaxLayerCell' not in ds_out
     assert 'BottomGeomDepth' not in ds_out
     assert 'VertCoordMovementWeights' not in ds_out
+    assert 'RefPseudoThickness' not in ds_out
+
+
+def test_write_initial_state_dataset_omega_does_not_rebuild_ref_thickness(
+    tmp_path,
+):
+    """restingThickness does not put RefPseudoThickness back into init.nc.
+
+    RefPseudoThickness belongs to the vertical coordinate file.  It used to
+    be dropped by remove_vert_coord_vars() and then immediately recreated
+    from restingThickness on the way out, at whatever surface pressure the
+    dataset happened to carry -- and labelled as a plain pseudo-thickness,
+    disagreeing with the same variable in vert_coord.nc.
+    """
+    component = Ocean()
+    component.model = 'omega'
+    component._read_var_map()
+
+    ds = _make_tracer_state_ds()
+    ds['layerThickness'] = (('nCells', 'nVertLevels'), [[10.0], [10.0]])
+    ds['restingThickness'] = (('nCells', 'nVertLevels'), [[10.0], [10.0]])
+    ds['SurfacePressure'] = ('nCells', [0.0, 0.0])
+
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(
+        ds, str(filename), _make_tracer_config('omega')
+    )
+
+    ds_out = xr.open_dataset(filename)
+    assert 'RefPseudoThickness' not in ds_out
+    # the layerThickness -> PseudoThickness conversion still runs; only the
+    # resting-thickness one is gone
+    assert 'PseudoThickness' in ds_out
 
 
 def test_write_initial_state_dataset_mpas_ocean_keeps_vert_coord_vars(
@@ -221,6 +266,44 @@ def test_write_initial_state_dataset_mpas_ocean_omits_surface_pressure(
     ds_out = xr.open_dataset(filename)
     assert 'surfacePressure' not in ds_out
     assert 'SurfacePressure' not in ds_out
+
+
+def test_write_initial_state_dataset_omega_drops_ref_coord_vars(tmp_path):
+    component = Ocean()
+    component.model = 'omega'
+    component._read_var_map()
+
+    config = _make_surface_pressure_config('omega')
+
+    ds = _make_ref_coord_ds()
+
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(ds, str(filename), config)
+
+    ds_out = xr.open_dataset(filename)
+    assert 'Temperature' in ds_out
+    for var in ('refTopDepth', 'refZMid', 'refBottomDepth', 'refInterfaces'):
+        assert var not in ds_out
+
+
+def test_write_initial_state_dataset_mpas_ocean_keeps_ref_coord_vars(
+    tmp_path,
+):
+    component = Ocean()
+    component.model = 'mpas-ocean'
+    component._read_var_map()
+
+    config = _make_surface_pressure_config('mpas-ocean')
+
+    ds = _make_ref_coord_ds()
+
+    filename = tmp_path / 'initial_state.nc'
+    component.write_initial_state_dataset(ds, str(filename), config)
+
+    ds_out = xr.open_dataset(filename)
+    assert 'temperature' in ds_out
+    for var in ('refTopDepth', 'refZMid', 'refBottomDepth', 'refInterfaces'):
+        assert var in ds_out
 
 
 def _make_tracer_config(
@@ -598,11 +681,13 @@ def test_process_inputs_and_outputs_resolves_model_input_filenames(
         horiz_mesh_filename='custom_mesh.nc',
         vert_coord_filename='custom_vc.nc',
         init_filename='custom_init.nc',
+        forcing_filename='custom_forcing.nc',
     )
 
     step.add_horiz_mesh_input_file(work_dir_target='mesh_target.nc')
     step.add_vert_coord_input_file(work_dir_target='vc_target.nc')
     step.add_init_input_file(work_dir_target='init_target.nc')
+    step.add_forcing_input_file(work_dir_target='forcing_target.nc')
 
     monkeypatch.setattr(
         ModelStep, 'process_inputs_and_outputs', lambda _: None
@@ -618,6 +703,35 @@ def test_process_inputs_and_outputs_resolves_model_input_filenames(
     assert input_data['mesh_target.nc'] == 'custom_mesh.nc'
     assert input_data['vc_target.nc'] == 'custom_vc.nc'
     assert input_data['init_target.nc'] == 'custom_init.nc'
+    assert input_data['forcing_target.nc'] == 'custom_forcing.nc'
+
+
+def test_forcing_placeholder_is_kept_for_mpas_ocean(monkeypatch):
+    """
+    Unlike the vertical coordinate, both models read a forcing file, so the
+    placeholder must survive for MPAS-Ocean too.
+    """
+    component = Ocean()
+    component.model = 'mpas-ocean'
+    step = OceanModelStep(
+        component=component,
+        name='forward',
+        ntasks=1,
+        min_tasks=1,
+    )
+
+    step.config = _make_config(model='mpas-ocean')
+    step.add_forcing_input_file(work_dir_target='forcing_target.nc')
+
+    monkeypatch.setattr(
+        ModelStep, 'process_inputs_and_outputs', lambda _: None
+    )
+
+    step.process_inputs_and_outputs()
+
+    filenames = [entry['filename'] for entry in step.input_data]
+    assert 'forcing.nc' in filenames
+    assert '<<<forcing>>>' not in filenames
 
 
 def test_vert_coord_placeholder_skipped_for_mpas_ocean(monkeypatch):

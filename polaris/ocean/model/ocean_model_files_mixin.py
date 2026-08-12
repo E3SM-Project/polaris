@@ -9,14 +9,15 @@ _PLACEHOLDER_MAP = {
     '<<<horiz_mesh>>>': 'horiz_mesh_filename',
     '<<<vert_coord>>>': 'vert_coord_filename',
     '<<<init>>>': 'init_filename',
+    '<<<forcing>>>': 'forcing_filename',
 }
 
 
 class OceanModelFilesMixin:
     """
     Mixin providing access to the ``[ocean_staged_files]`` config section and
-    the shared placeholder mechanism for the three canonical ocean dataset
-    files (horizontal mesh, vertical coordinate, initial state).
+    the shared placeholder mechanism for the canonical ocean dataset files
+    (horizontal mesh, vertical coordinate, initial state, surface forcing).
 
     Must be combined with a Step subclass that sets ``self.config`` and
     provides ``self.add_input_file()``.  The ``add_*_input_file()`` methods
@@ -50,6 +51,12 @@ class OceanModelFilesMixin:
         Get the configured local filename for the initial-condition file.
         """
         return self._get_model_input_filename('init_filename')
+
+    def get_forcing_filename(self) -> str:
+        """
+        Get the configured local filename for the surface forcing file.
+        """
+        return self._get_model_input_filename('forcing_filename')
 
     # --- input file registration ---
 
@@ -112,6 +119,27 @@ class OceanModelFilesMixin:
             :py:meth:`polaris.Step.add_input_file`.
         """
         self.add_input_file(filename='<<<init>>>', **kwargs)
+
+    def add_forcing_input_file(self, **kwargs) -> None:
+        """
+        Add the surface-forcing input file using a placeholder that is
+        resolved to the configured filename at
+        :py:meth:`process_inputs_and_outputs` time.  Safe to call from
+        ``__init__()``.
+
+        The file itself is written by
+        :py:meth:`polaris.ocean.model.OceanIOStep.write_forcing_dataset`,
+        which gives it a ``Time`` dimension for MPAS-Ocean and none for Omega,
+        so the two models read the same staged filename but not the same
+        shape.
+
+        Parameters
+        ----------
+        **kwargs
+            Additional keyword arguments forwarded to
+            :py:meth:`polaris.Step.add_input_file`.
+        """
+        self.add_input_file(filename='<<<forcing>>>', **kwargs)
 
     def add_output_file(
         self,
