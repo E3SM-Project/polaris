@@ -1,9 +1,13 @@
 import logging
 
 import numpy as np
-import pytest
 import xarray as xr
+from geometric_features.aggregation import get_aggregator_by_name
 
+from polaris.tasks.mesh.spherical.feature_masks.moc import (
+    MOC_MASK_GROUP,
+    moc_masks_filename,
+)
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.feature_masks import ComputeOceanFeatureMasksStep
 from polaris.tasks.ocean.feature_masks import compute as ocean_compute_module
@@ -105,6 +109,20 @@ def test_set_output_filenames_moc_basins():
     assert 'AndTransects' not in step.geojson_filename
 
 
+def test_set_output_filenames_moc_matches_shared_helper():
+    # the delegation to the shared MOC helper cannot silently drift
+    component = Ocean()
+    step = ComputeOceanFeatureMasksStep(
+        component=component,
+        subdir='feature_masks/configurable/compute',
+    )
+
+    step._set_output_filenames(mesh_name='QU240', mask_group=MOC_MASK_GROUP)
+
+    _, _, date = get_aggregator_by_name(MOC_MASK_GROUP)
+    assert step.output_filename == moc_masks_filename('QU240', date)
+
+
 def test_set_output_filenames_non_moc_uses_normal_naming():
     component = Ocean()
     step = ComputeOceanFeatureMasksStep(
@@ -119,7 +137,7 @@ def test_set_output_filenames_non_moc_uses_normal_naming():
     assert step.output_filename.startswith('QU240_oceanBasins')
 
 
-def test_post_process_masks_moc_calls_transects(monkeypatch):
+def test_post_process_masks_moc_delegates_to_shared_helper(monkeypatch):
     ds_mesh = xr.Dataset({'nCells': np.arange(2)})
     ds_masks = xr.Dataset(
         {'regionCellMasks': (('nCells', 'nRegions'), np.ones((2, 1)))}
@@ -132,14 +150,14 @@ def test_post_process_masks_moc_calls_transects(monkeypatch):
 
     calls = []
 
-    def fake_add_transects(ds_mask, ds_mesh_arg, logger=None):
-        calls.append((ds_mask, ds_mesh_arg))
+    def fake_add_moc_transects(ds_mask, ds_mesh_arg, logger=None):
+        calls.append((ds_mask, ds_mesh_arg, logger))
         return ds_combined
 
     monkeypatch.setattr(
         ocean_compute_module,
-        'add_moc_southern_boundary_transects',
-        fake_add_transects,
+        'add_moc_transects',
+        fake_add_moc_transects,
     )
 
     component = Ocean()
@@ -149,44 +167,20 @@ def test_post_process_masks_moc_calls_transects(monkeypatch):
     )
     step.logger = _TEST_LOGGER
 
-    result = step._post_process_masks(ds_masks, ds_mesh, 'MOC Basins')
+    result = step._post_process_masks(ds_masks, ds_mesh, MOC_MASK_GROUP)
 
     assert len(calls) == 1
+    assert calls[0][0] is ds_masks
+    assert calls[0][1] is ds_mesh
+    assert calls[0][2] is _TEST_LOGGER
     assert 'transectEdgeMasks' in result
-
-
-def test_post_process_masks_drops_problematic_vars(monkeypatch):
-    ds_mesh = xr.Dataset()
-    ds_masks = xr.Dataset({'regionCellMasks': (('nCells',), np.ones(2))})
-    ds_with_extras = ds_masks.copy()
-    ds_with_extras['history'] = xr.DataArray('some history')
-    ds_with_extras['constituents'] = xr.DataArray('some string')
-
-    monkeypatch.setattr(
-        ocean_compute_module,
-        'add_moc_southern_boundary_transects',
-        lambda ds, ds_mesh, logger=None: ds_with_extras,
-    )
-
-    component = Ocean()
-    step = ComputeOceanFeatureMasksStep(
-        component=component,
-        subdir='feature_masks/configurable/compute',
-    )
-    step.logger = _TEST_LOGGER
-
-    result = step._post_process_masks(ds_masks, ds_mesh, 'MOC Basins')
-
-    assert 'history' not in result
-    assert 'constituents' not in result
-    assert 'regionCellMasks' in result
 
 
 def test_post_process_masks_non_moc_is_noop(monkeypatch):
     called = []
     monkeypatch.setattr(
         ocean_compute_module,
-        'add_moc_southern_boundary_transects',
+        'add_moc_transects',
         lambda *a, **kw: called.append(True),
     )
 
@@ -204,31 +198,3 @@ def test_post_process_masks_non_moc_is_noop(monkeypatch):
 
     assert called == []
     assert result is ds_masks
-
-
-@pytest.mark.parametrize('missing_var', ['history', 'constituents'])
-def test_post_process_masks_tolerates_missing_problematic_vars(
-    monkeypatch, missing_var
-):
-    ds_mesh = xr.Dataset()
-    ds_masks = xr.Dataset({'regionCellMasks': (('nCells',), np.ones(2))})
-    # only one of the two problematic vars is present
-    ds_one_extra = ds_masks.copy()
-    ds_one_extra[missing_var] = xr.DataArray('value')
-
-    monkeypatch.setattr(
-        ocean_compute_module,
-        'add_moc_southern_boundary_transects',
-        lambda ds, ds_mesh, logger=None: ds_one_extra,
-    )
-
-    component = Ocean()
-    step = ComputeOceanFeatureMasksStep(
-        component=component,
-        subdir='feature_masks/configurable/compute',
-    )
-    step.logger = _TEST_LOGGER
-
-    result = step._post_process_masks(ds_masks, ds_mesh, 'MOC Basins')
-
-    assert missing_var not in result
