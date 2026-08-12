@@ -238,3 +238,62 @@ def _reset_shared_components():
         component.tasks.clear()
         component.steps.clear()
         component.configs.clear()
+
+
+#: The gpmetis task count above which Compass saw failures, recorded in
+#: compass/ocean/tests/global_ocean/mesh/rrs6to18/rrs6to18.cfg.
+GPMETIS_TASK_LIMIT = 750000
+
+#: Cells in each mesh's culled ocean domain, measured from the 2026-08-11
+#: runs, and the 2026-10-20 runs for the u-oi6to18 meshes.  Used to check the
+#: partition bounds without building a mesh.
+CULLED_OCEAN_CELLS = {
+    'u-oi240-lr240': 7330,
+    'u-oi30-lr10': 462646,
+    'u-oi-so12to30-lr10': 794276,
+    'u-oi6to18-lr12p5': 4016105,
+    'u-oi6to18-lr25': 4017697,
+}
+
+
+@pytest.mark.parametrize('mesh_name', sorted(CULLED_OCEAN_CELLS))
+def test_no_mesh_asks_gpmetis_for_more_parts_than_it_can_do(mesh_name):
+    """
+    The largest partition is ncells / min_cells_per_core, and gpmetis fails
+    above roughly 750,000 parts.  Only the u-oi6to18 meshes are large enough
+    for the default floor of 2 to cross that, which is why they are the meshes
+    with an override -- exactly as rrs6to18 is the only one in Compass.
+    """
+    _reset_shared_components()
+    _, config = get_component_inputs_steps(mesh_name=mesh_name, target='ocean')
+
+    min_cells_per_core = config.getint(
+        'component_inputs', 'min_cells_per_core'
+    )
+    largest = CULLED_OCEAN_CELLS[mesh_name] // min_cells_per_core
+
+    assert largest <= GPMETIS_TASK_LIMIT, (
+        f'{mesh_name} would ask gpmetis for {largest} parts; raise '
+        f'[component_inputs] min_cells_per_core in its config'
+    )
+
+
+def test_only_the_meshes_that_need_it_override_the_floor():
+    """
+    The override costs partitions that a smaller mesh has no reason to lose,
+    so it belongs only where the limit bites.
+    """
+    for mesh_name in ['u-oi6to18-lr12p5', 'u-oi6to18-lr25']:
+        _reset_shared_components()
+        _, config = get_component_inputs_steps(
+            mesh_name=mesh_name, target='ocean'
+        )
+        assert config.getint('component_inputs', 'min_cells_per_core') == 6
+        assert config.getint('component_inputs', 'max_cells_per_core') == 30000
+
+    for mesh_name in ['u-oi240-lr240', 'u-oi30-lr10']:
+        _reset_shared_components()
+        _, config = get_component_inputs_steps(
+            mesh_name=mesh_name, target='ocean'
+        )
+        assert config.getint('component_inputs', 'min_cells_per_core') == 2
