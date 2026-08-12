@@ -5,7 +5,10 @@ from mpas_tools.logging import check_call
 
 from polaris.step import Step
 from polaris.tasks.e3sm.init.component_inputs.models import check_seaice_model
-from polaris.tasks.e3sm.init.component_inputs.partitions import get_core_list
+from polaris.tasks.e3sm.init.component_inputs.partitions import (
+    get_core_list,
+    partitions_to_build,
+)
 from polaris.tasks.e3sm.init.component_inputs.seaice_partition_map import (
     CLIMATOLOGY_FILENAME,
 )
@@ -119,6 +122,19 @@ class SeaiceGraphPartitionStep(Step):
         config = self.config
         logger = self.logger
 
+        section = config['component_inputs']
+        cores, ncells = self._core_counts()
+        remaining = partitions_to_build(cores, GRAPH_BASENAME, ncells)
+        done = len(cores) - len(remaining)
+        logger.info(
+            f'Partitioning into {cores[0]} to {cores[-1]} pieces: '
+            f'{len(remaining)} to build'
+            + (f', {done} already complete' if done else '')
+        )
+        if not remaining:
+            logger.info('Every partition is already built.')
+            return
+
         # the mapping file (and the path it was written to) comes from the
         # step that built it
         remapper = self.dependencies[MAP_DEPENDENCY].remapper
@@ -140,12 +156,6 @@ class SeaiceGraphPartitionStep(Step):
             logger,
         )
 
-        section = config['component_inputs']
-        cores = self._core_counts()
-        logger.info(
-            f'Partitioning into {cores[0]} to {cores[-1]} pieces',
-        )
-
         args = [
             'create_seaice_partitions',
             '-m',
@@ -164,7 +174,7 @@ class SeaiceGraphPartitionStep(Step):
         # the tool takes every core count in one invocation, and will not make
         # a one-piece partition; an empty file is what MPAS reads as "every
         # cell on one task"
-        for ncores in cores:
+        for ncores in remaining:
             if ncores == 1:
                 with open(f'{GRAPH_BASENAME}.part.1', 'w'):
                     pass
@@ -175,11 +185,13 @@ class SeaiceGraphPartitionStep(Step):
 
     def _core_counts(self):
         """
-        The core counts to partition into, from the sea-ice mesh's own cell
-        count.
+        The core counts to partition into, and the cell count they came from.
+
+        The cell count is returned too because the caller needs it to tell a
+        finished partition file from one an interrupted job left part-written.
         """
         with xr.open_dataset('seaice_mesh.nc') as ds_mesh:
-            ncells = ds_mesh.sizes['nCells']
+            ncells = int(ds_mesh.sizes['nCells'])
 
         section = self.config['component_inputs']
         cores = get_core_list(
@@ -191,4 +203,4 @@ class SeaiceGraphPartitionStep(Step):
             raise ValueError(
                 f'Cannot partition {ncells} cells into {cores[-1]} pieces.'
             )
-        return list(cores)
+        return list(cores), ncells

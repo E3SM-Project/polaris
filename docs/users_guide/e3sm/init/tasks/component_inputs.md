@@ -159,6 +159,13 @@ since both the number of core counts and the cost per call grow with the mesh
 — so give it its own job with a generous walltime rather than sharing one with
 the model runs.
 
+Both partition steps resume. A rerun rebuilds only the partitions that are
+missing or unfinished, so a job that runs out of walltime costs the partitions
+it was in the middle of, not the ones it had already written. A file counts as
+finished only when it has one line per cell, so a partition truncated by a
+kill is rebuilt rather than trusted; checking takes about a minute even for
+several hundred files on the finest mesh.
+
 ## Ice-shelf cavities
 
 Not supported.  These tasks are for meshes culled with the `calving_front`

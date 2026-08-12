@@ -236,6 +236,7 @@
    maps.base_to_culled_maps
 
    partitions.get_core_list
+   partitions.partitions_to_build
    partitions.read_graph_cell_count
 
    models.check_ocean_model

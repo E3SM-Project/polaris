@@ -7,6 +7,7 @@ from polaris import Step
 from polaris.tasks.e3sm.init.component_inputs.models import check_ocean_model
 from polaris.tasks.e3sm.init.component_inputs.partitions import (
     get_core_list,
+    partitions_to_build,
     read_graph_cell_count,
 )
 
@@ -92,19 +93,21 @@ class OceanGraphPartitionStep(Step):
             max_cells_per_core=section.getint('max_cells_per_core'),
             min_cells_per_core=section.getint('min_cells_per_core'),
         )
+        if cores.max() > ncells:
+            raise ValueError(
+                f'Cannot partition {ncells} cells into {cores.max()} pieces.'
+            )
+
+        remaining = partitions_to_build(cores, GRAPH_BASENAME, ncells)
+        done = len(cores) - len(remaining)
         logger.info(
             f'Partitioning {ncells} cells into {cores.min()} to '
-            f'{cores.max()} pieces'
+            f'{cores.max()} pieces: {len(remaining)} to build'
+            + (f', {done} already complete' if done else '')
         )
 
-        for ncores in cores:
-            if ncores > ncells:
-                raise ValueError(
-                    f'Cannot partition {ncells} cells into {ncores} pieces.'
-                )
+        for ncores in remaining:
             out_filename = f'{GRAPH_BASENAME}.part.{ncores}'
-            if os.path.exists(out_filename):
-                continue
             if ncores == 1:
                 # gpmetis will not make a one-piece partition, and an empty
                 # file is what MPAS reads as "every cell on one task"

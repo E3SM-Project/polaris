@@ -11,6 +11,7 @@ from polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition import (
 )
 from polaris.tasks.e3sm.init.component_inputs.partitions import (
     get_core_list,
+    partitions_to_build,
     read_graph_cell_count,
 )
 from polaris.tasks.e3sm.init.component_inputs.steps import (
@@ -294,3 +295,75 @@ def test_only_the_mesh_that_needs_it_overrides_the_floor():
             mesh_name=mesh_name, target='ocean'
         )
         assert config.getint('component_inputs', 'min_cells_per_core') == 2
+
+
+def _write_partition(tmp_path, ncores, nlines):
+    path = tmp_path / f'graph.info.part.{ncores}'
+    path.write_text('1\n' * nlines)
+    return path
+
+
+def test_a_finished_partition_is_not_rebuilt(tmp_path):
+    """
+    Resuming is the whole point: a day of gpmetis must not be repeated because
+    a job hit its walltime.
+    """
+    ncells = 100
+    _write_partition(tmp_path, 4, ncells)
+    _write_partition(tmp_path, 8, ncells)
+
+    remaining = partitions_to_build(
+        [4, 8, 16], str(tmp_path / 'graph.info'), ncells
+    )
+    assert remaining == [16]
+
+
+def test_a_truncated_partition_is_rebuilt(tmp_path):
+    """
+    A job killed mid-write leaves a partition covering part of the mesh.  It
+    exists, so an existence check would skip it and hand E3SM a broken file.
+    """
+    ncells = 100
+    _write_partition(tmp_path, 4, ncells)
+    _write_partition(tmp_path, 8, ncells // 2)
+
+    remaining = partitions_to_build(
+        [4, 8], str(tmp_path / 'graph.info'), ncells
+    )
+    assert remaining == [8]
+
+
+def test_the_one_piece_partition_counts_as_finished(tmp_path):
+    """
+    It is written empty on purpose -- MPAS reads that as every cell on one
+    task -- so counting lines would rebuild it forever.
+    """
+    (tmp_path / 'graph.info.part.1').write_text('')
+
+    remaining = partitions_to_build(
+        [1, 4], str(tmp_path / 'graph.info'), ncells=100
+    )
+    assert remaining == [4]
+
+
+def test_nothing_to_do_is_an_empty_list(tmp_path):
+    """
+    Which is what lets a step return before running the tools at all.
+    """
+    ncells = 100
+    for ncores in [4, 8]:
+        _write_partition(tmp_path, ncores, ncells)
+
+    assert (
+        partitions_to_build([4, 8], str(tmp_path / 'graph.info'), ncells) == []
+    )
+
+
+def test_the_order_asked_for_is_kept(tmp_path):
+    """
+    The steps log the first and last counts, so the order has to survive.
+    """
+    remaining = partitions_to_build(
+        [16, 4, 8], str(tmp_path / 'graph.info'), ncells=100
+    )
+    assert remaining == [16, 4, 8]

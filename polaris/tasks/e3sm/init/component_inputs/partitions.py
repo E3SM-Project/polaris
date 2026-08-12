@@ -1,10 +1,13 @@
 """
-Which core counts a mesh's graph gets partitioned into.
+Which core counts a mesh's graph gets partitioned into, and which of them are
+still to build.
 
-Ported essentially verbatim from Compass'
+:py:func:`get_core_list` is ported essentially verbatim from Compass'
 ``files_for_e3sm/graph_partition.py``.  It is a pure function of a cell count
 and two bounds, so unlike in Compass it gets real unit tests.
 """
+
+import os
 
 import numpy as np
 
@@ -105,6 +108,70 @@ def read_graph_cell_count(graph_filename):
     with open(graph_filename) as graph_file:
         header = graph_file.readline()
     return int(header.split()[0])
+
+
+def partitions_to_build(cores, basename, ncells):
+    """
+    The core counts from ``cores`` that still need a partition file.
+
+    Partitioning a large mesh takes hours -- most of a day on the finest
+    unified mesh -- so a step that is interrupted has to be able to pick up
+    where it stopped rather than start over.
+
+    A file is only taken as finished when it has one line per cell, which is
+    what ``gpmetis`` writes.  Existence alone is not enough: a job killed at
+    its walltime leaves a partition truncated part-way through, and trusting
+    that would hand E3SM a partition covering some of the mesh.  The one-piece
+    partition is the exception, being deliberately empty.
+
+    Parameters
+    ----------
+    cores : iterable of int
+        The core counts the step means to partition into.
+
+    basename : str
+        The partition filenames without the ``.part.<n>`` suffix.
+
+    ncells : int
+        The number of cells each complete partition file describes.
+
+    Returns
+    -------
+    list of int
+        The core counts still to build, in the order given.
+    """
+    return [
+        int(ncores)
+        for ncores in cores
+        if not _is_complete_partition(
+            f'{basename}.part.{ncores}', int(ncores), ncells
+        )
+    ]
+
+
+def _is_complete_partition(filename, ncores, ncells):
+    """
+    Whether a partition file is finished, rather than merely present.
+    """
+    if not os.path.exists(filename):
+        return False
+    if ncores == 1:
+        # written empty on purpose: MPAS reads that as "every cell on one
+        # task", so there are no lines to count
+        return True
+    return _count_lines(filename) == ncells
+
+
+def _count_lines(filename):
+    """
+    Count the lines in a file, in binary chunks so that a partition file with
+    millions of lines costs milliseconds.
+    """
+    count = 0
+    with open(filename, 'rb') as handle:
+        while chunk := handle.read(1024 * 1024):
+            count += chunk.count(b'\n')
+    return count
 
 
 # https://stackoverflow.com/a/22808285
