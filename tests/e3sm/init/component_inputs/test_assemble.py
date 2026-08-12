@@ -179,7 +179,9 @@ def test_a_partition_step_that_produced_nothing_is_an_error(tmp_path):
         _run_assemble(tmp_path, 'ocean', partitions=[])
 
 
-def _run_assemble(tmp_path, target, partitions=None):
+def _run_assemble(
+    tmp_path, target, partitions=None, creation_date=CREATION_DATE
+):
     """
     Run the assembly step over fake products, and list what it staged.
 
@@ -195,7 +197,7 @@ def _run_assemble(tmp_path, target, partitions=None):
     )
     step = steps[f'assemble_{target}']
 
-    config.set('component_inputs', 'creation_date', CREATION_DATE)
+    config.set('component_inputs', 'creation_date', creation_date)
     step.config = config
     step.logger = LOGGER
     step.work_dir = str(tmp_path / 'assemble' / target)
@@ -240,3 +242,20 @@ def _reset_shared_components():
         component.tasks.clear()
         component.steps.clear()
         component.configs.clear()
+
+
+def test_the_tree_describes_one_assembly_not_every_assembly(tmp_path):
+    """
+    Staging only ever adds links, so without clearing first, a second run
+    under a different creation date leaves the first run's names in place --
+    still resolving, now pointing at newer content.  That is how the oi240
+    test tree ended up holding 20260811 and 20260812 side by side.
+    """
+    first = _run_assemble(tmp_path, 'all', creation_date='20250101')
+    assert any('.20250101.' in name for name in first)
+
+    second = _run_assemble(tmp_path, 'all', creation_date='20250202')
+
+    assert any('.20250202.' in name for name in second)
+    stale = sorted(name for name in second if '.20250101.' in name)
+    assert stale == [], f'{len(stale)} file(s) left from the earlier date'
