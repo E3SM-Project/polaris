@@ -30,6 +30,8 @@ ocean:
     config_density0: 1026.0
 
 mpas-ocean:
+  io:
+    config_write_output_on_startup: false
   frazil_ice:
     config_use_frazil_ice_formation: false
   tracer_forcing_activeTracers:
@@ -84,7 +86,7 @@ mpas-ocean:
     output:
       type: output
       filename_template: output.nc
-      output_interval: 0001_00:00:00
+      output_interval: {{ output_interval }}
       clobber_mode: truncate
       contents:
       - tracers
@@ -143,8 +145,8 @@ Omega:
   IOStreams:
     History:
       Filename: output.nc
-      Freq: 1
-      FreqUnits: Days
+      Freq: {{ output_freq }}
+      FreqUnits: Seconds
       IfExists: append
       # effectively never
       FileFreq: 9999

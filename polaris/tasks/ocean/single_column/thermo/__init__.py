@@ -82,6 +82,10 @@ class Thermo(Task):
                 openmp_threads=1,
                 validate_vars=validate_vars,
                 task_name=name,
+                run_duration_steps=3,
+                # conservation between the initial condition and the first
+                # time step, and between the last two time steps
+                conservation_intervals=[('init', 0), (-2, -1)],
             )
             self.add_step(forward_step)
             comparisons[f'{forcing_var}'] = f'../forward_{forcing_var}'
