@@ -46,6 +46,16 @@
    get_feature_object_type
 ```
 
+```{eval-rst}
+.. currentmodule:: polaris.tasks.mesh.spherical.feature_masks.moc
+
+.. autosummary::
+   :toctree: generated/
+
+   add_moc_transects
+   moc_masks_filename
+```
+
 ### Unified Coastline Tasks
 
 ```{eval-rst}

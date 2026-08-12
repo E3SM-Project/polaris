@@ -52,8 +52,45 @@ validates that the collection contains only regions or only transects.
 dispatches to `mpas_tools.mesh.mask.compute_mpas_region_masks()` or
 `mpas_tools.mesh.mask.compute_mpas_transect_masks()`.
 
+(dev-mesh-feature-masks-moc)=
+
+## MOC Helpers
+
+{py:mod}`polaris.tasks.mesh.spherical.feature_masks.moc` is a leaf module
+holding the two pieces of `'MOC Basins'` behavior that are not specific to any
+model:
+
+- {py:func}`polaris.tasks.mesh.spherical.feature_masks.moc.moc_masks_filename`
+  applies the `mocBasinsAndTransects` filename convention that E3SM already
+  uses, as in `oRRS18to6v3_mocBasinsAndTransects20210623.nc`;
+- {py:func}`polaris.tasks.mesh.spherical.feature_masks.moc.add_moc_transects`
+  calls `mpas_tools.ocean.moc.add_moc_southern_boundary_transects()` to append
+  southern-boundary transect masks derived algorithmically from the basin cell
+  masks, then drops the string variables `'history'` and `'constituents'`,
+  which that function may attach and which are incompatible with CDF5 output.
+
+The module also defines `MOC_MASK_GROUP` (`'MOC Basins'`) and `MOC_PREFIX`
+(`'mocBasinsAndTransects'`).
+
+Neither helper needs a step, and neither touches an ocean model: they operate
+on standard MPAS meshes and masks.  `mpas_tools.ocean.moc` is a plain
+`mpas_tools` module, so importing it does not pull in
+{py:mod}`polaris.tasks.ocean` or require an `[ocean]` config section.  That is
+what lets a step in another component — for example the `e3sm/init`
+`component_inputs` staging of the per-mesh MOC file that MPAS-Ocean reads
+through its `regionalMasksInput` and `transectMasksInput` streams — subclass
+the model-neutral {py:class}`polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep`
+and call the same two functions.
+
+{py:class}`polaris.tasks.ocean.feature_masks.ComputeOceanFeatureMasksStep`
+delegates to these helpers rather than implementing the behavior itself, so
+the MOC logic lives in exactly one place.  See
+{ref}`dev-ocean-feature-masks`.
+
 ## Testing
 
 Unit tests cover object-type detection, mask-type validation, shared-step
-configuration, configurable setup, output metadata, and the ocean subclass's
-Omega-name translation boundary.
+configuration, configurable setup, output metadata, the MOC helpers (including
+that importing the `moc` module does not import
+{py:mod}`polaris.tasks.ocean`), and the ocean subclass's Omega-name
+translation boundary.
