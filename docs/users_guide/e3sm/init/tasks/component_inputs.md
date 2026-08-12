@@ -134,6 +134,23 @@ provenance survives a copy or a rename.
 Only the `MOC Basins` group is built here. The other mask groups are for
 MPAS-Analysis and post-processing and remain follow-up work.
 
+## Graph partitions
+
+`get_core_list` builds a list of likely core counts from the culled ocean
+cell count and two config options, and one `gpmetis` call is made per entry.
+The largest partition asked for is `ncells / min_cells_per_core`.
+
+`gpmetis` fails above roughly 750,000 parts, so a mesh with more than about
+1.5 million ocean cells needs `min_cells_per_core` raised above the default
+of 2. Only `u.oi6to18.lr6to10` is currently that large, and its config sets
+`min_cells_per_core = 6`, following what Compass does for `rrs6to18`. A new
+mesh above that size needs the same treatment.
+
+This step is also the longest in the workflow — hours on the finer meshes,
+since both the number of core counts and the cost per call grow with the mesh
+— so give it its own job with a generous walltime rather than sharing one with
+the model runs.
+
 ## Ice-shelf cavities
 
 Not supported.  These tasks are for meshes culled with the `calving_front`
