@@ -179,6 +179,8 @@ class OceanModelFilesMixin:
         filename,
         validate_vars=None,
         check_properties=None,
+        check_properties_baseline='init',
+        check_properties_time_index_end=-1,
         validate_class=None,
     ):
         """
@@ -193,7 +195,13 @@ class OceanModelFilesMixin:
         validate_vars : list of str, optional
             Explicit list of variable names to validate against a baseline.
 
-        check_properties : dict, optional
+        check_properties : list of str, optional
+            Forwarded to :py:meth:`polaris.Step.add_output_file`.
+
+        check_properties_baseline : {'init'} or int, optional
+            Forwarded to :py:meth:`polaris.Step.add_output_file`.
+
+        check_properties_time_index_end : int, optional
             Forwarded to :py:meth:`polaris.Step.add_output_file`.
 
         validate_class : str, optional
@@ -244,6 +252,8 @@ class OceanModelFilesMixin:
             filename=filename,
             validate_vars=validate_vars if validate_vars else None,
             check_properties=check_properties,
+            check_properties_baseline=check_properties_baseline,
+            check_properties_time_index_end=check_properties_time_index_end,
         )
 
     # --- shared placeholder resolution ---

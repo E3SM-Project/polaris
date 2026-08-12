@@ -163,6 +163,7 @@ seaice/api
    Step.work_path
    Step.add_input_file
    Step.add_output_file
+   Step.add_property_check
    Step.add_dependency
    Step.validate_baselines
    Step.check_properties

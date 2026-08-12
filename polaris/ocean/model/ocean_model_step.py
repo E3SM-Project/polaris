@@ -522,18 +522,36 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         ds_init = self.open_model_dataset(
             os.path.join(self.work_dir, init_filename)
         )
-        time_index_end = 0
-        for filename, properties_to_check in self.properties_to_check.items():
+        datasets: Dict[str, Any] = {}
+        for check in self.properties_to_check:
+            filename = check['filename']
+            baseline = check['baseline']
+            time_index_end = check['time_index_end']
             properties = [
                 prop.replace(' conservation', '')
-                for prop in properties_to_check
+                for prop in check['properties']
             ]
 
-            ds = self.open_model_dataset(
-                os.path.join(self.work_dir, filename), decode_times=True
-            )
-            ds_end = ds.isel(Time=time_index_end)
-            dt = get_elapsed_seconds(ds_end)
+            if filename not in datasets:
+                datasets[filename] = self.open_model_dataset(
+                    os.path.join(self.work_dir, filename), decode_times=True
+                )
+            ds = datasets[filename]
+
+            if baseline == 'init':
+                ds_start = ds_init
+                time_index_start = 0
+                dt = get_elapsed_seconds(ds, time_index_end=time_index_end)
+                baseline_str = 'init'
+            else:
+                ds_start = None
+                time_index_start = baseline
+                dt = get_elapsed_seconds(
+                    ds,
+                    time_index_start=time_index_start,
+                    time_index_end=time_index_end,
+                )
+                baseline_str = f'time index {time_index_start}'
             print(f'elapsed seconds: {dt}')
             for output_property in properties:
                 func: Callable[..., Any]
@@ -570,16 +588,18 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                 relative_error = self._compute_rel_err(
                     func,
                     ds_mesh=ds_mesh,
-                    ds_init=ds_init,
+                    ds_init=ds_start,
                     ds=ds,
                     expected_change=expected_change,
+                    time_index_start=time_index_start,
                     time_index_end=time_index_end,
                     **kwargs,
                 )
                 passed = relative_error <= tol
                 status = 'PASS' if passed else 'FAIL'
                 logger.info(
-                    f'    {output_property} conservation: '
+                    f'    {output_property} conservation '
+                    f'({baseline_str} to time index {time_index_end}): '
                     f'error={relative_error:.3e} tol={tol:.3e} [{status}]'
                 )
                 checked = True
