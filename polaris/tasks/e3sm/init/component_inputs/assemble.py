@@ -1,4 +1,5 @@
 import os
+import shutil
 from glob import glob
 
 from polaris import Step
@@ -123,12 +124,22 @@ class AssembleStep(Step):
 
     def run(self):
         """
-        Build the staged tree.
+        Build the staged tree, from empty.
+
+        The tree is deleted first so that it describes this assembly and not
+        the union of every assembly ever run here.  Staging only ever adds
+        links, so without this a changed creation date, mesh short name or
+        product set leaves the previous names behind -- still resolving, and
+        now pointing at newer content.  Rebuilding is a few hundred symlinks,
+        which is cheap next to being unable to trust what is in the tree.
         """
         super().run()
         config = self.config
         short_name = names.get_mesh_short_name(config)
         creation_date = names.get_creation_date(config)
+
+        if os.path.exists(names.ASSEMBLED_FILES):
+            shutil.rmtree(names.ASSEMBLED_FILES)
 
         self._stage('README', 'README')
 

@@ -85,6 +85,14 @@ under `assemble/<target>/assembled_files/` is:
 The three SCRIP regions are `ocean`, `ocean_no_cavities` and `land`, matching
 the meshes the cull step produces.
 
+The assembly step deletes `assembled_files/` and rebuilds it every time it
+runs, so the tree always describes one assembly rather than the union of
+several. This matters after a fresh setup: `creation_date` is stamped with
+today's date when the work-directory config is rebuilt, and without the delete
+the previous run's names would linger, still resolving but now pointing at
+newer content. Pin `[component_inputs] creation_date` in a user config if you
+want the stamp to survive a re-setup.
+
 The base mesh is filed under `share/meshes/mpas/unified/` rather than Compass'
 `share/meshes/mpas/ocean/`, because for a unified mesh it belongs to the
 ocean, sea-ice, land and river components equally.
