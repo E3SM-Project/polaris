@@ -22,6 +22,7 @@ TARGET_PRODUCTS: dict[str, tuple[str, ...]] = {
         'ocean_mesh',
         'ocean_initial_condition',
         'ocean_graph_partition',
+        'ocean_moc_masks',
     ),
     'seaice': (
         'seaice_mesh',
@@ -103,6 +104,17 @@ class AssembleStep(Step):
                 # cell count not known until the mesh exists, so they cannot
                 # be declared here; they are found at run time instead
                 continue
+            if key == 'ocean_moc_masks':
+                # this step declares its outputs in setup(), which has not run
+                # yet, so name the one file that is staged rather than reading
+                # an outputs list that is still empty
+                self.add_input_file(
+                    filename=f'{key}__{step.output_filename}',
+                    work_dir_target=os.path.join(
+                        step.path, step.output_filename
+                    ),
+                )
+                continue
             for output in step.outputs:
                 self.add_input_file(
                     filename=f'{key}__{output}',
@@ -147,6 +159,13 @@ class AssembleStep(Step):
                 path_func=names.ocean_partition_path,
                 short_name=short_name,
                 creation_date=creation_date,
+            )
+            moc_masks = self.product_steps['ocean_moc_masks']
+            self._stage(
+                f'ocean_moc_masks__{moc_masks.output_filename}',
+                names.ocean_moc_masks_path(
+                    short_name, creation_date, moc_masks.features_date
+                ),
             )
 
         if 'seaice_mesh' in self.product_steps:

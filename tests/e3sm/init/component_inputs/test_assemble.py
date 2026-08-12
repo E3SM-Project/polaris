@@ -2,6 +2,7 @@ import logging
 import os
 
 import pytest
+from geometric_features.aggregation import get_aggregator_by_name
 
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.component_inputs.assemble import (
@@ -16,11 +17,16 @@ from polaris.tasks.e3sm.init.component_inputs.tasks import (
     add_component_inputs_tasks,
 )
 from polaris.tasks.mesh import mesh as mesh_component
+from polaris.tasks.mesh.spherical.feature_masks.moc import MOC_MASK_GROUP
 from polaris.tasks.ocean import ocean
 
 MESH_NAME = 'u.oi30.lr10'
 SHORT_NAME = 'u02.oi30.lr10'
 CREATION_DATE = '20250101'
+
+# read from the aggregation rather than hard-coded, since the whole point of
+# carrying this date separately is that it can change without us
+FEATURES_DATE = get_aggregator_by_name(MOC_MASK_GROUP)[2]
 
 LOGGER = logging.getLogger('test_assemble')
 
@@ -125,6 +131,8 @@ def test_every_product_lands_at_its_e3sm_path(tmp_path, target):
         expected |= {
             f'{ocn}/{SHORT_NAME}.{CREATION_DATE}.nc',
             f'{ocn}/mpaso.{SHORT_NAME}.{CREATION_DATE}.nc',
+            f'{ocn}/{SHORT_NAME}.mocBasinsAndTransects'
+            f'{FEATURES_DATE}.{CREATION_DATE}.nc',
         } | {
             f'{ocn}/partitions/mpas-o.graph.info.{CREATION_DATE}.part.{n}'
             for n in NCORES
