@@ -219,6 +219,43 @@ def ocean_initial_condition_path(short_name: str, creation_date: str) -> str:
     return f'{_ocean_dir(short_name)}/mpaso.{short_name}.{creation_date}.nc'
 
 
+def ocean_moc_masks_path(
+    short_name: str, creation_date: str, features_date: str
+) -> str:
+    """
+    Where the MOC basin masks and southern-boundary transects are staged.
+
+    Two dates appear here because two things change independently: the
+    ``geometric_features`` aggregation the regions come from, which is
+    upstream data shared by every mesh, and the date this mesh's file was
+    created.  The aggregation date belongs to the product name, as it does in
+    the files already on the inputdata server
+    (``oRRS18to6v3_mocBasinsAndTransects20210623.nc``); the creation date
+    stays in the trailing field, where every other staged file carries it.
+
+    Parameters
+    ----------
+    short_name : str
+        The E3SM short name of the mesh.
+
+    creation_date : str
+        The creation date, as ``YYYYMMDD``.
+
+    features_date : str
+        The date stamp of the ``geometric_features`` aggregation, as
+        ``YYYYMMDD``.
+
+    Returns
+    -------
+    str
+        The path, relative to :py:data:`ASSEMBLED_FILES`.
+    """
+    return (
+        f'{_ocean_dir(short_name)}/{short_name}.mocBasinsAndTransects'
+        f'{features_date}.{creation_date}.nc'
+    )
+
+
 def ocean_partition_path(
     short_name: str, creation_date: str, ncores: int
 ) -> str:
