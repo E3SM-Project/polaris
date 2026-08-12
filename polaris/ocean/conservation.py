@@ -4,7 +4,8 @@ from polaris.constants import get_constant
 from polaris.ocean.eos import compute_ct_freezing
 from polaris.ocean.model.time import get_days_since_start
 
-# TODO cp_sw = get_constant('seawater_specific_heat_capacity_reference')
+# TODO update once this is used by Omega
+# cp_sw = get_constant('seawater_specific_heat_capacity_reference')
 cp_sw = {'omega': 3991.86795711963, 'mpas-ocean': 3996.0}
 rho_sw = get_constant('seawater_density_reference')
 latent_heat_fusion = {
@@ -25,10 +26,12 @@ MASS_FLUX_VARS = [
     'icebergFreshWaterFlux',  # Note: not available for Omega
 ]
 
+# mass fluxes (kg/m^2/s)
 MASS_ASSOC_SALT_FLUX_VARS = [
     'seaIceSalinityFlux',  # Note: this is not correct for MPAS-O
 ]
 
+# heat fluxes (W/m^2)
 HEAT_FLUX_VARS = [
     'latentHeatFlux',
     'sensibleHeatFlux',
@@ -185,7 +188,6 @@ def compute_total_salt(ds_mesh, ds):
         The total mass of salt in kg over the whole domain
     """
     total_salinity = compute_total_tracer(ds_mesh, ds, tracer_name='salinity')
-    print('compute_total_salt')
     return (rho_sw / 1000.0) * total_salinity
 
 
@@ -270,7 +272,6 @@ def compute_flux_forcing(ds_mesh, ds, budget, dt, model=None, config=None):
         if var in ds:
             flux = _drop_time(ds[var])
             inst_flux = float((flux * area_cell).sum(dim='nCells').values)
-            print(f'{var}: {inst_flux}')
             total += inst_flux
 
     if budget == 'mass':
@@ -280,7 +281,6 @@ def compute_flux_forcing(ds_mesh, ds, budget, dt, model=None, config=None):
             if var in ds:
                 flux = _drop_time(ds[var])
                 inst_flux = float((flux * area_cell).sum(dim='nCells').values)
-                print(f'{var} (mass-associated): {inst_flux}')
                 total += inst_flux
 
     if budget == 'salt' and model == 'mpas-ocean':
@@ -299,9 +299,6 @@ def compute_flux_forcing(ds_mesh, ds, budget, dt, model=None, config=None):
                 flux = _drop_time(ds[var])
                 inst_flux = float((flux * area_cell).sum(dim='nCells').values)
                 total -= latent_heat_fusion[model] * inst_flux
-                print(
-                    f'{var} (fusion): {-latent_heat_fusion[model] * inst_flux}'
-                )
 
         # MPAS-Ocean applies an evaporation enthalpy flux
         # (accumulatedEvapTemperatureFlux) and clamps the river runoff
@@ -414,7 +411,6 @@ def _compute_enthalpy_forcing(
             .sum(dim='nCells')
             .values
         )
-        print(f'{var} (enthalpy, {source}): {inst_flux}')
         total += inst_flux
     return total
 

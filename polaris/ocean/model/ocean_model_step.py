@@ -608,15 +608,42 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                     time_index_end=time_index_end,
                     **kwargs,
                 )
-                passed = relative_error <= tol
+                relative_error = float(relative_error)
+                passed = bool(relative_error <= tol)
                 status = 'PASS' if passed else 'FAIL'
                 logger.info(
                     f'    {output_property} conservation '
                     f'({baseline_str} to time index {time_index_end}): '
                     f'error={relative_error:.3e} tol={tol:.3e} [{status}]'
                 )
+                results.append(
+                    dict(
+                        property=output_property,
+                        filename=filename,
+                        baseline=baseline,
+                        time_index_start=int(time_index_start),
+                        time_index_end=int(time_index_end),
+                        description=description,
+                        relative_error=relative_error,
+                        tolerance=float(tol),
+                        passed=passed,
+                    )
+                )
                 checked = True
                 success = success and passed
+
+        self.property_check_results = results
+        if checked:
+            results_filename = os.path.join(
+                self.work_dir, 'property_check_results.json'
+            )
+            tmp_filename = f'{results_filename}.tmp'
+            with open(tmp_filename, 'w') as handle:
+                json.dump(results, handle, indent=4, default=str)
+                handle.flush()
+                os.fsync(handle.fileno())
+            # rename atomically so that readers never see a partial file
+            os.replace(tmp_filename, results_filename)
 
         return checked, success
 
@@ -650,9 +677,12 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         )
         ds_end = ds.isel(Time=time_index_end)
         final_val = float(func(ds_mesh, ds_end, **kwargs).values)
-        residual = (final_val - init_val) - expected_change
-        print(f'init {init_val}, final {final_val}')
-        print(f'recorded change {residual}, expected {expected_change}')
+        actual_change = final_val - init_val
+        residual = actual_change - expected_change
+        print(
+            f'actual change {actual_change}, expected {expected_change}, '
+            f'residual {residual}'
+        )
         if init_val != 0.0:
             denom = abs(init_val)
         else:
