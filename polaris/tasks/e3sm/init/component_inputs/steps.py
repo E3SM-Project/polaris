@@ -9,6 +9,10 @@ from polaris.tasks.e3sm.init.component_inputs.assemble import (
     AssembleStep,
 )
 from polaris.tasks.e3sm.init.component_inputs.base_mesh import BaseMeshStep
+from polaris.tasks.e3sm.init.component_inputs.moc_masks import (
+    MESH_FILENAME as MOC_MESH_FILENAME,
+)
+from polaris.tasks.e3sm.init.component_inputs.moc_masks import MocMasksStep
 from polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition import (
     OceanGraphPartitionStep,
 )
@@ -28,6 +32,7 @@ from polaris.tasks.e3sm.init.component_inputs.seaice_partition_map import (
     SeaicePartitionMapStep,
 )
 from polaris.tasks.e3sm.init.topo.cull.steps import get_cull_topo_steps
+from polaris.tasks.mesh.spherical.feature_masks.moc import MOC_MASK_GROUP
 from polaris.tasks.ocean import ocean
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps import (
     get_realistic_dynamic_adjustment_steps,
@@ -237,6 +242,25 @@ def _add_ocean_steps(steps, config, base_subdir, mesh_name, cull_mesh_step):
     )
     steps['ocean_graph_partition'] = ocean_graph_partition
 
+    # the step passes these to the framework itself; setting them here keeps
+    # the work-directory config from advertising the section defaults, which
+    # describe a different mask group on a different mesh
+    config.set('feature_masks', 'mesh_name', mesh_name)
+    config.set('feature_masks', 'mask_group', MOC_MASK_GROUP)
+    config.set('feature_masks', 'mesh_filename', MOC_MESH_FILENAME)
+
+    # MPAS-Ocean reads these at run time, so they are a component input rather
+    # than one of the analysis products in the follow-up work
+    ocean_moc_masks = e3sm_init.get_or_create_shared_step(
+        step_cls=MocMasksStep,
+        subdir=os.path.join(base_subdir, 'moc_masks'),
+        config=config,
+        config_filename=CONFIG_FILENAME,
+        cull_mesh_step=cull_mesh_step,
+        mesh_name=mesh_name,
+    )
+    steps['ocean_moc_masks'] = ocean_moc_masks
+
 
 def component_inputs_subdir(mesh_name):
     """
@@ -268,6 +292,10 @@ def _get_component_inputs_config(base_subdir, mesh_name):
         config = PolarisConfigParser(filepath=filepath)
         # provides [mapping] map_tool, used by MappingFileStep
         config.add_from_package('polaris.remap', 'mapping.cfg')
+        # provides [feature_masks], used by the MOC-mask step
+        config.add_from_package(
+            'polaris.tasks.mesh.spherical.feature_masks', 'feature_masks.cfg'
+        )
         config.add_from_package(CONFIG_PACKAGE, CONFIG_FILENAME)
         if mesh_name in UNIFIED_MESH_NAMES:
             config.add_from_package(
