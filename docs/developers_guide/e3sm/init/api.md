@@ -179,6 +179,11 @@
    ocean_graph_partition.OceanGraphPartitionStep
    ocean_graph_partition.OceanGraphPartitionStep.setup
    ocean_graph_partition.OceanGraphPartitionStep.run
+
+   moc_masks.MocMasksStep
+   moc_masks.MocMasksStep.setup
+   moc_masks.MocMasksStep.run
+   moc_masks.MESH_FILENAME
 ```
 
 #### sea-ice products
@@ -221,6 +226,7 @@
    names.scrip_path
    names.ocean_mesh_path
    names.ocean_initial_condition_path
+   names.ocean_moc_masks_path
    names.ocean_partition_path
    names.seaice_mesh_path
    names.seaice_initial_condition_path

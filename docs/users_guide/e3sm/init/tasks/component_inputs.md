@@ -77,6 +77,7 @@ under `assemble/<target>/assembled_files/` is:
 | ocean mesh | `inputdata/ocn/mpas-o/<short>/<short>.<date>.nc` |
 | ocean IC | `inputdata/ocn/mpas-o/<short>/mpaso.<short>.<date>.nc` |
 | ocean partitions | `inputdata/ocn/mpas-o/<short>/partitions/mpas-o.graph.info.<date>.part.<n>` |
+| MOC masks | `inputdata/ocn/mpas-o/<short>/<short>.mocBasinsAndTransects<features_date>.<date>.nc` |
 | sea-ice mesh | `inputdata/ice/mpas-seaice/<short>/<short>.<date>.nc` |
 | sea-ice IC | `inputdata/ice/mpas-seaice/<short>/mpassi.<short>.<date>.nc` |
 | sea-ice partitions | `inputdata/ice/mpas-seaice/<short>/partitions/mpas-seaice.graph.info.<date>.part.<n>` |
@@ -101,6 +102,37 @@ fields, and differs from the zero-based `mapCulledToBase*` the cull step
 writes, so each field's `long_name` records which convention it follows.
 
 These exist because the MOAB coupler maps to and from the base mesh.
+
+### MOC masks
+
+The MOC basin masks and their southern-boundary transects are a run-time input
+to MPAS-Ocean, not an analysis product. E3SM points two streams at this one
+file, `regionalMasksInput` and `transectMasksInput`, and two analysis members
+that are on by default read them: `mocStreamfunction`, which E3SM enables per
+mesh and has enabled for every mesh since `EC30to60E2r2`, and
+`meridionalHeatTransport`, which is enabled for every mesh.
+
+If the file is missing, neither member aborts. `nRegions` and `nRegionGroups`
+fall back to 1, the MOC member logs that its region group was not found and
+continues, and the run produces output computed against a meaningless region.
+Nothing in a run announces the problem, which is why this file is staged here
+rather than with the analysis products in the follow-up work.
+
+Its name carries two dates because they change independently:
+
+- `<features_date>` is the version of the `geometric_features` aggregation the
+  basins come from, upstream data shared by every mesh. It rides with the
+  product name, as in the files already on the inputdata server
+  (`oRRS18to6v3_mocBasinsAndTransects20210623.nc`).
+- `<date>` is the creation date of this mesh's file, in the trailing field
+  where every other staged file carries it.
+
+Both are also written into the file as the `mask_features_date`,
+`mask_features_source` and `creation_date` global attributes, so the
+provenance survives a copy or a rename.
+
+Only the `MOC Basins` group is built here. The other mask groups are for
+MPAS-Analysis and post-processing and remain follow-up work.
 
 ## Ice-shelf cavities
 

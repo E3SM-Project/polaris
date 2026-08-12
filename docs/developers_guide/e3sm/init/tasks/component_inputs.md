@@ -37,6 +37,7 @@ up waiting on a model run it has no use for.
 | `OceanMeshStep` | the initial state's `mesh.nc` and `init.nc` | `ocean_mesh.nc` |
 | `OceanInitialConditionStep` | the final adjustment stage's restart | `ocean_initial_condition.nc` |
 | `OceanGraphPartitionStep` | `culled_ocean_graph.info` | `mpas-o.graph.info.part.*` |
+| `MocMasksStep` | `culled_ocean_mesh.nc` | `<mesh>_mocBasinsAndTransects<features_date>.nc` |
 | `SeaiceMeshStep` | `culled_ocean_mesh.nc` | `seaice_mesh.nc` |
 | `SeaiceInitialConditionStep` | `culled_ocean_mesh.nc` | `seaice_initial_condition.nc` |
 | `SeaicePartitionMapStep` | `seaice_mesh.nc`, QU60km climatology | the QU60km-to-mesh mapping file |
@@ -91,6 +92,28 @@ list and the model gate are all unit testable without a work directory.
 - `models.py` — the ocean and sea-ice model gates.  Built while only MPAS is
   supported so that adding Omega fills a named gap rather than retrofitting
   model selection into steps that quietly assumed MPAS.
+
+## The MOC masks borrow behavior without borrowing a component
+
+`MocMasksStep` builds the one mask file MPAS-Ocean reads at run time.  The
+masks themselves come from the mesh component's
+{py:class}`polaris.tasks.mesh.spherical.feature_masks.compute.ComputeFeatureMasksStep`,
+and the two MOC-specific pieces — the `mocBasinsAndTransects` filename and the
+southern-boundary transects appended to the masks — come from
+{py:mod}`polaris.tasks.mesh.spherical.feature_masks.moc`, which the ocean
+feature-mask step uses as well.
+
+Subclassing the *ocean* feature-mask step would have been the obvious route
+and does not work.  That class inherits `OceanIOStep` to translate to and from
+Omega's variable names, and `OceanIOStep.process_inputs_and_outputs` reads
+`[ocean] model`.  A step owned by `e3sm/init` has no `[ocean]` section — every
+config belongs to exactly one component — so setup fails with
+`NoSectionError`.  Overriding the two I/O hooks is not enough either, since
+`[ocean] model` is read in four places along that inheritance path.
+
+Hence the leaf module: the MOC behavior is model-agnostic and lives where any
+component can call it, which keeps this step and the ocean one from drifting
+apart without coupling `e3sm/init` to the ocean component.
 
 ## Sea-ice does not touch the ocean
 
