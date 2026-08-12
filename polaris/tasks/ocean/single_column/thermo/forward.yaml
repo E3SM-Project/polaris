@@ -19,15 +19,18 @@ ocean:
   forcing:
     config_use_bulk_wind_stress: true
   debug:
-    config_disable_vel_explicit_bottom_drag: true
-    config_disable_tr_adv: false
-    config_disable_vel_pgrad: true
     config_disable_tr_sflux: false
     config_disable_thick_sflux: false
+    config_disable_thick_hadv: true
+    config_disable_thick_vadv: true
+    config_disable_vel_vmix: true
+    config_disable_vel_pgrad: true
+    config_disable_vel_explicit_bottom_drag: true
+    config_disable_vel_vadv: true
+    config_disable_tr_adv: true
+    config_disable_tr_vmix: true
   tracer_forcing_activeTracers:
     config_salinity_restoring_constant_piston_velocity: 1.585e-5
-  ocean_constants:
-    config_density0: 1026.0
 
 mpas-ocean:
   io:
@@ -38,15 +41,20 @@ mpas-ocean:
     config_use_activeTracers_surface_bulk_forcing: true
     config_use_activeTracers_surface_restoring: false
     config_use_activeTracers_interior_restoring: false
+  shortwaveRadiation:
+    config_sw_absorption_type: jerlov
   cvmix:
     config_use_cvmix_kpp: false
     config_cvmix_background_scheme: constant
     config_cvmix_shear_mixing_scheme: KPP
   debug:
-    config_disable_vel_vmix: false
-    config_disable_tr_vmix: false
     config_disable_vel_hadv: true
     config_disable_vel_coriolis: true
+    config_disable_vel_hmix: true
+    config_disable_vel_topographic_wave_drag: true
+    config_disable_tr_nonlocalflux: true
+    config_disable_redi_k33: true
+    #config_disable_tr_vmix: false
   streams:
     forcing_data:
       type: input
@@ -142,6 +150,8 @@ Omega:
   # This is needed for consistency with MPAS-O
   SurfaceRestoring:
     TracersToRestore: [Salinity]
+  Tendencies:
+    TracerVertAdvTendencyEnable: false
   IOStreams:
     History:
       Filename: output.nc

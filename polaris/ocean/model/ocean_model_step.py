@@ -14,6 +14,7 @@ from typing import (
 
 from ruamel.yaml import YAML
 
+from polaris.constants import get_constant
 from polaris.model_step import ModelStep
 from polaris.ocean.conservation import (
     compute_flux_forcing,
@@ -255,6 +256,18 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
             'model_inputs.yaml',
             template_replacements=self._get_model_input_replacements(),
         )
+
+        if self.config.get('ocean', 'model') == 'mpas-ocean':
+            # Omega takes RhoSw from the Physical Constants Dictionary, so
+            # keep MPAS-Ocean's reference density consistent with it
+            self.add_model_config_options(
+                options={
+                    'config_density0': get_constant(
+                        'seawater_density_reference'
+                    )
+                },
+                config_model='mpas-ocean',
+            )
 
         if self.update_eos:
             self.update_namelist_eos()
