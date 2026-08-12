@@ -11,6 +11,9 @@ from polaris.mesh.spherical.unified import (
     UnifiedBaseMeshStep,
     get_unified_mesh_family,
 )
+from polaris.mesh.spherical.unified.configs import (
+    get_unified_mesh_config,
+)
 from polaris.mesh.spherical.unified.families.default import (
     build_ocean_background_from_mode,
 )
@@ -140,6 +143,140 @@ def test_sizing_field_coastline_transition_on_land():
         ds_sizing.active_control.values[0],
         np.array([0, 0, 1, 0], dtype=np.int8),
     )
+
+
+def test_sizing_field_transition_exponent_of_one_is_linear():
+    """
+    An exponent of 1 must reproduce the plain linear ramp exactly, so a
+    mesh that has not opted in builds the field it built before.
+    """
+    lon = np.array([-30.0, -10.0, 10.0, 30.0])
+    ds_coastline = _make_coastline_dataset(
+        ocean_mask=np.array([[1, 1, 0, 0]], dtype=np.int8),
+        signed_distance=np.array([[0.0, 1000.0, -1000.0, -3000.0]]),
+        lat=np.array([0.0]),
+        lon=lon,
+    )
+    ds_river = _make_river_dataset(
+        river_channel_mask=np.zeros((1, lon.size), dtype=np.int8),
+        lat=np.array([0.0]),
+        lon=lon,
+    )
+
+    ds_sizing = sizing_field_dataset(
+        ds_coastline=ds_coastline,
+        ds_river=ds_river,
+        resolution=0.125,
+        mesh_name='exponent_test',
+        ocean_background=_constant_ocean_background(
+            ds_coastline=ds_coastline, value=30.0
+        ),
+        land_background_km=10.0,
+        coastline_transition_land_km=2.0,
+        coastline_transition_exponent=1.0,
+        enable_river_channel_refinement=False,
+    )
+
+    np.testing.assert_allclose(
+        ds_sizing.cellWidth.values[0], np.array([30.0, 30.0, 20.0, 10.0])
+    )
+
+
+def test_sizing_field_transition_exponent_flattens_the_coastal_gradient():
+    """
+    A quadratic blend leaves the ocean background nearly untouched just
+    inland of the coast and does its steepening at the far end, without
+    reaching any further inland than the linear ramp.
+    """
+    lon = np.array([-30.0, -10.0, 10.0, 30.0, 50.0, 70.0])
+    # 1, 2, 3 and 4 km inland across a 4 km transition
+    ds_coastline = _make_coastline_dataset(
+        ocean_mask=np.array([[1, 0, 0, 0, 0, 0]], dtype=np.int8),
+        signed_distance=np.array(
+            [[1000.0, -1000.0, -2000.0, -3000.0, -4000.0, -8000.0]]
+        ),
+        lat=np.array([0.0]),
+        lon=lon,
+    )
+    ds_river = _make_river_dataset(
+        river_channel_mask=np.zeros((1, lon.size), dtype=np.int8),
+        lat=np.array([0.0]),
+        lon=lon,
+    )
+    kwargs = dict(
+        ds_coastline=ds_coastline,
+        ds_river=ds_river,
+        resolution=0.125,
+        mesh_name='exponent_test',
+        ocean_background=_constant_ocean_background(
+            ds_coastline=ds_coastline, value=30.0
+        ),
+        land_background_km=10.0,
+        coastline_transition_land_km=4.0,
+        enable_river_channel_refinement=False,
+    )
+
+    linear = sizing_field_dataset(
+        coastline_transition_exponent=1.0, **kwargs
+    ).cellWidth.values[0]
+    quadratic = sizing_field_dataset(
+        coastline_transition_exponent=2.0, **kwargs
+    ).cellWidth.values[0]
+
+    # linear: fractions 1/4, 2/4, 3/4, 1 -> 25, 20, 15, 10
+    np.testing.assert_allclose(
+        linear, np.array([30.0, 25.0, 20.0, 15.0, 10.0, 10.0])
+    )
+    # quadratic: fractions 1/16, 4/16, 9/16, 1 -> 28.75, 25, 18.75, 10
+    np.testing.assert_allclose(
+        quadratic, np.array([30.0, 28.75, 25.0, 18.75, 10.0, 10.0])
+    )
+
+    # nearest the coast the quadratic blend stays closer to the ocean
+    # background, and it reaches the land background at the same distance
+    assert quadratic[1] > linear[1]
+    assert quadratic[2] > linear[2]
+    np.testing.assert_allclose(quadratic[4], linear[4])
+    np.testing.assert_allclose(quadratic[5], linear[5])
+
+
+def test_sizing_field_transition_exponent_does_not_extend_inland_reach():
+    """
+    The whole point of the exponent over a flat collar is that it costs no
+    extra inland reach, so river geometry still begins exactly where the
+    blend ends.
+    """
+    lon = np.array([-30.0, -10.0, 10.0, 30.0])
+    ds_coastline = _make_coastline_dataset(
+        ocean_mask=np.array([[1, 0, 0, 0]], dtype=np.int8),
+        signed_distance=np.array([[1000.0, -3000.0, -4000.0, -5000.0]]),
+        lat=np.array([0.0]),
+        lon=lon,
+    )
+    ds_river = _make_river_dataset(
+        river_channel_mask=np.zeros((1, lon.size), dtype=np.int8),
+        lat=np.array([0.0]),
+        lon=lon,
+    )
+
+    for exponent in (1.0, 2.0, 3.0):
+        ds_sizing = sizing_field_dataset(
+            ds_coastline=ds_coastline,
+            ds_river=ds_river,
+            resolution=0.125,
+            mesh_name='exponent_test',
+            ocean_background=_constant_ocean_background(
+                ds_coastline=ds_coastline, value=30.0
+            ),
+            land_background_km=10.0,
+            coastline_transition_land_km=4.0,
+            coastline_transition_exponent=exponent,
+            enable_river_channel_refinement=False,
+        )
+        values = ds_sizing.cellWidth.values[0]
+        # beyond the 4 km transition every exponent is at the land value
+        np.testing.assert_allclose(values[2], 10.0)
+        np.testing.assert_allclose(values[3], 10.0)
 
 
 def test_sizing_field_rivers_composed_before_coastline_transition():
@@ -468,6 +605,62 @@ def test_so_mesh_family_links_shared_region_and_builds_field(
     assert ocean_background.shape == (3, 4)
     assert np.min(ocean_background) < np.max(ocean_background)
     assert np.mean(ocean_background[0, :]) < np.mean(ocean_background[-1, :])
+
+
+def test_river_clip_matches_the_coastline_transition():
+    """
+    River geometry must begin exactly where the coastline blend ends.  If
+    the blend reaches further inland than the clip, river channels sit
+    inside it and come out coarser than their target -- which is what a
+    flat collar did before it was replaced by the transition exponent.
+    """
+    for mesh_name in UNIFIED_MESH_NAMES:
+        config = get_unified_mesh_config(mesh_name=mesh_name)
+
+        transition = config.getfloat(
+            'sizing_field', 'coastline_transition_land_km'
+        )
+        clip = config.getfloat('river_network', 'base_mesh_clip_distance_km')
+
+        assert clip == transition, (
+            f'{mesh_name}: base_mesh_clip_distance_km ({clip}) must equal '
+            f'coastline_transition_land_km ({transition})'
+        )
+
+
+def test_steep_meshes_widen_the_transition():
+    """
+    With a quadratic blend the mesh-size gradient one cell width inland is
+    2 |H - L| L / T^2, so a mesh with a larger relative resolution jump
+    needs a wider transition to reach the same gradient.  u.oi30.lr10 and
+    u.oi.so12to30.lr10 ask for (30 - 10) / 30 = 0.67 against
+    u.oi6to18.lr6to10's 0.44, and failed the dcEdge CFL guard at T = 2 L.
+    """
+    gradients = {}
+    for mesh_name in UNIFIED_MESH_NAMES:
+        config = get_unified_mesh_config(mesh_name=mesh_name)
+        section = config['sizing_field']
+        ocean = section.getfloat('ocean_background_max_km')
+        land = section.getfloat('land_background_km')
+        transition = section.getfloat('coastline_transition_land_km')
+        exponent = section.getfloat('coastline_transition_exponent')
+        if transition == 0.0 or ocean == land:
+            continue
+        # d(h)/dd at one ocean cell width inland
+        gradients[mesh_name] = (
+            exponent
+            * abs(land - ocean)
+            * (ocean / transition) ** (exponent - 1.0)
+            / transition
+        )
+
+    passing = gradients['u.oi6to18.lr6to10']
+    for mesh_name, gradient in gradients.items():
+        assert gradient <= passing + 1e-12, (
+            f'{mesh_name}: coastal mesh-size gradient {gradient:.3f} exceeds '
+            f"u.oi6to18.lr6to10's {passing:.3f}, which is the steepest "
+            f'value known to pass the dcEdge CFL guard'
+        )
 
 
 def _make_coastline_dataset(ocean_mask, signed_distance, lat=None, lon=None):

@@ -125,6 +125,11 @@ seaice/api
    Component.add_step
    Component.remove_step
    Component.add_config
+   Component.get_or_create_shared_config
+   Component.configure
+   Component.has_model
+   Component.build_model
+   Component.check_model_version
    Component.get_or_create_shared_step
    Component.set_parallel_system
    Component.get_available_resources
@@ -194,6 +199,29 @@ seaice/api
    ModelStep.partition
 ```
 
+### attrs
+
+```{eval-rst}
+.. currentmodule:: polaris.attrs
+
+.. autosummary::
+   :toctree: generated/
+
+   set_attrs
+```
+
+### component_graph
+
+```{eval-rst}
+.. currentmodule:: polaris.component_graph
+
+.. autosummary::
+   :toctree: generated/
+
+   get_components_in_use
+   get_steps_by_component
+```
+
 ### config
 
 ```{eval-rst}
@@ -204,6 +232,22 @@ seaice/api
 
    PolarisConfigParser
    PolarisConfigParser.setup
+```
+
+### coriolis
+
+```{eval-rst}
+.. currentmodule:: polaris.coriolis
+
+.. autosummary::
+   :toctree: generated/
+
+   add_coriolis_to_dataset
+   add_beta_plane_coriolis
+   add_constant_coriolis
+   add_rotated_sphere_coriolis
+   add_spherical_coriolis
+   add_zero_coriolis
 ```
 
 ### io
@@ -273,6 +317,13 @@ seaice/api
    :toctree: generated/
 
    planar.compute_planar_hex_nx_ny
+
+   connectivity.active_edge_masks
+   connectivity.count_active_edges
+   connectivity.has_active_vertex
+   connectivity.transport_link_mask
+   connectivity.connected_to_seeds
+   connectivity.seed_mask_from_points
 
    spherical.SphericalBaseStep
    spherical.SphericalBaseStep.setup

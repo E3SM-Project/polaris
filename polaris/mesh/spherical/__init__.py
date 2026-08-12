@@ -315,7 +315,6 @@ class QuasiUniformSphericalMeshStep(SphericalBaseStep):
         self.opts.hfun_hmin = 0.0
         # 2-dim. simplexes
         self.opts.mesh_dims = 2
-        self.opts.optm_qlim = 0.9375
         self.opts.verbosity = 1
 
     def setup(self):
@@ -327,6 +326,10 @@ class QuasiUniformSphericalMeshStep(SphericalBaseStep):
         self.opts.geom_file = section.get('jigsaw_geom_filename')
         self.opts.jcfg_file = section.get('jigsaw_jcfg_filename')
         self.opts.hfun_file = section.get('jigsaw_hfun_filename')
+        self.opts.optm_kern = section.get('jigsaw_optm_kern')
+        self.opts.optm_iter = section.getint('jigsaw_optm_iter')
+        self.opts.optm_qtol = section.getfloat('jigsaw_optm_qtol')
+        self.opts.optm_qlim = section.getfloat('jigsaw_optm_qlim')
         super().setup()
 
     def run(self):

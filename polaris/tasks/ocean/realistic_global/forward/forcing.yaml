@@ -1,0 +1,29 @@
+# Wind forcing for a realistic global ocean forward run.  Always added: every
+# realistic_global forward run is wind-forced, and there is no config option to
+# turn it off.  Where the wind stress comes from is a separate question,
+# answered by the InitialCondition; see forcing_streams.yaml.
+#
+# config_use_bulk_wind_stress is auto-translated to Omega's
+# Tendencies: SfcStressForcingTendencyEnable by mpaso_to_omega.yaml.  Both
+# models default it to off, so it has to be stated to have any effect.
+ocean:
+    forcing:
+        config_use_bulk_wind_stress: true
+
+mpas-ocean:
+    forcing:
+        # Interpolate the cell-centred stress onto an edge from the four
+        # adjacent cells rather than the two the MPAS-Ocean Registry default
+        # uses.  This is on for every forward run because it is what E3SM runs
+        # with today, so it is the E3SM-like choice for the unified meshes; it
+        # also happens to be what Omega does, since Isotropic is its only
+        # SfcStress InterpType, so the two models put the same momentum on the
+        # same edges without anything further being said.
+        #
+        # The isotropic form is slightly less accurate, and Omega may not keep
+        # it.  Revisit when that call is made rather than assuming this option
+        # exists to track Omega: it is here for E3SM parity first.
+        #
+        # Stated for MPAS-Ocean rather than in the neutral section above
+        # because there is no Omega option to translate it to.
+        config_bulk_wind_stress_interp_isotropic: true

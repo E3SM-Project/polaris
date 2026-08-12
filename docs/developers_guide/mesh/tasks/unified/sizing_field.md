@@ -75,7 +75,8 @@ The public helper `sizing_field_dataset()` combines:
   lat-lon grid);
 - the land background (`land_background_km`);
 - an optional coastline-proximity refinement controlled by
-  `enable_coastline_refinement` and `coastline_transition_land_km`; and
+  `enable_coastline_refinement`, `coastline_transition_land_km` and
+  `coastline_transition_exponent`; and
 - optional river-channel refinement controlled by
   `enable_river_channel_refinement` and `river_channel_km`.
 
@@ -108,6 +109,10 @@ All sizing-field steps use mesh-specific configs built through
 - `land_background_km` — cell width for land cells
 - `enable_coastline_refinement` — toggle coastline-proximity refinement
 - `coastline_transition_land_km` — width of the land-side transition zone
+- `coastline_transition_exponent` — exponent of the land-side blending
+  factor; values above 1 make the mesh-size gradient vanish at the
+  coastline and steepen inland, keeping it away from the CFL-limited ocean
+  edges without extending the transition's inland reach
 - `enable_river_channel_refinement` — toggle river-channel refinement
 - `river_channel_km` — target cell width along river channels
 - `enable_cull_emulation` — toggle the effective ocean mask built by

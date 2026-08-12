@@ -1,3 +1,5 @@
+import os
+
 from polaris.component import Component
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.topo.cull import (
@@ -15,6 +17,7 @@ from polaris.tasks.mesh.base.steps import get_base_mesh_steps
 
 COARSE_MESH_NAME = 'u.oi240.lr240'
 FINE_MESH_NAME = 'u.oi30.lr10'
+FINEST_MESH_NAME = 'u.oi6to18.lr6to10'
 
 
 def test_get_remap_topo_steps_includes_upstream_base_mesh_steps():
@@ -112,8 +115,19 @@ def test_remap_topo_task_uses_factory_symlink_keys():
     )
 
     assert list(task.steps) == [step.name for step in steps.values()]
+    # the factory's suggested names are used as-is, except for the steps that
+    # live in the task's own directory, whose symlinks would sit beside them
+    suggested = {step.name: symlink for symlink, step in steps.items()}
+    beside = {
+        name
+        for name, step in task.steps.items()
+        if os.path.dirname(step.subdir) == task.subdir
+    }
+    assert beside
     assert task.step_symlinks == {
-        step.name: symlink for symlink, step in steps.items()
+        name: symlink
+        for name, symlink in suggested.items()
+        if name not in beside
     }
 
 
@@ -132,8 +146,19 @@ def test_cull_topo_task_uses_factory_symlink_keys():
     )
 
     assert list(task.steps) == [step.name for step in steps.values()]
+    # the factory's suggested names are used as-is, except for the steps that
+    # live in the task's own directory, whose symlinks would sit beside them
+    suggested = {step.name: symlink for symlink, step in steps.items()}
+    beside = {
+        name
+        for name, step in task.steps.items()
+        if os.path.dirname(step.subdir) == task.subdir
+    }
+    assert beside
     assert task.step_symlinks == {
-        step.name: symlink for symlink, step in steps.items()
+        name: symlink
+        for name, symlink in suggested.items()
+        if name not in beside
     }
 
 
@@ -248,6 +273,40 @@ def test_coarse_unified_mesh_uses_ne120_topography():
     assert cull_task.steps[combine_topo_step_name].subdir.endswith(
         'cubed_sphere/ne120'
     )
+
+
+def test_cull_config_exposes_both_dc_edge_guards():
+    """
+    The two guards answer different questions: the absolute one is the CFL
+    gate, measured against the finest ocean background anywhere, while the
+    ratio one detects land/river resolution leaking into the ocean.
+    """
+    _reset_shared_components()
+
+    _, config = get_cull_topo_steps(mesh_name=FINE_MESH_NAME)
+
+    assert config.getfloat('cull_mesh', 'min_dc_edge_abs_ratio') == 0.70
+    assert config.getfloat('cull_mesh', 'min_dc_edge_ratio') == 0.45
+
+
+def test_every_unified_mesh_uses_the_shared_dc_edge_guards():
+    """
+    u.oi6to18.lr6to10 used to override the ratio floor down to 0.64 for a
+    single edge.  With the CFL guard measured against the finest ocean
+    background, and the ratio guard set to catch leaks rather than rare
+    packing defects, no mesh needs an override.
+    """
+    for mesh_name in (COARSE_MESH_NAME, FINE_MESH_NAME, FINEST_MESH_NAME):
+        _reset_shared_components()
+
+        _, config = get_cull_topo_steps(mesh_name=mesh_name)
+
+        assert config.getfloat('cull_mesh', 'min_dc_edge_abs_ratio') == (
+            0.70
+        ), mesh_name
+        assert config.getfloat('cull_mesh', 'min_dc_edge_ratio') == 0.45, (
+            mesh_name
+        )
 
 
 def _reset_shared_components():
