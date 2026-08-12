@@ -134,13 +134,25 @@ theory, as determined by the config option
 ## thermo
 
 The {py:class}`polaris.tasks.ocean.single_column.thermo.Thermo` test performs
-a separate 10-day forward run for each supported surface thermodynamic forcing
+a separate forward run of 3 time steps, with output written every time step,
+for each supported surface thermodynamic forcing
 variable (latent, sensible, shortwave and longwave heat fluxes; evaporation,
 snow, rain, river- and ice-runoff and sea-ice freshwater fluxes; and the
 sea-ice heat and salinity fluxes).  Each `init`/`forward` pair applies a single
 nonzero forcing variable so that the individual forcing terms can be verified
-in isolation.  Then the analysis step is run, and the viz step is optionally
+in isolation.  Conservation is checked twice for each run: between the initial
+condition and the first time step in the output file, and between the last two
+time steps.  Then the analysis step is run, and the viz step is optionally
 run.
+
+### conservation_summary
+
+The
+{py:class}`polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary`
+step gathers the conservation results from each forward step's
+`property_check_results.json` and writes `conservation_summary.log`, which
+lists each forward step name along with its mass, salt and energy relative
+error for each conservation interval.
 
 ### analysis
 

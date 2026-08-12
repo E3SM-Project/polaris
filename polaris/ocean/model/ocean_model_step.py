@@ -1,4 +1,5 @@
 import importlib.resources as imp_res
+import json
 import os
 from types import ModuleType
 from typing import (
@@ -515,6 +516,10 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         """
         Check conservation properties of the output files of this step
 
+        Details of each check are stored in ``self.property_check_results``
+        and written to ``property_check_results.json`` in the step's work
+        directory so that they can be summarized by other steps.
+
         Returns
         -------
         checked : bool
@@ -527,6 +532,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         config = self.config
         checked = False
         success = True
+        results: List[Dict[str, Any]] = []
         mesh_filename = self.get_horiz_mesh_filename()
         init_filename = self.get_init_filename()
         ds_mesh = self.open_model_dataset(
@@ -611,9 +617,12 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                 relative_error = float(relative_error)
                 passed = bool(relative_error <= tol)
                 status = 'PASS' if passed else 'FAIL'
+                description = (
+                    f'{output_property} conservation in {filename} '
+                    f'({baseline_str} to time index {time_index_end})'
+                )
                 logger.info(
-                    f'    {output_property} conservation '
-                    f'({baseline_str} to time index {time_index_end}): '
+                    f'    {description}: '
                     f'error={relative_error:.3e} tol={tol:.3e} [{status}]'
                 )
                 results.append(

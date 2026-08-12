@@ -3,6 +3,9 @@ import os
 from polaris import Task
 from polaris.tasks.ocean.single_column.forward import Forward
 from polaris.tasks.ocean.single_column.init import Init
+from polaris.tasks.ocean.single_column.thermo.conservation_summary import (
+    ConservationSummary,
+)
 from polaris.tasks.ocean.single_column.viz import Viz
 
 
@@ -63,6 +66,7 @@ class Thermo(Task):
             'sea_ice_salinity_flux',
         ]
         comparisons = dict()
+        forward_steps = dict()
         for forcing_var in forcing_vars:
             init_step = Init(
                 component,
@@ -85,6 +89,14 @@ class Thermo(Task):
             )
             self.add_step(forward_step)
             comparisons[f'{forcing_var}'] = f'../forward_{forcing_var}'
+            forward_steps[forward_step.name] = forward_step.path
+        self.add_step(
+            ConservationSummary(
+                component=component,
+                indir=self.subdir,
+                forward_steps=forward_steps,
+            )
+        )
         self.add_step(
             Viz(
                 component=component,

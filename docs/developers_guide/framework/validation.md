@@ -286,8 +286,10 @@ self.add_property_check('output.nc', ['mass conservation'],
 The surface forcing fluxes are accumulated over the duration of each
 comparison and used as the expected change in the corresponding budget.
 
-The results of the checks are written to the step's work directory: either
-`property_check_passed.log`, which lists each property that passed along
-with its relative error, or `property_check_failed.log`, which lists each
-property that failed along with its relative error and the tolerance it
-exceeded.  A step writes one or the other, never both.
+The results of the checks are written to `property_check_passed.log` (which
+lists the properties that passed) or `property_check_failed.log` (which lists
+the properties that failed along with the relative error and the relative
+error tolerance) in the step's work directory.  The full details of every
+check are also written to `property_check_results.json` and stored in the
+step's `property_check_results` attribute, so that other steps can summarize
+them.

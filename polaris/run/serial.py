@@ -486,6 +486,40 @@ def _read_property_status_from_logs(step_work_dir: str) -> Optional[bool]:
     return None
 
 
+def _property_check_message(results, passed: bool, step_name: str) -> str:
+    """Build the contents of the property check log file.
+
+    For a passing step, the properties that passed are listed.  For a failing
+    step, the properties that failed are listed along with the relative error
+    and the relative error tolerance.
+    """
+    if passed:
+        lines = [f'property checks passed for step {step_name}', '']
+        lines.append('The following properties passed:')
+        for result in results:
+            lines.append(f'  {result["description"]}')
+    else:
+        lines = [f'property checks failed for step {step_name}', '']
+        lines.append(
+            'The following properties failed (relative error > tolerance):'
+        )
+        for result in results:
+            if result['passed']:
+                continue
+            lines.append(
+                f'  {result["description"]}: '
+                f'relative error={result["relative_error"]:.6e} '
+                f'tolerance={result["tolerance"]:.6e}'
+            )
+        passing = [result for result in results if result['passed']]
+        if passing:
+            lines.append('')
+            lines.append('The following properties passed:')
+            for result in passing:
+                lines.append(f'  {result["description"]}')
+    return '\n'.join(lines) + '\n'
+
+
 def _accumulate_baselines(
     baselines_passed: Optional[bool], status: bool
 ) -> Optional[bool]:
@@ -583,17 +617,21 @@ def _run_task(task, available_resources):
                 failed_log = os.path.join(
                     step.work_dir, 'property_check_failed.log'
                 )
+                results = getattr(step, 'property_check_results', [])
                 if properties_passed:
                     property_str = pass_str
                     write_log = passed_log
                     remove_log = failed_log
-                    message = 'property check passed\n'
+                    message = _property_check_message(
+                        results, passed=True, step_name=step_name
+                    )
                 else:
-                    # TODO enhance message
                     property_str = fail_str
                     write_log = failed_log
                     remove_log = passed_log
-                    message = 'property check failed\n'
+                    message = _property_check_message(
+                        results, passed=False, step_name=step_name
+                    )
                 with open(write_log, 'w') as f:
                     f.write(message)
                 if os.path.exists(remove_log):

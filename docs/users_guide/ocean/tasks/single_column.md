@@ -511,9 +511,12 @@ See {ref}`ocean-single-column`.
 ### description
 
 The `thermo` test verifies that the ocean model conserves mass, heat and salt
-under surface thermodynamic forcing.  It performs a separate 10-day forward run
+under surface thermodynamic forcing.  It performs a separate forward run of 3
+time steps, with output written every time step,
 for each supported surface forcing variable, applying a single nonzero forcing
-value per run so that each forcing term is exercised in isolation.  The
+value per run so that each forcing term is exercised in isolation.
+Conservation is checked between the initial condition and the first time step
+in the output file, and again between the last two time steps.  The
 analysis step then compares, for each run, the change in the column-integrated
 content of mass, heat and salt against the surface forcing flux accumulated
 over the run.  For a budget driven by a nonzero flux the error is measured

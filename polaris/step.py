@@ -139,6 +139,12 @@ class Step:
         and ``time_index_end`` (the time index in the output file at the end
         of the comparison)
 
+    property_check_results : list of dict
+        The results of the conservation checks performed by
+        :py:meth:`check_properties()`, each a dictionary with at least the
+        keys ``description``, ``relative_error``, ``tolerance`` and
+        ``passed``
+
     logger : logging.Logger
         A logger for output from the step
 
@@ -298,6 +304,7 @@ class Step:
         self.baseline_dir = None
         self.validate_vars = dict()
         self.properties_to_check = list()
+        self.property_check_results = list()
         self.setup_complete = False
 
         # these will be set before running the step, dummy placeholders for now
