@@ -55,21 +55,55 @@ model-specific ones; uses outputs from ocean initialization and dynamic
 adjustment through explicit dependencies; and leaves a straightforward path for
 supporting both MPAS-Ocean-based and Omega-based coupled workflows.
 
+The first branch has landed for MPAS-Ocean and MPAS-Seaice on unified meshes,
+and has been run end to end on `u.oi240.lr240` and `u.oi30.lr10`, with
+`u.oi6to18.lr6to10` and `u.oi.so12to30.lr10` following. Four things the
+implementation changed are recorded in the sections below:
+
+1. The MOC basin masks moved out of the analysis products and into the
+   component inputs. MPAS-Ocean reads them at run time and says nothing when
+   they are missing, which makes them a component input by the definition this
+   document already uses.
+2. The culled meshes are staged beside the base mesh in
+   `share/meshes/mpas/unified/`, not under a component's own inputdata
+   directory, and the sea-ice mesh is not staged at all.
+3. The assembly step rebuilds its tree from empty each run, and offers a script
+   for copying into an inputdata directory rather than doing it.
+4. Graph partitioning grew a per-mesh bound and the ability to resume, both
+   forced by the finest unified mesh.
+
+Date last modified: 2026/08/13
+
 ### Implementation sequencing
 
-This design describes the complete `component_inputs` capability. It will be
+This design describes the complete `component_inputs` capability. It is being
 implemented over more than one development branch, and this section records
-only which parts land first. Nothing described in this document has been
-dropped; everything in the sections below is still to be built.
+which parts land first. Nothing described in this document has been dropped.
 
 The first branch covers the products that an E3SM *run* needs: the shared
 base-mesh and SCRIP staging described above, the MPAS-Ocean mesh and
-initial-condition files, the MPAS-Seaice mesh and initial-condition files, and
-the ocean and sea-ice graph partitions.
+initial-condition files, the MPAS-Seaice initial-condition file, the ocean and
+sea-ice graph partitions, and — added during implementation — the MOC basin
+masks and southern-boundary transects.
+
+The MOC masks were originally listed below as part of `diagnostic_masks`, with
+the analysis products. They are not analysis products. E3SM points two streams
+at a single per-mesh file, `regionalMasksInput` and `transectMasksInput`, and
+two analysis members that are on by default read them: `mocStreamfunction`,
+enabled per mesh and `.true.` for every mesh since `EC30to60E2r2`, and
+`meridionalHeatTransport`, enabled for every mesh. With no file, `nRegions`
+and `nRegionGroups` fall back to their Registry definition of 1, the MOC member
+logs that its region group was not found, and the run continues, writing output
+computed against a meaningless region. A missing input that announced itself
+would be caught by a run; this one would not, which is why it belongs with the
+products a run needs rather than with the products an analysis needs.
+
+Only the `MOC Basins` group moved. The rest of `diagnostic_masks` stays with
+the analysis products.
 
 Follow-up branches will cover the products whose purpose is post-processing,
-analysis, or forcing from remapped datasets: `diagnostic_maps`,
-`diagnostic_masks`, `e3sm_to_cmip_maps`, `remap_iceberg_climatology`,
+analysis, or forcing from remapped datasets: `diagnostic_maps`, the remainder
+of `diagnostic_masks`, `e3sm_to_cmip_maps`, `remap_iceberg_climatology`,
 `remap_ice_shelf_melt`, `add_total_iceberg_ice_shelf_melt`,
 `remap_sea_surface_salinity_restoring`, `remap_tidal_mixing`, and
 `write_coeffs_reconstruct`.
@@ -440,7 +474,7 @@ must be derived from an MPAS restart file.
 
 ### Algorithm Design: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files
 
-Date last modified: 2026/08/05
+Date last modified: 2026/08/13
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -465,7 +499,8 @@ It also provides a better foundation for future changes such as alternate
 staging locations, publication workflows, or checksum manifests.
 
 The staged layout follows the E3SM inputdata tree. Writing `<short>` for the
-configured mesh short name and `<date>` for the creation date:
+configured mesh short name, `<date>` for the creation date and `<features>` for
+the `geometric_features` aggregation date:
 
 1. `inputdata/share/meshes/mpas/unified/<short>.base.<date>.nc` — the base mesh
    with its base-to-culled index maps. Compass staged the base mesh under
@@ -474,10 +509,70 @@ configured mesh short name and `<date>` for the creation date:
    directory is the honest location.
 2. `inputdata/share/meshes/mpas/unified/<short>.<region>.scrip.<date>.nc` — the
    SCRIP descriptions of the culled meshes, for the same reason.
-3. `inputdata/ocn/mpas-o/<short>/` — the MPAS-Ocean mesh and initial-condition
-   files, with graph partitions under `partitions/`.
-4. `inputdata/ice/mpas-seaice/<short>/` — the MPAS-Seaice mesh and
-   initial-condition files, with graph partitions under `partitions/`.
+3. `inputdata/share/meshes/mpas/unified/<short>.ocean.<date>.nc` and
+   `<short>.land.<date>.nc` — the culled meshes themselves, beside the base
+   mesh for the same reason again.
+4. `inputdata/ocn/mpas-o/<short>/mpaso.<short>.<date>.nc` — the ocean initial
+   condition, with graph partitions under `partitions/`.
+5. `inputdata/ocn/mpas-o/<short>/<short>.mocBasinsAndTransects<features>.<date>.nc`
+   — the MOC basin masks and southern-boundary transects.
+6. `inputdata/ocn/mpas-o/<short>/<short>.scrip.<date>.nc` and
+   `<short>.no_cavities.scrip.<date>.nc` — the two ocean SCRIP files again.
+7. `inputdata/ice/mpas-seaice/<short>/mpassi.<short>.<date>.nc` — the sea-ice
+   initial condition, with graph partitions under `partitions/`.
+
+Three of these differ from what this document first described, and each
+difference is a decision worth keeping.
+
+**Meshes go where E3SM keeps meshes.** The first implementation staged the
+ocean mesh as `inputdata/ocn/mpas-o/<short>/<short>.<date>.nc`, which is
+nowhere E3SM looks for one: Compass files its ocean mesh under
+`share/meshes/mpas/ocean/`, and a run reads the mesh from the initial
+condition. A culled mesh describes a domain of the unified mesh rather than a
+file one component reads, which is the same argument that puts the base mesh in
+`share/meshes`. The land mesh is staged too, since staging the ocean mesh alone
+would describe half the mesh.
+
+**No sea-ice mesh is staged.** `seaice_mesh` is built from
+`culled_ocean_mesh.nc`, so a `.seaice.` file beside `<short>.ocean.<date>.nc`
+would be the same horizontal mesh twice, and MPAS-Seaice reads its mesh from
+its initial condition. The step remains, because the graph-partition steps read
+its output; only the staging is dropped. No mesh is staged for
+`ocean_no_cavities` either: it exists to build mapping files, and under the
+`calving_front` convention every current unified mesh uses it is identical to
+the ocean mesh.
+
+**The two ocean SCRIP files are staged twice.** Once in the shared mesh
+directory under their full region names, and once beside the ocean products,
+because developers look in both places and the shared directory holds every
+unified mesh. In an ocean directory the `ocean` in a region name says nothing,
+so it is dropped; `no_cavities` stays, being the whole distinction. Land has no
+copy there. Both names link to the same file.
+
+The MOC mask filename carries two dates because two things change
+independently: `<features>` is the version of the `geometric_features`
+aggregation the basins come from, upstream data shared by every mesh, and
+`<date>` is when this mesh's file was staged. The aggregation date rides with
+the product name, as it does in the files already on the inputdata server
+(`oRRS18to6v3_mocBasinsAndTransects20210623.nc`), which keeps the rule that the
+last dotted field of any staged filename is its creation date. Both dates are
+also written into the file as global attributes, so the provenance survives a
+copy or a rename.
+
+The assembly step deletes `assembled_files/` and rebuilds it on every run.
+Staging only ever adds links, so without this the tree is the union of every
+assembly ever run in that work directory: a changed creation date, mesh short
+name or product set leaves the earlier names in place, still resolving, now
+pointing at newer content. This was not hypothetical — a re-setup restamped the
+creation date and a tree ended up holding two dates side by side, with an
+initial condition wearing the wrong one.
+
+Copying the tree into an inputdata directory is left to a person. The step
+symlinks in a `sync_to_inputdata.sh` script that rsyncs the tree with
+`--ignore-existing --copy-links` into a destination that must already exist,
+then sets directories to `775` and files to `664` on the paths the tree
+contributes — not by walking a shared destination, which would touch files
+belonging to other meshes and other people.
 
 The mesh short name is a required config option rather than a value read from a
 restart file. Polaris mesh names describe construction (`u.oi30.lr10` says what
@@ -492,7 +587,7 @@ not be uploaded on its own.
 
 ### Algorithm Design: Required remapped forcing and mesh-derived support assets are supported
 
-Date last modified: 2026/08/05
+Date last modified: 2026/08/13
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -507,7 +602,10 @@ A likely grouping is:
    freshwater products derived from those fields.
 3. Mapping and mask support assets:
    E3SM-to-CMIP maps, region masks, transect masks, and other files consumed by
-   MPAS-Analysis, `e3sm_to_cmip`, or comparable workflows.
+   MPAS-Analysis, `e3sm_to_cmip`, or comparable workflows. The MOC basin masks
+   left this group during implementation: MPAS-Ocean reads them at run time, so
+   they are a component input rather than an analysis product. See
+   "Implementation sequencing" above.
 4. Shared mesh descriptions:
    the SCRIP files for the culled meshes.
 
@@ -589,7 +687,7 @@ accident.
 
 ### Implementation: Ocean, sea-ice, and mesh-derived support products can be generated independently
 
-Date last modified: 2026/08/05
+Date last modified: 2026/08/13
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -613,11 +711,11 @@ One reasonable first-pass mapping from Compass is:
    `assemble` (the staging step).
 2. Ocean steps:
    `ocean_mesh`, `ocean_initial_condition`, `ocean_graph_partition` when
-   relevant,
+   relevant, `moc_masks`,
    `remap_sea_surface_salinity_restoring`, and `remap_tidal_mixing`.
 3. Sea-ice steps:
-   `seaice_mesh`, `seaice_initial_condition`, and `seaice_graph_partition`
-   when relevant.
+   `seaice_mesh`, `seaice_initial_condition`, `seaice_partition_map` and
+   `seaice_graph_partition` when relevant.
 4. Freshwater-forcing steps:
    `remap_iceberg_climatology`, `remap_ice_shelf_melt`, and
    `add_total_iceberg_ice_shelf_melt`.
@@ -626,6 +724,23 @@ One reasonable first-pass mapping from Compass is:
    `write_coeffs_reconstruct` when relevant.
 
 Groups 1, 2 and 3 are the first branch; groups 4 and 5 follow later.
+
+Two of these steps were not in the first-pass mapping. `moc_masks` is the MOC
+basin masks discussed above. `seaice_partition_map` is the sea-ice partitioning
+split in two: building the QU60km-to-mesh weights is an MPI job sized for the
+mapping tool, while using them is serial, which is the same division
+`realistic_global` makes between `Woa23MapStep` and `RemapWoa23Step`.
+
+`moc_masks` takes its masks from the mesh component's feature-mask step and the
+MOC-specific behavior — the `mocBasinsAndTransects` filename and the
+southern-boundary transects — from a leaf module in the region-mask framework
+that the ocean feature-mask step uses too. Subclassing the *ocean* feature-mask
+step, which is where that behavior first lived, does not work from `e3sm/init`:
+it inherits `OceanIOStep` to translate Omega's variable names, which reads
+`[ocean] model`, and a `component_inputs` config has no `[ocean]` section by
+design. Moving the shared behavior into a model-agnostic module was the fix;
+overriding the I/O hooks one at a time was not, since `[ocean] model` is read
+in four places along that inheritance path.
 
 The exact grouping can evolve during implementation, but the first port should
 avoid recreating the full Compass workflow as a single task class.
@@ -729,7 +844,7 @@ of retrofitting model selection into steps that assumed MPAS.
 
 ### Implementation: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files
 
-Date last modified: 2026/08/05
+Date last modified: 2026/08/13
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -770,11 +885,34 @@ performs the staging inside each product step via `symlink()` calls, which is
 what makes the `assembled_files` tree hard to reason about; staging should
 happen only in the assembly step.
 
-The `[component_inputs]` config section should therefore carry at least
-`mesh_short_name` (no default; setup fails if unset), `creation_date`
-(defaulting to today at setup time and then recorded, so re-running does not
-silently rename files), `convert_to_cdf5`, and the graph-partition core-count
-bounds.
+The `[component_inputs]` config section therefore carries `mesh_short_name`
+(no default; setup fails if unset), `creation_date` (filled in with today's
+date at setup and then recorded, so re-running does not silently rename files),
+`ocean_model`, `seaice_model`, the graph-partition core-count bounds
+`max_cells_per_core` and `min_cells_per_core`, and `plot_seaice_partitions`.
+
+`creation_date` is filled in only when blank, which protects a re-run but not a
+fresh setup: rebuilding the work directory's config stamps today's date. Pin
+the option in a user config when a stamp needs to survive a re-setup.
+
+Unified meshes register their short name as `[unified_mesh] e3sm_short_name` in
+the per-mesh config, with `mesh_short_name` left as an override. The mesh with
+no plans to reach E3SM master is registered under a deliberately invalid
+placeholder ID, so a file staged for it is self-evidently a test artifact.
+
+The core-count bounds are also per-mesh where they need to be. `gpmetis` fails
+above roughly 750,000 parts, and the largest partition asked for is
+`ncells / min_cells_per_core`, so a mesh above about 1.5 million ocean cells
+needs the floor raised. `u.oi6to18.lr6to10` is the only unified mesh that large
+and sets `min_cells_per_core = 6`, exactly as Compass does for `rrs6to18` and
+for the same reason. The port brought Compass' `get_core_list` across verbatim
+but not the per-mesh config that made it usable at that resolution.
+
+Both partition steps resume. Partitioning the finest mesh takes most of a day,
+and a job that runs out of walltime must cost only the partitions it was in the
+middle of. A partition file counts as finished when it has one line per cell —
+existence alone is not enough, since a kill mid-write leaves a file covering
+part of the mesh, and trusting it would hand E3SM a broken partition.
 
 ### Implementation: Required remapped forcing and mesh-derived support assets are supported
 
@@ -884,7 +1022,7 @@ arrive with the tasks they exercise.
 
 ### Testing and Validation: The staged base mesh carries maps to the culled component meshes
 
-Date last modified: 2026/08/05
+Date last modified: 2026/08/13
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -906,6 +1044,19 @@ fire when given a forward map with an out-of-range or duplicated base index.
 Finally, a test should confirm that the maps are written for a unified mesh and
 that the mesh-family gate is what decides it, so the condition does not quietly
 become "always" or "never".
+
+Checked on real output for `u.oi240.lr240` and `u.oi.so12to30.lr10`, the latter
+a 2,279,641-cell base mesh: the round trip is exact for all nine fields, the
+nonzero count equals the culled element count, and zeros fall exactly off the
+culled mesh. Two results were sharper than expected, both consequences of the
+cull-mask invariants that arrived with the land-locked cell work. The ocean and
+`ocean_no_cavities` maps are *identical*, which is the `calving_front` equality
+those invariants imply rather than something asserted directly. And cells
+partition exactly into ocean and land, while edges and vertices deliberately do
+not: the coastline ones belong to both meshes — 1,795 of each on
+`u.oi240.lr240`, 29,430 of each on `u.oi.so12to30.lr10` — and none are
+orphaned. Equal boundary edge and vertex counts are what a coastline of closed
+loops must give.
 
 ### Testing and Validation: Model-specific packaging is gated by the selected component models
 
@@ -933,7 +1084,7 @@ MPAS-Ocean packaging — is the one this requirement exists to prevent.
 
 ### Testing and Validation: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files
 
-Date last modified: 2026/08/05
+Date last modified: 2026/08/13
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -951,9 +1102,26 @@ This is worth testing rather than assuming: the failure mode it guards against
 is a mesh staged under a placeholder name after the expensive steps have
 already run.
 
+The assembly test runs the step over stand-in products and compares the whole
+staged tree against the expected set, rather than checking a few representative
+names. That is what caught the ocean mesh being staged where E3SM does not look
+for it, and it is why adding a product now means stating where it lands.
+
+Two behaviors need tests of their own because they are about what is *not*
+there. Assembling twice under different creation dates must leave nothing from
+the first, which is the tree-rebuilt-from-empty rule. And a re-run of a
+partition step must rebuild a truncated partition file while skipping the
+finished ones, since the failure that rule guards against — a file that exists
+but covers half the mesh — is indistinguishable from success by an existence
+check.
+
+Verified on the staged trees themselves for three meshes: every product at its
+expected path, every link resolving, one creation date across every filename,
+and nothing staged outside the table above.
+
 ### Testing and Validation: Required remapped forcing and mesh-derived support assets are supported
 
-Date last modified: 2026/08/05
+Date last modified: 2026/08/13
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -964,10 +1132,22 @@ not part of the selected workflow.
 Cavity-dependent products should be tested separately from open-ocean meshes so
 their conditional behavior remains explicit and correct.
 
-In the first branch this reduces to the SCRIP staging: a test should confirm
-that each culled mesh's SCRIP file is staged under its E3SM-facing name and
-that the cavity-dependent variants follow the cavity setting. The remaining
-datasets are tested as the branches that add them land.
+In the first branch this reduces to the SCRIP staging and the MOC masks. Tests
+confirm that each culled mesh's SCRIP file is staged under its E3SM-facing name
+in the shared mesh directory, that the two ocean ones are staged again beside
+the ocean products under their shortened names and resolve to the same files,
+and that the land SCRIP has no copy there. For the MOC masks, tests confirm
+that they are built from the culled ocean mesh, that they are an ocean-only
+product, that the filename and the southern-boundary transects come from the
+shared helpers rather than a copy of them, and that the step reaches for no
+ocean component — the last being a regression test for the coupling that broke
+the first attempt.
+
+The masks were also checked against what MPAS-Ocean actually reads: all eleven
+variables of the two streams are present, with five basins and their
+southern-boundary transects carrying signs of -1, 0 and +1.
+
+The remaining datasets are tested as the branches that add them land.
 
 ### Testing and Validation: The design preserves a path for future coupled-model evolution
 
