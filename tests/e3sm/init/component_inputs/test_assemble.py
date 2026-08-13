@@ -121,7 +121,7 @@ def test_every_product_lands_at_its_e3sm_path(tmp_path, target):
     """
     staged = _run_assemble(tmp_path, target)
 
-    mesh_dir = 'inputdata/share/meshes/mpas/unified'
+    mesh_dir = f'inputdata/share/meshes/mpas/unified/{SHORT_NAME}'
     expected = {
         'README',
         f'{mesh_dir}/{SHORT_NAME}.base.{CREATION_DATE}.nc',
@@ -276,7 +276,7 @@ def test_the_meshes_are_staged_beside_the_base_mesh(tmp_path):
     """
     staged = _run_assemble(tmp_path, 'all')
 
-    mesh_dir = 'inputdata/share/meshes/mpas/unified'
+    mesh_dir = f'inputdata/share/meshes/mpas/unified/{SHORT_NAME}'
     assert f'{mesh_dir}/{SHORT_NAME}.ocean.{CREATION_DATE}.nc' in staged
     assert f'{mesh_dir}/{SHORT_NAME}.land.{CREATION_DATE}.nc' in staged
 
@@ -296,12 +296,32 @@ def test_the_meshes_are_staged_beside_the_base_mesh(tmp_path):
     }
 
 
+def test_the_shared_mesh_files_are_under_a_per_mesh_subdirectory(tmp_path):
+    """
+    Every unified mesh gets its own subdirectory of
+    share/meshes/mpas/unified/, named for its E3SM short name, and nothing is
+    staged directly in the shared directory.  One mesh contributes half a
+    dozen files, so a flat directory holding several meshes gives no way to
+    see which files belong together or to copy one mesh's as a unit.
+    """
+    staged = _run_assemble(tmp_path, 'all')
+
+    unified = 'inputdata/share/meshes/mpas/unified'
+    under_unified = [name for name in staged if name.startswith(f'{unified}/')]
+    assert under_unified, 'nothing was staged in the shared mesh directory'
+    for name in under_unified:
+        relative = name[len(unified) + 1 :]
+        assert relative.startswith(f'{SHORT_NAME}/'), (
+            f'{relative} is not under the {SHORT_NAME} subdirectory'
+        )
+
+
 def test_the_land_mesh_is_staged_for_every_target(tmp_path):
     """
     It comes from the cull step and describes a domain of the unified mesh, so
     a sea-ice-only task stages it too, exactly as it stages the SCRIP files.
     """
-    mesh_dir = 'inputdata/share/meshes/mpas/unified'
+    mesh_dir = f'inputdata/share/meshes/mpas/unified/{SHORT_NAME}'
     for target in ['ocean', 'seaice', 'all']:
         staged = _run_assemble(tmp_path / target, target)
         assert f'{mesh_dir}/{SHORT_NAME}.land.{CREATION_DATE}.nc' in staged
@@ -323,14 +343,13 @@ def test_no_mesh_is_staged_for_the_no_cavities_domain():
 
 def test_the_ocean_scrip_files_are_staged_in_both_places(tmp_path):
     """
-    Developers look for them beside the ocean products as well as in the
-    shared mesh directory, which holds every unified mesh and gets crowded.
-    Both names point at the same file.
+    Developers look for them beside the ocean products as well as with the
+    mesh files they were built from.  Both names point at the same file.
     """
     staged = _run_assemble(tmp_path, 'all')
     root = tmp_path / 'assemble' / 'all' / ASSEMBLED_FILES
 
-    mesh_dir = 'inputdata/share/meshes/mpas/unified'
+    mesh_dir = f'inputdata/share/meshes/mpas/unified/{SHORT_NAME}'
     ocn = f'inputdata/ocn/mpas-o/{SHORT_NAME}'
     pairs = [
         (
