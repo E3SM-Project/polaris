@@ -35,20 +35,9 @@ fi
 echo "Updating submodules..."
 git submodule update --init --recursive externals/ekat externals/scorpio cime components/omega/external
 
-if [[ ! -f ${TESTROOT}/OmegaMesh.nc ]]; then
-    wget -O ${TESTROOT}/OmegaMesh.nc https://web.lcrc.anl.gov/public/e3sm/inputdata/ocn/mpas-o/oQU240/ocean.QU.240km.151209.nc
-fi
-
-if [[ ! -f ${TESTROOT}/OmegaSphereMesh.nc ]]; then
-    wget -O ${TESTROOT}/OmegaSphereMesh.nc https://web.lcrc.anl.gov/public/e3sm/polaris/ocean/polaris_cache/global_convergence/icos/cosine_bell/Icos480/init/initial_state.230220.nc
-fi
-
-if [[ ! -f ${TESTROOT}/OmegaPlanarMesh.nc ]]; then
-    wget -O ${TESTROOT}/OmegaPlanarMesh.nc https://gist.github.com/mwarusz/f8caf260398dbe140d2102ec46a41268/raw/e3c29afbadc835797604369114321d93fd69886d/PlanarPeriodic48x48.nc
-fi
-
-  # --export=RUNSCRIPT_DIR="${HERE}",CRONJOB_MACHINE="${CRONJOB_MACHINE}",E3SM_COMPILERS="${E3SM_COMPILERS}",CRONJOB_DATE="${E3SM_COMPILERS}",TESTROOT="${TESTROOT}",OMEGA_ROOT="${OMEGA_ROOT}"
-  #--export=RUNSCRIPT_DIR,CRONJOB_MACHINE,E3SM_COMPILERS,CRONJOB_DATE,TESTROOT,OMEGA_ROOT \
+wget -O ${TESTROOT}/OmegaMesh.nc https://web.lcrc.anl.gov/public/e3sm/polaris/ocean/omega_ctest/ocean.QU.240km.omega_vars.260807.nc
+wget -O ${TESTROOT}/OmegaSphereMesh.nc https://web.lcrc.anl.gov/public/e3sm/polaris/ocean/omega_ctest/cosine_bell_icos480.omega_vars.260807.nc
+wget -O ${TESTROOT}/OmegaPlanarMesh.nc https://web.lcrc.anl.gov/public/e3sm/polaris/ocean/omega_ctest/PlanarPeriodic48x48.omega_vars.260720.nc
 
 export RUNSCRIPT_DIR="${HERE}"
 export CRONJOB_MACHINE
