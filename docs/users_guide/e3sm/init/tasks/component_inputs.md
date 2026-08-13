@@ -168,6 +168,31 @@ provenance survives a copy or a rename.
 Only the `MOC Basins` group is built here. The other mask groups are for
 MPAS-Analysis and post-processing and remain follow-up work.
 
+## Copying into inputdata
+
+The assembly step builds the tree but never writes outside its own work
+directory. Copying into a shared inputdata directory is a decision a person
+makes, so the step symlinks a script in for you to run by hand from
+`component_inputs/assemble/<target>`:
+
+```
+./sync_to_inputdata.sh /lcrc/group/e3sm/data/inputdata
+```
+
+The destination must already exist — a typo should stop the copy rather than
+create a second tree beside the real one.
+
+It runs `rsync --ignore-existing --recursive --copy-links`, so the staged
+symlinks arrive as real files, and anything already at the destination is left
+alone. That last part is worth knowing: a staged file whose *contents* changed
+under an unchanged name will not be updated. Delete it from the destination
+first if that is what you want.
+
+It then sets directories to `775` and files to `664` — user and group
+read/write, world read — but only on the paths this tree contributes. The
+destination is shared and often enormous, so walking it to fix everything
+would touch files belonging to other meshes and other people.
+
 ## Graph partitions
 
 `get_core_list` builds a list of likely core counts from the culled ocean

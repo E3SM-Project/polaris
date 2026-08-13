@@ -13,6 +13,11 @@ from polaris.tasks.e3sm.init.component_inputs.seaice_graph_partition import (
     GRAPH_BASENAME as SEAICE_GRAPH_BASENAME,
 )
 
+#: A script symlinked into the step's work directory for copying the staged
+#: tree into an inputdata directory.  It is deliberately not run by the step:
+#: writing into a shared inputdata directory is a decision a person makes.
+SYNC_SCRIPT = 'sync_to_inputdata.sh'
+
 #: The products every task stages, whichever model it is for: the base mesh
 #: belongs to the ocean, sea-ice, land and river components equally.
 SHARED_PRODUCTS = ('staged_base_mesh', 'scrip')
@@ -118,6 +123,8 @@ class AssembleStep(Step):
         }
 
         self.add_input_file(filename='README', package=names.__package__)
+        # not staged: a helper the person doing the copy runs by hand
+        self.add_input_file(filename=SYNC_SCRIPT, package=names.__package__)
         self.add_input_file(
             filename=self.LAND_MESH_FILENAME,
             work_dir_target=os.path.join(
