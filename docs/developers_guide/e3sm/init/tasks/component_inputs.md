@@ -38,7 +38,7 @@ up waiting on a model run it has no use for.
 | `OceanInitialConditionStep` | the final adjustment stage's restart | `ocean_initial_condition.nc` |
 | `OceanGraphPartitionStep` | `culled_ocean_graph.info` | `mpas-o.graph.info.part.*` |
 | `MocMasksStep` | `culled_ocean_mesh.nc` | `<mesh>_mocBasinsAndTransects<features_date>.nc` |
-| `SeaiceMeshStep` | `culled_ocean_mesh.nc` | `seaice_mesh.nc` |
+| `SeaiceMeshStep` | `culled_ocean_mesh.nc` | `seaice_mesh.nc`, read by the partition steps rather than staged |
 | `SeaiceInitialConditionStep` | `culled_ocean_mesh.nc` | `seaice_initial_condition.nc` |
 | `SeaicePartitionMapStep` | `seaice_mesh.nc`, QU60km climatology | the QU60km-to-mesh mapping file |
 | `SeaiceGraphPartitionStep` | `seaice_mesh.nc`, QU60km climatology and ice-present mask, the mapping file | `mpas-seaice.graph.info.part.*` |

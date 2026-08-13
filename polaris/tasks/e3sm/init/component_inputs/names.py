@@ -367,26 +367,6 @@ def ocean_partition_path(
     )
 
 
-def seaice_mesh_path(short_name: str, creation_date: str) -> str:
-    """
-    Where the MPAS-Seaice mesh file is staged.
-
-    Parameters
-    ----------
-    short_name : str
-        The E3SM short name of the mesh.
-
-    creation_date : str
-        The creation date, as ``YYYYMMDD``.
-
-    Returns
-    -------
-    str
-        The path, relative to :py:data:`ASSEMBLED_FILES`.
-    """
-    return f'{_seaice_dir(short_name)}/{short_name}.{creation_date}.nc'
-
-
 def seaice_initial_condition_path(short_name: str, creation_date: str) -> str:
     """
     Where the MPAS-Seaice initial condition is staged.

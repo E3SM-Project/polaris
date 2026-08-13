@@ -129,7 +129,7 @@ def get_component_inputs_steps(mesh_name, target='all'):
             mesh_name=mesh_name,
             cull_mesh_step=cull_mesh_step,
         )
-    if 'seaice_mesh' in TARGET_PRODUCTS[target]:
+    if 'seaice_initial_condition' in TARGET_PRODUCTS[target]:
         _add_seaice_steps(
             steps=steps,
             config=config,
