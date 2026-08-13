@@ -75,7 +75,10 @@ under `assemble/<target>/assembled_files/` is:
 |---|---|
 | base mesh + maps | `inputdata/share/meshes/mpas/unified/<short>.base.<date>.nc` |
 | SCRIP, per region | `inputdata/share/meshes/mpas/unified/<short>.<region>.scrip.<date>.nc` |
-| ocean mesh | `inputdata/ocn/mpas-o/<short>/<short>.<date>.nc` |
+| ocean SCRIP, again | `inputdata/ocn/mpas-o/<short>/<short>.scrip.<date>.nc` |
+| no-cavities SCRIP, again | `inputdata/ocn/mpas-o/<short>/<short>.no_cavities.scrip.<date>.nc` |
+| ocean mesh | `inputdata/share/meshes/mpas/unified/<short>.ocean.<date>.nc` |
+| land mesh | `inputdata/share/meshes/mpas/unified/<short>.land.<date>.nc` |
 | ocean IC | `inputdata/ocn/mpas-o/<short>/mpaso.<short>.<date>.nc` |
 | ocean partitions | `inputdata/ocn/mpas-o/<short>/partitions/mpas-o.graph.info.<date>.part.<n>` |
 | MOC masks | `inputdata/ocn/mpas-o/<short>/<short>.mocBasinsAndTransects<features_date>.<date>.nc` |
@@ -96,7 +99,25 @@ want the stamp to survive a re-setup.
 
 The base mesh is filed under `share/meshes/mpas/unified/` rather than Compass'
 `share/meshes/mpas/ocean/`, because for a unified mesh it belongs to the
-ocean, sea-ice, land and river components equally.
+ocean, sea-ice, land and river components equally. The culled ocean and land
+meshes sit beside it for the same reason: each describes a domain of the
+unified mesh rather than a file one component reads at run time, and E3SM does
+not look for a mesh under `ocn/mpas-o/`. The ocean mesh carries the vertical
+coordinate as well, which is what makes it an ocean mesh rather than a
+horizontal one.
+
+The two ocean SCRIP files are staged twice: once in the shared mesh directory
+under their full region names, and once beside the ocean products. Developers
+look in both places, and the shared directory holds every unified mesh, so it
+gets crowded. In `ocn/mpas-o/` the `ocean` in a region name says nothing —
+everything there is the ocean's — so it is dropped, leaving
+`<short>.scrip.<date>.nc` and `<short>.no_cavities.scrip.<date>.nc`. Both
+names link to the same file. The land SCRIP has no copy there.
+
+No mesh is staged for `ocean_no_cavities`. It exists to build mapping files,
+and under the `calving_front` convention every current unified mesh uses, it
+is identical to the ocean mesh — so staging it would be a second copy of the
+same file. Its SCRIP description is still staged.
 
 ### Base-to-culled index maps
 

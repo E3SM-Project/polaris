@@ -42,7 +42,7 @@ up waiting on a model run it has no use for.
 | `SeaiceInitialConditionStep` | `culled_ocean_mesh.nc` | `seaice_initial_condition.nc` |
 | `SeaicePartitionMapStep` | `seaice_mesh.nc`, QU60km climatology | the QU60km-to-mesh mapping file |
 | `SeaiceGraphPartitionStep` | `seaice_mesh.nc`, QU60km climatology and ice-present mask, the mapping file | `mpas-seaice.graph.info.part.*` |
-| `AssembleStep` | the above | `assembled_files/` |
+| `AssembleStep` | the above, plus the cull step's `culled_land_mesh.nc` | `assembled_files/` |
 
 The sea-ice partitioning is two steps rather than one because building the
 remapping weights is an MPI job sized for the mapping tool, while using them
@@ -57,6 +57,11 @@ tasks are at `e3sm/init/<mesh>/component_inputs/tasks/{ocean,seaice,all}`.
 Putting the tasks under `tasks/` keeps a task subdirectory from colliding with
 a step subdirectory, which is a real risk when three tasks share most of their
 steps.
+
+The land mesh has no step of its own.  Unlike the SCRIP files it carries no
+mesh name to restamp, and unlike the ocean mesh it needs no vertical
+coordinate, so there is nothing to compute between the cull step and the
+staged tree; `AssembleStep` declares it directly.
 
 ## What is not recomputed
 

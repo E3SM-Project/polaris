@@ -145,6 +145,7 @@ def get_component_inputs_steps(mesh_name, target='all'):
         config_filename=CONFIG_FILENAME,
         target=target,
         product_steps=steps,
+        cull_mesh_step=cull_mesh_step,
     )
     steps[f'assemble_{target}'] = assemble
 

@@ -20,6 +20,17 @@ ASSEMBLED_FILES = 'assembled_files'
 #: the cull step writes.
 SCRIP_REGIONS = ('ocean', 'ocean_no_cavities', 'land')
 
+#: The culled-mesh regions whose SCRIP file is also staged beside the ocean
+#: products, where the ``ocean`` in the region name is redundant and is
+#: dropped from the filename.
+OCEAN_SCRIP_REGIONS = ('ocean', 'ocean_no_cavities')
+
+#: The culled-mesh regions whose mesh itself is staged.  ``ocean_no_cavities``
+#: is not among them: it exists to build mapping files, and under the
+#: ``calving_front`` convention every current unified mesh uses it is identical
+#: to ``ocean`` anyway, so staging it would be a second copy of the same mesh.
+MESH_REGIONS = ('ocean', 'land')
+
 _MESH_DIR = 'inputdata/share/meshes/mpas/unified'
 
 
@@ -179,9 +190,21 @@ def scrip_path(short_name: str, creation_date: str, region: str) -> str:
     return f'{_MESH_DIR}/{short_name}.{region}.scrip.{creation_date}.nc'
 
 
-def ocean_mesh_path(short_name: str, creation_date: str) -> str:
+def ocean_scrip_path(short_name: str, creation_date: str, region: str) -> str:
     """
-    Where the MPAS-Ocean mesh file is staged.
+    Where a SCRIP description is staged beside the ocean products.
+
+    The same files are staged under ``share/meshes/mpas/unified/`` by
+    :py:func:`scrip_path`.  They are in both places because developers look
+    for them in both, and because the shared mesh directory holds every
+    unified mesh and gets crowded.
+
+    Under ``ocn/mpas-o/`` the ``ocean`` in a region name says nothing -- every
+    file there is the ocean's -- so it is dropped, leaving
+    ``<short>.scrip.<date>.nc`` for the ocean domain and
+    ``<short>.no_cavities.scrip.<date>.nc`` for the one without ice-shelf
+    cavities.  Land has no copy here, having no business in an ocean
+    directory.
 
     Parameters
     ----------
@@ -191,12 +214,72 @@ def ocean_mesh_path(short_name: str, creation_date: str) -> str:
     creation_date : str
         The creation date, as ``YYYYMMDD``.
 
+    region : str
+        The culled-mesh region, one of :py:data:`OCEAN_SCRIP_REGIONS`.
+
     Returns
     -------
     str
         The path, relative to :py:data:`ASSEMBLED_FILES`.
+
+    Raises
+    ------
+    ValueError
+        If ``region`` is not a region staged beside the ocean products.
     """
-    return f'{_ocean_dir(short_name)}/{short_name}.{creation_date}.nc'
+    if region not in OCEAN_SCRIP_REGIONS:
+        raise ValueError(
+            f'No SCRIP file is staged beside the ocean products for the '
+            f'region {region!r}.  Expected one of '
+            f'{", ".join(OCEAN_SCRIP_REGIONS)}.'
+        )
+    suffix = region[len('ocean') :].lstrip('_')
+    stem = f'{short_name}.{suffix}.scrip' if suffix else f'{short_name}.scrip'
+    return f'{_ocean_dir(short_name)}/{stem}.{creation_date}.nc'
+
+
+def culled_mesh_path(short_name: str, creation_date: str, region: str) -> str:
+    """
+    Where one culled mesh is staged.
+
+    Next to the base mesh under ``share/meshes/mpas/unified/`` rather than
+    under a component's own directory, for the same reason the base mesh is
+    there: a culled mesh describes a domain of the unified mesh, not a file
+    one component reads at run time.  Compass files its ocean mesh under
+    ``share/meshes/mpas/ocean/`` and E3SM never reads it from ``ocn/mpas-o/``,
+    where an earlier version of this workflow put it.
+
+    The ocean mesh carries the vertical coordinate as well, since that is what
+    makes it an ocean mesh rather than a horizontal one; the land mesh is
+    staged as the cull step wrote it.
+
+    Parameters
+    ----------
+    short_name : str
+        The E3SM short name of the mesh.
+
+    creation_date : str
+        The creation date, as ``YYYYMMDD``.
+
+    region : str
+        The culled-mesh region, one of :py:data:`MESH_REGIONS`.
+
+    Returns
+    -------
+    str
+        The path, relative to :py:data:`ASSEMBLED_FILES`.
+
+    Raises
+    ------
+    ValueError
+        If ``region`` is not a region whose mesh is staged.
+    """
+    if region not in MESH_REGIONS:
+        raise ValueError(
+            f'No mesh is staged for the region {region!r}.  Expected one of '
+            f'{", ".join(MESH_REGIONS)}.'
+        )
+    return f'{_MESH_DIR}/{short_name}.{region}.{creation_date}.nc'
 
 
 def ocean_initial_condition_path(short_name: str, creation_date: str) -> str:

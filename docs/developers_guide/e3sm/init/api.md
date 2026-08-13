@@ -224,7 +224,8 @@
    names.set_creation_date
    names.base_mesh_path
    names.scrip_path
-   names.ocean_mesh_path
+   names.ocean_scrip_path
+   names.culled_mesh_path
    names.ocean_initial_condition_path
    names.ocean_moc_masks_path
    names.ocean_partition_path
