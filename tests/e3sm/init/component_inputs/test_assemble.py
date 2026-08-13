@@ -140,10 +140,9 @@ def test_every_product_lands_at_its_e3sm_path(tmp_path, target):
             f'{ocn}/partitions/mpas-o.graph.info.{CREATION_DATE}.part.{n}'
             for n in NCORES
         }
-    if 'seaice_mesh' in TARGET_PRODUCTS[target]:
+    if 'seaice_initial_condition' in TARGET_PRODUCTS[target]:
         ice = f'inputdata/ice/mpas-seaice/{SHORT_NAME}'
         expected |= {
-            f'{ice}/{SHORT_NAME}.{CREATION_DATE}.nc',
             f'{ice}/mpassi.{SHORT_NAME}.{CREATION_DATE}.nc',
         } | {
             f'{ice}/partitions/mpas-seaice.graph.info.{CREATION_DATE}.part.{n}'
@@ -362,3 +361,24 @@ def test_the_land_scrip_has_no_copy_in_the_ocean_directory(tmp_path):
         for name in staged
         if name.startswith(ocn) and 'land' in os.path.basename(name)
     ]
+
+
+def test_no_sea_ice_mesh_is_staged(tmp_path):
+    """
+    The sea-ice mesh is the culled ocean mesh under another name, so staging
+    it would put a second copy of the ocean mesh in the tree.  MPAS-Seaice
+    reads its mesh from the initial condition, and the step still exists
+    because the partition steps read its output.
+    """
+    _reset_shared_components()
+    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME, target='seaice')
+    assert 'seaice_mesh' in steps
+    assert 'seaice_mesh' not in TARGET_PRODUCTS['seaice']
+
+    staged = _run_assemble(tmp_path, 'all')
+    ice = f'inputdata/ice/mpas-seaice/{SHORT_NAME}'
+    assert f'{ice}/{SHORT_NAME}.{CREATION_DATE}.nc' not in staged
+    assert f'{ice}/mpassi.{SHORT_NAME}.{CREATION_DATE}.nc' in staged
+
+    # and nothing anywhere else claims to be a sea-ice mesh
+    assert not [name for name in staged if '.seaice.' in name]

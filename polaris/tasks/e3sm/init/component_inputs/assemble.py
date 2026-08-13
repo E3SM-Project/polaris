@@ -17,7 +17,11 @@ from polaris.tasks.e3sm.init.component_inputs.seaice_graph_partition import (
 #: belongs to the ocean, sea-ice, land and river components equally.
 SHARED_PRODUCTS = ('staged_base_mesh', 'scrip')
 
-#: The products each target adds to those.
+#: The products each target adds to those.  ``seaice_mesh`` is not among them:
+#: the step exists because the partition steps read its output, but the mesh
+#: itself is the culled ocean mesh under another name, so staging it would put
+#: a second copy of :py:func:`~...names.culled_mesh_path`'s ocean mesh in the
+#: tree.  MPAS-Seaice reads its mesh from the initial condition.
 TARGET_PRODUCTS: dict[str, tuple[str, ...]] = {
     'ocean': (
         'ocean_mesh',
@@ -26,7 +30,6 @@ TARGET_PRODUCTS: dict[str, tuple[str, ...]] = {
         'ocean_moc_masks',
     ),
     'seaice': (
-        'seaice_mesh',
         'seaice_initial_condition',
         'seaice_graph_partition',
     ),
@@ -217,11 +220,7 @@ class AssembleStep(Step):
                 ),
             )
 
-        if 'seaice_mesh' in self.product_steps:
-            self._stage(
-                'seaice_mesh__seaice_mesh.nc',
-                names.seaice_mesh_path(short_name, creation_date),
-            )
+        if 'seaice_initial_condition' in self.product_steps:
             self._stage(
                 'seaice_initial_condition__seaice_initial_condition.nc',
                 names.seaice_initial_condition_path(short_name, creation_date),

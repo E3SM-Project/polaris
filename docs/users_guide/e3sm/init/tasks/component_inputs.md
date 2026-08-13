@@ -82,7 +82,6 @@ under `assemble/<target>/assembled_files/` is:
 | ocean IC | `inputdata/ocn/mpas-o/<short>/mpaso.<short>.<date>.nc` |
 | ocean partitions | `inputdata/ocn/mpas-o/<short>/partitions/mpas-o.graph.info.<date>.part.<n>` |
 | MOC masks | `inputdata/ocn/mpas-o/<short>/<short>.mocBasinsAndTransects<features_date>.<date>.nc` |
-| sea-ice mesh | `inputdata/ice/mpas-seaice/<short>/<short>.<date>.nc` |
 | sea-ice IC | `inputdata/ice/mpas-seaice/<short>/mpassi.<short>.<date>.nc` |
 | sea-ice partitions | `inputdata/ice/mpas-seaice/<short>/partitions/mpas-seaice.graph.info.<date>.part.<n>` |
 
@@ -113,6 +112,11 @@ gets crowded. In `ocn/mpas-o/` the `ocean` in a region name says nothing —
 everything there is the ocean's — so it is dropped, leaving
 `<short>.scrip.<date>.nc` and `<short>.no_cavities.scrip.<date>.nc`. Both
 names link to the same file. The land SCRIP has no copy there.
+
+No sea-ice mesh is staged either. It is the culled ocean mesh under another
+name, so it would be a second copy of `<short>.ocean.<date>.nc`, and
+MPAS-Seaice reads its mesh from the initial condition. The step that builds it
+remains, because the partition steps read its output.
 
 No mesh is staged for `ocean_no_cavities`. It exists to build mapping files,
 and under the `calving_front` convention every current unified mesh uses, it

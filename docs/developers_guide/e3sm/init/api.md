@@ -229,7 +229,6 @@
    names.ocean_initial_condition_path
    names.ocean_moc_masks_path
    names.ocean_partition_path
-   names.seaice_mesh_path
    names.seaice_initial_condition_path
    names.seaice_partition_path
 
